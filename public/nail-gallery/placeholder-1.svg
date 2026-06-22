@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FFF5F7"/>
+  <g transform="translate(200,200)">
+    <ellipse cx="0" cy="-40" rx="30" ry="45" fill="#E8A0BF" opacity="0.6"/>
+    <ellipse cx="0" cy="40" rx="30" ry="45" fill="#E8A0BF" opacity="0.6"/>
+    <rect x="-4" y="-80" width="8" height="30" rx="4" fill="#D4749D"/>
+    <rect x="-4" y="50" width="8" height="30" rx="4" fill="#D4749D"/>
+  </g>
+  <text x="200" y="340" text-anchor="middle" fill="#9CA3AF" font-size="14" font-family="sans-serif">渐变裸粉</text>
+</svg>

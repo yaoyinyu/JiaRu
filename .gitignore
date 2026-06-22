@@ -23,6 +23,9 @@
 # misc
 .DS_Store
 *.pem
+certificates/
+backup_ar_working/
+1f65f04cdd5df509463a03fb17d8ea03.jpg
 
 # debug
 npm-debug.log*

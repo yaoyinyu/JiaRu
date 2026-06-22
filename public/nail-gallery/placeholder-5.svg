@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FFF5F7"/>
+  <g transform="translate(200,200)">
+    <ellipse cx="0" cy="-40" rx="30" ry="45" fill="#B39BC8" opacity="0.5"/>
+    <ellipse cx="0" cy="40" rx="30" ry="45" fill="#B39BC8" opacity="0.5"/>
+    <path d="M-15-50 Q0-35 15-50" fill="none" stroke="#7A9EB1" stroke-width="2"/>
+    <path d="M-15-30 Q0-15 15-30" fill="none" stroke="#7A9EB1" stroke-width="2"/>
+    <path d="M-15 30 Q0 45 15 30" fill="none" stroke="#7A9EB1" stroke-width="2"/>
+    <path d="M-15 50 Q0 65 15 50" fill="none" stroke="#7A9EB1" stroke-width="2"/>
+  </g>
+  <text x="200" y="340" text-anchor="middle" fill="#9CA3AF" font-size="14" font-family="sans-serif">复古花纹</text>
+</svg>

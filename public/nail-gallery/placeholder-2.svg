@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FFF5F7"/>
+  <g transform="translate(200,200)">
+    <ellipse cx="0" cy="-40" rx="30" ry="45" fill="none" stroke="#D4749D" stroke-width="8"/>
+    <ellipse cx="0" cy="40" rx="30" ry="45" fill="none" stroke="#D4749D" stroke-width="8"/>
+  </g>
+  <text x="200" y="340" text-anchor="middle" fill="#9CA3AF" font-size="14" font-family="sans-serif">法式白边</text>
+</svg>

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#FFF5F7"/>
+  <g transform="translate(200,200)">
+    <ellipse cx="0" cy="-40" rx="30" ry="45" fill="#2C4A6E" opacity="0.6"/>
+    <ellipse cx="0" cy="40" rx="30" ry="45" fill="#2C4A6E" opacity="0.6"/>
+    <circle cx="10" cy="-35" r="8" fill="#CFB53B" opacity="0.8"/>
+    <circle cx="-12" cy="35" r="6" fill="#CFB53B" opacity="0.8"/>
+    <circle cx="8" cy="45" r="5" fill="#CFB53B" opacity="0.8"/>
+  </g>
+  <text x="200" y="340" text-anchor="middle" fill="#9CA3AF" font-size="14" font-family="sans-serif">宝石镶嵌</text>
+</svg>
