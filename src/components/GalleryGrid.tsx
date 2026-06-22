@@ -2,6 +2,7 @@
 
 import { GALLERY_IMAGES } from "@/lib/utils";
 import Link from "next/link";
+import Image from "next/image";
 
 export function GalleryGrid() {
   return (
@@ -13,8 +14,14 @@ export function GalleryGrid() {
           className="bg-white rounded-2xl overflow-hidden shadow-sm border border-pink-50
                      hover:shadow-md active:scale-[0.98] transition-all"
         >
-          <div className="aspect-square bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
-            <span className="text-4xl">💅</span>
+          <div className="aspect-square bg-gradient-to-br from-pink-50 to-purple-50 flex items-center justify-center">
+            <Image
+              src={item.src}
+              alt={item.name}
+              width={200}
+              height={200}
+              className="w-full h-full object-cover"
+            />
           </div>
           <div className="p-3">
             <p className="text-sm text-gray-500 text-center">{item.name}</p>

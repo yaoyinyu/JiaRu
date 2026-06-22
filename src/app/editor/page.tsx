@@ -5,17 +5,31 @@ import { Header } from "@/components/Header";
 import { UploadButton } from "@/components/UploadButton";
 import { NailCanvas } from "@/components/NailCanvas";
 import { ColorPalette } from "@/components/ColorPalette";
-import Link from "next/link";
+import { FINGER_NAMES } from "@/lib/utils";
 
 export default function EditorPage() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [selectedColor, setSelectedColor] = useState("#E8A0BF");
+  const [nailColors, setNailColors] = useState<string[]>(
+    Array(5).fill("#E8A0BF")
+  );
+  const [activeFinger, setActiveFinger] = useState(0);
   const [brushSize] = useState(15);
 
-  // 处理图片上传
+  const currentColor = nailColors[activeFinger];
+
   const handleUpload = (file: File) => {
     const url = URL.createObjectURL(file);
     setImageUrl(url);
+  };
+
+  const changeColor = (color: string) => {
+    const updated = [...nailColors];
+    updated[activeFinger] = color;
+    setNailColors(updated);
+  };
+
+  const applyToAll = () => {
+    setNailColors(Array(5).fill(nailColors[activeFinger]));
   };
 
   return (
@@ -33,9 +47,45 @@ export default function EditorPage() {
         {/* 已上传 -> 显示编辑器 */}
         {imageUrl && (
           <>
+            {/* 手指选择 tab */}
+            <div className="flex gap-2 mb-3 justify-center">
+              {FINGER_NAMES.map((name, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveFinger(i)}
+                  className={`px-3 py-1.5 rounded-full text-xs transition-all
+                    ${
+                      activeFinger === i
+                        ? "bg-[#E8A0BF] text-white shadow-sm"
+                        : "bg-pink-50 text-gray-400 hover:bg-pink-100"
+                    }`}
+                >
+                  {name}
+                </button>
+              ))}
+            </div>
+
+            {/* 当前手指颜色预览 + 应用到全部 */}
+            <div className="flex items-center gap-3 justify-center mb-3">
+              <div
+                className="w-7 h-7 rounded-full border-2 border-gray-100 shadow-sm"
+                style={{ backgroundColor: currentColor }}
+              />
+              <span className="text-xs text-gray-400">
+                {FINGER_NAMES[activeFinger]}颜色
+              </span>
+              <button
+                onClick={applyToAll}
+                className="text-xs text-[#E8A0BF] underline hover:text-[#D4749D]"
+              >
+                应用到全部
+              </button>
+            </div>
+
             <NailCanvas
               imageUrl={imageUrl}
-              selectedColor={selectedColor}
+              nailColors={nailColors}
+              activeFinger={activeFinger}
               brushSize={brushSize}
             />
 
@@ -44,8 +94,8 @@ export default function EditorPage() {
                 选择颜色后，在指甲位置点击或涂抹
               </p>
               <ColorPalette
-                selectedColor={selectedColor}
-                onSelectColor={setSelectedColor}
+                selectedColor={currentColor}
+                onSelectColor={changeColor}
               />
             </div>
 
@@ -68,7 +118,8 @@ export default function EditorPage() {
           <h4 className="text-xs font-semibold text-gray-500 mb-2">💡 使用提示</h4>
           <ul className="text-xs text-gray-400 space-y-1">
             <li>• 上传清晰的手部照片效果更好</li>
-            <li>• 点击指甲位置涂抹颜色</li>
+            <li>• 选择手指后涂抹对应指甲</li>
+            <li>• 不同手指可以选不同颜色</li>
             <li>• 涂抹时可以拖动手指连续上色</li>
             <li>• 使用撤销按钮可以回退上一步</li>
             <li>• 所有处理在本地完成，照片不会上传</li>

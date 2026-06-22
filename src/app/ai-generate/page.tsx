@@ -75,6 +75,7 @@ export default function AiGeneratePage() {
         {/* 结果展示 */}
         {imageUrl && (
           <div className="mt-6 bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={imageUrl} alt="AI生成效果" className="w-full rounded-xl" />
             <button className="mt-3 w-full h-10 rounded-xl bg-pink-50 text-pink-400 text-sm
                                hover:bg-pink-100 transition-colors">

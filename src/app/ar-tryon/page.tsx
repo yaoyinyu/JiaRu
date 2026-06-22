@@ -25,12 +25,6 @@ export default function ArTryonPage() {
     setNailColors(same);
   };
 
-  // 重置 AR 视图（重新开始）
-  const resetView = () => {
-    setIsStarted(false);
-    setTimeout(() => setIsStarted(true), 100);
-  };
-
   return (
     <div className="min-h-dvh flex flex-col">
       <Header />

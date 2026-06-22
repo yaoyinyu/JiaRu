@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useCallback, useEffect } from "react";
+import { useRef, useState, useEffect } from "react";
 
 interface Point {
   x: number;
@@ -11,15 +11,43 @@ interface Point {
 
 interface NailCanvasProps {
   imageUrl: string;
-  selectedColor: string;
+  selectedColor?: string;
+  nailColors?: string[];
+  activeFinger?: number;
   brushSize: number;
 }
 
-export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasProps) {
+export function NailCanvas({
+  imageUrl,
+  selectedColor,
+  nailColors,
+  activeFinger = 0,
+  brushSize,
+}: NailCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [history, setHistory] = useState<ImageData[]>([]);
   const imageRef = useRef<HTMLImageElement | null>(null);
+  const lastPosRef = useRef<Point | null>(null);
+
+  // 当前颜色：优先从 nailColors[activeFinger] 取，否则回退到 selectedColor
+  const currentColor = nailColors
+    ? nailColors[activeFinger] || "#E8A0BF"
+    : selectedColor || "#E8A0BF";
+  const selectedColorRef = useRef(currentColor);
+  const brushSizeRef = useRef(brushSize);
+
+  // 同步 ref（currentColor 和 brushSize 在 props 变化时更新）
+  useEffect(() => {
+    selectedColorRef.current = currentColor;
+  }, [currentColor]);
+
+  useEffect(() => {
+    brushSizeRef.current = brushSize;
+  }, [brushSize]);
+
+  // 保存历史（撤销用）— 用 ref 存储函数，避免 React Compiler 问题
+  const saveHistoryRef = useRef<() => void>(() => {});
 
   // 加载图片到 Canvas
   useEffect(() => {
@@ -32,26 +60,27 @@ export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasPro
     img.crossOrigin = "anonymous";
     img.onload = () => {
       imageRef.current = img;
-      // 按比例缩放，最大宽度 400px
       const maxW = 400;
       const scale = Math.min(maxW / img.width, 600 / img.height, 1);
       canvas.width = img.width * scale;
       canvas.height = img.height * scale;
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
       // 保存初始状态
-      saveHistory();
+      saveHistoryRef.current();
     };
     img.src = imageUrl;
   }, [imageUrl]);
 
-  // 保存历史（撤销用）
-  const saveHistory = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    setHistory((prev) => [...prev.slice(-19), data]); // 最多20步
+  // 定义 saveHistory 并存入 ref
+  useEffect(() => {
+    saveHistoryRef.current = () => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      setHistory((prev) => [...prev.slice(-19), data]);
+    };
   }, []);
 
   // 获取鼠标/触摸在 Canvas 上的坐标
@@ -64,8 +93,8 @@ export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasPro
     return {
       x: (clientX - rect.left) * (canvas.width / rect.width),
       y: (clientY - rect.top) * (canvas.height / rect.height),
-      color: selectedColor,
-      size: brushSize,
+      color: selectedColorRef.current,
+      size: brushSizeRef.current,
     };
   };
 
@@ -79,13 +108,12 @@ export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasPro
     ctx.beginPath();
     ctx.arc(pos.x, pos.y, pos.size, 0, Math.PI * 2);
     ctx.fillStyle = pos.color;
-    // 半透明，模拟指甲油叠加效果
     ctx.globalAlpha = 0.7;
     ctx.fill();
     ctx.globalAlpha = 1.0;
   };
 
-  // 画线（从上一个点到当前点之间连续画点）
+  // 画线
   const drawLine = (from: Point, to: Point) => {
     const dist = Math.sqrt((to.x - from.x) ** 2 + (to.y - from.y) ** 2);
     const steps = Math.max(Math.floor(dist / 5), 1);
@@ -100,14 +128,12 @@ export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasPro
     }
   };
 
-  let lastPos: Point | null = null;
-
   const handleStart = (e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     setIsDrawing(true);
     const pos = getPos(e);
     if (pos) {
-      lastPos = pos;
+      lastPosRef.current = pos;
       drawDot(pos);
     }
   };
@@ -116,17 +142,17 @@ export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasPro
     if (!isDrawing) return;
     e.preventDefault();
     const pos = getPos(e);
-    if (pos && lastPos) {
-      drawLine(lastPos, pos);
+    if (pos && lastPosRef.current) {
+      drawLine(lastPosRef.current, pos);
     }
-    lastPos = pos;
+    lastPosRef.current = pos;
   };
 
   const handleEnd = () => {
     if (isDrawing) {
       setIsDrawing(false);
-      lastPos = null;
-      saveHistory();
+      lastPosRef.current = null;
+      saveHistoryRef.current();
     }
   };
 
@@ -141,7 +167,7 @@ export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasPro
     setHistory((h) => h.slice(0, -1));
   };
 
-  // 重置（恢复到第一张历史记录）
+  // 重置
   const handleReset = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -163,7 +189,6 @@ export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasPro
 
   return (
     <div className="flex flex-col items-center gap-4">
-      {/* 画布 */}
       <canvas
         ref={canvasRef}
         className="w-full max-w-[400px] rounded-2xl shadow-sm bg-white touch-none"
@@ -176,7 +201,6 @@ export function NailCanvas({ imageUrl, selectedColor, brushSize }: NailCanvasPro
         onTouchEnd={handleEnd}
       />
 
-      {/* 操作按钮 */}
       <div className="flex gap-4 w-full max-w-[400px]">
         <button
           onClick={handleUndo}

@@ -13,7 +13,7 @@ export default function PrivacyPage() {
         <div className="space-y-4 text-sm text-gray-500 leading-relaxed">
           <section className="bg-white rounded-2xl p-4 border border-pink-50">
             <h3 className="font-semibold text-gray-600 mb-2">我们重视你的隐私</h3>
-            <p>"甲如" 将用户隐私放在首位。我们采用"本地优先"的设计理念，尽可能在浏览器中完成所有数据处理。</p>
+            <p>「甲如」将用户隐私放在首位。我们采用「本地优先」的设计理念，尽可能在浏览器中完成所有数据处理。</p>
           </section>
 
           <section className="bg-white rounded-2xl p-4 border border-pink-50">

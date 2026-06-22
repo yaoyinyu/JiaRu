@@ -32,6 +32,9 @@ export const GALLERY_IMAGES = [
   { id: 6, src: "/nail-gallery/placeholder-6.svg", name: "宝石镶嵌" },
 ];
 
+// 手指名称（复用于编辑器和 AR 模块）
+export const FINGER_NAMES = ["\u62D9\u6307", "\u98DF\u6307", "\u4E2D\u6307", "\u65E0\u540D\u6307", "\u5C0F\u6307"];
+
 // AI风格关键词
 export const AI_STYLES = [
   "甜美风", "欧美风", "日系", "极简", "复古",
