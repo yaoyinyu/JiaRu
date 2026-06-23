@@ -598,6 +598,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     colRef.current = nailColors;
   }, [nailColors]);
 
+  // 自动启动改为手动启动（移动端需要用户手势触发摄像头权限）
+  const [userStarted, setUserStarted] = useState(false);
+
   useEffect(() => {
     texRef.current = nailTextures;
   }, [nailTextures]);
@@ -607,6 +610,11 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   }, [mode]);
 
   useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
+
+  useEffect(() => {
+    if (!userStarted) return; // 等待用户点击按钮
     let dead = false;
     const rafId = 0;
     let handsInst: HandsInstance | null = null;
@@ -699,6 +707,26 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           facingMode: "user",
         });
         log("  启动 Camera...");
+        // 先用 getUserMedia 预检摄像头权限
+        try {
+          const testStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user", width: 480, height: 640 },
+            audio: false,
+          });
+          // 释放测试流，Camera 工具会重新获取
+          testStream.getTracks().forEach((t) => t.stop());
+          log("  摄像头权限 OK ✅");
+        } catch (permErr) {
+          const msg = permErr instanceof Error ? permErr.message : String(permErr);
+          log("  ❌ 摄像头权限失败: " + msg);
+          setStatus("error");
+          setStatusMsg(
+            msg.includes("permission") || msg.includes("Permission")
+              ? "摄像头权限被拒绝，请在浏览器设置中允许"
+              : "摄像头不可用: " + msg.slice(0, 40)
+          );
+          return;
+        }
         camera.start();
 
         // ── 步骤4: 注册结果回调 ──
@@ -824,6 +852,21 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         style={{ transform: "scaleX(-1)" }}
       />
 
+      {/* 未启动时显示开始按钮 */}
+      {!userStarted && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 text-white">
+          <button
+            onClick={() => setUserStarted(true)}
+            className="px-8 py-4 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full text-lg font-bold shadow-lg hover:scale-105 transition-transform"
+          >
+            📷 开启摄像头
+          </button>
+          <p className="text-xs text-gray-300 mt-4 px-6 text-center max-w-xs">
+            点击后浏览器会请求摄像头权限，请允许
+          </p>
+        </div>
+      )}
+
       {/* 诊断面板 — 仅非 ready 状态显示 */}
       {status !== "ready" && (
         <div className="absolute top-1 left-1 right-1 z-20 bg-black/80 rounded-lg p-2 max-h-40 overflow-y-auto border border-pink-500/30">
@@ -847,7 +890,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       )}
 
       {/* 非 ready 遮罩 */}
-      {status !== "ready" && (
+      {userStarted && status !== "ready" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/70 text-white">
           <span className="text-4xl mb-3">&#9203;</span>
           <p className="text-sm px-6 text-center">{statusMsg}</p>
