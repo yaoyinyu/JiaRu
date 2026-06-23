@@ -1,8 +1,33 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
 
-const TIPS = [4, 8, 12, 16, 20];
-const DIPS = [3, 7, 11, 15, 19];
+// MediaPipe 手部关键点索引
+const TIPS = [4, 8, 12, 16, 20]; // 指尖
+const DIPS = [3, 7, 11, 15, 19]; // DIP 关节（远端指关节）
+const PIPS = [2, 6, 10, 14, 18]; // PIP 关节（近端指关节，方向更稳定）
+
+// 指数移动平均平滑因子
+const EMA_ALPHA = 0.45;
+const EMA_ALPHA_PALM = 0.3; // 朝向深度差平滑（更保守）
+
+// ── 手心/手背朝向检测参数 ──
+const DEPTH_DIFF_THRESHOLD = 0.003;   // depthDiff > 此值 = 手背
+const FINGER_Z_VOTE_THRESHOLD = 0.002; // 单指投票阈值
+const OUT_OF_FRAME_THRESHOLD = 0.1;   // x/y 超出 [0.1, 0.9] = 出画面
+
+// 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
+const VOTE_FINGERS = [1, 2, 3, 4];
+
+// 指甲中心从指尖向手根方向的偏移比例
+const TIP_OFFSET_RATIO = 0.28;
+
+// 逐指宽长比校准（拇指宽短、小指窄长）
+const FINGER_LENGTH_RATIOS = [0.55, 0.58, 0.60, 0.56, 0.52];
+const FINGER_WIDTH_RATIOS  = [0.55, 0.50, 0.48, 0.45, 0.40];
+
+// 柱面曲率变形参数
+const CURVATURE_STRENGTH = 0.22;  // 曲率强度（0=平面，越大越弯）
+const CURVATURE_STRIPS = 12;      // 竖条分片数（越多越平滑）
 
 // MediaPipe 全局类型声明（CDN 注入）
 interface Landmark {
@@ -56,61 +81,445 @@ declare global {
 
 interface Props {
   nailColors: string[];
+  /** 每指独立纹理（null = 该指使用纯色） */
+  nailTextures?: (ImageBitmap | null)[];
+  /** 渲染模式：color | texture */
+  mode?: "color" | "texture";
 }
 
-export function ArView({ nailColors }: Props) {
+export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   const vref = useRef<HTMLVideoElement>(null);
   const cref = useRef<HTMLCanvasElement>(null);
   const colRef = useRef(nailColors);
+  const texRef = useRef(nailTextures);
+  const modeRef = useRef(mode);
   const [status, setStatus] = useState("init"); // init|loading|ready|error
   const [statusMsg, setStatusMsg] = useState("初始化...");
   const [handCnt, setHandCnt] = useState(-1); // -1=未检测, 0=无手, N=有手
   const [diag, setDiag] = useState<string[]>([]);
+
+  // 时序平滑状态：每指存储 smoothedTip/smoothedDip/smoothedPip
+  // 用 NaN 标记"未初始化"，首次检测到手指时直接采用原始值
+  const smoothRef = useRef<{
+    tip: { x: number; y: number; z: number };
+    dip: { x: number; y: number; z: number };
+    pip: { x: number; y: number; z: number };
+  }[]>(
+    Array.from({ length: 5 }, () => ({
+      tip: { x: NaN, y: NaN, z: NaN },
+      dip: { x: NaN, y: NaN, z: NaN },
+      pip: { x: NaN, y: NaN, z: NaN },
+    }))
+  );
+
+  // 朝向检测：平滑后的深度差（palmZ - knuckleZ）
+  const palmDepthSmoothRef = useRef<number>(NaN);
+  // 朝向状态（用于 UI 显示）
+  const [orientation, setOrientation] = useState<"dorsum" | "palm" | "ambiguous" | "none">("none");
 
   const log = (m: string) => {
     console.log("[AR]", m);
     setDiag((p) => [...p.slice(-8), m]);
   };
 
-  // 指甲绘制函数（纯函数，无副作用依赖）
+  /** 指数移动平均平滑（NaN 安全：首次值直接采用） */
+  function ema(prev: number, curr: number, alpha: number = EMA_ALPHA): number {
+    if (isNaN(prev)) return curr;
+    return prev + alpha * (curr - prev);
+  }
+
+  /**
+   * 绘制指甲形状（贝塞尔路径 —— 比椭圆更贴近真实指甲轮廓）
+   */
+  function drawNailShape(
+    ctx: CanvasRenderingContext2D,
+    nl: number,
+    nw: number
+  ) {
+    const hw = nw * 0.5;
+    const hl = nl * 0.5;
+    const tipNarrow = 0.08 * nw;
+    const cpLen = hl * 0.55;
+
+    ctx.beginPath();
+    ctx.moveTo(hw - tipNarrow, -hl);
+    ctx.quadraticCurveTo(0, -hl - hl * 0.15, -(hw - tipNarrow), -hl);
+    ctx.bezierCurveTo(
+      -(hw + cpLen * 0.3), -hl * 0.6,
+      -(hw + cpLen * 0.3), hl * 0.3,
+      -hw, hl
+    );
+    ctx.quadraticCurveTo(0, hl + hl * 0.08, hw, hl);
+    ctx.bezierCurveTo(
+      hw + cpLen * 0.3, hl * 0.3,
+      hw + cpLen * 0.3, -hl * 0.6,
+      hw - tipNarrow, -hl
+    );
+    ctx.closePath();
+  }
+
+  /**
+   * 从视频帧采样环境光照
+   * 在指甲中心位置取一小块区域的平均亮度
+   */
+  function sampleEnvLight(
+    video: HTMLVideoElement,
+    cx: number,
+    cy: number,
+    w: number,
+    h: number
+  ): { brightness: number; r: number; g: number; b: number } {
+    // 创建微型离屏 canvas 采样
+    const sampleSize = 8;
+    const sx = Math.max(0, Math.min(w - sampleSize, cx - sampleSize / 2));
+    const sy = Math.max(0, Math.min(h - sampleSize, cy - sampleSize / 2));
+
+    const off = new OffscreenCanvas(sampleSize, sampleSize);
+    const octx = off.getContext("2d");
+    if (!octx) return { brightness: 1.0, r: 1, g: 1, b: 1 };
+
+    octx.drawImage(video, sx, sy, sampleSize, sampleSize, 0, 0, sampleSize, sampleSize);
+    const data = octx.getImageData(0, 0, sampleSize, sampleSize).data;
+
+    let sumR = 0, sumG = 0, sumB = 0;
+    const count = sampleSize * sampleSize;
+    for (let i = 0; i < data.length; i += 4) {
+      sumR += data[i];
+      sumG += data[i + 1];
+      sumB += data[i + 2];
+    }
+
+    const avgR = sumR / count / 255;
+    const avgG = sumG / count / 255;
+    const avgB = sumB / count / 255;
+    // 感知亮度（人眼对绿色最敏感）
+    const brightness = avgR * 0.299 + avgG * 0.587 + avgB * 0.114;
+
+    return { brightness, r: avgR, g: avgG, b: avgB };
+  }
+
+  /**
+   * 柱面曲率变形绘制纹理
+   *
+   * 将纹理沿宽度方向切分为 N 个竖条，每个竖条按抛物线缩放宽度，
+   * 模拟指甲的圆柱形曲面。边缘的竖条更窄（透视压缩），中心更宽。
+   */
+  function drawCurvedTexture(
+    ctx: CanvasRenderingContext2D,
+    tex: ImageBitmap,
+    nl: number,
+    nw: number
+  ) {
+    const hw = nw * 0.5;
+    const hl = nl * 0.5;
+    const strips = CURVATURE_STRIPS;
+    const stripW = nw / strips;
+
+    for (let i = 0; i < strips; i++) {
+      // 归一化 x 坐标（-1 到 1）
+      const u = (i + 0.5) / strips; // 0..1
+      const nx = u * 2 - 1;          // -1..1
+
+      // 抛物线宽度缩放：中心=1，边缘=cos(arc)
+      const cosTheta = Math.cos(nx * CURVATURE_STRENGTH * Math.PI * 0.5);
+      const widthScale = Math.max(0.3, cosTheta);
+
+      // 该竖条在屏幕上的位置和宽度
+      const sx = -hw + i * stripW;
+      const sw = stripW * widthScale;
+
+      // 从纹理中采样对应竖条
+      const texSx = (tex.width * i) / strips;
+      const texSw = tex.width / strips;
+
+      ctx.drawImage(
+        tex,
+        texSx, 0, texSw, tex.height,
+        sx, -hl, sw, nl
+      );
+    }
+  }
+
+  /**
+   * 绘制材质细节层（在纹理之上叠加）
+   *
+   * 包含：
+   *   1. 菲涅尔反射 — 边缘更亮（模拟指甲曲面边缘的高反射）
+   *   2. 颗粒纹理 — 微小噪点模拟指甲表面微观纹理
+   *   3. 边缘暗角 — 指甲根部稍暗
+   */
+  function drawMaterialDetails(
+    ctx: CanvasRenderingContext2D,
+    nl: number,
+    nw: number,
+    envBrightness: number
+  ) {
+    const hw = nw * 0.5;
+    const hl = nl * 0.5;
+
+    // ── 1. 菲涅尔反射（边缘高亮）──
+    // 沿宽度方向的渐变：中心暗，边缘亮
+    const fresnelGrad = ctx.createLinearGradient(-hw, 0, hw, 0);
+    fresnelGrad.addColorStop(0, "rgba(255,255,255,0.28)");
+    fresnelGrad.addColorStop(0.25, "rgba(255,255,255,0.05)");
+    fresnelGrad.addColorStop(0.5, "rgba(255,255,255,0.0)");
+    fresnelGrad.addColorStop(0.75, "rgba(255,255,255,0.05)");
+    fresnelGrad.addColorStop(1, "rgba(255,255,255,0.28)");
+
+    ctx.save();
+    drawNailShape(ctx, nl, nw);
+    ctx.clip();
+    ctx.fillStyle = fresnelGrad;
+    ctx.globalAlpha = 0.6 * envBrightness;
+    ctx.fillRect(-hw, -hl, nw, nl);
+    ctx.restore();
+
+    // ── 2. 颗粒纹理（微观表面）──
+    ctx.save();
+    drawNailShape(ctx, nl, nw);
+    ctx.clip();
+
+    // 用 ImageData 生成随机噪点
+    const grainCanvas = new OffscreenCanvas(Math.ceil(nw), Math.ceil(nl));
+    const gctx = grainCanvas.getContext("2d");
+    if (gctx) {
+      const imgData = gctx.createImageData(grainCanvas.width, grainCanvas.height);
+      for (let i = 0; i < imgData.data.length; i += 4) {
+        const noise = 128 + (Math.random() - 0.5) * 30;
+        imgData.data[i] = noise;
+        imgData.data[i + 1] = noise;
+        imgData.data[i + 2] = noise;
+        imgData.data[i + 3] = 18; // 低 alpha
+      }
+      gctx.putImageData(imgData, 0, 0);
+      ctx.globalAlpha = 0.35;
+      ctx.drawImage(grainCanvas, -hw, -hl, nw, nl);
+    }
+    ctx.restore();
+
+    // ── 3. 根部暗角 ──
+    const vignetteGrad = ctx.createLinearGradient(0, -hl, 0, hl);
+    vignetteGrad.addColorStop(0, "rgba(0,0,0,0)");
+    vignetteGrad.addColorStop(0.6, "rgba(0,0,0,0)");
+    vignetteGrad.addColorStop(1, "rgba(0,0,0,0.25)");
+
+    ctx.save();
+    drawNailShape(ctx, nl, nw);
+    ctx.clip();
+    ctx.fillStyle = vignetteGrad;
+    ctx.globalAlpha = 1;
+    ctx.fillRect(-hw, -hl, nw, nl);
+    ctx.restore();
+  }
+
+  /**
+   * 绘制高光（镜面反射）
+   *
+   * 三层高光系统：
+   *   1. 主高光 — 纵向椭圆，模拟光源在指甲中央的镜面反射
+   *   2. 指尖高光 — 指尖边缘的细亮线（自由缘反光）
+   *   3. 根部微光 — 甲上皮附近的柔和散射
+   */
+  function drawSpecularHighlight(
+    ctx: CanvasRenderingContext2D,
+    nl: number,
+    nw: number,
+    envBrightness: number
+  ) {
+    const hl = nl * 0.5;
+    const hw = nw * 0.5;
+
+    ctx.save();
+    drawNailShape(ctx, nl, nw);
+    ctx.clip();
+
+    // ── 主高光（镜面反射条）──
+    const specAlpha = 0.18 + envBrightness * 0.22;
+    ctx.globalAlpha = specAlpha;
+
+    // 纵向渐变高光（上亮下暗）
+    const specGrad = ctx.createLinearGradient(0, -hl, 0, hl);
+    specGrad.addColorStop(0, "rgba(255,255,255,0.9)");
+    specGrad.addColorStop(0.3, "rgba(255,255,255,0.6)");
+    specGrad.addColorStop(0.7, "rgba(255,255,255,0.15)");
+    specGrad.addColorStop(1, "rgba(255,255,255,0.0)");
+
+    ctx.fillStyle = specGrad;
+    ctx.beginPath();
+    ctx.ellipse(-hw * 0.25, -hl * 0.05, hl * 0.38, hw * 0.12, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── 指尖高光（自由缘细亮线）──
+    ctx.globalAlpha = 0.12 + envBrightness * 0.1;
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.ellipse(0, -hl + hl * 0.06, hl * 0.15, hw * 0.55, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    // ── 根部微光 ──
+    ctx.globalAlpha = 0.06 + envBrightness * 0.04;
+    ctx.fillStyle = "white";
+    ctx.beginPath();
+    ctx.ellipse(0, hl * 0.6, hl * 0.12, hw * 0.4, 0, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  /**
+   * 手心/手背朝向检测
+   *
+   * 方案 B（主）：手掌中心 z vs 指关节区 z 的深度差
+   * 方案 C（辅）：4 指投票（排除拇指）
+   *
+   * 返回：是否应该渲染美甲 + 置信度 + 原因
+   */
+  function shouldRenderNails(
+    lm: Landmark[],
+    smoothDepthDiff: number
+  ): { render: boolean; confidence: "high" | "low"; reason: string } {
+    // 边界检查：手部出画面
+    const palmPts = [lm[0], lm[5], lm[9], lm[17]];
+    const outOfFrame = palmPts.some(
+      (p) =>
+        p.x < OUT_OF_FRAME_THRESHOLD ||
+        p.x > 1 - OUT_OF_FRAME_THRESHOLD ||
+        p.y < OUT_OF_FRAME_THRESHOLD ||
+        p.y > 1 - OUT_OF_FRAME_THRESHOLD
+    );
+    if (outOfFrame) {
+      return { render: false, confidence: "low", reason: "手部出画面" };
+    }
+
+    // 方案 B：深度差判断
+    const isDorsumByDepth = smoothDepthDiff > DEPTH_DIFF_THRESHOLD;
+    const isPalmByDepth = smoothDepthDiff < -DEPTH_DIFF_THRESHOLD;
+    const isAmbiguous = !isDorsumByDepth && !isPalmByDepth;
+
+    // 方案 C：4 指投票（排除拇指）
+    let dorsumVotes = 0;
+    let palmVotes = 0;
+    for (const f of VOTE_FINGERS) {
+      const dz = lm[TIPS[f]].z - lm[PIPS[f]].z; // 正 = PIP 更靠近镜头 = 手背
+      if (dz > FINGER_Z_VOTE_THRESHOLD) dorsumVotes++;
+      else if (dz < -FINGER_Z_VOTE_THRESHOLD) palmVotes++;
+    }
+    const isDorsumByVote = dorsumVotes >= 3;
+    const isPalmByVote = palmVotes >= 3;
+
+    // 融合决策
+    if (isAmbiguous) {
+      return { render: false, confidence: "low", reason: "侧手/过渡态" };
+    }
+    if (isDorsumByDepth && isDorsumByVote) {
+      return { render: true, confidence: "high", reason: "双方案一致：手背" };
+    }
+    if (isPalmByDepth && isPalmByVote) {
+      return { render: false, confidence: "high", reason: "双方案一致：手心" };
+    }
+    // 不一致 → 采用方案 B 结果，降低置信度
+    return {
+      render: isDorsumByDepth,
+      confidence: "low",
+      reason: `方案不一致 B=${isDorsumByDepth ? "dorsum" : "palm"} C votes d${dorsumVotes}/p${palmVotes}`,
+    };
+  }
+
+  // 指甲绘制函数
   function paintNails(
     ctx: CanvasRenderingContext2D,
     lm: Landmark[],
     colors: string[],
+    textures: (ImageBitmap | null)[] | undefined,
+    currentMode: string,
     w: number,
-    h: number
+    h: number,
+    video: HTMLVideoElement
   ) {
     for (let f = 0; f < 5; f++) {
-      const tip = lm[TIPS[f]],
-        dip = lm[DIPS[f]],
-        color = colors[f] || "#E8A0BF";
-      if (!tip || !dip) continue;
-      const tx = tip.x * w,
-        ty = tip.y * h,
-        dx = dip.x * w,
-        dy = dip.y * h;
-      const fx = tx - dx,
-        fy = ty - dy,
-        len = Math.sqrt(fx * fx + fy * fy);
-      if (len < 5) continue;
-      const a = Math.atan2(fy, fx),
-        nl = len * 0.52,
-        nw = len * 0.42;
-      const cx = tx - (fx / len) * (len * 0.18),
-        cy = ty - (fy / len) * (len * 0.18);
+      const rawTip = lm[TIPS[f]];
+      const rawDip = lm[DIPS[f]];
+      const rawPip = lm[PIPS[f]];
+      const color = colors[f] || "#E8A0BF";
+      if (!rawTip || !rawDip) continue;
+
+      // ── 时序平滑 ──
+      const s = smoothRef.current[f];
+      s.tip.x = ema(s.tip.x, rawTip.x);
+      s.tip.y = ema(s.tip.y, rawTip.y);
+      s.tip.z = ema(s.tip.z, rawTip.z);
+      s.dip.x = ema(s.dip.x, rawDip.x);
+      s.dip.y = ema(s.dip.y, rawDip.y);
+      s.dip.z = ema(s.dip.z, rawDip.z);
+      if (rawPip) {
+        s.pip.x = ema(s.pip.x, rawPip.x);
+        s.pip.y = ema(s.pip.y, rawPip.y);
+        s.pip.z = ema(s.pip.z, rawPip.z);
+      }
+
+      // ── z 轴深度缩放 ──
+      const zScale = Math.max(0.7, Math.min(1.5, 1 - s.tip.z * 0.6));
+
+      // ── 方向向量 ──
+      let fx: number, fy: number;
+      if (rawPip) {
+        const px = s.pip.x * w, py = s.pip.y * h;
+        const dx = s.dip.x * w, dy = s.dip.y * h;
+        fx = dx - px; fy = dy - py;
+      } else {
+        const tx = s.tip.x * w, ty = s.tip.y * h;
+        const dx = s.dip.x * w, dy = s.dip.y * h;
+        fx = tx - dx; fy = ty - dy;
+      }
+
+      const rawLen = Math.sqrt(fx * fx + fy * fy);
+      if (rawLen < 5) continue;
+
+      const len = rawLen * zScale;
+      const a = Math.atan2(fy, fx);
+      const nl = len * FINGER_LENGTH_RATIOS[f];
+      const nw = len * FINGER_WIDTH_RATIOS[f];
+
+      const tx = s.tip.x * w;
+      const ty = s.tip.y * h;
+      const cx = tx - (fx / rawLen) * (len * TIP_OFFSET_RATIO);
+      const cy = ty - (fy / rawLen) * (len * TIP_OFFSET_RATIO);
+
+      // ── 环境光照采样 ──
+      const env = sampleEnvLight(video, cx, cy, w, h);
+
+      // ── 第一层：底色/纹理（带柱面曲率变形）──
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(a);
-      ctx.beginPath();
-      ctx.ellipse(0, 0, nl * 0.5, nw * 0.5, 0, 0, Math.PI * 2);
-      ctx.fillStyle = color;
-      ctx.globalAlpha = 0.8;
-      ctx.fill();
-      ctx.globalAlpha = 0.4;
-      ctx.fillStyle = "white";
-      ctx.beginPath();
-      ctx.ellipse(-nl * 0.05, -nw * 0.18, nl * 0.3, nw * 0.12, 0, 0, Math.PI * 2);
-      ctx.fill();
+
+      const tex = currentMode === "texture" ? textures?.[f] : null;
+
+      if (tex) {
+        // 纹理模式：柱面曲率变形
+        drawCurvedTexture(ctx, tex, nl, nw);
+      } else {
+        // 纯色模式：填充指甲形状
+        drawNailShape(ctx, nl, nw);
+        ctx.fillStyle = color;
+        ctx.globalAlpha = 0.85;
+        ctx.fill();
+      }
+
+      ctx.restore();
+
+      // ── 第二层：材质细节（菲涅尔 + 颗粒 + 暗角）──
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(a);
+      drawMaterialDetails(ctx, nl, nw, env.brightness);
+      ctx.restore();
+
+      // ── 第三层：镜面高光 ──
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(a);
+      drawSpecularHighlight(ctx, nl, nw, env.brightness);
       ctx.restore();
     }
   }
@@ -119,6 +528,14 @@ export function ArView({ nailColors }: Props) {
     // 同步 nailColors 到 ref（在 effect 内更新 ref 是安全的）
     colRef.current = nailColors;
   }, [nailColors]);
+
+  useEffect(() => {
+    texRef.current = nailTextures;
+  }, [nailTextures]);
+
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
 
   useEffect(() => {
     let dead = false;
@@ -237,16 +654,69 @@ export function ArView({ nailColors }: Props) {
               h < res.multiHandLandmarks.length;
               h++
             ) {
-              paintNails(
-                ctx,
-                res.multiHandLandmarks[h],
-                colRef.current,
-                cvs.width,
-                cvs.height
+              const lm = res.multiHandLandmarks[h];
+
+              // ── 手心/手背朝向检测 ──
+              // 方案 B：手掌中心 z vs 指关节区 z 的深度差
+              const palmZ =
+                (lm[0].z + lm[5].z + lm[9].z + lm[17].z) / 4;
+              const knuckleZ =
+                (lm[2].z +
+                  lm[6].z +
+                  lm[10].z +
+                  lm[14].z +
+                  lm[18].z) /
+                5;
+              const rawDepthDiff = palmZ - knuckleZ;
+
+              // EMA 平滑
+              palmDepthSmoothRef.current = ema(
+                palmDepthSmoothRef.current,
+                rawDepthDiff,
+                EMA_ALPHA_PALM
               );
+              const smoothDepthDiff = palmDepthSmoothRef.current;
+
+              // 融合决策
+              const decision = shouldRenderNails(lm, smoothDepthDiff);
+
+              console.log("[AR-Orient]", {
+                depthDiff: smoothDepthDiff.toFixed(5),
+                decision: decision.render
+                  ? "dorsum"
+                  : decision.reason.includes("手心")
+                    ? "palm"
+                    : "ambiguous",
+                confidence: decision.confidence,
+                reason: decision.reason,
+              });
+
+              // 更新 UI 朝向状态
+              if (decision.reason.includes("手背")) {
+                setOrientation("dorsum");
+              } else if (decision.reason.includes("手心")) {
+                setOrientation("palm");
+              } else {
+                setOrientation("ambiguous");
+              }
+
+              // 仅在判定为手背朝镜头时渲染美甲
+              if (decision.render) {
+                paintNails(
+                  ctx,
+                  lm,
+                  colRef.current,
+                  texRef.current,
+                  modeRef.current,
+                  cvs.width,
+                  cvs.height,
+                  video
+                );
+              }
             }
           } else {
             setHandCnt(0);
+            setOrientation("none");
           }
         });
 
@@ -325,9 +795,26 @@ export function ArView({ nailColors }: Props) {
         </div>
       )}
 
-      {/* 手部状态 */}
+      {/* 手部状态 + 朝向指示 */}
       {status === "ready" && (
-        <div className="absolute bottom-0 left-0 right-0 pb-3 text-center pointer-events-none z-10">
+        <div className="absolute bottom-0 left-0 right-0 pb-3 text-center pointer-events-none z-10 flex flex-col items-center gap-1">
+          {handCnt > 0 && orientation !== "none" && (
+            <span
+              className={`inline-block text-xs px-3 py-1 rounded-full backdrop-blur-sm ${
+                orientation === "dorsum"
+                  ? "text-green-300 bg-green-900/40"
+                  : orientation === "palm"
+                    ? "text-orange-300 bg-orange-900/40"
+                    : "text-gray-300 bg-gray-800/40"
+              }`}
+            >
+              {orientation === "dorsum"
+                ? "🖐️ 手背"
+                : orientation === "palm"
+                  ? "✋ 手心"
+                  : "🤚 侧手"}
+            </span>
+          )}
           <span className="inline-block text-xs text-white/70 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
             {handCnt > 0
               ? "检测到 " + handCnt + " 只手"

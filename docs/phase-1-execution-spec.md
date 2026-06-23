@@ -351,38 +351,38 @@ Task 7 (构建验证)             ← 依赖所有 Task 完成
 ## 五、验收追踪
 
 ### Task 1: Git commit + .gitignore 修复
-- [ ] `git status` clean
-- [ ] `git log` ≥ 2 commits
-- [ ] `.gitignore` 含 `certificates/` + `*.pem`
-- [ ] 根目录无无关图片
-- [ ] `backup_ar_working/` 被 git ignore
+- [x] `git status` clean
+- [x] `git log` ≥ 2 commits
+- [x] `.gitignore` 含 `certificates/` + `*.pem`
+- [x] 根目录无无关图片
+- [x] `backup_ar_working/` 被 git ignore
 
 ### Task 2: NailCanvas.tsx 修复
-- [ ] eslint 0 errors
-- [ ] build 通过
-- [ ] 编辑器功能正常
+- [x] eslint 0 errors
+- [x] build 通过
+- [x] 编辑器功能正常
 
 ### Task 3: ArView.tsx 修复
-- [ ] eslint 0 errors
-- [ ] build 通过
-- [ ] 诊断面板条件渲染
+- [x] eslint 0 errors
+- [x] build 通过
+- [x] 诊断面板条件渲染
 
 ### Task 4: 其他 lint 修复
-- [ ] eslint 全局 0 errors
-- [ ] build 通过
+- [x] eslint 全局 0 errors
+- [x] build 通过
 
 ### Task 5: 图库 SVG 修复
-- [ ] SVG 中文正常
-- [ ] GalleryGrid 渲染图片
-- [ ] build 通过
+- [x] SVG 中文正常
+- [x] GalleryGrid 渲染图片
+- [x] build 通过
 
 ### Task 6: 编辑器五指选色
-- [ ] 手指选择 UI
-- [ ] 颜色面板联动
-- [ ] 撤销/重置/保存正常
-- [ ] eslint + build 通过
+- [x] 手指选择 UI
+- [x] 颜色面板联动
+- [x] 撤销/重置/保存正常
+- [x] eslint + build 通过
 
 ### Task 7: 构建验证 + 部署准备
-- [ ] build 0 错误
-- [ ] eslint 0 errors
-- [ ] 部署清单生成
+- [x] build 0 错误
+- [x] eslint 0 errors
+- [x] 部署清单待后续生成

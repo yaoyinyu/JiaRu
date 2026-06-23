@@ -9,11 +9,13 @@
 | [docs/technical-architecture.md](docs/technical-architecture.md) | 技术架构文档 — 技术选型、架构图、数据流 |
 | [docs/ui-design-spec.md](docs/ui-design-spec.md) | UI设计规范 — 配色、字体、组件样式、交互规范 |
 | [docs/coding-standards.md](docs/coding-standards.md) | 开发规范 — 代码风格、命名规范、工作流程 |
+| [docs/phase-1-execution-spec.md](docs/phase-1-execution-spec.md) | Phase 1 执行计划 — 7 个 Task 清单与验收标准 |
 
 ### 开发日志
 | 文件 | 说明 |
 |------|------|
 | [dev-log/2025-06-21.md](dev-log/2025-06-21.md) | 每日开发日志（初始化日） |
+| [dev-log/2025-06-22.md](dev-log/2025-06-22.md) | 首页交互 + AR 模块开发 |
 
 ### 项目记忆
 记忆文件存储在 `C:\Users\YaoYinyu\.claude\memory\` 目录下：

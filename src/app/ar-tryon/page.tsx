@@ -1,29 +1,148 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { Header } from "@/components/Header";
 import { ArView } from "@/components/ArView";
 import { PRESET_COLORS } from "@/lib/utils";
+import { disposeAllTextures } from "@/lib/texture";
+
+const TextureCropper = dynamic(() => import("@/components/TextureCropper"), {
+  ssr: false,
+});
 
 const FINGER_NAMES = ["拇指", "食指", "中指", "无名指", "小指"];
 
 export default function ArTryonPage() {
-  const [nailColors, setNailColors] = useState(["#E8A0BF", "#E8A0BF", "#E8A0BF", "#E8A0BF", "#E8A0BF"]);
-  const [activeFinger, setActiveFinger] = useState(0); // 当前正在选色的手指
+  const [nailColors, setNailColors] = useState([
+    "#E8A0BF", "#E8A0BF", "#E8A0BF", "#E8A0BF", "#E8A0BF",
+  ]);
+  const [nailTextures, setNailTextures] = useState<(ImageBitmap | null)[]>([
+    null, null, null, null, null,
+  ]);
+  const [activeFinger, setActiveFinger] = useState(0);
   const [isStarted, setIsStarted] = useState(false);
+  const [mode, setMode] = useState<"color" | "texture">("color");
+  const [showCropper, setShowCropper] = useState(false);
+  const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 更新某个手指的颜色
+  // 用 ref 追踪以确保卸载时正确释放
+  const texturesRef = useRef(nailTextures);
+  texturesRef.current = nailTextures;
+  const photoUrlRef = useRef(uploadedPhotoUrl);
+  photoUrlRef.current = uploadedPhotoUrl;
+
+  const hasAnyTexture = nailTextures.some((t) => t != null);
+
+  // ── 清理 ──
+
+  useEffect(() => {
+    return () => {
+      const tex = texturesRef.current;
+      const url = photoUrlRef.current;
+      disposeAllTextures(tex);
+      if (url) URL.revokeObjectURL(url);
+    };
+  }, []);
+
+  // ── 颜色操作 ──
+
   const changeColor = (color: string) => {
     const updated = [...nailColors];
     updated[activeFinger] = color;
     setNailColors(updated);
   };
 
-  // 一键全部设为同色
   const applyToAll = () => {
     const same = Array(5).fill(nailColors[activeFinger]);
     setNailColors(same);
   };
+
+  // ── 纹理上传 ──
+
+  const handleTextureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      alert("仅支持 PNG、JPG、WebP 格式的图片");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert("图片大小不能超过 10MB");
+      return;
+    }
+
+    if (uploadedPhotoUrl) URL.revokeObjectURL(uploadedPhotoUrl);
+
+    const url = URL.createObjectURL(file);
+    setUploadedPhotoUrl(url);
+    setShowCropper(true);
+    e.target.value = "";
+  };
+
+  // ── 裁剪回调 ──
+
+  const handleCropConfirm = useCallback(
+    (bitmap: ImageBitmap) => {
+      const old = nailTextures[activeFinger];
+      const updated = [...nailTextures];
+      updated[activeFinger] = bitmap;
+
+      // 仅当旧纹理不被其他手指引用时才释放
+      if (old && !updated.some((t) => t === old)) {
+        old.close();
+      }
+
+      setNailTextures(updated);
+      setShowCropper(false);
+      setMode("texture");
+    },
+    [activeFinger, nailTextures]
+  );
+
+  const handleCropCancel = useCallback(() => {
+    setShowCropper(false);
+  }, []);
+
+  // ── 纹理操作 ──
+
+  const applyTextureToAll = () => {
+    const activeTex = nailTextures[activeFinger];
+    if (!activeTex) {
+      alert("当前手指还没有设置纹理");
+      return;
+    }
+
+    const updated = nailTextures.map((t, i) => {
+      if (i === activeFinger) return t;
+      // 仅释放不被其他手指引用的旧纹理
+      if (t && t !== activeTex) {
+        const otherRefs = nailTextures.some(
+          (ot, oi) => oi !== i && oi !== activeFinger && ot === t
+        );
+        if (!otherRefs) t.close();
+      }
+      return activeTex;
+    });
+
+    setNailTextures(updated);
+  };
+
+  const removeTexture = (fingerIdx: number) => {
+    const tex = nailTextures[fingerIdx];
+    const updated = [...nailTextures];
+    updated[fingerIdx] = null;
+
+    if (tex && !updated.some((t) => t === tex)) {
+      tex.close();
+    }
+
+    setNailTextures(updated);
+  };
+
+  // ── 渲染 ──
 
   return (
     <div className="min-h-dvh flex flex-col">
@@ -57,80 +176,176 @@ export default function ArTryonPage() {
         )}
 
         {/* AR 视图 */}
-        {isStarted && <ArView nailColors={nailColors} />}
+        {isStarted && (
+          <ArView
+            nailColors={nailColors}
+            nailTextures={nailTextures}
+            mode={mode}
+          />
+        )}
 
-        {/* 颜色选择面板（AR开启后显示） */}
+        {/* 控制面板（AR开启后显示） */}
         {isStarted && (
           <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
+            {/* 模式切换 */}
+            <div className="flex gap-1 mb-3 p-1 bg-pink-50 rounded-xl">
+              <button
+                onClick={() => setMode("color")}
+                className={`flex-1 py-1.5 text-xs rounded-lg transition-all ${
+                  mode === "color"
+                    ? "bg-white text-[#E8A0BF] font-medium shadow-sm"
+                    : "text-gray-400"
+                }`}
+              >
+                🎨 纯色
+              </button>
+              <button
+                onClick={() => setMode("texture")}
+                className={`flex-1 py-1.5 text-xs rounded-lg transition-all ${
+                  mode === "texture"
+                    ? "bg-white text-[#E8A0BF] font-medium shadow-sm"
+                    : "text-gray-400"
+                }`}
+              >
+                🖼️ 纹理
+              </button>
+            </div>
+
             {/* 手指选择 */}
             <div className="flex gap-2 mb-3 justify-center">
               {FINGER_NAMES.map((name, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveFinger(i)}
-                  className={`px-3 py-1.5 rounded-full text-xs transition-all
+                  className={`px-3 py-1.5 rounded-full text-xs transition-all relative
                     ${activeFinger === i
                       ? "bg-[#E8A0BF] text-white shadow-sm"
                       : "bg-pink-50 text-gray-400 hover:bg-pink-100"
                     }`}
                 >
                   {name}
+                  {nailTextures[i] && (
+                    <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-400 rounded-full border border-white" />
+                  )}
                 </button>
               ))}
             </div>
 
-            {/* 当前选中的颜色预览 */}
-            <div className="flex items-center gap-3 justify-center mb-3">
-              <div
-                className="w-8 h-8 rounded-full border-2 border-gray-100 shadow-sm"
-                style={{ backgroundColor: nailColors[activeFinger] }}
-              />
-              <span className="text-xs text-gray-400">
-                {FINGER_NAMES[activeFinger]}颜色
-              </span>
-              <button
-                onClick={applyToAll}
-                className="text-xs text-[#E8A0BF] underline hover:text-[#D4749D]"
-              >
-                应用到全部
-              </button>
-            </div>
+            {/* 纹理模式内容 */}
+            {mode === "texture" && (
+              <div className="mb-3 text-center">
+                {nailTextures[activeFinger] ? (
+                  <div className="flex items-center gap-3 justify-center mb-2">
+                    <div className="w-12 h-12 rounded-xl overflow-hidden border-2 border-pink-300 bg-pink-50 flex items-center justify-center">
+                      <TextureThumb
+                        bitmap={nailTextures[activeFinger]!}
+                        size={48}
+                      />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-xs font-medium">
+                        {FINGER_NAMES[activeFinger]}纹理
+                      </p>
+                      <button
+                        onClick={() => removeTexture(activeFinger)}
+                        className="text-xs text-red-400 hover:text-red-500"
+                      >
+                        移除
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-xs text-gray-400 mb-2">
+                    {FINGER_NAMES[activeFinger]}暂未设置纹理
+                  </p>
+                )}
 
-            {/* 预设颜色 */}
-            <div className="flex flex-wrap gap-2 justify-center">
-              {PRESET_COLORS.filter((_, i) => i < 12).map((item) => (
-                <button
-                  key={item.name}
-                  title={item.name}
-                  onClick={() => changeColor(item.color)}
-                  className={`w-9 h-9 rounded-full shadow-sm border-2 transition-all hover:scale-110
-                    ${nailColors[activeFinger] === item.color
-                      ? "ring-2 ring-offset-2 ring-pink-400 scale-110"
-                      : ""
-                    }
-                    ${item.color === "#FFFFFF" || item.name === "透明"
-                      ? "border-gray-200"
-                      : "border-transparent"
-                    }`}
-                  style={{ backgroundColor: item.color }}
-                />
-              ))}
-            </div>
+                <div className="flex gap-2 justify-center">
+                  <label className="px-3 py-1.5 text-xs rounded-full bg-pink-50 text-[#E8A0BF] cursor-pointer hover:bg-pink-100 transition-colors">
+                    📷 上传美甲照片
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={handleTextureUpload}
+                      className="hidden"
+                    />
+                  </label>
+                  {hasAnyTexture && (
+                    <button
+                      onClick={applyTextureToAll}
+                      className="px-3 py-1.5 text-xs rounded-full bg-pink-50 text-[#E8A0BF] hover:bg-pink-100 transition-colors"
+                    >
+                      应用到全部
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
-            {/* 自定义取色 */}
-            <div className="flex items-center justify-center gap-2 mt-3">
-              <span className="text-xs text-gray-400">自定义:</span>
-              <input
-                type="color"
-                value={nailColors[activeFinger]}
-                onChange={(e) => changeColor(e.target.value)}
-                className="w-9 h-9 rounded-full cursor-pointer border-0 p-0"
-              />
-            </div>
+            {/* 纯色模式内容 */}
+            {mode === "color" && (
+              <>
+                <div className="flex items-center gap-3 justify-center mb-3">
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-gray-100 shadow-sm"
+                    style={{ backgroundColor: nailColors[activeFinger] }}
+                  />
+                  <span className="text-xs text-gray-400">
+                    {FINGER_NAMES[activeFinger]}颜色
+                  </span>
+                  <button
+                    onClick={applyToAll}
+                    className="text-xs text-[#E8A0BF] underline hover:text-[#D4749D]"
+                  >
+                    应用到全部
+                  </button>
+                </div>
+
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {PRESET_COLORS.filter((_, i) => i < 12).map((item) => (
+                    <button
+                      key={item.name}
+                      title={item.name}
+                      onClick={() => changeColor(item.color)}
+                      className={`w-9 h-9 rounded-full shadow-sm border-2 transition-all hover:scale-110
+                        ${nailColors[activeFinger] === item.color
+                          ? "ring-2 ring-offset-2 ring-pink-400 scale-110"
+                          : ""
+                        }
+                        ${item.color === "#FFFFFF" || item.name === "透明"
+                          ? "border-gray-200"
+                          : "border-transparent"
+                        }`}
+                      style={{ backgroundColor: item.color }}
+                    />
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-center gap-2 mt-3">
+                  <span className="text-xs text-gray-400">自定义:</span>
+                  <input
+                    type="color"
+                    value={nailColors[activeFinger]}
+                    onChange={(e) => changeColor(e.target.value)}
+                    className="w-9 h-9 rounded-full cursor-pointer border-0 p-0"
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
 
-        {/* 隐私与性能说明 */}
+        {/* 纹理裁剪模态框 */}
+        {showCropper && uploadedPhotoUrl && (
+          <TextureCropper
+            imageUrl={uploadedPhotoUrl}
+            onConfirm={handleCropConfirm}
+            onCancel={handleCropCancel}
+          />
+        )}
+
+        {/* 隐私说明 */}
         <div className="mt-4 space-y-2">
           <div className="p-3 bg-white/60 rounded-xl border border-pink-50 text-center">
             <p className="text-xs text-gray-400">
@@ -145,5 +360,44 @@ export default function ArTryonPage() {
         </div>
       </main>
     </div>
+  );
+}
+
+// ─── 纹理缩略图子组件 ────────────────────────────────────
+
+function TextureThumb({
+  bitmap,
+  size,
+}: {
+  bitmap: ImageBitmap;
+  size: number;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = ref.current;
+    if (!canvas) return;
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const scale = Math.min(size / bitmap.width, size / bitmap.height);
+    const dw = bitmap.width * scale;
+    const dh = bitmap.height * scale;
+    const dx = (size - dw) / 2;
+    const dy = (size - dh) / 2;
+
+    ctx.clearRect(0, 0, size, size);
+    ctx.drawImage(bitmap, dx, dy, dw, dh);
+  }, [bitmap, size]);
+
+  return (
+    <canvas
+      ref={ref}
+      width={size}
+      height={size}
+      className="w-full h-full object-contain"
+    />
   );
 }
