@@ -585,6 +585,25 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
   // 自动启动改为手动启动（移动端需要用户手势触发摄像头权限）
   const [userStarted, setUserStarted] = useState(false);
+  const startBtnRef = useRef<HTMLButtonElement>(null);
+
+  // 用原生 DOM 事件启动，绕过 React 合成事件在移动端可能的延迟/不触发问题
+  useEffect(() => {
+    const btn = startBtnRef.current;
+    if (!btn) return;
+    const handler = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      console.log("[AR] Start button clicked via native event");
+      setUserStarted(true);
+    };
+    btn.addEventListener("click", handler);
+    btn.addEventListener("touchend", handler, { passive: false });
+    return () => {
+      btn.removeEventListener("click", handler);
+      btn.removeEventListener("touchend", handler);
+    };
+  }, []);
 
   useEffect(() => {
     texRef.current = nailTextures;
@@ -644,11 +663,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         );
         if (dead) return;
 
-        await loadScript(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js",
-          "camera_utils.js"
-        );
-        if (dead) return;
+        // camera_utils.js 不再需要（改用原生 getUserMedia + RAF）
 
         // ── 步骤2: 验证全局对象 ──
         log("2/7 验证全局对象...");
@@ -677,7 +692,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         let stream: MediaStream;
         try {
           stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user" },
+            video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
             audio: false,
           });
         } catch (camErr) {
@@ -685,23 +700,32 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           log("  首次尝试失败，降级尝试...");
           try {
             stream = await navigator.mediaDevices.getUserMedia({
-              video: true,
+              video: { width: { ideal: 640 }, height: { ideal: 480 } },
               audio: false,
             });
           } catch (camErr2) {
-            const msg = camErr2 instanceof Error ? camErr2.message : String(camErr2);
-            log("❌ 摄像头获取失败: " + msg);
-            setStatus("error");
-            if (msg.includes("Permission") || msg.includes("permission") || msg.includes("denied") || msg.includes("NotAllowed")) {
-              setStatusMsg("摄像头权限被拒绝。请在浏览器设置 → 权限中允许摄像头访问");
-            } else if (msg.includes("NotFound") || msg.includes("device")) {
-              setStatusMsg("未找到摄像头设备");
-            } else if (msg.includes("NotReadable") || msg.includes("busy")) {
-              setStatusMsg("摄像头被其他应用占用，请关闭后重试");
-            } else {
-              setStatusMsg("摄像头不可用: " + msg.slice(0, 50));
+            // 再降级：完全无约束
+            log("  二次降级尝试...");
+            try {
+              stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false,
+              });
+            } catch (camErr3) {
+              const msg = camErr3 instanceof Error ? camErr3.message : String(camErr3);
+              log("❌ 摄像头获取失败: " + msg);
+              setStatus("error");
+              if (msg.includes("Permission") || msg.includes("permission") || msg.includes("denied") || msg.includes("NotAllowed")) {
+                setStatusMsg("摄像头权限被拒绝。请在浏览器设置 → 权限中允许摄像头访问");
+              } else if (msg.includes("NotFound") || msg.includes("device")) {
+                setStatusMsg("未找到摄像头设备");
+              } else if (msg.includes("NotReadable") || msg.includes("busy")) {
+                setStatusMsg("摄像头被其他应用占用，请关闭后重试");
+              } else {
+                setStatusMsg("摄像头不可用: " + msg.slice(0, 50));
+              }
+              return;
             }
-            return;
           }
         }
         if (dead) {
@@ -728,7 +752,19 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
             reject(new Error("视频加载失败"));
           };
         });
-        await video.play().catch(() => {});
+        await video.play().catch((e) => {
+          log("  ⚠️ video.play() 警告: " + (e instanceof Error ? e.message : String(e)));
+        });
+        // 额外等待一帧确保 video 真正开始播放
+        await new Promise<void>((resolve) => {
+          if (video.readyState >= 3) {
+            resolve();
+          } else {
+            video.oncanplay = () => resolve();
+            setTimeout(resolve, 2000); // fallback
+          }
+        });
+        log("  视频播放中 readyState=" + video.readyState + " ✅");
         if (dead) return;
 
         // ── 步骤4: 创建 Hands 实例 ──
@@ -860,19 +896,28 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       {!userStarted && (
         <div className="absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/80 text-white">
           <button
-            onClick={() => setUserStarted(true)}
-            className="px-8 py-4 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full text-lg font-bold shadow-lg hover:scale-105 transition-transform"
+            ref={startBtnRef}
+            type="button"
+            className="px-8 py-4 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full text-lg font-bold shadow-lg active:scale-95 transition-transform"
+            style={{ touchAction: "manipulation", minHeight: "60px" }}
           >
             📷 开启摄像头
           </button>
           <p className="text-xs text-gray-300 mt-4 px-6 text-center max-w-xs">
             点击后浏览器会请求摄像头权限，请允许
           </p>
+          {diag.length > 0 && (
+            <div className="mt-4 w-full max-w-xs bg-black/60 rounded-lg p-2 max-h-20 overflow-y-auto border border-pink-500/20">
+              {diag.map((d, i) => (
+                <p key={i} className="text-[9px] font-mono leading-tight mb-0.5 text-gray-300">{d}</p>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
-      {/* 诊断面板 — 仅非 ready 状态显示 */}
-      {status !== "ready" && (
+      {/* 诊断面板 — 始终显示（调试阶段） */}
+      {userStarted && status !== "ready" && (
         <div className="absolute top-1 left-1 right-1 z-20 bg-black/80 rounded-lg p-2 max-h-40 overflow-y-auto border border-pink-500/30">
           {diag.map((d, i) => (
             <p
