@@ -414,16 +414,20 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     let isDorsumByCross = false;
     let isPalmByCross = false;
     if (handedness === "Right") {
-      isDorsumByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD;
-      isPalmByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD;
-    } else if (handedness === "Left") {
       isDorsumByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD;
       isPalmByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD;
+    } else if (handedness === "Left") {
+      isDorsumByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD;
+      isPalmByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD;
     }
 
     // ── 方案 B：深度差判断（z 坐标，精度低但独立于 x/y）──
-    const isDorsumByDepth = smoothDepthDiff > DEPTH_DIFF_THRESHOLD;
-    const isPalmByDepth = smoothDepthDiff < -DEPTH_DIFF_THRESHOLD;
+    // 手背朝镜头时 PIP 关节比手掌中心更凸出 → knuckleZ < palmZ → depthDiff > 0
+    // 但 MediaPipe z 轴朝向镜头为负值，所以实际相反：
+    // 手背朝镜头 → knuckleZ 更负 → depthDiff = palmZ - knuckleZ > 0
+    // 实测发现方向反了，翻转判断
+    const isDorsumByDepth = smoothDepthDiff < -DEPTH_DIFF_THRESHOLD;
+    const isPalmByDepth = smoothDepthDiff > DEPTH_DIFF_THRESHOLD;
     const isAmbiguousDepth = !isDorsumByDepth && !isPalmByDepth;
 
     // ── 方案 C：4 指投票（排除拇指，z 坐标）──
@@ -431,8 +435,10 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     let palmVotes = 0;
     for (const f of VOTE_FINGERS) {
       const dz = lm[TIPS[f]].z - lm[PIPS[f]].z;
-      if (dz > FINGER_Z_VOTE_THRESHOLD) dorsumVotes++;
-      else if (dz < -FINGER_Z_VOTE_THRESHOLD) palmVotes++;
+      // 手背朝镜头时 PIP 比 TIP 更凸 → dz = TIP.z - PIP.z > 0（z 朝镜头为负，更凸 = 更负）
+      // 实测方向反了，翻转
+      if (dz < -FINGER_Z_VOTE_THRESHOLD) dorsumVotes++;
+      else if (dz > FINGER_Z_VOTE_THRESHOLD) palmVotes++;
     }
     const isDorsumByVote = dorsumVotes >= 3;
     const isPalmByVote = palmVotes >= 3;
@@ -443,11 +449,11 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     let isDorsumByThumb = false;
     let isPalmByThumb = false;
     if (handedness === "Right") {
-      isDorsumByThumb = thumbOffsetX < -THUMB_X_THRESHOLD;
-      isPalmByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
-    } else if (handedness === "Left") {
       isDorsumByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
       isPalmByThumb = thumbOffsetX < -THUMB_X_THRESHOLD;
+    } else if (handedness === "Left") {
+      isDorsumByThumb = thumbOffsetX < -THUMB_X_THRESHOLD;
+      isPalmByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
     }
 
     // ── 融合决策：加权投票 ──
