@@ -835,7 +835,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         // ignore
       }
     };
-  }, []);
+  }, [userStarted]);
 
   return (
     <div className="relative w-full max-w-[480px] mx-auto rounded-2xl overflow-hidden bg-black shadow-lg">
