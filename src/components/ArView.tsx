@@ -68,26 +68,11 @@ interface HandsConstructor {
   new (config: { locateFile: (f: string) => string }): HandsInstance;
 }
 
-interface CameraInstance {
-  start: () => void;
-}
-
-interface CameraConstructor {
-  new (
-    video: HTMLVideoElement,
-    opts: {
-      onFrame: () => Promise<void>;
-      width: number;
-      height: number;
-      facingMode: string;
-    }
-  ): CameraInstance;
-}
+// MediaPipe Camera Utils 已弃用，改用原生 getUserMedia + RAF 驱动
 
 declare global {
   interface Window {
     Hands?: HandsConstructor;
-    Camera?: CameraConstructor;
   }
 }
 
@@ -610,72 +595,149 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   }, [mode]);
 
   useEffect(() => {
-    modeRef.current = mode;
-  }, [mode]);
-
-  useEffect(() => {
     if (!userStarted) return; // 等待用户点击按钮
     let dead = false;
-    const rafId = 0;
     let handsInst: HandsInstance | null = null;
+    let mediaStream: MediaStream | null = null;
+    let rafLoop = 0;
 
     async function start() {
       try {
-        // ── 步骤1: 加载 CDN 脚本 ──
+        // ── 步骤0: 检查浏览器能力 ──
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setStatus("error");
+          setStatusMsg("浏览器不支持摄像头 API，请使用 Chrome 或 Safari");
+          log("❌ navigator.mediaDevices 不可用");
+          return;
+        }
+
+        // ── 步骤1: 加载 CDN 脚本（带超时）──
         setStatus("loading");
         setStatusMsg("加载 MediaPipe 脚本...");
-        log("1/6 加载 hands.js...");
+        log("1/7 加载 hands.js...");
 
-        await new Promise<void>((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src =
-            "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js";
-          s.crossOrigin = "anonymous";
-          s.onload = () => {
-            log("  hands.js 加载完成 ✅");
-            resolve();
-          };
-          s.onerror = () => reject(new Error("hands.js 加载失败"));
-          document.head.appendChild(s);
-        });
+        const scriptTimeout = 15000;
+        function loadScript(src: string, name: string): Promise<void> {
+          return new Promise((resolve, reject) => {
+            const s = document.createElement("script");
+            s.src = src;
+            s.crossOrigin = "anonymous";
+            const timer = setTimeout(() => {
+              reject(new Error(name + " 加载超时（15s），请检查网络"));
+            }, scriptTimeout);
+            s.onload = () => {
+              clearTimeout(timer);
+              log("  " + name + " 加载完成 ✅");
+              resolve();
+            };
+            s.onerror = () => {
+              clearTimeout(timer);
+              reject(new Error(name + " 加载失败，可能是网络问题"));
+            };
+            document.head.appendChild(s);
+          });
+        }
+
+        await loadScript(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js",
+          "hands.js"
+        );
         if (dead) return;
 
-        await new Promise<void>((resolve, reject) => {
-          const s = document.createElement("script");
-          s.src =
-            "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js";
-          s.crossOrigin = "anonymous";
-          s.onload = () => {
-            log("  camera_utils.js 加载完成 ✅");
-            resolve();
-          };
-          s.onerror = () => reject(new Error("camera_utils.js 加载失败"));
-          document.head.appendChild(s);
-        });
+        await loadScript(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675466862/camera_utils.js",
+          "camera_utils.js"
+        );
         if (dead) return;
 
         // ── 步骤2: 验证全局对象 ──
-        log("2/6 验证全局对象...");
+        log("2/7 验证全局对象...");
         const H = window.Hands;
-        const C = window.Camera;
         if (!H) {
-          log("  ❌ Hands 未注册到 window");
+          setStatus("error");
+          setStatusMsg("Hands 模块未加载");
+          log("❌ Hands 未注册到 window");
           return;
         }
-        if (!C) {
-          log("  ❌ Camera 未注册到 window");
-          return;
-        }
-        log("  Hands ✅ Camera ✅");
+        log("  Hands ✅");
 
-        // ── 步骤3: 创建 Hands 实例 + 摄像头 ──
-        setStatusMsg("启动摄像头...");
-        log("3/6 创建实例 + 获取摄像头...");
+        // ── 步骤3: 直接用 getUserMedia 获取摄像头（不用 Camera Utils）──
+        setStatusMsg("请求摄像头权限...");
+        log("3/7 请求摄像头权限...");
+
+        const video = vref.current;
+        if (!video) {
+          setStatus("error");
+          setStatusMsg("视频元素未初始化");
+          log("❌ video ref 为空");
+          return;
+        }
+
+        // 只指定 facingMode，不指定 width/height（避免过度约束）
+        let stream: MediaStream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user" },
+            audio: false,
+          });
+        } catch (camErr) {
+          // 降级：不指定 facingMode
+          log("  首次尝试失败，降级尝试...");
+          try {
+            stream = await navigator.mediaDevices.getUserMedia({
+              video: true,
+              audio: false,
+            });
+          } catch (camErr2) {
+            const msg = camErr2 instanceof Error ? camErr2.message : String(camErr2);
+            log("❌ 摄像头获取失败: " + msg);
+            setStatus("error");
+            if (msg.includes("Permission") || msg.includes("permission") || msg.includes("denied") || msg.includes("NotAllowed")) {
+              setStatusMsg("摄像头权限被拒绝。请在浏览器设置 → 权限中允许摄像头访问");
+            } else if (msg.includes("NotFound") || msg.includes("device")) {
+              setStatusMsg("未找到摄像头设备");
+            } else if (msg.includes("NotReadable") || msg.includes("busy")) {
+              setStatusMsg("摄像头被其他应用占用，请关闭后重试");
+            } else {
+              setStatusMsg("摄像头不可用: " + msg.slice(0, 50));
+            }
+            return;
+          }
+        }
+        if (dead) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        mediaStream = stream;
+        log("  摄像头获取成功 ✅");
+
+        // 绑定流到 video 元素
+        video.srcObject = stream;
+        log("  等待视频就绪...");
+        await new Promise<void>((resolve, reject) => {
+          const timeout = setTimeout(() => {
+            reject(new Error("视频加载超时（10s）"));
+          }, 10000);
+          video.onloadedmetadata = () => {
+            clearTimeout(timeout);
+            log("  视频就绪 " + video.videoWidth + "x" + video.videoHeight + " ✅");
+            resolve();
+          };
+          video.onerror = () => {
+            clearTimeout(timeout);
+            reject(new Error("视频加载失败"));
+          };
+        });
+        await video.play().catch(() => {});
+        if (dead) return;
+
+        // ── 步骤4: 创建 Hands 实例 ──
+        setStatusMsg("初始化手部识别...");
+        log("4/7 创建 Hands 实例...");
 
         handsInst = new H({
           locateFile: (f: string) =>
-            "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/" +
-            f,
+            "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/" + f,
         });
         handsInst.setOptions({
           maxNumHands: 1,
@@ -684,93 +746,28 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           minTrackingConfidence: 0.5,
         });
 
-        const video = vref.current;
-        if (!video) {
-          log("  ❌ video ref 为空");
-          return;
-        }
-
-        // Camera 工具类会自动处理 getUserMedia
-        log("  创建 Camera 实例...");
-        const camera = new C(video, {
-          onFrame: async () => {
-            if (!handsInst) return;
-            try {
-              await handsInst.send({ image: video });
-            } catch (e) {
-              const msg = e instanceof Error ? e.message : String(e);
-              log("send: " + msg.slice(0, 60));
-            }
-          },
-          width: 480,
-          height: 640,
-          facingMode: "user",
-        });
-        log("  启动 Camera...");
-        // 先用 getUserMedia 预检摄像头权限
-        try {
-          const testStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user", width: 480, height: 640 },
-            audio: false,
-          });
-          // 释放测试流，Camera 工具会重新获取
-          testStream.getTracks().forEach((t) => t.stop());
-          log("  摄像头权限 OK ✅");
-        } catch (permErr) {
-          const msg = permErr instanceof Error ? permErr.message : String(permErr);
-          log("  ❌ 摄像头权限失败: " + msg);
-          setStatus("error");
-          setStatusMsg(
-            msg.includes("permission") || msg.includes("Permission")
-              ? "摄像头权限被拒绝，请在浏览器设置中允许"
-              : "摄像头不可用: " + msg.slice(0, 40)
-          );
-          return;
-        }
-        camera.start();
-
-        // ── 步骤4: 注册结果回调 ──
-        log("4/6 注册 onResults...");
+        // ── 步骤5: 注册 onResults ──
+        log("5/7 注册 onResults...");
         handsInst.onResults((res: HandResults) => {
           const cvs = cref.current;
           if (!cvs) return;
           const ctx = cvs.getContext("2d") as CanvasRenderingContext2D;
           if (!ctx) return;
-          if (
-            cvs.width !== video.videoWidth ||
-            cvs.height !== video.videoHeight
-          ) {
+          if (cvs.width !== video.videoWidth || cvs.height !== video.videoHeight) {
             cvs.width = video.videoWidth;
             cvs.height = video.videoHeight;
           }
           ctx.clearRect(0, 0, cvs.width, cvs.height);
           if (res.multiHandLandmarks?.length) {
             setHandCnt(res.multiHandLandmarks.length);
-            for (
-              let h = 0;
-              h < res.multiHandLandmarks.length;
-              h++
-            ) {
+            for (let h = 0; h < res.multiHandLandmarks.length; h++) {
               const lm = res.multiHandLandmarks[h];
-
-              // 读取 handedness 标签（Left/Right）
               const handedness: "Left" | "Right" | null =
                 res.multiHandedness?.[h]?.label ?? null;
 
-              // ── 手心/手背朝向检测 ──
-              // 方案 B：手掌中心 z vs 指关节区 z 的深度差
-              const palmZ =
-                (lm[0].z + lm[5].z + lm[9].z + lm[17].z) / 4;
-              const knuckleZ =
-                (lm[2].z +
-                  lm[6].z +
-                  lm[10].z +
-                  lm[14].z +
-                  lm[18].z) /
-                5;
+              const palmZ = (lm[0].z + lm[5].z + lm[9].z + lm[17].z) / 4;
+              const knuckleZ = (lm[2].z + lm[6].z + lm[10].z + lm[14].z + lm[18].z) / 5;
               const rawDepthDiff = palmZ - knuckleZ;
-
-              // EMA 平滑
               palmDepthSmoothRef.current = ema(
                 palmDepthSmoothRef.current,
                 rawDepthDiff,
@@ -778,10 +775,8 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               );
               const smoothDepthDiff = palmDepthSmoothRef.current;
 
-              // 融合决策
               const decision = shouldRenderNails(lm, smoothDepthDiff, handedness);
 
-              // 更新 UI 朝向状态
               if (decision.reason.includes("手背")) {
                 setOrientation("dorsum");
               } else if (decision.reason.includes("手心")) {
@@ -790,17 +785,10 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
                 setOrientation("ambiguous");
               }
 
-              // 仅在判定为手背朝镜头时渲染美甲
               if (decision.render) {
                 paintNails(
-                  ctx,
-                  lm,
-                  colRef.current,
-                  texRef.current,
-                  modeRef.current,
-                  cvs.width,
-                  cvs.height,
-                  video
+                  ctx, lm, colRef.current, texRef.current,
+                  modeRef.current, cvs.width, cvs.height, video
                 );
               }
             }
@@ -810,17 +798,34 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           }
         });
 
+        // ── 步骤6: 用 requestAnimationFrame 驱动推理（替代 Camera Utils）──
+        log("6/7 启动推理循环...");
+        let sending = false;
+        async function loop() {
+          if (dead || !handsInst || !video) return;
+          if (!sending && video.readyState >= 2) {
+            sending = true;
+            try {
+              await handsInst.send({ image: video });
+            } catch {
+              // 忽略单帧错误
+            }
+            sending = false;
+          }
+          rafLoop = requestAnimationFrame(loop);
+        }
+        rafLoop = requestAnimationFrame(loop);
+
+        // ── 步骤7: 就绪 ──
         setStatus("ready");
         setStatusMsg("就绪");
-        log("6/6 系统就绪 ✅");
+        log("7/7 系统就绪 ✅");
       } catch (err) {
         const m = err instanceof Error ? err.message : String(err);
         log("❌ " + m);
         if (!dead) {
           setStatus("error");
-          setStatusMsg(
-            m.includes("permission") ? "权限被拒绝" : "启动失败"
-          );
+          setStatusMsg(m.includes("permission") || m.includes("权限") ? "摄像头权限被拒绝" : m.slice(0, 60));
         }
       }
     }
@@ -828,11 +833,10 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     start();
     return () => {
       dead = true;
-      cancelAnimationFrame(rafId);
-      try {
-        handsInst?.close();
-      } catch {
-        // ignore
+      cancelAnimationFrame(rafLoop);
+      try { handsInst?.close(); } catch {}
+      if (mediaStream) {
+        mediaStream.getTracks().forEach((t) => t.stop());
       }
     };
   }, [userStarted]);
