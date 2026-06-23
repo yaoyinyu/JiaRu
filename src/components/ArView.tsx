@@ -15,6 +15,12 @@ const DEPTH_DIFF_THRESHOLD = 0.003;   // depthDiff > 此值 = 手背
 const FINGER_Z_VOTE_THRESHOLD = 0.002; // 单指投票阈值
 const OUT_OF_FRAME_THRESHOLD = 0.1;   // x/y 超出 [0.1, 0.9] = 出画面
 
+// 叉积法向量 z 分量阈值（基于 x/y 坐标，精度高）
+const CROSS_PRODUCT_Z_THRESHOLD = 0.001;
+
+// 拇指位置辅助验证：拇指 TIP.x 相对手掌中心 x 的偏移
+const THUMB_X_THRESHOLD = 0.02;
+
 // 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
 const VOTE_FINGERS = [1, 2, 3, 4];
 
@@ -36,8 +42,14 @@ interface Landmark {
   z: number;
 }
 
+interface Handedness {
+  label: "Left" | "Right";
+  score: number;
+}
+
 interface HandResults {
   multiHandLandmarks?: Landmark[][];
+  multiHandedness?: Handedness[];
 }
 
 interface HandsInstance {
@@ -376,8 +388,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
    */
   function shouldRenderNails(
     lm: Landmark[],
-    smoothDepthDiff: number
-  ): { render: boolean; confidence: "high" | "low"; reason: string } {
+    smoothDepthDiff: number,
+    handedness: "Left" | "Right" | null
+  ): { render: boolean; confidence: "high" | "low" | "none"; reason: string } {
     // 边界检查：手部出画面
     const palmPts = [lm[0], lm[5], lm[9], lm[17]];
     const outOfFrame = palmPts.some(
@@ -388,40 +401,90 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         p.y > 1 - OUT_OF_FRAME_THRESHOLD
     );
     if (outOfFrame) {
-      return { render: false, confidence: "low", reason: "手部出画面" };
+      return { render: false, confidence: "none", reason: "手部出画面" };
     }
 
-    // 方案 B：深度差判断
+    // ── 方案 A：叉积法向量（基于 x/y，精度最高）──
+    const v5x = lm[5].x - lm[0].x;
+    const v5y = lm[5].y - lm[0].y;
+    const v17x = lm[17].x - lm[0].x;
+    const v17y = lm[17].y - lm[0].y;
+    const crossZ = v5x * v17y - v5y * v17x;
+
+    let isDorsumByCross = false;
+    let isPalmByCross = false;
+    if (handedness === "Right") {
+      isDorsumByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD;
+      isPalmByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD;
+    } else if (handedness === "Left") {
+      isDorsumByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD;
+      isPalmByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD;
+    }
+
+    // ── 方案 B：深度差判断（z 坐标，精度低但独立于 x/y）──
     const isDorsumByDepth = smoothDepthDiff > DEPTH_DIFF_THRESHOLD;
     const isPalmByDepth = smoothDepthDiff < -DEPTH_DIFF_THRESHOLD;
-    const isAmbiguous = !isDorsumByDepth && !isPalmByDepth;
+    const isAmbiguousDepth = !isDorsumByDepth && !isPalmByDepth;
 
-    // 方案 C：4 指投票（排除拇指）
+    // ── 方案 C：4 指投票（排除拇指，z 坐标）──
     let dorsumVotes = 0;
     let palmVotes = 0;
     for (const f of VOTE_FINGERS) {
-      const dz = lm[TIPS[f]].z - lm[PIPS[f]].z; // 正 = PIP 更靠近镜头 = 手背
+      const dz = lm[TIPS[f]].z - lm[PIPS[f]].z;
       if (dz > FINGER_Z_VOTE_THRESHOLD) dorsumVotes++;
       else if (dz < -FINGER_Z_VOTE_THRESHOLD) palmVotes++;
     }
     const isDorsumByVote = dorsumVotes >= 3;
     const isPalmByVote = palmVotes >= 3;
 
-    // 融合决策
-    if (isAmbiguous) {
-      return { render: false, confidence: "low", reason: "侧手/过渡态" };
+    // ── 方案 D：拇指位置辅助验证（基于 x 坐标，精度高）──
+    const palmCenterX = (lm[0].x + lm[5].x + lm[9].x + lm[17].x) / 4;
+    const thumbOffsetX = lm[4].x - palmCenterX;
+    let isDorsumByThumb = false;
+    let isPalmByThumb = false;
+    if (handedness === "Right") {
+      isDorsumByThumb = thumbOffsetX < -THUMB_X_THRESHOLD;
+      isPalmByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
+    } else if (handedness === "Left") {
+      isDorsumByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
+      isPalmByThumb = thumbOffsetX < -THUMB_X_THRESHOLD;
     }
-    if (isDorsumByDepth && isDorsumByVote) {
-      return { render: true, confidence: "high", reason: "双方案一致：手背" };
+
+    // ── 融合决策：加权投票 ──
+    const dorsumScore =
+      (isDorsumByCross ? 2 : 0) +
+      (isDorsumByThumb ? 1 : 0) +
+      (isDorsumByDepth ? 1 : 0) +
+      (isDorsumByVote ? 1 : 0);
+    const palmScore =
+      (isPalmByCross ? 2 : 0) +
+      (isPalmByThumb ? 1 : 0) +
+      (isPalmByDepth ? 1 : 0) +
+      (isPalmByVote ? 1 : 0);
+
+    console.log("[AR-Orient]", {
+      handedness,
+      crossZ: crossZ.toFixed(5),
+      depthDiff: smoothDepthDiff.toFixed(5),
+      thumbX: thumbOffsetX.toFixed(5),
+      votes: `d${dorsumVotes}/p${palmVotes}`,
+      scores: `d${dorsumScore}/p${palmScore}`,
+    });
+
+    // 保守策略：宁可漏渲染也不要误渲染到手心
+    if (dorsumScore >= 3 && dorsumScore > palmScore + 1) {
+      return { render: true, confidence: "high", reason: "多方案一致：手背" };
     }
-    if (isPalmByDepth && isPalmByVote) {
-      return { render: false, confidence: "high", reason: "双方案一致：手心" };
+    if (palmScore >= 3 && palmScore > dorsumScore + 1) {
+      return { render: false, confidence: "high", reason: "多方案一致：手心" };
     }
-    // 不一致 → 采用方案 B 结果，降低置信度
+    if (isAmbiguousDepth && !isDorsumByCross && !isPalmByCross) {
+      return { render: false, confidence: "none", reason: "侧手/过渡态" };
+    }
     return {
-      render: isDorsumByDepth,
+      render: false,
       confidence: "low",
-      reason: `方案不一致 B=${isDorsumByDepth ? "dorsum" : "palm"} C votes d${dorsumVotes}/p${palmVotes}`,
+      reason: `方案不一致 d${dorsumScore}/p${palmScore}`,
     };
   }
 
@@ -656,6 +719,10 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
             ) {
               const lm = res.multiHandLandmarks[h];
 
+              // 读取 handedness 标签（Left/Right）
+              const handedness: "Left" | "Right" | null =
+                res.multiHandedness?.[h]?.label ?? null;
+
               // ── 手心/手背朝向检测 ──
               // 方案 B：手掌中心 z vs 指关节区 z 的深度差
               const palmZ =
@@ -678,18 +745,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               const smoothDepthDiff = palmDepthSmoothRef.current;
 
               // 融合决策
-              const decision = shouldRenderNails(lm, smoothDepthDiff);
-
-              console.log("[AR-Orient]", {
-                depthDiff: smoothDepthDiff.toFixed(5),
-                decision: decision.render
-                  ? "dorsum"
-                  : decision.reason.includes("手心")
-                    ? "palm"
-                    : "ambiguous",
-                confidence: decision.confidence,
-                reason: decision.reason,
-              });
+              const decision = shouldRenderNails(lm, smoothDepthDiff, handedness);
 
               // 更新 UI 朝向状态
               if (decision.reason.includes("手背")) {
