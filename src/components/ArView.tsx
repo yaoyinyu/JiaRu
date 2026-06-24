@@ -947,7 +947,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               );
               const smoothDepthDiff = palmDepthSmoothRef.current;
 
-              const decision = shouldRenderNails(lm, smoothDepthDiff, effectiveHandedness);
+              // 朝向检测使用原始 handedness（匹配画面几何，不反转）
+              // UI 显示的左右手标签在上面使用 effectiveHandedness
+              const decision = shouldRenderNails(lm, smoothDepthDiff, rawHandedness);
 
               // 更新 UI 朝向指示器
               if (decision.reason.includes("手心")) {
