@@ -386,3 +386,76 @@ Task 7 (构建验证)             ← 依赖所有 Task 完成
 - [x] build 0 错误
 - [x] eslint 0 errors
 - [x] 部署清单待后续生成
+
+---
+
+## 六、Phase 3 AR 模块进度追踪
+
+### 6.1 已完成 Task
+
+#### AR-Task 1: 摄像头管线重写 ✅
+**Commits**: 865a2de, 3512b1f, 0d9f0c9, a5dbf6c
+- [x] 原生 getUserMedia 替代 @mediapipe/camera_utils
+- [x] 手动按钮触发（移动端兼容）
+- [x] rAF 循环替代 useEffect 依赖触发
+- [x] CDN 超时回退机制
+- [x] video 与 canvas 同步
+
+#### AR-Task 2: 全局朝向检测 ✅
+**Commits**: 2c1f423, eab6583, 9512dc7, 75d43b2
+- [x] 四传感器融合（叉积/深度差/手指投票/拇指位置）
+- [x] handedness 标签集成
+- [x] 极性翻转修复
+- [x] 宽松朝向策略（渲染除非明确手心）
+- [x] 不对称阈值（手心灵敏/手背严格）
+
+#### AR-Task 3: 逐指指甲可见性检测 ✅
+**Commits**: bb0aae4, 6a9e941
+- [x] isNailVisible 函数实现
+- [x] paintNails 循环内逐指判定
+- [x] 移除全局渲染门控
+- [x] z 方向修正（tipDipDiff > 0.002 = 手心侧）
+
+#### AR-Task 4: 指甲纹理贴合 ✅
+**Commits**: 5f39d97
+- [x] object-cover 坐标变换修复
+- [x] 柱面曲率变形绘制
+- [x] 环境光照采样
+- [x] z 轴深度缩放
+
+### 6.2 待验证 Task
+
+#### AR-Task 5: 手机端真机测试 🔶
+- [ ] 手机浏览器点击「开启摄像头」按钮成功获取权限
+- [ ] MediaPipe 模型加载成功
+- [ ] 手部检测正常
+- [ ] 帧率达到 15fps+
+- [ ] trycloudflare 隧道测试通过
+
+#### AR-Task 6: 逐指可见性最终验证 🔶
+- [ ] 手背朝镜头 → 五指全部贴图
+- [ ] 手心朝镜头 → 五指全部不贴
+- [ ] 手偏转 → 只有可见手指贴图
+- [ ] 阈值 0.002 实测调优
+
+#### AR-Task 7: 纹理贴合验证 🔶
+- [ ] 纹理与指甲位置对齐
+- [ ] 无压缩错位
+- [ ] 颜色/纹理切换实时生效
+
+### 6.3 未完成 Task
+
+#### AR-Task 8: AI 模块 ❌
+- [ ] 文字描述输入
+- [ ] 风格预设选择
+- [ ] AI 图片生成 API 集成
+
+#### AR-Task 9: 3D AR 试戴 ❌
+- [ ] Three.js 集成
+- [ ] 3D 指甲模型
+- [ ] 光照渲染
+
+#### AR-Task 10: 部署上线 ❌
+- [ ] Vercel 部署配置
+- [ ] HTTPS 证书
+- [ ] 域名绑定

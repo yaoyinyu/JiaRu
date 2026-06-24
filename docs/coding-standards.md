@@ -81,3 +81,41 @@ export function NailCanvas({ imageUrl, selectedColor }: NailCanvasProps) {
 Canvas API: 全支持
 Camera API: 需 HTTPS 环境
 ```
+
+## 6. AR 模块开发经验教训
+
+### 6.1 阈值设计必须避免覆盖关系
+
+**问题**: 两个阈值 `NAIL_VISIBLE=0.002` < `NAIL_AMBIGUOUS=0.004` 产生了包含关系，导致第一个分支几乎覆盖所有情况，逻辑恒为 true。
+
+**规则**: 设计多阈值时画数轴覆盖范围，确保每个分支有独立作用域。两个阈值的分支不应有包含关系。
+
+### 6.2 先实测物理方向，再写代码逻辑
+
+**问题**: MediaPipe z 轴朝向镜头为负值（定义，非直觉）。手心朝镜头时 TIP.z > DIP.z（指尖比关节更远离镜头），手背朝镜头时 TIP.z < DIP.z。
+
+**规则**: 方向类判断先 `console.log` 打印关键值确认方向，再写代码。不要凭直觉写 z 方向判断。
+
+### 6.3 useEffect 依赖数组陷阱
+
+**问题**: `userStarted` 加到 useEffect 依赖数组导致 HMR 报错。
+
+**规则**: 动态状态变量不要直接进 useEffect 依赖数组，用 `useRef` + `requestAnimationFrame` 循环替代。
+
+### 6.4 手机端 getUserMedia 交互限制
+
+**问题**: 自动调用 `getUserMedia` 被移动端浏览器隐私策略拦截。
+
+**规则**: 移动端所有需要权限的 API（摄像头/麦克风/位置等）都必须绑定用户手势事件触发。
+
+### 6.5 移除 camera_utils 依赖
+
+**问题**: `@mediapipe/camera_utils` 在移动端不兼容。
+
+**规则**: 使用原生 `getUserMedia` + `requestAnimationFrame` 循环替代第三方摄像头工具库。
+
+### 6.6 CSS object-cover 坐标系问题
+
+**问题**: CSS `object-cover` 裁剪视频导致 canvas 坐标系与 video 显示尺寸不匹配，纹理错位。
+
+**规则**: canvas 使用 CSS 显示尺寸，landmarks 坐标需要根据裁剪偏移进行变换。
