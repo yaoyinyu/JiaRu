@@ -141,6 +141,10 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   const [orientation, setOrientation] = useState<"dorsum" | "palm" | "ambiguous" | "none">("none");
   // 左右标识（用于 UI 显示）
   const [handLabel, setHandLabel] = useState<"左手" | "右手" | null>(null);
+  // 左右手反转开关（用于前置摄像头镜像补偿）
+  // 用 useRef 确保 onResults 闭包始终读取最新值
+  const [handFlip, setHandFlip] = useState(false);
+  const handFlipRef = useRef(false);
   // 逐指可见性 UI 状态（true=可见，false=隐藏）
   const [fingerVisible, setFingerVisible] = useState<boolean[]>([true, true, true, true, true]);
 
@@ -910,11 +914,18 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
             setHandCnt(res.multiHandLandmarks.length);
             for (let h = 0; h < res.multiHandLandmarks.length; h++) {
               const lmRaw = res.multiHandLandmarks[h];
-              const handedness: "Left" | "Right" | null =
+              const rawHandedness: "Left" | "Right" | null =
                 res.multiHandedness?.[h]?.label ?? null;
 
-              // 同步左右手标识到 UI
-              setHandLabel(handedness === "Right" ? "右手" : handedness === "Left" ? "左手" : null);
+              // 有效 handedness：根据 handFlip 开关决定是否反转
+              // 前置摄像头镜像差异导致部分设备 handedness 与实际相反
+              // 使用 ref 确保 onResults 闭包始终读取最新 flip 状态
+              const effectiveHandedness: "Left" | "Right" | null = handFlipRef.current
+                ? (rawHandedness === "Left" ? "Right" : rawHandedness === "Right" ? "Left" : null)
+                : rawHandedness;
+
+              // 同步左右手标识到 UI（使用有效 handedness）
+              setHandLabel(effectiveHandedness === "Right" ? "右手" : effectiveHandedness === "Left" ? "左手" : null);
 
               // 变换 landmarks 到 canvas 坐标系
               const lm = lmRaw.map((p: { x: number; y: number; z: number }) => ({
@@ -936,7 +947,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               );
               const smoothDepthDiff = palmDepthSmoothRef.current;
 
-              const decision = shouldRenderNails(lm, smoothDepthDiff, handedness);
+              const decision = shouldRenderNails(lm, smoothDepthDiff, effectiveHandedness);
 
               // 更新 UI 朝向指示器
               if (decision.reason.includes("手心")) {
@@ -1086,6 +1097,29 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           <div className="mt-4 w-32 h-1 bg-white/20 rounded-full overflow-hidden">
             <div className="h-full w-3/5 bg-[#E8A0BF] rounded-full animate-pulse" />
           </div>
+        </div>
+      )}
+
+      {/* 反转手按钮 — 前置摄像头镜像补偿 */}
+      {userStarted && status === "ready" && (
+        <div className="absolute top-3 right-3 z-20">
+          <button
+            type="button"
+            onClick={() => {
+              setHandFlip((v) => {
+                const next = !v;
+                handFlipRef.current = next; // 同步到 ref（闭包安全）
+                return next;
+              });
+            }}
+            className={`px-2.5 py-1 text-[10px] rounded-full backdrop-blur-sm border transition-all
+              ${handFlip
+                ? "bg-pink-500/60 text-white border-pink-400/60 shadow-sm shadow-pink-500/20"
+                : "bg-black/40 text-white/60 border-white/20 hover:bg-black/50"
+              }`}
+          >
+            🔄 {handFlip ? "已反转" : "反转手"}
+          </button>
         </div>
       )}
 
