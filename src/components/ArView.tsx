@@ -441,7 +441,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       isPalmByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
     }
 
-    // ── 融合决策：加权投票 ──
+    // ── 融合决策：宽松渲染策略 ──
+    // 核心原则：只要不是明确手心就渲染（手背/侧手/过渡态都渲染）
+    // 手心判定必须严格——只有强证据才判为手心
     const dorsumScore =
       (isDorsumByCross ? 2 : 0) +
       (isDorsumByThumb ? 1 : 0) +
@@ -453,20 +455,23 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       (isPalmByDepth ? 1 : 0) +
       (isPalmByVote ? 1 : 0);
 
-    // 保守策略：宁可漏渲染也不要误渲染到手心
-    if (dorsumScore >= 3 && dorsumScore > palmScore + 1) {
-      return { render: true, confidence: "high", reason: "多方案一致：手背" };
-    }
-    if (palmScore >= 3 && palmScore > dorsumScore + 1) {
+    // 手心判定：必须强证据（至少2个方案一致判定手心，且无方案判定手背）
+    if (palmScore >= 3 && dorsumScore === 0) {
       return { render: false, confidence: "high", reason: "多方案一致：手心" };
     }
-    if (isAmbiguousDepth && !isDorsumByCross && !isPalmByCross) {
-      return { render: false, confidence: "none", reason: "侧手/过渡态" };
+    // 单一强信号（叉积）明确手心 + 无任何手背信号
+    if (isPalmByCross && dorsumScore === 0 && !isDorsumByDepth && !isDorsumByVote) {
+      return { render: false, confidence: "high", reason: "叉积明确：手心" };
     }
+    // 其他所有情况都渲染：手背、侧手、过渡态、模糊态
+    if (dorsumScore > 0) {
+      return { render: true, confidence: "high", reason: "检测到手背特征" };
+    }
+    // 无明确手背信号但也无明确手心信号 → 渲染（侧手/过渡态）
     return {
-      render: false,
+      render: true,
       confidence: "low",
-      reason: `方案不一致 d${dorsumScore}/p${palmScore}`,
+      reason: `非手心态 d${dorsumScore}/p${palmScore}`,
     };
   }
 
@@ -839,10 +844,10 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
               const decision = shouldRenderNails(lm, smoothDepthDiff, handedness);
 
-              if (decision.reason.includes("手背")) {
-                setOrientation("dorsum");
-              } else if (decision.reason.includes("手心")) {
+              if (decision.reason.includes("手心")) {
                 setOrientation("palm");
+              } else if (decision.reason.includes("手背") || decision.reason.includes("非手心")) {
+                setOrientation("dorsum");
               } else {
                 setOrientation("ambiguous");
               }
