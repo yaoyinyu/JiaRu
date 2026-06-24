@@ -856,7 +856,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
                 z: p.z,
               })) as Landmark[];
 
-              // 全局朝向检测（仅用于状态显示，不影响贴图）
+              // 全局朝向检测（4 传感器融合判定）
+              // 手心朝镜头 → 不渲染（手心没有指甲）
+              // 手背/侧手/模糊态 → 进入 paintNails，内部再用 isNailVisible 逐指过滤
               const palmZ = (lm[0].z + lm[5].z + lm[9].z + lm[17].z) / 4;
               const knuckleZ = (lm[2].z + lm[6].z + lm[10].z + lm[14].z + lm[18].z) / 5;
               const rawDepthDiff = palmZ - knuckleZ;
@@ -869,6 +871,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
               const decision = shouldRenderNails(lm, smoothDepthDiff, handedness);
 
+              // 更新 UI 朝向指示器
               if (decision.reason.includes("手心")) {
                 setOrientation("palm");
               } else if (decision.reason.includes("手背") || decision.reason.includes("非手心")) {
@@ -877,11 +880,14 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
                 setOrientation("ambiguous");
               }
 
-              // 逐指独立贴图（paintNails 内部判断每指指甲可见性）
-              paintNails(
-                ctx, lm, colRef.current, texRef.current,
-                modeRef.current, cvs.width, cvs.height, video
-              );
+              // 全局渲染门控：手心朝镜头时完全跳过贴图
+              // 只有手背/侧手/模糊态时才进入 paintNails 做逐指精细可见性判定
+              if (decision.render) {
+                paintNails(
+                  ctx, lm, colRef.current, texRef.current,
+                  modeRef.current, cvs.width, cvs.height, video
+                );
+              }
             }
           } else {
             setHandCnt(0);

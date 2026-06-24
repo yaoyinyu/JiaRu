@@ -121,8 +121,11 @@ requestAnimationFrame 循环：
   ├─ video.readyState >= 2 ?
   ├─ HandLandmarker.detectForVideo(video, timestamp)
   ├─ onResults 回调：
-  │   ├─ 计算 5 指可见性 (isNailVisible)
-  │   ├─ 全局朝向检测 (shouldRenderNails，状态显示用)
+  │   ├─ object-cover 坐标变换
+  │   ├─ 4 传感器融合朝向检测 (shouldRenderNails)
+  │   │   ├─ 手心 → 跳过 paintNails（手心无指甲）
+  │   │   └─ 手背/侧手 → 进入 paintNails
+  │   ├─ 逐指可见性判定 (isNailVisible)
   │   └─ paintNails（仅对可见手指贴图）
   └─ 下一帧 rAF
 ```
@@ -214,15 +217,19 @@ z 缩放 = clamp(1 - TIP.z × 0.6, 0.7, 1.5)
 #### Canvas 绘制
 ```
 1. 清除上一帧
-2. 遍历 5 指：
-   a. isNailVisible(lm, f) → false 则 continue
+2. 4 传感器融合朝向检测 → shouldRenderNails(lm, depthDiff, handedness)
+   ├─ 手心朝镜头 → 跳过本帧渲染（手心无指甲）
+   └─ 手背/侧手 → 进入逐指渲染
+3. 遍历 5 指：
+   a. isNailVisible(lm, f) → false 则 continue（逐指过滤）
    b. EMA 平滑 TIP/DIP/PIP 坐标
    c. z 轴深度缩放
    d. 计算方向向量 + 指甲参数
    e. 采样环境光照
    f. 绘制底色/纹理（柱面曲率变形）
-   g. 绘制高光层
-3. 全局朝向检测 → 更新 orientation state（UI 显示）
+   g. 绘制材质细节（菲涅尔反射 + 颗粒 + 暗角）
+   h. 绘制镜面高光（主高光 + 指尖 + 根部）
+4. 更新 orientation state（UI 朝向指示器）
 ```
 
 ### 5.7 验证清单
@@ -232,6 +239,7 @@ z 缩放 = clamp(1 - TIP.z × 0.6, 0.7, 1.5)
 - [x] MediaPipe 模型加载成功
 - [x] 手部检测到关键点，指甲绘制在正确位置
 - [x] 指甲贴合自然，旋转跟随手指方向
+- [x] 全局朝向门控已恢复 — 4 传感器判定手心时跳过 painNails
 - [ ] 手机端摄像头成功启动（待真机测试）
 - [ ] 手心朝镜头时不贴纹理（待真机验证）
 - [ ] 逐指独立判定混合状态正确（待真机验证）
