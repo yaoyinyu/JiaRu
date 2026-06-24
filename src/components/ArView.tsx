@@ -478,9 +478,14 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       isPalmByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
     }
 
-    // ── 融合决策：手心严格阻止，其他都渲染 ──
-    // 手心判定灵敏（低阈值），只要检测到手心就阻止
-    // 手背/侧手/过渡态都渲染
+    // ── 融合决策：比较手心 vs 手背总得分 ──
+    // 注意：叉积(方案A)和拇指位置(方案D)仅用 x/y 坐标，
+    // 手部在画面中旋转时它们的值会改变甚至反号。
+    // 深度差(方案B)和手指投票(方案C)用 z 坐标，旋转不变。
+    //
+    // 融合时比较两个总分，而不是独立阈值：
+    //   palmScore > dorsumScore → 手心占优 → 阻止
+    //   否则 → 渲染（宽松策略，宁可多渲也不要漏渲）
     const dorsumScore =
       (isDorsumByCross ? 2 : 0) +
       (isDorsumByThumb ? 1 : 0) +
@@ -492,22 +497,16 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       (isPalmByDepth ? 1 : 0) +
       (isPalmByVote ? 1 : 0);
 
-    // 手心判定：只要有明显手心信号就阻止渲染
-    if (palmScore >= 2) {
-      return { render: false, confidence: "high", reason: "检测到手心" };
+    if (palmScore > dorsumScore) {
+      return { render: false, confidence: "high", reason: `手心占优 p${palmScore}/d${dorsumScore}` };
     }
-    // 叉积单独判定手心（叉积是最可靠的 x/y 平面信号）
-    if (isPalmByCross && palmScore >= 1) {
-      return { render: false, confidence: "high", reason: "叉积+辅助：手心" };
-    }
-    // 其他所有情况都渲染
-    if (dorsumScore > 0) {
-      return { render: true, confidence: "high", reason: "检测到手背特征" };
+    if (dorsumScore > 0 || palmScore === 0) {
+      return { render: true, confidence: "high", reason: `手背/非手心态 d${dorsumScore}/p${palmScore}` };
     }
     return {
       render: true,
       confidence: "low",
-      reason: `非手心态 d${dorsumScore}/p${palmScore}`,
+      reason: `模糊态 d${dorsumScore}/p${palmScore}`,
     };
   }
 

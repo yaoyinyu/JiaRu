@@ -51,17 +51,14 @@ const DETECT_TIMEOUT = 30000;
 
 interface LmPt { x: number; y: number; z: number; }
 interface HandsResults { multiHandLandmarks?: LmPt[][]; }
-interface HandsInst {
-  setOptions: (o: Record<string, unknown>) => void;
-  onResults: (cb: (r: HandsResults) => void) => void;
-  close: () => void;
-  send: (d: { image: HTMLCanvasElement }) => Promise<void>;
-}
 interface HandsCtor {
-  new (c: { locateFile: (f: string) => string }): HandsInst;
+  new (c: { locateFile: (f: string) => string }): {
+    setOptions: (o: Record<string, unknown>) => void;
+    onResults: (cb: (r: HandsResults) => void) => void;
+    close: () => void;
+    send: (d: { image: HTMLCanvasElement | HTMLVideoElement }) => Promise<void>;
+  };
 }
-
-declare global { interface Window { Hands?: HandsCtor; } }
 
 // ─── 贝塞尔指甲路径（与 ArView 一致的形状） ──────────────
 
@@ -156,14 +153,13 @@ async function detectHandsOnImage(
   img: HTMLImageElement
 ): Promise<LmPt[][] | null> {
   // 1. 确保 CDN 已加载
-  if (!window.Hands) {
+  const HW = (window as any).Hands as HandsCtor | undefined;
+  if (!HW) {
     await loadScript(CDN_HANDS_URL);
   }
-  const H = window.Hands;
-  if (!H) throw new Error("MediaPipe Hands 加载失败");
-
-  // 2. 创建临时 Hands 实例（modelComplexity=1 静态图精度）
-  const hands: HandsInst = new H({ locateFile: (f) => CDN_BASE + f });
+  const HF = (window as any).Hands as HandsCtor;
+  if (!HF) throw new Error("MediaPipe Hands 加载失败");
+  const hands = new HF({ locateFile: (f) => CDN_BASE + f });
   hands.setOptions({
     maxNumHands: 1,
     modelComplexity: 1,
