@@ -25,6 +25,12 @@ const CROSS_PRODUCT_Z_THRESHOLD_PALM = 0.0005;   // 手心判定（灵敏）
 // 拇指位置辅助验证：拇指 TIP.x 相对手掌中心 x 的偏移
 const THUMB_X_THRESHOLD = 0.02;
 
+// 逐指指甲可见性阈值
+// TIP.z - DIP.z < 此值 = 指甲可见（手背/侧手）
+const NAIL_VISIBLE_Z_THRESHOLD = 0.002;
+// |TIP.z - DIP.z| < 此值 = 侧手/过渡态（指甲部分可见）
+const NAIL_AMBIGUOUS_Z_THRESHOLD = 0.004;
+
 // 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
 const VOTE_FINGERS = [1, 2, 3, 4];
 
@@ -472,6 +478,28 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     };
   }
 
+  /**
+   * 逐指可见性判定
+   *
+   * 原理：指甲在手背侧。指尖(TIP)在指甲上方，DIP关节在指甲下方。
+   * 当指甲面朝镜头时，TIP.z 更负（更接近镜头）或与 DIP.z 接近。
+   * 当手心朝镜头时，TIP 被手指肉遮挡，DIP 关节更凸出，TIP.z - DIP.z > 0。
+   *
+   * 判定：TIP.z - DIP.z < 阈值 → 指甲可见 → 渲染
+   */
+  function isNailVisible(lm: Landmark[], fingerIdx: number): boolean {
+    const tipZ = lm[TIPS[fingerIdx]].z;
+    const dipZ = lm[DIPS[fingerIdx]].z;
+    const pipZ = lm[PIPS[fingerIdx]].z;
+    // 指尖比 DIP 更远离镜头（z 更负）= 指甲可见
+    // 或指尖与 DIP 深度接近（侧手）= 指甲部分可见
+    const tipDipDiff = tipZ - dipZ;
+    // 阈值：手心时 tipZ 明显大于 dipZ（手指肉遮挡），手背时 tipZ <= dipZ
+    if (tipDipDiff < NAIL_VISIBLE_Z_THRESHOLD) return true;  // 指甲明确可见
+    if (Math.abs(tipDipDiff) < NAIL_AMBIGUOUS_Z_THRESHOLD) return true;  // 侧手/过渡态
+    return false;  // 手心侧
+  }
+
   // 指甲绘制函数
   function paintNails(
     ctx: CanvasRenderingContext2D,
@@ -489,6 +517,10 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       const rawPip = lm[PIPS[f]];
       const color = colors[f] || "#E8A0BF";
       if (!rawTip || !rawDip) continue;
+
+      // ── 逐指指甲可见性判定 ──
+      // 手心侧的手指不贴图
+      if (!isNailVisible(lm, f)) continue;
 
       // ── 时序平滑 ──
       const s = smoothRef.current[f];
@@ -829,6 +861,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
                 z: p.z,
               })) as Landmark[];
 
+              // 全局朝向检测（仅用于状态显示，不影响贴图）
               const palmZ = (lm[0].z + lm[5].z + lm[9].z + lm[17].z) / 4;
               const knuckleZ = (lm[2].z + lm[6].z + lm[10].z + lm[14].z + lm[18].z) / 5;
               const rawDepthDiff = palmZ - knuckleZ;
@@ -849,12 +882,11 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
                 setOrientation("ambiguous");
               }
 
-              if (decision.render) {
-                paintNails(
-                  ctx, lm, colRef.current, texRef.current,
-                  modeRef.current, cvs.width, cvs.height, video
-                );
-              }
+              // 逐指独立贴图（paintNails 内部判断每指指甲可见性）
+              paintNails(
+                ctx, lm, colRef.current, texRef.current,
+                modeRef.current, cvs.width, cvs.height, video
+              );
             }
           } else {
             setHandCnt(0);
