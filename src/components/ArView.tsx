@@ -29,23 +29,26 @@ const THUMB_X_THRESHOLD = 0.02;
 // 手心侧：TIP.z - DIP.z > 此值 = 指甲被遮挡 → 不渲染
 const NAIL_PALM_Z_THRESHOLD = 0.002;
 // 信号 B 阈值：TIP.z - PIP.z > 此值 → 手心侧（更宽松，用于印证）
-const NAIL_PALM_Z_THRESHOLD_B = 0.003;
+const NAIL_PALM_Z_THRESHOLD_B = 0.004;
 // 透视缩短比阈值：len2D/len3D < 此值 → 手指指向镜头 → 手心侧
-const FORESHORTEN_THRESHOLD = 0.65;
+const FORESHORTEN_THRESHOLD = 0.55;
 // 可见性状态帧间平滑因子
 const VISIBILITY_EMA_ALPHA = 0.3;
 // 可见性平滑阈值（< 此值视为不可见）
 const VISIBILITY_SMOOTH_THRESHOLD = 0.5;
+// 手指伸展角阈值（弧度）：PIP→DIP 与 DIP→TIP 夹角 > 此值 = 弯折 = 指甲不可见
+const EXTENSION_ANGLE_THRESHOLD = 0.6; // ≈ 35°
 
 // 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
 const VOTE_FINGERS = [1, 2, 3, 4];
 
-// 指甲中心从指尖向手根方向的偏移比例
-const TIP_OFFSET_RATIO = 0.28;
+// 指甲中心从指尖向手根方向的偏移比例（逐指独立：拇指尾指更靠近指尖）
+const TIP_OFFSET_RATIO = 0.28; // 保留作为默认降级
+const FINGER_OFFSET_RATIOS = [0.22, 0.28, 0.28, 0.26, 0.24];
 
-// 逐指宽长比校准（拇指宽短、小指窄长）
-const FINGER_LENGTH_RATIOS = [0.55, 0.58, 0.60, 0.56, 0.52];
-const FINGER_WIDTH_RATIOS  = [0.55, 0.50, 0.48, 0.45, 0.40];
+// 逐指宽长比校准（基于真实甲床占比：拇指宽短、小指窄长）
+const FINGER_LENGTH_RATIOS = [0.50, 0.55, 0.58, 0.54, 0.48];
+const FINGER_WIDTH_RATIOS  = [0.52, 0.48, 0.46, 0.44, 0.36];
 
 // 逐指指甲形状参数 [thumb, index, middle, ring, pinky]
 // 指尖收窄系数：拇指最大(平)，小指最小(尖)
@@ -509,14 +512,42 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   }
 
   /**
-   * 三信号融合逐指指甲可见性判定
+   * 计算手指伸展角（PIP→DIP 与 DIP→TIP 在画面上的夹角）
    *
-   * 使用三个独立信号并投票决定手指指甲是否可见：
-   *   信号 A — TIP.z vs DIP.z（z 深度差，传统方法改进）
+   * 原理：手指伸直时 PIP→DIP 和 DIP→TIP 在同一直线，夹角 ≈ 0°
+   *       手指弯折时 DIP→TIP 偏离 PIP→DIP 方向，夹角增大
+   *       手指弯折 → 指甲朝下/朝侧 → 不可见
+   *
+   * 只用 x/y 坐标（MediaPipe 精度最高），不受 z 噪声影响
+   *
+   * @returns 弧度角 (0 = 完全伸直, PI/2 ≈ 90°弯折)
+   */
+  function computeFingerExtensionAngle(
+    pip: { x: number; y: number },
+    dip: { x: number; y: number },
+    tip: { x: number; y: number }
+  ): number {
+    const v1x = dip.x - pip.x;  // 中段指骨 (PIP→DIP)
+    const v1y = dip.y - pip.y;
+    const v2x = tip.x - dip.x;  // 远端指骨 (DIP→TIP)
+    const v2y = tip.y - dip.y;
+
+    const dot = v1x * v2x + v1y * v2y;
+    const cross = v1x * v2y - v1y * v2x;
+    return Math.abs(Math.atan2(cross, dot));
+  }
+
+  /**
+   * 四信号融合逐指指甲可见性判定
+   *
+   * 使用四个独立信号并投票决定手指指甲是否可见：
+   *   信号 A — TIP.z vs DIP.z（z 深度差）
    *   信号 B — TIP.z vs PIP.z（不同关节参考，印证 A）
-   *   信号 C — 透视缩短比 len2D/len3D（基于 x/y 几何，精度最高）
+   *   信号 C — 透视缩短比 len2D/len3D（基于 x/y 几何）
+   *   信号 D — 手指伸展角 ★（PIP→DIP vs DIP→TIP 夹角，x/y 几何）
    *
-   * 投票策略：强否定优先 + 多数投票
+   * 信号 D 解决手势兼容问题：比耶/握拳/点赞等非全开手势下，
+   *   弯折手指的指甲朝下/朝侧，不应渲染。
    */
   function computeFingerVisibility(
     lm: Landmark[],
@@ -549,11 +580,17 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     const foreshortenRatio = len3D > 0.0001 ? len2D / len3D : 1;
     const sigC = foreshortenRatio > FORESHORTEN_THRESHOLD;
 
-    // ── 强否定：z 差 + 几何同时否定 → 手心侧 → 不可见 ──
-    if (!sigA && !sigC) return false;
+    // ── 信号 D：手指伸展角（基于 x/y 几何，不受 z 噪声影响）──
+    // 新增：解决手势兼容问题（比耶/握拳/点赞等）
+    // 弯折的手指指甲朝下或朝侧，不应渲染
+    const extensionAngle = computeFingerExtensionAngle(s.pip, s.dip, s.tip);
+    const sigD = extensionAngle < EXTENSION_ANGLE_THRESHOLD;
 
-    // ── 多数投票：≥ 2 信号认可 → 可见 ──
-    const votes = [sigA, sigB, sigC].filter(Boolean).length;
+    // ── 强否定：四信号全部否定 → 不可见 ──
+    if (!sigA && !sigB && !sigC && !sigD) return false;
+
+    // ── 多数投票：≥ 2 信号认可 → 可见（4 信号中 2 个通过）──
+    const votes = [sigA, sigB, sigC, sigD].filter(Boolean).length;
     return votes >= 2;
   }
 
@@ -602,16 +639,18 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       // ── z 轴深度缩放 ──
       const zScale = Math.max(0.7, Math.min(1.5, 1 - s.tip.z * 0.6));
 
-      // ── 方向向量 ──
+      // ── 方向向量（TIP-DIP 优先，更贴近指甲实际朝向）──
       let fx: number, fy: number;
-      if (rawPip) {
+      if (rawTip) {
+        const tx = s.tip.x * w, ty = s.tip.y * h;
+        const dx = s.dip.x * w, dy = s.dip.y * h;
+        fx = tx - dx; fy = ty - dy;
+      } else if (rawPip) {
         const px = s.pip.x * w, py = s.pip.y * h;
         const dx = s.dip.x * w, dy = s.dip.y * h;
         fx = dx - px; fy = dy - py;
       } else {
-        const tx = s.tip.x * w, ty = s.tip.y * h;
-        const dx = s.dip.x * w, dy = s.dip.y * h;
-        fx = tx - dx; fy = ty - dy;
+        fx = 0; fy = -1; // 降级：默认垂直
       }
 
       const rawLen = Math.sqrt(fx * fx + fy * fy);
@@ -624,8 +663,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
       const tx = s.tip.x * w;
       const ty = s.tip.y * h;
-      const cx = tx - (fx / rawLen) * (len * TIP_OFFSET_RATIO);
-      const cy = ty - (fy / rawLen) * (len * TIP_OFFSET_RATIO);
+      const offsetRatio = FINGER_OFFSET_RATIOS[f] ?? TIP_OFFSET_RATIO;
+      const cx = tx - (fx / rawLen) * (len * offsetRatio);
+      const cy = ty - (fy / rawLen) * (len * offsetRatio);
 
       // ── 环境光照采样 ──
       const env = sampleEnvLight(video, cx, cy, w, h);

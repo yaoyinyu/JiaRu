@@ -6,8 +6,13 @@ import { Header } from "@/components/Header";
 import { ArView } from "@/components/ArView";
 import { PRESET_COLORS } from "@/lib/utils";
 import { disposeAllTextures } from "@/lib/texture";
+import type { NailAssignment } from "@/components/NailArtPicker";
 
 const TextureCropper = dynamic(() => import("@/components/TextureCropper"), {
+  ssr: false,
+});
+
+const NailArtPicker = dynamic(() => import("@/components/NailArtPicker"), {
   ssr: false,
 });
 
@@ -24,6 +29,7 @@ export default function ArTryonPage() {
   const [isStarted, setIsStarted] = useState(false);
   const [mode, setMode] = useState<"color" | "texture">("color");
   const [showCropper, setShowCropper] = useState(false);
+  const [showNailPicker, setShowNailPicker] = useState(false);
   const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -59,7 +65,7 @@ export default function ArTryonPage() {
     setNailColors(same);
   };
 
-  // ── 纹理上传 ──
+  // ── 纹理上传（单纹理快捷裁剪）──
 
   const handleTextureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -79,6 +85,29 @@ export default function ArTryonPage() {
     const url = URL.createObjectURL(file);
     setUploadedPhotoUrl(url);
     setShowCropper(true);
+    e.target.value = "";
+  };
+
+  // ── 多纹理参考图上传播 ──
+
+  const handlePatternUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
+      alert("仅支持 PNG、JPG、WebP 格式的图片");
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      alert("图片大小不能超过 10MB");
+      return;
+    }
+
+    if (uploadedPhotoUrl) URL.revokeObjectURL(uploadedPhotoUrl);
+
+    const url = URL.createObjectURL(file);
+    setUploadedPhotoUrl(url);
+    setShowNailPicker(true);
     e.target.value = "";
   };
 
@@ -104,6 +133,35 @@ export default function ArTryonPage() {
 
   const handleCropCancel = useCallback(() => {
     setShowCropper(false);
+  }, []);
+
+  // ── 多纹理拣选回调 ──
+
+  const handlePickingConfirm = useCallback(
+    (assignments: NailAssignment[]) => {
+      const updated = [...nailTextures];
+
+      for (const assign of assignments) {
+        const old = updated[assign.finger];
+        // 释放旧纹理（仅当不被其他手指引用）
+        if (old) {
+          const otherRefs = updated.some(
+            (t, i) => i !== assign.finger && t === old
+          );
+          if (!otherRefs) old.close();
+        }
+        updated[assign.finger] = assign.texture;
+      }
+
+      setNailTextures(updated);
+      setShowNailPicker(false);
+      setMode("texture");
+    },
+    [nailTextures]
+  );
+
+  const handlePickingCancel = useCallback(() => {
+    setShowNailPicker(false);
   }, []);
 
   // ── 纹理操作 ──
@@ -271,6 +329,15 @@ export default function ArTryonPage() {
                       className="hidden"
                     />
                   </label>
+                  <label className="px-3 py-1.5 text-xs rounded-full bg-purple-50 text-purple-500 cursor-pointer hover:bg-purple-100 transition-colors">
+                    🎨 多纹理提取
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={handlePatternUpload}
+                      className="hidden"
+                    />
+                  </label>
                   {hasAnyTexture && (
                     <button
                       onClick={applyTextureToAll}
@@ -342,6 +409,15 @@ export default function ArTryonPage() {
             imageUrl={uploadedPhotoUrl}
             onConfirm={handleCropConfirm}
             onCancel={handleCropCancel}
+          />
+        )}
+
+        {/* 多纹理提取器 */}
+        {showNailPicker && uploadedPhotoUrl && (
+          <NailArtPicker
+            imageUrl={uploadedPhotoUrl}
+            onConfirm={handlePickingConfirm}
+            onCancel={handlePickingCancel}
           />
         )}
 

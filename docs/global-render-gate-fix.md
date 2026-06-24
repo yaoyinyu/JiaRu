@@ -48,7 +48,7 @@
 |------|------|------|
 | `src/components/ArView.tsx` | 859-884 | 在 `onResults` 回调中添加 `if (decision.render)` 门控 |
 | `docs/technical-architecture.md` | §5.2, §5.6 | 更新管线图和绘制流程 |
-| `dev-log/2025-06-24.md` | 末尾 | 追加修复记录 |
+| `dev-log/2026-06-24.md` | 末尾 | 追加修复记录 |
 
 ### 2.2 代码变更
 

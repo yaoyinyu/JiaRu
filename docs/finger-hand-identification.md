@@ -215,7 +215,7 @@ UI 底部状态栏:
 | `src/components/ArView.tsx` | ① 新增 `handLabel` state + UI显示 ② 新增三组逐指形状参数 ③ 修改 `drawNailShape` 签名 ④ 新增逐指可见性 UI 指示器 |
 | `docs/technical-architecture.md` | 更新 §5.5 参数表 + §5.6 指甲形状 |
 | `CLAUDE.md` | 更新关键参数表 |
-| `dev-log/2025-06-24.md` | 追加记录 |
+| `dev-log/2026-06-24.md` | 追加记录 |
 
 ---
 
