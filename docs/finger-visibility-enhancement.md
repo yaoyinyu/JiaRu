@@ -209,7 +209,7 @@ onResults 回调:
 |------|------|
 | `src/components/ArView.tsx` | 新增常量 + `visibleSmoothRef` + 替换 `isNailVisible()` 为三信号融合 |
 | `docs/technical-architecture.md` | 更新 §5.5 参数表 |
-| `dev-log/2025-06-24.md` | 追加记录 |
+| `dev-log/2026-06-24.md` | 追加记录 |
 
 ---
 

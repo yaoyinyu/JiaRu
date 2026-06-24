@@ -434,7 +434,7 @@ dz = PIP.z - TIP.z
 |------|----------|
 | `src/components/ArView.tsx` | 新增 `computePalmOrientation()` 函数、融合决策逻辑、UI 朝向指示器 |
 | `docs/palm-orientation-spec.md` | 本文档 |
-| `dev-log/2025-06-23.md` | 追加开发日志 |
+| `dev-log/2026-06-23.md` | 追加开发日志 |
 
 ---
 
