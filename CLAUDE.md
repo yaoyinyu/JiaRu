@@ -59,10 +59,13 @@
 
 | 参数 | 值 | 说明 |
 |------|-----|------|
-| `NAIL_PALM_Z_THRESHOLD` | 0.002 | 逐指判定手心侧阈值 |
+| `NAIL_PALM_Z_THRESHOLD` | 0.002 | 信号 A：逐指判定手心侧阈值（TIP-DIP z 差） |
+| `NAIL_PALM_Z_THRESHOLD_B` | 0.003 | 信号 B：逐指判定手心侧阈值（TIP-PIP z 差） |
+| `FORESHORTEN_THRESHOLD` | 0.65 | 信号 C：透视缩短比阈值 |
+| `VISIBILITY_EMA_ALPHA` | 0.3 | 逐指可见性状态帧间平滑 |
 | `EMA_ALPHA` | 0.45 | 关键点平滑因子 |
 | `EMA_ALPHA_PALM` | 0.3 | 朝向深度差平滑因子 |
-| `TIP_OFFSET_RATIO` | 0.15 | 指甲中心偏移比例 |
+| `TIP_OFFSET_RATIO` | 0.28 | 指甲中心偏移比例 |
 | `CURVATURE_STRENGTH` | 0.22 | 纹理柱面曲率 |
 
 详见 [technical-architecture.md](docs/technical-architecture.md) §5.5

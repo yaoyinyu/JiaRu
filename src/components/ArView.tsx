@@ -28,6 +28,14 @@ const THUMB_X_THRESHOLD = 0.02;
 // 逐指指甲可见性阈值
 // 手心侧：TIP.z - DIP.z > 此值 = 指甲被遮挡 → 不渲染
 const NAIL_PALM_Z_THRESHOLD = 0.002;
+// 信号 B 阈值：TIP.z - PIP.z > 此值 → 手心侧（更宽松，用于印证）
+const NAIL_PALM_Z_THRESHOLD_B = 0.003;
+// 透视缩短比阈值：len2D/len3D < 此值 → 手指指向镜头 → 手心侧
+const FORESHORTEN_THRESHOLD = 0.65;
+// 可见性状态帧间平滑因子
+const VISIBILITY_EMA_ALPHA = 0.3;
+// 可见性平滑阈值（< 此值视为不可见）
+const VISIBILITY_SMOOTH_THRESHOLD = 0.5;
 
 // 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
 const VOTE_FINGERS = [1, 2, 3, 4];
@@ -119,6 +127,8 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
   // 朝向检测：平滑后的深度差（palmZ - knuckleZ）
   const palmDepthSmoothRef = useRef<number>(NaN);
+  // 逐指可见性平滑状态（5 指，0=不可见, 1=可见）
+  const visibleSmoothRef = useRef<number[]>([1, 1, 1, 1, 1]);
   // 朝向状态（用于 UI 显示）
   const [orientation, setOrientation] = useState<"dorsum" | "palm" | "ambiguous" | "none">("none");
 
@@ -477,22 +487,52 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   }
 
   /**
-   * 逐指可见性判定
+   * 三信号融合逐指指甲可见性判定
    *
-   * 原理：指甲在手背侧。指尖(TIP)在指甲上方，DIP关节在指甲下方。
-   * 当指甲面朝镜头时，TIP.z 更负（更接近镜头）或与 DIP.z 接近。
-   * 当手心朝镜头时，TIP 被手指肉遮挡，DIP 关节更凸出，TIP.z - DIP.z > 0。
+   * 使用三个独立信号并投票决定手指指甲是否可见：
+   *   信号 A — TIP.z vs DIP.z（z 深度差，传统方法改进）
+   *   信号 B — TIP.z vs PIP.z（不同关节参考，印证 A）
+   *   信号 C — 透视缩短比 len2D/len3D（基于 x/y 几何，精度最高）
    *
-   * 判定：TIP.z - DIP.z < 阈值 → 指甲可见 → 渲染
+   * 投票策略：强否定优先 + 多数投票
    */
-  function isNailVisible(lm: Landmark[], fingerIdx: number): boolean {
-    const tipZ = lm[TIPS[fingerIdx]].z;
-    const dipZ = lm[DIPS[fingerIdx]].z;
-    const tipDipDiff = tipZ - dipZ;
-    // 手心侧：TIP 比 DIP 更远离镜头 → tipDipDiff > 0 → 指甲被遮挡 → 不渲染
-    // 手背侧：TIP 比 DIP 更接近镜头 → tipDipDiff < 0 或接近 0 → 指甲可见 → 渲染
-    if (tipDipDiff > NAIL_PALM_Z_THRESHOLD) return false;  // 手心侧，指甲不可见
-    return true;  // 手背/侧手，指甲可见
+  function computeFingerVisibility(
+    lm: Landmark[],
+    fingerIdx: number,
+    s: {
+      tip: { x: number; y: number; z: number };
+      dip: { x: number; y: number; z: number };
+      pip: { x: number; y: number; z: number };
+    }
+  ): boolean {
+    // ── 信号 A：TIP.z - DIP.z（使用平滑后的 z 值） ──
+    // 手心侧：TIP 比 DIP 更远离镜头 → TIP.z - DIP.z > 0
+    // 手背侧：TIP 比 DIP 更接近镜头 → TIP.z - DIP.z < 0 或接近 0
+    const tipDipDiff = s.tip.z - s.dip.z;
+    const sigA = tipDipDiff <= NAIL_PALM_Z_THRESHOLD;
+
+    // ── 信号 B：TIP.z - PIP.z（印证信号 A，使用不同关节） ──
+    // PIP 比 DIP 更靠近指根，受远端弯曲影响更小
+    const tipPipDiff = s.tip.z - s.pip.z;
+    const sigB = tipPipDiff <= NAIL_PALM_Z_THRESHOLD_B;
+
+    // ── 信号 C：透视缩短比（基于 x/y 几何，精度最高） ──
+    // 手背朝镜头：手指与镜头平面平行 → 2D 投影 ≈ 3D 长度 → ratio ≈ 1
+    // 手心朝镜头：手指指向镜头 → 2D 投影显著缩短 → ratio < 0.65
+    const dx = s.tip.x - s.pip.x;
+    const dy = s.tip.y - s.pip.y;
+    const dz = s.tip.z - s.pip.z;
+    const len2D = Math.sqrt(dx * dx + dy * dy);
+    const len3D = Math.sqrt(dx * dx + dy * dy + dz * dz);
+    const foreshortenRatio = len3D > 0.0001 ? len2D / len3D : 1;
+    const sigC = foreshortenRatio > FORESHORTEN_THRESHOLD;
+
+    // ── 强否定：z 差 + 几何同时否定 → 手心侧 → 不可见 ──
+    if (!sigA && !sigC) return false;
+
+    // ── 多数投票：≥ 2 信号认可 → 可见 ──
+    const votes = [sigA, sigB, sigC].filter(Boolean).length;
+    return votes >= 2;
   }
 
   // 指甲绘制函数
@@ -513,11 +553,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       const color = colors[f] || "#E8A0BF";
       if (!rawTip || !rawDip) continue;
 
-      // ── 逐指指甲可见性判定 ──
-      // 手心侧的手指不贴图
-      if (!isNailVisible(lm, f)) continue;
-
-      // ── 时序平滑 ──
+      // ── 时序平滑（先平滑关键点，再用平滑值做可见性判定）──
       const s = smoothRef.current[f];
       s.tip.x = ema(s.tip.x, rawTip.x);
       s.tip.y = ema(s.tip.y, rawTip.y);
@@ -530,6 +566,16 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         s.pip.y = ema(s.pip.y, rawPip.y);
         s.pip.z = ema(s.pip.z, rawPip.z);
       }
+
+      // ── 三信号融合可见性判定（使用平滑后的值）──
+      // 手心侧的手指不贴图；逐指独立判定支持混合态
+      const rawVis = computeFingerVisibility(lm, f, s);
+      visibleSmoothRef.current[f] = ema(
+        visibleSmoothRef.current[f],
+        rawVis ? 1 : 0,
+        VISIBILITY_EMA_ALPHA
+      );
+      if (visibleSmoothRef.current[f] < VISIBILITY_SMOOTH_THRESHOLD) continue;
 
       // ── z 轴深度缩放 ──
       const zScale = Math.max(0.7, Math.min(1.5, 1 - s.tip.z * 0.6));

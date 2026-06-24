@@ -175,7 +175,11 @@ function isNailVisible(lm, fingerIdx): boolean {
 
 | 参数 | 值 | 说明 |
 |------|-----|------|
-| `NAIL_PALM_Z_THRESHOLD` | 0.002 | TIP.z - DIP.z > 此值 = 手心侧 = 不渲染 |
+| `NAIL_PALM_Z_THRESHOLD` | 0.002 | 信号 A：TIP.z - DIP.z > 此值 = 手心侧 = 不渲染 |
+| `NAIL_PALM_Z_THRESHOLD_B` | 0.003 | 信号 B：TIP.z - PIP.z > 此值 = 手心侧（印证 A） |
+| `FORESHORTEN_THRESHOLD` | 0.65 | 信号 C：len2D/len3D < 此值 = 透视缩短 = 手心侧 |
+| `VISIBILITY_EMA_ALPHA` | 0.3 | 逐指可见性状态帧间平滑因子 |
+| `VISIBILITY_SMOOTH_THRESHOLD` | 0.5 | 可见性平滑阈值（< 此值视为不可见） |
 | `DEPTH_DIFF_THRESHOLD_DORSUM` | 0.005 | 深度差判手背（严格） |
 | `DEPTH_DIFF_THRESHOLD_PALM` | 0.001 | 深度差判手心（灵敏） |
 | `CROSS_PRODUCT_Z_THRESHOLD_DORSUM` | 0.002 | 叉积判手背（严格） |
@@ -188,7 +192,7 @@ function isNailVisible(lm, fingerIdx): boolean {
 | `OUT_OF_FRAME_THRESHOLD` | 0.1 | x/y 超出 [0.1, 0.9] = 出画面 |
 | `FINGER_LENGTH_RATIOS` | 各指不同 | 指甲长度/指骨长度比 |
 | `FINGER_WIDTH_RATIOS` | 各指不同 | 指甲宽度/指骨长度比 |
-| `TIP_OFFSET_RATIO` | 0.15 | 指甲中心偏移比例 |
+| `TIP_OFFSET_RATIO` | 0.28 | 指甲中心偏移比例 |
 | `CURVATURE_STRENGTH` | 0.22 | 纹理柱面曲率强度 |
 | `CURVATURE_STRIPS` | 12 | 竖条分片数 |
 
