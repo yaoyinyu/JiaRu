@@ -47,6 +47,14 @@ const TIP_OFFSET_RATIO = 0.28;
 const FINGER_LENGTH_RATIOS = [0.55, 0.58, 0.60, 0.56, 0.52];
 const FINGER_WIDTH_RATIOS  = [0.55, 0.50, 0.48, 0.45, 0.40];
 
+// 逐指指甲形状参数 [thumb, index, middle, ring, pinky]
+// 指尖收窄系数：拇指最大(平)，小指最小(尖)
+const FINGER_TIP_NARROW  = [0.12, 0.08, 0.07, 0.08, 0.06];
+// 侧面曲线控制点比率：越小侧线越直
+const FINGER_SIDE_CURVE  = [0.50, 0.55, 0.55, 0.52, 0.45];
+// 根部凸起系数：控制指甲根部曲线下凸程度
+const FINGER_ROOT_BULGE  = [0.06, 0.08, 0.08, 0.07, 0.05];
+
 // 柱面曲率变形参数
 const CURVATURE_STRENGTH = 0.22;  // 曲率强度（0=平面，越大越弯）
 const CURVATURE_STRIPS = 12;      // 竖条分片数（越多越平滑）
@@ -131,6 +139,10 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   const visibleSmoothRef = useRef<number[]>([1, 1, 1, 1, 1]);
   // 朝向状态（用于 UI 显示）
   const [orientation, setOrientation] = useState<"dorsum" | "palm" | "ambiguous" | "none">("none");
+  // 左右标识（用于 UI 显示）
+  const [handLabel, setHandLabel] = useState<"左手" | "右手" | null>(null);
+  // 逐指可见性 UI 状态（true=可见，false=隐藏）
+  const [fingerVisible, setFingerVisible] = useState<boolean[]>([true, true, true, true, true]);
 
   const log = (m: string) => {
     console.log("[AR]", m);
@@ -145,16 +157,20 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
   /**
    * 绘制指甲形状（贝塞尔路径 —— 比椭圆更贴近真实指甲轮廓）
+   * 每根手指使用不同的形状参数：
+   *   拇指 — 宽短平尖 / 食指中指 — 标准椭圆 / 无名指 — 圆润 / 小指 — 尖窄
    */
   function drawNailShape(
     ctx: CanvasRenderingContext2D,
     nl: number,
-    nw: number
+    nw: number,
+    fingerIdx: number = 2  // 默认中指
   ) {
     const hw = nw * 0.5;
     const hl = nl * 0.5;
-    const tipNarrow = 0.08 * nw;
-    const cpLen = hl * 0.55;
+    const tipNarrow = FINGER_TIP_NARROW[fingerIdx] * nw;
+    const cpLen = hl * FINGER_SIDE_CURVE[fingerIdx];
+    const rootBulge = hl * FINGER_ROOT_BULGE[fingerIdx];
 
     ctx.beginPath();
     ctx.moveTo(hw - tipNarrow, -hl);
@@ -162,9 +178,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     ctx.bezierCurveTo(
       -(hw + cpLen * 0.3), -hl * 0.6,
       -(hw + cpLen * 0.3), hl * 0.3,
-      -hw, hl
+      -hw, hl + rootBulge
     );
-    ctx.quadraticCurveTo(0, hl + hl * 0.08, hw, hl);
+    ctx.quadraticCurveTo(0, hl + rootBulge + hl * 0.06, hw, hl + rootBulge);
     ctx.bezierCurveTo(
       hw + cpLen * 0.3, hl * 0.3,
       hw + cpLen * 0.3, -hl * 0.6,
@@ -267,7 +283,8 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     ctx: CanvasRenderingContext2D,
     nl: number,
     nw: number,
-    envBrightness: number
+    envBrightness: number,
+    fingerIdx: number = 2
   ) {
     const hw = nw * 0.5;
     const hl = nl * 0.5;
@@ -282,7 +299,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     fresnelGrad.addColorStop(1, "rgba(255,255,255,0.28)");
 
     ctx.save();
-    drawNailShape(ctx, nl, nw);
+    drawNailShape(ctx, nl, nw, fingerIdx);
     ctx.clip();
     ctx.fillStyle = fresnelGrad;
     ctx.globalAlpha = 0.6 * envBrightness;
@@ -291,7 +308,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
     // ── 2. 颗粒纹理（微观表面）──
     ctx.save();
-    drawNailShape(ctx, nl, nw);
+    drawNailShape(ctx, nl, nw, fingerIdx);
     ctx.clip();
 
     // 用 ImageData 生成随机噪点
@@ -339,13 +356,14 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     ctx: CanvasRenderingContext2D,
     nl: number,
     nw: number,
-    envBrightness: number
+    envBrightness: number,
+    fingerIdx: number = 2
   ) {
     const hl = nl * 0.5;
     const hw = nw * 0.5;
 
     ctx.save();
-    drawNailShape(ctx, nl, nw);
+    drawNailShape(ctx, nl, nw, fingerIdx);
     ctx.clip();
 
     // ── 主高光（镜面反射条）──
@@ -619,8 +637,8 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         // 纹理模式：柱面曲率变形
         drawCurvedTexture(ctx, tex, nl, nw);
       } else {
-        // 纯色模式：填充指甲形状
-        drawNailShape(ctx, nl, nw);
+        // 纯色模式：填充指甲形状（使用逐指形状参数）
+        drawNailShape(ctx, nl, nw, f);
         ctx.fillStyle = color;
         ctx.globalAlpha = 0.85;
         ctx.fill();
@@ -632,14 +650,14 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(a);
-      drawMaterialDetails(ctx, nl, nw, env.brightness);
+      drawMaterialDetails(ctx, nl, nw, env.brightness, f);
       ctx.restore();
 
       // ── 第三层：镜面高光 ──
       ctx.save();
       ctx.translate(cx, cy);
       ctx.rotate(a);
-      drawSpecularHighlight(ctx, nl, nw, env.brightness);
+      drawSpecularHighlight(ctx, nl, nw, env.brightness, f);
       ctx.restore();
     }
   }
@@ -895,6 +913,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               const handedness: "Left" | "Right" | null =
                 res.multiHandedness?.[h]?.label ?? null;
 
+              // 同步左右手标识到 UI
+              setHandLabel(handedness === "Right" ? "右手" : handedness === "Left" ? "左手" : null);
+
               // 变换 landmarks 到 canvas 坐标系
               const lm = lmRaw.map((p: { x: number; y: number; z: number }) => ({
                 x: tx2px(p.x) / cvs.width,  // 重新归一化
@@ -934,10 +955,22 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
                   modeRef.current, cvs.width, cvs.height, video
                 );
               }
+
+              // 同步逐指可见性到 UI（从平滑值读取，阈值 0.5 判定显隐）
+              if (decision.render) {
+                const vis: boolean[] = [];
+                for (let fi = 0; fi < 5; fi++) {
+                  vis.push(visibleSmoothRef.current[fi] >= VISIBILITY_SMOOTH_THRESHOLD);
+                }
+                setFingerVisible(vis);
+              } else {
+                setFingerVisible([false, false, false, false, false]);
+              }
             }
           } else {
             setHandCnt(0);
             setOrientation("none");
+            setFingerVisible([false, false, false, false, false]);
           }
         });
 
@@ -1056,25 +1089,53 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         </div>
       )}
 
-      {/* 手部状态 + 朝向指示 */}
+      {/* 手部状态 + 朝向指示 + 逐指可见性 */}
       {status === "ready" && (
         <div className="absolute bottom-0 left-0 right-0 pb-3 text-center pointer-events-none z-10 flex flex-col items-center gap-1">
           {handCnt > 0 && orientation !== "none" && (
-            <span
-              className={`inline-block text-xs px-3 py-1 rounded-full backdrop-blur-sm ${
-                orientation === "dorsum"
-                  ? "text-green-300 bg-green-900/40"
+            <>
+              {/* 朝向 + 左右手 */}
+              <span
+                className={`inline-block text-xs px-3 py-1 rounded-full backdrop-blur-sm ${
+                  orientation === "dorsum"
+                    ? "text-green-300 bg-green-900/40"
+                    : orientation === "palm"
+                      ? "text-orange-300 bg-orange-900/40"
+                      : "text-gray-300 bg-gray-800/40"
+                }`}
+              >
+                {orientation === "dorsum"
+                  ? "🖐️"
                   : orientation === "palm"
-                    ? "text-orange-300 bg-orange-900/40"
-                    : "text-gray-300 bg-gray-800/40"
-              }`}
-            >
-              {orientation === "dorsum"
-                ? "🖐️ 手背"
-                : orientation === "palm"
-                  ? "✋ 手心"
-                  : "🤚 侧手"}
-            </span>
+                    ? "✋"
+                    : "🤚"}{" "}
+                {handLabel ? handLabel + " · " : ""}
+                {orientation === "dorsum"
+                  ? "手背"
+                  : orientation === "palm"
+                    ? "手心"
+                    : "侧手"}
+              </span>
+
+              {/* 逐指可见性指示器 */}
+              <div className="flex items-center gap-2 text-xs">
+                {["拇","食","中","无","小"].map((name, i) => (
+                  <span
+                    key={i}
+                    className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full backdrop-blur-sm ${
+                      fingerVisible[i]
+                        ? "text-green-300 bg-green-900/40"
+                        : "text-gray-500 bg-gray-800/30"
+                    }`}
+                  >
+                    <span className={`w-1.5 h-1.5 rounded-full ${
+                      fingerVisible[i] ? "bg-green-400" : "bg-gray-600"
+                    }`} />
+                    {name}
+                  </span>
+                ))}
+              </div>
+            </>
           )}
           <span className="inline-block text-xs text-white/70 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
             {handCnt > 0
