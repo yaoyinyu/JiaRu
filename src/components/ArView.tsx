@@ -26,10 +26,8 @@ const CROSS_PRODUCT_Z_THRESHOLD_PALM = 0.0005;   // 手心判定（灵敏）
 const THUMB_X_THRESHOLD = 0.02;
 
 // 逐指指甲可见性阈值
-// TIP.z - DIP.z < 此值 = 指甲可见（手背/侧手）
-const NAIL_VISIBLE_Z_THRESHOLD = 0.002;
-// |TIP.z - DIP.z| < 此值 = 侧手/过渡态（指甲部分可见）
-const NAIL_AMBIGUOUS_Z_THRESHOLD = 0.004;
+// 手心侧：TIP.z - DIP.z > 此值 = 指甲被遮挡 → 不渲染
+const NAIL_PALM_Z_THRESHOLD = 0.002;
 
 // 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
 const VOTE_FINGERS = [1, 2, 3, 4];
@@ -490,14 +488,11 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   function isNailVisible(lm: Landmark[], fingerIdx: number): boolean {
     const tipZ = lm[TIPS[fingerIdx]].z;
     const dipZ = lm[DIPS[fingerIdx]].z;
-    const pipZ = lm[PIPS[fingerIdx]].z;
-    // 指尖比 DIP 更远离镜头（z 更负）= 指甲可见
-    // 或指尖与 DIP 深度接近（侧手）= 指甲部分可见
     const tipDipDiff = tipZ - dipZ;
-    // 阈值：手心时 tipZ 明显大于 dipZ（手指肉遮挡），手背时 tipZ <= dipZ
-    if (tipDipDiff < NAIL_VISIBLE_Z_THRESHOLD) return true;  // 指甲明确可见
-    if (Math.abs(tipDipDiff) < NAIL_AMBIGUOUS_Z_THRESHOLD) return true;  // 侧手/过渡态
-    return false;  // 手心侧
+    // 手心侧：TIP 比 DIP 更远离镜头 → tipDipDiff > 0 → 指甲被遮挡 → 不渲染
+    // 手背侧：TIP 比 DIP 更接近镜头 → tipDipDiff < 0 或接近 0 → 指甲可见 → 渲染
+    if (tipDipDiff > NAIL_PALM_Z_THRESHOLD) return false;  // 手心侧，指甲不可见
+    return true;  // 手背/侧手，指甲可见
   }
 
   // 指甲绘制函数
