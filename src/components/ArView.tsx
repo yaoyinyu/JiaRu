@@ -453,15 +453,6 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       (isPalmByDepth ? 1 : 0) +
       (isPalmByVote ? 1 : 0);
 
-    console.log("[AR-Orient]", {
-      handedness,
-      crossZ: crossZ.toFixed(5),
-      depthDiff: smoothDepthDiff.toFixed(5),
-      thumbX: thumbOffsetX.toFixed(5),
-      votes: `d${dorsumVotes}/p${palmVotes}`,
-      scores: `d${dorsumScore}/p${palmScore}`,
-    });
-
     // 保守策略：宁可漏渲染也不要误渲染到手心
     if (dorsumScore >= 3 && dorsumScore > palmScore + 1) {
       return { render: true, confidence: "high", reason: "多方案一致：手背" };
@@ -688,11 +679,11 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           return;
         }
 
-        // 只指定 facingMode，不指定 width/height（避免过度约束）
+        // 竖屏 480x640（3:4）匹配 CSS aspect-[3/4]，避免 canvas 拉伸导致贴图错位
         let stream: MediaStream;
         try {
           stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+            video: { facingMode: "user", width: { ideal: 480 }, height: { ideal: 640 } },
             audio: false,
           });
         } catch (camErr) {
@@ -700,7 +691,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           log("  首次尝试失败，降级尝试...");
           try {
             stream = await navigator.mediaDevices.getUserMedia({
-              video: { width: { ideal: 640 }, height: { ideal: 480 } },
+              video: { width: { ideal: 480 }, height: { ideal: 640 } },
               audio: false,
             });
           } catch (camErr2) {
@@ -789,17 +780,52 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           if (!cvs) return;
           const ctx = cvs.getContext("2d") as CanvasRenderingContext2D;
           if (!ctx) return;
-          if (cvs.width !== video.videoWidth || cvs.height !== video.videoHeight) {
-            cvs.width = video.videoWidth;
-            cvs.height = video.videoHeight;
+          // canvas 内部尺寸与 video 元素的 CSS 显示尺寸对齐
+          // (不是 video.videoWidth/videoHeight，因为 object-cover 会裁剪视频)
+          const rect = video.getBoundingClientRect();
+          const cw = Math.round(rect.width);
+          const ch = Math.round(rect.height);
+          if (cw > 0 && ch > 0 && (cvs.width !== cw || cvs.height !== ch)) {
+            cvs.width = cw;
+            cvs.height = ch;
           }
           ctx.clearRect(0, 0, cvs.width, cvs.height);
+
+          // ── object-cover 坐标变换 ──
+          // video 元素用 object-cover 显示，会裁剪视频以填充容器
+          // landmarks 是基于原始视频帧的归一化坐标 [0,1]
+          // 需要变换到 canvas 显示坐标
+          const vw = video.videoWidth;
+          const vh = video.videoHeight;
+          const containerRatio = cvs.width / cvs.height;
+          const videoRatio = vw / vh;
+          let scale = 1, offsetX = 0, offsetY = 0;
+          if (videoRatio > containerRatio) {
+            // 视频更宽 → 左右裁剪
+            scale = cvs.height / vh;
+            offsetX = -(vw * scale - cvs.width) / 2;
+          } else {
+            // 视频更高 → 上下裁剪
+            scale = cvs.width / vw;
+            offsetY = -(vh * scale - cvs.height) / 2;
+          }
+          // 变换函数：归一化坐标 → canvas 像素坐标
+          const tx2px = (nx: number) => nx * vw * scale + offsetX;
+          const ty2py = (ny: number) => ny * vh * scale + offsetY;
+
           if (res.multiHandLandmarks?.length) {
             setHandCnt(res.multiHandLandmarks.length);
             for (let h = 0; h < res.multiHandLandmarks.length; h++) {
-              const lm = res.multiHandLandmarks[h];
+              const lmRaw = res.multiHandLandmarks[h];
               const handedness: "Left" | "Right" | null =
                 res.multiHandedness?.[h]?.label ?? null;
+
+              // 变换 landmarks 到 canvas 坐标系
+              const lm = lmRaw.map((p: { x: number; y: number; z: number }) => ({
+                x: tx2px(p.x) / cvs.width,  // 重新归一化
+                y: ty2py(p.y) / cvs.height,
+                z: p.z,
+              })) as Landmark[];
 
               const palmZ = (lm[0].z + lm[5].z + lm[9].z + lm[17].z) / 4;
               const knuckleZ = (lm[2].z + lm[6].z + lm[10].z + lm[14].z + lm[18].z) / 5;
