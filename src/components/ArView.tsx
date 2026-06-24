@@ -11,12 +11,16 @@ const EMA_ALPHA = 0.45;
 const EMA_ALPHA_PALM = 0.3; // 朝向深度差平滑（更保守）
 
 // ── 手心/手背朝向检测参数 ──
-const DEPTH_DIFF_THRESHOLD = 0.003;   // depthDiff > 此值 = 手背
-const FINGER_Z_VOTE_THRESHOLD = 0.002; // 单指投票阈值
+// 手心判定阈值低（灵敏），手背判定阈值高（严格）
+const DEPTH_DIFF_THRESHOLD_DORSUM = 0.005;  // depthDiff 超过此值才判手背（更严格）
+const DEPTH_DIFF_THRESHOLD_PALM = 0.001;    // depthDiff 超过此值就判手心（更灵敏）
+const FINGER_Z_VOTE_THRESHOLD_DORSUM = 0.003; // 单指投票手背阈值（严格）
+const FINGER_Z_VOTE_THRESHOLD_PALM = 0.001;   // 单指投票手心阈值（灵敏）
 const OUT_OF_FRAME_THRESHOLD = 0.1;   // x/y 超出 [0.1, 0.9] = 出画面
 
-// 叉积法向量 z 分量阈值（基于 x/y 坐标，精度高）
-const CROSS_PRODUCT_Z_THRESHOLD = 0.001;
+// 叉积法向量 z 分量阈值
+const CROSS_PRODUCT_Z_THRESHOLD_DORSUM = 0.002;  // 手背判定（严格）
+const CROSS_PRODUCT_Z_THRESHOLD_PALM = 0.0005;   // 手心判定（灵敏）
 
 // 拇指位置辅助验证：拇指 TIP.x 相对手掌中心 x 的偏移
 const THUMB_X_THRESHOLD = 0.02;
@@ -399,31 +403,25 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     let isDorsumByCross = false;
     let isPalmByCross = false;
     if (handedness === "Right") {
-      isDorsumByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD;
-      isPalmByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD;
+      isDorsumByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD_DORSUM;
+      isPalmByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD_PALM;
     } else if (handedness === "Left") {
-      isDorsumByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD;
-      isPalmByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD;
+      isDorsumByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD_DORSUM;
+      isPalmByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD_PALM;
     }
 
-    // ── 方案 B：深度差判断（z 坐标，精度低但独立于 x/y）──
-    // 手背朝镜头时 PIP 关节比手掌中心更凸出 → knuckleZ < palmZ → depthDiff > 0
-    // 但 MediaPipe z 轴朝向镜头为负值，所以实际相反：
-    // 手背朝镜头 → knuckleZ 更负 → depthDiff = palmZ - knuckleZ > 0
-    // 实测发现方向反了，翻转判断
-    const isDorsumByDepth = smoothDepthDiff < -DEPTH_DIFF_THRESHOLD;
-    const isPalmByDepth = smoothDepthDiff > DEPTH_DIFF_THRESHOLD;
-    const isAmbiguousDepth = !isDorsumByDepth && !isPalmByDepth;
+    // ── 方案 B：深度差判断（z 坐标）──
+    // 手心判定灵敏（低阈值），手背判定严格（高阈值）
+    const isDorsumByDepth = smoothDepthDiff < -DEPTH_DIFF_THRESHOLD_DORSUM;
+    const isPalmByDepth = smoothDepthDiff > DEPTH_DIFF_THRESHOLD_PALM;
 
     // ── 方案 C：4 指投票（排除拇指，z 坐标）──
     let dorsumVotes = 0;
     let palmVotes = 0;
     for (const f of VOTE_FINGERS) {
       const dz = lm[TIPS[f]].z - lm[PIPS[f]].z;
-      // 手背朝镜头时 PIP 比 TIP 更凸 → dz = TIP.z - PIP.z > 0（z 朝镜头为负，更凸 = 更负）
-      // 实测方向反了，翻转
-      if (dz < -FINGER_Z_VOTE_THRESHOLD) dorsumVotes++;
-      else if (dz > FINGER_Z_VOTE_THRESHOLD) palmVotes++;
+      if (dz < -FINGER_Z_VOTE_THRESHOLD_DORSUM) dorsumVotes++;
+      else if (dz > FINGER_Z_VOTE_THRESHOLD_PALM) palmVotes++;
     }
     const isDorsumByVote = dorsumVotes >= 3;
     const isPalmByVote = palmVotes >= 3;
@@ -441,9 +439,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       isPalmByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
     }
 
-    // ── 融合决策：宽松渲染策略 ──
-    // 核心原则：只要不是明确手心就渲染（手背/侧手/过渡态都渲染）
-    // 手心判定必须严格——只有强证据才判为手心
+    // ── 融合决策：手心严格阻止，其他都渲染 ──
+    // 手心判定灵敏（低阈值），只要检测到手心就阻止
+    // 手背/侧手/过渡态都渲染
     const dorsumScore =
       (isDorsumByCross ? 2 : 0) +
       (isDorsumByThumb ? 1 : 0) +
@@ -455,19 +453,18 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       (isPalmByDepth ? 1 : 0) +
       (isPalmByVote ? 1 : 0);
 
-    // 手心判定：必须强证据（至少2个方案一致判定手心，且无方案判定手背）
-    if (palmScore >= 3 && dorsumScore === 0) {
-      return { render: false, confidence: "high", reason: "多方案一致：手心" };
+    // 手心判定：只要有明显手心信号就阻止渲染
+    if (palmScore >= 2) {
+      return { render: false, confidence: "high", reason: "检测到手心" };
     }
-    // 单一强信号（叉积）明确手心 + 无任何手背信号
-    if (isPalmByCross && dorsumScore === 0 && !isDorsumByDepth && !isDorsumByVote) {
-      return { render: false, confidence: "high", reason: "叉积明确：手心" };
+    // 叉积单独判定手心（叉积是最可靠的 x/y 平面信号）
+    if (isPalmByCross && palmScore >= 1) {
+      return { render: false, confidence: "high", reason: "叉积+辅助：手心" };
     }
-    // 其他所有情况都渲染：手背、侧手、过渡态、模糊态
+    // 其他所有情况都渲染
     if (dorsumScore > 0) {
       return { render: true, confidence: "high", reason: "检测到手背特征" };
     }
-    // 无明确手背信号但也无明确手心信号 → 渲染（侧手/过渡态）
     return {
       render: true,
       confidence: "low",
