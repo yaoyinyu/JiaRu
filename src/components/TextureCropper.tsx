@@ -81,6 +81,7 @@ export default function TextureCropper({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [loadingTexture, setLoadingTexture] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   const startRef = useRef<{ x: number; y: number } | null>(null);
 
@@ -96,6 +97,7 @@ export default function TextureCropper({
         return;
       }
       imgRef.current = img;
+      setImgLoaded(true);
 
       const canvas = canvasRef.current;
       if (!canvas) return;
@@ -295,7 +297,7 @@ export default function TextureCropper({
 
   // ── 渲染 ──────────────────────────────────────────────
 
-  if (error && !imgRef.current) {
+  if (error && !imgLoaded) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 p-4">
         <div className="bg-white rounded-2xl p-6 text-center max-w-sm">

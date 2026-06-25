@@ -33,11 +33,17 @@ export default function ArTryonPage() {
   const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 用 ref 追踪以确保卸载时正确释放
+  // 用 ref 追踪以确保卸载时正确释放（在 useEffect 中同步，避免渲染期间更新 ref）
   const texturesRef = useRef(nailTextures);
-  texturesRef.current = nailTextures;
   const photoUrlRef = useRef(uploadedPhotoUrl);
-  photoUrlRef.current = uploadedPhotoUrl;
+
+  useEffect(() => {
+    texturesRef.current = nailTextures;
+  }, [nailTextures]);
+
+  useEffect(() => {
+    photoUrlRef.current = uploadedPhotoUrl;
+  }, [uploadedPhotoUrl]);
 
   const hasAnyTexture = nailTextures.some((t) => t != null);
 

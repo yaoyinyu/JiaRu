@@ -60,6 +60,9 @@ interface HandsCtor {
   };
 }
 
+// MediaPipe Hands 全局变量声明（Window.Hands 在 ArView.tsx 中已声明为 HandsConstructor 类型，
+// 此处不重复声明 global，使用时通过类型断言）
+
 // ─── 贝塞尔指甲路径（与 ArView 一致的形状） ──────────────
 
 function drawNailPath(
@@ -102,7 +105,7 @@ function computeNailRegions(
     const dx = dip.x * cw, dy = dip.y * ch;
 
     // 方向向量：TIP - DIP（与 ArView 的 paintNails 一致）
-    let fx = tx - dx, fy = ty - dy;
+    const fx = tx - dx, fy = ty - dy;
     const rawLen = Math.sqrt(fx * fx + fy * fy);
     if (rawLen < 5) continue;
 
@@ -153,11 +156,11 @@ async function detectHandsOnImage(
   img: HTMLImageElement
 ): Promise<LmPt[][] | null> {
   // 1. 确保 CDN 已加载
-  const HW = (window as any).Hands as HandsCtor | undefined;
+  const HW = window.Hands as unknown as HandsCtor | undefined;
   if (!HW) {
     await loadScript(CDN_HANDS_URL);
   }
-  const HF = (window as any).Hands as HandsCtor;
+  const HF = window.Hands as unknown as HandsCtor;
   if (!HF) throw new Error("MediaPipe Hands 加载失败");
   const hands = new HF({ locateFile: (f) => CDN_BASE + f });
   hands.setOptions({
