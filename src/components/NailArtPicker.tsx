@@ -29,7 +29,8 @@ interface NailArtPickerProps {
 
 const TIPS = [4, 8, 12, 16, 20];
 const DIPS = [3, 7, 11, 15, 19];
-const PIPS = [2, 6, 10, 14, 18];
+// PIPS 未使用（预留）
+// const PIPS = [2, 6, 10, 14, 18];
 
 const TIP_OFFSET_RATIO = 0.28;
 const FINGER_LENGTH_RATIOS = [0.50, 0.55, 0.58, 0.54, 0.48];
@@ -298,7 +299,7 @@ function clientToCanvas(cx: number, cy: number, cvs: HTMLCanvasElement) {
   return { x: (cx - r.left) * (cvs.width / r.width), y: (cy - r.top) * (cvs.height / r.height) };
 }
 
-function isInNail(px: number, py: number, r: NailRegion): boolean {
+function _isInNail(px: number, py: number, r: NailRegion): boolean {
   const dx = px - r.cx, dy = py - r.cy;
   const c = Math.cos(-r.angle), s = Math.sin(-r.angle);
   const lx = dx * c - dy * s, ly = dx * s + dy * c;
@@ -321,12 +322,14 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
   const [imgLoaded, setImgLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(true); // 自动检测中
-  const [scale, setScale] = useState(1);
+  // scale 未使用（预留）
+  // const [scale, setScale] = useState(1);
 
   // 选区
   const [regions, setRegions] = useState<NailRegion[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const [cursorStyle, setCursorStyle] = useState("default");
+  // cursorStyle 未使用（预留）
+  // const [cursorStyle, setCursorStyle] = useState("default");
 
   // 拖拽状态
   type Handle =
@@ -423,9 +426,9 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
 
   // ── 3. 重绘（含交互手柄） ──────────────────────────
 
-  const HANDLE_R = 6; // 手柄半径
-
-  /** 手柄在指甲局部坐标中的位置 */
+  // HANDLE_R / getHandles 预留（未使用）
+  // const HANDLE_R = 6;
+  /*
   function getHandles(nl: number, nw: number) {
     const hl = nl * 0.5, hw = nw * 0.5;
     return {
@@ -435,6 +438,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       rotator: { x: 0,    y: -hl - 22 },
     };
   }
+  */
 
   /** 世界坐标 → 指甲局部坐标 */
   function toLocal(wx: number, wy: number, r: NailRegion) {

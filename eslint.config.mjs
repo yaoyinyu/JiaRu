@@ -14,6 +14,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     // Project-specific ignores:
     "backup_ar_working/**",
+    ".archive/**",
+    "docs/**",
+    "dev-log/**",
+    "scripts/**",
   ]),
 ]);
 

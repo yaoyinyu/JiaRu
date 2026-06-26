@@ -824,7 +824,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           });
         } catch (camErr) {
           // 降级：不指定 facingMode
-          log("  首次尝试失败，降级尝试...");
+          log("  首次尝试失败，降级尝试..." + (camErr instanceof Error ? ": " + camErr.message : ""));
           try {
             stream = await navigator.mediaDevices.getUserMedia({
               video: { width: { ideal: 480 }, height: { ideal: 640 } },
@@ -832,7 +832,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
             });
           } catch (camErr2) {
             // 再降级：完全无约束
-            log("  二次降级尝试...");
+            log("  二次降级尝试..." + (camErr2 instanceof Error ? ": " + camErr2.message : ""));
             try {
               stream = await navigator.mediaDevices.getUserMedia({
                 video: true,
@@ -1067,6 +1067,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         mediaStream.getTracks().forEach((t) => t.stop());
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStarted]);
 
   return (
