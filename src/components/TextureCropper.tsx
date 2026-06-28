@@ -19,7 +19,8 @@ interface Rect {
 const OVERLAY_ALPHA = 0.55;
 const BORDER_COLOR = "#E8A0BF";
 const BORDER_WIDTH = 2;
-const MIN_SELECTION_PX = 30;
+// MIN_SELECTION_PX 预留（未使用）
+// const MIN_SELECTION_PX = 30;
 const MAX_CANVAS_DIM = 1024;
 
 function fitScale(

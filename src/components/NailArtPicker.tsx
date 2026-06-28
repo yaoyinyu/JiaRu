@@ -299,6 +299,7 @@ function clientToCanvas(cx: number, cy: number, cvs: HTMLCanvasElement) {
   return { x: (cx - r.left) * (cvs.width / r.width), y: (cy - r.top) * (cvs.height / r.height) };
 }
 
+/* _isInNail 预留未使用
 function _isInNail(px: number, py: number, r: NailRegion): boolean {
   const dx = px - r.cx, dy = py - r.cy;
   const c = Math.cos(-r.angle), s = Math.sin(-r.angle);
@@ -306,6 +307,7 @@ function _isInNail(px: number, py: number, r: NailRegion): boolean {
   const hw = r.nw * 0.5, hl = r.nl * 0.5;
   return (lx * lx) / (hw * hw) + (ly * ly) / (hl * hl) <= 1.0;
 }
+*/
 
 function fitScale(iw: number, ih: number) {
   const s = Math.min(1, MAX_CANVAS_DIM / Math.max(iw, ih));
@@ -322,8 +324,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
   const [imgLoaded, setImgLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(true); // 自动检测中
-  // scale 未使用（预留）
-  // const [scale, setScale] = useState(1);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [scale, setScale] = useState(1);
 
   // 选区
   const [regions, setRegions] = useState<NailRegion[]>([]);
@@ -526,7 +528,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
 
         for (const [name, p] of Object.entries(hs)) {
           const isCorner = name.startsWith("corner");
-          const isEdge = name.startsWith("edge");
+          // isEdge 未使用（预留）
+          // const isEdge = name.startsWith("edge");
           const isRot = name === "rotator";
 
           ctx.beginPath();
