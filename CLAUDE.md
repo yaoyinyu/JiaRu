@@ -4,7 +4,7 @@
 
 **技术栈**: Next.js 16.2.9 + React 19.2.4 + TypeScript + Tailwind CSS 4
 **部署目标**: Vercel (HTTPS + CDN)
-**当前阶段**: Phase 1 MVP ✅ 完成 / Phase 3 AR 🚧 核心功能完成，待真机验证
+**当前阶段**: Phase 1 MVP ✅ 完成 / Phase 2 AI ✅ 完成 / Phase 3 AR 🚧 核心功能完成，待真机验证
 
 ## 项目标准文件索引
 
@@ -37,6 +37,7 @@
 | [dev-log/2026-06-23.md](dev-log/2026-06-23.md) | Phase 1 修复 + AR 手心/手背检测实现 |
 | [dev-log/2026-06-24.md](dev-log/2026-06-24.md) | AR 功能完整开发：6 修复 + 5 功能 + 手势兼容 + 逐指 4 信号融合 |
 | [dev-log/2026-06-25.md](dev-log/2026-06-25.md) | 项目扫描审计 + 冲突修复 + ESLint 8→0 errors |
+| [dev-log/2026-06-28.md](dev-log/2026-06-28.md) | 清理任务 + Phase 2 AI 生成模块完成 |
 
 ### 项目记忆
 记忆文件存储在 `C:\Users\YaoYinyu\.claude\memory\` 目录下：
@@ -49,6 +50,17 @@
 - 首页、编辑器、图库、隐私页全部完成
 - ESLint 0 errors, build 通过
 - 五指独立选色、SVG 图库修复、NailCanvas useRef 重构
+
+### Phase 2: AI 生成 ✅ 完成
+- API 路由 `/api/generate-ai`（DALL-E 3 集成）
+- 前端状态机：idle → loading → success/error
+- 10 个预设风格 + 字数统计（500 字符）
+- 图片保存（fetch → blob → download）
+- 错误处理：400/401/429/503/504/500
+- 30s 超时（AbortController）
+- Prompt 增强：用户输入 + 美甲场景词后缀
+- 隐私保护：API Key 仅服务端，不发送原图
+- **待姚哥配置 `OPENAI_API_KEY`** 后即可使用
 
 ### Phase 3: AR 实时试戴 🚧 核心功能完成，待真机验证
 
@@ -84,6 +96,17 @@
   - `TextureCropper.tsx`: 用 imgLoaded state 替代 ref 渲染期访问
   - `NailArtPicker.tsx`: let→const + 移除 `window as any`
 - ✅ 项目全面扫描审计（17 份 docs + 4 份 dev-log + 26 commits）
+
+### 2026-06-28 清理 + Phase 2
+
+- ✅ 清理未使用依赖（camera_utils / drawing_utils / ngrok，移除40包）
+- ✅ 清理根目录残留文件到 .archive/
+- ✅ 修复 12 个 ESLint warnings → 0（commit `88b48ee`）
+- ✅ Phase 2 AI 生成模块（commit `7486ba0`）
+  - API 路由 `/api/generate-ai`（DALL-E 3）
+  - 前端页面重写（状态机 + loading + 错误处理 + 保存）
+  - `.env.local.example` 追踪到 git
+- ✅ 所有验收标准达成
 
 ## 关键参数速查
 
@@ -121,6 +144,7 @@
 | 06-23 | 0 | 文档整理 |
 | 06-24 | 13 | AR 核心功能（朝向+逐指+手势+渲染+UI） |
 | 06-25 | 1 | 冲突修复 + ESLint 修复 |
+| 06-28 | 4 | 清理 + Phase 2 AI 生成模块 |
 
 ## 待办清单
 
@@ -129,17 +153,14 @@
 - [ ] 逐指可见性阈值实测调优（所有参数为估算值，需真机校准）
 - [ ] 纹理贴合度验证（坐标变换已修复，未实测）
 - [ ] 帧率达标验证（目标 15fps+）
+- [ ] 姚哥配置 OPENAI_API_KEY 后测试 AI 生成
 
 ### 中优先级
-- [ ] 清理未使用依赖（@mediapipe/camera_utils / drawing_utils / ngrok）
-- [ ] 清理根目录残留文件（backup_ar_working/ / certificates/ / https-dev.mjs / 旧 jpg）
-- [ ] Phase 2: AI 生成模块（当前 5% 占位 UI）
 - [ ] Vercel 部署 + 域名绑定
+- [ ] 3D AR 试戴（Three.js 已安装，需 3D 指甲模型 + 光照渲染）
 
 ### 低优先级
-- [ ] 3D AR 试戴（Three.js 已安装，需 3D 指甲模型 + 光照渲染）
-- [ ] 拆分 ArView.tsx（1033 行 → 多模块）
-- [ ] 修复 12 个 ESLint warnings（均为未使用变量）
+- [ ] 拆分 ArView.tsx（1153 行 → 多模块）
 
 ## 工作说明
 
