@@ -248,9 +248,8 @@ export default function ArTryonPage() {
           />
         )}
 
-        {/* 控制面板（AR开启后显示） */}
-        {isStarted && (
-          <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
+        {/* 控制面板始终显示：允许用户先准备纹理，再决定是否开启摄像头 */}
+        <div className="mt-4 bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
             {/* 模式切换 */}
             <div className="flex gap-1 mb-3 p-1 bg-pink-50 rounded-xl">
               <button
@@ -406,8 +405,7 @@ export default function ArTryonPage() {
                 </div>
               </>
             )}
-          </div>
-        )}
+        </div>
 
         {/* 纹理裁剪模态框 */}
         {showCropper && uploadedPhotoUrl && (

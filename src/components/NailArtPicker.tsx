@@ -1,7 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { extractTexture } from "@/lib/texture";
+import {
+  computeNailGeometry,
+  mapGeometryScale,
+  type NailLandmark,
+} from "@/lib/nail-geometry";
+import { detectNailRegionsFromImageData } from "@/lib/nail-image-detection";
 
 // ─── 类型定义 ──────────────────────────────────────────────
 
@@ -17,6 +22,7 @@ interface NailRegion {
   nl: number;    // 指甲长度（canvas 像素）
   nw: number;    // 指甲宽度（canvas 像素）
   assignedFinger: number | null;
+  confidence?: "high" | "low";
 }
 
 interface NailArtPickerProps {
@@ -24,17 +30,6 @@ interface NailArtPickerProps {
   onConfirm: (assignments: NailAssignment[]) => void;
   onCancel: () => void;
 }
-
-// ─── 从 ArView 复用的几何常量 ─────────────────────────────
-
-const TIPS = [4, 8, 12, 16, 20];
-const DIPS = [3, 7, 11, 15, 19];
-// PIPS 未使用（预留）
-// const PIPS = [2, 6, 10, 14, 18];
-
-const TIP_OFFSET_RATIO = 0.28;
-const FINGER_LENGTH_RATIOS = [0.50, 0.55, 0.58, 0.54, 0.48];
-const FINGER_WIDTH_RATIOS  = [0.52, 0.48, 0.46, 0.44, 0.36];
 
 // ─── UI 常量 ──────────────────────────────────────────────
 
@@ -92,41 +87,139 @@ function nextId(): string {
 }
 
 function computeNailRegions(
-  lm: LmPt[],
+  lm: NailLandmark[],
   cw: number, ch: number
 ): NailRegion[] {
   const regions: NailRegion[] = [];
   for (let f = 0; f < 5; f++) {
-    const tip = lm[TIPS[f]];
-    const dip = lm[DIPS[f]];
-    if (!tip || !dip) continue;
-
-    // 归一化坐标 → canvas 像素
-    const tx = tip.x * cw, ty = tip.y * ch;
-    const dx = dip.x * cw, dy = dip.y * ch;
-
-    // 方向向量：TIP - DIP（与 ArView 的 paintNails 一致）
-    const fx = tx - dx, fy = ty - dy;
-    const rawLen = Math.sqrt(fx * fx + fy * fy);
-    if (rawLen < 5) continue;
-
-    // 指甲中心：从指尖沿手指方向偏移
-    const cx = tx - (fx / rawLen) * (rawLen * TIP_OFFSET_RATIO);
-    const cy = ty - (fy / rawLen) * (rawLen * TIP_OFFSET_RATIO);
-
-    // 指甲大小（解剖参数）
-    const nl = rawLen * FINGER_LENGTH_RATIOS[f];
-    const nw = rawLen * FINGER_WIDTH_RATIOS[f];
-
-    // 旋转角
-    const angle = Math.atan2(fy, fx);
+    const geometry = computeNailGeometry(lm, f, cw, ch);
+    if (!geometry) continue;
 
     regions.push({
-      id: nextId(), cx, cy, angle, nl, nw,
+      id: nextId(),
+      cx: geometry.cx,
+      cy: geometry.cy,
+      angle: geometry.angle,
+      nl: geometry.length,
+      nw: geometry.width,
       assignedFinger: f, // ← 自动分配对应手指
     });
   }
   return regions;
+}
+
+function computeImageDetectedNailRegions(imageData: ImageData): NailRegion[] {
+  const detected = detectNailRegionsFromImageData({
+    width: imageData.width,
+    height: imageData.height,
+    data: imageData.data,
+  });
+  const sorted = detected
+    .slice(0, 5)
+    .sort((a, b) => a.cx - b.cx);
+  const inferredFingers =
+    sorted.length === 4
+      ? [1, 2, 3, 4]
+      : sorted.length >= 5
+        ? [0, 1, 2, 3, 4]
+        : [1, 2, 3, 4, 0];
+
+  return sorted.map((region, index) => ({
+    id: nextId(),
+    cx: region.cx,
+    cy: region.cy,
+    angle: region.angle,
+    nl: region.length,
+    nw: region.width,
+    assignedFinger: inferredFingers[index] ?? null,
+    confidence: region.confidence,
+  }));
+}
+
+interface Rgb {
+  r: number;
+  g: number;
+  b: number;
+}
+
+function sampleMean(
+  data: ImageData,
+  region: NailRegion,
+  points: readonly [number, number][]
+): Rgb {
+  const c = Math.cos(region.angle);
+  const s = Math.sin(region.angle);
+  let r = 0, g = 0, b = 0, count = 0;
+  for (const [nx, ny] of points) {
+    const lx = nx * region.nw;
+    const ly = ny * region.nl;
+    const x = Math.round(region.cx + lx * c - ly * s);
+    const y = Math.round(region.cy + lx * s + ly * c);
+    if (x < 0 || y < 0 || x >= data.width || y >= data.height) continue;
+    const i = (y * data.width + x) * 4;
+    r += data.data[i];
+    g += data.data[i + 1];
+    b += data.data[i + 2];
+    count++;
+  }
+  return count ? { r: r / count, g: g / count, b: b / count } : { r: 0, g: 0, b: 0 };
+}
+
+const INNER_SAMPLES: readonly [number, number][] = [
+  [-0.25, -0.3], [0, -0.35], [0.25, -0.3],
+  [-0.3, 0], [0, 0], [0.3, 0],
+  [-0.22, 0.3], [0, 0.35], [0.22, 0.3],
+];
+const RING_SAMPLES: readonly [number, number][] = [
+  [-0.72, -0.25], [-0.72, 0.1], [-0.65, 0.45],
+  [0.72, -0.25], [0.72, 0.1], [0.65, 0.45],
+  [-0.4, 0.68], [0, 0.72], [0.4, 0.68],
+];
+
+function colorDistance(a: Rgb, b: Rgb): number {
+  return Math.hypot(a.r - b.r, a.g - b.g, a.b - b.b);
+}
+
+function saturation(c: Rgb): number {
+  const max = Math.max(c.r, c.g, c.b);
+  const min = Math.min(c.r, c.g, c.b);
+  return max === 0 ? 0 : (max - min) / max;
+}
+
+/**
+ * Uses local color contrast to refine the landmark prior. It is deliberately
+ * bounded so a patterned background cannot pull a candidate away from the fingertip.
+ */
+function refineNailRegion(data: ImageData, source: NailRegion): NailRegion {
+  let best = source;
+  let bestScore = -1;
+  const shifts = [-0.12, 0, 0.12];
+  const scales = [0.88, 1, 1.12];
+
+  for (const across of shifts) {
+    for (const along of [-0.08, 0, 0.08]) {
+      for (const widthScale of scales) {
+        const c = Math.cos(source.angle);
+        const s = Math.sin(source.angle);
+        const candidate: NailRegion = {
+          ...source,
+          cx: source.cx + across * source.nw * c - along * source.nl * s,
+          cy: source.cy + across * source.nw * s + along * source.nl * c,
+          nw: source.nw * widthScale,
+        };
+        const inner = sampleMean(data, candidate, INNER_SAMPLES);
+        const ring = sampleMean(data, candidate, RING_SAMPLES);
+        const contrast = colorDistance(inner, ring);
+        const score = contrast + saturation(inner) * 22 - Math.abs(widthScale - 1) * 6;
+        if (score > bestScore) {
+          bestScore = score;
+          best = candidate;
+        }
+      }
+    }
+  }
+
+  return { ...best, confidence: bestScore >= 18 ? "high" : "low" };
 }
 
 // ─── 在静态图片上运行 MediaPipe Hands ─────────────────
@@ -261,35 +354,30 @@ async function detectHandsOnImage(
 
 async function extractNailFromRegion(
   img: HTMLImageElement,
-  region: NailRegion
+  region: NailRegion,
+  displayScale: number
 ): Promise<ImageBitmap> {
-  const padding = Math.max(region.nl, region.nw) * 0.3;
-  const size = Math.ceil(Math.max(region.nl, region.nw) + padding * 2);
-  if (size < 4) throw new Error("选区太小");
-
-  // 原图上的像素坐标
-  const cx2 = region.cx;
-  const cy2 = region.cy;
-  const nl2 = region.nl;
-  const nw2 = region.nw;
-  const angle = region.angle;
-
-  // 创建离屏 canvas，绘制带旋转的指甲区域
-  const canvas = new OffscreenCanvas(size, size);
+  if (displayScale <= 0) throw new Error("无效的图片缩放比例");
+  const original = mapGeometryScale(
+    {
+      cx: region.cx,
+      cy: region.cy,
+      length: region.nl,
+      width: region.nw,
+      angle: region.angle,
+    },
+    1 / displayScale
+  );
+  const outputWidth = Math.max(4, Math.ceil(original.width));
+  const outputHeight = Math.max(4, Math.ceil(original.length));
+  const canvas = new OffscreenCanvas(outputWidth, outputHeight);
   const ctx = canvas.getContext("2d")!;
-  ctx.translate(size / 2, size / 2);
-  ctx.rotate(angle);
-  drawNailPath(ctx, nl2, nw2);
+  ctx.translate(outputWidth / 2, outputHeight / 2);
+  drawNailPath(ctx, original.length, original.width);
   ctx.clip();
-  ctx.drawImage(img, cx2 - nl2 / 2, cy2 - nw2 / 2, nl2, nw2, -nl2 / 2, -nw2 / 2, nl2, nw2);
-
-  const blob = await canvas.convertToBlob();
-  const url = URL.createObjectURL(blob);
-  try {
-    return await extractTexture(url, { x: 0, y: 0, w: size, h: size });
-  } finally {
-    URL.revokeObjectURL(url);
-  }
+  ctx.rotate(-original.angle);
+  ctx.drawImage(img, -original.cx, -original.cy);
+  return createImageBitmap(canvas);
 }
 
 // ─── 工具函数 ───────────────────────────────────────────
@@ -324,7 +412,6 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
   const [imgLoaded, setImgLoaded] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(true); // 自动检测中
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [scale, setScale] = useState(1);
 
   // 选区
@@ -390,33 +477,59 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
 
       try {
         setDetecting(true);
+        setError(null);
         const landmarks = await detectHandsOnImage(img);
         if (dead) return;
 
         if (landmarks && landmarks.length > 0) {
-          // 将 MediaPipe 归一化坐标（相对于原图）→ canvas 像素坐标
           const cw = cvs.width;
           const ch = cvs.height;
-          const lm = landmarks[0].map((p) => ({
-            x: p.x * cw,  // 直接用 canvas 尺寸
-            y: p.y * ch,
-            z: p.z,
-          }));
-
-          const detected = computeNailRegions(lm, cw, ch);
+          const ctx = cvs.getContext("2d");
+          const priors = computeNailRegions(landmarks[0], cw, ch);
+          const imageData = ctx?.getImageData(0, 0, cw, ch);
+          const detected = imageData
+            ? priors.map((region) => refineNailRegion(imageData, region))
+            : priors.map((region) => ({ ...region, confidence: "low" as const }));
           if (detected.length > 0) {
             setRegions(detected);
             setSelectedIdx(0);
+            setError(null);
           } else {
+            const fallback = imageData ? computeImageDetectedNailRegions(imageData) : [];
+            if (fallback.length > 0) {
+              setRegions(fallback);
+              setSelectedIdx(0);
+              setError(null);
+              return;
+            }
             setError("检测到手指但未识别出指甲区域，请手动添加");
           }
         } else {
-          setError("未在图片中检测到手指，请手动添加选区");
+          const ctx = cvs.getContext("2d");
+          const imageData = ctx?.getImageData(0, 0, cvs.width, cvs.height);
+          const fallback = imageData ? computeImageDetectedNailRegions(imageData) : [];
+          if (fallback.length > 0) {
+            setRegions(fallback);
+            setSelectedIdx(0);
+            setError(null);
+            return;
+          }
+          setError("未在图片中检测到手指或指甲，请手动添加选区");
         }
       } catch (err) {
         if (!dead) {
           console.warn("[NailArtPicker] Auto-detect failed:", err);
-          setError("自动检测失败，请手动添加选区");
+          const cvs = canvasRef.current;
+          const ctx = cvs?.getContext("2d");
+          const imageData = cvs && ctx ? ctx.getImageData(0, 0, cvs.width, cvs.height) : null;
+          const fallback = imageData ? computeImageDetectedNailRegions(imageData) : [];
+          if (fallback.length > 0) {
+            setRegions(fallback);
+            setSelectedIdx(0);
+            setError(null);
+          } else {
+            setError("自动检测失败，请手动添加选区");
+          }
         }
       } finally {
         if (!dead) setDetecting(false);
@@ -507,7 +620,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       ctx.setLineDash([]);
 
       // 手指标签
-      const label = r.assignedFinger !== null ? FINGER_NAMES[r.assignedFinger] : `${i + 1}`;
+      const fingerLabel = r.assignedFinger !== null ? FINGER_NAMES[r.assignedFinger] : `${i + 1}`;
+      const label = r.confidence === "low" ? `${fingerLabel}⚠` : fingerLabel;
       ctx.fillStyle = "rgba(232,160,191,0.9)";
       ctx.font = isSel ? "bold 16px sans-serif" : "12px sans-serif";
       ctx.textAlign = "center";
@@ -680,7 +794,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       const results: NailAssignment[] = [];
       for (const r of assigned) {
         if (results.some((a) => a.finger === r.assignedFinger)) continue;
-        const texture = await extractNailFromRegion(img, r);
+        const texture = await extractNailFromRegion(img, r, scale);
         results.push({ texture, finger: r.assignedFinger! });
       }
       onConfirm(results);
@@ -711,7 +825,9 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
         <span className="text-white text-sm">
           {detecting ? "⏳ 正在检测指甲区域..." :
            regions.length > 0
-             ? `已识别 ${regions.length} 个指甲` + (sel ? ` · 选区 ${selectedIdx! + 1}/${regions.length}` : "")
+              ? `已定位 ${regions.length} 个候选` +
+                (regions.some((r) => r.confidence === "low") ? " · ⚠ 请检查标记" : "") +
+                (sel ? ` · 选区 ${selectedIdx! + 1}/${regions.length}` : "")
              : "未检测到指甲，请手动添加"}
         </span>
         <button onClick={onCancel} className="text-gray-400 text-sm px-3 py-1 rounded-lg hover:bg-white/10 transition-colors">

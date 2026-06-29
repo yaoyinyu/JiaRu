@@ -1,10 +1,18 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
+import {
+  computeNailGeometry,
+  NAIL_DIPS,
+  NAIL_PIPS,
+  NAIL_TIPS,
+  smoothAngle,
+  type NailGeometry,
+} from "@/lib/nail-geometry";
 
 // MediaPipe 手部关键点索引
-const TIPS = [4, 8, 12, 16, 20]; // 指尖
-const DIPS = [3, 7, 11, 15, 19]; // DIP 关节（远端指关节）
-const PIPS = [2, 6, 10, 14, 18]; // PIP 关节（近端指关节，方向更稳定）
+const TIPS = NAIL_TIPS;
+const DIPS = NAIL_DIPS;
+const PIPS = NAIL_PIPS;
 
 // 指数移动平均平滑因子
 const EMA_ALPHA = 0.45;
@@ -42,14 +50,6 @@ const EXTENSION_ANGLE_THRESHOLD = 0.6; // ≈ 35°
 // 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
 const VOTE_FINGERS = [1, 2, 3, 4];
 
-// 指甲中心从指尖向手根方向的偏移比例（逐指独立：拇指尾指更靠近指尖）
-const TIP_OFFSET_RATIO = 0.28; // 保留作为默认降级
-const FINGER_OFFSET_RATIOS = [0.22, 0.28, 0.28, 0.26, 0.24];
-
-// 逐指宽长比校准（基于真实甲床占比：拇指宽短、小指窄长）
-const FINGER_LENGTH_RATIOS = [0.50, 0.55, 0.58, 0.54, 0.48];
-const FINGER_WIDTH_RATIOS  = [0.52, 0.48, 0.46, 0.44, 0.36];
-
 // 逐指指甲形状参数 [thumb, index, middle, ring, pinky]
 // 指尖收窄系数：拇指最大(平)，小指最小(尖)
 const FINGER_TIP_NARROW  = [0.12, 0.08, 0.07, 0.08, 0.06];
@@ -61,6 +61,7 @@ const FINGER_ROOT_BULGE  = [0.06, 0.08, 0.08, 0.07, 0.05];
 // 柱面曲率变形参数
 const CURVATURE_STRENGTH = 0.22;  // 曲率强度（0=平面，越大越弯）
 const CURVATURE_STRIPS = 12;      // 竖条分片数（越多越平滑）
+const INFERENCE_INTERVAL_MS = 1000 / 24;
 
 // MediaPipe 全局类型声明（CDN 注入）
 interface Landmark {
@@ -140,6 +141,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   const palmDepthSmoothRef = useRef<number>(NaN);
   // 逐指可见性平滑状态（5 指，0=不可见, 1=可见）
   const visibleSmoothRef = useRef<number[]>([1, 1, 1, 1, 1]);
+  const geometrySmoothRef = useRef<(NailGeometry | null)[]>(
+    Array.from({ length: 5 }, () => null)
+  );
   // 朝向状态（用于 UI 显示）
   const [orientation, setOrientation] = useState<"dorsum" | "palm" | "ambiguous" | "none">("none");
   // 左右标识（用于 UI 显示）
@@ -150,6 +154,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   const handFlipRef = useRef(false);
   // 逐指可见性 UI 状态（true=可见，false=隐藏）
   const [fingerVisible, setFingerVisible] = useState<boolean[]>([true, true, true, true, true]);
+  const fingerVisibleUiRef = useRef<boolean[]>([true, true, true, true, true]);
+  const lightSampleCanvasRef = useRef<OffscreenCanvas | null>(null);
+  const grainCanvasRef = useRef<OffscreenCanvas | null>(null);
 
   const log = (m: string) => {
     console.log("[AR]", m);
@@ -207,12 +214,12 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     w: number,
     h: number
   ): { brightness: number; r: number; g: number; b: number } {
-    // 创建微型离屏 canvas 采样
     const sampleSize = 8;
     const sx = Math.max(0, Math.min(w - sampleSize, cx - sampleSize / 2));
     const sy = Math.max(0, Math.min(h - sampleSize, cy - sampleSize / 2));
 
-    const off = new OffscreenCanvas(sampleSize, sampleSize);
+    const off = lightSampleCanvasRef.current ?? new OffscreenCanvas(sampleSize, sampleSize);
+    lightSampleCanvasRef.current = off;
     const octx = off.getContext("2d");
     if (!octx) return { brightness: 1.0, r: 1, g: 1, b: 1 };
 
@@ -318,19 +325,24 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     drawNailShape(ctx, nl, nw, fingerIdx);
     ctx.clip();
 
-    // 用 ImageData 生成随机噪点
-    const grainCanvas = new OffscreenCanvas(Math.ceil(nw), Math.ceil(nl));
-    const gctx = grainCanvas.getContext("2d");
-    if (gctx) {
-      const imgData = gctx.createImageData(grainCanvas.width, grainCanvas.height);
-      for (let i = 0; i < imgData.data.length; i += 4) {
-        const noise = 128 + (Math.random() - 0.5) * 30;
-        imgData.data[i] = noise;
-        imgData.data[i + 1] = noise;
-        imgData.data[i + 2] = noise;
-        imgData.data[i + 3] = 18; // 低 alpha
+    let grainCanvas = grainCanvasRef.current;
+    if (!grainCanvas) {
+      grainCanvas = new OffscreenCanvas(64, 128);
+      const gctx = grainCanvas.getContext("2d");
+      if (gctx) {
+        const imgData = gctx.createImageData(grainCanvas.width, grainCanvas.height);
+        for (let i = 0; i < imgData.data.length; i += 4) {
+          const noise = 128 + (Math.random() - 0.5) * 30;
+          imgData.data[i] = noise;
+          imgData.data[i + 1] = noise;
+          imgData.data[i + 2] = noise;
+          imgData.data[i + 3] = 18;
+        }
+        gctx.putImageData(imgData, 0, 0);
       }
-      gctx.putImageData(imgData, 0, 0);
+      grainCanvasRef.current = grainCanvas;
+    }
+    if (grainCanvas) {
       ctx.globalAlpha = 0.35;
       ctx.drawImage(grainCanvas, -hw, -hl, nw, nl);
     }
@@ -635,36 +647,31 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       );
       if (visibleSmoothRef.current[f] < VISIBILITY_SMOOTH_THRESHOLD) continue;
 
-      // ── z 轴深度缩放 ──
-      const zScale = Math.max(0.7, Math.min(1.5, 1 - s.tip.z * 0.6));
+      // ── 共享几何模型 + 几何级时序平滑 ──
+      const geometryLandmarks = [...lm];
+      geometryLandmarks[TIPS[f]] = s.tip;
+      geometryLandmarks[DIPS[f]] = s.dip;
+      if (rawPip) geometryLandmarks[PIPS[f]] = s.pip;
+      const measured = computeNailGeometry(geometryLandmarks, f, w, h);
+      if (!measured) continue;
 
-      // ── 方向向量（TIP-DIP 优先，更贴近指甲实际朝向）──
-      let fx: number, fy: number;
-      if (rawTip) {
-        const tx = s.tip.x * w, ty = s.tip.y * h;
-        const dx = s.dip.x * w, dy = s.dip.y * h;
-        fx = tx - dx; fy = ty - dy;
-      } else if (rawPip) {
-        const px = s.pip.x * w, py = s.pip.y * h;
-        const dx = s.dip.x * w, dy = s.dip.y * h;
-        fx = dx - px; fy = dy - py;
-      } else {
-        fx = 0; fy = -1; // 降级：默认垂直
-      }
+      const previous = geometrySmoothRef.current[f];
+      const movement = previous
+        ? Math.hypot(measured.cx - previous.cx, measured.cy - previous.cy)
+        : Number.POSITIVE_INFINITY;
+      const alpha = movement > measured.width * 0.35 ? 0.62 : 0.34;
+      const geometry = previous
+        ? {
+            cx: ema(previous.cx, measured.cx, alpha),
+            cy: ema(previous.cy, measured.cy, alpha),
+            length: ema(previous.length, measured.length, alpha),
+            width: ema(previous.width, measured.width, alpha),
+            angle: smoothAngle(previous.angle, measured.angle, alpha),
+          }
+        : measured;
+      geometrySmoothRef.current[f] = geometry;
 
-      const rawLen = Math.sqrt(fx * fx + fy * fy);
-      if (rawLen < 5) continue;
-
-      const len = rawLen * zScale;
-      const a = Math.atan2(fy, fx);
-      const nl = len * FINGER_LENGTH_RATIOS[f];
-      const nw = len * FINGER_WIDTH_RATIOS[f];
-
-      const tx = s.tip.x * w;
-      const ty = s.tip.y * h;
-      const offsetRatio = FINGER_OFFSET_RATIOS[f] ?? TIP_OFFSET_RATIO;
-      const cx = tx - (fx / rawLen) * (len * offsetRatio);
-      const cy = ty - (fy / rawLen) * (len * offsetRatio);
+      const { cx, cy, length: nl, width: nw, angle: a } = geometry;
 
       // ── 环境光照采样 ──
       const env = sampleEnvLight(video, cx, cy, w, h);
@@ -678,6 +685,8 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
       if (tex) {
         // 纹理模式：柱面曲率变形
+        drawNailShape(ctx, nl, nw, f);
+        ctx.clip();
         drawCurvedTexture(ctx, tex, nl, nw);
       } else {
         // 纯色模式：填充指甲形状（使用逐指形状参数）
@@ -746,6 +755,15 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     let handsInst: HandsInstance | null = null;
     let mediaStream: MediaStream | null = null;
     let rafLoop = 0;
+
+    function updateFingerVisibility(next: boolean[]) {
+      const current = fingerVisibleUiRef.current;
+      if (current.length === next.length && current.every((value, index) => value === next[index])) {
+        return;
+      }
+      fingerVisibleUiRef.current = next;
+      setFingerVisible(next);
+    }
 
     async function start() {
       try {
@@ -1014,33 +1032,40 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
                 for (let fi = 0; fi < 5; fi++) {
                   vis.push(visibleSmoothRef.current[fi] >= VISIBILITY_SMOOTH_THRESHOLD);
                 }
-                setFingerVisible(vis);
+                updateFingerVisibility(vis);
               } else {
-                setFingerVisible([false, false, false, false, false]);
+                updateFingerVisibility([false, false, false, false, false]);
               }
             }
           } else {
             setHandCnt(0);
             setOrientation("none");
-            setFingerVisible([false, false, false, false, false]);
+            updateFingerVisibility([false, false, false, false, false]);
           }
         });
 
         // ── 步骤6: 用 requestAnimationFrame 驱动推理（替代 Camera Utils）──
         log("6/7 启动推理循环...");
         let sending = false;
-        async function loop() {
+        let lastInferenceAt = Number.NEGATIVE_INFINITY;
+        async function loop(timestamp: number) {
           if (dead || !handsInst || !video) return;
-          if (!sending && video.readyState >= 2) {
+          if (
+            !sending &&
+            video.readyState >= 2 &&
+            timestamp - lastInferenceAt >= INFERENCE_INTERVAL_MS
+          ) {
             sending = true;
+            lastInferenceAt = timestamp;
             try {
               await handsInst.send({ image: video });
             } catch {
               // 忽略单帧错误
+            } finally {
+              sending = false;
             }
-            sending = false;
           }
-          rafLoop = requestAnimationFrame(loop);
+          if (!dead) rafLoop = requestAnimationFrame(loop);
         }
         rafLoop = requestAnimationFrame(loop);
 

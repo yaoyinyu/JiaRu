@@ -34,42 +34,61 @@ export default function Home() {
 
   const [showHint, setShowHint] = useState(true);
 
-  // ---------- RAF ----------
+  // ---------- 按需运行的指针动画 ----------
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    let rafId = 0;
+    let disposed = false;
+    let layoutDirty = true;
+    let hintDismissed = false;
+    let buttonCenters: { x: number; y: number }[] = [];
+
+    function measureButtons() {
+      buttonCenters = btnRefs.current.map((el) => {
+        if (!el) return { x: -999, y: -999 };
+        const r = el.getBoundingClientRect();
+        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
+      });
+      layoutDirty = false;
+    }
+
+    function scheduleTick() {
+      if (!disposed && rafId === 0) {
+        rafId = requestAnimationFrame(tick);
+      }
+    }
+
     function tick() {
+      rafId = 0;
+      if (disposed) return;
+
       const s = st.current;
       const sp = spotlightRef.current;
       const gw = glowRef.current;
-      if (!sp || !gw) { requestAnimationFrame(tick); return; }
+      if (!sp || !gw) return;
+      if (layoutDirty) measureButtons();
 
       const cx = s.cursor.x;
       const cy = s.cursor.y;
-
-      // ---- 检测吸附（基于光标位置，非光晕位置） ----
+      let needsAnotherFrame = false;
       let captured = -1;
       let minDist = Infinity;
 
       for (let i = 0; i < BTNS.length; i++) {
-        const el = btnRefs.current[i];
-        if (!el) continue;
-        const r = el.getBoundingClientRect();
-        const bx = r.left + r.width / 2;
-        const by = r.top + r.height / 2;
-
-        // 用光标到按钮的距离判断
-        const cdx = cx - bx;
-        const cdy = cy - by;
-        const cDist = Math.sqrt(cdx * cdx + cdy * cdy);
+        const center = buttonCenters[i];
+        if (!center) continue;
+        const cdx = cx - center.x;
+        const cdy = cy - center.y;
+        const cDist = Math.hypot(cdx, cdy);
         if (cDist < minDist) minDist = cDist;
-
-        // 捕获：光标靠近按钮 100px 内
         if (cDist < 100 || (s.captured === i && cDist < 160)) {
           captured = i;
           break;
         }
       }
 
-      // 过渡捕获状态（光标远离 160px 后释放）
       if (captured >= 0) {
         if (s.captured < 0) {
           s.captured = captured;
@@ -82,23 +101,16 @@ export default function Home() {
         s.captureP = 0;
       }
 
-      // ---- 光晕位置 ----
       if (s.captured >= 0) {
         const el = btnRefs.current[s.captured];
-        if (el) {
-          const r = el.getBoundingClientRect();
-          const bx = r.left + r.width / 2;
-          const by = r.top + r.height / 2;
-
-          // 弹性捕获动画：先快后弹
+        const center = buttonCenters[s.captured];
+        if (el && center) {
           s.captureP = Math.min(s.captureP + 0.05, 1);
+          needsAnotherFrame ||= s.captureP < 1;
           const k = elasticOut(s.captureP);
+          s.light.x = s.captureFrom.x + (center.x - s.captureFrom.x) * k;
+          s.light.y = s.captureFrom.y + (center.y - s.captureFrom.y) * k;
 
-          // 从捕获起点弹性插值到按钮中心
-          s.light.x = s.captureFrom.x + (bx - s.captureFrom.x) * k;
-          s.light.y = s.captureFrom.y + (by - s.captureFrom.y) * k;
-
-          // 点击动画期间跳过 RAF 写入
           if (s.clickLock !== s.captured) {
             const btnScale = 1 + Math.min(k, 1) * 0.05 + Math.max(0, k - 1) * 0.03;
             el.style.transform = "scale(" + btnScale + ")";
@@ -110,24 +122,24 @@ export default function Home() {
           }
         }
       } else {
-        s.light.x += (cx - s.light.x) * 0.065;
-        s.light.y += (cy - s.light.y) * 0.065;
+        const deltaX = cx - s.light.x;
+        const deltaY = cy - s.light.y;
+        s.light.x += deltaX * 0.065;
+        s.light.y += deltaY * 0.065;
+        needsAnotherFrame ||= Math.abs(deltaX) > 0.25 || Math.abs(deltaY) > 0.25;
       }
 
-      // ---- 按钮磁力 ----
       for (let i = 0; i < BTNS.length; i++) {
         if (i === s.captured || i === s.clickLock) continue;
         const el = btnRefs.current[i];
-        if (!el) continue;
-        const r = el.getBoundingClientRect();
-        const bx = r.left + r.width / 2;
-        const by = r.top + r.height / 2;
-        const dx = s.light.x - bx;
-        const dy = s.light.y - by;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const center = buttonCenters[i];
+        if (!el || !center) continue;
+        const dx = s.light.x - center.x;
+        const dy = s.light.y - center.y;
+        const dist = Math.hypot(dx, dy);
         const field = 200;
 
-        if (dist < field) {
+        if (dist > 0 && dist < field) {
           const force = 1 - dist / field;
           const ease = force * force * (3 - 2 * force);
           const tiltMag = ease * 10;
@@ -143,58 +155,74 @@ export default function Home() {
         const tiltX = s.btnTilt[i].x;
         const tiltY = s.btnTilt[i].y;
         const gl = s.btnGlow[i];
+        needsAnotherFrame ||= Math.abs(tiltX) >= 0.3 || Math.abs(tiltY) >= 0.3 || gl >= 0.01;
         if (Math.abs(tiltX) < 0.3 && Math.abs(tiltY) < 0.3 && gl < 0.01) {
           el.style.transform = "";
           el.style.boxShadow = "";
         } else {
           el.style.transform = "translate(" + tiltX.toFixed(1) + "px, " + tiltY.toFixed(1) + "px)";
-          const baseShadow = i === 0
+          el.style.boxShadow = i === 0
             ? "0 0 " + (20 + gl * 40) + "px rgba(232,160,191," + (0.25 + gl * 0.5) + ")"
             : "0 0 " + (10 + gl * 30) + "px rgba(232,160,191," + (0.1 + gl * 0.35) + ")";
-          el.style.boxShadow = baseShadow;
         }
       }
 
-      // ---- 光晕视觉 ----
       sp.style.transform = "translate(" + (s.light.x - 200) + "px, " + (s.light.y - 200) + "px)";
-
       if (s.captured >= 0) {
         const ease = 1 - Math.pow(1 - s.captureP, 3);
-        const scale = 1 - ease * 0.35;
         sp.style.opacity = String(0.3 + ease * 0.5);
-        sp.style.transform += " scale(" + scale + ")";
-      } else {
-        sp.style.opacity = String(Math.max(0.2, 0.45 - minDist * 0.001));
-      }
-
-      if (s.captured >= 0) {
-        const ease = 1 - Math.pow(1 - s.captureP, 3);
+        sp.style.transform += " scale(" + (1 - ease * 0.35) + ")";
         gw.style.opacity = String(0.4 + ease * 0.4);
       } else {
+        sp.style.opacity = String(Math.max(0.2, 0.45 - minDist * 0.001));
         gw.style.opacity = "0.4";
       }
 
-      requestAnimationFrame(tick);
+      if (needsAnotherFrame) scheduleTick();
     }
-    requestAnimationFrame(tick);
-  }, []);
 
-  // ---------- 指针事件 ----------
-  useEffect(() => {
-    const el = containerRef.current;
-    if (!el) return;
     function move(e: PointerEvent) {
       st.current.cursor = { x: e.clientX, y: e.clientY };
-      if (showHint) setShowHint(false);
+      if (!hintDismissed) {
+        hintDismissed = true;
+        setShowHint(false);
+      }
+      scheduleTick();
     }
-    function leave() { st.current.cursor = { x: -999, y: -999 }; }
-    el.addEventListener("pointermove", move);
-    el.addEventListener("pointerleave", leave);
+
+    function leave() {
+      const s = st.current;
+      s.cursor = { x: -999, y: -999 };
+      s.light = { x: -999, y: -999 };
+      s.captured = -1;
+      s.captureP = 0;
+      scheduleTick();
+    }
+
+    function invalidateLayout() {
+      layoutDirty = true;
+      scheduleTick();
+    }
+
+    const resizeObserver = new ResizeObserver(invalidateLayout);
+    resizeObserver.observe(container);
+    btnRefs.current.forEach((el) => {
+      if (el) resizeObserver.observe(el);
+    });
+    container.addEventListener("pointermove", move, { passive: true });
+    container.addEventListener("pointerleave", leave);
+    window.addEventListener("resize", invalidateLayout);
+    measureButtons();
+
     return () => {
-      el.removeEventListener("pointermove", move);
-      el.removeEventListener("pointerleave", leave);
+      disposed = true;
+      if (rafId !== 0) cancelAnimationFrame(rafId);
+      resizeObserver.disconnect();
+      container.removeEventListener("pointermove", move);
+      container.removeEventListener("pointerleave", leave);
+      window.removeEventListener("resize", invalidateLayout);
     };
-  }, [showHint]);
+  }, []);
 
   // 点击动画
   function handleClick(i: number) {

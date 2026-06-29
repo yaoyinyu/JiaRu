@@ -6,7 +6,8 @@
     "dev": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --no-warnings --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": {
     "@mediapipe/hands": "^0.4.1675469240",
