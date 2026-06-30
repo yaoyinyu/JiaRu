@@ -1,0 +1,17 @@
+path: ../datasets/nail-texture-v1
+train: images/train
+val: images/val
+test: images/test
+
+names:
+  0: nail_texture
+
+task: segment
+class_count: 1
+image_size: 640
+
+metadata:
+  dataset_version: nail-texture-dataset/v1
+  primary_label: nail_texture
+  split_source: metadata/split.json
+  label_audit: metadata/label-audit.csv

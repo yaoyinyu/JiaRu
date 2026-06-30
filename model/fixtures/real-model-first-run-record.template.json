@@ -1,0 +1,45 @@
+{
+  "version": "nail-real-model-first-run/v1",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "model": {
+    "manifestPath": "E:/AI Project/Codex/JiaRu/public/models/nail-texture-seg/manifest.json",
+    "modelPath": "E:/AI Project/Codex/JiaRu/public/models/nail-texture-seg/nail-texture-seg-v1.onnx",
+    "version": "nail-texture-seg-v1",
+    "backendPreferences": ["webgpu", "wasm"],
+    "artifactOk": false
+  },
+  "input": {
+    "imagePath": "E:/AI Project/Codex/JiaRu/model/5188.jpg_wh860.jpg",
+    "annotationPath": null,
+    "debugOutputDir": "E:/AI Project/Codex/JiaRu/model/debug/run-001",
+    "debugPrefix": "model-v1"
+  },
+  "readiness": {
+    "ok": false,
+    "fixtureVerified": null,
+    "imageVerified": null,
+    "warnings": []
+  },
+  "outputs": {
+    "debugJsonPath": null,
+    "debugOverlayPath": null,
+    "candidateMaskPath": null,
+    "skinMaskPath": null,
+    "modelOutputDumpPath": null,
+    "fixturePath": null
+  },
+  "observations": {
+    "backend": "unknown",
+    "candidateCount": null,
+    "maxCenterError": null,
+    "outputNames": [],
+    "outputDims": [],
+    "newWarnings": [],
+    "notes": ""
+  },
+  "decision": {
+    "status": "needs_adjustment",
+    "summary": "",
+    "nextActions": []
+  }
+}

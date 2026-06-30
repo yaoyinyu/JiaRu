@@ -6,7 +6,15 @@ import {
   mapGeometryScale,
   type NailLandmark,
 } from "@/lib/nail-geometry";
-import { detectNailRegionsFromImageData } from "@/lib/nail-image-detection";
+import {
+  extractTextureFromMask,
+  recognizeNailTexturesInWorker,
+  type NailMask,
+} from "@/lib/nail-texture-recognition";
+import {
+  createLocalNailDebugSample,
+  createNailDebugSampleFilename,
+} from "@/lib/nail-texture-debug-sample";
 
 // ─── 类型定义 ──────────────────────────────────────────────
 
@@ -23,6 +31,13 @@ interface NailRegion {
   nw: number;    // 指甲宽度（canvas 像素）
   assignedFinger: number | null;
   confidence?: "high" | "low";
+  mask?: NailMask;
+}
+
+interface DetectionSummary {
+  backend: "model" | "fallback";
+  modelVersion?: string;
+  warnings: string[];
 }
 
 interface NailArtPickerProps {
@@ -108,32 +123,34 @@ function computeNailRegions(
   return regions;
 }
 
-function computeImageDetectedNailRegions(imageData: ImageData): NailRegion[] {
-  const detected = detectNailRegionsFromImageData({
+async function computeImageDetectedNailRegions(
+  imageData: ImageData
+): Promise<{ regions: NailRegion[]; summary: DetectionSummary }> {
+  const result = await recognizeNailTexturesInWorker({
     width: imageData.width,
     height: imageData.height,
     data: imageData.data,
+  }, {
+    preferModel: true,
   });
-  const sorted = detected
-    .slice(0, 5)
-    .sort((a, b) => a.cx - b.cx);
-  const inferredFingers =
-    sorted.length === 4
-      ? [1, 2, 3, 4]
-      : sorted.length >= 5
-        ? [0, 1, 2, 3, 4]
-        : [1, 2, 3, 4, 0];
-
-  return sorted.map((region, index) => ({
-    id: nextId(),
-    cx: region.cx,
-    cy: region.cy,
-    angle: region.angle,
-    nl: region.length,
-    nw: region.width,
-    assignedFinger: inferredFingers[index] ?? null,
-    confidence: region.confidence,
-  }));
+  return {
+    regions: result.candidates.map((candidate) => ({
+      id: nextId(),
+      cx: candidate.cx,
+      cy: candidate.cy,
+      angle: candidate.angle,
+      nl: candidate.length,
+      nw: candidate.width,
+      assignedFinger: candidate.suggestedFinger,
+      confidence: candidate.confidence === "medium" ? "low" : candidate.confidence,
+      mask: candidate.mask,
+    })),
+    summary: {
+      backend: result.backend,
+      modelVersion: result.modelVersion,
+      warnings: result.warnings,
+    },
+  };
 }
 
 interface Rgb {
@@ -413,6 +430,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
   const [error, setError] = useState<string | null>(null);
   const [detecting, setDetecting] = useState(true); // 自动检测中
   const [scale, setScale] = useState(1);
+  const [detectionSummary, setDetectionSummary] = useState<DetectionSummary | null>(null);
+  const [originalRegions, setOriginalRegions] = useState<NailRegion[]>([]);
 
   // 选区
   const [regions, setRegions] = useState<NailRegion[]>([]);
@@ -478,6 +497,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       try {
         setDetecting(true);
         setError(null);
+        setDetectionSummary(null);
         const landmarks = await detectHandsOnImage(img);
         if (dead) return;
 
@@ -492,12 +512,19 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
             : priors.map((region) => ({ ...region, confidence: "low" as const }));
           if (detected.length > 0) {
             setRegions(detected);
+            setOriginalRegions(detected.map((region) => ({ ...region })));
+            setDetectionSummary({
+              backend: "fallback",
+              warnings: ["mediapipe_geometry_detection"],
+            });
             setSelectedIdx(0);
             setError(null);
           } else {
-            const fallback = imageData ? computeImageDetectedNailRegions(imageData) : [];
-            if (fallback.length > 0) {
-              setRegions(fallback);
+            const fallback = imageData ? await computeImageDetectedNailRegions(imageData) : null;
+            if (fallback && fallback.regions.length > 0) {
+              setRegions(fallback.regions);
+              setOriginalRegions(fallback.regions.map((region) => ({ ...region })));
+              setDetectionSummary(fallback.summary);
               setSelectedIdx(0);
               setError(null);
               return;
@@ -507,9 +534,11 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
         } else {
           const ctx = cvs.getContext("2d");
           const imageData = ctx?.getImageData(0, 0, cvs.width, cvs.height);
-          const fallback = imageData ? computeImageDetectedNailRegions(imageData) : [];
-          if (fallback.length > 0) {
-            setRegions(fallback);
+          const fallback = imageData ? await computeImageDetectedNailRegions(imageData) : null;
+          if (fallback && fallback.regions.length > 0) {
+            setRegions(fallback.regions);
+            setOriginalRegions(fallback.regions.map((region) => ({ ...region })));
+            setDetectionSummary(fallback.summary);
             setSelectedIdx(0);
             setError(null);
             return;
@@ -522,9 +551,11 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
           const cvs = canvasRef.current;
           const ctx = cvs?.getContext("2d");
           const imageData = cvs && ctx ? ctx.getImageData(0, 0, cvs.width, cvs.height) : null;
-          const fallback = imageData ? computeImageDetectedNailRegions(imageData) : [];
-          if (fallback.length > 0) {
-            setRegions(fallback);
+          const fallback = imageData ? await computeImageDetectedNailRegions(imageData) : null;
+          if (fallback && fallback.regions.length > 0) {
+            setRegions(fallback.regions);
+            setOriginalRegions(fallback.regions.map((region) => ({ ...region })));
+            setDetectionSummary(fallback.summary);
             setSelectedIdx(0);
             setError(null);
           } else {
@@ -775,6 +806,30 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
 
   // ── 手指分配 ─────────────────────────────────────────
 
+  const exportDebugSample = () => {
+    const image = imgRef.current;
+    if (!image) return;
+    const record = createLocalNailDebugSample({
+      imageUrl,
+      imageWidth: image.naturalWidth,
+      imageHeight: image.naturalHeight,
+      detectionSummary,
+      originalRegions,
+      correctedRegions: regions,
+    });
+    const blob = new Blob([JSON.stringify(record, null, 2)], {
+      type: "application/json;charset=utf-8",
+    });
+    const downloadUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = downloadUrl;
+    link.download = createNailDebugSampleFilename(record);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(downloadUrl);
+  };
+
   const assignFinger = (fi: number) => {
     if (selectedIdx === null) return;
     setRegions((prev) => prev.map((r, i) => i === selectedIdx ? { ...r, assignedFinger: fi } : r));
@@ -794,7 +849,9 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       const results: NailAssignment[] = [];
       for (const r of assigned) {
         if (results.some((a) => a.finger === r.assignedFinger)) continue;
-        const texture = await extractNailFromRegion(img, r, scale);
+        const texture = r.mask
+          ? await extractTextureFromMask(img, img.naturalWidth, img.naturalHeight, r.mask)
+          : await extractNailFromRegion(img, r, scale);
         results.push({ texture, finger: r.assignedFinger! });
       }
       onConfirm(results);
@@ -827,6 +884,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
            regions.length > 0
               ? `已定位 ${regions.length} 个候选` +
                 (regions.some((r) => r.confidence === "low") ? " · ⚠ 请检查标记" : "") +
+                (detectionSummary ? ` · ${detectionSummary.backend === "model" ? "模型" : "回退"}识别` : "") +
+                (detectionSummary?.modelVersion ? ` · ${detectionSummary.modelVersion}` : "") +
                 (sel ? ` · 选区 ${selectedIdx! + 1}/${regions.length}` : "")
              : "未检测到指甲，请手动添加"}
         </span>
@@ -861,12 +920,25 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       {/* 底部控制区 */}
       <div className="bg-black/95 px-4 py-3 space-y-2.5">
         {error && <p className="text-red-400 text-xs text-center">{error}</p>}
+        {!error && detectionSummary?.warnings.length ? (
+          <p className="text-yellow-300 text-[10px] text-center">
+            {detectionSummary.warnings.join(" · ")}
+          </p>
+        ) : null}
 
         {/* 选区操作 */}
         <div className="flex items-center gap-2 justify-center">
           <button onClick={addRegion} className="px-3 py-1.5 text-xs rounded-full bg-pink-500/60 text-white hover:bg-pink-500 transition-colors">
             ＋ 添加选区
           </button>
+          {regions.length > 0 && (
+            <button
+              onClick={exportDebugSample}
+              className="px-3 py-1.5 text-xs rounded-full bg-emerald-500/50 text-white hover:bg-emerald-500/70 transition-colors"
+            >
+              导出修正样本
+            </button>
+          )}
           {sel && (
             <button onClick={delRegion} className="px-3 py-1.5 text-xs rounded-full bg-red-500/40 text-white hover:bg-red-500/60 transition-colors">
               删除

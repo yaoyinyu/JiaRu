@@ -44,3 +44,19 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# model datasets / exports
+model/datasets/nail-texture-v1/images/raw/*
+!model/datasets/nail-texture-v1/images/raw/.gitkeep
+model/datasets/nail-texture-v1/annotations/raw-json/*
+!model/datasets/nail-texture-v1/annotations/raw-json/.gitkeep
+model/datasets/nail-texture-v1/labels-yolo-seg/train/*
+!model/datasets/nail-texture-v1/labels-yolo-seg/train/.gitkeep
+model/datasets/nail-texture-v1/labels-yolo-seg/val/*
+!model/datasets/nail-texture-v1/labels-yolo-seg/val/.gitkeep
+model/datasets/nail-texture-v1/labels-yolo-seg/test/*
+!model/datasets/nail-texture-v1/labels-yolo-seg/test/.gitkeep
+model/datasets/nail-texture-v1/metadata/sources.csv
+model/datasets/nail-texture-v1/metadata/split.json
+model/datasets/nail-texture-v1/metadata/label-audit.csv
+model/exports/

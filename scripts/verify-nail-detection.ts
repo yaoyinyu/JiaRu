@@ -1,15 +1,40 @@
 import path from "node:path";
 import process from "node:process";
+import { mkdir, writeFile } from "node:fs/promises";
 import sharp from "sharp";
 import {
   createNailDetectionMasks,
-  detectNailRegionsFromImageData,
 } from "../src/lib/nail-image-detection.ts";
+import {
+  buildNailDebugArtifactPaths,
+  recognizeNailTextures,
+} from "../src/lib/nail-texture-recognition/index.ts";
 
 const input = process.argv[2];
-const annotation = process.argv[3];
+const maybeAnnotation = process.argv[3];
+const annotation = maybeAnnotation && !maybeAnnotation.startsWith("--")
+  ? maybeAnnotation
+  : undefined;
+const extraArgs = process.argv.slice(annotation ? 4 : 3);
 if (!input) {
-  throw new Error("Usage: node --experimental-strip-types scripts/verify-nail-detection.ts <image> [green-annotation-image]");
+  throw new Error("Usage: node --experimental-strip-types scripts/verify-nail-detection.ts <image> [green-annotation-image] [--output-dir <dir>] [--prefix <name>]");
+}
+
+let outputDir: string | undefined;
+let prefix: string | undefined;
+for (let index = 0; index < extraArgs.length; index++) {
+  const arg = extraArgs[index];
+  if (arg === "--output-dir") {
+    outputDir = path.resolve(extraArgs[++index]);
+    continue;
+  }
+  if (arg === "--prefix") {
+    prefix = extraArgs[++index];
+    continue;
+  }
+  throw new Error(
+    "Usage: node --experimental-strip-types scripts/verify-nail-detection.ts <image> [green-annotation-image] [--output-dir <dir>] [--prefix <name>]"
+  );
 }
 
 const absoluteInput = path.resolve(input);
@@ -18,11 +43,24 @@ const { data, info } = await sharp(absoluteInput)
   .ensureAlpha()
   .raw()
   .toBuffer({ resolveWithObject: true });
-const regions = detectNailRegionsFromImageData({
+const recognition = await recognizeNailTextures({
   width: info.width,
   height: info.height,
   data,
+}, {
+  preferModel: true,
+  debugOutputs: true,
+  debugRawModelOutputs: true,
 });
+const regions = recognition.candidates.map((candidate) => ({
+  cx: candidate.cx,
+  cy: candidate.cy,
+  angle: candidate.angle,
+  length: candidate.length,
+  width: candidate.width,
+  confidence: candidate.confidence === "high" ? "high" as const : "low" as const,
+  score: candidate.score,
+}));
 const masks = createNailDetectionMasks({
   width: info.width,
   height: info.height,
@@ -41,9 +79,18 @@ const overlay = `
     </g>
   `).join("")}
 </svg>`;
-const output = path.join(path.dirname(absoluteInput), "nail-detection-debug.png");
-const candidateMaskOutput = path.join(path.dirname(absoluteInput), "nail-candidate-mask.png");
-const skinMaskOutput = path.join(path.dirname(absoluteInput), "nail-skin-mask.png");
+const {
+  output,
+  candidateMaskOutput,
+  skinMaskOutput,
+  debugJsonOutput,
+  modelOutputDumpPath,
+} = buildNailDebugArtifactPaths({
+  inputPath: absoluteInput,
+  outputDir,
+  prefix,
+});
+await mkdir(path.dirname(output), { recursive: true });
 await sharp(absoluteInput)
   .composite([{ input: Buffer.from(overlay) }])
   .png()
@@ -190,20 +237,47 @@ if (groundTruth) {
   }
 }
 
-console.log(JSON.stringify({
+const debugPayload = {
   input: absoluteInput,
   annotation: absoluteAnnotation,
   output,
   candidateMaskOutput,
   skinMaskOutput,
+  debugJsonOutput,
   width: info.width,
   height: info.height,
   count: regions.length,
+  backend: recognition.backend,
+  modelVersion: recognition.modelVersion,
+  modelInfo: recognition.modelInfo,
+  warnings: recognition.warnings,
+  debugOutputs: recognition.debugOutputs,
+  rawModelOutputs: recognition.rawModelOutputs,
+  preprocess: recognition.preprocess,
+  modelOutputDumpPath: recognition.rawModelOutputs ? modelOutputDumpPath : null,
   regions,
   groundTruth,
   matches,
   maxCenterError,
-}, null, 2));
+};
+
+await writeFile(debugJsonOutput, JSON.stringify(debugPayload, null, 2), "utf8");
+if (recognition.rawModelOutputs && recognition.preprocess) {
+  await writeFile(
+    modelOutputDumpPath,
+    JSON.stringify(
+      {
+        input: absoluteInput,
+        preprocess: recognition.preprocess,
+        rawModelOutputs: recognition.rawModelOutputs,
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+}
+console.log(JSON.stringify(debugPayload, null, 2));
 
 if (regions.length < 4) {
   process.exitCode = 1;

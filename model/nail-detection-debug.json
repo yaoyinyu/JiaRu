@@ -1,0 +1,56 @@
+{
+  "input": "E:\\AI Project\\Codex\\JiaRu\\model\\5188.jpg_wh860.jpg",
+  "annotation": null,
+  "output": "E:\\AI Project\\Codex\\JiaRu\\model\\nail-detection-debug.png",
+  "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\nail-candidate-mask.png",
+  "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\nail-skin-mask.png",
+  "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\nail-detection-debug.json",
+  "width": 860,
+  "height": 573,
+  "count": 4,
+  "backend": "fallback",
+  "warnings": [
+    "model_runtime_unavailable_on_server"
+  ],
+  "regions": [
+    {
+      "cx": 184.54166666666669,
+      "cy": 223.95833333333334,
+      "angle": 1.308996938995747,
+      "length": 107.5,
+      "width": 77.39999999999999,
+      "confidence": "high",
+      "score": 30.178058624267578
+    },
+    {
+      "cx": 273.68728233819456,
+      "cy": 301.68249377847445,
+      "angle": 0.5235987755982987,
+      "length": 129.79452843808625,
+      "width": 93.4520604754221,
+      "confidence": "high",
+      "score": 105.16611862182617
+    },
+    {
+      "cx": 412.03657438778134,
+      "cy": 338.54542100900335,
+      "angle": 0.5235987755982987,
+      "length": 135.8018047524707,
+      "width": 97.77729942177889,
+      "confidence": "high",
+      "score": 86.4883918762207
+    },
+    {
+      "cx": 546.3074539816563,
+      "cy": 353.35864757149085,
+      "angle": -0.7853981633974483,
+      "length": 150.5,
+      "width": 98.9,
+      "confidence": "high",
+      "score": 131.62688636779785
+    }
+  ],
+  "groundTruth": null,
+  "matches": [],
+  "maxCenterError": 0
+}

@@ -1,0 +1,16 @@
+{
+  "version": "nail-real-model-ui-review/v1",
+  "createdAt": "2026-07-01T00:00:00.000Z",
+  "pagePath": "/ar-tryon",
+  "checks": {
+    "pickerOpened": false,
+    "modelOrFallbackBadgeVisible": false,
+    "pageResponsive": false,
+    "fallbackRecovered": false
+  },
+  "notes": "",
+  "decision": {
+    "status": "needs_adjustment",
+    "summary": ""
+  }
+}

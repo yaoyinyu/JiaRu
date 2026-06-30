@@ -1,0 +1,33 @@
+{
+  "preprocess": {
+    "inputSize": 4,
+    "originalWidth": 80,
+    "originalHeight": 80,
+    "scaleX": 20,
+    "scaleY": 20
+  },
+  "outputs": {
+    "boxes": {
+      "dims": [1, 2, 7],
+      "data": [
+        1.8, 1.8, 0.8, 1.0, 0.92, 6, 0,
+        2.8, 2.2, 0.7, 0.9, 0.66, 0, 6
+      ]
+    },
+    "proto": {
+      "dims": [1, 2, 2, 2],
+      "data": [
+        1, -1,
+        1, -1,
+        -1, 1,
+        -1, 1
+      ]
+    }
+  },
+  "expect": {
+    "candidateCount": 2,
+    "minScore": 0.6,
+    "firstSuggestedFinger": 1,
+    "requireMasks": true
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "ok": false,
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
+  "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\5188.jpg_wh860.jpg",
+  "outputDir": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\real-model-final-audit-current",
+  "recordPath": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\real-model-final-audit-current\\real-model-first-run-record.json",
+  "firstRunBuild": {
+    "ok": true,
+    "outputPath": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\real-model-final-audit-current\\real-model-first-run-record.json",
+    "decisionStatus": "blocked",
+    "readinessOk": false,
+    "browserIntegrationOk": false,
+    "uiReviewIncluded": false
+  },
+  "decision": {
+    "status": "blocked",
+    "summary": "At least one blocking issue remains in artifact or browser integration.",
+    "nextActions": [
+      "Fix the blocking model artifact or browser integration issue, then rebuild this first-run record."
+    ]
+  },
+  "readiness": {
+    "ok": false,
+    "fixtureVerified": null,
+    "imageVerified": null,
+    "warnings": [
+      "Fix the model artifact first. After you obtain the ONNX file, rerun this readiness script.",
+      "training release verification was skipped because --metrics was not provided",
+      "postprocess fixture verification was skipped because --fixture was not provided"
+    ]
+  },
+  "nextSteps": [
+    "Fix the blocking model artifact or browser integration issue, then rebuild this first-run record."
+  ]
+}
