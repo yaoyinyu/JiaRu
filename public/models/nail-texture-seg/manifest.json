@@ -1,0 +1,8 @@
+{
+  "version": "nail-texture-seg-v1",
+  "inputSize": 640,
+  "task": "segment",
+  "backendPreferences": ["webgpu", "wasm"],
+  "modelFile": "nail-texture-seg-v1.onnx",
+  "labels": ["nail_texture"]
+}

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import test from "node:test";
-import { detectNailRegionsFromImageData } from "../src/lib/nail-image-detection.ts";
+import { recognizeNailTexturesWithFallback } from "../src/lib/nail-texture-recognition/index.ts";
 
 const REFERENCE_IMAGE =
   "C:\\Users\\YaoYinyu\\.codex\\attachments\\e3e3f943-acb1-45f4-899a-a3492814fd2a\\image-1.jpg";
@@ -92,14 +92,16 @@ test("reference nail-art image detection matches green annotation", async (t) =>
     annotation.info.width,
     annotation.info.height
   );
-  const regions = detectNailRegionsFromImageData({
+  const result = recognizeNailTexturesWithFallback({
     width: reference.info.width,
     height: reference.info.height,
     data: reference.data,
   });
+  const regions = result.candidates;
 
   assert.equal(truth.length, 4);
   assert.equal(regions.length, 4);
+  assert.equal(result.backend, "fallback");
 
   const maxAllowedCenterError = 45;
   for (let i = 0; i < truth.length; i++) {

@@ -1,0 +1,78 @@
+export {
+  recognizeNailTexturesWithFallback,
+} from "./fallback-adapter.ts";
+export {
+  choosePreferredModelBackend,
+  getSessionIoNames,
+  getNailTextureModelRuntime,
+  loadNailTextureModelManifest,
+  resetNailTextureModelRuntimeCache,
+  resolveModelUrl,
+  resolveOrtExecutionProviders,
+} from "./model-runtime.ts";
+export {
+  serializeModelOutputs,
+  summarizeModelOutputs,
+} from "./debug.ts";
+export type {
+  SerializedModelTensor,
+} from "./debug.ts";
+export {
+  buildNailDebugArtifactPaths,
+} from "./debug-artifacts.ts";
+export {
+  validateRealModelFirstRunRecord,
+  validateRealModelUiReviewRecord,
+} from "./first-run-record.ts";
+export type {
+  FirstRunRecordValidationResult,
+  RealModelFirstRunRecord,
+  RealModelUiReviewRecord,
+  UiReviewValidationResult,
+} from "./first-run-record.ts";
+export {
+  compareNailDebugPayloads,
+} from "./debug-compare.ts";
+export type {
+  CompareNailDebugOptions,
+  NailDetectionDebugMatch,
+  NailDetectionDebugPayload,
+  NailDetectionDebugRegion,
+  NailDetectionGroundTruthRegion,
+  NailDebugComparisonPair,
+  NailDebugComparisonResult,
+} from "./debug-compare.ts";
+export {
+  extractTextureFromMask,
+  findMaskBounds,
+} from "./extract-mask-texture.ts";
+export {
+  postprocessNailTextureDetections,
+} from "./postprocess.ts";
+export {
+  preprocessNailTextureImage,
+} from "./preprocess.ts";
+export {
+  rankNailTextureCandidates,
+} from "./quality.ts";
+export {
+  disposeNailTextureRecognitionWorker,
+  recognizeNailTexturesInWorker,
+} from "./client-worker.ts";
+export {
+  recognizeNailTextures,
+} from "./recognize.ts";
+export type {
+  NailMask,
+  NailTextureModelBackend,
+  NailTextureModelInfo,
+  NailTextureModelManifest,
+  NailTextureTensorSummary,
+  NailTextureCandidate,
+  NailTextureCandidateConfidence,
+  NailTextureCandidateSource,
+  NailTextureRecognitionResult,
+  RecognizeNailTextureRequest,
+  RecognizeNailTextureResponse,
+  RecognizeNailTexturesOptions,
+} from "./types.ts";

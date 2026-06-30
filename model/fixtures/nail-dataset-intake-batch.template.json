@@ -1,0 +1,19 @@
+{
+  "version": "nail-texture-intake-batch/v1",
+  "sourceGroup": "seed-batch-001",
+  "originType": "reference",
+  "license": "internal-test-only",
+  "defaultOriginRef": "Desktop album export 2026-07-01",
+  "copyImagesToDataset": true,
+  "items": [
+    {
+      "fileName": "sample-001.jpg",
+      "originRef": "Desktop album export 2026-07-01",
+      "notes": "front-facing nails"
+    },
+    {
+      "fileName": "sample-002.jpg",
+      "notes": "dark background"
+    }
+  ]
+}
