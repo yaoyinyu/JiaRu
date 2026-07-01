@@ -33,6 +33,9 @@
 示例命令：
 
 ```bash
+node --no-warnings --experimental-strip-types model/training/scaffold-seed-batch.ts --root-dir C:/path/to/seed-batch-001 --source-group seed-batch-001 --origin-type web --default-origin-ref "manual web sourcing 2026-07-01"
+node --no-warnings --experimental-strip-types model/training/init-intake-batch.ts --image-dir C:/path/to/nail-batch-001 --source-group seed-batch-001 --origin-type web --license "internal-test-only" --default-origin-ref "manual web sourcing 2026-07-01"
+node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir C:/path/to/nail-batch-001 --output-dir C:/path/to/nail-batch-001-debug --prefix seed-batch-001
 node --no-warnings --experimental-strip-types model/training/export-fallback-annotations.ts --copy-image --source-group seed-batch-001 model/5188.jpg_wh860.jpg
 node --no-warnings --experimental-strip-types model/training/import-debug-sample.ts --copy-image --source-group user-corrections-001 local-debug-2026-06-30.json C:/path/to/original-image.jpg
 node --no-warnings --experimental-strip-types model/training/import-debug-sample.ts --copy-image --sample-dir C:/path/to/debug-samples --image-dir C:/path/to/original-images
@@ -51,6 +54,7 @@ node --no-warnings --experimental-strip-types scripts/verify-browser-integration
 批量图片先预检时，可额外运行：
 
 ```bash
+node --no-warnings --experimental-strip-types model/training/init-intake-batch.ts --image-dir C:/path/to/nail-batch-001 --source-group seed-batch-001 --origin-type web --license "internal-test-only" --default-origin-ref "manual web sourcing 2026-07-01" --output C:/path/to/nail-batch-001/seed-batch-001.manifest.json
 node --no-warnings --experimental-strip-types model/training/validate-intake-batch.ts --manifest C:/path/to/batch-manifest.json --image-dir C:/path/to/nail-batch-001
 node --no-warnings --experimental-strip-types model/training/run-phase1-intake-pipeline.ts --manifest C:/path/to/batch-manifest.json --image-dir C:/path/to/nail-batch-001
 ```

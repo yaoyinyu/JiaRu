@@ -1,6 +1,6 @@
 {
   "version": "nail-real-model-first-run/v1",
-  "createdAt": "2026-06-30T16:54:26.226Z",
+  "createdAt": "2026-07-01T02:28:26.573Z",
   "model": {
     "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
     "modelPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\nail-texture-seg-v1.onnx",
