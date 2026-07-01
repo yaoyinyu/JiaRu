@@ -1,6 +1,6 @@
 import path from "node:path";
 import { cp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
-import type { NailTextureIntakeBatchManifest, SourceRecord } from "../../src/lib/nail-texture-dataset.ts";
+import type { NailTextureIntakeBatchManifest } from "../../src/lib/nail-texture-dataset.ts";
 
 interface CliOptions {
   rootDir: string;

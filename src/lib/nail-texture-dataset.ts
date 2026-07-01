@@ -35,6 +35,14 @@ export interface NailTexturePolygonAnnotation {
     quality?: number;
     occluded?: boolean;
     artificialTip?: boolean;
+    debug?: {
+      warnings?: string[];
+      extractionQualityOk?: boolean;
+      extractionQualityWarnings?: string[];
+      highlightPixels?: number;
+      repairedPixels?: number;
+      highlightRatio?: number;
+    };
   };
 }
 

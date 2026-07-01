@@ -43,16 +43,29 @@ export type {
   NailDebugComparisonResult,
 } from "./debug-compare.ts";
 export {
+  buildFeatheredAlphaMask,
+  extractTextureFromMaskDetailed,
   extractTextureFromMask,
   findMaskBounds,
+  isSpecularHighlightPixel,
+  repairSpecularHighlights,
+  summarizeMaskExtractionQuality,
+} from "./extract-mask-texture.ts";
+export type {
+  ExtractedMaskTexture,
+  MaskExtractionQualitySummary,
+  TextureExtractionDiagnostics,
+  TextureHighlightRepairSummary,
 } from "./extract-mask-texture.ts";
 export {
+  estimateMaskPrincipalAngle,
   postprocessNailTextureDetections,
 } from "./postprocess.ts";
 export {
   preprocessNailTextureImage,
 } from "./preprocess.ts";
 export {
+  assessNailTextureCandidate,
   rankNailTextureCandidates,
 } from "./quality.ts";
 export {

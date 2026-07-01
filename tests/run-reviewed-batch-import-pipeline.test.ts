@@ -89,7 +89,13 @@ test("run-reviewed-batch-import-pipeline imports reviewed batch and runs readine
   assert.equal(report.ok, true);
   assert.deepEqual(
     report.steps.map((step) => step.name),
-    ["audit-seed-batch-workspace", "import-reviewed-batch", "audit-phase1-readiness"]
+    [
+      "audit-seed-batch-workspace",
+      "import-reviewed-batch",
+      "audit-phase1-readiness",
+      "plan-phase1-collection",
+      "generate-first-batch-checklist",
+    ]
   );
   assert.ok(report.steps.every((step) => step.ok));
 
@@ -102,4 +108,8 @@ test("run-reviewed-batch-import-pipeline imports reviewed batch and runs readine
     await readFile(path.join(datasetRoot, "metadata", "phase1-readiness.json"), "utf8")
   ) as { totals: { images: number } };
   assert.equal(readinessFile.totals.images, 2);
+  const checklistFile = JSON.parse(
+    await readFile(path.join(datasetRoot, "metadata", "first-batch-execution-checklist.json"), "utf8")
+  ) as { firstBatchRecommendation: { targetImages: number } };
+  assert.equal(checklistFile.firstBatchRecommendation.targetImages, 50);
 });

@@ -7,9 +7,10 @@ import {
   type NailLandmark,
 } from "@/lib/nail-geometry";
 import {
-  extractTextureFromMask,
+  extractTextureFromMaskDetailed,
   recognizeNailTexturesInWorker,
   type NailMask,
+  type TextureExtractionDiagnostics,
 } from "@/lib/nail-texture-recognition";
 import {
   createLocalNailDebugSample,
@@ -20,6 +21,7 @@ import {
 
 export interface NailAssignment {
   texture: ImageBitmap;
+  diagnostics?: TextureExtractionDiagnostics;
   finger: number; // 0=拇 1=食 2=中 3=无 4=小
 }
 
@@ -32,6 +34,8 @@ interface NailRegion {
   assignedFinger: number | null;
   confidence?: "high" | "low";
   mask?: NailMask;
+  warnings?: string[];
+  extractionDiagnostics?: TextureExtractionDiagnostics;
 }
 
 interface DetectionSummary {
@@ -144,6 +148,7 @@ async function computeImageDetectedNailRegions(
       assignedFinger: candidate.suggestedFinger,
       confidence: candidate.confidence === "medium" ? "low" : candidate.confidence,
       mask: candidate.mask,
+      warnings: candidate.warnings,
     })),
     summary: {
       backend: result.backend,
@@ -849,9 +854,29 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       const results: NailAssignment[] = [];
       for (const r of assigned) {
         if (results.some((a) => a.finger === r.assignedFinger)) continue;
-        const texture = r.mask
-          ? await extractTextureFromMask(img, img.naturalWidth, img.naturalHeight, r.mask)
-          : await extractNailFromRegion(img, r, scale);
+        if (r.mask) {
+          const extracted = await extractTextureFromMaskDetailed(
+            img,
+            img.naturalWidth,
+            img.naturalHeight,
+            r.mask
+          );
+          setRegions((prev) =>
+            prev.map((candidate) =>
+              candidate.id === r.id
+                ? { ...candidate, extractionDiagnostics: extracted.diagnostics }
+                : candidate
+            )
+          );
+          results.push({
+            texture: extracted.texture,
+            finger: r.assignedFinger!,
+            diagnostics: extracted.diagnostics,
+          });
+          continue;
+        }
+
+        const texture = await extractNailFromRegion(img, r, scale);
         results.push({ texture, finger: r.assignedFinger! });
       }
       onConfirm(results);
@@ -927,6 +952,17 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
         ) : null}
 
         {/* 选区操作 */}
+        {!error && sel?.warnings?.length ? (
+          <p className="text-amber-300 text-[10px] text-center">
+            {sel.warnings.join(" · ")}
+          </p>
+        ) : null}
+        {!error && sel?.extractionDiagnostics ? (
+          <p className="text-sky-300 text-[10px] text-center">
+            {`quality=${sel.extractionDiagnostics.quality.ok ? "ok" : "warn"} · highlight=${sel.extractionDiagnostics.highlightRepair.highlightPixels} · repaired=${sel.extractionDiagnostics.highlightRepair.repairedPixels}`}
+          </p>
+        ) : null}
+
         <div className="flex items-center gap-2 justify-center">
           <button onClick={addRegion} className="px-3 py-1.5 text-xs rounded-full bg-pink-500/60 text-white hover:bg-pink-500 transition-colors">
             ＋ 添加选区

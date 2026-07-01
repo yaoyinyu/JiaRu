@@ -33,6 +33,13 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+function normalizeHalfTurnAngle(angle: number): number {
+  let result = angle;
+  while (result > Math.PI / 2) result -= Math.PI;
+  while (result <= -Math.PI / 2) result += Math.PI;
+  return result;
+}
+
 function flattenDetectionRows(tensor: ModelTensorLike): number[][] {
   const values = Array.from(tensor.data, (value) => Number(value) || 0);
   const dims = tensor.dims ? Array.from(tensor.dims) : [];
@@ -154,6 +161,51 @@ function decodeCandidateMask(
   };
 }
 
+export function estimateMaskPrincipalAngle(mask: NailMask): number | null {
+  let total = 0;
+  let meanX = 0;
+  let meanY = 0;
+
+  for (let y = 0; y < mask.height; y++) {
+    for (let x = 0; x < mask.width; x++) {
+      if (!mask.data[y * mask.width + x]) continue;
+      total++;
+      meanX += x;
+      meanY += y;
+    }
+  }
+
+  if (total < 4) return null;
+  meanX /= total;
+  meanY /= total;
+
+  let mu20 = 0;
+  let mu02 = 0;
+  let mu11 = 0;
+
+  for (let y = 0; y < mask.height; y++) {
+    for (let x = 0; x < mask.width; x++) {
+      if (!mask.data[y * mask.width + x]) continue;
+      const dx = x - meanX;
+      const dy = y - meanY;
+      mu20 += dx * dx;
+      mu02 += dy * dy;
+      mu11 += dx * dy;
+    }
+  }
+
+  const trace = mu20 + mu02;
+  const delta = Math.sqrt((mu20 - mu02) ** 2 + 4 * mu11 * mu11);
+  const major = (trace + delta) / 2;
+  const minor = (trace - delta) / 2;
+  if (major <= 0) return null;
+  const axisRatio = minor <= 1e-6 ? Number.POSITIVE_INFINITY : major / minor;
+  if (axisRatio < 1.1) return null;
+
+  const axisAngle = 0.5 * Math.atan2(2 * mu11, mu20 - mu02);
+  return normalizeHalfTurnAngle(axisAngle + Math.PI / 2);
+}
+
 export function postprocessNailTextureDetections(
   outputs: Record<string, ModelTensorLike>,
   preprocess: NailTexturePreprocessResult,
@@ -173,6 +225,11 @@ export function postprocessNailTextureDetections(
     .map((row, index) => {
       const [cx, cy, width, length, score] = row;
       const coefficients = row.slice(5);
+      const mask =
+        prototypeTensor && coefficients.length > 0
+          ? decodeCandidateMask(prototypeTensor, coefficients, preprocess, maskThreshold)
+          : undefined;
+      const angle = mask ? estimateMaskPrincipalAngle(mask) ?? 0 : 0;
       return {
         id: `model-${index + 1}`,
         cx: clamp(cx * preprocess.scaleX, 0, preprocess.originalWidth),
@@ -180,10 +237,8 @@ export function postprocessNailTextureDetections(
         width: clamp(width * preprocess.scaleX, 1, preprocess.originalWidth),
         length: clamp(length * preprocess.scaleY, 1, preprocess.originalHeight),
         score,
-        mask:
-          prototypeTensor && coefficients.length > 0
-            ? decodeCandidateMask(prototypeTensor, coefficients, preprocess, maskThreshold)
-            : undefined,
+        mask,
+        angle,
       };
     })
     .filter((row) => row.score >= scoreThreshold);
@@ -195,7 +250,7 @@ export function postprocessNailTextureDetections(
       cy: candidate.cy,
       length: candidate.length,
       width: candidate.width,
-      angle: 0,
+      angle: candidate.angle,
       score: candidate.score,
       confidence: scoreToConfidence(candidate.score),
       source: "model" as const,

@@ -8,6 +8,14 @@ export interface NailDebugSampleCandidate {
   assignedFinger: number | null;
   confidence: "high" | "low";
   hasMask: boolean;
+  warnings: string[];
+  extractionDiagnostics?: {
+    qualityWarnings: string[];
+    qualityOk: boolean;
+    highlightPixels: number;
+    repairedPixels: number;
+    highlightRatio: number;
+  };
 }
 
 export interface NailDebugSampleDetectionSummary {
@@ -41,6 +49,18 @@ export interface NailDebugSampleRegionLike {
   assignedFinger: number | null;
   confidence?: "high" | "low";
   mask?: unknown;
+  warnings?: string[];
+  extractionDiagnostics?: {
+    quality: {
+      ok: boolean;
+      warnings: string[];
+    };
+    highlightRepair: {
+      highlightPixels: number;
+      repairedPixels: number;
+      highlightRatio: number;
+    };
+  };
 }
 
 export function toNailDebugSampleCandidate(
@@ -56,6 +76,16 @@ export function toNailDebugSampleCandidate(
     assignedFinger: region.assignedFinger,
     confidence: region.confidence ?? "low",
     hasMask: Boolean(region.mask),
+    warnings: [...(region.warnings ?? [])],
+    extractionDiagnostics: region.extractionDiagnostics
+      ? {
+          qualityWarnings: [...region.extractionDiagnostics.quality.warnings],
+          qualityOk: region.extractionDiagnostics.quality.ok,
+          highlightPixels: region.extractionDiagnostics.highlightRepair.highlightPixels,
+          repairedPixels: region.extractionDiagnostics.highlightRepair.repairedPixels,
+          highlightRatio: region.extractionDiagnostics.highlightRepair.highlightRatio,
+        }
+      : undefined,
   };
 }
 

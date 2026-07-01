@@ -44,6 +44,7 @@ export interface NailTextureCandidate {
   confidence: NailTextureCandidateConfidence;
   source: NailTextureCandidateSource;
   mask?: NailMask;
+  warnings?: string[];
   suggestedFinger: number | null;
 }
 

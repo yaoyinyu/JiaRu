@@ -144,7 +144,7 @@ async function main() {
     })),
   };
 
-  let failureTemplate = [
+  const failureTemplate = [
     "fileName,stage,category,subcategory,severity,action,notes",
     "sample-001.jpg,fallback_overlay,data,strong_reflection,medium,add_more_samples,example row replace during review",
     "",

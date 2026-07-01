@@ -70,6 +70,14 @@ async function createDebugImportFixture() {
             assignedFinger: 1,
             confidence: "high",
             hasMask: false,
+            warnings: ["highlight_hotspots"],
+            extractionDiagnostics: {
+              qualityWarnings: ["mask_crop_touches_edge"],
+              qualityOk: false,
+              highlightPixels: 6,
+              repairedPixels: 4,
+              highlightRatio: 0.12,
+            },
           },
         ],
         createdAt: "2026-06-30T12:34:56.000Z",
@@ -140,6 +148,14 @@ async function createBatchDebugImportFixture() {
               assignedFinger: finger,
               confidence: "high",
               hasMask: false,
+              warnings: ["highlight_hotspots"],
+              extractionDiagnostics: {
+                qualityWarnings: ["mask_crop_touches_edge"],
+                qualityOk: false,
+                highlightPixels: 5,
+                repairedPixels: 3,
+                highlightRatio: 0.08,
+              },
             },
           ],
           createdAt: "2026-06-30T12:34:56.000Z",
@@ -208,6 +224,16 @@ test("import debug sample converts corrected regions into dataset annotation", a
   assert.equal(annotation.image.fileName, "source-image.png");
   assert.equal(annotation.annotations.length, 1);
   assert.equal(annotation.annotations[0].attributes?.fingerHint, "index");
+  assert.deepEqual(annotation.annotations[0].attributes?.debug?.warnings, [
+    "highlight_hotspots",
+  ]);
+  assert.equal(annotation.annotations[0].attributes?.debug?.extractionQualityOk, false);
+  assert.deepEqual(
+    annotation.annotations[0].attributes?.debug?.extractionQualityWarnings,
+    ["mask_crop_touches_edge"]
+  );
+  assert.equal(annotation.annotations[0].attributes?.debug?.highlightPixels, 6);
+  assert.equal(annotation.annotations[0].attributes?.debug?.repairedPixels, 4);
 
   const sources = parseSourceRecords(
     await readFile(summary.sourcesCsvPath, "utf8")
