@@ -11,6 +11,7 @@ interface CliOptions {
   imagePath: string;
   outputDir: string;
   debugPrefix: string;
+  annotationDirPath?: string;
   metricsPath?: string;
   dumpPath?: string;
   fixtureOutPath?: string;
@@ -31,6 +32,7 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--image") options.imagePath = path.resolve(argv[++index]);
     else if (arg === "--output-dir") options.outputDir = path.resolve(argv[++index]);
     else if (arg === "--debug-prefix") options.debugPrefix = argv[++index];
+    else if (arg === "--annotation-dir") options.annotationDirPath = path.resolve(argv[++index]);
     else if (arg === "--metrics") options.metricsPath = path.resolve(argv[++index]);
     else if (arg === "--dump") options.dumpPath = path.resolve(argv[++index]);
     else if (arg === "--fixture-out") options.fixtureOutPath = path.resolve(argv[++index]);
@@ -38,7 +40,7 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--ui-review") options.uiReviewPath = path.resolve(argv[++index]);
     else {
       throw new Error(
-        "Usage: node --experimental-strip-types scripts/run-real-model-final-audit.ts --image <image> [--manifest <manifest.json>] [--output-dir <dir>] [--debug-prefix <name>] [--metrics <metrics.json>] [--dump <dump.json>] [--fixture-out <fixture.json>] [--annotation <green-annotation-image>] [--ui-review <ui-review.json>]"
+        "Usage: node --experimental-strip-types scripts/run-real-model-final-audit.ts --image <image> [--manifest <manifest.json>] [--output-dir <dir>] [--debug-prefix <name>] [--annotation-dir <annotations-dir>] [--metrics <metrics.json>] [--dump <dump.json>] [--fixture-out <fixture.json>] [--annotation <green-annotation-image>] [--ui-review <ui-review.json>]"
       );
     }
   }
@@ -72,6 +74,7 @@ await mkdir(options.outputDir, { recursive: true });
 
 const recordPath = path.join(options.outputDir, "real-model-first-run-record.json");
 const finalReportPath = path.join(options.outputDir, "real-model-final-audit-report.json");
+const failureSummaryPath = path.join(options.outputDir, "failure-case-summary.json");
 
 const recordArgs = [
   "--manifest",
@@ -96,14 +99,26 @@ const firstRunRecord = JSON.parse(await readFile(recordPath, "utf8")) as {
   decision: { status: "pass" | "needs_adjustment" | "blocked"; summary: string; nextActions: string[] };
   readiness: { ok: boolean; warnings: string[] };
 };
+const failureSummaryArgs = [
+  "--first-run-record",
+  recordPath,
+];
+if (options.annotationDirPath) {
+  failureSummaryArgs.push("--annotation-dir", options.annotationDirPath);
+}
+const failureSummary = await runJsonScript("scripts/summarize-failure-cases.ts", failureSummaryArgs);
+await writeFile(failureSummaryPath, JSON.stringify(failureSummary, null, 2), "utf8");
 
 const summary = {
   ok: firstRunRecord.decision.status === "pass",
   manifestPath: options.manifestPath,
   imagePath: options.imagePath,
   outputDir: options.outputDir,
+  annotationDirPath: options.annotationDirPath ?? null,
   recordPath,
+  failureSummaryPath,
   firstRunBuild,
+  failureSummary,
   decision: firstRunRecord.decision,
   readiness: firstRunRecord.readiness,
   nextSteps:

@@ -204,6 +204,24 @@ function candidateToAnnotation(
       quality: candidate.confidence === "high" ? 4 : 2,
       occluded: false,
       artificialTip: candidate.hasMask,
+      debug:
+        candidate.warnings.length > 0 || candidate.extractionDiagnostics
+          ? {
+              warnings: [...candidate.warnings],
+              extractionQualityOk:
+                candidate.extractionDiagnostics?.qualityOk,
+              extractionQualityWarnings:
+                candidate.extractionDiagnostics?.qualityWarnings
+                  ? [...candidate.extractionDiagnostics.qualityWarnings]
+                  : undefined,
+              highlightPixels:
+                candidate.extractionDiagnostics?.highlightPixels,
+              repairedPixels:
+                candidate.extractionDiagnostics?.repairedPixels,
+              highlightRatio:
+                candidate.extractionDiagnostics?.highlightRatio,
+            }
+          : undefined,
     },
   };
 }

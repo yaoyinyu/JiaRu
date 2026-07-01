@@ -114,16 +114,23 @@ test("run-real-model-final-audit writes final report and first-run record", asyn
   const summary = JSON.parse(stdout) as {
     finalReportPath: string;
     recordPath: string;
+    failureSummaryPath: string;
   };
   const finalReport = JSON.parse(await readFile(summary.finalReportPath, "utf8")) as {
     decision: { status: string };
+    failureSummary: { totals: { inferredRecordFailure: number } };
   };
   const firstRunRecord = JSON.parse(await readFile(summary.recordPath, "utf8")) as {
     decision: { status: string };
   };
+  const failureSummary = JSON.parse(await readFile(summary.failureSummaryPath, "utf8")) as {
+    totals: { inferredRecordFailure: number };
+  };
 
   assert.equal(finalReport.decision.status, "pass");
   assert.equal(firstRunRecord.decision.status, "pass");
+  assert.equal(finalReport.failureSummary.totals.inferredRecordFailure, 0);
+  assert.equal(failureSummary.totals.inferredRecordFailure, 0);
 });
 
 test("run-real-model-final-audit reports blocked when model artifact is missing", async () => {
@@ -179,13 +186,153 @@ test("run-real-model-final-audit reports blocked when model artifact is missing"
     const summary = JSON.parse(execError.stdout ?? "{}") as {
       decision: { status: string };
       finalReportPath: string;
+      failureSummaryPath: string;
     };
     assert.equal(summary.decision.status, "blocked");
     const savedReport = JSON.parse(await readFile(summary.finalReportPath, "utf8")) as {
       decision: { status: string };
       readiness: { ok: boolean };
+      failureSummary: { inferredFromFirstRunRecord: { category: string } | null };
+    };
+    const failureSummary = JSON.parse(await readFile(summary.failureSummaryPath, "utf8")) as {
+      inferredFromFirstRunRecord: { category: string } | null;
+      categoryCounts: Record<string, number>;
     };
     assert.equal(savedReport.decision.status, "blocked");
     assert.equal(savedReport.readiness.ok, false);
+    assert.equal(savedReport.failureSummary.inferredFromFirstRunRecord?.category, "model");
+    assert.equal(failureSummary.inferredFromFirstRunRecord?.category, "model");
+    assert.equal(failureSummary.categoryCounts.model, 1);
   }
+});
+
+test("run-real-model-final-audit can include annotation debug failures in summary", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-final-audit-annotation-"));
+  const modelDir = path.join(root, "public", "models", "nail-texture-seg");
+  const outputDir = path.join(root, "audit-output");
+  const annotationDir = path.join(root, "annotations");
+  const uiReviewPath = path.join(root, "ui-review.json");
+  await mkdir(modelDir, { recursive: true });
+  await mkdir(outputDir, { recursive: true });
+  await mkdir(annotationDir, { recursive: true });
+
+  const manifestPath = path.join(modelDir, "manifest.json");
+  await writeFile(
+    manifestPath,
+    JSON.stringify(
+      {
+        version: "nail-texture-seg-v1",
+        inputSize: 640,
+        task: "segment",
+        backendPreferences: ["webgpu", "wasm"],
+        modelFile: "nail-texture-seg-v1.onnx",
+        labels: ["nail_texture"],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(
+    uiReviewPath,
+    JSON.stringify(
+      {
+        version: "nail-real-model-ui-review/v1",
+        createdAt: "2026-07-01T00:00:00.000Z",
+        pagePath: "/ar-tryon",
+        checks: {
+          pickerOpened: true,
+          modelOrFallbackBadgeVisible: true,
+          pageResponsive: true,
+          fallbackRecovered: true,
+        },
+        notes: "manual review ok",
+        decision: {
+          status: "pass",
+          summary: "ui checks passed",
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(
+    path.join(annotationDir, "sample-001.json"),
+    JSON.stringify(
+      {
+        image: { fileName: "sample-001.jpg" },
+        annotations: [
+          {
+            attributes: {
+              debug: {
+                warnings: ["highlight_hotspots"],
+                extractionQualityWarnings: ["mask_crop_touches_edge"],
+                highlightPixels: 9,
+                repairedPixels: 5,
+                highlightRatio: 0.15,
+              },
+            },
+          },
+        ],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const imagePath = path.resolve("model/5188.jpg_wh860.jpg");
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-real-model-final-audit.ts",
+      "--manifest",
+      manifestPath,
+      "--image",
+      imagePath,
+      "--output-dir",
+      outputDir,
+      "--debug-prefix",
+      "real-model",
+      "--annotation-dir",
+      annotationDir,
+      "--ui-review",
+      uiReviewPath,
+    ],
+    {
+      cwd: path.resolve("."),
+    }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    annotationDirPath: string | null;
+    failureSummary: {
+      totals: { derivedAnnotationFailures: number };
+      categoryCounts: Record<string, number>;
+    };
+    failureSummaryPath: string;
+  };
+  assert.equal(summary.annotationDirPath, annotationDir);
+  assert.equal(summary.failureSummary.totals.derivedAnnotationFailures, 3);
+  assert.equal(summary.failureSummary.categoryCounts.postprocess, 3);
+
+  const persisted = JSON.parse(await readFile(summary.failureSummaryPath, "utf8")) as {
+    totals: { derivedAnnotationFailures: number };
+    derivedAnnotationBreakdown: { subcategoryCounts: Record<string, number> };
+  };
+  assert.equal(persisted.totals.derivedAnnotationFailures, 3);
+  assert.equal(
+    persisted.derivedAnnotationBreakdown.subcategoryCounts["postprocess/highlight_hotspots"],
+    2
+  );
+  assert.equal(
+    persisted.derivedAnnotationBreakdown.subcategoryCounts["postprocess/mask_crop_touches_edge"],
+    1
+  );
 });

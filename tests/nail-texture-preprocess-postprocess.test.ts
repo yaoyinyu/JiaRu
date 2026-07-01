@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  estimateMaskPrincipalAngle,
   postprocessNailTextureDetections,
   preprocessNailTextureImage,
 } from "../src/lib/nail-texture-recognition/index.ts";
@@ -51,4 +52,56 @@ test("postprocessNailTextureDetections maps model rows to candidates", () => {
   assert.ok(candidates[0].cx < candidates[1].cx);
   assert.equal(candidates[0].confidence, "high");
   assert.equal(candidates[1].confidence, "medium");
+});
+
+test("estimateMaskPrincipalAngle and postprocess keep a stable mask-derived angle", () => {
+  const angle = estimateMaskPrincipalAngle({
+    width: 5,
+    height: 5,
+    data: new Uint8Array([
+      0, 0, 0, 0, 0,
+      0, 1, 1, 1, 0,
+      0, 1, 1, 1, 0,
+      0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0,
+    ]),
+    originX: 0,
+    originY: 0,
+    scale: 1,
+  });
+
+  assert.ok(typeof angle === "number");
+  assert.ok(Math.abs(Math.abs(angle ?? 0) - Math.PI / 2) < 0.15);
+
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 640,
+    originalHeight: 640,
+    scaleX: 1,
+    scaleY: 1,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 1, 6],
+        data: new Float32Array([320, 320, 120, 60, 0.95, 1]),
+      },
+      output1: {
+        dims: [1, 1, 4, 4],
+        data: new Float32Array([
+          -8, -8, -8, -8,
+          8, 8, 8, 8,
+          -8, -8, -8, -8,
+          -8, -8, -8, -8,
+        ]),
+      },
+    },
+    preprocess
+  );
+
+  assert.equal(candidates.length, 1);
+  assert.ok(Math.abs(Math.abs(candidates[0].angle) - Math.PI / 2) < 0.2);
 });

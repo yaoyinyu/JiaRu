@@ -7,6 +7,8 @@ from _training_common import (
     count_files,
     ensure_python_dependency,
     load_dataset_config,
+    resolve_best_weights_path,
+    resolve_training_run_dir,
     write_json,
 )
 
@@ -51,6 +53,8 @@ def main() -> None:
         "workers": args.workers,
         "run_name": args.run_name,
         "output_dir": str(output_dir),
+        "run_dir": str(resolve_training_run_dir(output_dir, args.run_name)),
+        "best_weights_path": str(resolve_best_weights_path(output_dir, args.run_name)),
         "dry_run": args.dry_run,
     }
 
@@ -78,6 +82,7 @@ def main() -> None:
         {
             **summary,
             "results_dir": str(getattr(results, "save_dir", output_dir)),
+            "best_weights_path": str(resolve_best_weights_path(output_dir, args.run_name)),
         },
     )
     print(f"Training finished. Summary written to {output_dir / 'train-summary.json'}")

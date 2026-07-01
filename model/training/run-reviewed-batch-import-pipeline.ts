@@ -16,6 +16,17 @@ interface StepResult {
   stderr?: string;
 }
 
+function stepArgs(name: string, rootDir: string): string[] {
+  if (
+    name === "audit-phase1-readiness" ||
+    name === "plan-phase1-collection" ||
+    name === "generate-first-batch-checklist"
+  ) {
+    return [];
+  }
+  return ["--root-dir", rootDir];
+}
+
 function parseArgs(argv: string[]): CliOptions {
   let rootDir: string | undefined;
   for (let index = 0; index < argv.length; index++) {
@@ -70,9 +81,11 @@ async function main() {
     ["audit-seed-batch-workspace", "model/training/audit-seed-batch-workspace.ts", false],
     ["import-reviewed-batch", "model/training/import-reviewed-batch.ts", false],
     ["audit-phase1-readiness", "model/training/audit-phase1-readiness.ts", true],
+    ["plan-phase1-collection", "model/training/plan-phase1-collection.ts", true],
+    ["generate-first-batch-checklist", "model/training/generate-first-batch-checklist.ts", true],
   ] as const) {
     try {
-      const stdout = await runJsonScript(script, name === "audit-phase1-readiness" ? [] : ["--root-dir", options.rootDir]);
+      const stdout = await runJsonScript(script, stepArgs(name, options.rootDir));
       const parsedOk =
         typeof stdout === "object" &&
         stdout !== null &&

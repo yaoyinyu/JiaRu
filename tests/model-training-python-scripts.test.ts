@@ -31,6 +31,7 @@ test("train script dry-run resolves dataset and hyperparameters", async () => {
   assert.equal(result.task, "segment");
   assert.equal(result.class_count, 1);
   assert.equal(result.imgsz, 640);
+  assert.match(String(result.best_weights_path), /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+nail-texture-seg-v1[\\/]+weights[\\/]+best\.pt$/);
   assert.equal(result.dry_run, true);
 });
 
@@ -38,6 +39,7 @@ test("evaluate script dry-run prints resolved config", async () => {
   const result = await runPython("model/training/evaluate.py", ["--dry-run"]);
   assert.equal(result.split, "test");
   assert.equal(result.imgsz, 640);
+  assert.match(String(result.weights), /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+nail-texture-seg-v1[\\/]+weights[\\/]+best\.pt$/);
   assert.equal(result.dry_run, true);
 });
 
@@ -45,6 +47,8 @@ test("export onnx script dry-run prints manifest target", async () => {
   const result = await runPython("model/training/export-onnx.py", ["--dry-run"]);
   assert.equal(result.model_version, "nail-texture-seg-v1");
   assert.equal(result.input_size, 640);
+  assert.deepEqual(result.backend_preferences, ["webgpu", "wasm"]);
+  assert.deepEqual(result.labels, ["nail_texture"]);
   assert.equal(result.dry_run, true);
   assert.match(String(result.manifest_path), /public[\\/]+models[\\/]+nail-texture-seg[\\/]+manifest\.json$/);
 });

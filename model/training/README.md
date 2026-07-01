@@ -13,10 +13,14 @@
 - `split-dataset.ts`：按 `sourceGroup` 稳定划分 train / val / test
 - `audit-labels.ts`：检查标注质量并输出 CSV
 - `convert-annotations.ts`：把原始 polygon JSON 转成 YOLO segmentation 标签
+- `audit-phase1-readiness.ts`：检查是否达到 Phase 1 的数据量与测试覆盖门槛
+- `plan-phase1-collection.ts`：把 Phase 1 readiness 缺口翻译成下一批补样本计划
+- `generate-first-batch-checklist.ts`：把当前 readiness/collection 结果翻译成首批真实数据执行清单
 - `dataset.yaml`：训练/验证/测试数据集入口配置
 - `train-yolo-seg.py`：训练 YOLO segmentation 模型
 - `evaluate.py`：输出验证/测试指标
 - `export-onnx.py`：导出浏览器端 ONNX 和 manifest
+- `../scripts/run-training-release-pipeline.ts`：把训练、评估、导出、发布门禁串成一条流水线
 
 推荐流程：
 
@@ -29,6 +33,9 @@
 7. 运行 `split-dataset.ts` 生成 `metadata/split.json`
 8. 运行 `audit-labels.ts` 生成 `metadata/label-audit.csv`
 9. 运行 `convert-annotations.ts` 生成 `labels-yolo-seg/{train,val,test}`
+10. 运行 `audit-phase1-readiness.ts` 看是否通过 `200 / 800 / test coverage`
+11. 运行 `plan-phase1-collection.ts` 得到下一批补样本建议
+12. 运行 `generate-first-batch-checklist.ts` 得到首批真实数据执行清单
 
 示例命令：
 
@@ -44,10 +51,19 @@ node --no-warnings --experimental-strip-types model/training/audit-sources-csv.t
 node --no-warnings --experimental-strip-types model/training/split-dataset.ts
 node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 node --no-warnings --experimental-strip-types model/training/convert-annotations.ts
+node --no-warnings --experimental-strip-types model/training/audit-phase1-readiness.ts
+node --no-warnings --experimental-strip-types model/training/plan-phase1-collection.ts
+node --no-warnings --experimental-strip-types model/training/generate-first-batch-checklist.ts
 python model/training/train-yolo-seg.py --dry-run
 python model/training/evaluate.py --dry-run
 python model/training/export-onnx.py --dry-run
+node --no-warnings --experimental-strip-types scripts/run-training-release-pipeline.ts --dry-run
+node --no-warnings --experimental-strip-types scripts/run-training-release-pipeline.ts --final-audit-image model/5188.jpg_wh860.jpg --final-audit-ui-review model/fixtures/real-model-ui-review.template.json
 node --no-warnings --experimental-strip-types scripts/verify-training-release.ts --metrics model/exports/nail-texture-seg-v1/metrics.json --manifest public/models/nail-texture-seg/manifest.json
+node --no-warnings --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics model/exports/nail-texture-seg-v1/metrics.json --baseline-manifest public/models/nail-texture-seg-v1/manifest.json --candidate-metrics model/exports/nail-texture-seg-v2/metrics.json --candidate-manifest public/models/nail-texture-seg-v2/manifest.json
+node --no-warnings --experimental-strip-types scripts/register-model-release.ts --manifest public/models/nail-texture-seg/manifest.json
+node --no-warnings --experimental-strip-types scripts/switch-model-release.ts --version nail-texture-seg-v1
+node --no-warnings --experimental-strip-types scripts/summarize-failure-cases.ts --failure-csv C:/path/to/failure-classification.csv --first-run-record C:/path/to/real-model-first-run-record.json
 node --no-warnings --experimental-strip-types scripts/verify-browser-integration.ts --manifest public/models/nail-texture-seg/manifest.json
 ```
 

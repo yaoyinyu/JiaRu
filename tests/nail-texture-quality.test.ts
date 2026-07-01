@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { rankNailTextureCandidates } from "../src/lib/nail-texture-recognition/index.ts";
+import {
+  assessNailTextureCandidate,
+  rankNailTextureCandidates,
+} from "../src/lib/nail-texture-recognition/index.ts";
 
 test("rankNailTextureCandidates filters implausible areas and keeps best candidates", () => {
   const ranked = rankNailTextureCandidates(
@@ -50,4 +53,61 @@ test("rankNailTextureCandidates filters implausible areas and keeps best candida
 
   assert.equal(ranked.length, 1);
   assert.equal(ranked[0].id, "good");
+});
+
+test("assessNailTextureCandidate surfaces sparse-mask and highlight warnings", () => {
+  const sourceImage = {
+    width: 100,
+    height: 100,
+    data: new Uint8ClampedArray(100 * 100 * 4),
+  };
+
+  for (let y = 36; y <= 64; y++) {
+    for (let x = 36; x <= 64; x++) {
+      const offset = (y * sourceImage.width + x) * 4;
+      sourceImage.data[offset] = 255;
+      sourceImage.data[offset + 1] = 255;
+      sourceImage.data[offset + 2] = 255;
+      sourceImage.data[offset + 3] = 255;
+    }
+  }
+
+  const assessment = assessNailTextureCandidate(
+    {
+      id: "highlighted",
+      cx: 50,
+      cy: 50,
+      length: 30,
+      width: 20,
+      angle: 0,
+      score: 0.92,
+      confidence: "high",
+      source: "model",
+      suggestedFinger: null,
+      mask: {
+        width: 4,
+        height: 4,
+        data: new Uint8Array([
+          1, 0, 0, 0,
+          0, 1, 0, 0,
+          0, 0, 1, 0,
+          0, 0, 0, 0,
+        ]),
+        originX: 0,
+        originY: 0,
+        scale: 1,
+      },
+    },
+    {
+      imageWidth: 100,
+      imageHeight: 100,
+      sourceImage,
+    }
+  );
+
+  assert.ok(assessment.warnings.includes("dirty_mask_crop"));
+  assert.ok(assessment.warnings.includes("mask_crop_touches_edge"));
+  assert.ok(assessment.warnings.includes("mask_foreground_too_small"));
+  assert.ok(assessment.warnings.includes("highlight_hotspots"));
+  assert.ok(assessment.adjustedScore < 0.92);
 });

@@ -17,6 +17,18 @@ test("toNailDebugSampleCandidate maps editable region to export shape", () => {
     assignedFinger: 2,
     confidence: "high",
     mask: { width: 4, height: 4 },
+    warnings: ["highlight_hotspots"],
+    extractionDiagnostics: {
+      quality: {
+        ok: false,
+        warnings: ["mask_crop_touches_edge"],
+      },
+      highlightRepair: {
+        highlightPixels: 3,
+        repairedPixels: 2,
+        highlightRatio: 0.125,
+      },
+    },
   });
 
   assert.deepEqual(candidate, {
@@ -29,6 +41,14 @@ test("toNailDebugSampleCandidate maps editable region to export shape", () => {
     assignedFinger: 2,
     confidence: "high",
     hasMask: true,
+    warnings: ["highlight_hotspots"],
+    extractionDiagnostics: {
+      qualityWarnings: ["mask_crop_touches_edge"],
+      qualityOk: false,
+      highlightPixels: 3,
+      repairedPixels: 2,
+      highlightRatio: 0.125,
+    },
   });
 });
 
@@ -73,5 +93,6 @@ test("createLocalNailDebugSample falls back to fallback-v0 and preserves candida
   });
   assert.equal(record.originalCandidates.length, 1);
   assert.equal(record.correctedCandidates[0].assignedFinger, 1);
+  assert.deepEqual(record.correctedCandidates[0].warnings, []);
   assert.equal(createNailDebugSampleFilename(record), "local-debug-2026-06-30T12-34-56.000Z.json");
 });

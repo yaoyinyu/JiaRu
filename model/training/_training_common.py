@@ -100,3 +100,11 @@ def count_files(directory: Path, suffixes: tuple[str, ...]) -> int:
 def write_json(path: Path, payload: Any) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+
+
+def resolve_training_run_dir(output_dir: Path, run_name: str) -> Path:
+    return output_dir / run_name
+
+
+def resolve_best_weights_path(output_dir: Path, run_name: str) -> Path:
+    return resolve_training_run_dir(output_dir, run_name) / "weights" / "best.pt"
