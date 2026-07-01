@@ -57,32 +57,51 @@ function isComplexBackground(record: SourceRecord): boolean {
 }
 
 async function readDocuments(): Promise<NailTextureAnnotationDocument[]> {
-  const entries = await readdir(annotationDir, { withFileTypes: true });
-  const files = entries
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
-    .map((entry) => path.join(annotationDir, entry.name))
-    .sort();
+  try {
+    const entries = await readdir(annotationDir, { withFileTypes: true });
+    const files = entries
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
+      .map((entry) => path.join(annotationDir, entry.name))
+      .sort();
 
-  const documents: NailTextureAnnotationDocument[] = [];
-  for (const filePath of files) {
-    documents.push(await readAnnotationDocument(filePath));
+    const documents: NailTextureAnnotationDocument[] = [];
+    for (const filePath of files) {
+      documents.push(await readAnnotationDocument(filePath));
+    }
+    return documents;
+  } catch (error) {
+    const nodeError = error as NodeJS.ErrnoException;
+    if (nodeError.code === "ENOENT") return [];
+    throw error;
   }
-  return documents;
 }
 
 async function readSplit(): Promise<DatasetSplit> {
-  return JSON.parse(await readFile(splitPath, "utf8")) as DatasetSplit;
+  try {
+    return JSON.parse(await readFile(splitPath, "utf8")) as DatasetSplit;
+  } catch (error) {
+    const nodeError = error as NodeJS.ErrnoException;
+    if (nodeError.code === "ENOENT") {
+      return { train: [], val: [], test: [] };
+    }
+    throw error;
+  }
 }
 
 async function readSources(): Promise<SourceRecord[]> {
-  return parseSourceRecords(await readFile(sourcesCsvPath, "utf8"));
+  try {
+    return parseSourceRecords(await readFile(sourcesCsvPath, "utf8"));
+  } catch (error) {
+    const nodeError = error as NodeJS.ErrnoException;
+    if (nodeError.code === "ENOENT") return [];
+    throw error;
+  }
 }
 
 async function main() {
   const documents = await readDocuments();
   const split = await readSplit();
   const sources = await readSources();
-  const sourceByFile = new Map(sources.map((record) => [record.fileName, record]));
 
   let totalMasks = 0;
   let validMasks = 0;
@@ -141,6 +160,13 @@ async function main() {
   };
 
   const warnings: string[] = [];
+  if (documents.length === 0) warnings.push("dataset currently has no annotation documents");
+  if (split.train.length + split.val.length + split.test.length === 0) {
+    warnings.push("split.json is missing or currently empty");
+  }
+  if (sources.length === 0) {
+    warnings.push("sources.csv is missing or currently empty");
+  }
   if (!gates.imageCount.ok) warnings.push(`need ${gates.imageCount.required - gates.imageCount.actual} more images to reach 200`);
   if (!gates.validMaskCount.ok) warnings.push(`need ${gates.validMaskCount.required - gates.validMaskCount.actual} more valid nail masks to reach 800`);
   if (!gates.labelAuditPass.ok) warnings.push(`label audit still has ${errorFileCount} files with error-level issues`);

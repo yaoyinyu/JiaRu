@@ -1,0 +1,60 @@
+{
+  "ok": false,
+  "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
+  "totals": {
+    "images": 0,
+    "masks": 0,
+    "validMasks": 0,
+    "filesWithErrors": 0,
+    "filesWithWarnings": 0
+  },
+  "splitCounts": {
+    "train": 0,
+    "val": 0,
+    "test": 0
+  },
+  "testCoverage": {
+    "negatives": 0,
+    "complexBackground": 0,
+    "sampleKinds": {},
+    "backgrounds": {}
+  },
+  "gates": {
+    "imageCount": {
+      "ok": false,
+      "actual": 0,
+      "required": 200
+    },
+    "validMaskCount": {
+      "ok": false,
+      "actual": 0,
+      "required": 800
+    },
+    "labelAuditPass": {
+      "ok": true,
+      "actual": 0,
+      "required": 0
+    },
+    "testSplitHasNegative": {
+      "ok": false,
+      "actual": 0,
+      "required": 1
+    },
+    "testSplitHasComplexBackground": {
+      "ok": false,
+      "actual": 0,
+      "required": 1
+    }
+  },
+  "warnings": [
+    "dataset currently has no annotation documents",
+    "split.json is missing or currently empty",
+    "sources.csv is missing or currently empty",
+    "need 200 more images to reach 200",
+    "need 800 more valid nail masks to reach 800",
+    "test split does not yet contain a negative sample",
+    "test split does not yet contain a complex-background sample"
+  ],
+  "fileResults": []
+}
