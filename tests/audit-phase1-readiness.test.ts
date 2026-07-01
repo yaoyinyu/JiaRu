@@ -111,6 +111,49 @@ test("audit-phase1-readiness reports unmet gates for undersized dataset", async 
   assert.ok(report.warnings.some((warning) => warning.includes("200")));
 });
 
+test("audit-phase1-readiness returns structured report for empty dataset root", async () => {
+  const datasetRoot = await mkdtemp(path.join(os.tmpdir(), "nail-phase1-readiness-empty-"));
+  const stdout = await new Promise<string>((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      [
+        "--no-warnings",
+        "--experimental-strip-types",
+        "model/training/audit-phase1-readiness.ts",
+      ],
+      {
+        cwd: path.resolve("."),
+        env: { ...process.env, DATASET_ROOT: datasetRoot },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+    let out = "";
+    let err = "";
+    child.stdout.on("data", (chunk) => (out += String(chunk)));
+    child.stderr.on("data", (chunk) => (err += String(chunk)));
+    child.on("error", reject);
+    child.on("exit", (code) => {
+      if ((code ?? 0) !== 1) {
+        reject(new Error(err || `unexpected exit code: ${code}`));
+        return;
+      }
+      resolve(out);
+    });
+  });
+
+  const report = JSON.parse(stdout) as {
+    totals: { images: number; validMasks: number };
+    splitCounts: { train: number; val: number; test: number };
+    warnings: string[];
+  };
+  assert.equal(report.totals.images, 0);
+  assert.equal(report.totals.validMasks, 0);
+  assert.equal(report.splitCounts.test, 0);
+  assert.ok(report.warnings.some((warning) => warning.includes("no annotation documents")));
+  assert.ok(report.warnings.some((warning) => warning.includes("split.json")));
+  assert.ok(report.warnings.some((warning) => warning.includes("sources.csv")));
+});
+
 test("audit-phase1-readiness passes when all gates are satisfied", async () => {
   const datasetRoot = await mkdtemp(path.join(os.tmpdir(), "nail-phase1-readiness-ok-"));
   const annotationDir = path.join(datasetRoot, "annotations", "raw-json");
