@@ -95,6 +95,8 @@ test("run-reviewed-batch-import-pipeline imports reviewed batch and runs readine
       "audit-phase1-readiness",
       "plan-phase1-collection",
       "generate-first-batch-checklist",
+      "build-initial-release-trace-draft",
+      "build-reviewed-batch-release-handoff",
     ]
   );
   assert.ok(report.steps.every((step) => step.ok));
@@ -112,4 +114,28 @@ test("run-reviewed-batch-import-pipeline imports reviewed batch and runs readine
     await readFile(path.join(datasetRoot, "metadata", "first-batch-execution-checklist.json"), "utf8")
   ) as { firstBatchRecommendation: { targetImages: number } };
   assert.equal(checklistFile.firstBatchRecommendation.targetImages, 50);
+  const draft = JSON.parse(await readFile(path.join(rootDir, "release-trace-draft.json"), "utf8")) as {
+    draft: boolean;
+    batch: { sourceGroup: string; importedFileCount: number };
+    release: { finalAuditStatus: string | null };
+  };
+  assert.equal(draft.draft, true);
+  assert.equal(draft.batch.sourceGroup, "seed-batch-001");
+  assert.equal(draft.batch.importedFileCount, 2);
+  assert.equal(draft.release.finalAuditStatus, null);
+  const handoff = JSON.parse(
+    await readFile(path.join(rootDir, "reviewed-batch-release-handoff.json"), "utf8")
+  ) as {
+    version: string;
+    governanceHints: {
+      reviewedBatchRootDir: string;
+      reviewedBatchImportPipelineReportPath: string;
+      releaseTraceDraftPath: string;
+    };
+    batch: { sourceGroup: string; importedFileCount: number };
+  };
+  assert.equal(handoff.version, "reviewed-batch-release-handoff/v1");
+  assert.equal(handoff.governanceHints.reviewedBatchRootDir, rootDir);
+  assert.equal(handoff.batch.sourceGroup, "seed-batch-001");
+  assert.equal(handoff.batch.importedFileCount, 2);
 });

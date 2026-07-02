@@ -1,0 +1,340 @@
+import path from "node:path";
+import process from "node:process";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
+
+interface ReviewedImportPipelineReportLike {
+  ok: boolean;
+  rootDir: string;
+  reportPath: string;
+  steps?: Array<{
+    name?: string;
+    stdout?: {
+      sourceGroup?: string;
+      datasetRoot?: string;
+      reportPath?: string;
+      importedDocuments?: Array<{ fileName?: string }>;
+    };
+  }>;
+}
+
+interface ReleaseTraceDraftLike {
+  batch?: {
+    rootDir?: string | null;
+    sourceGroup?: string | null;
+    datasetRoot?: string | null;
+    reviewedImportReportPath?: string | null;
+    importedFileCount?: number;
+  } | null;
+}
+
+interface TrainingReleasePipelineReportLike {
+  ok: boolean;
+  reportPath?: string;
+  paths?: {
+    manifestPath?: string;
+    trainOutputDir?: string;
+    metricsPath?: string;
+  };
+  artifacts?: {
+    manifest?: { version?: string; modelFile?: string } | null;
+    finalAudit?: {
+      decision?: { status?: string; summary?: string };
+    } | null;
+    finalAuditFailureSummary?: {
+      totals?: { derivedAnnotationFailures?: number };
+      categoryCounts?: Record<string, number>;
+    } | null;
+  };
+  steps?: Array<{
+    name?: string;
+    stdout?: {
+      finalReportPath?: string;
+      failureSummaryPath?: string;
+      recordPath?: string;
+    };
+  }>;
+}
+
+interface ReleaseDecisionReportLike {
+  pipelineReportPath: string;
+  compareSummaryPath?: string | null;
+  registryPath?: string | null;
+  outputPath: string;
+  candidateVersion: string | null;
+  decision: {
+    status: string;
+    summary: string;
+  };
+}
+
+interface PromotionReportLike {
+  decisionReportPath: string;
+  pipelineReportPath: string;
+  registryPath: string;
+  outputPath: string;
+  candidateVersion: string | null;
+  decisionStatus: string;
+  manifestPath?: string;
+  registerSummary?: {
+    currentVersion?: string | null;
+    registeredVersion?: string;
+    snapshotPath?: string;
+  };
+}
+
+interface RegistryLike {
+  currentVersion: string | null;
+  releases: Array<{ version: string }>;
+}
+
+interface CliOptions {
+  releaseTraceDraftPath?: string;
+  reviewedBatchImportPipelineReportPath?: string;
+  trainingReleasePipelineReportPath: string;
+  releaseDecisionReportPath?: string;
+  promotionReportPath?: string;
+  registryPath?: string;
+  outputPath: string;
+}
+
+function usage(): never {
+  throw new Error(
+    "Usage: node --experimental-strip-types scripts/build-release-trace-index.ts --training-release-pipeline-report <training-release-pipeline-report.json> [--release-trace-draft <release-trace-draft.json>] [--reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--release-decision-report <release-decision-report.json>] [--promotion-report <promotion-report.json>] [--registry <release-registry.json>] [--output <release-trace-index.json>]"
+  );
+}
+
+function parseArgs(argv: string[]): CliOptions {
+  let releaseTraceDraftPath: string | undefined;
+  let reviewedBatchImportPipelineReportPath: string | undefined;
+  let trainingReleasePipelineReportPath = "";
+  let releaseDecisionReportPath: string | undefined;
+  let promotionReportPath: string | undefined;
+  let registryPath: string | undefined;
+  let outputPath = "";
+
+  for (let index = 0; index < argv.length; index++) {
+    const arg = argv[index];
+    if (arg === "--release-trace-draft") {
+      releaseTraceDraftPath = path.resolve(argv[++index] ?? usage());
+    } else if (arg === "--reviewed-batch-import-pipeline-report") {
+      reviewedBatchImportPipelineReportPath = path.resolve(argv[++index] ?? usage());
+    } else if (arg === "--training-release-pipeline-report") {
+      trainingReleasePipelineReportPath = path.resolve(argv[++index] ?? usage());
+    } else if (arg === "--release-decision-report") {
+      releaseDecisionReportPath = path.resolve(argv[++index] ?? usage());
+    } else if (arg === "--promotion-report") {
+      promotionReportPath = path.resolve(argv[++index] ?? usage());
+    } else if (arg === "--registry") {
+      registryPath = path.resolve(argv[++index] ?? usage());
+    } else if (arg === "--output") {
+      outputPath = path.resolve(argv[++index] ?? usage());
+    } else {
+      usage();
+    }
+  }
+
+  if (!trainingReleasePipelineReportPath) usage();
+  if (!outputPath) {
+    outputPath = path.join(
+      path.dirname(trainingReleasePipelineReportPath),
+      "release-trace-index.json"
+    );
+  }
+
+  return {
+    releaseTraceDraftPath,
+    reviewedBatchImportPipelineReportPath,
+    trainingReleasePipelineReportPath,
+    releaseDecisionReportPath,
+    promotionReportPath,
+    registryPath,
+    outputPath,
+  };
+}
+
+async function readJson<T>(filePath: string): Promise<T> {
+  return JSON.parse(await readFile(filePath, "utf8")) as T;
+}
+
+async function readOptionalJson<T>(filePath?: string): Promise<T | null> {
+  if (!filePath) return null;
+  try {
+    return await readJson<T>(filePath);
+  } catch {
+    return null;
+  }
+}
+
+function findStep<T extends { name?: string; stdout?: unknown }>(
+  steps: T[] | undefined,
+  name: string
+) {
+  return steps?.find((step) => step.name === name);
+}
+
+const options = parseArgs(process.argv.slice(2));
+const releaseTraceDraft = await readOptionalJson<ReleaseTraceDraftLike>(
+  options.releaseTraceDraftPath
+);
+const reviewedBatchImportPipelineReport = await readOptionalJson<ReviewedImportPipelineReportLike>(
+  options.reviewedBatchImportPipelineReportPath
+);
+const trainingReleasePipelineReport = await readJson<TrainingReleasePipelineReportLike>(
+  options.trainingReleasePipelineReportPath
+);
+const releaseDecisionReport = await readOptionalJson<ReleaseDecisionReportLike>(
+  options.releaseDecisionReportPath
+);
+const promotionReport = await readOptionalJson<PromotionReportLike>(
+  options.promotionReportPath
+);
+const registry = await readOptionalJson<RegistryLike>(
+  options.registryPath ??
+    promotionReport?.registryPath ??
+    releaseDecisionReport?.registryPath ??
+    undefined
+);
+
+const importReviewedBatchStep = findStep(
+  reviewedBatchImportPipelineReport?.steps,
+  "import-reviewed-batch"
+) as
+  | {
+      stdout?: {
+        sourceGroup?: string;
+        datasetRoot?: string;
+        reportPath?: string;
+        importedDocuments?: Array<{ fileName?: string }>;
+      };
+    }
+  | undefined;
+
+const finalAuditStep = findStep(
+  trainingReleasePipelineReport.steps,
+  "run-real-model-final-audit"
+) as
+  | {
+      stdout?: {
+        finalReportPath?: string;
+        failureSummaryPath?: string;
+        recordPath?: string;
+      };
+    }
+  | undefined;
+
+const candidateVersion =
+  promotionReport?.candidateVersion ??
+  releaseDecisionReport?.candidateVersion ??
+  trainingReleasePipelineReport.artifacts?.manifest?.version ??
+  null;
+
+const summary = {
+  ok: true,
+  outputPath: options.outputPath,
+  candidateVersion,
+  currentRegistryVersion:
+    promotionReport?.registerSummary?.currentVersion ?? registry?.currentVersion ?? null,
+  batch: reviewedBatchImportPipelineReport || releaseTraceDraft?.batch
+    ? {
+        rootDir:
+          reviewedBatchImportPipelineReport?.rootDir ?? releaseTraceDraft?.batch?.rootDir ?? null,
+        sourceGroup:
+          importReviewedBatchStep?.stdout?.sourceGroup ??
+          releaseTraceDraft?.batch?.sourceGroup ??
+          null,
+        datasetRoot:
+          importReviewedBatchStep?.stdout?.datasetRoot ??
+          releaseTraceDraft?.batch?.datasetRoot ??
+          null,
+        releaseTraceDraftPath: options.releaseTraceDraftPath ?? null,
+        reviewedBatchImportPipelineReportPath:
+          options.reviewedBatchImportPipelineReportPath ?? null,
+        reviewedImportReportPath:
+          importReviewedBatchStep?.stdout?.reportPath ??
+          releaseTraceDraft?.batch?.reviewedImportReportPath ??
+          null,
+        importedFileCount:
+          importReviewedBatchStep?.stdout?.importedDocuments?.length ??
+          releaseTraceDraft?.batch?.importedFileCount ??
+          0,
+      }
+    : null,
+  release: {
+    trainingReleasePipelineReportPath: options.trainingReleasePipelineReportPath,
+    manifestPath: trainingReleasePipelineReport.paths?.manifestPath ?? null,
+    metricsPath: trainingReleasePipelineReport.paths?.metricsPath ?? null,
+    trainOutputDir: trainingReleasePipelineReport.paths?.trainOutputDir ?? null,
+    finalAuditReportPath: finalAuditStep?.stdout?.finalReportPath ?? null,
+    finalAuditFailureSummaryPath: finalAuditStep?.stdout?.failureSummaryPath ?? null,
+    firstRunRecordPath: finalAuditStep?.stdout?.recordPath ?? null,
+    finalAuditStatus:
+      trainingReleasePipelineReport.artifacts?.finalAudit?.decision?.status ?? null,
+    derivedAnnotationFailures:
+      trainingReleasePipelineReport.artifacts?.finalAuditFailureSummary?.totals
+        ?.derivedAnnotationFailures ?? 0,
+    postprocessFailures:
+      trainingReleasePipelineReport.artifacts?.finalAuditFailureSummary?.categoryCounts
+        ?.postprocess ?? 0,
+  },
+  decision: releaseDecisionReport
+    ? {
+        releaseDecisionReportPath: options.releaseDecisionReportPath ?? null,
+        compareSummaryPath: releaseDecisionReport.compareSummaryPath ?? null,
+        registryPath:
+          options.registryPath ??
+          promotionReport?.registryPath ??
+          releaseDecisionReport.registryPath ??
+          null,
+        status: releaseDecisionReport.decision.status,
+        summary: releaseDecisionReport.decision.summary,
+      }
+    : null,
+  promotion: promotionReport
+    ? {
+        promotionReportPath: options.promotionReportPath ?? null,
+        decisionStatus: promotionReport.decisionStatus,
+        manifestPath: promotionReport.manifestPath ?? null,
+        registeredVersion: promotionReport.registerSummary?.registeredVersion ?? null,
+        currentVersion: promotionReport.registerSummary?.currentVersion ?? null,
+        snapshotPath: promotionReport.registerSummary?.snapshotPath ?? null,
+      }
+    : null,
+  registry: registry
+    ? {
+        registryPath:
+          options.registryPath ??
+          promotionReport?.registryPath ??
+          releaseDecisionReport?.registryPath ??
+          null,
+        currentVersion: registry.currentVersion,
+        releaseCount: registry.releases.length,
+        knownVersions: registry.releases.map((item) => item.version),
+      }
+    : null,
+  links: {
+    sourceGroupToCandidateVersion:
+      (reviewedBatchImportPipelineReport || releaseTraceDraft?.batch) && candidateVersion
+        ? `${
+            importReviewedBatchStep?.stdout?.sourceGroup ??
+            releaseTraceDraft?.batch?.sourceGroup ??
+            "unknown"
+          } -> ${candidateVersion}`
+        : null,
+    candidateVersionToFinalAudit:
+      candidateVersion && finalAuditStep?.stdout?.finalReportPath
+        ? `${candidateVersion} -> ${finalAuditStep.stdout.finalReportPath}`
+        : null,
+    candidateVersionToDecision:
+      candidateVersion && releaseDecisionReport
+        ? `${candidateVersion} -> ${releaseDecisionReport.decision.status}`
+        : null,
+    candidateVersionToRegistry:
+      candidateVersion && (promotionReport?.registerSummary?.currentVersion ?? registry?.currentVersion)
+        ? `${candidateVersion} -> ${promotionReport?.registerSummary?.currentVersion ?? registry?.currentVersion}`
+        : null,
+  },
+};
+
+await mkdir(path.dirname(options.outputPath), { recursive: true });
+await writeFile(options.outputPath, JSON.stringify(summary, null, 2), "utf8");
+console.log(JSON.stringify(summary, null, 2));

@@ -77,6 +77,8 @@ async function main() {
     steps: [],
   };
 
+  let reviewedImportReportPath: string | null = null;
+
   for (const [name, script, softFail] of [
     ["audit-seed-batch-workspace", "model/training/audit-seed-batch-workspace.ts", false],
     ["import-reviewed-batch", "model/training/import-reviewed-batch.ts", false],
@@ -98,6 +100,15 @@ async function main() {
         ok: softFail ? true : parsedOk,
         stdout,
       });
+      if (
+        name === "import-reviewed-batch" &&
+        typeof stdout === "object" &&
+        stdout !== null &&
+        "reportPath" in stdout &&
+        typeof (stdout as { reportPath?: unknown }).reportPath === "string"
+      ) {
+        reviewedImportReportPath = (stdout as { reportPath: string }).reportPath;
+      }
     } catch (error) {
       const execError = error as Error & { stderr?: string };
       report.steps.push({
@@ -110,6 +121,60 @@ async function main() {
       process.exitCode = 1;
       return;
     }
+  }
+
+  if (reviewedImportReportPath) {
+    try {
+      const stdout = await runJsonScript("scripts/build-initial-release-trace-draft.ts", [
+        "--reviewed-import-report",
+        reviewedImportReportPath,
+        "--root-dir",
+        options.rootDir,
+      ]);
+      report.steps.push({
+        name: "build-initial-release-trace-draft",
+        ok: true,
+        stdout,
+      });
+    } catch (error) {
+      const execError = error as Error & { stderr?: string };
+      report.steps.push({
+        name: "build-initial-release-trace-draft",
+        ok: false,
+        stderr: execError.stderr || execError.message,
+      });
+      await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
+      console.log(JSON.stringify(report, null, 2));
+      process.exitCode = 1;
+      return;
+    }
+  }
+
+  await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
+
+  try {
+    const stdout = await runJsonScript("scripts/build-reviewed-batch-release-handoff.ts", [
+      "--root-dir",
+      options.rootDir,
+      "--reviewed-batch-import-pipeline-report",
+      reportPath,
+    ]);
+    report.steps.push({
+      name: "build-reviewed-batch-release-handoff",
+      ok: true,
+      stdout,
+    });
+  } catch (error) {
+    const execError = error as Error & { stderr?: string };
+    report.steps.push({
+      name: "build-reviewed-batch-release-handoff",
+      ok: false,
+      stderr: execError.stderr || execError.message,
+    });
+    await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
+    console.log(JSON.stringify(report, null, 2));
+    process.exitCode = 1;
+    return;
   }
 
   report.ok = report.steps.every((step) => step.ok);

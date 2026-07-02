@@ -4,6 +4,7 @@ import {
   estimateMaskPrincipalAngle,
   postprocessNailTextureDetections,
   preprocessNailTextureImage,
+  stabilizeNailTextureCandidateAngles,
 } from "../src/lib/nail-texture-recognition/index.ts";
 
 test("preprocessNailTextureImage creates CHW float tensor", () => {
@@ -104,4 +105,65 @@ test("estimateMaskPrincipalAngle and postprocess keep a stable mask-derived angl
 
   assert.equal(candidates.length, 1);
   assert.ok(Math.abs(Math.abs(candidates[0].angle) - Math.PI / 2) < 0.2);
+});
+
+test("stabilizeNailTextureCandidateAngles borrows group angle for ambiguous candidates", () => {
+  const stabilized = stabilizeNailTextureCandidateAngles(
+    [
+      {
+        id: "model-1",
+        cx: 120,
+        cy: 200,
+        width: 48,
+        length: 120,
+        angle: Math.PI / 2,
+        score: 0.88,
+        confidence: "high",
+        source: "model",
+        suggestedFinger: null,
+      },
+      {
+        id: "model-2",
+        cx: 260,
+        cy: 210,
+        width: 80,
+        length: 84,
+        angle: 0,
+        score: 0.82,
+        confidence: "high",
+        source: "model",
+        suggestedFinger: null,
+      },
+    ],
+    [{ reliable: true }, { reliable: false }]
+  );
+
+  assert.ok(Math.abs(Math.abs(stabilized[1].angle) - Math.PI / 2) < 0.01);
+  assert.ok(stabilized[1].warnings?.includes("angle_stabilized_from_group"));
+});
+
+test("postprocessNailTextureDetections defaults ambiguous no-mask candidates to vertical angle", () => {
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 860,
+    originalHeight: 645,
+    scaleX: 860 / 640,
+    scaleY: 645 / 640,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 1, 6],
+        data: new Float32Array([320, 320, 78, 80, 0.91, 0]),
+      },
+    },
+    preprocess
+  );
+
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].angle, 0);
+  assert.ok(candidates[0].warnings?.includes("angle_defaulted_vertical"));
 });

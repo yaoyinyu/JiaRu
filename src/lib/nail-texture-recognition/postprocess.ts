@@ -17,6 +17,10 @@ export interface PostprocessModelOutputsOptions {
   maskThreshold?: number;
 }
 
+interface CandidateAngleEvidence {
+  reliable: boolean;
+}
+
 function inferSuggestedFingers(candidateCount: number): number[] {
   if (candidateCount === 4) return [1, 2, 3, 4];
   if (candidateCount >= 5) return [0, 1, 2, 3, 4];
@@ -206,6 +210,67 @@ export function estimateMaskPrincipalAngle(mask: NailMask): number | null {
   return normalizeHalfTurnAngle(axisAngle + Math.PI / 2);
 }
 
+function candidateAspectRatio(candidate: Pick<NailTextureCandidate, "width" | "length">): number {
+  const shorter = Math.min(candidate.width, candidate.length);
+  const longer = Math.max(candidate.width, candidate.length);
+  return shorter <= 0 ? Number.POSITIVE_INFINITY : longer / shorter;
+}
+
+function isReliableOrientationCandidate(
+  candidate: Pick<NailTextureCandidate, "width" | "length">,
+  angleWasEstimatedFromMask: boolean
+): boolean {
+  return angleWasEstimatedFromMask && candidateAspectRatio(candidate) >= 1.2;
+}
+
+function averageHalfTurnAngle(angles: number[]): number | null {
+  if (angles.length === 0) return null;
+
+  let x = 0;
+  let y = 0;
+  for (const angle of angles) {
+    x += Math.cos(angle * 2);
+    y += Math.sin(angle * 2);
+  }
+
+  if (Math.abs(x) < 1e-6 && Math.abs(y) < 1e-6) return null;
+  return normalizeHalfTurnAngle(0.5 * Math.atan2(y, x));
+}
+
+export function stabilizeNailTextureCandidateAngles(
+  candidates: NailTextureCandidate[],
+  evidences?: CandidateAngleEvidence[]
+): NailTextureCandidate[] {
+  if (candidates.length === 0) return [];
+
+  const reliableAngles = candidates
+    .map((candidate, index) => ({
+      candidate,
+      evidence: evidences?.[index],
+    }))
+    .filter((item) => item.evidence?.reliable)
+    .map((item) => item.candidate.angle);
+
+  const sharedAngle = averageHalfTurnAngle(reliableAngles);
+
+  return candidates.map((candidate, index) => {
+    const evidence = evidences?.[index];
+    if (evidence?.reliable) return candidate;
+
+    const stabilizedAngle = sharedAngle ?? 0;
+    const warning = sharedAngle == null ? "angle_defaulted_vertical" : "angle_stabilized_from_group";
+    const warnings = candidate.warnings?.includes(warning)
+      ? candidate.warnings
+      : [...(candidate.warnings ?? []), warning];
+
+    return {
+      ...candidate,
+      angle: stabilizedAngle,
+      warnings,
+    };
+  });
+}
+
 export function postprocessNailTextureDetections(
   outputs: Record<string, ModelTensorLike>,
   preprocess: NailTexturePreprocessResult,
@@ -220,6 +285,7 @@ export function postprocessNailTextureDetections(
   const maskThreshold = options.maskThreshold ?? 0.5;
   const rows = flattenDetectionRows(detectionTensor);
 
+  const angleEvidences: CandidateAngleEvidence[] = [];
   const candidates = rows
     .filter((row) => row.length >= 5)
     .map((row, index) => {
@@ -229,8 +295,8 @@ export function postprocessNailTextureDetections(
         prototypeTensor && coefficients.length > 0
           ? decodeCandidateMask(prototypeTensor, coefficients, preprocess, maskThreshold)
           : undefined;
-      const angle = mask ? estimateMaskPrincipalAngle(mask) ?? 0 : 0;
-      return {
+      const estimatedAngle = mask ? estimateMaskPrincipalAngle(mask) : null;
+      const candidate = {
         id: `model-${index + 1}`,
         cx: clamp(cx * preprocess.scaleX, 0, preprocess.originalWidth),
         cy: clamp(cy * preprocess.scaleY, 0, preprocess.originalHeight),
@@ -238,8 +304,12 @@ export function postprocessNailTextureDetections(
         length: clamp(length * preprocess.scaleY, 1, preprocess.originalHeight),
         score,
         mask,
-        angle,
+        angle: estimatedAngle ?? 0,
       };
+      angleEvidences.push({
+        reliable: isReliableOrientationCandidate(candidate, estimatedAngle != null),
+      });
+      return candidate;
     })
     .filter((row) => row.score >= scoreThreshold);
 
@@ -263,9 +333,16 @@ export function postprocessNailTextureDetections(
       maxCandidates,
     }
   );
+  const evidenceById = new Map(
+    candidates.map((candidate, index) => [candidate.id, angleEvidences[index] as CandidateAngleEvidence])
+  );
+  const stabilized = stabilizeNailTextureCandidateAngles(
+    ranked,
+    ranked.map((candidate) => evidenceById.get(candidate.id) ?? { angle: candidate.angle, reliable: false })
+  );
 
-  const suggestedFingers = inferSuggestedFingers(ranked.length);
-  return ranked.map((candidate, index) => ({
+  const suggestedFingers = inferSuggestedFingers(stabilized.length);
+  return stabilized.map((candidate, index) => ({
     ...candidate,
     id: `model-${index + 1}`,
     suggestedFinger: suggestedFingers[index] ?? null,

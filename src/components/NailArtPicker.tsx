@@ -16,6 +16,12 @@ import {
   createLocalNailDebugSample,
   createNailDebugSampleFilename,
 } from "@/lib/nail-texture-debug-sample";
+import {
+  presentRecognitionWarning,
+  regionNeedsReview,
+  summarizeExtractionDiagnostics,
+  summarizeRegionQuality,
+} from "@/components/nail-art-picker-quality";
 
 // ─── 类型定义 ──────────────────────────────────────────────
 
@@ -459,6 +465,11 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
   const [extracting, setExtracting] = useState(false);
 
   const sel = selectedIdx !== null ? regions[selectedIdx] : null;
+  const selectedQualitySummary = sel ? summarizeRegionQuality(sel) : null;
+  const selectedExtractionSummary = summarizeExtractionDiagnostics(sel?.extractionDiagnostics);
+  const selectedReviewMessages = selectedQualitySummary?.messages ?? [];
+  const detectionWarningMessages = detectionSummary?.warnings.map(presentRecognitionWarning) ?? [];
+  const hasRegionsNeedingReview = regions.some((region) => regionNeedsReview(region));
 
   // ── 1. 加载图片 ──────────────────────────────────────
 
@@ -657,7 +668,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
 
       // 手指标签
       const fingerLabel = r.assignedFinger !== null ? FINGER_NAMES[r.assignedFinger] : `${i + 1}`;
-      const label = r.confidence === "low" ? `${fingerLabel}⚠` : fingerLabel;
+      const label = regionNeedsReview(r) ? `${fingerLabel}⚠` : fingerLabel;
       ctx.fillStyle = "rgba(232,160,191,0.9)";
       ctx.font = isSel ? "bold 16px sans-serif" : "12px sans-serif";
       ctx.textAlign = "center";
@@ -908,7 +919,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
           {detecting ? "⏳ 正在检测指甲区域..." :
            regions.length > 0
               ? `已定位 ${regions.length} 个候选` +
-                (regions.some((r) => r.confidence === "low") ? " · ⚠ 请检查标记" : "") +
+                (hasRegionsNeedingReview ? " · ⚠ 请检查标记" : "") +
                 (detectionSummary ? ` · ${detectionSummary.backend === "model" ? "模型" : "回退"}识别` : "") +
                 (detectionSummary?.modelVersion ? ` · ${detectionSummary.modelVersion}` : "") +
                 (sel ? ` · 选区 ${selectedIdx! + 1}/${regions.length}` : "")
@@ -945,22 +956,53 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       {/* 底部控制区 */}
       <div className="bg-black/95 px-4 py-3 space-y-2.5">
         {error && <p className="text-red-400 text-xs text-center">{error}</p>}
-        {!error && detectionSummary?.warnings.length ? (
+        {!error && detectionWarningMessages.length ? (
           <p className="text-yellow-300 text-[10px] text-center">
-            {detectionSummary.warnings.join(" · ")}
+            {detectionWarningMessages.join(" · ")}
           </p>
         ) : null}
 
         {/* 选区操作 */}
-        {!error && sel?.warnings?.length ? (
-          <p className="text-amber-300 text-[10px] text-center">
-            {sel.warnings.join(" · ")}
-          </p>
+        {!error && selectedQualitySummary ? (
+          <div
+            className={`rounded-xl px-3 py-2 text-[10px] ${
+              selectedQualitySummary.severity === "review"
+                ? "border border-amber-500/20 bg-amber-500/10 text-amber-200"
+                : "border border-emerald-500/20 bg-emerald-500/10 text-emerald-200"
+            }`}
+          >
+            <p className="text-center font-medium">{selectedQualitySummary.title}</p>
+            {selectedReviewMessages.length ? (
+              <ul className="mt-1 space-y-1">
+                {selectedReviewMessages.map((message) => (
+                  <li key={message} className="text-center">
+                    {message}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         ) : null}
-        {!error && sel?.extractionDiagnostics ? (
-          <p className="text-sky-300 text-[10px] text-center">
-            {`quality=${sel.extractionDiagnostics.quality.ok ? "ok" : "warn"} · highlight=${sel.extractionDiagnostics.highlightRepair.highlightPixels} · repaired=${sel.extractionDiagnostics.highlightRepair.repairedPixels}`}
-          </p>
+        {!error && selectedExtractionSummary ? (
+          <div
+            className={`rounded-xl px-3 py-2 text-[10px] ${
+              selectedExtractionSummary.severity === "review"
+                ? "border border-sky-500/20 bg-sky-500/10 text-sky-200"
+                : "border border-cyan-500/20 bg-cyan-500/10 text-cyan-200"
+            }`}
+          >
+            <p className="text-center font-medium">{selectedExtractionSummary.title}</p>
+            <p className="mt-1 text-center">{selectedExtractionSummary.stats.join(" · ")}</p>
+            {selectedExtractionSummary.messages.length ? (
+              <ul className="mt-1 space-y-1">
+                {selectedExtractionSummary.messages.map((message) => (
+                  <li key={message} className="text-center">
+                    {message}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+          </div>
         ) : null}
 
         <div className="flex items-center gap-2 justify-center">

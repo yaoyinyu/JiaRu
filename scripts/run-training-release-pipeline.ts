@@ -1,7 +1,7 @@
 import path from "node:path";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, writeFile } from "node:fs/promises";
 
 const execFileAsync = promisify(execFile);
 
@@ -34,6 +34,17 @@ interface CliOptions {
   finalAuditAnnotationDir?: string;
   finalAuditAnnotation?: string;
   finalAuditUiReview?: string;
+  runGovernance: boolean;
+  governanceCompareSummary?: string;
+  governanceRegistry?: string;
+  governanceReleaseTraceDraft?: string;
+  governanceReviewedBatchImportPipelineReport?: string;
+  governanceReviewedBatchRootDir?: string;
+  governanceReviewedBatchReleaseHandoff?: string;
+  governanceHistoryManifest?: string;
+  governanceAllowManualReview: boolean;
+  governanceSetCurrent: boolean;
+  governancePromote: boolean;
 }
 
 interface StepResult {
@@ -44,12 +55,32 @@ interface StepResult {
   command: string[];
 }
 
+function resolveDefaultTrainOutputDir(modelVersion: string): string {
+  return path.resolve(path.join("model", "exports", modelVersion));
+}
+
+function resolveDefaultRunName(modelVersion: string): string {
+  return modelVersion;
+}
+
+function resolveDefaultGovernanceCompareSummary(trainOutputDir: string): string {
+  return path.join(trainOutputDir, "compare-summary.json");
+}
+
+function resolveDefaultGovernanceRegistry(browserModelDir: string): string {
+  return path.join(browserModelDir, "release-registry.json");
+}
+
+function resolveDefaultGovernanceHistoryManifest(trainOutputDir: string): string {
+  return path.join(trainOutputDir, "release-history-manifest.json");
+}
+
 function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = {
     dataset: path.resolve("model/training/dataset.yaml"),
-    trainOutputDir: path.resolve("model/exports/nail-texture-seg-v1"),
+    trainOutputDir: resolveDefaultTrainOutputDir("nail-texture-seg-v1"),
     browserModelDir: path.resolve("public/models/nail-texture-seg"),
-    runName: "nail-texture-seg-v1",
+    runName: resolveDefaultRunName("nail-texture-seg-v1"),
     modelVersion: "nail-texture-seg-v1",
     trainModel: "yolo11n-seg.pt",
     epochs: 100,
@@ -67,15 +98,36 @@ function parseArgs(argv: string[]): CliOptions {
     minBoxMap50: 0.85,
     maxModelMb: 15,
     finalAuditDebugPrefix: "real-model",
+    runGovernance: false,
+    governanceAllowManualReview: false,
+    governanceSetCurrent: true,
+    governancePromote: true,
+  };
+  const explicit = {
+    trainOutputDir: false,
+    runName: false,
+    modelVersion: false,
+    governanceCompareSummary: false,
+    governanceRegistry: false,
+    governanceHistoryManifest: false,
   };
 
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];
     if (arg === "--dataset") options.dataset = path.resolve(argv[++index]);
-    else if (arg === "--train-output-dir") options.trainOutputDir = path.resolve(argv[++index]);
+    else if (arg === "--train-output-dir") {
+      explicit.trainOutputDir = true;
+      options.trainOutputDir = path.resolve(argv[++index]);
+    }
     else if (arg === "--browser-model-dir") options.browserModelDir = path.resolve(argv[++index]);
-    else if (arg === "--run-name") options.runName = argv[++index] ?? options.runName;
-    else if (arg === "--model-version") options.modelVersion = argv[++index] ?? options.modelVersion;
+    else if (arg === "--run-name") {
+      explicit.runName = true;
+      options.runName = argv[++index] ?? options.runName;
+    }
+    else if (arg === "--model-version") {
+      explicit.modelVersion = true;
+      options.modelVersion = argv[++index] ?? options.modelVersion;
+    }
     else if (arg === "--model") options.trainModel = argv[++index] ?? options.trainModel;
     else if (arg === "--epochs") options.epochs = Number(argv[++index]);
     else if (arg === "--imgsz") options.imgsz = Number(argv[++index]);
@@ -99,11 +151,59 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--final-audit-annotation-dir") options.finalAuditAnnotationDir = path.resolve(argv[++index]);
     else if (arg === "--final-audit-annotation") options.finalAuditAnnotation = path.resolve(argv[++index]);
     else if (arg === "--final-audit-ui-review") options.finalAuditUiReview = path.resolve(argv[++index]);
+    else if (arg === "--run-governance") options.runGovernance = true;
+    else if (arg === "--governance-compare-summary") {
+      explicit.governanceCompareSummary = true;
+      options.governanceCompareSummary = path.resolve(argv[++index]);
+    }
+    else if (arg === "--governance-registry") {
+      explicit.governanceRegistry = true;
+      options.governanceRegistry = path.resolve(argv[++index]);
+    }
+    else if (arg === "--governance-release-trace-draft") options.governanceReleaseTraceDraft = path.resolve(argv[++index]);
+    else if (arg === "--governance-reviewed-batch-import-pipeline-report") {
+      options.governanceReviewedBatchImportPipelineReport = path.resolve(argv[++index]);
+    }
+    else if (arg === "--governance-reviewed-batch-root-dir") {
+      options.governanceReviewedBatchRootDir = path.resolve(argv[++index]);
+    }
+    else if (arg === "--governance-reviewed-batch-release-handoff") {
+      options.governanceReviewedBatchReleaseHandoff = path.resolve(argv[++index]);
+    }
+    else if (arg === "--governance-history-manifest") {
+      explicit.governanceHistoryManifest = true;
+      options.governanceHistoryManifest = path.resolve(argv[++index]);
+    }
+    else if (arg === "--governance-allow-manual-review") {
+      options.governanceAllowManualReview = (argv[++index] ?? "").trim().toLowerCase() === "true";
+    }
+    else if (arg === "--governance-set-current") {
+      options.governanceSetCurrent = (argv[++index] ?? "").trim().toLowerCase() !== "false";
+    }
+    else if (arg === "--governance-promote") {
+      options.governancePromote = (argv[++index] ?? "").trim().toLowerCase() !== "false";
+    }
     else {
       throw new Error(
-        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>]"
+        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
       );
     }
+  }
+
+  if (!explicit.runName) {
+    options.runName = resolveDefaultRunName(options.modelVersion);
+  }
+  if (!explicit.trainOutputDir) {
+    options.trainOutputDir = resolveDefaultTrainOutputDir(options.modelVersion);
+  }
+  if (!explicit.governanceCompareSummary) {
+    options.governanceCompareSummary = resolveDefaultGovernanceCompareSummary(options.trainOutputDir);
+  }
+  if (!explicit.governanceRegistry) {
+    options.governanceRegistry = resolveDefaultGovernanceRegistry(options.browserModelDir);
+  }
+  if (!explicit.governanceHistoryManifest) {
+    options.governanceHistoryManifest = resolveDefaultGovernanceHistoryManifest(options.trainOutputDir);
   }
 
   return options;
@@ -162,6 +262,114 @@ async function readJsonIfExists(filePath: string): Promise<unknown | null> {
   } catch {
     return null;
   }
+}
+
+async function pathExists(filePath?: string): Promise<boolean> {
+  if (!filePath) return false;
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function resolveGovernanceContext(options: CliOptions): Promise<{
+  releaseTraceDraftPath: string | null;
+  reviewedBatchImportPipelineReportPath: string | null;
+  reviewedBatchReleaseHandoffPath: string | null;
+  reviewedBatchRootDir: string | null;
+}> {
+  let releaseTraceDraftPath = options.governanceReleaseTraceDraft ?? null;
+  let reviewedBatchImportPipelineReportPath =
+    options.governanceReviewedBatchImportPipelineReport ?? null;
+  let reviewedBatchReleaseHandoffPath = options.governanceReviewedBatchReleaseHandoff ?? null;
+  let reviewedBatchRootDir = options.governanceReviewedBatchRootDir ?? null;
+
+  if (reviewedBatchReleaseHandoffPath) {
+    const handoff = (await readJsonIfExists(reviewedBatchReleaseHandoffPath)) as
+      | {
+          rootDir?: string;
+          governanceHints?: {
+            reviewedBatchRootDir?: string | null;
+            reviewedBatchImportPipelineReportPath?: string | null;
+            releaseTraceDraftPath?: string | null;
+          };
+        }
+      | null;
+    reviewedBatchRootDir =
+      reviewedBatchRootDir ??
+      handoff?.governanceHints?.reviewedBatchRootDir ??
+      handoff?.rootDir ??
+      null;
+    releaseTraceDraftPath =
+      releaseTraceDraftPath ?? handoff?.governanceHints?.releaseTraceDraftPath ?? null;
+    reviewedBatchImportPipelineReportPath =
+      reviewedBatchImportPipelineReportPath ??
+      handoff?.governanceHints?.reviewedBatchImportPipelineReportPath ??
+      null;
+  }
+
+  if (reviewedBatchRootDir) {
+    const draftCandidate = path.join(
+      reviewedBatchRootDir,
+      "release-trace-draft.json"
+    );
+    const reportCandidate = path.join(
+      reviewedBatchRootDir,
+      "reviewed-batch-import-pipeline-report.json"
+    );
+    const handoffCandidate = path.join(
+      reviewedBatchRootDir,
+      "reviewed-batch-release-handoff.json"
+    );
+    if (!releaseTraceDraftPath && (await pathExists(draftCandidate))) {
+      releaseTraceDraftPath = draftCandidate;
+    }
+    if (!reviewedBatchImportPipelineReportPath && (await pathExists(reportCandidate))) {
+      reviewedBatchImportPipelineReportPath = reportCandidate;
+    }
+    if (!reviewedBatchReleaseHandoffPath && (await pathExists(handoffCandidate))) {
+      reviewedBatchReleaseHandoffPath = handoffCandidate;
+    }
+  }
+
+  if (!releaseTraceDraftPath && reviewedBatchImportPipelineReportPath) {
+    const reviewedBatchImportPipelineReport = (await readJsonIfExists(
+      reviewedBatchImportPipelineReportPath
+    )) as { rootDir?: string } | null;
+    const rootDir = reviewedBatchImportPipelineReport?.rootDir;
+    if (rootDir) {
+      const draftCandidate = path.join(rootDir, "release-trace-draft.json");
+      if (await pathExists(draftCandidate)) {
+        releaseTraceDraftPath = draftCandidate;
+      }
+    }
+  }
+
+  if (!reviewedBatchImportPipelineReportPath && releaseTraceDraftPath) {
+    const releaseTraceDraft = (await readJsonIfExists(releaseTraceDraftPath)) as
+      | { batch?: { rootDir?: string | null } | null }
+      | null;
+    const rootDir = releaseTraceDraft?.batch?.rootDir;
+    if (rootDir) {
+      const reportCandidate = path.join(rootDir, "reviewed-batch-import-pipeline-report.json");
+      if (await pathExists(reportCandidate)) {
+        reviewedBatchImportPipelineReportPath = reportCandidate;
+      }
+    }
+  }
+
+  return {
+    releaseTraceDraftPath,
+    reviewedBatchImportPipelineReportPath,
+    reviewedBatchReleaseHandoffPath,
+    reviewedBatchRootDir,
+  };
+}
+
+function resolveGovernanceReportPath(options: CliOptions): string {
+  return path.join(options.trainOutputDir, "release-governance-pipeline-report.json");
 }
 
 async function main() {
@@ -353,7 +561,11 @@ async function finish(
   metricsPath: string,
   manifestPath: string
 ) {
-  const report = {
+  const governanceReportPath = resolveGovernanceReportPath(options);
+  let governanceStep = steps.find((step) => step.name === "run-release-governance-pipeline");
+  const governanceContext = await resolveGovernanceContext(options);
+
+  const buildReport = async () => ({
     ok: ok && steps.every((step) => step.ok),
     reportPath,
     mode: options.dryRun ? "dry-run" : "real-run",
@@ -364,6 +576,7 @@ async function finish(
       weightsPath,
       metricsPath,
       manifestPath,
+      governanceReportPath: options.runGovernance ? governanceReportPath : null,
     },
     options: {
       runName: options.runName,
@@ -391,6 +604,19 @@ async function finish(
       finalAuditAnnotationDir: options.finalAuditAnnotationDir ?? null,
       finalAuditAnnotation: options.finalAuditAnnotation ?? null,
       finalAuditUiReview: options.finalAuditUiReview ?? null,
+      runGovernance: options.runGovernance,
+      governanceCompareSummary: options.governanceCompareSummary ?? null,
+      governanceRegistry: options.governanceRegistry ?? null,
+      governanceReleaseTraceDraft: governanceContext.releaseTraceDraftPath,
+      governanceReviewedBatchImportPipelineReport:
+        governanceContext.reviewedBatchImportPipelineReportPath,
+      governanceReviewedBatchRootDir: governanceContext.reviewedBatchRootDir,
+      governanceReviewedBatchReleaseHandoff:
+        governanceContext.reviewedBatchReleaseHandoffPath,
+      governanceHistoryManifest: options.governanceHistoryManifest ?? null,
+      governanceAllowManualReview: options.governanceAllowManualReview,
+      governanceSetCurrent: options.governanceSetCurrent,
+      governancePromote: options.governancePromote,
     },
     steps,
     artifacts: {
@@ -409,8 +635,41 @@ async function finish(
           "failure-case-summary.json"
         )
       ),
+      releaseGovernance: await readJsonIfExists(governanceReportPath),
     },
-  };
+  });
+
+  let report = await buildReport();
+  await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
+
+  if (options.runGovernance && !options.dryRun && !governanceStep) {
+    const governanceCommand = [
+      process.execPath,
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-release-governance-pipeline.ts",
+      "--training-release-pipeline-report",
+      reportPath,
+      ...(options.governanceCompareSummary ? ["--compare-summary", options.governanceCompareSummary] : []),
+      ...(options.governanceRegistry ? ["--registry", options.governanceRegistry] : []),
+      ...(governanceContext.releaseTraceDraftPath
+        ? ["--release-trace-draft", governanceContext.releaseTraceDraftPath]
+        : []),
+      ...(governanceContext.reviewedBatchImportPipelineReportPath
+        ? ["--reviewed-batch-import-pipeline-report", governanceContext.reviewedBatchImportPipelineReportPath]
+        : []),
+      ...(options.governanceHistoryManifest ? ["--history-manifest", options.governanceHistoryManifest] : []),
+      "--allow-manual-review",
+      String(options.governanceAllowManualReview),
+      "--set-current",
+      String(options.governanceSetCurrent),
+      "--promote",
+      String(options.governancePromote),
+    ];
+    governanceStep = await runCommand("run-release-governance-pipeline", governanceCommand, path.resolve("."));
+    steps.push(governanceStep);
+    report = await buildReport();
+  }
 
   await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
   console.log(JSON.stringify(report, null, 2));
