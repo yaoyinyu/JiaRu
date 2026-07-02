@@ -60,6 +60,7 @@ export type {
 export {
   estimateMaskPrincipalAngle,
   postprocessNailTextureDetections,
+  stabilizeNailTextureCandidateAngles,
 } from "./postprocess.ts";
 export {
   preprocessNailTextureImage,

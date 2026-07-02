@@ -75,6 +75,7 @@ await mkdir(options.outputDir, { recursive: true });
 const recordPath = path.join(options.outputDir, "real-model-first-run-record.json");
 const finalReportPath = path.join(options.outputDir, "real-model-final-audit-report.json");
 const failureSummaryPath = path.join(options.outputDir, "failure-case-summary.json");
+const textureQualityGatePath = path.join(options.outputDir, "texture-quality-gate.json");
 
 const recordArgs = [
   "--manifest",
@@ -109,6 +110,16 @@ if (options.annotationDirPath) {
 const failureSummary = await runJsonScript("scripts/summarize-failure-cases.ts", failureSummaryArgs);
 await writeFile(failureSummaryPath, JSON.stringify(failureSummary, null, 2), "utf8");
 
+const textureQualityGate =
+  options.annotationDirPath
+    ? await runJsonScript("scripts/verify-texture-quality-gate.ts", [
+        "--annotation-dir",
+        options.annotationDirPath,
+        "--output",
+        textureQualityGatePath,
+      ])
+    : null;
+
 const summary = {
   ok: firstRunRecord.decision.status === "pass",
   manifestPath: options.manifestPath,
@@ -117,14 +128,21 @@ const summary = {
   annotationDirPath: options.annotationDirPath ?? null,
   recordPath,
   failureSummaryPath,
+  textureQualityGatePath: textureQualityGate ? textureQualityGatePath : null,
   firstRunBuild,
   failureSummary,
+  textureQualityGate,
   decision: firstRunRecord.decision,
   readiness: firstRunRecord.readiness,
   nextSteps:
     firstRunRecord.decision.status === "pass"
       ? [
           "Final audit passed. Preserve this report and continue with broader product-level regression.",
+          ...(textureQualityGate && textureQualityGate.ok === false
+            ? [
+                "Texture quality gate still needs improvement: review directly usable rate and contamination rate before wider rollout.",
+              ]
+            : []),
         ]
       : firstRunRecord.decision.nextActions,
 };
