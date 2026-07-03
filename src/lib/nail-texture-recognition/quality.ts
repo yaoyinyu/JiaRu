@@ -143,7 +143,7 @@ export function rankNailTextureCandidates(
   candidates: NailTextureCandidate[],
   options: RankNailTextureCandidatesOptions
 ): NailTextureCandidate[] {
-  const maxCandidates = options.maxCandidates ?? 5;
+  const maxCandidates = options.maxCandidates ?? 10;
 
   return candidates
     .map((candidate) => {

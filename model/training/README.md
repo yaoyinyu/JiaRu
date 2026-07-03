@@ -8,6 +8,8 @@
 - `import-debug-sample.ts`：把 `NailArtPicker` 导出的修正样本 JSON 转成训练用原始标注 JSON
   - 支持单文件导入
   - 也支持 `--sample-dir + --image-dir` 批量导入
+- `prioritize-debug-samples.ts`：给 debug sample 做主动学习优先级排序
+- `run-debug-sample-active-learning-pipeline.ts`：把 priority、debug sample 导入、sources 审计、split、label convert、readiness 串成一条流水线
 - `sync-sources-csv.ts`：根据现有标注回填或修复 `metadata/sources.csv`
 - `audit-sources-csv.ts`：校验 `metadata/sources.csv` 的来源字段、路径、时间戳和负样本元数据
 - `split-dataset.ts`：按 `sourceGroup` 稳定划分 train / val / test
@@ -28,6 +30,7 @@
 2. 运行 `export-fallback-annotations.ts` 生成初始标注
 3. 人工修正 `model/datasets/nail-texture-v1/annotations/raw-json/*.json`
 4. 如果修正发生在页面交互里，可先导出修正样本 JSON，再运行 `import-debug-sample.ts`
+   - 如果想先吃高价值样本，优先走 `run-debug-sample-active-learning-pipeline.ts`
 5. 运行 `sync-sources-csv.ts` 检查并修复 `metadata/sources.csv`
 6. 运行 `audit-sources-csv.ts` 生成 `metadata/sources-audit.json`
 7. 运行 `split-dataset.ts` 生成 `metadata/split.json`
@@ -46,6 +49,8 @@ node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detectio
 node --no-warnings --experimental-strip-types model/training/export-fallback-annotations.ts --copy-image --source-group seed-batch-001 model/5188.jpg_wh860.jpg
 node --no-warnings --experimental-strip-types model/training/import-debug-sample.ts --copy-image --source-group user-corrections-001 local-debug-2026-06-30.json C:/path/to/original-image.jpg
 node --no-warnings --experimental-strip-types model/training/import-debug-sample.ts --copy-image --sample-dir C:/path/to/debug-samples --image-dir C:/path/to/original-images
+node --no-warnings --experimental-strip-types model/training/prioritize-debug-samples.ts --sample-dir C:/path/to/debug-samples --top 20
+node --no-warnings --experimental-strip-types model/training/run-debug-sample-active-learning-pipeline.ts --sample-dir C:/path/to/debug-samples --image-dir C:/path/to/original-images --copy-image --min-priority medium --top 20 --origin-type user --origin-ref "authorized debug corrections" --license "user-authorized-internal-training"
 node --no-warnings --experimental-strip-types model/training/sync-sources-csv.ts
 node --no-warnings --experimental-strip-types model/training/audit-sources-csv.ts
 node --no-warnings --experimental-strip-types model/training/split-dataset.ts
@@ -88,6 +93,10 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
 - 当前约定样本文件和图片文件使用相同 stem
 - 会自动匹配常见后缀：`.png`、`.jpg`、`.jpeg`、`.webp`
 - 例如 `batch-001.json` 可以对应 `batch-001.png` 或 `batch-001.jpg`
+- 如果已经先跑过 `prioritize-debug-samples.ts`，还可以加：
+  - `--priority-report <json>`
+  - `--min-priority <high|medium|low>`
+  - `--top <n>`
 
 后续待补：
 

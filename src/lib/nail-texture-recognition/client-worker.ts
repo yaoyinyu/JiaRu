@@ -10,6 +10,7 @@ import type {
 type PendingRequest = {
   resolve: (value: NailTextureRecognitionResult) => void;
   reject: (reason?: unknown) => void;
+  cleanupAbort?: () => void;
 };
 
 let workerInstance: Worker | null = null;
@@ -30,6 +31,18 @@ function createRequestId(): string {
   return `nail-texture-${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
+function createAbortError(): Error {
+  const error = new Error("recognition_cancelled_by_user");
+  error.name = "AbortError";
+  return error;
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) {
+    throw createAbortError();
+  }
+}
+
 function getWorkerInstance(): Worker {
   if (!workerInstance) {
     workerInstance = new Worker(
@@ -43,18 +56,21 @@ function getWorkerInstance(): Worker {
       const pending = pendingRequests.get(response.id);
       if (!pending) return;
       pendingRequests.delete(response.id);
+      pending.cleanupAbort?.();
       pending.resolve({
         candidates: response.candidates,
         backend: response.backend,
         elapsedMs: response.elapsedMs,
         warnings: response.warnings,
         modelVersion: response.modelVersion,
+        modelInfo: response.modelInfo,
       });
     };
     workerInstance.onerror = (event) => {
       const error = event.error ?? new Error(event.message || "worker_error");
       for (const [id, pending] of pendingRequests) {
         pendingRequests.delete(id);
+        pending.cleanupAbort?.();
         pending.reject(error);
       }
     };
@@ -73,6 +89,8 @@ export async function recognizeNailTexturesInWorker(
   source: ImagePixels,
   options: RecognizeNailTexturesOptions = {}
 ): Promise<NailTextureRecognitionResult> {
+  throwIfAborted(options.signal);
+
   if (!isWorkerRecognitionSupported()) {
     const result = await recognizeNailTextures(source, options);
     return {
@@ -83,15 +101,36 @@ export async function recognizeNailTexturesInWorker(
 
   const id = createRequestId();
   const imageBitmap = await sourceToImageBitmap(source);
+  throwIfAborted(options.signal);
 
   return await new Promise<NailTextureRecognitionResult>((resolve, reject) => {
     const worker = getWorkerInstance();
-    pendingRequests.set(id, { resolve, reject });
+    const cleanupAbort = (() => {
+      if (!options.signal) return undefined;
+      const onAbort = () => {
+        const pending = pendingRequests.get(id);
+        if (!pending) return;
+        pendingRequests.delete(id);
+        pending.cleanupAbort?.();
+        reject(createAbortError());
+      };
+      options.signal.addEventListener("abort", onAbort, { once: true });
+      return () => options.signal?.removeEventListener("abort", onAbort);
+    })();
+
+    pendingRequests.set(id, { resolve, reject, cleanupAbort });
+
+    if (options.signal?.aborted) {
+      pendingRequests.delete(id);
+      cleanupAbort?.();
+      reject(createAbortError());
+      return;
+    }
 
     const request: RecognizeNailTextureRequest = {
       id,
       imageBitmap,
-      maxCandidates: 5,
+      maxCandidates: Math.max(1, options.maxCandidates ?? 10),
       preferModel: options.preferModel ?? true,
       manifestUrl: options.manifestUrl,
     };

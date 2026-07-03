@@ -17,6 +17,10 @@ interface SessionLike {
   run: (feeds: Record<string, unknown>) => Promise<Record<string, unknown>>;
 }
 
+function nowMs(): number {
+  return typeof performance !== "undefined" ? performance.now() : Date.now();
+}
+
 function firstInputName(session: SessionLike): string {
   return session.inputNames?.[0] ?? "images";
 }
@@ -25,14 +29,23 @@ export async function recognizeNailTextures(
   source: ImagePixels,
   options: RecognizeNailTexturesOptions = {}
 ): Promise<NailTextureRecognitionResult> {
-  const fallback = recognizeNailTexturesWithFallback(source);
+  let fallbackCache: NailTextureRecognitionResult | null = null;
+  const getFallback = (): NailTextureRecognitionResult => {
+    fallbackCache ??= recognizeNailTexturesWithFallback(source, {
+      maxCandidates: options.maxCandidates,
+    });
+    return fallbackCache;
+  };
+
   if (!options.preferModel) {
-    return fallback;
+    return getFallback();
   }
 
+  const startedAt = nowMs();
   try {
     const runtime = await getNailTextureModelRuntime(options.manifestUrl);
     if (!runtime.available || !runtime.info) {
+      const fallback = getFallback();
       return {
         ...fallback,
         warnings: [...fallback.warnings, ...runtime.warnings],
@@ -40,6 +53,7 @@ export async function recognizeNailTextures(
     }
 
     if (!runtime.session || !runtime.ort?.Tensor) {
+      const fallback = getFallback();
       return {
         ...fallback,
         warnings: [...fallback.warnings, ...runtime.warnings, "onnx_session_or_tensor_unavailable"],
@@ -60,10 +74,14 @@ export async function recognizeNailTextures(
       : undefined;
     const candidates = postprocessNailTextureDetections(
       outputs as Record<string, ModelTensorLike>,
-      preprocess
+      preprocess,
+      {
+        maxCandidates: options.maxCandidates ?? 10,
+      }
     );
 
     if (candidates.length === 0) {
+      const fallback = getFallback();
       return {
         ...fallback,
         debugOutputs,
@@ -82,7 +100,7 @@ export async function recognizeNailTextures(
     return {
       candidates,
       backend: "model",
-      elapsedMs: fallback.elapsedMs,
+      elapsedMs: nowMs() - startedAt,
       modelVersion: runtime.info.version,
       modelInfo: runtime.info,
       warnings: runtime.warnings,
@@ -95,8 +113,9 @@ export async function recognizeNailTextures(
         scaleX: preprocess.scaleX,
         scaleY: preprocess.scaleY,
       },
-    };
+      };
   } catch (error) {
+    const fallback = getFallback();
     return {
       ...fallback,
       warnings: [

@@ -28,6 +28,7 @@ node --no-warnings --experimental-strip-types scripts/run-real-model-final-audit
 - `real-model-first-run-record.json`
 - `real-model-final-audit-report.json`
 - `failure-case-summary.json`
+- `texture-quality-gate.json`（当传入 `--annotation-dir` 时）
 - 一组 debug 图片 / JSON / 可选 dump
 
 其中 `failure-case-summary.json` 现在除了人工 `failure-classification.csv` / first-run record，也可以吸收 annotation debug 里的：
@@ -35,6 +36,24 @@ node --no-warnings --experimental-strip-types scripts/run-real-model-final-audit
 - `warnings`
 - `extractionQualityWarnings`
 - 高光热点派生信号
+
+如果传入了：
+
+```bash
+--annotation-dir model/datasets/nail-texture-v1/annotations/raw-json
+```
+
+现在除了失败归因摘要，也会额外产出：
+
+- `texture-quality-gate.json`
+
+它会把 annotation debug 里的提取质量信号进一步汇总成：
+
+- 可直接使用率
+- 污染率
+- warning breakdown
+
+并一起写回 `real-model-final-audit-report.json`。
 
 ## 作用
 

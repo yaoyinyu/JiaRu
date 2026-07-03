@@ -49,10 +49,125 @@ test("postprocessNailTextureDetections maps model rows to candidates", () => {
 
   assert.equal(candidates.length, 2);
   assert.equal(candidates[0].source, "model");
-  assert.equal(candidates[0].suggestedFinger, 1);
+  assert.equal(candidates[0].suggestedFinger, null);
   assert.ok(candidates[0].cx < candidates[1].cx);
   assert.equal(candidates[0].confidence, "high");
   assert.equal(candidates[1].confidence, "medium");
+});
+
+test("postprocessNailTextureDetections respects maxCandidates option", () => {
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 860,
+    originalHeight: 645,
+    scaleX: 860 / 640,
+    scaleY: 645 / 640,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 3, 6],
+        data: new Float32Array([
+          100, 120, 60, 100, 0.95, 0,
+          260, 140, 55, 95, 0.85, 0,
+          420, 160, 52, 92, 0.75, 0,
+        ]),
+      },
+    },
+    preprocess,
+    { maxCandidates: 2 }
+  );
+
+  assert.equal(candidates.length, 2);
+});
+
+test("postprocessNailTextureDetections defaults to keeping up to 10 candidates", () => {
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 640,
+    originalHeight: 640,
+    scaleX: 1,
+    scaleY: 1,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const rows: number[] = [];
+  for (let index = 0; index < 12; index++) {
+    rows.push(40 + index * 20, 120 + index * 5, 48, 88, 0.95 - index * 0.01, 0);
+  }
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 12, 6],
+        data: new Float32Array(rows),
+      },
+    },
+    preprocess
+  );
+
+  assert.equal(candidates.length, 10);
+});
+
+test("postprocessNailTextureDetections keeps finger suggestions null for 1 to 3 candidates", () => {
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 640,
+    originalHeight: 640,
+    scaleX: 1,
+    scaleY: 1,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 3, 6],
+        data: new Float32Array([
+          120, 120, 60, 100, 0.95, 0,
+          260, 140, 55, 95, 0.85, 0,
+          420, 160, 52, 92, 0.75, 0,
+        ]),
+      },
+    },
+    preprocess
+  );
+
+  assert.deepEqual(candidates.map((candidate) => candidate.suggestedFinger), [null, null, null]);
+});
+
+test("postprocessNailTextureDetections maps 4 candidates to index through pinky", () => {
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 640,
+    originalHeight: 640,
+    scaleX: 1,
+    scaleY: 1,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 4, 6],
+        data: new Float32Array([
+          80, 120, 60, 100, 0.98, 0,
+          180, 130, 58, 96, 0.91, 0,
+          280, 140, 55, 92, 0.84, 0,
+          380, 150, 52, 88, 0.77, 0,
+        ]),
+      },
+    },
+    preprocess
+  );
+
+  assert.deepEqual(candidates.map((candidate) => candidate.suggestedFinger), [1, 2, 3, 4]);
 });
 
 test("estimateMaskPrincipalAngle and postprocess keep a stable mask-derived angle", () => {

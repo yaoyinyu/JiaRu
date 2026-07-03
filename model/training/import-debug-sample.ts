@@ -28,6 +28,9 @@ interface CliOptions {
   imagePath?: string;
   sampleDir?: string;
   imageDir?: string;
+  priorityReportPath?: string;
+  minPriorityTier?: "high" | "medium" | "low";
+  top?: number;
   copyImage: boolean;
   sourceGroup?: string;
   outputDir: string;
@@ -36,6 +39,14 @@ interface CliOptions {
   originRef: string;
   license: string;
   notes: string;
+}
+
+interface PriorityReportLike {
+  ranked?: Array<{
+    samplePath?: string;
+    priorityTier?: "high" | "medium" | "low";
+    priorityScore?: number;
+  }>;
 }
 
 const FINGER_HINTS: FingerHint[] = [
@@ -70,6 +81,26 @@ function parseArgs(argv: string[]): CliOptions {
     }
     if (arg === "--sample-dir") {
       options.sampleDir = path.resolve(argv[++index]);
+      continue;
+    }
+    if (arg === "--priority-report") {
+      options.priorityReportPath = path.resolve(argv[++index]);
+      continue;
+    }
+    if (arg === "--min-priority") {
+      const tier = argv[++index] as CliOptions["minPriorityTier"];
+      if (tier !== "high" && tier !== "medium" && tier !== "low") {
+        throw new Error("--min-priority must be one of: high, medium, low");
+      }
+      options.minPriorityTier = tier;
+      continue;
+    }
+    if (arg === "--top") {
+      const top = Number(argv[++index]);
+      if (!Number.isInteger(top) || top <= 0) {
+        throw new Error("--top must be a positive integer");
+      }
+      options.top = top;
       continue;
     }
     if (arg === "--image-dir") {
@@ -116,8 +147,11 @@ function parseArgs(argv: string[]): CliOptions {
   }
   if (hasBatchMode && (!options.sampleDir || !options.imageDir)) {
     throw new Error(
-      "Batch usage: node --experimental-strip-types model/training/import-debug-sample.ts --sample-dir <dir> --image-dir <dir> [--copy-image] [--source-group <name>] [--origin-type <reference|web|user|merchant|negative|other>] [--origin-ref <text>] [--license <text>] [--notes <text>]"
+      "Batch usage: node --experimental-strip-types model/training/import-debug-sample.ts --sample-dir <dir> --image-dir <dir> [--priority-report <prioritized.json>] [--min-priority <high|medium|low>] [--top <n>] [--copy-image] [--source-group <name>] [--origin-type <reference|web|user|merchant|negative|other>] [--origin-ref <text>] [--license <text>] [--notes <text>]"
     );
+  }
+  if (!hasBatchMode && (options.priorityReportPath || options.minPriorityTier || options.top)) {
+    throw new Error("--priority-report, --min-priority, and --top are only supported in batch mode.");
   }
 
   return {
@@ -125,6 +159,9 @@ function parseArgs(argv: string[]): CliOptions {
     imagePath: positional[1] ? path.resolve(positional[1]) : undefined,
     sampleDir: options.sampleDir,
     imageDir: options.imageDir,
+    priorityReportPath: options.priorityReportPath,
+    minPriorityTier: options.minPriorityTier,
+    top: options.top,
     copyImage: options.copyImage ?? false,
     sourceGroup: options.sourceGroup,
     outputDir: options.outputDir!,
@@ -146,11 +183,13 @@ async function readExistingSourcesCsv(): Promise<SourceRecord[]> {
   }
 }
 
-async function listJsonFiles(dirPath: string): Promise<string[]> {
+async function listJsonFiles(dirPath: string, excludePaths: string[] = []): Promise<string[]> {
+  const excluded = new Set(excludePaths.map((item) => path.resolve(item)));
   const entries = await readdir(dirPath, { withFileTypes: true });
   return entries
     .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
-    .map((entry) => path.join(dirPath, entry.name))
+    .map((entry) => path.resolve(path.join(dirPath, entry.name)))
+    .filter((filePath) => !excluded.has(filePath))
     .sort();
 }
 
@@ -170,6 +209,25 @@ async function resolveBatchImagePath(imageDir: string, stem: string): Promise<st
   throw new Error(
     `Could not find image for sample ${stem}.json in ${imageDir}. Tried extensions: ${BATCH_IMAGE_EXTENSIONS.join(", ")}`
   );
+}
+
+function priorityTierRank(tier: "high" | "medium" | "low"): number {
+  return tier === "high" ? 3 : tier === "medium" ? 2 : 1;
+}
+
+async function loadPriorityReport(
+  filePath: string
+): Promise<Map<string, { priorityTier: "high" | "medium" | "low"; priorityScore: number }>> {
+  const report = JSON.parse(await readFile(filePath, "utf8")) as PriorityReportLike;
+  const map = new Map<string, { priorityTier: "high" | "medium" | "low"; priorityScore: number }>();
+  for (const item of report.ranked ?? []) {
+    if (!item.samplePath || !item.priorityTier) continue;
+    map.set(path.resolve(item.samplePath), {
+      priorityTier: item.priorityTier,
+      priorityScore: Number(item.priorityScore ?? 0),
+    });
+  }
+  return map;
 }
 
 function clampPoint(value: number, min: number, max: number): number {
@@ -201,12 +259,15 @@ function candidateToAnnotation(
           ? "unknown"
           : (FINGER_HINTS[candidate.assignedFinger] ?? "unknown"),
       shape: "unknown" as const,
-      quality: candidate.confidence === "high" ? 4 : 2,
+      quality: candidate.confidence === "high" ? 4 : candidate.confidence === "medium" ? 3 : 2,
       occluded: false,
       artificialTip: candidate.hasMask,
       debug:
-        candidate.warnings.length > 0 || candidate.extractionDiagnostics
+        candidate.warnings.length > 0 || candidate.extractionDiagnostics || candidate.source || candidate.confidence
           ? {
+              candidateId: candidate.id,
+              source: candidate.source,
+              confidence: candidate.confidence,
               warnings: [...candidate.warnings],
               extractionQualityOk:
                 candidate.extractionDiagnostics?.qualityOk,
@@ -243,6 +304,13 @@ function buildAnnotationDocument(
       height,
       sourceGroup,
       negative,
+      debug: {
+        detectionBackend: sample.backend,
+        modelVersion: sample.modelVersion,
+        modelBackend: sample.modelBackend,
+        elapsedMs: sample.elapsedMs,
+        warnings: [...sample.warnings],
+      },
     },
     annotations: negative
       ? []
@@ -262,16 +330,47 @@ async function main() {
 
   const pairs = options.sampleDir && options.imageDir
     ? await (async () => {
-        const sampleFiles = await listJsonFiles(options.sampleDir!);
+        const sampleFiles = await listJsonFiles(options.sampleDir!, [
+          options.priorityReportPath ?? "",
+          path.join(options.sampleDir!, "debug-sample-active-learning-pipeline-report.json"),
+        ]);
         const pairs = [];
         for (const samplePath of sampleFiles) {
           const stem = path.basename(samplePath, ".json");
           const imagePath = await resolveBatchImagePath(options.imageDir!, stem);
           pairs.push({ samplePath, imagePath });
         }
-        return pairs;
+        const priorityMap = options.priorityReportPath
+          ? await loadPriorityReport(options.priorityReportPath)
+          : null;
+        const minTierRank = options.minPriorityTier
+          ? priorityTierRank(options.minPriorityTier)
+          : null;
+        let rankedPairs = pairs.map((pair) => {
+          const priority = priorityMap?.get(path.resolve(pair.samplePath)) ?? null;
+          return {
+            ...pair,
+            priorityTier: priority?.priorityTier ?? null,
+            priorityScore: priority?.priorityScore ?? null,
+          };
+        });
+        if (minTierRank != null) {
+          rankedPairs = rankedPairs.filter((pair) => {
+            if (!pair.priorityTier) return false;
+            return priorityTierRank(pair.priorityTier) >= minTierRank;
+          });
+        }
+        rankedPairs.sort((a, b) => {
+          const scoreDelta = (b.priorityScore ?? -1) - (a.priorityScore ?? -1);
+          if (scoreDelta !== 0) return scoreDelta;
+          return a.samplePath.localeCompare(b.samplePath);
+        });
+        if (options.top) {
+          rankedPairs = rankedPairs.slice(0, options.top);
+        }
+        return rankedPairs;
       })()
-    : [{ samplePath: options.samplePath!, imagePath: options.imagePath! }];
+    : [{ samplePath: options.samplePath!, imagePath: options.imagePath!, priorityTier: null, priorityScore: null }];
 
   const outputs: Array<{
     samplePath: string;
@@ -281,6 +380,8 @@ async function main() {
     polygonCount: number;
     negative: boolean;
     sourceGroup: string;
+    priorityTier?: "high" | "medium" | "low" | null;
+    priorityScore?: number | null;
   }> = [];
 
   let sourceRecords = await readExistingSourcesCsv();
@@ -350,6 +451,8 @@ async function main() {
       polygonCount: annotation.annotations.length,
       negative: annotation.image.negative ?? false,
       sourceGroup,
+      priorityTier: pair.priorityTier,
+      priorityScore: pair.priorityScore,
     });
   }
 
@@ -361,6 +464,11 @@ async function main() {
         datasetRoot,
         imported: outputs.length,
         batchMode: Boolean(options.sampleDir && options.imageDir),
+        priorityFilters: {
+          reportPath: options.priorityReportPath ?? null,
+          minPriorityTier: options.minPriorityTier ?? null,
+          top: options.top ?? null,
+        },
         sourcesCsvPath,
         outputs,
       },

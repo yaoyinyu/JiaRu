@@ -5,24 +5,22 @@ import {
 import type {
   NailTextureCandidate,
   NailTextureRecognitionResult,
+  RecognizeNailTexturesOptions,
 } from "./types.ts";
-
-function inferSuggestedFingers(candidateCount: number): number[] {
-  if (candidateCount === 4) return [1, 2, 3, 4];
-  if (candidateCount >= 5) return [0, 1, 2, 3, 4];
-  return [1, 2, 3, 4, 0];
-}
+import { inferSuggestedFingers } from "./finger-assignment.ts";
 
 function toCandidateId(index: number): string {
   return `fallback-${index + 1}`;
 }
 
 export function recognizeNailTexturesWithFallback(
-  source: ImagePixels
+  source: ImagePixels,
+  options: Pick<RecognizeNailTexturesOptions, "maxCandidates"> = {}
 ): NailTextureRecognitionResult {
   const startedAt = performance.now();
+  const maxCandidates = Math.max(1, options.maxCandidates ?? 10);
   const regions = detectNailRegionsFromImageData(source)
-    .slice(0, 5)
+    .slice(0, maxCandidates)
     .sort((a, b) => a.cx - b.cx);
   const inferredFingers = inferSuggestedFingers(regions.length);
 

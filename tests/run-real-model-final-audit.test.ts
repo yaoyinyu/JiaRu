@@ -317,10 +317,21 @@ test("run-real-model-final-audit can include annotation debug failures in summar
       categoryCounts: Record<string, number>;
     };
     failureSummaryPath: string;
+    textureQualityGatePath: string | null;
+    textureQualityGate: {
+      ok: boolean;
+      rates: { directlyUsableRate: number | null; contaminationRate: number | null };
+    } | null;
+    nextSteps: string[];
   };
   assert.equal(summary.annotationDirPath, annotationDir);
   assert.equal(summary.failureSummary.totals.derivedAnnotationFailures, 3);
   assert.equal(summary.failureSummary.categoryCounts.postprocess, 3);
+  assert.equal(summary.textureQualityGatePath, path.join(outputDir, "texture-quality-gate.json"));
+  assert.equal(summary.textureQualityGate?.ok, false);
+  assert.equal(summary.textureQualityGate?.rates.directlyUsableRate, 0);
+  assert.equal(summary.textureQualityGate?.rates.contaminationRate, 0);
+  assert.ok(summary.nextSteps.some((item) => item.includes("Texture quality gate still needs improvement")));
 
   const persisted = JSON.parse(await readFile(summary.failureSummaryPath, "utf8")) as {
     totals: { derivedAnnotationFailures: number };
@@ -335,4 +346,13 @@ test("run-real-model-final-audit can include annotation debug failures in summar
     persisted.derivedAnnotationBreakdown.subcategoryCounts["postprocess/mask_crop_touches_edge"],
     1
   );
+
+  const persistedTextureGate = JSON.parse(
+    await readFile(summary.textureQualityGatePath!, "utf8")
+  ) as {
+    ok: boolean;
+    rates: { directlyUsableRate: number | null; contaminationRate: number | null };
+  };
+  assert.equal(persistedTextureGate.ok, false);
+  assert.equal(persistedTextureGate.rates.directlyUsableRate, 0);
 });

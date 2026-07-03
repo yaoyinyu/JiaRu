@@ -23,6 +23,16 @@ interface PipelineReportLike {
         csvRows?: number;
       };
     } | null;
+    finalAuditTextureQualityGate?: {
+      ok?: boolean;
+      directlyUsableCount?: number;
+      directlyUsableRate?: number;
+      contaminatedCount?: number;
+      contaminationRate?: number;
+      warningBreakdown?: Record<string, number>;
+      warnings?: string[];
+      nextSteps?: string[];
+    } | null;
   };
   steps?: Array<{ name?: string; ok?: boolean }>;
 }
@@ -125,6 +135,10 @@ function buildDecision(
   const postprocessFailures = Number(
     pipeline.artifacts?.finalAuditFailureSummary?.categoryCounts?.postprocess ?? 0
   );
+  const textureQualityGate = pipeline.artifacts?.finalAuditTextureQualityGate ?? null;
+  const textureQualityGateOk = textureQualityGate?.ok ?? null;
+  const directlyUsableRate = textureQualityGate?.directlyUsableRate ?? null;
+  const contaminationRate = textureQualityGate?.contaminationRate ?? null;
   if (derivedAnnotationFailures > 0 || postprocessFailures > 0) {
     reasons.push(
       `final audit still reports ${postprocessFailures} postprocess failures and ${derivedAnnotationFailures} derived annotation failures`
@@ -132,6 +146,19 @@ function buildDecision(
     if (finalAuditStatus === "pass" && pipeline.ok && (!compare || compare.ok)) {
       nextActions.push("Candidate is functional, but inspect failure summary before promoting as the new default.");
     }
+  }
+
+  if (textureQualityGateOk === false) {
+    const usableRateText =
+      typeof directlyUsableRate === "number" ? directlyUsableRate.toFixed(3) : "unknown";
+    const contaminationRateText =
+      typeof contaminationRate === "number" ? contaminationRate.toFixed(3) : "unknown";
+    reasons.push(
+      `texture quality gate failed (directly usable rate ${usableRateText}, contamination rate ${contaminationRateText})`
+    );
+    nextActions.push(
+      "Review low-quality texture crops before promotion and improve directly usable coverage or reduce contamination."
+    );
   }
 
   if (!pipeline.ok || finalAuditStatus === "blocked" || (compare && !compare.ok)) {
@@ -187,12 +214,16 @@ const summary = {
     derivedAnnotationFailures:
       pipeline.artifacts?.finalAuditFailureSummary?.totals?.derivedAnnotationFailures ?? 0,
     postprocessFailures: pipeline.artifacts?.finalAuditFailureSummary?.categoryCounts?.postprocess ?? 0,
+    textureQualityGateOk: pipeline.artifacts?.finalAuditTextureQualityGate?.ok ?? null,
+    directlyUsableRate: pipeline.artifacts?.finalAuditTextureQualityGate?.directlyUsableRate ?? null,
+    contaminationRate: pipeline.artifacts?.finalAuditTextureQualityGate?.contaminationRate ?? null,
   },
   artifacts: {
     manifest,
     metrics: pipeline.artifacts?.metrics ?? null,
     finalAudit: pipeline.artifacts?.finalAudit ?? null,
     finalAuditFailureSummary: pipeline.artifacts?.finalAuditFailureSummary ?? null,
+    finalAuditTextureQualityGate: pipeline.artifacts?.finalAuditTextureQualityGate ?? null,
     compareSummary: compare,
     registry,
   },

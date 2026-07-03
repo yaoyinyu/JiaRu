@@ -1,3 +1,9 @@
+﻿import type {
+  NailTextureCandidateConfidence,
+  NailTextureCandidateSource,
+  NailTextureModelBackend,
+} from "./nail-texture-recognition/types.ts";
+
 export interface NailDebugSampleCandidate {
   id: string;
   cx: number;
@@ -6,7 +12,8 @@ export interface NailDebugSampleCandidate {
   length: number;
   width: number;
   assignedFinger: number | null;
-  confidence: "high" | "low";
+  confidence: NailTextureCandidateConfidence;
+  source: NailTextureCandidateSource;
   hasMask: boolean;
   warnings: string[];
   extractionDiagnostics?: {
@@ -21,6 +28,8 @@ export interface NailDebugSampleCandidate {
 export interface NailDebugSampleDetectionSummary {
   backend: "model" | "fallback";
   modelVersion?: string;
+  modelBackend?: NailTextureModelBackend;
+  elapsedMs?: number;
   warnings: string[];
 }
 
@@ -33,6 +42,8 @@ export interface NailDebugSampleRecord {
   };
   backend: "model" | "fallback";
   modelVersion: string;
+  modelBackend?: NailTextureModelBackend;
+  elapsedMs: number;
   warnings: string[];
   originalCandidates: NailDebugSampleCandidate[];
   correctedCandidates: NailDebugSampleCandidate[];
@@ -47,7 +58,8 @@ export interface NailDebugSampleRegionLike {
   nl: number;
   nw: number;
   assignedFinger: number | null;
-  confidence?: "high" | "low";
+  confidence?: NailTextureCandidateConfidence;
+  source?: NailTextureCandidateSource;
   mask?: unknown;
   warnings?: string[];
   extractionDiagnostics?: {
@@ -75,6 +87,7 @@ export function toNailDebugSampleCandidate(
     width: region.nw,
     assignedFinger: region.assignedFinger,
     confidence: region.confidence ?? "low",
+    source: region.source ?? "manual",
     hasMask: Boolean(region.mask),
     warnings: [...(region.warnings ?? [])],
     extractionDiagnostics: region.extractionDiagnostics
@@ -112,6 +125,8 @@ export function createLocalNailDebugSample(args: {
     modelVersion:
       summary?.modelVersion ??
       (summary?.backend === "model" ? "model-unknown" : "fallback-v0"),
+    modelBackend: summary?.modelBackend,
+    elapsedMs: summary?.elapsedMs ?? 0,
     warnings: summary?.warnings ?? [],
     originalCandidates: args.originalRegions.map(toNailDebugSampleCandidate),
     correctedCandidates: args.correctedRegions.map(toNailDebugSampleCandidate),

@@ -41,7 +41,13 @@ test("verify-browser-integration passes with healthy artifact and contract files
     pickerPath,
     `
       const result = await recognizeNailTexturesInWorker({}, { preferModel: true });
-      const summary = { backend: result.backend, modelVersion: result.modelVersion, warnings: result.warnings };
+      const summary = {
+        backend: result.backend,
+        modelVersion: result.modelVersion,
+        modelBackend: result.modelInfo?.backend,
+        elapsedMs: result.elapsedMs,
+        warnings: result.warnings
+      };
     `,
     "utf8"
   );
@@ -56,7 +62,8 @@ test("verify-browser-integration passes with healthy artifact and contract files
   await writeFile(
     workerPath,
     `
-      await recognizeNailTextures({}, { manifestUrl: request.manifestUrl });
+      const result = await recognizeNailTextures({}, { manifestUrl: request.manifestUrl });
+      const response = { modelInfo: result.modelInfo };
       self.postMessage(response);
     `,
     "utf8"

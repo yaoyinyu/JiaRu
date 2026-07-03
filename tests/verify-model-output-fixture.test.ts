@@ -37,7 +37,7 @@ test("verify-model-output-fixture validates offline postprocess assumptions", as
   assert.equal(summary.ok, true);
   assert.equal(summary.candidateCount, 2);
   assert.deepEqual(summary.failures, []);
-  assert.equal(summary.candidates[0].suggestedFinger, 1);
+  assert.equal(summary.candidates[0].suggestedFinger, null);
   assert.equal(summary.candidates[0].hasMask, true);
   assert.equal(summary.candidates[1].hasMask, true);
   assert.deepEqual(

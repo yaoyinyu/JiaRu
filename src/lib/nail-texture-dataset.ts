@@ -1,6 +1,11 @@
 import { createHash } from "node:crypto";
 import { readFile } from "node:fs/promises";
-import type { NailTextureCandidate } from "./nail-texture-recognition/types.ts";
+import type {
+  NailTextureCandidate,
+  NailTextureCandidateConfidence,
+  NailTextureCandidateSource,
+  NailTextureModelBackend,
+} from "./nail-texture-recognition/types.ts";
 
 export const NAIL_TEXTURE_DATASET_VERSION = "nail-texture-dataset/v1";
 
@@ -36,6 +41,9 @@ export interface NailTexturePolygonAnnotation {
     occluded?: boolean;
     artificialTip?: boolean;
     debug?: {
+      candidateId?: string;
+      source?: NailTextureCandidateSource;
+      confidence?: NailTextureCandidateConfidence;
       warnings?: string[];
       extractionQualityOk?: boolean;
       extractionQualityWarnings?: string[];
@@ -55,6 +63,13 @@ export interface NailTextureAnnotationDocument {
     height: number;
     sourceGroup?: string;
     negative?: boolean;
+    debug?: {
+      detectionBackend?: "model" | "fallback";
+      modelVersion?: string;
+      modelBackend?: NailTextureModelBackend;
+      elapsedMs?: number;
+      warnings?: string[];
+    };
   };
   annotations: NailTexturePolygonAnnotation[];
 }

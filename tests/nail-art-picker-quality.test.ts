@@ -21,6 +21,7 @@ test("presentRecognitionWarning maps known runtime warnings to readable text", (
 
 test("regionNeedsReview becomes true for low confidence warnings or extraction quality failures", () => {
   assert.equal(regionNeedsReview({ confidence: "high" }), false);
+  assert.equal(regionNeedsReview({ confidence: "medium" }), false);
   assert.equal(regionNeedsReview({ confidence: "low" }), true);
   assert.equal(regionNeedsReview({ confidence: "high", warnings: ["highlight_hotspots"] }), true);
   assert.equal(
@@ -40,6 +41,16 @@ test("regionNeedsReview becomes true for low confidence warnings or extraction q
     }),
     true
   );
+});
+
+test("summarizeRegionQuality keeps medium confidence distinct from low confidence", () => {
+  const summary = summarizeRegionQuality({
+    confidence: "medium",
+    warnings: [],
+  });
+
+  assert.equal(summary.severity, "ok");
+  assert.equal(summary.messages.length, 0);
 });
 
 test("summarizeRegionQuality dedupes user-facing review messages", () => {

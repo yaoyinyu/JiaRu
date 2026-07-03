@@ -43,6 +43,15 @@ export type {
   NailDebugComparisonResult,
 } from "./debug-compare.ts";
 export {
+  assessDebugSamplePriority,
+} from "../nail-texture-debug-priority.ts";
+export type {
+  DebugSamplePriorityAssessment,
+  DebugSamplePriorityReason,
+  DebugSamplePrioritySummary,
+  DebugSamplePriorityTier,
+} from "../nail-texture-debug-priority.ts";
+export {
   buildFeatheredAlphaMask,
   extractTextureFromMaskDetailed,
   extractTextureFromMask,
@@ -57,6 +66,9 @@ export type {
   TextureExtractionDiagnostics,
   TextureHighlightRepairSummary,
 } from "./extract-mask-texture.ts";
+export {
+  inferSuggestedFingers,
+} from "./finger-assignment.ts";
 export {
   estimateMaskPrincipalAngle,
   postprocessNailTextureDetections,
