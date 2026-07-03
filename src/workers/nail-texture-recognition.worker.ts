@@ -28,6 +28,7 @@ self.onmessage = async (event: MessageEvent<RecognizeNailTextureRequest>) => {
       {
         preferModel: request.preferModel,
         manifestUrl: request.manifestUrl,
+        maxCandidates: request.maxCandidates,
       }
     );
 
@@ -38,6 +39,7 @@ self.onmessage = async (event: MessageEvent<RecognizeNailTextureRequest>) => {
       elapsedMs: result.elapsedMs,
       warnings: result.warnings,
       modelVersion: result.modelVersion,
+      modelInfo: result.modelInfo,
     };
     self.postMessage(response);
   } catch (error) {

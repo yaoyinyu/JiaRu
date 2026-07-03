@@ -41,6 +41,7 @@ interface CliOptions {
   governanceReviewedBatchImportPipelineReport?: string;
   governanceReviewedBatchRootDir?: string;
   governanceReviewedBatchReleaseHandoff?: string;
+  governanceActiveLearningHandoff?: string;
   governanceHistoryManifest?: string;
   governanceAllowManualReview: boolean;
   governanceSetCurrent: boolean;
@@ -170,6 +171,9 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--governance-reviewed-batch-release-handoff") {
       options.governanceReviewedBatchReleaseHandoff = path.resolve(argv[++index]);
     }
+    else if (arg === "--governance-active-learning-handoff") {
+      options.governanceActiveLearningHandoff = path.resolve(argv[++index]);
+    }
     else if (arg === "--governance-history-manifest") {
       explicit.governanceHistoryManifest = true;
       options.governanceHistoryManifest = path.resolve(argv[++index]);
@@ -185,7 +189,7 @@ function parseArgs(argv: string[]): CliOptions {
     }
     else {
       throw new Error(
-        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
+        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
       );
     }
   }
@@ -279,12 +283,14 @@ async function resolveGovernanceContext(options: CliOptions): Promise<{
   reviewedBatchImportPipelineReportPath: string | null;
   reviewedBatchReleaseHandoffPath: string | null;
   reviewedBatchRootDir: string | null;
+  activeLearningHandoffPath: string | null;
 }> {
   let releaseTraceDraftPath = options.governanceReleaseTraceDraft ?? null;
   let reviewedBatchImportPipelineReportPath =
     options.governanceReviewedBatchImportPipelineReport ?? null;
   let reviewedBatchReleaseHandoffPath = options.governanceReviewedBatchReleaseHandoff ?? null;
   let reviewedBatchRootDir = options.governanceReviewedBatchRootDir ?? null;
+  let activeLearningHandoffPath = options.governanceActiveLearningHandoff ?? null;
 
   if (reviewedBatchReleaseHandoffPath) {
     const handoff = (await readJsonIfExists(reviewedBatchReleaseHandoffPath)) as
@@ -307,6 +313,21 @@ async function resolveGovernanceContext(options: CliOptions): Promise<{
     reviewedBatchImportPipelineReportPath =
       reviewedBatchImportPipelineReportPath ??
       handoff?.governanceHints?.reviewedBatchImportPipelineReportPath ??
+      null;
+  }
+
+  if (activeLearningHandoffPath) {
+    const handoff = (await readJsonIfExists(activeLearningHandoffPath)) as
+      | {
+          governanceHints?: {
+            activeLearningPipelineReportPath?: string | null;
+            activeLearningReleaseTraceDraftPath?: string | null;
+          };
+        }
+      | null;
+    releaseTraceDraftPath =
+      releaseTraceDraftPath ??
+      handoff?.governanceHints?.activeLearningReleaseTraceDraftPath ??
       null;
   }
 
@@ -365,6 +386,7 @@ async function resolveGovernanceContext(options: CliOptions): Promise<{
     reviewedBatchImportPipelineReportPath,
     reviewedBatchReleaseHandoffPath,
     reviewedBatchRootDir,
+    activeLearningHandoffPath,
   };
 }
 
@@ -613,6 +635,7 @@ async function finish(
       governanceReviewedBatchRootDir: governanceContext.reviewedBatchRootDir,
       governanceReviewedBatchReleaseHandoff:
         governanceContext.reviewedBatchReleaseHandoffPath,
+      governanceActiveLearningHandoff: governanceContext.activeLearningHandoffPath,
       governanceHistoryManifest: options.governanceHistoryManifest ?? null,
       governanceAllowManualReview: options.governanceAllowManualReview,
       governanceSetCurrent: options.governanceSetCurrent,
@@ -633,6 +656,12 @@ async function finish(
         path.join(
           options.finalAuditOutputDir ?? path.join(options.trainOutputDir, "real-model-final-audit"),
           "failure-case-summary.json"
+        )
+      ),
+      finalAuditTextureQualityGate: await readJsonIfExists(
+        path.join(
+          options.finalAuditOutputDir ?? path.join(options.trainOutputDir, "real-model-final-audit"),
+          "texture-quality-gate.json"
         )
       ),
       releaseGovernance: await readJsonIfExists(governanceReportPath),

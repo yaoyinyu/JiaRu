@@ -110,7 +110,16 @@ const contractChecks = [
   },
   {
     name: "picker_surfaces_detection_summary",
-    ok: hasAll(pickerSource, [/backend:\s*result\.backend/, /modelVersion:\s*result\.modelVersion/, /warnings:\s*result\.warnings/]),
+    ok: hasAll(
+      pickerSource,
+      [
+        /backend:\s*result\.backend/,
+        /modelVersion:\s*result\.modelVersion/,
+        /modelBackend:\s*result\.modelInfo\?\.backend/,
+        /elapsedMs:\s*result\.elapsedMs/,
+        /warnings:\s*result\.warnings/,
+      ]
+    ),
   },
   {
     name: "client_worker_passes_manifest_and_prefer_model",
@@ -118,7 +127,15 @@ const contractChecks = [
   },
   {
     name: "worker_calls_recognition_and_posts_response",
-    ok: hasAll(workerSource, [/recognizeNailTextures\(/, /self\.postMessage\(response\)/, /manifestUrl:\s*request\.manifestUrl/]),
+    ok: hasAll(
+      workerSource,
+      [
+        /recognizeNailTextures\(/,
+        /self\.postMessage\(response\)/,
+        /manifestUrl:\s*request\.manifestUrl/,
+        /modelInfo:\s*result\.modelInfo/,
+      ]
+    ),
   },
   {
     name: "runtime_loads_manifest_and_selects_execution_provider",

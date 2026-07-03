@@ -51,8 +51,8 @@ declare global {
   }
 }
 
-let manifestCache: Promise<NailTextureModelManifest> | null = null;
-let runtimeCache: Promise<NailTextureModelRuntime> | null = null;
+const manifestCache = new Map<string, Promise<NailTextureModelManifest>>();
+const runtimeCache = new Map<string, Promise<NailTextureModelRuntime>>();
 
 function runtimeImport(specifier: string): Promise<unknown> {
   const dynamicImport = new Function(
@@ -137,23 +137,28 @@ export function getSessionIoNames(session: unknown): {
 export async function loadNailTextureModelManifest(
   manifestUrl = "/models/nail-texture-seg/manifest.json"
 ): Promise<NailTextureModelManifest> {
-  if (!manifestCache) {
-    manifestCache = (async () => {
+  const cacheKey = manifestUrl;
+  let cached = manifestCache.get(cacheKey);
+  if (!cached) {
+    cached = (async () => {
       const response = await fetch(manifestUrl, { cache: "force-cache" });
       if (!response.ok) {
         throw new Error(`Failed to load nail texture manifest: ${response.status}`);
       }
       return (await response.json()) as NailTextureModelManifest;
     })();
+    manifestCache.set(cacheKey, cached);
   }
-  return manifestCache;
+  return cached;
 }
 
 export async function getNailTextureModelRuntime(
   manifestUrl = "/models/nail-texture-seg/manifest.json"
 ): Promise<NailTextureModelRuntime> {
-  if (!runtimeCache) {
-    runtimeCache = (async () => {
+  const cacheKey = manifestUrl;
+  let cached = runtimeCache.get(cacheKey);
+  if (!cached) {
+    cached = (async () => {
       if (typeof window === "undefined") {
         return {
           available: false,
@@ -213,11 +218,12 @@ export async function getNailTextureModelRuntime(
       }
 
     })();
+    runtimeCache.set(cacheKey, cached);
   }
-  return runtimeCache;
+  return cached;
 }
 
 export function resetNailTextureModelRuntimeCache(): void {
-  manifestCache = null;
-  runtimeCache = null;
+  manifestCache.clear();
+  runtimeCache.clear();
 }

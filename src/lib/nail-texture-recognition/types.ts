@@ -69,8 +69,10 @@ export interface NailTextureRecognitionResult {
 export interface RecognizeNailTexturesOptions {
   preferModel?: boolean;
   manifestUrl?: string;
+  maxCandidates?: number;
   debugOutputs?: boolean;
   debugRawModelOutputs?: boolean;
+  signal?: AbortSignal;
 }
 
 export interface RecognizeNailTextureRequest {
@@ -88,6 +90,7 @@ export interface RecognizeNailTextureResponse {
   elapsedMs: number;
   warnings: string[];
   modelVersion?: string;
+  modelInfo?: NailTextureModelInfo;
 }
 
 export interface NailTextureModelManifest {

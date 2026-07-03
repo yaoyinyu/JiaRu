@@ -1,4 +1,4 @@
-import path from "node:path";
+﻿import path from "node:path";
 import process from "node:process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
@@ -24,6 +24,36 @@ interface ReleaseTraceDraftLike {
     datasetRoot?: string | null;
     reviewedImportReportPath?: string | null;
     importedFileCount?: number;
+  } | null;
+  activeLearning?: {
+    pipelineReportPath?: string | null;
+    sampleDir?: string | null;
+    imageDir?: string | null;
+    priorityReportPath?: string | null;
+    priorityFilters?: {
+      reportPath?: string | null;
+      minPriorityTier?: string | null;
+      top?: number | null;
+    } | null;
+    importedSampleCount?: number;
+    importedByPriority?: Record<string, number>;
+    importedSamples?: Array<{
+      samplePath?: string | null;
+      priorityTier?: string | null;
+      priorityScore?: number | null;
+    }>;
+    prioritySummary?: {
+      backendBreakdown?: Record<string, number> | null;
+      modelBackendBreakdown?: Record<string, number> | null;
+      correctedCandidateSourceBreakdown?: Record<string, number> | null;
+      reasonBreakdown?: Record<string, number> | null;
+    } | null;
+    readinessSnapshot?: {
+      reportPath?: string | null;
+      imageCountGate?: { ok?: boolean; actual?: number; required?: number } | null;
+      validMaskCountGate?: { ok?: boolean; actual?: number; required?: number } | null;
+      totals?: { images?: number; validMasks?: number } | null;
+    } | null;
   } | null;
 }
 
@@ -259,6 +289,19 @@ const summary = {
           0,
       }
     : null,
+  activeLearning: releaseTraceDraft?.activeLearning
+    ? {
+        pipelineReportPath: releaseTraceDraft.activeLearning.pipelineReportPath ?? null,
+        sampleDir: releaseTraceDraft.activeLearning.sampleDir ?? null,
+        imageDir: releaseTraceDraft.activeLearning.imageDir ?? null,
+        priorityReportPath: releaseTraceDraft.activeLearning.priorityReportPath ?? null,
+        priorityFilters: releaseTraceDraft.activeLearning.priorityFilters ?? null,
+        importedSampleCount: releaseTraceDraft.activeLearning.importedSampleCount ?? 0,
+        importedByPriority: releaseTraceDraft.activeLearning.importedByPriority ?? null,
+        prioritySummary: releaseTraceDraft.activeLearning.prioritySummary ?? null,
+        readinessSnapshot: releaseTraceDraft.activeLearning.readinessSnapshot ?? null,
+      }
+    : null,
   release: {
     trainingReleasePipelineReportPath: options.trainingReleasePipelineReportPath,
     manifestPath: trainingReleasePipelineReport.paths?.manifestPath ?? null,
@@ -338,3 +381,5 @@ const summary = {
 await mkdir(path.dirname(options.outputPath), { recursive: true });
 await writeFile(options.outputPath, JSON.stringify(summary, null, 2), "utf8");
 console.log(JSON.stringify(summary, null, 2));
+
+

@@ -30,6 +30,16 @@ test("build-release-decision-report approves candidate when pipeline and compare
             totals: { derivedAnnotationFailures: 0, inferredRecordFailure: 0, csvRows: 0 },
             categoryCounts: {},
           },
+          finalAuditTextureQualityGate: {
+            ok: true,
+            directlyUsableCount: 19,
+            directlyUsableRate: 0.95,
+            contaminatedCount: 1,
+            contaminationRate: 0.05,
+            warningBreakdown: {},
+            warnings: [],
+            nextSteps: [],
+          },
         },
       },
       null,
@@ -94,6 +104,98 @@ test("build-release-decision-report approves candidate when pipeline and compare
   assert.equal(report.decision.status, "approve_candidate");
   assert.equal(report.registryCurrentVersion, "nail-texture-seg-v1");
   assert.equal(report.candidateVersion, "nail-texture-seg-v2");
+});
+
+test("build-release-decision-report requires manual review when texture quality gate fails despite passing core gates", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-decision-texture-gate-"));
+  const reportsDir = path.join(root, "reports");
+  await mkdir(reportsDir, { recursive: true });
+
+  const pipelineReportPath = path.join(reportsDir, "training-release-pipeline-report.json");
+  await writeFile(
+    pipelineReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        artifacts: {
+          manifest: { version: "nail-texture-seg-v3", modelFile: "nail-texture-seg-v3.onnx" },
+          metrics: { seg_map50: 0.82, box_map50: 0.91 },
+          finalAudit: {
+            ok: true,
+            decision: { status: "pass", summary: "all good", nextActions: [] },
+          },
+          finalAuditFailureSummary: {
+            totals: { derivedAnnotationFailures: 0, inferredRecordFailure: 0, csvRows: 0 },
+            categoryCounts: {},
+          },
+          finalAuditTextureQualityGate: {
+            ok: false,
+            directlyUsableCount: 13,
+            directlyUsableRate: 0.65,
+            contaminatedCount: 6,
+            contaminationRate: 0.3,
+            warningBreakdown: { dirty_mask_crop: 6 },
+            warnings: ["texture quality gate failed"],
+            nextSteps: ["review low-quality texture crops"],
+          },
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const compareSummaryPath = path.join(reportsDir, "compare-summary.json");
+  await writeFile(
+    compareSummaryPath,
+    JSON.stringify(
+      {
+        ok: true,
+        regressions: [],
+        improvements: ["seg_map50 improved by 0.02"],
+        warnings: [],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/build-release-decision-report.ts",
+      "--pipeline-report",
+      pipelineReportPath,
+      "--compare-summary",
+      compareSummaryPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    decision: { status: string; reasons: string[]; nextActions: string[] };
+    inputs: {
+      textureQualityGateOk: boolean | null;
+      directlyUsableRate: number | null;
+      contaminationRate: number | null;
+    };
+    artifacts: {
+      finalAuditTextureQualityGate: { contaminatedCount: number } | null;
+    };
+  };
+  assert.equal(report.ok, true);
+  assert.equal(report.decision.status, "manual_review");
+  assert.equal(report.inputs.textureQualityGateOk, false);
+  assert.equal(report.inputs.directlyUsableRate, 0.65);
+  assert.equal(report.inputs.contaminationRate, 0.3);
+  assert.equal(report.artifacts.finalAuditTextureQualityGate?.contaminatedCount, 6);
+  assert.ok(report.decision.reasons.some((item) => item.includes("texture quality gate failed")));
+  assert.ok(report.decision.nextActions.some((item) => item.includes("low-quality texture crops")));
 });
 
 test("build-release-decision-report holds candidate when compare regresses or final audit is blocked", async () => {

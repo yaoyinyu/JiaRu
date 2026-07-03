@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createLocalNailDebugSample,
@@ -15,7 +15,8 @@ test("toNailDebugSampleCandidate maps editable region to export shape", () => {
     nl: 80,
     nw: 40,
     assignedFinger: 2,
-    confidence: "high",
+    confidence: "medium",
+    source: "model",
     mask: { width: 4, height: 4 },
     warnings: ["highlight_hotspots"],
     extractionDiagnostics: {
@@ -39,7 +40,8 @@ test("toNailDebugSampleCandidate maps editable region to export shape", () => {
     length: 80,
     width: 40,
     assignedFinger: 2,
-    confidence: "high",
+    confidence: "medium",
+    source: "model",
     hasMask: true,
     warnings: ["highlight_hotspots"],
     extractionDiagnostics: {
@@ -52,7 +54,64 @@ test("toNailDebugSampleCandidate maps editable region to export shape", () => {
   });
 });
 
-test("createLocalNailDebugSample falls back to fallback-v0 and preserves candidates", () => {
+test("createLocalNailDebugSample preserves source and runtime summary metadata", () => {
+  const record = createLocalNailDebugSample({
+    imageUrl: "blob:demo",
+    imageWidth: 860,
+    imageHeight: 573,
+    detectionSummary: {
+      backend: "model",
+      modelVersion: "nail-texture-seg-v2",
+      modelBackend: "webgpu",
+      elapsedMs: 184.2,
+      warnings: ["candidate_count_capped"],
+    },
+    originalRegions: [
+      {
+        id: "a",
+        cx: 10,
+        cy: 20,
+        angle: 0,
+        nl: 30,
+        nw: 12,
+        assignedFinger: null,
+        confidence: "low",
+        source: "saliency",
+      },
+    ],
+    correctedRegions: [
+      {
+        id: "b",
+        cx: 11,
+        cy: 21,
+        angle: 0.1,
+        nl: 32,
+        nw: 13,
+        assignedFinger: 1,
+        confidence: "medium",
+        source: "manual",
+      },
+    ],
+    createdAt: "2026-06-30T12:34:56.000Z",
+  });
+
+  assert.equal(record.backend, "model");
+  assert.equal(record.modelVersion, "nail-texture-seg-v2");
+  assert.equal(record.modelBackend, "webgpu");
+  assert.equal(record.elapsedMs, 184.2);
+  assert.deepEqual(record.warnings, ["candidate_count_capped"]);
+  assert.equal(record.imageId, "local-debug-2026-06-30T12-34-56.000Z");
+  assert.deepEqual(record.image, {
+    width: 860,
+    height: 573,
+  });
+  assert.equal(record.originalCandidates[0].source, "saliency");
+  assert.equal(record.correctedCandidates[0].source, "manual");
+  assert.equal(record.correctedCandidates[0].confidence, "medium");
+  assert.equal(createNailDebugSampleFilename(record), "local-debug-2026-06-30T12-34-56.000Z.json");
+});
+
+test("createLocalNailDebugSample defaults missing region source to manual and fallback metadata", () => {
   const record = createLocalNailDebugSample({
     imageUrl: "blob:demo",
     imageWidth: 860,
@@ -69,30 +128,12 @@ test("createLocalNailDebugSample falls back to fallback-v0 and preserves candida
         assignedFinger: null,
       },
     ],
-    correctedRegions: [
-      {
-        id: "a",
-        cx: 11,
-        cy: 21,
-        angle: 0.1,
-        nl: 32,
-        nw: 13,
-        assignedFinger: 1,
-        confidence: "low",
-      },
-    ],
+    correctedRegions: [],
     createdAt: "2026-06-30T12:34:56.000Z",
   });
 
   assert.equal(record.backend, "fallback");
   assert.equal(record.modelVersion, "fallback-v0");
-  assert.equal(record.imageId, "local-debug-2026-06-30T12-34-56.000Z");
-  assert.deepEqual(record.image, {
-    width: 860,
-    height: 573,
-  });
-  assert.equal(record.originalCandidates.length, 1);
-  assert.equal(record.correctedCandidates[0].assignedFinger, 1);
-  assert.deepEqual(record.correctedCandidates[0].warnings, []);
-  assert.equal(createNailDebugSampleFilename(record), "local-debug-2026-06-30T12-34-56.000Z.json");
+  assert.equal(record.elapsedMs, 0);
+  assert.equal(record.originalCandidates[0].source, "manual");
 });

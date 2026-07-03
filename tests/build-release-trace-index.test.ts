@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -283,3 +283,122 @@ test("build-release-trace-index can upgrade an initial draft into a formal trace
   assert.equal(summary.batch?.releaseTraceDraftPath, releaseTraceDraftPath);
   assert.equal(summary.links.sourceGroupToCandidateVersion, "seed-batch-003 -> nail-texture-seg-v3");
 });
+
+test("build-release-trace-index preserves active learning trace details from release trace draft", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-trace-index-active-learning-"));
+  const reportsDir = path.join(root, "reports");
+  await mkdir(reportsDir, { recursive: true });
+
+  const releaseTraceDraftPath = path.join(reportsDir, "active-learning-release-trace-draft.json");
+  await writeFile(
+    releaseTraceDraftPath,
+    JSON.stringify(
+      {
+        draft: true,
+        activeLearning: {
+          pipelineReportPath: "C:/tmp/debug-sample-active-learning-pipeline-report.json",
+          sampleDir: "C:/tmp/debug-samples",
+          imageDir: "C:/tmp/debug-images",
+          priorityReportPath: "C:/tmp/prioritized-debug-samples.json",
+          priorityFilters: {
+            reportPath: "C:/tmp/prioritized-debug-samples.json",
+            minPriorityTier: "medium",
+            top: 20,
+          },
+          importedSampleCount: 5,
+          importedByPriority: {
+            high: 3,
+            medium: 2,
+            low: 0,
+            unknown: 0,
+          },
+          prioritySummary: {
+            backendBreakdown: { fallback: 4, model: 1 },
+            modelBackendBreakdown: { fallback: 4, wasm: 1 },
+            correctedCandidateSourceBreakdown: { manual: 3, model: 2 },
+            reasonBreakdown: { manual_candidate_added: 3, high_confidence_deleted: 1 },
+          },
+          readinessSnapshot: {
+            reportPath: "C:/tmp/phase1-readiness.json",
+            imageCountGate: { ok: false, actual: 25, required: 200 },
+            validMaskCountGate: { ok: false, actual: 90, required: 800 },
+            totals: { images: 25, validMasks: 90 },
+          },
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const trainingReleasePipelineReportPath = path.join(
+    reportsDir,
+    "training-release-pipeline-report.json"
+  );
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        paths: {
+          manifestPath: "C:/tmp/public/models/nail-texture-seg/manifest.json",
+          metricsPath: "C:/tmp/model/exports/nail-texture-seg-v4/metrics.json",
+          trainOutputDir: "C:/tmp/model/exports/nail-texture-seg-v4",
+        },
+        artifacts: {
+          manifest: { version: "nail-texture-seg-v4", modelFile: "nail-texture-seg-v4.onnx" },
+          finalAudit: { decision: { status: "pass", summary: "ok" } },
+          finalAuditFailureSummary: {
+            totals: { derivedAnnotationFailures: 0 },
+            categoryCounts: { postprocess: 0 },
+          },
+        },
+        steps: [],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/build-release-trace-index.ts",
+      "--release-trace-draft",
+      releaseTraceDraftPath,
+      "--training-release-pipeline-report",
+      trainingReleasePipelineReportPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    candidateVersion: string | null;
+    activeLearning: {
+      importedSampleCount: number;
+      importedByPriority: { high: number; medium: number };
+      prioritySummary: { backendBreakdown: Record<string, number> } | null;
+      priorityFilters: { minPriorityTier: string | null; top: number | null } | null;
+      readinessSnapshot: { totals: { images: number; validMasks: number } | null } | null;
+    } | null;
+  };
+
+  assert.equal(summary.candidateVersion, "nail-texture-seg-v4");
+  assert.equal(summary.activeLearning?.importedSampleCount, 5);
+  assert.equal(summary.activeLearning?.importedByPriority.high, 3);
+  assert.equal(summary.activeLearning?.importedByPriority.medium, 2);
+  assert.deepEqual(summary.activeLearning?.prioritySummary?.backendBreakdown, {
+    fallback: 4,
+    model: 1,
+  });
+  assert.equal(summary.activeLearning?.priorityFilters?.minPriorityTier, "medium");
+  assert.equal(summary.activeLearning?.priorityFilters?.top, 20);
+  assert.equal(summary.activeLearning?.readinessSnapshot?.totals?.images, 25);
+  assert.equal(summary.activeLearning?.readinessSnapshot?.totals?.validMasks, 90);
+});
+
+

@@ -55,6 +55,28 @@ test("rankNailTextureCandidates filters implausible areas and keeps best candida
   assert.equal(ranked[0].id, "good");
 });
 
+test("rankNailTextureCandidates defaults to keeping up to 10 candidates", () => {
+  const candidates = Array.from({ length: 12 }, (_, index) => ({
+    id: `candidate-${index + 1}`,
+    cx: 40 + index * 20,
+    cy: 120,
+    length: 90,
+    width: 45,
+    angle: 0,
+    score: 0.95 - index * 0.01,
+    confidence: "high" as const,
+    source: "model" as const,
+    suggestedFinger: null,
+  }));
+
+  const ranked = rankNailTextureCandidates(candidates, {
+    imageWidth: 860,
+    imageHeight: 645,
+  });
+
+  assert.equal(ranked.length, 10);
+});
+
 test("assessNailTextureCandidate surfaces sparse-mask and highlight warnings", () => {
   const sourceImage = {
     width: 100,

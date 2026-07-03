@@ -65,6 +65,16 @@ test("run-release-governance-pipeline can build decision promote trace and histo
             totals: { derivedAnnotationFailures: 0, inferredRecordFailure: 0, csvRows: 0 },
             categoryCounts: {},
           },
+          finalAuditTextureQualityGate: {
+            ok: true,
+            directlyUsableCount: 17,
+            directlyUsableRate: 0.85,
+            contaminatedCount: 1,
+            contaminationRate: 0.05,
+            warningBreakdown: {},
+            warnings: [],
+            nextSteps: [],
+          },
         },
         steps: [
           {
@@ -158,7 +168,10 @@ test("run-release-governance-pipeline can build decision promote trace and histo
     ok: boolean;
     steps: Array<{ name: string; ok: boolean }>;
     artifacts: {
-      releaseDecision: { decision: { status: string } };
+      releaseDecision: {
+        decision: { status: string };
+        inputs: { textureQualityGateOk: boolean | null; directlyUsableRate: number | null };
+      };
       promotion: { registerSummary: { registeredVersion: string } };
       traceIndex: { links: { sourceGroupToCandidateVersion: string | null } };
       historyManifest: { totals: { traceIndexes: number } };
@@ -172,6 +185,8 @@ test("run-release-governance-pipeline can build decision promote trace and histo
     "register-release-trace-index",
   ]);
   assert.equal(report.artifacts.releaseDecision.decision.status, "approve_candidate");
+  assert.equal(report.artifacts.releaseDecision.inputs.textureQualityGateOk, true);
+  assert.equal(report.artifacts.releaseDecision.inputs.directlyUsableRate, 0.85);
   assert.equal(report.artifacts.promotion.registerSummary.registeredVersion, "nail-texture-seg-v2");
   assert.equal(
     report.artifacts.traceIndex.links.sourceGroupToCandidateVersion,

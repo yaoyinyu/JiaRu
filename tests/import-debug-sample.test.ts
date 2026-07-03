@@ -27,7 +27,10 @@ async function runScript(scriptPath: string, datasetRoot: string) {
   );
 }
 
-async function createDebugImportFixture() {
+async function createDebugImportFixture(options?: {
+  confidence?: "high" | "medium" | "low";
+  source?: "manual" | "model" | "saliency" | "mediapipe";
+}) {
   const datasetRoot = await mkdtemp(path.join(os.tmpdir(), "nail-debug-import-"));
   await mkdir(path.join(datasetRoot, "annotations", "raw-json"), { recursive: true });
   await mkdir(path.join(datasetRoot, "images", "raw"), { recursive: true });
@@ -57,7 +60,9 @@ async function createDebugImportFixture() {
         },
         backend: "fallback",
         modelVersion: "fallback-v0",
-        warnings: [],
+        modelBackend: "fallback",
+        elapsedMs: 42,
+        warnings: ["worker_unavailable_used_main_thread"],
         originalCandidates: [],
         correctedCandidates: [
           {
@@ -68,7 +73,8 @@ async function createDebugImportFixture() {
             length: 60,
             width: 28,
             assignedFinger: 1,
-            confidence: "high",
+            confidence: options?.confidence ?? "high",
+            source: options?.source ?? "manual",
             hasMask: false,
             warnings: ["highlight_hotspots"],
             extractionDiagnostics: {
@@ -174,6 +180,145 @@ async function createBatchDebugImportFixture() {
   };
 }
 
+async function createPrioritizedBatchDebugImportFixture() {
+  const datasetRoot = await mkdtemp(path.join(os.tmpdir(), "nail-debug-priority-import-"));
+  await mkdir(path.join(datasetRoot, "annotations", "raw-json"), { recursive: true });
+  await mkdir(path.join(datasetRoot, "images", "raw"), { recursive: true });
+  const sampleDir = path.join(datasetRoot, "samples");
+  const imageDir = path.join(datasetRoot, "images-src");
+  await mkdir(sampleDir, { recursive: true });
+  await mkdir(imageDir, { recursive: true });
+
+  const sampleDefs = [
+    {
+      stem: "sample-high",
+      extension: ".png",
+      imageId: "local-debug-high",
+      priorityTier: "high",
+      priorityScore: 9,
+      correctedCandidates: [],
+    },
+    {
+      stem: "sample-medium",
+      extension: ".jpg",
+      imageId: "local-debug-medium",
+      priorityTier: "medium",
+      priorityScore: 5,
+      correctedCandidates: [
+        {
+          id: "n1",
+          cx: 100,
+          cy: 70,
+          angle: 0.15,
+          length: 60,
+          width: 28,
+          assignedFinger: 1,
+          confidence: "high",
+          hasMask: false,
+          warnings: [],
+        },
+      ],
+    },
+    {
+      stem: "sample-low",
+      extension: ".webp",
+      imageId: "local-debug-low",
+      priorityTier: "low",
+      priorityScore: 1,
+      correctedCandidates: [
+        {
+          id: "n1",
+          cx: 180,
+          cy: 96,
+          angle: 0.15,
+          length: 60,
+          width: 28,
+          assignedFinger: 3,
+          confidence: "high",
+          hasMask: false,
+          warnings: [],
+        },
+      ],
+    },
+  ] as const;
+
+  const ranked: Array<{
+    samplePath: string;
+    imageId: string;
+    priorityTier: "high" | "medium" | "low";
+    priorityScore: number;
+  }> = [];
+
+  for (const def of sampleDefs) {
+    const builder = sharp({
+      create: {
+        width: 320,
+        height: 200,
+        channels: 3,
+        background: { r: 240, g: 180, b: 200 },
+      },
+    });
+    const imagePath = path.join(imageDir, `${def.stem}${def.extension}`);
+    if (def.extension === ".jpg") {
+      await builder.jpeg().toFile(imagePath);
+    } else if (def.extension === ".webp") {
+      await builder.webp().toFile(imagePath);
+    } else {
+      await builder.png().toFile(imagePath);
+    }
+
+    const samplePath = path.join(sampleDir, `${def.stem}.json`);
+    await writeFile(
+      samplePath,
+      JSON.stringify(
+        {
+          imageId: def.imageId,
+          imageUrl: "blob:demo",
+          image: { width: 320, height: 200 },
+          backend: "model",
+          modelVersion: "nail-texture-seg-v2",
+          warnings: [],
+          originalCandidates: [],
+          correctedCandidates: def.correctedCandidates,
+          createdAt: "2026-06-30T12:34:56.000Z",
+        },
+        null,
+        2
+      ),
+      "utf8"
+    );
+    ranked.push({
+      samplePath,
+      imageId: def.imageId,
+      priorityTier: def.priorityTier,
+      priorityScore: def.priorityScore,
+    });
+  }
+
+  const priorityReportPath = path.join(datasetRoot, "priority-report.json");
+  await writeFile(
+    priorityReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        sampleCount: ranked.length,
+        returnedCount: ranked.length,
+        ranked,
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  return {
+    datasetRoot,
+    sampleDir,
+    imageDir,
+    priorityReportPath,
+  };
+}
+
 test("import debug sample converts corrected regions into dataset annotation", async () => {
   const { datasetRoot, samplePath, imagePath } = await createDebugImportFixture();
 
@@ -222,8 +367,18 @@ test("import debug sample converts corrected regions into dataset annotation", a
   const audit = auditAnnotationDocument(annotation);
   assert.equal(audit.ok, true);
   assert.equal(annotation.image.fileName, "source-image.png");
+  assert.equal(annotation.image.debug?.detectionBackend, "fallback");
+  assert.equal(annotation.image.debug?.modelVersion, "fallback-v0");
+  assert.equal(annotation.image.debug?.modelBackend, "fallback");
+  assert.equal(annotation.image.debug?.elapsedMs, 42);
+  assert.deepEqual(annotation.image.debug?.warnings, [
+    "worker_unavailable_used_main_thread",
+  ]);
   assert.equal(annotation.annotations.length, 1);
   assert.equal(annotation.annotations[0].attributes?.fingerHint, "index");
+  assert.equal(annotation.annotations[0].attributes?.debug?.candidateId, "n1");
+  assert.equal(annotation.annotations[0].attributes?.debug?.source, "manual");
+  assert.equal(annotation.annotations[0].attributes?.debug?.confidence, "high");
   assert.deepEqual(annotation.annotations[0].attributes?.debug?.warnings, [
     "highlight_hotspots",
   ]);
@@ -242,6 +397,42 @@ test("import debug sample converts corrected regions into dataset annotation", a
   assert.equal(sources[0].originType, "user");
   assert.equal(sources[0].sourceGroup, "user-corrections-001");
   assert.equal(sources[0].annotationCount, 1);
+});
+
+test("import debug sample maps medium confidence to dataset quality 3", async () => {
+  const { datasetRoot, samplePath, imagePath } = await createDebugImportFixture({
+    confidence: "medium",
+    source: "manual",
+  });
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "model/training/import-debug-sample.ts",
+      samplePath,
+      imagePath,
+    ],
+    {
+      cwd: path.resolve("."),
+      env: {
+        ...process.env,
+        DATASET_ROOT: datasetRoot,
+      },
+    }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    outputs: Array<{
+      annotationPath: string;
+    }>;
+  };
+  const annotation = JSON.parse(
+    await readFile(summary.outputs[0].annotationPath, "utf8")
+  ) as Parameters<typeof auditAnnotationDocument>[0];
+
+  assert.equal(annotation.annotations[0].attributes?.quality, 3);
 });
 
 test("imported debug sample flows through split audit and convert pipeline", async () => {
@@ -356,4 +547,64 @@ test("batch import debug sample imports all matching sample/image pairs", async 
     sources.map((item) => item.fileName).sort(),
     ["batch-001.png", "batch-002.jpg"]
   );
+});
+
+test("batch import debug sample can prioritize and filter by priority report", async () => {
+  const { datasetRoot, sampleDir, imageDir, priorityReportPath } =
+    await createPrioritizedBatchDebugImportFixture();
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "model/training/import-debug-sample.ts",
+      "--copy-image",
+      "--sample-dir",
+      sampleDir,
+      "--image-dir",
+      imageDir,
+      "--priority-report",
+      priorityReportPath,
+      "--min-priority",
+      "medium",
+      "--top",
+      "1",
+    ],
+    {
+      cwd: path.resolve("."),
+      env: {
+        ...process.env,
+        DATASET_ROOT: datasetRoot,
+      },
+    }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    imported: number;
+    priorityFilters: {
+      reportPath: string | null;
+      minPriorityTier: string | null;
+      top: number | null;
+    };
+    outputs: Array<{
+      samplePath: string;
+      priorityTier: string | null;
+      priorityScore: number | null;
+      negative: boolean;
+    }>;
+    sourcesCsvPath: string;
+  };
+  assert.equal(summary.imported, 1);
+  assert.equal(summary.priorityFilters.reportPath, priorityReportPath);
+  assert.equal(summary.priorityFilters.minPriorityTier, "medium");
+  assert.equal(summary.priorityFilters.top, 1);
+  assert.equal(summary.outputs[0]?.priorityTier, "high");
+  assert.equal(summary.outputs[0]?.priorityScore, 9);
+  assert.equal(summary.outputs[0]?.negative, true);
+  assert.ok(summary.outputs[0]?.samplePath.endsWith("sample-high.json"));
+
+  const sources = parseSourceRecords(await readFile(summary.sourcesCsvPath, "utf8"));
+  assert.equal(sources.length, 1);
+  assert.equal(sources[0].fileName, "sample-high.png");
 });

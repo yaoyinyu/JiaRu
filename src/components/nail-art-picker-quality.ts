@@ -1,7 +1,7 @@
 import type { TextureExtractionDiagnostics } from "@/lib/nail-texture-recognition";
 
 export interface NailArtPickerQualityRegionLike {
-  confidence?: "high" | "low";
+  confidence?: "high" | "medium" | "low";
   warnings?: string[];
   extractionDiagnostics?: TextureExtractionDiagnostics;
 }
@@ -27,45 +27,46 @@ export interface NailArtPickerExtractionDiagnosticsSummary {
 const CANDIDATE_WARNING_MESSAGES: Record<string, NailArtPickerWarningPresentation> = {
   angle_stabilized_from_group: {
     severity: "info",
-    message: "方向已按同组候选自动校正，可再确认是否与甲面朝向一致。",
+    message: "Angle was stabilized from nearby candidates. Please confirm the orientation.",
   },
   angle_defaulted_vertical: {
     severity: "warning",
-    message: "方向不够稳定，当前已回退到默认竖直方向，建议手动确认。",
+    message: "Angle was not stable enough and defaulted to vertical. Please adjust manually if needed.",
   },
   highlight_hotspots: {
     severity: "warning",
-    message: "甲面高光较强，可能影响纹理细节。",
+    message: "Strong highlights may reduce visible texture detail.",
   },
   dirty_mask_crop: {
     severity: "warning",
-    message: "裁剪区域混入了较多非甲面像素，建议检查边界。",
+    message: "The crop appears to include too much non-nail content. Please review the boundary.",
   },
   mask_crop_touches_edge: {
     severity: "warning",
-    message: "裁剪区域贴边，可能缺失部分甲面。",
+    message: "The crop touches the edge and may be missing part of the nail.",
   },
   mask_foreground_too_small: {
     severity: "warning",
-    message: "可用甲面区域偏小，贴图质量可能不足。",
+    message: "The usable nail area looks small and may reduce texture quality.",
   },
   mask_has_no_foreground_pixels: {
     severity: "warning",
-    message: "蒙版没有提取到有效甲面像素，建议重新调整。",
+    message: "No valid foreground pixels were extracted from the mask. Please refine the region.",
   },
   mediapipe_geometry_detection: {
     severity: "info",
-    message: "当前结果主要来自几何估计，建议人工复核。",
+    message: "This result mostly comes from geometric estimation. A manual review is recommended.",
   },
 };
 
 const RECOGNITION_WARNING_MESSAGES: Record<string, string> = {
-  no_candidates_detected: "当前没有识别到可用美甲候选。",
-  worker_unavailable_used_main_thread: "当前环境未启用 Worker，已回退到主线程识别。",
-  model_runtime_unavailable_on_server: "当前环境无法直接加载模型运行时。",
-  no_supported_model_backend: "当前浏览器不支持可用模型后端，已回退到规则识别。",
-  onnx_runtime_not_loaded: "模型运行时未就绪，已回退到规则识别。",
-  onnx_session_init_failed: "模型会话初始化失败，已回退到规则识别。",
+  no_candidates_detected: "No usable nail candidates were detected.",
+  worker_unavailable_used_main_thread: "Worker is unavailable, so detection ran on the main thread.",
+  model_runtime_unavailable_on_server: "The current environment cannot load the model runtime directly.",
+  no_supported_model_backend: "The browser does not support a usable model backend, so detection fell back to rules.",
+  onnx_runtime_not_loaded: "The model runtime was not ready, so detection fell back to rules.",
+  onnx_session_init_failed: "The model session failed to initialize, so detection fell back to rules.",
+  recognition_cancelled_by_user: "Auto detection was cancelled. You can continue by adding regions manually.",
 };
 
 function dedupeMessages(messages: string[]): string[] {
@@ -76,13 +77,13 @@ export function presentCandidateWarning(warning: string): NailArtPickerWarningPr
   return (
     CANDIDATE_WARNING_MESSAGES[warning] ?? {
       severity: "warning",
-      message: `候选提示：${warning}`,
+      message: `闂傚倷鑳堕…鍫ユ晝閵夆晜鍋￠柍鍝勬噹閻掑灚銇勯幒鍡椾壕濡炪倧闄勬刊浠嬪Φ閹邦厽濯撮柧蹇撴贡閻掑ジ姊虹紒妯垮妞ゆ洦鍘剧划?{warning}`,
     }
   );
 }
 
 export function presentRecognitionWarning(warning: string): string {
-  return RECOGNITION_WARNING_MESSAGES[warning] ?? `识别提示：${warning}`;
+  return RECOGNITION_WARNING_MESSAGES[warning] ?? `Recognition warning: ${warning}`;
 }
 
 export function regionNeedsReview(region: NailArtPickerQualityRegionLike): boolean {
@@ -98,9 +99,9 @@ export function summarizeExtractionDiagnostics(
 
   const { quality, highlightRepair } = diagnostics;
   const stats = [
-    `质量：${quality.ok ? "正常" : "需复核"}`,
-    `高光像素：${highlightRepair.highlightPixels}`,
-    `已修复：${highlightRepair.repairedPixels}`,
+    `Quality: ${quality.ok ? "ok" : "review"}`,
+    `Highlight pixels: ${highlightRepair.highlightPixels}`,
+    `Repaired pixels: ${highlightRepair.repairedPixels}`,
   ];
 
   const messages: string[] = [];
@@ -111,8 +112,8 @@ export function summarizeExtractionDiagnostics(
   if (highlightRepair.highlightPixels > 0) {
     messages.push(
       highlightRepair.repairedPixels > 0
-        ? "检测到高光区域，已对可修复部分做轻微修复。"
-        : "检测到高光区域，但当前没有找到足够的周边纹理用于修复。"
+        ? "Highlights were detected and some pixels were repaired."
+        : "Highlights were detected, but there was not enough nearby texture to repair them."
     );
   }
 
@@ -120,8 +121,8 @@ export function summarizeExtractionDiagnostics(
     severity: quality.ok && highlightRepair.highlightPixels === 0 ? "ok" : "review",
     title:
       quality.ok && highlightRepair.highlightPixels === 0
-        ? "当前纹理提取结果稳定"
-        : "当前纹理提取结果建议复核",
+        ? "The current texture extraction looks stable"
+        : "The current texture extraction should be reviewed",
     stats,
     messages: dedupeMessages(messages),
   };
@@ -133,7 +134,7 @@ export function summarizeRegionQuality(
   const messages: string[] = [];
 
   if (region.confidence === "low") {
-    messages.push("当前候选置信度偏低，建议检查位置、角度和大小。");
+    messages.push("This candidate has low confidence. Please review its position, angle, and size.");
   }
 
   for (const warning of region.warnings ?? []) {
@@ -150,12 +151,12 @@ export function summarizeRegionQuality(
   return deduped.length
     ? {
         severity: "review",
-        title: "建议复核当前候选",
+        title: "Please review the current candidate",
         messages: deduped,
       }
     : {
         severity: "ok",
-        title: "当前候选质量正常",
+        title: "The current candidate looks good",
         messages: [],
       };
 }

@@ -4,6 +4,7 @@ import type {
   NailTextureCandidateConfidence,
 } from "./types.ts";
 import type { NailTexturePreprocessResult } from "./preprocess.ts";
+import { inferSuggestedFingers } from "./finger-assignment.ts";
 import { rankNailTextureCandidates } from "./quality.ts";
 
 export interface ModelTensorLike {
@@ -19,12 +20,6 @@ export interface PostprocessModelOutputsOptions {
 
 interface CandidateAngleEvidence {
   reliable: boolean;
-}
-
-function inferSuggestedFingers(candidateCount: number): number[] {
-  if (candidateCount === 4) return [1, 2, 3, 4];
-  if (candidateCount >= 5) return [0, 1, 2, 3, 4];
-  return [1, 2, 3, 4, 0];
 }
 
 function scoreToConfidence(score: number): NailTextureCandidateConfidence {
@@ -281,7 +276,7 @@ export function postprocessNailTextureDetections(
   const prototypeTensor = selectPrototypeTensor(outputs, detectionTensor);
 
   const scoreThreshold = options.scoreThreshold ?? 0.35;
-  const maxCandidates = options.maxCandidates ?? 5;
+  const maxCandidates = options.maxCandidates ?? 10;
   const maskThreshold = options.maskThreshold ?? 0.5;
   const rows = flattenDetectionRows(detectionTensor);
 

@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -407,6 +407,10 @@ test("run-training-release-pipeline passes annotation debug failures through fin
         totals: { derivedAnnotationFailures: number };
         categoryCounts: Record<string, number>;
       };
+      finalAuditTextureQualityGate: {
+        ok: boolean;
+        rates: { directlyUsableRate: number | null; contaminationRate: number | null };
+      } | null;
     };
   };
   assert.equal(report.ok, true);
@@ -414,6 +418,9 @@ test("run-training-release-pipeline passes annotation debug failures through fin
   assert.equal(report.artifacts.finalAudit.annotationDirPath, annotationDir);
   assert.equal(report.artifacts.finalAuditFailureSummary.totals.derivedAnnotationFailures, 3);
   assert.equal(report.artifacts.finalAuditFailureSummary.categoryCounts.postprocess, 3);
+  assert.equal(report.artifacts.finalAuditTextureQualityGate?.ok, false);
+  assert.equal(report.artifacts.finalAuditTextureQualityGate?.rates.directlyUsableRate, 0);
+  assert.equal(report.artifacts.finalAuditTextureQualityGate?.rates.contaminationRate, 0);
 });
 
 test("run-training-release-pipeline can continue into release governance when enabled", async () => {
@@ -1308,3 +1315,266 @@ test("run-training-release-pipeline can use governance default paths when handof
   assert.equal(report.options.governanceHistoryManifest, defaultHistoryManifestPath);
   assert.equal(report.artifacts.releaseGovernance?.ok, true);
 });
+
+test("run-training-release-pipeline can consume active learning handoff for governance trace context", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-active-learning-handoff-"));
+  const outputDir = path.join(root, "model", "exports", "nail-texture-seg-v5");
+  const browserDir = path.join(root, "public", "models", "nail-texture-seg");
+  const activeLearningDir = path.join(root, "active-learning");
+  await mkdir(outputDir, { recursive: true });
+  await mkdir(browserDir, { recursive: true });
+  await mkdir(activeLearningDir, { recursive: true });
+
+  await writeFile(
+    path.join(outputDir, "metrics.json"),
+    JSON.stringify(
+      {
+        dataset_yaml: "model/training/dataset.yaml",
+        dataset_root: "model/datasets/nail-texture-v1",
+        weights: "model/exports/nail-texture-seg-v5/nail-texture-seg-v5/weights/best.pt",
+        output: "model/exports/nail-texture-seg-v5/metrics.json",
+        split: "test",
+        imgsz: 640,
+        device: "auto",
+        dry_run: false,
+        box_map50: 0.93,
+        box_map: 0.85,
+        seg_map50: 0.83,
+        seg_map: 0.74,
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(
+    path.join(browserDir, "manifest.json"),
+    JSON.stringify(
+      {
+        version: "nail-texture-seg-v5",
+        inputSize: 640,
+        task: "segment",
+        backendPreferences: ["webgpu", "wasm"],
+        modelFile: "nail-texture-seg-v5.onnx",
+        labels: ["nail_texture"],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(path.join(browserDir, "nail-texture-seg-v5.onnx"), Buffer.alloc(1024), "binary");
+
+  const uiReviewPath = path.join(root, "ui-review.json");
+  await writeFile(
+    uiReviewPath,
+    JSON.stringify(
+      {
+        version: "nail-real-model-ui-review/v1",
+        createdAt: "2026-07-03T00:00:00.000Z",
+        pagePath: "/ar-tryon",
+        checks: {
+          pickerOpened: true,
+          modelOrFallbackBadgeVisible: true,
+          pageResponsive: true,
+          fallbackRecovered: true,
+        },
+        notes: "manual review ok",
+        decision: {
+          status: "pass",
+          summary: "ui checks passed",
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const compareSummaryPath = path.join(outputDir, "compare-summary.json");
+  await writeFile(
+    compareSummaryPath,
+    JSON.stringify(
+      {
+        ok: true,
+        regressions: [],
+        improvements: ["seg_map50 improved by 0.04"],
+        warnings: [],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const activeLearningReleaseTraceDraftPath = path.join(
+    activeLearningDir,
+    "active-learning-release-trace-draft.json"
+  );
+  await writeFile(
+    activeLearningReleaseTraceDraftPath,
+    JSON.stringify(
+      {
+        draft: true,
+        activeLearning: {
+          pipelineReportPath: path.join(activeLearningDir, "debug-sample-active-learning-pipeline-report.json"),
+          sampleDir: path.join(activeLearningDir, "samples"),
+          imageDir: path.join(activeLearningDir, "images"),
+          priorityReportPath: path.join(activeLearningDir, "prioritized-debug-samples.json"),
+          priorityFilters: {
+            reportPath: path.join(activeLearningDir, "prioritized-debug-samples.json"),
+            minPriorityTier: "medium",
+            top: 20,
+          },
+          importedSampleCount: 5,
+          importedByPriority: {
+            high: 3,
+            medium: 2,
+            low: 0,
+            unknown: 0,
+          },
+          prioritySummary: {
+            backendBreakdown: { fallback: 4, model: 1 },
+            modelBackendBreakdown: { fallback: 4, wasm: 1 },
+            correctedCandidateSourceBreakdown: { manual: 3, model: 2 },
+            reasonBreakdown: { manual_candidate_added: 3, high_confidence_deleted: 1 },
+          },
+          readinessSnapshot: {
+            reportPath: path.join(activeLearningDir, "phase1-readiness.json"),
+            imageCountGate: { ok: false, actual: 25, required: 200 },
+            validMaskCountGate: { ok: false, actual: 90, required: 800 },
+            totals: { images: 25, validMasks: 90 },
+          },
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const activeLearningHandoffPath = path.join(
+    activeLearningDir,
+    "debug-sample-active-learning-handoff.json"
+  );
+  await writeFile(
+    activeLearningHandoffPath,
+    JSON.stringify(
+      {
+        ok: true,
+        version: "debug-sample-active-learning-handoff/v1",
+        pipelineReportPath: path.join(activeLearningDir, "debug-sample-active-learning-pipeline-report.json"),
+        releaseTraceDraftPath: activeLearningReleaseTraceDraftPath,
+        activeLearning: {
+          importedSampleCount: 5,
+        },
+        governanceHints: {
+          activeLearningPipelineReportPath: path.join(
+            activeLearningDir,
+            "debug-sample-active-learning-pipeline-report.json"
+          ),
+          activeLearningReleaseTraceDraftPath,
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const registryPath = path.join(browserDir, "release-registry.json");
+  await writeFile(
+    registryPath,
+    JSON.stringify(
+      {
+        currentVersion: "nail-texture-seg-v4",
+        releases: [{ version: "nail-texture-seg-v4" }],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const historyManifestPath = path.join(outputDir, "release-history-manifest.json");
+  const auditOutputDir = path.join(outputDir, "real-model-final-audit");
+  const imagePath = path.resolve("model/5188.jpg_wh860.jpg");
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-training-release-pipeline.ts",
+      "--train-output-dir",
+      outputDir,
+      "--browser-model-dir",
+      browserDir,
+      "--model-version",
+      "nail-texture-seg-v5",
+      "--skip-train",
+      "--skip-evaluate",
+      "--skip-export",
+      "--final-audit-image",
+      imagePath,
+      "--final-audit-output-dir",
+      auditOutputDir,
+      "--final-audit-ui-review",
+      uiReviewPath,
+      "--run-governance",
+      "--governance-compare-summary",
+      compareSummaryPath,
+      "--governance-registry",
+      registryPath,
+      "--governance-active-learning-handoff",
+      activeLearningHandoffPath,
+      "--governance-history-manifest",
+      historyManifestPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    options: {
+      governanceActiveLearningHandoff: string | null;
+      governanceReleaseTraceDraft: string | null;
+    };
+    artifacts: {
+      releaseGovernance: {
+        ok: boolean;
+        artifacts: {
+          traceIndex: {
+            activeLearning: {
+              importedSampleCount: number;
+              importedByPriority: { high: number; medium: number };
+              prioritySummary: { backendBreakdown: Record<string, number> } | null;
+            } | null;
+          };
+        };
+      } | null;
+    };
+  };
+
+  assert.equal(report.ok, true);
+  assert.equal(report.options.governanceActiveLearningHandoff, activeLearningHandoffPath);
+  assert.equal(report.options.governanceReleaseTraceDraft, activeLearningReleaseTraceDraftPath);
+  assert.equal(report.artifacts.releaseGovernance?.ok, true);
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.traceIndex.activeLearning?.importedSampleCount,
+    5
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.traceIndex.activeLearning?.importedByPriority.high,
+    3
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.traceIndex.activeLearning?.importedByPriority.medium,
+    2
+  );
+  assert.deepEqual(
+    report.artifacts.releaseGovernance?.artifacts.traceIndex.activeLearning?.prioritySummary?.backendBreakdown,
+    { fallback: 4, model: 1 }
+  );
+});
+
+
