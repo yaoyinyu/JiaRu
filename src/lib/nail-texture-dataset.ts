@@ -823,6 +823,10 @@ function pushProportionalSplit(files: string[], split: DatasetSplit): void {
   }
 }
 
+function shouldSplitOversizedSourceGroup(files: string[], totalFiles: number): boolean {
+  return files.length >= 100 && files.length / Math.max(totalFiles, 1) >= 0.5;
+}
+
 export function buildDatasetSplit(
   documents: NailTextureAnnotationDocument[]
 ): DatasetSplit {
@@ -845,6 +849,10 @@ export function buildDatasetSplit(
     );
   } else {
     for (const [groupKey, files] of groups) {
+      if (shouldSplitOversizedSourceGroup(files, documents.length)) {
+        pushProportionalSplit(files, split);
+        continue;
+      }
       const bucket = stableBucket(groupKey);
       const target =
         bucket < 70 ? split.train : bucket < 85 ? split.val : split.test;

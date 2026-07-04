@@ -3,16 +3,16 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
   "totals": {
-    "images": 300,
+    "images": 301,
     "masks": 1411,
     "validMasks": 1411,
     "filesWithErrors": 0,
-    "filesWithWarnings": 0
+    "filesWithWarnings": 1
   },
   "splitCounts": {
-    "train": 210,
-    "val": 45,
-    "test": 45
+    "train": 300,
+    "val": 0,
+    "test": 1
   },
   "splitIntegrity": {
     "missingFromSplit": [],
@@ -20,19 +20,19 @@
     "duplicateInSplit": []
   },
   "testCoverage": {
-    "negatives": 0,
+    "negatives": 1,
     "complexBackground": 0,
     "sampleKinds": {
-      "other": 45
+      "negative": 1
     },
     "backgrounds": {
-      "unspecified": 45
+      "unspecified": 1
     }
   },
   "gates": {
     "imageCount": {
       "ok": true,
-      "actual": 300,
+      "actual": 301,
       "required": 200
     },
     "validMaskCount": {
@@ -51,8 +51,8 @@
       "required": 0
     },
     "testSplitHasNegative": {
-      "ok": false,
-      "actual": 0,
+      "ok": true,
+      "actual": 1,
       "required": 1
     },
     "testSplitHasComplexBackground": {
@@ -62,8 +62,8 @@
     }
   },
   "warnings": [
-    "test split does not yet contain a negative sample",
-    "test split does not yet contain a complex-background sample"
+    "test split does not yet contain a complex-background sample",
+    "label audit still has 1 files with warning-level issues"
   ],
   "fileResults": [
     {
@@ -2165,6 +2165,13 @@
       "polygonCount": 5,
       "errorCount": 0,
       "warningCount": 0
+    },
+    {
+      "fileName": "no_nail_plain_dark_background_0001.png",
+      "ok": true,
+      "polygonCount": 0,
+      "errorCount": 0,
+      "warningCount": 1
     }
   ]
 }
