@@ -179,7 +179,7 @@ test("audit-phase1-readiness passes when all gates are satisfied", async () => {
       JSON.stringify(annotationDoc(fileName, sourceGroup, polygonCount, negative), null, 2),
       "utf8"
     );
-    const subset = index <= 160 ? "train" : index <= 200 ? "val" : "test";
+    const subset = index <= 154 ? "train" : index <= 187 ? "val" : "test";
     split[subset].push(fileName);
     const sampleKind = negative ? "negative" : index <= 140 ? "merchant" : "reference";
     const background = subset === "test"
@@ -226,10 +226,96 @@ test("audit-phase1-readiness passes when all gates are satisfied", async () => {
   assert.equal(exitCode, 0);
   const persisted = JSON.parse(
     await readFile(path.join(metadataDir, "phase1-readiness.json"), "utf8")
-  ) as { ok: boolean; totals: { validMasks: number } };
+  ) as {
+    ok: boolean;
+    totals: { validMasks: number };
+    gates: { splitRatioPass: { ok: boolean } };
+  };
   assert.equal(persisted.ok, true);
   assert.equal(persisted.totals.validMasks, 800);
+  assert.equal(persisted.gates.splitRatioPass.ok, true);
 });
+
+
+test("audit-phase1-readiness rejects a split with an empty validation set", async () => {
+  const datasetRoot = await mkdtemp(path.join(os.tmpdir(), "nail-phase1-readiness-ratio-"));
+  const annotationDir = path.join(datasetRoot, "annotations", "raw-json");
+  const metadataDir = path.join(datasetRoot, "metadata");
+  await mkdir(annotationDir, { recursive: true });
+  await mkdir(metadataDir, { recursive: true });
+
+  const split = { train: [] as string[], val: [] as string[], test: [] as string[] };
+  const sourceRows = [
+    "imageId,fileName,sourceGroup,originType,originRef,license,notes,negative,annotationPath,imagePath,annotationCount,createdAt,updatedAt",
+  ];
+  for (let index = 1; index <= 200; index++) {
+    const fileName = `ratio-${index}.jpg`;
+    const negative = index === 200;
+    const complex = index === 199;
+    const polygonCount = negative ? 0 : 5;
+    await writeFile(
+      path.join(annotationDir, `ratio-${index}.json`),
+      JSON.stringify(annotationDoc(fileName, "ratio-source", polygonCount, negative), null, 2),
+      "utf8"
+    );
+    (negative || complex ? split.test : split.train).push(fileName);
+    sourceRows.push(
+      [
+        `ratio-${index}`,
+        fileName,
+        "ratio-source",
+        negative ? "negative" : "reference",
+        "local",
+        "internal-test",
+        `"sample=${negative ? "negative" : "reference"}; background=${complex ? "dark" : "light"}; reason=${complex ? "complex_background" : "manual_review"}"`,
+        String(negative),
+        `annotations/raw-json/ratio-${index}.json`,
+        `images/raw/${fileName}`,
+        String(polygonCount),
+        "2026-07-01T00:00:00.000Z",
+        "2026-07-01T00:00:00.000Z",
+      ].join(",")
+    );
+  }
+  sourceRows.push("");
+
+  await writeFile(path.join(metadataDir, "split.json"), JSON.stringify(split, null, 2), "utf8");
+  await writeFile(path.join(metadataDir, "sources.csv"), sourceRows.join("\n"), "utf8");
+
+  const stdout = await new Promise<string>((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      ["--no-warnings", "--experimental-strip-types", "model/training/audit-phase1-readiness.ts"],
+      {
+        cwd: path.resolve("."),
+        env: { ...process.env, DATASET_ROOT: datasetRoot },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+    let out = "";
+    let err = "";
+    child.stdout.on("data", (chunk) => (out += String(chunk)));
+    child.stderr.on("data", (chunk) => (err += String(chunk)));
+    child.on("error", reject);
+    child.on("exit", (code) => {
+      if ((code ?? 0) !== 1) {
+        reject(new Error(err || `unexpected exit code: ${code}`));
+        return;
+      }
+      resolve(out);
+    });
+  });
+
+  const report = JSON.parse(stdout) as {
+    gates: { splitRatioPass: { ok: boolean } };
+    splitRatios: { val: number };
+    warnings: string[];
+  };
+  assert.equal(report.gates.splitRatioPass.ok, false);
+  assert.equal(report.splitRatios.val, 0);
+  assert.ok(report.warnings.some((warning) => warning.includes("70/15/15")));
+});
+
 test("audit-phase1-readiness reports split integrity issues", async () => {
   const datasetRoot = await mkdtemp(path.join(os.tmpdir(), "nail-phase1-readiness-split-integrity-"));
   const annotationDir = path.join(datasetRoot, "annotations", "raw-json");

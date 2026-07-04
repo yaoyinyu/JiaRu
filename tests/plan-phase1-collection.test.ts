@@ -134,7 +134,7 @@ test("plan-phase1-collection reports done when readiness gate already passes", a
       JSON.stringify(annotationDoc(fileName, sourceGroup, polygonCount, negative), null, 2),
       "utf8"
     );
-    const subset = index <= 160 ? "train" : index <= 200 ? "val" : "test";
+    const subset = index <= 154 ? "train" : index <= 187 ? "val" : "test";
     split[subset].push(fileName);
     const sampleKind = negative ? "negative" : index <= 140 ? "merchant" : "reference";
     const background =

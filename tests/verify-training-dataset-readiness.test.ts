@@ -112,7 +112,7 @@ test("verify-training-dataset-readiness passes a release-authorized phase1-ready
     const negative = index > 200;
     const sourceGroup = negative ? "negative-authorized" : index <= 100 ? "user-authorized" : "merchant-authorized";
     const polygonCount = negative ? 0 : 4;
-    const subset = index <= 160 ? "train" : index <= 200 ? "val" : "test";
+    const subset = index <= 154 ? "train" : index <= 187 ? "val" : "test";
     split[subset].push(fileName);
 
     await writeFile(

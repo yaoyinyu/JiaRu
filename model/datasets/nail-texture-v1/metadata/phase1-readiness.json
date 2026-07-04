@@ -14,6 +14,13 @@
     "val": 45,
     "test": 46
   },
+  "splitRatios": {
+    "train": 0.6976744186046512,
+    "val": 0.14950166112956811,
+    "test": 0.15282392026578073,
+    "maxDeviation": 0.0028239202657807383,
+    "allowedDeviation": 0.05
+  },
   "splitIntegrity": {
     "missingFromSplit": [],
     "unknownInSplit": [],
@@ -52,6 +59,11 @@
       "ok": true,
       "actual": 0,
       "required": 0
+    },
+    "splitRatioPass": {
+      "ok": true,
+      "actual": 0.0028239202657807383,
+      "required": 0.05
     },
     "testSplitHasNegative": {
       "ok": true,
