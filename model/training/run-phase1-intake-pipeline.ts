@@ -182,6 +182,7 @@ async function main() {
       "model/training/export-fallback-annotations.ts",
       [
         ...(manifest.copyImagesToDataset ? ["--copy-image"] : []),
+        ...(manifest.originType === "negative" ? ["--negative"] : []),
         "--source-group",
         manifest.sourceGroup,
         "--origin-type",
