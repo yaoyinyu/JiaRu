@@ -40,6 +40,13 @@ export interface Phase1ReadinessReport {
     val: number;
     test: number;
   };
+  splitRatios: {
+    train: number;
+    val: number;
+    test: number;
+    maxDeviation: number;
+    allowedDeviation: number;
+  };
   splitIntegrity: {
     missingFromSplit: string[];
     unknownInSplit: string[];
@@ -56,6 +63,7 @@ export interface Phase1ReadinessReport {
     validMaskCount: Phase1ReadinessGate;
     labelAuditPass: Phase1ReadinessGate;
     splitIntegrityPass: Phase1ReadinessGate;
+    splitRatioPass: Phase1ReadinessGate;
     testSplitHasNegative: Phase1ReadinessGate;
     testSplitHasComplexBackground: Phase1ReadinessGate;
   };
@@ -68,6 +76,13 @@ export interface Phase1ReadinessReport {
     warningCount: number;
   }>;
 }
+
+const TARGET_SPLIT_RATIOS = {
+  train: 0.7,
+  val: 0.15,
+  test: 0.15,
+} as const;
+const ALLOWED_SPLIT_RATIO_DEVIATION = 0.05;
 
 export function phase1ReadinessPaths(datasetRoot: string) {
   const annotationDir = path.join(datasetRoot, "annotations", "raw-json");
@@ -205,6 +220,17 @@ export async function buildPhase1ReadinessReport(
     .sort();
   const splitIntegrityIssueCount =
     missingFromSplit.length + unknownInSplit.length + duplicateInSplit.length;
+  const splitTotal = splitEntries.length;
+  const splitRatios = {
+    train: splitTotal > 0 ? split.train.length / splitTotal : 0,
+    val: splitTotal > 0 ? split.val.length / splitTotal : 0,
+    test: splitTotal > 0 ? split.test.length / splitTotal : 0,
+  };
+  const maxSplitRatioDeviation = Math.max(
+    Math.abs(splitRatios.train - TARGET_SPLIT_RATIOS.train),
+    Math.abs(splitRatios.val - TARGET_SPLIT_RATIOS.val),
+    Math.abs(splitRatios.test - TARGET_SPLIT_RATIOS.test)
+  );
 
   const testFiles = new Set(split.test);
   const testSources = sources.filter((record) => testFiles.has(record.fileName));
@@ -233,6 +259,16 @@ export async function buildPhase1ReadinessReport(
       ok: splitIntegrityIssueCount === 0,
       actual: splitIntegrityIssueCount,
       required: 0,
+    },
+    splitRatioPass: {
+      ok:
+        splitTotal > 0 &&
+        split.train.length > 0 &&
+        split.val.length > 0 &&
+        split.test.length > 0 &&
+        maxSplitRatioDeviation <= ALLOWED_SPLIT_RATIO_DEVIATION,
+      actual: maxSplitRatioDeviation,
+      required: ALLOWED_SPLIT_RATIO_DEVIATION,
     },
     testSplitHasNegative: {
       ok: testNegativeCount > 0,
@@ -270,6 +306,11 @@ export async function buildPhase1ReadinessReport(
       `split integrity has ${splitIntegrityIssueCount} issue(s): ${missingFromSplit.length} missing, ${unknownInSplit.length} unknown, ${duplicateInSplit.length} duplicate`
     );
   }
+  if (!gates.splitRatioPass.ok) {
+    warnings.push(
+      `split ratio must stay within ${(ALLOWED_SPLIT_RATIO_DEVIATION * 100).toFixed(0)} percentage points of 70/15/15; current ratios are ${(splitRatios.train * 100).toFixed(1)}/${(splitRatios.val * 100).toFixed(1)}/${(splitRatios.test * 100).toFixed(1)}`
+    );
+  }
   if (!gates.testSplitHasNegative.ok) warnings.push("test split does not yet contain a negative sample");
   if (!gates.testSplitHasComplexBackground.ok) {
     warnings.push("test split does not yet contain a complex-background sample");
@@ -291,6 +332,11 @@ export async function buildPhase1ReadinessReport(
       train: split.train.length,
       val: split.val.length,
       test: split.test.length,
+    },
+    splitRatios: {
+      ...splitRatios,
+      maxDeviation: maxSplitRatioDeviation,
+      allowedDeviation: ALLOWED_SPLIT_RATIO_DEVIATION,
     },
     splitIntegrity: {
       missingFromSplit,
