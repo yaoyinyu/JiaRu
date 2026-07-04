@@ -69,3 +69,7 @@ model/datasets/nail-texture-v1/metadata/sources.csv
 model/datasets/nail-texture-v1/metadata/split.json
 model/datasets/nail-texture-v1/metadata/label-audit.csv
 model/exports/
+
+# python cache
+__pycache__/
+*.pyc
