@@ -63,3 +63,22 @@ test("buildDatasetSplit keeps multiple source groups together", () => {
     );
   }
 });
+
+test("buildDatasetSplit proportionally splits oversized source groups while keeping small groups intact", () => {
+  const documents = [
+    ...Array.from({ length: 300 }, (_, index) =>
+      documentFixture(`ai-${String(index).padStart(3, "0")}.png`, "ai-nail-2026-07-04")
+    ),
+    documentFixture("negative-001.png", "negative-no-nail-2026-07-05"),
+  ];
+
+  const split = buildDatasetSplit(documents);
+  const allFiles = [...split.train, ...split.val, ...split.test];
+
+  assert.equal(allFiles.length, 301);
+  assert.equal(new Set(allFiles).size, 301);
+  assert.equal(split.train.filter((fileName) => fileName.startsWith("ai-")).length, 210);
+  assert.equal(split.val.filter((fileName) => fileName.startsWith("ai-")).length, 45);
+  assert.equal(split.test.filter((fileName) => fileName.startsWith("ai-")).length, 45);
+  assert.ok(allFiles.includes("negative-001.png"));
+});

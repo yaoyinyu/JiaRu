@@ -2,7 +2,7 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-  "recordCount": 300,
+  "recordCount": 301,
   "ok": true,
   "issues": []
 }
