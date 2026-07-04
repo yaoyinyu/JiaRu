@@ -118,11 +118,27 @@ test("run-reviewed-batch-import-pipeline imports reviewed batch and runs readine
     draft: boolean;
     batch: { sourceGroup: string; importedFileCount: number };
     release: { finalAuditStatus: string | null };
+    trainingReadiness: {
+      ok: boolean | null;
+      gates: {
+        sourceAudit: boolean | null;
+        sourceAuthorization: boolean | null;
+        phase1Readiness: boolean | null;
+      };
+      totals: { images: number | null; validMasks: number | null };
+      failingSteps: string[];
+    };
   };
   assert.equal(draft.draft, true);
   assert.equal(draft.batch.sourceGroup, "seed-batch-001");
   assert.equal(draft.batch.importedFileCount, 2);
   assert.equal(draft.release.finalAuditStatus, null);
+  assert.equal(draft.trainingReadiness.ok, false);
+  assert.equal(draft.trainingReadiness.gates.sourceAudit, true);
+  assert.equal(draft.trainingReadiness.gates.sourceAuthorization, false);
+  assert.equal(draft.trainingReadiness.gates.phase1Readiness, false);
+  assert.equal(draft.trainingReadiness.totals.images, 2);
+  assert.ok(draft.trainingReadiness.failingSteps.includes("audit-training-source-authorization"));
   const handoff = JSON.parse(
     await readFile(path.join(rootDir, "reviewed-batch-release-handoff.json"), "utf8")
   ) as {
@@ -133,9 +149,23 @@ test("run-reviewed-batch-import-pipeline imports reviewed batch and runs readine
       releaseTraceDraftPath: string;
     };
     batch: { sourceGroup: string; importedFileCount: number };
+    trainingReadiness: {
+      ok: boolean | null;
+      gates: {
+        sourceAudit: boolean | null;
+        sourceAuthorization: boolean | null;
+        phase1Readiness: boolean | null;
+      };
+      totals: { images: number | null; validMasks: number | null };
+      failingSteps: string[];
+    } | null;
   };
   assert.equal(handoff.version, "reviewed-batch-release-handoff/v1");
   assert.equal(handoff.governanceHints.reviewedBatchRootDir, rootDir);
   assert.equal(handoff.batch.sourceGroup, "seed-batch-001");
   assert.equal(handoff.batch.importedFileCount, 2);
+  assert.equal(handoff.trainingReadiness?.ok, false);
+  assert.equal(handoff.trainingReadiness?.gates.sourceAudit, true);
+  assert.equal(handoff.trainingReadiness?.gates.sourceAuthorization, false);
+  assert.equal(handoff.trainingReadiness?.totals.images, 2);
 });

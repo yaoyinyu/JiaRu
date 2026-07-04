@@ -1,0 +1,118 @@
+{
+  "input": "E:\\AI Project\\Codex\\JiaRu\\model\\5188.jpg_wh860.jpg",
+  "annotation": null,
+  "fixturePath": "E:\\AI Project\\Codex\\JiaRu\\model\\fixtures\\nail-detection-reference-5188.json",
+  "output": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.jpg-5188.jpg_wh860-detection-debug.png",
+  "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.jpg-5188.jpg_wh860-candidate-mask.png",
+  "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.jpg-5188.jpg_wh860-skin-mask.png",
+  "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.jpg-5188.jpg_wh860-detection-debug.json",
+  "width": 860,
+  "height": 573,
+  "count": 4,
+  "backend": "fallback",
+  "warnings": [
+    "model_runtime_unavailable_on_server"
+  ],
+  "modelOutputDumpPath": null,
+  "regions": [
+    {
+      "cx": 184.54166666666669,
+      "cy": 223.95833333333334,
+      "angle": 1.308996938995747,
+      "length": 107.5,
+      "width": 77.39999999999999,
+      "confidence": "high",
+      "score": 30.178058624267578
+    },
+    {
+      "cx": 273.68728233819456,
+      "cy": 301.68249377847445,
+      "angle": 0.5235987755982987,
+      "length": 129.79452843808625,
+      "width": 93.4520604754221,
+      "confidence": "high",
+      "score": 105.16611862182617
+    },
+    {
+      "cx": 412.03657438778134,
+      "cy": 338.54542100900335,
+      "angle": 0.5235987755982987,
+      "length": 135.8018047524707,
+      "width": 97.77729942177889,
+      "confidence": "high",
+      "score": 86.4883918762207
+    },
+    {
+      "cx": 546.3074539816563,
+      "cy": 353.35864757149085,
+      "angle": -0.7853981633974483,
+      "length": 150.5,
+      "width": 98.9,
+      "confidence": "high",
+      "score": 131.62688636779785
+    }
+  ],
+  "groundTruth": [
+    {
+      "x": 134,
+      "y": 179,
+      "width": 100,
+      "height": 107,
+      "area": 1550,
+      "cx": 184.43806451612903,
+      "cy": 232.63548387096773
+    },
+    {
+      "x": 222,
+      "y": 242,
+      "width": 98,
+      "height": 120,
+      "area": 1617,
+      "cx": 272.5380333951762,
+      "cy": 301.8274582560297
+    },
+    {
+      "x": 346,
+      "y": 280,
+      "width": 113,
+      "height": 139,
+      "area": 1937,
+      "cx": 402.24367578729994,
+      "cy": 349.5818275684048
+    },
+    {
+      "x": 500,
+      "y": 322,
+      "width": 98,
+      "height": 119,
+      "area": 1615,
+      "cx": 551.1746130030959,
+      "cy": 381.15975232198144
+    }
+  ],
+  "expectedCandidateCount": 4,
+  "matches": [
+    {
+      "predictedIndex": 0,
+      "truthIndex": 0,
+      "distance": 8.677769002362579
+    },
+    {
+      "predictedIndex": 1,
+      "truthIndex": 1,
+      "distance": 1.1583556590191197
+    },
+    {
+      "predictedIndex": 2,
+      "truthIndex": 2,
+      "distance": 14.754766441516775
+    },
+    {
+      "predictedIndex": 3,
+      "truthIndex": 3,
+      "distance": 28.223937753044524
+    }
+  ],
+  "maxCenterError": 28.223937753044524,
+  "maxAllowedCenterError": 45
+}

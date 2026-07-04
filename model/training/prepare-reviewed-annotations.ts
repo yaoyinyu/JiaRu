@@ -10,7 +10,20 @@ import {
 
 interface CliOptions {
   rootDir: string;
+  failOnIssues: boolean;
 }
+
+type PreparedAnnotationIssue = {
+  severity: "error" | "warning" | "info";
+  code:
+    | "missing_screening_row"
+    | "candidate_count_mismatch"
+    | "manual_fix_required"
+    | "empty_positive_annotation";
+  message: string;
+  expected?: number;
+  actual?: number;
+};
 
 interface ScreeningRow {
   fileName: string;
@@ -34,10 +47,10 @@ function parseArgs(argv: string[]): CliOptions {
   }
   if (!rootDir) {
     throw new Error(
-      "Usage: node --experimental-strip-types model/training/prepare-reviewed-annotations.ts --root-dir <seed-batch-dir>"
+      "Usage: node --experimental-strip-types model/training/prepare-reviewed-annotations.ts --root-dir <seed-batch-dir> [--fail-on-issues]"
     );
   }
-  return { rootDir };
+  return { rootDir, failOnIssues: argv.includes("--fail-on-issues") };
 }
 
 function parseBoolean(value: string): boolean {
@@ -159,6 +172,7 @@ async function main() {
     expectedCandidateCount: number | null;
     needsManualFix: boolean;
     targetSplitHint: string;
+    issues: PreparedAnnotationIssue[];
   }> = [];
 
   for (const item of manifest.items) {
@@ -187,18 +201,67 @@ async function main() {
     );
     await writeFile(annotationPath, JSON.stringify(annotation, null, 2), "utf8");
     const screening = screeningByFile.get(fileName);
+    const expectedCandidateCount = screening?.candidateCount ?? null;
+    const issues: PreparedAnnotationIssue[] = [];
+    if (!screening) {
+      issues.push({
+        severity: "warning",
+        code: "missing_screening_row",
+        message: "Selected manifest item has no matching row in review/screening-review.csv.",
+      });
+    }
+    if (
+      expectedCandidateCount !== null &&
+      expectedCandidateCount !== annotation.annotations.length
+    ) {
+      issues.push({
+        severity: "warning",
+        code: "candidate_count_mismatch",
+        message:
+          "Fallback-generated polygon count does not match the reviewer candidate count; inspect and correct this annotation before import.",
+        expected: expectedCandidateCount,
+        actual: annotation.annotations.length,
+      });
+    }
+    if (screening?.needsManualFix) {
+      issues.push({
+        severity: "info",
+        code: "manual_fix_required",
+        message: "Reviewer marked this sample as needing manual polygon correction.",
+      });
+    }
+    if (
+      screening?.keepForTraining &&
+      screening.sampleKind !== "negative" &&
+      annotation.annotations.length === 0
+    ) {
+      issues.push({
+        severity: "error",
+        code: "empty_positive_annotation",
+        message:
+          "Training sample is marked positive but no fallback polygons were generated; create at least one reviewed nail mask or mark the sample negative/drop.",
+      });
+    }
     outputs.push({
       fileName,
       annotationPath,
       polygonCount: annotation.annotations.length,
-      expectedCandidateCount: screening?.candidateCount ?? null,
+      expectedCandidateCount,
       needsManualFix: screening?.needsManualFix ?? false,
       targetSplitHint: screening?.targetSplitHint ?? "",
+      issues,
     });
   }
 
+  const issues = outputs.flatMap((item) =>
+    item.issues.map((issue) => ({ fileName: item.fileName, ...issue }))
+  );
+  const errorCount = issues.filter((issue) => issue.severity === "error").length;
+  const warningCount = issues.filter((issue) => issue.severity === "warning").length;
+  const infoCount = issues.filter((issue) => issue.severity === "info").length;
+
   const report = {
-    ok: outputs.length > 0,
+    ok: outputs.length > 0 && errorCount === 0,
     rootDir: options.rootDir,
     manifestPath,
     reviewPath,
@@ -211,11 +274,35 @@ async function main() {
       : 0,
     manualFixCount: outputs.filter((item) => item.needsManualFix).length,
     splitHints: countBy(outputs.map((item) => item.targetSplitHint || "unspecified")),
+    qualityGate: {
+      ok: outputs.length > 0 && errorCount === 0,
+      failOnIssues: options.failOnIssues,
+      errorCount,
+      warningCount,
+      infoCount,
+      issueCount: issues.length,
+      manualReviewQueue: outputs
+        .filter(
+          (item) =>
+            item.needsManualFix ||
+            item.issues.some((issue) => issue.severity !== "info")
+        )
+        .map((item) => ({
+          fileName: item.fileName,
+          polygonCount: item.polygonCount,
+          expectedCandidateCount: item.expectedCandidateCount,
+          issues: item.issues,
+        })),
+    },
+    issues,
     outputs,
   };
 
   await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
   console.log(JSON.stringify(report, null, 2));
+  if (errorCount > 0 || (options.failOnIssues && issues.length > 0)) {
+    process.exitCode = 1;
+  }
 }
 
 await main();

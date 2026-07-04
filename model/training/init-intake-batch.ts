@@ -15,6 +15,7 @@ interface CliOptions {
   license: string;
   defaultOriginRef: string;
   copyImagesToDataset: boolean;
+  recursive: boolean;
 }
 
 function parseBooleanFlag(value: string): boolean {
@@ -32,6 +33,7 @@ function parseArgs(argv: string[]): CliOptions {
   let license: string | undefined;
   let defaultOriginRef: string | undefined;
   let copyImagesToDataset = true;
+  let recursive = false;
 
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];
@@ -63,11 +65,15 @@ function parseArgs(argv: string[]): CliOptions {
       copyImagesToDataset = parseBooleanFlag(argv[++index] ?? "");
       continue;
     }
+    if (arg === "--recursive") {
+      recursive = true;
+      continue;
+    }
   }
 
   if (!imageDir || !sourceGroup || !originType || !license || !defaultOriginRef) {
     throw new Error(
-      "Usage: node --experimental-strip-types model/training/init-intake-batch.ts --image-dir <dir> --source-group <name> --origin-type <reference|web|user|merchant|negative|other> --license <text> --default-origin-ref <text> [--output <manifest.json>] [--copy-images-to-dataset <true|false>]"
+      "Usage: node --experimental-strip-types model/training/init-intake-batch.ts --image-dir <dir> --source-group <name> --origin-type <reference|web|user|merchant|negative|other> --license <text> --default-origin-ref <text> [--output <manifest.json>] [--copy-images-to-dataset <true|false>] [--recursive]"
     );
   }
 
@@ -79,21 +85,34 @@ function parseArgs(argv: string[]): CliOptions {
     license,
     defaultOriginRef,
     copyImagesToDataset,
+    recursive,
   };
 }
 
-async function collectImageNames(imageDir: string): Promise<string[]> {
-  const entries = await readdir(imageDir, { withFileTypes: true });
-  return entries
-    .filter((entry) => entry.isFile())
-    .map((entry) => entry.name)
-    .filter((fileName) => IMAGE_EXTENSIONS.has(path.extname(fileName).toLowerCase()))
-    .sort((a, b) => a.localeCompare(b));
+async function collectImageNames(imageDir: string, recursive: boolean): Promise<string[]> {
+  const imageNames: string[] = [];
+
+  async function walk(currentDir: string) {
+    const entries = await readdir(currentDir, { withFileTypes: true });
+    for (const entry of entries) {
+      const absolutePath = path.join(currentDir, entry.name);
+      if (entry.isDirectory()) {
+        if (recursive) await walk(absolutePath);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      if (!IMAGE_EXTENSIONS.has(path.extname(entry.name).toLowerCase())) continue;
+      imageNames.push(path.relative(imageDir, absolutePath).replaceAll("\\", "/"));
+    }
+  }
+
+  await walk(imageDir);
+  return imageNames.sort((a, b) => a.localeCompare(b));
 }
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const imageNames = await collectImageNames(options.imageDir);
+  const imageNames = await collectImageNames(options.imageDir, options.recursive);
   if (imageNames.length === 0) {
     throw new Error(`No supported image files found in ${options.imageDir}`);
   }
@@ -107,7 +126,7 @@ async function main() {
     copyImagesToDataset: options.copyImagesToDataset,
     items: imageNames.map((fileName) => ({
       fileName,
-      notes: "",
+      notes: options.recursive ? `relative_path=${fileName}` : "",
     })),
   };
 
@@ -122,6 +141,7 @@ async function main() {
         outputPath: options.outputPath,
         sourceGroup: manifest.sourceGroup,
         originType: manifest.originType,
+        recursive: options.recursive,
         itemCount: manifest.items.length,
         items: manifest.items.map((item) => item.fileName),
       },

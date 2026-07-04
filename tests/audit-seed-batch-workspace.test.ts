@@ -64,6 +64,8 @@ test("audit-seed-batch-workspace reports next step for bootstrapped batch", asyn
   assert.equal(report.stages.annotationsPrepared, false);
   assert.equal(report.nextStep, "batch-verify-nail-detection");
   assert.ok(report.suggestedCommands[0]?.includes("batch-verify-nail-detection.ts"));
+  assert.ok(report.suggestedCommands[0]?.includes("--fixture-dir"));
+  assert.ok(report.suggestedCommands[0]?.includes("/fixtures"));
 
   const persisted = JSON.parse(await readFile(report.reportPath, "utf8")) as {
     nextStep: string;

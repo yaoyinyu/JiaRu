@@ -31,6 +31,21 @@ async function createManifest(modelDir: string, version: string, sizeBytes = 102
   return manifestPath;
 }
 
+async function registerRelease(manifestPath: string, registryPath: string) {
+  await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/register-model-release.ts",
+      "--manifest",
+      manifestPath,
+      "--registry",
+      registryPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+}
 test("run-release-governance-pipeline can build decision promote trace and history in one pass", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-pass-"));
   const reportsDir = path.join(root, "reports");
@@ -71,6 +86,17 @@ test("run-release-governance-pipeline can build decision promote trace and histo
             directlyUsableRate: 0.85,
             contaminatedCount: 1,
             contaminationRate: 0.05,
+            evidence: {
+              ok: true,
+              scope: "release-test-split",
+              representativeTestSplit: true,
+              documentsOk: true,
+              candidatesWithDebugOk: true,
+              candidatesWithPolygonOk: true,
+              minDocuments: 20,
+              minCandidatesWithDebug: 100,
+              minCandidatesWithPolygon: 100,
+            },
             warningBreakdown: {},
             warnings: [],
             nextSteps: [],
@@ -130,18 +156,8 @@ test("run-release-governance-pipeline can build decision promote trace and histo
   );
 
   const registryPath = path.join(modelDir, "release-registry.json");
-  await writeFile(
-    registryPath,
-    JSON.stringify(
-      {
-        currentVersion: "nail-texture-seg-v1",
-        releases: [{ version: "nail-texture-seg-v1" }],
-      },
-      null,
-      2
-    ),
-    "utf8"
-  );
+  await registerRelease(await createManifest(modelDir, "nail-texture-seg-v1"), registryPath);
+  await createManifest(modelDir, "nail-texture-seg-v2");
 
   const historyManifestPath = path.join(reportsDir, "release-history-manifest.json");
   const { stdout } = await execFileAsync(
@@ -170,10 +186,16 @@ test("run-release-governance-pipeline can build decision promote trace and histo
     artifacts: {
       releaseDecision: {
         decision: { status: string };
-        inputs: { textureQualityGateOk: boolean | null; directlyUsableRate: number | null };
+        inputs: {
+          textureQualityGateOk: boolean | null;
+          phase2ExtractionEvidenceOk: boolean | null;
+          phase2ExtractionEvidenceScope: string | null;
+          directlyUsableRate: number | null;
+        };
       };
       promotion: { registerSummary: { registeredVersion: string } };
       traceIndex: { links: { sourceGroupToCandidateVersion: string | null } };
+      rollbackAudit: { ok: boolean; rollbackCandidateCount: number; rollbackCandidates: string[] } | null;
       historyManifest: { totals: { traceIndexes: number } };
     };
   };
@@ -183,15 +205,21 @@ test("run-release-governance-pipeline can build decision promote trace and histo
     "promote-approved-release",
     "build-release-trace-index",
     "register-release-trace-index",
+    "audit-release-rollback",
   ]);
   assert.equal(report.artifacts.releaseDecision.decision.status, "approve_candidate");
   assert.equal(report.artifacts.releaseDecision.inputs.textureQualityGateOk, true);
+  assert.equal(report.artifacts.releaseDecision.inputs.phase2ExtractionEvidenceOk, true);
+  assert.equal(report.artifacts.releaseDecision.inputs.phase2ExtractionEvidenceScope, "release-test-split");
   assert.equal(report.artifacts.releaseDecision.inputs.directlyUsableRate, 0.85);
   assert.equal(report.artifacts.promotion.registerSummary.registeredVersion, "nail-texture-seg-v2");
   assert.equal(
     report.artifacts.traceIndex.links.sourceGroupToCandidateVersion,
     "seed-batch-010 -> nail-texture-seg-v2"
   );
+  assert.equal(report.artifacts.rollbackAudit?.ok, true);
+  assert.equal(report.artifacts.rollbackAudit?.rollbackCandidateCount, 1);
+  assert.deepEqual(report.artifacts.rollbackAudit?.rollbackCandidates, ["nail-texture-seg-v1"]);
   assert.equal(report.artifacts.historyManifest.totals.traceIndexes, 1);
 
   const savedHistory = JSON.parse(await readFile(historyManifestPath, "utf8")) as {
@@ -286,6 +314,7 @@ test("run-release-governance-pipeline still builds decision and trace when candi
         releaseDecision: { decision: { status: string } };
         promotion: unknown | null;
         traceIndex: { batch: { sourceGroup: string | null } | null };
+        rollbackAudit: { skipped?: boolean } | null;
       };
     };
     assert.equal(report.ok, false);
@@ -295,5 +324,243 @@ test("run-release-governance-pipeline still builds decision and trace when candi
     assert.equal(report.artifacts.traceIndex.batch?.sourceGroup, "seed-batch-011");
     assert.equal(report.steps[3]?.name, "register-release-trace-index");
     assert.equal(report.steps[3]?.stdout?.skipped, true);
+    assert.equal(report.steps[4]?.name, "audit-release-rollback");
+    assert.equal(report.steps[4]?.stdout?.skipped, true);
   }
+});
+
+test("run-release-governance-pipeline blocks promotion when training dataset readiness explicitly fails", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-readiness-"));
+  const reportsDir = path.join(root, "reports");
+  await mkdir(reportsDir, { recursive: true });
+  const trainingReleasePipelineReportPath = path.join(reportsDir, "training-release-pipeline-report.json");
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify({
+      ok: true,
+      reportPath: trainingReleasePipelineReportPath,
+      artifacts: {
+        trainingDatasetReadiness: {
+          ok: false,
+          outputPath: path.join(reportsDir, "training-dataset-readiness-release.json"),
+          authorizationMode: "release",
+          steps: [
+            { name: "audit-sources-csv", ok: true },
+            { name: "audit-training-source-authorization", ok: false },
+            { name: "audit-phase1-readiness", ok: false },
+          ],
+          totals: { images: 25, validMasks: 90 },
+        },
+        manifest: { version: "nail-texture-seg-v5", modelFile: "nail-texture-seg-v5.onnx" },
+        finalAudit: { ok: true, decision: { status: "pass", summary: "audit ok", nextActions: [] } },
+      },
+      steps: [],
+    }),
+    "utf8"
+  );
+  try {
+    await execFileAsync(
+      process.execPath,
+      ["--no-warnings", "--experimental-strip-types", "scripts/run-release-governance-pipeline.ts", "--training-release-pipeline-report", trainingReleasePipelineReportPath],
+      { cwd: path.resolve(".") }
+    );
+    assert.fail("expected governance pipeline to hold a non-ready training dataset");
+  } catch (error) {
+    const execError = error as Error & { stdout?: string };
+    const report = JSON.parse(execError.stdout ?? "{}") as {
+      ok: boolean;
+      steps: Array<{ name: string; stdout?: { skipped?: boolean } }>;
+      artifacts: {
+        releaseDecision: { decision: { status: string; reasons: string[] } };
+        traceIndex: { trainingReadiness: { ok: boolean; gates: { sourceAuthorization: boolean } } | null };
+      };
+    };
+    assert.equal(report.ok, false);
+    assert.equal(report.artifacts.releaseDecision.decision.status, "hold_candidate");
+    assert.ok(report.artifacts.releaseDecision.decision.reasons.some((reason) => reason.includes("training dataset readiness failed")));
+    assert.equal(report.steps.find((step) => step.name === "promote-approved-release")?.stdout?.skipped, true);
+    assert.equal(report.artifacts.traceIndex.trainingReadiness?.ok, false);
+    assert.equal(report.artifacts.traceIndex.trainingReadiness?.gates.sourceAuthorization, false);
+  }
+});
+test("run-release-governance-pipeline blocks promotion below the Phase 2 extraction-rate threshold", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-extraction-rate-"));
+  const reportsDir = path.join(root, "reports");
+  await mkdir(reportsDir, { recursive: true });
+  const trainingReleasePipelineReportPath = path.join(reportsDir, "training-release-pipeline-report.json");
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify({
+      ok: true,
+      reportPath: trainingReleasePipelineReportPath,
+      artifacts: {
+        manifest: { version: "nail-texture-seg-v6", modelFile: "nail-texture-seg-v6.onnx" },
+        finalAudit: { ok: true, decision: { status: "pass", summary: "audit ok", nextActions: [] } },
+        finalAuditTextureQualityGate: {
+          ok: false,
+          totals: { documents: 20, candidatesWithDebug: 100, directlyUsableCandidates: 75 },
+          rates: { directlyUsableRate: 0.75, contaminationRate: 0.05, roughRectangleRate: 0.1 },
+          evidence: {
+            ok: true,
+            scope: "release-test-split",
+            representativeTestSplit: true,
+            documentsOk: true,
+            candidatesWithDebugOk: true,
+            candidatesWithPolygonOk: true,
+            minDocuments: 20,
+            minCandidatesWithDebug: 100,
+            minCandidatesWithPolygon: 100,
+          },
+        },
+      },
+      steps: [],
+    }),
+    "utf8"
+  );
+
+  try {
+    await execFileAsync(
+      process.execPath,
+      ["--no-warnings", "--experimental-strip-types", "scripts/run-release-governance-pipeline.ts", "--training-release-pipeline-report", trainingReleasePipelineReportPath],
+      { cwd: path.resolve(".") }
+    );
+    assert.fail("expected governance to hold extraction rate below 80%");
+  } catch (error) {
+    const execError = error as Error & { stdout?: string };
+    const report = JSON.parse(execError.stdout ?? "{}") as {
+      ok: boolean;
+      steps: Array<{ name: string; stdout?: { skipped?: boolean } }>;
+      artifacts: {
+        releaseDecision: {
+          decision: { status: string; reasons: string[] };
+          inputs: {
+            phase2ExtractionRateOk: boolean | null;
+            phase2ExtractionEvidenceOk: boolean | null;
+            phase2ExtractionEvidenceScope: string | null;
+            directlyUsableRate: number | null;
+          };
+        };        traceIndex: {
+          quality: {
+            phase2ExtractionRateOk: boolean | null;
+            directlyUsableRate: number | null;
+            phase2ExtractionEvidenceOk: boolean | null;
+            phase2ExtractionEvidenceScope: string | null;
+            phase2RequiredUsableRate: number;
+          } | null;
+        };
+      };
+    };
+    assert.equal(report.ok, false);
+    assert.equal(report.artifacts.releaseDecision.decision.status, "hold_candidate");
+    assert.equal(report.artifacts.releaseDecision.inputs.phase2ExtractionRateOk, false);
+    assert.equal(report.artifacts.releaseDecision.inputs.phase2ExtractionEvidenceOk, true);
+    assert.equal(report.artifacts.releaseDecision.inputs.phase2ExtractionEvidenceScope, "release-test-split");
+    assert.equal(report.artifacts.releaseDecision.inputs.directlyUsableRate, 0.75);
+    assert.equal(report.artifacts.traceIndex.quality?.phase2ExtractionRateOk, false);
+    assert.equal(report.artifacts.traceIndex.quality?.directlyUsableRate, 0.75);
+    assert.equal(report.artifacts.traceIndex.quality?.phase2ExtractionEvidenceOk, true);
+    assert.equal(report.artifacts.traceIndex.quality?.phase2ExtractionEvidenceScope, "release-test-split");
+    assert.equal(report.artifacts.traceIndex.quality?.phase2RequiredUsableRate, 0.8);
+    assert.ok(report.artifacts.releaseDecision.decision.reasons.some((item) => item.includes("below required 0.800")));
+    assert.equal(report.steps.find((step) => step.name === "promote-approved-release")?.stdout?.skipped, true);
+  }
+});
+test("run-release-governance-pipeline blocks promotion when recognition performance fails", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-performance-"));
+  const reportsDir = path.join(root, "reports");
+  await mkdir(reportsDir, { recursive: true });
+  const trainingReleasePipelineReportPath = path.join(reportsDir, "training-release-pipeline-report.json");
+  const performanceReportPath = path.join(reportsDir, "performance-report.desktop.json");
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify({
+      ok: true,
+      reportPath: trainingReleasePipelineReportPath,
+      artifacts: {
+        manifest: { version: "nail-texture-seg-v8", modelFile: "nail-texture-seg-v8.onnx" },
+        finalAudit: { ok: true, decision: { status: "pass", summary: "audit ok", nextActions: [] } },
+        finalAuditTextureQualityGate: {
+          ok: true,
+          totals: { documents: 20, candidatesWithDebug: 100, directlyUsableCandidates: 95 },
+          rates: { directlyUsableRate: 0.95, contaminationRate: 0.02, roughRectangleRate: 0.05 },
+          evidence: {
+            ok: true,
+            scope: "release-test-split",
+            representativeTestSplit: true,
+            documentsOk: true,
+            candidatesWithDebugOk: true,
+            candidatesWithPolygonOk: true,
+          },
+        },
+      },
+      steps: [],
+    }),
+    "utf8"
+  );
+  await writeFile(
+    performanceReportPath,
+    JSON.stringify({
+      ok: false,
+      profile: "desktop",
+      thresholds: { maxElapsedMs: 800, minSamples: 3 },
+      totals: { samples: 3, slowSamples: 1, skippedFiles: 0 },
+      stats: { averageMs: 700, p95Ms: 920, maxMs: 920 },
+      errors: ["1 sample(s) exceeded desktop budget 800ms"],
+    }),
+    "utf8"
+  );
+
+  await assert.rejects(
+    execFileAsync(
+      process.execPath,
+      [
+        "--no-warnings",
+        "--experimental-strip-types",
+        "scripts/run-release-governance-pipeline.ts",
+        "--training-release-pipeline-report",
+        trainingReleasePipelineReportPath,
+        "--performance-report",
+        performanceReportPath,
+      ],
+      { cwd: path.resolve(".") }
+    ),
+    (error: unknown) => {
+      const execError = error as Error & { stdout?: string };
+      const report = JSON.parse(execError.stdout ?? "{}") as {
+        ok: boolean;
+        inputs: { performanceReportPath: string | null };
+        steps: Array<{ name: string; stdout?: { skipped?: boolean } }>;
+        artifacts: {
+          releaseDecision: {
+            decision: { status: string; reasons: string[] };
+            inputs: { recognitionPerformanceOk: boolean | null; recognitionPerformanceP95Ms: number | null };
+          };
+          traceIndex: {
+            performance: {
+              ok: boolean | null;
+              profile: string | null;
+              maxElapsedMs: number | null;
+              p95Ms: number | null;
+              slowSamples: number | null;
+              performanceReportPath: string | null;
+            } | null;
+          };
+        };
+      };
+      assert.equal(report.ok, false);
+      assert.equal(report.inputs.performanceReportPath, performanceReportPath);
+      assert.equal(report.artifacts.releaseDecision.decision.status, "hold_candidate");
+      assert.equal(report.artifacts.releaseDecision.inputs.recognitionPerformanceOk, false);
+      assert.equal(report.artifacts.releaseDecision.inputs.recognitionPerformanceP95Ms, 920);
+      assert.equal(report.artifacts.traceIndex.performance?.ok, false);
+      assert.equal(report.artifacts.traceIndex.performance?.profile, "desktop");
+      assert.equal(report.artifacts.traceIndex.performance?.maxElapsedMs, 800);
+      assert.equal(report.artifacts.traceIndex.performance?.p95Ms, 920);
+      assert.equal(report.artifacts.traceIndex.performance?.slowSamples, 1);
+      assert.equal(report.artifacts.traceIndex.performance?.performanceReportPath, performanceReportPath);
+      assert.ok(report.artifacts.releaseDecision.decision.reasons.some((item) => item.includes("recognition performance failed")));
+      assert.equal(report.steps.find((step) => step.name === "promote-approved-release")?.stdout?.skipped, true);
+      return true;
+    }
+  );
 });

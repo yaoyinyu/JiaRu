@@ -1,0 +1,2425 @@
+{
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\ai-nail-2026-07-04.manifest.json",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu_image",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\ai-nail-2026-07-04.manifest.report.json",
+  "ok": true,
+  "sourceGroup": "ai-nail-2026-07-04",
+  "originType": "other",
+  "itemCount": 300,
+  "missingFiles": [],
+  "unsafeFiles": [],
+  "unlistedFiles": [
+    "negative/2026_7_5/no_nail_plain_dark_background_0001.png"
+  ],
+  "invalidImageFiles": [],
+  "imageChecks": [
+    {
+      "fileName": "claude/2026_7_4/nail_0000.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0001.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0002.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0003.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0004.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0005.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0006.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0007.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0008.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0009.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0010.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0011.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0012.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0013.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0014.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0015.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0016.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0017.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0018.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0019.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0020.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0021.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0022.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0023.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0024.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0025.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0026.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0027.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0028.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0029.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0030.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0031.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0032.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0033.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0034.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0035.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0036.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0037.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0038.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0039.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0040.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0041.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0042.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0043.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0044.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0045.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0046.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0047.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0048.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0049.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0050.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0051.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0052.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0053.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0054.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0055.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0056.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0057.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0058.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0059.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0060.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0061.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0062.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0063.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0064.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0065.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0066.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0067.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0068.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0069.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0070.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0071.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0072.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0073.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0074.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0075.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0076.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0077.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0078.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0079.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0080.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0081.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0082.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0083.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0084.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0085.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0086.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0087.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0088.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0089.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0090.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0091.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0092.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0093.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0094.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0095.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0096.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0097.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0098.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0099.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0100.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0101.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0102.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0103.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0104.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0105.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0106.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0107.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0108.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0109.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0110.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0111.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0112.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0113.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0114.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0115.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0116.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0117.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0118.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0119.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0120.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0121.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0122.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0123.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0124.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0125.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0126.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0127.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0128.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0129.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0130.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0131.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0132.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0133.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0134.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0135.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0136.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0137.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0138.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0139.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0140.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0141.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0142.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0143.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0144.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0145.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0146.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0147.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0148.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0149.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0150.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0151.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0152.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0153.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0154.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0155.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0156.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0157.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0158.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0159.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0160.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0161.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0162.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0163.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0164.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0165.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0166.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0167.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0168.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0169.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0170.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0171.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0172.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0173.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0174.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0175.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0176.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0177.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0178.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0179.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0180.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0181.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0182.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0183.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0184.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0185.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0186.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0187.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0188.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0189.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0190.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0191.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0192.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0193.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0194.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0195.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0196.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0197.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0198.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "claude/2026_7_4/nail_0199.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Animal_print_nail_art_collecti_2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Beautiful_gradient_ombre_nail__2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Chrome_metallic_foil_nail_art__2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Diverse_floral_garden_nail_art_2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Elegant_marble_nail_art_close__2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Elegant_marble_stone_luxury_na_2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Galaxy_space_cosmic_nail_desig_2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Glitter_gradient_nude_nails__s_2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Holographic_chrome_mirror_nail_2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Japanese_cherry_blossom_nail_a_2026-07-04T14-50-38.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Matte_burgundy_wine_red_nails__2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Minimalist_black_line_art_nail_2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Minimalist_French_tip_nail_art_2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Modern_geometric_abstract_nail_2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A1__watercolor__2026-07-04T14-54-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A10__copper_bro_2026-07-04T14-54-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A2__neon_green__2026-07-04T14-54-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A3__negative_sp_2026-07-04T14-54-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A4__iridescent__2026-07-04T14-54-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A5__cherry_red__2026-07-04T14-54-20.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A6__frosted_gla_2026-07-04T14-54-20.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A7__matte_black_2026-07-04T14-54-20.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A8__sunny_yello_2026-07-04T14-54-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_A9__rose_quartz_2026-07-04T14-54-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B1__holographic_2026-07-04T14-55-12.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B10__winter_won_2026-07-04T14-55-22.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B11__hot_pink_b_2026-07-04T14-55-12.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B12__matcha_gre_2026-07-04T14-55-12.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B2__electric_bl_2026-07-04T14-55-12.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B3_retry__terra_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B4__sheer_jelly_2026-07-04T14-55-12.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B5__checkerboar_2026-07-04T14-55-12.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B6__sage_green__2026-07-04T14-55-11.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B7__butterfly_w_2026-07-04T14-55-12.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B8__matte_navy__2026-07-04T14-55-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_B9__tie_dye_swi_2026-07-04T14-55-12.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C1__lavender_pu_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C10__watermelon_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C11__monochrome_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C2__molten_lava_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C3__ballet_slip_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C4__stained_gla_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C5__latte_coffe_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C6__emerald_gre_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C7__sunset_grad_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C8__celestial_s_2026-07-04T14-56-07.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_C9__denim_textu_2026-07-04T14-56-08.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D1__cotton_cand_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D10__aurora_sky_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D11__neon_yello_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D12__dusty_mauv_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D2__chrome_silv_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D3__peachy_cora_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D4__dark_vampir_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D5__pistachio_m_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D6__color_block_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D7__pearl_white_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D8__galaxy_nebu_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_D9__tortoiseshe_2026-07-04T14-56-54.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E1__barbed_wire_2026-07-04T14-57-40.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E10__lavender_h_2026-07-04T14-57-41.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E11__terrazzo_s_2026-07-04T14-57-40.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E12__deep_plum__2026-07-04T14-57-41.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E2__dusty_blue__2026-07-04T14-57-41.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E3__peach_fuzz__2026-07-04T14-57-41.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E4__dragon_scal_2026-07-04T14-57-40.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E5__strawberry__2026-07-04T14-57-41.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E6__rust_orange_2026-07-04T14-57-41.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E7__transparent_2026-07-04T14-57-41.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E8__cyberpunk_n_2026-07-04T14-57-40.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_E9__caramel_tof_2026-07-04T14-57-40.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F1__jelly_bean__2026-07-04T14-58-33.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F10__soft_apric_2026-07-04T14-58-33.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F11__oxidized_c_2026-07-04T14-58-32.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F12__cherry_col_2026-07-04T14-58-32.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F2__black_swan__2026-07-04T14-58-33.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F3__champagne_g_2026-07-04T14-58-32.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F4__airbrush_ne_2026-07-04T14-58-33.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F5__vanilla_cre_2026-07-04T14-58-32.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F6__royal_blue__2026-07-04T14-58-32.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F7__sakura_pink_2026-07-04T14-58-33.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F8__newspaper_p_2026-07-04T14-58-32.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_F9__lime_green__2026-07-04T14-58-33.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G1__milky_white_2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G10__amethyst_g_2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G11__lightning__2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G2__khaki_green_2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G3__rose_gold_n_2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G4__ocean_wave__2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G5__candy_corn__2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G6__pistachio_i_2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G7__laser_cut_p_2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G8__holographic_2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Nail_art_batch_G9__soft_butter_2026-07-04T14-59-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Neon_abstract_art_nails__matte_2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Ocean_summer_beach_nail_design_2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Pearl_shell_iridescent_nails___2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Sweet_candy_pastel_kawaii_nail_2026-07-04T14-53-04.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Tropical_ocean_beach_summer_na_2026-07-04T14-54-21.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "Worke Buudy/2026_7_4/Vintage_lace_pattern_nails__cr_2026-07-04T14-50-39.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    }
+  ],
+  "issues": [
+    {
+      "code": "unlisted_image_file",
+      "severity": "warning",
+      "message": "image file exists on disk but is not listed in manifest: negative/2026_7_5/no_nail_plain_dark_background_0001.png",
+      "fileName": "negative/2026_7_5/no_nail_plain_dark_background_0001.png"
+    }
+  ]
+}

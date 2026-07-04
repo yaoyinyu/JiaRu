@@ -5,12 +5,41 @@ import {
   recognizeNailTexturesInWorker,
   type RecognizeNailTextureResponse,
 } from "../src/lib/nail-texture-recognition/index.ts";
+import { prepareWorkerImagePixels } from "../src/lib/nail-texture-recognition/client-worker.ts";
 
+test("prepareWorkerImagePixels reuses clamped RGBA storage without copying", () => {
+  const source = new Uint8ClampedArray(16).fill(127);
+  const prepared = prepareWorkerImagePixels({ width: 2, height: 2, data: source });
+  assert.equal(prepared, source);
+});
+
+test("prepareWorkerImagePixels copies generic array-like pixels with native typed-array set", () => {
+  const source = new Uint8Array(16).fill(300);
+  const prepared = prepareWorkerImagePixels({ width: 2, height: 2, data: source });
+  assert.notEqual(prepared, source);
+  assert.equal(prepared.length, 16);
+  assert.equal(prepared[0], 44);
+});
+
+test("prepareWorkerImagePixels copies SharedArrayBuffer pixels for ImageData compatibility", () => {
+  const source = new Uint8ClampedArray(new SharedArrayBuffer(16)).fill(91);
+  const prepared = prepareWorkerImagePixels({ width: 2, height: 2, data: source });
+  assert.notEqual(prepared, source);
+  assert.ok(prepared.buffer instanceof ArrayBuffer);
+  assert.equal(prepared[0], 91);
+});
+test("prepareWorkerImagePixels rejects malformed RGBA lengths", () => {
+  assert.throws(
+    () => prepareWorkerImagePixels({ width: 2, height: 2, data: new Uint8Array(15) }),
+    /invalid_image_pixel_length:expected_16_actual_15/
+  );
+});
 test("recognizeNailTexturesInWorker preserves modelInfo from worker response", async () => {
   const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
   const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
   const imageDataDescriptor = Object.getOwnPropertyDescriptor(globalThis, "ImageData");
   const createImageBitmapDescriptor = Object.getOwnPropertyDescriptor(globalThis, "createImageBitmap");
+  const performanceDescriptor = Object.getOwnPropertyDescriptor(globalThis, "performance");
 
   class FakeImageData {
     data: Uint8ClampedArray;
@@ -25,13 +54,15 @@ test("recognizeNailTexturesInWorker preserves modelInfo from worker response", a
   }
 
   const postedRequests: Array<{ id: string; maxCandidates: number }> = [];
+  const sourcePixels = new Uint8ClampedArray(16).fill(255);
+  let bitmapInputPixels: Uint8ClampedArray | null = null;
 
   class FakeWorker {
     static latestInstance: FakeWorker | null = null;
     onmessage: ((event: MessageEvent<RecognizeNailTextureResponse>) => void) | null = null;
     onerror: ((event: ErrorEvent) => void) | null = null;
 
-    constructor(_url: URL, _options?: WorkerOptions) {}
+    constructor() {}
 
     postMessage(message: { id: string; maxCandidates: number }) {
       postedRequests.push({ id: message.id, maxCandidates: message.maxCandidates });
@@ -59,7 +90,19 @@ test("recognizeNailTexturesInWorker preserves modelInfo from worker response", a
     terminate() {}
   }
 
-  Object.defineProperty(globalThis, "window", {
+    let now = 100;
+  Object.defineProperty(globalThis, "performance", {
+    configurable: true,
+    writable: true,
+    value: {
+      now: () => {
+        const value = now;
+        now += 50;
+        return value;
+      },
+    },
+  });
+Object.defineProperty(globalThis, "window", {
     configurable: true,
     writable: true,
     value: {},
@@ -77,7 +120,10 @@ test("recognizeNailTexturesInWorker preserves modelInfo from worker response", a
   Object.defineProperty(globalThis, "createImageBitmap", {
     configurable: true,
     writable: true,
-    value: async (_imageData: FakeImageData) => ({ width: 2, height: 2 }),
+    value: async (imageData: FakeImageData) => {
+      bitmapInputPixels = imageData.data;
+      return { width: 2, height: 2 };
+    },
   });
 
   try {
@@ -85,7 +131,7 @@ test("recognizeNailTexturesInWorker preserves modelInfo from worker response", a
       {
         width: 2,
         height: 2,
-        data: new Uint8ClampedArray(16).fill(255),
+        data: sourcePixels,
       },
       {
         preferModel: true,
@@ -94,14 +140,20 @@ test("recognizeNailTexturesInWorker preserves modelInfo from worker response", a
     );
 
     assert.equal(result.backend, "model");
-    assert.equal(result.elapsedMs, 17);
+    assert.equal(result.elapsedMs, 50);
+    assert.equal(result.workerElapsedMs, 17);
     assert.equal(result.modelVersion, "nail-texture-seg-v7");
     assert.equal(result.modelInfo?.backend, "webgpu");
     assert.equal(result.modelInfo?.inputSize, 640);
     assert.equal(postedRequests[0]?.maxCandidates, 10);
+    assert.equal(bitmapInputPixels, sourcePixels);
   } finally {
     disposeNailTextureRecognitionWorker();
-    if (windowDescriptor) {
+        if (performanceDescriptor) {
+      Object.defineProperty(globalThis, "performance", performanceDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { performance?: unknown }).performance;
+    }if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
       delete (globalThis as typeof globalThis & { window?: unknown }).window;
@@ -149,7 +201,7 @@ test("recognizeNailTexturesInWorker forwards explicit maxCandidates to worker", 
     onmessage: ((event: MessageEvent<RecognizeNailTextureResponse>) => void) | null = null;
     onerror: ((event: ErrorEvent) => void) | null = null;
 
-    constructor(_url: URL, _options?: WorkerOptions) {}
+    constructor() {}
 
     postMessage(message: { id: string; maxCandidates: number }) {
       postedRequests.push({ id: message.id, maxCandidates: message.maxCandidates });
@@ -185,7 +237,7 @@ test("recognizeNailTexturesInWorker forwards explicit maxCandidates to worker", 
   Object.defineProperty(globalThis, "createImageBitmap", {
     configurable: true,
     writable: true,
-    value: async (_imageData: FakeImageData) => ({ width: 2, height: 2 }),
+    value: async () => ({ width: 2, height: 2 }),
   });
 
   try {
@@ -252,8 +304,9 @@ test("recognizeNailTexturesInWorker rejects with AbortError when cancelled", asy
     onmessage: ((event: MessageEvent<RecognizeNailTextureResponse>) => void) | null = null;
     onerror: ((event: ErrorEvent) => void) | null = null;
     postedIds: string[] = [];
+    terminated = false;
 
-    constructor(_url: URL, _options?: WorkerOptions) {
+    constructor() {
       FakeWorker.latestInstance = this;
     }
 
@@ -261,7 +314,9 @@ test("recognizeNailTexturesInWorker rejects with AbortError when cancelled", asy
       this.postedIds.push(message.id);
     }
 
-    terminate() {}
+    terminate() {
+      this.terminated = true;
+    }
   }
 
   Object.defineProperty(globalThis, "window", {
@@ -282,7 +337,7 @@ test("recognizeNailTexturesInWorker rejects with AbortError when cancelled", asy
   Object.defineProperty(globalThis, "createImageBitmap", {
     configurable: true,
     writable: true,
-    value: async (_imageData: FakeImageData) => ({ width: 2, height: 2 }),
+    value: async () => ({ width: 2, height: 2 }),
   });
 
   try {
@@ -299,12 +354,17 @@ test("recognizeNailTexturesInWorker rejects with AbortError when cancelled", asy
       }
     );
 
+    while (!FakeWorker.latestInstance?.postedIds.length) {
+      await new Promise((resolve) => setImmediate(resolve));
+    }
     controller.abort();
 
     await assert.rejects(
       pending,
       (error: Error) => error.name === "AbortError" && error.message === "recognition_cancelled_by_user"
     );
+
+    assert.equal(FakeWorker.latestInstance?.terminated, true);
 
     const requestId = FakeWorker.latestInstance?.postedIds[0];
     if (requestId) {
