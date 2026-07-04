@@ -122,4 +122,25 @@ Safety notes:
 
 - The tool refuses `--negative true` when annotations still exist unless `--clear-annotations` is provided.
 - The tool requires the file to already exist in `metadata/sources.csv`, because readiness gates depend on source metadata.
-- Do not infer negative samples from names such as “negative space”; a negative sample means there is no valid nail-texture region to segment.
+- Do not infer negative samples from names such as "negative space"; a negative sample means there is no valid nail-texture region to segment.
+## Generate a Phase 1 review candidate list
+
+Use `plan-phase1-review-candidates.ts` before manually marking coverage samples. It reads the current dataset, ranks likely complex-background samples, lists weak possible-negative candidates, and writes both JSON and CSV review artifacts:
+
+```bash
+node --no-warnings --experimental-strip-types model/training/plan-phase1-review-candidates.ts --top 10
+```
+
+Generated artifacts:
+
+```text
+model/datasets/nail-texture-v1/metadata/phase1-review-candidates.json
+model/datasets/nail-texture-v1/metadata/phase1-review-candidates.csv
+```
+
+Current generated report summary:
+
+- 28 complex-background review candidates found.
+- 9 possible negative review candidates found, all high-risk and requiring visual confirmation.
+- Several complex-background candidates are already in the test split and only need a confirmed `mark-phase1-samples.ts` command.
+- No safe automatic negative sample was found; if none of the candidates is truly non-target, add dedicated no-nail/non-target negative images instead of relabeling nail-art images.
