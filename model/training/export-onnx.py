@@ -1,11 +1,20 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import shutil
 from pathlib import Path
 
 from _training_common import ensure_python_dependency, resolve_best_weights_path, write_json
+
+
+def sha256_file(file_path: Path) -> str:
+    digest = hashlib.sha256()
+    with file_path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -56,6 +65,8 @@ def main() -> None:
 
     output_dir.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(export_path, onnx_path)
+    model_size_bytes = onnx_path.stat().st_size
+    model_sha256 = sha256_file(onnx_path)
     write_json(
         manifest_path,
         {
@@ -64,6 +75,8 @@ def main() -> None:
             "inputSize": args.input_size,
             "backendPreferences": args.backend_preferences,
             "modelFile": onnx_path.name,
+            "modelSizeBytes": model_size_bytes,
+            "sha256": model_sha256,
             "labels": args.labels,
         },
     )

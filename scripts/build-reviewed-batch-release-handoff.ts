@@ -13,6 +13,20 @@ interface ReviewedBatchImportPipelineReportLike {
       datasetRoot?: string;
       reportPath?: string;
       importedDocuments?: Array<{ fileName?: string }>;
+      trainingDatasetReadinessSnapshot?: {
+        ok?: boolean;
+        outputPath?: string;
+        authorizationMode?: string;
+        steps?: Array<{ name?: string; ok?: boolean }>;
+        artifacts?: {
+          sourceAudit?: { ok?: boolean } | null;
+          sourceAuthorization?: { ok?: boolean } | null;
+          phase1Readiness?: {
+            ok?: boolean;
+            totals?: { images?: number; validMasks?: number };
+          } | null;
+        };
+      };
     };
   }>;
 }
@@ -26,6 +40,18 @@ interface ReleaseTraceDraftLike {
     reviewedImportReportPath?: string | null;
     importedFileCount?: number;
   } | null;
+  trainingReadiness?: {
+    ok?: boolean | null;
+    reportPath?: string | null;
+    authorizationMode?: string | null;
+    gates?: {
+      sourceAudit?: boolean | null;
+      sourceAuthorization?: boolean | null;
+      phase1Readiness?: boolean | null;
+    };
+    totals?: { images?: number | null; validMasks?: number | null };
+    failingSteps?: string[];
+  };
 }
 
 interface CliOptions {
@@ -95,6 +121,32 @@ async function main() {
     await readJson<ReviewedBatchImportPipelineReportLike>(options.reviewedBatchImportPipelineReportPath);
   const releaseTraceDraft = await readJson<ReleaseTraceDraftLike>(options.releaseTraceDraftPath);
   const importStep = findImportStep(reviewedBatchImportPipelineReport);
+  const readinessSnapshot = importStep?.stdout?.trainingDatasetReadinessSnapshot;
+  const traceReadiness = releaseTraceDraft.trainingReadiness;
+  const trainingReadiness = readinessSnapshot
+    ? {
+        ok: readinessSnapshot.ok ?? null,
+        reportPath: readinessSnapshot.outputPath ?? null,
+        authorizationMode: readinessSnapshot.authorizationMode ?? null,
+        gates: {
+          sourceAudit: readinessSnapshot.artifacts?.sourceAudit?.ok ?? null,
+          sourceAuthorization:
+            readinessSnapshot.artifacts?.sourceAuthorization?.ok ?? null,
+          phase1Readiness:
+            readinessSnapshot.artifacts?.phase1Readiness?.ok ?? null,
+        },
+        totals: {
+          images: readinessSnapshot.artifacts?.phase1Readiness?.totals?.images ?? null,
+          validMasks:
+            readinessSnapshot.artifacts?.phase1Readiness?.totals?.validMasks ?? null,
+        },
+        failingSteps:
+          readinessSnapshot.steps
+            ?.filter((step) => step.ok === false)
+            .map((step) => step.name)
+            .filter((name): name is string => Boolean(name)) ?? [],
+      }
+    : traceReadiness ?? null;
 
   const summary = {
     ok: true,
@@ -116,6 +168,7 @@ async function main() {
         releaseTraceDraft.batch?.importedFileCount ??
         0,
     },
+    trainingReadiness,
     governanceHints: {
       reviewedBatchRootDir: options.rootDir,
       reviewedBatchImportPipelineReportPath: options.reviewedBatchImportPipelineReportPath,

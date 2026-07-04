@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import path from "node:path";
 import process from "node:process";
 import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
@@ -8,6 +9,8 @@ interface ManifestLike {
   task: string;
   backendPreferences: string[];
   modelFile: string;
+  modelSizeBytes?: number;
+  sha256?: string;
   labels: string[];
 }
 
@@ -20,7 +23,9 @@ interface ReleaseRegistryEntry {
   task: string;
   backendPreferences: string[];
   labels: string[];
+  modelSizeBytes: number;
   modelSizeMb: number;
+  sha256: string;
   registeredAt: string;
 }
 
@@ -40,6 +45,10 @@ function parseBoolean(value: string): boolean {
   if (normalized === "true") return true;
   if (normalized === "false") return false;
   usage();
+}
+
+async function sha256File(filePath: string): Promise<string> {
+  return createHash("sha256").update(await readFile(filePath)).digest("hex");
 }
 
 const args = process.argv.slice(2);
@@ -67,6 +76,8 @@ const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as ManifestLik
 const manifestDir = path.dirname(manifestPath);
 const modelPath = path.resolve(manifestDir, manifest.modelFile);
 const modelStats = await stat(modelPath);
+const modelSizeBytes = modelStats.size;
+const modelSha256 = await sha256File(modelPath);
 const registry = await readRegistry(registryPath);
 const snapshotPath = path.join(manifestDir, `manifest.${manifest.version}.json`);
 
@@ -82,7 +93,9 @@ const entry: ReleaseRegistryEntry = {
   task: manifest.task,
   backendPreferences: manifest.backendPreferences,
   labels: manifest.labels,
-  modelSizeMb: Number((modelStats.size / (1024 * 1024)).toFixed(4)),
+  modelSizeBytes,
+  modelSizeMb: Number((modelSizeBytes / (1024 * 1024)).toFixed(4)),
+  sha256: modelSha256,
   registeredAt: new Date().toISOString(),
 };
 
@@ -107,6 +120,8 @@ console.log(
       currentVersion: nextRegistry.currentVersion,
       releaseCount: nextRegistry.releases.length,
       registeredVersion: entry.version,
+      modelSizeBytes: entry.modelSizeBytes,
+      sha256: entry.sha256,
     },
     null,
     2

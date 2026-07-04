@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
-test("prepare-reviewed-annotations writes initial annotation jsons and prep report", async () => {
+async function createReviewedBatch(options?: { firstCandidateCount?: number }) {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-prepare-reviewed-"));
   const reviewDir = path.join(root, "review");
   const selectedImagesDir = path.join(root, "selected", "images");
@@ -16,7 +16,7 @@ test("prepare-reviewed-annotations writes initial annotation jsons and prep repo
     path.join(reviewDir, "screening-review.csv"),
     [
       "fileName,keepForTraining,decision,reasonCode,candidateCount,needsManualFix,targetSplitHint,sampleKind,backgroundTone,colorFamily,effectTags,notes",
-      "sample-001.jpg,true,keep,good_detection,4,true,train,reference,light,red,highlight|gold_line,ok",
+      `sample-001.jpg,true,keep,good_detection,${options?.firstCandidateCount ?? 4},true,train,reference,light,red,highlight|gold_line,ok`,
       "sample-002.png,false,reserve_for_test,complex_background,3,false,test,merchant,dark,black,glitter,ok",
       "",
     ].join("\n"),
@@ -47,7 +47,11 @@ test("prepare-reviewed-annotations writes initial annotation jsons and prep repo
   await cp(path.resolve("model/5188.jpg_wh860.jpg"), path.join(selectedImagesDir, "sample-001.jpg"));
   await cp(path.resolve("model/5188.jpg_wh860.png"), path.join(selectedImagesDir, "sample-002.png"));
 
-  const stdout = await new Promise<string>((resolve, reject) => {
+  return root;
+}
+
+async function runPrepareReviewedAnnotations(root: string, args: string[] = []) {
+  return await new Promise<{ code: number; stdout: string; stderr: string }>((resolve, reject) => {
     const child = spawn(
       process.execPath,
       [
@@ -56,28 +60,35 @@ test("prepare-reviewed-annotations writes initial annotation jsons and prep repo
         "model/training/prepare-reviewed-annotations.ts",
         "--root-dir",
         root,
+        ...args,
       ],
       { cwd: process.cwd(), stdio: ["ignore", "pipe", "pipe"] }
     );
-    let out = "";
-    let err = "";
-    child.stdout.on("data", (chunk) => (out += String(chunk)));
-    child.stderr.on("data", (chunk) => (err += String(chunk)));
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (chunk) => (stdout += String(chunk)));
+    child.stderr.on("data", (chunk) => (stderr += String(chunk)));
     child.on("error", reject);
-    child.on("exit", (code) => {
-      if ((code ?? 0) !== 0) {
-        reject(new Error(err || `unexpected exit code: ${code}`));
-        return;
-      }
-      resolve(out);
-    });
+    child.on("exit", (code) => resolve({ code: code ?? 0, stdout, stderr }));
   });
+}
 
-  const report = JSON.parse(stdout) as {
+test("prepare-reviewed-annotations writes initial annotation jsons and prep report", async () => {
+  const root = await createReviewedBatch();
+  const result = await runPrepareReviewedAnnotations(root);
+  assert.equal(result.code, 0, result.stderr);
+
+  const report = JSON.parse(result.stdout) as {
     preparedCount: number;
     totalPolygons: number;
     manualFixCount: number;
     reportPath: string;
+    qualityGate: {
+      ok: boolean;
+      infoCount: number;
+      issueCount: number;
+      manualReviewQueue: Array<{ fileName: string; issues: Array<{ code: string }> }>;
+    };
     outputs: Array<{ annotationPath: string; polygonCount: number; targetSplitHint: string }>;
   };
 
@@ -86,6 +97,15 @@ test("prepare-reviewed-annotations writes initial annotation jsons and prep repo
   assert.equal(report.manualFixCount, 1);
   assert.equal(report.outputs[0]?.targetSplitHint, "train");
   assert.equal(report.outputs[1]?.targetSplitHint, "test");
+  assert.equal(report.qualityGate.ok, true);
+  assert.ok(report.qualityGate.infoCount >= 1);
+  assert.ok(
+    report.qualityGate.manualReviewQueue.some(
+      (item) =>
+        item.fileName === "sample-001.jpg" &&
+        item.issues.some((issue) => issue.code === "manual_fix_required")
+    )
+  );
 
   const annotation = JSON.parse(
     await readFile(report.outputs[0]!.annotationPath, "utf8")
@@ -94,6 +114,28 @@ test("prepare-reviewed-annotations writes initial annotation jsons and prep repo
 
   const persisted = JSON.parse(await readFile(report.reportPath, "utf8")) as {
     preparedCount: number;
+    qualityGate: { issueCount: number };
   };
   assert.equal(persisted.preparedCount, 2);
+  assert.equal(persisted.qualityGate.issueCount, report.qualityGate.issueCount);
+});
+
+test("prepare-reviewed-annotations strict mode fails when reviewer counts need inspection", async () => {
+  const root = await createReviewedBatch({ firstCandidateCount: 999 });
+  const result = await runPrepareReviewedAnnotations(root, ["--fail-on-issues"]);
+  assert.notEqual(result.code, 0);
+
+  const report = JSON.parse(result.stdout) as {
+    ok: boolean;
+    qualityGate: { warningCount: number; failOnIssues: boolean };
+    issues: Array<{ code: string; expected?: number }>;
+  };
+  assert.equal(report.ok, true);
+  assert.equal(report.qualityGate.failOnIssues, true);
+  assert.ok(report.qualityGate.warningCount >= 1);
+  assert.ok(
+    report.issues.some(
+      (issue) => issue.code === "candidate_count_mismatch" && issue.expected === 999
+    )
+  );
 });

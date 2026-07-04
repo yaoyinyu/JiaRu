@@ -75,6 +75,14 @@ test("phase1 intake pipeline runs manifest preflight through label conversion", 
     sourceGroup: string;
     steps: Array<{ name: string; ok: boolean }>;
     reportPath: string;
+    readinessSnapshot: {
+      ok: boolean;
+      totals: { images: number; validMasks: number };
+      gates: {
+        imageCount: { ok: boolean; actual: number; required: number };
+        validMaskCount: { ok: boolean; actual: number; required: number };
+      };
+    };
   };
 
   assert.equal(report.ok, true);
@@ -84,11 +92,26 @@ test("phase1 intake pipeline runs manifest preflight through label conversion", 
     report.steps.some((step) => step.name === "export-fallback-annotations" && step.ok)
   );
   assert.ok(report.steps.some((step) => step.name === "convert-annotations" && step.ok));
+  assert.ok(report.steps.some((step) => step.name === "audit-phase1-readiness" && step.ok));
+  assert.equal(report.readinessSnapshot.ok, false);
+  assert.equal(report.readinessSnapshot.totals.images, 1);
+  assert.equal(report.readinessSnapshot.gates.imageCount.required, 200);
+  assert.equal(report.readinessSnapshot.gates.validMaskCount.required, 800);
 
   const savedReport = JSON.parse(await readFile(report.reportPath, "utf8")) as {
     ok: boolean;
+    readinessSnapshot: {
+      totals: { images: number };
+    };
   };
   assert.equal(savedReport.ok, true);
+  assert.equal(savedReport.readinessSnapshot.totals.images, 1);
+
+  const readinessReport = JSON.parse(
+    await readFile(path.join(datasetRoot, "metadata", "phase1-readiness.json"), "utf8")
+  ) as { ok: boolean; totals: { images: number } };
+  assert.equal(readinessReport.ok, false);
+  assert.equal(readinessReport.totals.images, 1);
 
   const sourcesCsv = await readFile(
     path.join(datasetRoot, "metadata", "sources.csv"),

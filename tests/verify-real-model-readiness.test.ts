@@ -25,6 +25,8 @@ test("verify-real-model-readiness runs artifact and fixture verification togethe
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -32,7 +34,7 @@ test("verify-real-model-readiness runs artifact and fixture verification togethe
     ),
     "utf8"
   );
-  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(2048), "binary");
+  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const dumpPath = path.join(root, "nail-model-output-dump.json");
   await writeFile(
@@ -118,6 +120,8 @@ test("verify-real-model-readiness reports missing model artifact as structured f
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -184,6 +188,8 @@ test("verify-real-model-readiness can include single-image verification when art
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -191,7 +197,7 @@ test("verify-real-model-readiness can include single-image verification when art
     ),
     "utf8"
   );
-  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(2048), "binary");
+  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const { stdout } = await execFileAsync(
     process.execPath,

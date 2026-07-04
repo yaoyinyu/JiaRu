@@ -5,6 +5,23 @@ import os from "node:os";
 import path from "node:path";
 import test from "node:test";
 
+async function runInitIntakeBatch(args: string[]) {
+  return await new Promise<number>((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      [
+        "--no-warnings",
+        "--experimental-strip-types",
+        "model/training/init-intake-batch.ts",
+        ...args,
+      ],
+      { cwd: process.cwd(), stdio: "ignore" }
+    );
+    child.on("error", reject);
+    child.on("exit", (code) => resolve(code ?? 0));
+  });
+}
+
 test("init-intake-batch creates a sorted manifest draft from image directory", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-init-intake-"));
   const imageDir = path.join(root, "batch");
@@ -15,31 +32,20 @@ test("init-intake-batch creates a sorted manifest draft from image directory", a
 
   const manifestPath = path.join(root, "seed-batch-001.manifest.json");
 
-  const exitCode = await new Promise<number>((resolve, reject) => {
-    const child = spawn(
-      process.execPath,
-      [
-        "--no-warnings",
-        "--experimental-strip-types",
-        "model/training/init-intake-batch.ts",
-        "--image-dir",
-        imageDir,
-        "--output",
-        manifestPath,
-        "--source-group",
-        "seed-batch-001",
-        "--origin-type",
-        "web",
-        "--license",
-        "internal-test-only",
-        "--default-origin-ref",
-        "manual web sourcing 2026-07-01",
-      ],
-      { cwd: process.cwd(), stdio: "ignore" }
-    );
-    child.on("error", reject);
-    child.on("exit", (code) => resolve(code ?? 0));
-  });
+  const exitCode = await runInitIntakeBatch([
+    "--image-dir",
+    imageDir,
+    "--output",
+    manifestPath,
+    "--source-group",
+    "seed-batch-001",
+    "--origin-type",
+    "web",
+    "--license",
+    "internal-test-only",
+    "--default-origin-ref",
+    "manual web sourcing 2026-07-01",
+  ]);
 
   assert.equal(exitCode, 0);
   const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as {
@@ -61,35 +67,62 @@ test("init-intake-batch creates a sorted manifest draft from image directory", a
   );
 });
 
+test("init-intake-batch can create a recursive manifest with relative image paths", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-init-intake-recursive-"));
+  const imageDir = path.join(root, "batch");
+  await mkdir(path.join(imageDir, "claude", "2026_7_4"), { recursive: true });
+  await mkdir(path.join(imageDir, "worker", "2026_7_4"), { recursive: true });
+  await writeFile(path.join(imageDir, "root.jpg"), "x");
+  await writeFile(path.join(imageDir, "claude", "2026_7_4", "nail_0001.jpg"), "x");
+  await writeFile(path.join(imageDir, "worker", "2026_7_4", "nail_0002.png"), "x");
+  await writeFile(path.join(imageDir, "worker", "2026_7_4", "notes.txt"), "ignore");
+
+  const manifestPath = path.join(root, "ai-nail-2026-07-04.manifest.json");
+  const exitCode = await runInitIntakeBatch([
+    "--image-dir",
+    imageDir,
+    "--output",
+    manifestPath,
+    "--source-group",
+    "ai-nail-2026-07-04",
+    "--origin-type",
+    "other",
+    "--license",
+    "ai-generated-internal-training-candidate",
+    "--default-origin-ref",
+    "local AI generation batch 2026-07-04",
+    "--recursive",
+  ]);
+
+  assert.equal(exitCode, 0);
+  const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as {
+    items: Array<{ fileName: string; notes: string }>;
+  };
+  assert.deepEqual(
+    manifest.items.map((item) => item.fileName),
+    ["claude/2026_7_4/nail_0001.jpg", "root.jpg", "worker/2026_7_4/nail_0002.png"]
+  );
+  assert.ok(manifest.items[0]?.notes.includes("relative_path="));
+});
+
 test("init-intake-batch fails when image directory does not contain supported images", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-init-intake-empty-"));
   const imageDir = path.join(root, "batch");
   await mkdir(imageDir, { recursive: true });
   await writeFile(path.join(imageDir, "notes.txt"), "ignore");
 
-  const exitCode = await new Promise<number>((resolve, reject) => {
-    const child = spawn(
-      process.execPath,
-      [
-        "--no-warnings",
-        "--experimental-strip-types",
-        "model/training/init-intake-batch.ts",
-        "--image-dir",
-        imageDir,
-        "--source-group",
-        "seed-batch-001",
-        "--origin-type",
-        "web",
-        "--license",
-        "internal-test-only",
-        "--default-origin-ref",
-        "manual web sourcing 2026-07-01",
-      ],
-      { cwd: process.cwd(), stdio: "ignore" }
-    );
-    child.on("error", reject);
-    child.on("exit", (code) => resolve(code ?? 0));
-  });
+  const exitCode = await runInitIntakeBatch([
+    "--image-dir",
+    imageDir,
+    "--source-group",
+    "seed-batch-001",
+    "--origin-type",
+    "web",
+    "--license",
+    "internal-test-only",
+    "--default-origin-ref",
+    "manual web sourcing 2026-07-01",
+  ]);
 
   assert.equal(exitCode, 1);
 });

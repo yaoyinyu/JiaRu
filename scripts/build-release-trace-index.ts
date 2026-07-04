@@ -1,4 +1,4 @@
-﻿import path from "node:path";
+import path from "node:path";
 import process from "node:process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
@@ -18,6 +18,18 @@ interface ReviewedImportPipelineReportLike {
 }
 
 interface ReleaseTraceDraftLike {
+  trainingReadiness?: {
+    ok?: boolean | null;
+    reportPath?: string | null;
+    authorizationMode?: string | null;
+    gates?: {
+      sourceAudit?: boolean | null;
+      sourceAuthorization?: boolean | null;
+      phase1Readiness?: boolean | null;
+    };
+    totals?: { images?: number | null; validMasks?: number | null };
+    failingSteps?: string[];
+  } | null;
   batch?: {
     rootDir?: string | null;
     sourceGroup?: string | null;
@@ -66,6 +78,13 @@ interface TrainingReleasePipelineReportLike {
     metricsPath?: string;
   };
   artifacts?: {
+    trainingDatasetReadiness?: {
+      ok?: boolean;
+      outputPath?: string;
+      authorizationMode?: string;
+      steps?: Array<{ name?: string; ok?: boolean }>;
+      totals?: { images?: number; validMasks?: number };
+    } | null;
     manifest?: { version?: string; modelFile?: string } | null;
     finalAudit?: {
       decision?: { status?: string; summary?: string };
@@ -88,12 +107,27 @@ interface TrainingReleasePipelineReportLike {
 interface ReleaseDecisionReportLike {
   pipelineReportPath: string;
   compareSummaryPath?: string | null;
+  performanceReportPath?: string | null;
   registryPath?: string | null;
   outputPath: string;
   candidateVersion: string | null;
   decision: {
     status: string;
     summary: string;
+  };
+  inputs?: {
+    recognitionPerformanceOk?: boolean | null;
+    recognitionPerformanceProfile?: string | null;
+    recognitionPerformanceMaxElapsedMs?: number | null;
+    recognitionPerformanceP95Ms?: number | null;
+    recognitionPerformanceMaxMs?: number | null;
+    recognitionPerformanceSlowSamples?: number | null;
+    textureQualityGateOk?: boolean | null;
+    phase2ExtractionRateOk?: boolean | null;
+    phase2ExtractionEvidenceOk?: boolean | null;
+    phase2ExtractionEvidenceScope?: string | null;
+    directlyUsableRate?: number | null;
+    contaminationRate?: number | null;
   };
 }
 
@@ -258,12 +292,42 @@ const candidateVersion =
   trainingReleasePipelineReport.artifacts?.manifest?.version ??
   null;
 
+const pipelineTrainingReadiness =
+  trainingReleasePipelineReport.artifacts?.trainingDatasetReadiness ?? null;
+const trainingReadiness = pipelineTrainingReadiness
+  ? {
+      ok: pipelineTrainingReadiness.ok ?? null,
+      reportPath: pipelineTrainingReadiness.outputPath ?? null,
+      authorizationMode: pipelineTrainingReadiness.authorizationMode ?? null,
+      gates: {
+        sourceAudit:
+          pipelineTrainingReadiness.steps?.find((step) => step.name === "audit-sources-csv")?.ok ??
+          null,
+        sourceAuthorization:
+          pipelineTrainingReadiness.steps?.find(
+            (step) => step.name === "audit-training-source-authorization"
+          )?.ok ?? null,
+        phase1Readiness:
+          pipelineTrainingReadiness.steps?.find((step) => step.name === "audit-phase1-readiness")
+            ?.ok ?? null,
+      },
+      totals: {
+        images: pipelineTrainingReadiness.totals?.images ?? null,
+        validMasks: pipelineTrainingReadiness.totals?.validMasks ?? null,
+      },
+      failingSteps:
+        pipelineTrainingReadiness.steps
+          ?.filter((step) => step.ok === false)
+          .map((step) => step.name ?? "unknown") ?? [],
+    }
+  : releaseTraceDraft?.trainingReadiness ?? null;
 const summary = {
   ok: true,
   outputPath: options.outputPath,
   candidateVersion,
   currentRegistryVersion:
     promotionReport?.registerSummary?.currentVersion ?? registry?.currentVersion ?? null,
+  trainingReadiness,
   batch: reviewedBatchImportPipelineReport || releaseTraceDraft?.batch
     ? {
         rootDir:
@@ -319,6 +383,34 @@ const summary = {
       trainingReleasePipelineReport.artifacts?.finalAuditFailureSummary?.categoryCounts
         ?.postprocess ?? 0,
   },
+  performance: releaseDecisionReport
+    ? {
+        ok: releaseDecisionReport.inputs?.recognitionPerformanceOk ?? null,
+        profile: releaseDecisionReport.inputs?.recognitionPerformanceProfile ?? null,
+        maxElapsedMs: releaseDecisionReport.inputs?.recognitionPerformanceMaxElapsedMs ?? null,
+        p95Ms: releaseDecisionReport.inputs?.recognitionPerformanceP95Ms ?? null,
+        maxMs: releaseDecisionReport.inputs?.recognitionPerformanceMaxMs ?? null,
+        slowSamples: releaseDecisionReport.inputs?.recognitionPerformanceSlowSamples ?? null,
+        performanceReportPath: releaseDecisionReport.performanceReportPath ?? null,
+      }
+    : null,
+  quality: releaseDecisionReport
+    ? {
+        phase2ExtractionRateOk:
+          releaseDecisionReport.inputs?.phase2ExtractionRateOk ?? null,
+        directlyUsableRate:
+          releaseDecisionReport.inputs?.directlyUsableRate ?? null,
+        phase2ExtractionEvidenceOk:
+          releaseDecisionReport.inputs?.phase2ExtractionEvidenceOk ?? null,
+        phase2ExtractionEvidenceScope:
+          releaseDecisionReport.inputs?.phase2ExtractionEvidenceScope ?? null,
+        phase2RequiredUsableRate: 0.8,
+        phase4TextureQualityGateOk:
+          releaseDecisionReport.inputs?.textureQualityGateOk ?? null,
+        contaminationRate:
+          releaseDecisionReport.inputs?.contaminationRate ?? null,
+      }
+    : null,
   decision: releaseDecisionReport
     ? {
         releaseDecisionReportPath: options.releaseDecisionReportPath ?? null,

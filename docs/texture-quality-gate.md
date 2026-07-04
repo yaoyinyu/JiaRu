@@ -1,120 +1,140 @@
-# 纹理可用率 / 污染率专项门禁
+# 纹理可用率 / 污染率 / 形状保真质量门禁
 
-版本：v1.0  
-日期：2026-07-03
+版本：v1.2
+日期：2026-07-04
 
-这一步直接对应 `docs/nail-texture-recognition-model-plan.md` 里 Phase 4 的量化验收目标：
+这一步对应 `docs/nail-texture-recognition-model-plan.md` 中 Phase 4 的量化验收目标：
 
-- 用户无需调整即可直接使用的样本比例 > 85%
-- 纹理中明显皮肤 / 背景污染比例 < 10%
+- 用户无需调整即可直接使用的纹理样本比例 > 85%。
+- 纹理中明显皮肤 / 背景污染比例 < 10%。
+- 异形甲、圆甲、长甲不能被批量退化成粗糙矩形裁剪。
+- 发布候选模型必须说明质量证据来自独立发布测试集，而不是少量本地 debug 样本。
 
-前面我们已经补了：
-
-- 候选方向稳定化
-- 低质量候选提示
-- 透明裁剪与边缘羽化专项验收
-- extraction diagnostics 的 UI 结构化展示
-
-这次继续把这些信号收口成一份真正可执行的质量 gate。
-
-## 当前实现位置
+## 实现位置
 
 - `scripts/verify-texture-quality-gate.ts`
 - `scripts/run-real-model-final-audit.ts`
 
-## 这次补齐了什么
+## 检查内容
 
-### 1. 新增独立的纹理质量 gate 脚本
+### 1. 可直接使用率
 
-新增：
+报告字段：
 
-- `scripts/verify-texture-quality-gate.ts`
+- `totals.directlyUsableCandidates`
+- `rates.directlyUsableRate`
 
-它会读取 annotation debug 信息，统计：
+一个候选纹理被算作“可直接使用”需要同时满足：
 
-- `directlyUsableCandidates`
-- `contaminatedCandidates`
-- `directlyUsableRate`
-- `contaminationRate`
+- 没有 candidate warnings。
+- 没有 extraction quality warnings。
+- `extractionQualityOk !== false`。
+- `highlightRatio < 0.12`。
+- `highlightPixels < 8`。
 
-并输出结构化结论。
+默认门槛：`directlyUsableRate >= 0.85`。
 
-### 2. 当前门禁使用的判定口径
+### 2. 污染率
 
-当前“可直接使用候选”要求同时满足：
+报告字段：
 
-- 没有 candidate warnings
-- 没有 extraction quality warnings
-- `extractionQualityOk !== false`
-- `highlightRatio < 0.12`
-- `highlightPixels < 8`
+- `totals.contaminatedCandidates`
+- `rates.contaminationRate`
 
-当前“污染候选”先按：
+当前污染候选先按 `dirty_mask_crop` 统计，用来捕捉皮肤或背景混入纹理裁剪的核心风险。
 
-- `dirty_mask_crop`
+默认门槛：`contaminationRate < 0.1`。
 
-来统计。
+### 3. 形状保真 / 粗糙矩形率
 
-这意味着这份 gate 现在优先抓的是真正和“皮肤 / 背景混入”最贴近的污染信号，而不是把所有提取问题都混成污染。
+报告字段：
 
-### 3. final audit 现在会自动带出这份 gate
+- `totals.candidatesWithPolygon`
+- `totals.roughRectangleCandidates`
+- `rates.roughRectangleRate`
 
-当你给 `run-real-model-final-audit.ts` 传入：
+粗糙矩形判定口径：
 
-- `--annotation-dir`
+- polygon 点数少于 `minPolygonPointsForShapePreserved`，默认 `5`；或
+- polygon 面积 / 外接 bounds 面积大于等于 `maxPolygonBoundsFillRatio`，默认 `0.96`。
 
-它现在除了生成：
+默认门槛：`roughRectangleRate <= 0.15`。
 
-- `real-model-first-run-record.json`
-- `failure-case-summary.json`
+### 4. 发布证据代表性
 
-还会自动生成：
+报告字段：
 
-- `texture-quality-gate.json`
+- `evidence.scope`
+- `evidence.ok`
+- `evidence.representativeTestSplit`
+- `evidence.minDocuments`
+- `evidence.minCandidatesWithDebug`
+- `evidence.minCandidatesWithPolygon`
 
-并把它写回最终 audit summary。
+本地调试默认使用 `--evidence-scope local-debug`。如果结果要作为发布候选证据，必须使用：
 
-## 当前输出内容
+```bash
+--evidence-scope release-test-split
+```
 
-gate 报告当前会包含：
+并配置足够的样本量门槛，例如：
 
+```bash
+--min-documents 50 --min-candidates-with-debug 200 --min-candidates-with-polygon 200
+```
+
+发布决策层会硬性要求 `evidence.scope === "release-test-split"` 且 `evidence.ok === true`。也就是说，即使 1 张图跑出 100% 可用率，也不能作为模型发布证据。
+
+## 常用命令
+
+本地调试：
+
+```bash
+node --no-warnings --experimental-strip-types scripts/verify-texture-quality-gate.ts --annotation-dir C:/path/to/annotations --output C:/path/to/texture-quality-gate.json
+```
+
+发布测试集验收：
+
+```bash
+node --no-warnings --experimental-strip-types scripts/verify-texture-quality-gate.ts --annotation-dir C:/path/to/test-annotations --output C:/path/to/texture-quality-gate.json --evidence-scope release-test-split --min-documents 50 --min-candidates-with-debug 200 --min-candidates-with-polygon 200
+```
+
+可调参数：
+
+- `--min-usable-rate 0.85`
+- `--max-contamination-rate 0.1`
+- `--min-documents 1`
+- `--min-candidates-with-debug 1`
+- `--min-candidates-with-polygon 1`
+- `--max-highlight-ratio-for-usable 0.12`
+- `--max-highlight-pixels-for-usable 8`
+- `--max-rough-rectangle-rate 0.15`
+- `--min-polygon-points-for-shape-preserved 5`
+- `--max-polygon-bounds-fill-ratio 0.96`
+
+## 输出内容
+
+`texture-quality-gate.json` 包含：
+
+- `ok`
+- `annotationDirPath`
 - `thresholds`
+- `evidence`
 - `totals`
 - `rates`
 - `warningBreakdown`
 - `warnings`
 - `nextSteps`
 
-这样后续不只是知道“过 / 没过”，还知道到底是：
-
-- 可直接使用率不够
-- 还是污染率没有压下去
-- 以及具体是哪类 warning 在拉低质量
-
-## 为什么这一步重要
-
-这一步让 Phase 4 从“有很多后处理质量信号”推进到了“有可量化的产品质量门禁”。
-
-这样后面无论是：
-
-- 真机最终审计
-- 训练发布流水线
-- 或版本对比
-
-都可以开始吸收同一套质量指标，而不是只看主观描述。
+这样后续不只知道“过 / 没过”，还知道问题来自：可用率不足、污染率过高、polygon 粗糙矩形化，还是验收样本证据不足。
 
 ## 自动化验收
 
-本轮新增并通过：
+覆盖测试：
 
 - `tests/verify-texture-quality-gate.test.ts`
-  - 验证门禁通过场景
-  - 验证低可用率 / 高污染率失败场景
+  - 可用率 / 污染率 / 形状保真通过场景。
+  - 低可用率 / 高污染率 / 粗糙矩形 polygon 失败场景。
+  - 发布测试集样本量不足时失败。
 - `tests/run-real-model-final-audit.test.ts`
-  - 验证 final audit 会带出 `texture-quality-gate.json`
-
-并继续通过：
-
-- `npm.cmd test`
-- `npm.cmd run lint`
-- `npm.cmd run build`
+  - final audit 会带出 `texture-quality-gate.json`。

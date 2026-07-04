@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
-import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
@@ -74,7 +74,7 @@ async function writeFailureSummary(
   return summaryPath;
 }
 
-test("compare-training-releases reports improvement summary", async () => {
+test("compare-training-releases reports improvement summary and can persist output", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-compare-release-pass-"));
   const baseline = await createRelease(
     root,
@@ -104,6 +104,7 @@ test("compare-training-releases reports improvement summary", async () => {
     },
     2048
   );
+  const outputPath = path.join(root, "compare-summary.json");
 
   const { stdout } = await execFileAsync(
     process.execPath,
@@ -119,6 +120,8 @@ test("compare-training-releases reports improvement summary", async () => {
       candidate.metricsPath,
       "--candidate-manifest",
       candidate.manifestPath,
+      "--output",
+      outputPath,
     ],
     { cwd: path.resolve(".") }
   );
@@ -134,6 +137,13 @@ test("compare-training-releases reports improvement summary", async () => {
   assert.equal(summary.deltas.box_map50, 0.04);
   assert.ok(summary.improvements.some((item) => item.includes("seg_map50 improved")));
   assert.ok(summary.warnings.some((item) => item.includes("candidate model is larger")));
+
+  const persisted = JSON.parse(await readFile(outputPath, "utf8")) as {
+    ok: boolean;
+    candidate: { version: string };
+  };
+  assert.equal(persisted.ok, true);
+  assert.equal(persisted.candidate.version, "nail-texture-seg-v2");
 });
 
 test("compare-training-releases fails when candidate regresses too much", async () => {

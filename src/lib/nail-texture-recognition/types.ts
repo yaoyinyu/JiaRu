@@ -52,6 +52,7 @@ export interface NailTextureRecognitionResult {
   candidates: NailTextureCandidate[];
   backend: "model" | "fallback";
   elapsedMs: number;
+  workerElapsedMs?: number;
   modelVersion?: string;
   modelInfo?: NailTextureModelInfo;
   warnings: string[];

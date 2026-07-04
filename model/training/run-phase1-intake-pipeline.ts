@@ -24,6 +24,12 @@ interface StepResult {
   stderr?: string;
 }
 
+interface JsonScriptResult {
+  ok: boolean;
+  stdout?: unknown;
+  stderr?: string;
+}
+
 function parseArgs(argv: string[]): CliOptions {
   let manifestPath: string | undefined;
   let imageDir: string | undefined;
@@ -65,6 +71,36 @@ async function runJsonScript(
   return JSON.parse(stdout);
 }
 
+async function runJsonScriptAllowFailure(
+  scriptPath: string,
+  args: string[],
+  env: NodeJS.ProcessEnv
+): Promise<JsonScriptResult> {
+  try {
+    return {
+      ok: true,
+      stdout: await runJsonScript(scriptPath, args, env),
+    };
+  } catch (error) {
+    const execError = error as Error & { stdout?: string; stderr?: string };
+    if (execError.stdout?.trim()) {
+      try {
+        return {
+          ok: true,
+          stdout: JSON.parse(execError.stdout),
+          stderr: execError.stderr,
+        };
+      } catch {
+        // Fall through to reporting the script failure.
+      }
+    }
+    return {
+      ok: false,
+      stderr: execError.stderr || execError.message,
+    };
+  }
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const manifest = JSON.parse(
@@ -88,6 +124,7 @@ async function main() {
     ok: boolean;
     steps: StepResult[];
     validationIssues: typeof validation.issues;
+    readinessSnapshot?: unknown;
   } = {
     datasetRoot,
     manifestPath: options.manifestPath,
@@ -197,6 +234,25 @@ async function main() {
       process.exitCode = 1;
       return;
     }
+  }
+
+  const readiness = await runJsonScriptAllowFailure(
+    "model/training/audit-phase1-readiness.ts",
+    [],
+    baseEnv
+  );
+  report.steps.push({
+    name: "audit-phase1-readiness",
+    ok: readiness.ok,
+    stdout: readiness.stdout,
+    stderr: readiness.stderr,
+  });
+  report.readinessSnapshot = readiness.stdout;
+  if (!readiness.ok) {
+    await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
+    console.log(JSON.stringify(report, null, 2));
+    process.exitCode = 1;
+    return;
   }
 
   report.ok = report.steps.every((step) => step.ok);

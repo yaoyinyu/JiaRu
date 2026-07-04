@@ -91,7 +91,20 @@ test("import-reviewed-batch copies selected artifacts into dataset and runs down
     reportPath: string;
     copiedImages: string[];
     importedDocuments: Array<{ polygonCount: number }>;
-    steps: Array<{ name: string; ok: boolean }>;
+    steps: Array<{ name: string; ok: boolean; stdout?: unknown }>;
+    readinessSnapshot: {
+      ok: boolean;
+      totals: { images: number; validMasks: number };
+      gates: {
+        imageCount: { ok: boolean; actual: number; required: number };
+        validMaskCount: { ok: boolean; actual: number; required: number };
+      };
+    };
+    trainingDatasetReadinessSnapshot: {
+      ok: boolean;
+      steps: Array<{ name: string; ok: boolean }>;
+      artifacts: { phase1Readiness: { ok: boolean; totals: { images: number } } | null };
+    };
   };
 
   assert.equal(report.ok, true);
@@ -100,6 +113,19 @@ test("import-reviewed-batch copies selected artifacts into dataset and runs down
   assert.ok(report.importedDocuments.every((doc) => doc.polygonCount >= 3));
   assert.ok(report.steps.some((step) => step.name === "sync-sources-csv" && step.ok));
   assert.ok(report.steps.some((step) => step.name === "convert-annotations" && step.ok));
+  assert.ok(report.steps.some((step) => step.name === "audit-phase1-readiness" && step.ok));
+  assert.ok(report.steps.some((step) => step.name === "verify-training-dataset-readiness" && step.ok));
+  assert.equal(report.readinessSnapshot.ok, false);
+  assert.equal(report.trainingDatasetReadinessSnapshot.ok, false);
+  assert.deepEqual(report.trainingDatasetReadinessSnapshot.steps.map((step) => step.name), [
+    "audit-sources-csv",
+    "audit-training-source-authorization",
+    "audit-phase1-readiness",
+  ]);
+  assert.equal(report.trainingDatasetReadinessSnapshot.artifacts.phase1Readiness?.totals.images, 2);
+  assert.equal(report.readinessSnapshot.totals.images, 2);
+  assert.equal(report.readinessSnapshot.gates.imageCount.required, 200);
+  assert.equal(report.readinessSnapshot.gates.validMaskCount.required, 800);
   const sourcesAuditStep = report.steps.find((step) => step.name === "audit-sources-csv");
   assert.equal(sourcesAuditStep?.ok, true);
   const sourcesAuditStdout = sourcesAuditStep?.stdout as
@@ -129,6 +155,18 @@ test("import-reviewed-batch copies selected artifacts into dataset and runs down
   }
   assert.ok(labelContent.length > 0);
 
-  const savedReport = JSON.parse(await readFile(report.reportPath, "utf8")) as { ok: boolean };
+  const savedReport = JSON.parse(await readFile(report.reportPath, "utf8")) as {
+    ok: boolean;
+    readinessSnapshot: { totals: { images: number } };
+    trainingDatasetReadinessSnapshot: { artifacts: { phase1Readiness: { totals: { images: number } } | null } };
+  };
   assert.equal(savedReport.ok, true);
+  assert.equal(savedReport.readinessSnapshot.totals.images, 2);
+  assert.equal(savedReport.trainingDatasetReadinessSnapshot.artifacts.phase1Readiness?.totals.images, 2);
+
+  const readinessReport = JSON.parse(
+    await readFile(path.join(datasetRoot, "metadata", "phase1-readiness.json"), "utf8")
+  ) as { ok: boolean; totals: { images: number } };
+  assert.equal(readinessReport.ok, false);
+  assert.equal(readinessReport.totals.images, 2);
 });

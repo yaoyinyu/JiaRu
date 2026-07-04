@@ -40,6 +40,11 @@ export interface Phase1ReadinessReport {
     val: number;
     test: number;
   };
+  splitIntegrity: {
+    missingFromSplit: string[];
+    unknownInSplit: string[];
+    duplicateInSplit: string[];
+  };
   testCoverage: {
     negatives: number;
     complexBackground: number;
@@ -50,6 +55,7 @@ export interface Phase1ReadinessReport {
     imageCount: Phase1ReadinessGate;
     validMaskCount: Phase1ReadinessGate;
     labelAuditPass: Phase1ReadinessGate;
+    splitIntegrityPass: Phase1ReadinessGate;
     testSplitHasNegative: Phase1ReadinessGate;
     testSplitHasComplexBackground: Phase1ReadinessGate;
   };
@@ -181,6 +187,25 @@ export async function buildPhase1ReadinessReport(
     };
   });
 
+  const documentFileNames = documents.map((document) => document.image.fileName).sort();
+  const documentFileSet = new Set(documentFileNames);
+  const splitEntries = [...split.train, ...split.val, ...split.test];
+  const splitEntrySet = new Set(splitEntries);
+  const splitEntryCounts = new Map<string, number>();
+  for (const fileName of splitEntries) {
+    splitEntryCounts.set(fileName, (splitEntryCounts.get(fileName) ?? 0) + 1);
+  }
+  const missingFromSplit = documentFileNames.filter((fileName) => !splitEntrySet.has(fileName));
+  const unknownInSplit = [...splitEntrySet]
+    .filter((fileName) => !documentFileSet.has(fileName))
+    .sort();
+  const duplicateInSplit = [...splitEntryCounts]
+    .filter(([, count]) => count > 1)
+    .map(([fileName]) => fileName)
+    .sort();
+  const splitIntegrityIssueCount =
+    missingFromSplit.length + unknownInSplit.length + duplicateInSplit.length;
+
   const testFiles = new Set(split.test);
   const testSources = sources.filter((record) => testFiles.has(record.fileName));
   const testNegativeCount = testSources.filter(
@@ -202,6 +227,11 @@ export async function buildPhase1ReadinessReport(
     labelAuditPass: {
       ok: errorFileCount === 0,
       actual: errorFileCount,
+      required: 0,
+    },
+    splitIntegrityPass: {
+      ok: splitIntegrityIssueCount === 0,
+      actual: splitIntegrityIssueCount,
       required: 0,
     },
     testSplitHasNegative: {
@@ -235,6 +265,11 @@ export async function buildPhase1ReadinessReport(
   if (!gates.labelAuditPass.ok) {
     warnings.push(`label audit still has ${errorFileCount} files with error-level issues`);
   }
+  if (!gates.splitIntegrityPass.ok) {
+    warnings.push(
+      `split integrity has ${splitIntegrityIssueCount} issue(s): ${missingFromSplit.length} missing, ${unknownInSplit.length} unknown, ${duplicateInSplit.length} duplicate`
+    );
+  }
   if (!gates.testSplitHasNegative.ok) warnings.push("test split does not yet contain a negative sample");
   if (!gates.testSplitHasComplexBackground.ok) {
     warnings.push("test split does not yet contain a complex-background sample");
@@ -256,6 +291,11 @@ export async function buildPhase1ReadinessReport(
       train: split.train.length,
       val: split.val.length,
       test: split.test.length,
+    },
+    splitIntegrity: {
+      missingFromSplit,
+      unknownInSplit,
+      duplicateInSplit,
     },
     testCoverage: {
       negatives: testNegativeCount,
