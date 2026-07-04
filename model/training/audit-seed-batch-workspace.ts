@@ -55,6 +55,7 @@ async function main() {
   const imagesDir = path.join(rootDir, "images");
   const reviewDir = path.join(rootDir, "review");
   const debugDir = path.join(rootDir, "debug");
+  const fixturesDir = path.join(rootDir, "fixtures");
   const selectedDir = path.join(rootDir, "selected");
   const selectedImagesDir = path.join(selectedDir, "images");
   const selectedAnnotationDir = path.join(selectedDir, "annotations", "raw-json");
@@ -101,7 +102,7 @@ async function main() {
     );
   } else if (nextStep === "batch-verify-nail-detection") {
     suggestedCommands.push(
-      `node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir "${toPosixPath(imagesDir)}" --output-dir "${toPosixPath(debugDir)}" --prefix ${path.basename(rootDir)}`
+      `node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir "${toPosixPath(imagesDir)}" --output-dir "${toPosixPath(debugDir)}" --prefix ${path.basename(rootDir)} --fixture-dir "${toPosixPath(fixturesDir)}"`
     );
   } else if (nextStep === "audit-screening-review") {
     suggestedCommands.push(

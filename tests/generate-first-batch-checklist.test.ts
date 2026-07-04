@@ -50,6 +50,7 @@ test("generate-first-batch-checklist creates actionable commands for an empty da
   };
   assert.equal(report.firstBatchRecommendation.targetImages, 50);
   assert.ok(report.steps.some((step) => step.id === "bootstrap-seed-batch" && step.command?.includes("bootstrap-seed-batch.ts")));
+  assert.ok(report.steps.some((step) => step.id === "verify-overlays" && step.command?.includes("--fixture-dir")));
   assert.ok(report.steps.some((step) => step.id === "recheck-gates" && step.commands?.some((command) => command.includes("plan-phase1-collection.ts"))));
   assert.ok(report.nextCommands.some((command) => command.includes("run-reviewed-batch-import-pipeline.ts")));
 

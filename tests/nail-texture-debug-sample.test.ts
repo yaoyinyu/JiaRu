@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import test from "node:test";
 import {
   createLocalNailDebugSample,
@@ -64,6 +64,7 @@ test("createLocalNailDebugSample preserves source and runtime summary metadata",
       modelVersion: "nail-texture-seg-v2",
       modelBackend: "webgpu",
       elapsedMs: 184.2,
+      workerElapsedMs: 150.5,
       warnings: ["candidate_count_capped"],
     },
     originalRegions: [
@@ -99,6 +100,7 @@ test("createLocalNailDebugSample preserves source and runtime summary metadata",
   assert.equal(record.modelVersion, "nail-texture-seg-v2");
   assert.equal(record.modelBackend, "webgpu");
   assert.equal(record.elapsedMs, 184.2);
+  assert.equal(record.workerElapsedMs, 150.5);
   assert.deepEqual(record.warnings, ["candidate_count_capped"]);
   assert.equal(record.imageId, "local-debug-2026-06-30T12-34-56.000Z");
   assert.deepEqual(record.image, {

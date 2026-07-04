@@ -1,6 +1,6 @@
 import path from "node:path";
 import process from "node:process";
-import { readFile, stat } from "node:fs/promises";
+import { readFile, stat, writeFile } from "node:fs/promises";
 
 interface MetricsLike {
   split: "train" | "val" | "test";
@@ -53,6 +53,7 @@ let candidateMetricsPath = "";
 let candidateManifestPath = "";
 let baselineFailureSummaryPath = "";
 let candidateFailureSummaryPath = "";
+let outputPath = "";
 let minSegDelta = -0.02;
 let minBoxDelta = -0.02;
 
@@ -64,6 +65,7 @@ for (let index = 0; index < args.length; index++) {
   else if (arg === "--candidate-manifest") candidateManifestPath = path.resolve(args[++index] ?? usage());
   else if (arg === "--baseline-failure-summary") baselineFailureSummaryPath = path.resolve(args[++index] ?? usage());
   else if (arg === "--candidate-failure-summary") candidateFailureSummaryPath = path.resolve(args[++index] ?? usage());
+  else if (arg === "--output") outputPath = path.resolve(args[++index] ?? usage());
   else if (arg === "--min-seg-delta") {
     minSegDelta = Number(args[++index]);
     if (!Number.isFinite(minSegDelta)) usage();
@@ -270,6 +272,10 @@ const summary = {
           "Review the regressions. If they are unacceptable, keep the baseline model available for rollback.",
         ],
 };
+
+if (outputPath) {
+  await writeFile(outputPath, JSON.stringify(summary, null, 2), "utf8");
+}
 
 console.log(JSON.stringify(summary, null, 2));
 if (!summary.ok) {

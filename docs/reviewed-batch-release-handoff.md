@@ -1,7 +1,7 @@
 # Reviewed batch release handoff
 
-版本：v1.0  
-日期：2026-07-02
+版本：v1.1
+日期：2026-07-04
 
 这份 handoff 文件是给 reviewed batch import 流水线和 training release 主链之间做交接用的。
 
@@ -40,6 +40,18 @@ node --no-warnings --experimental-strip-types model/training/run-reviewed-batch-
 - `datasetRoot`
 - `reviewedImportReportPath`
 - `importedFileCount`
+同时会新增 `trainingReadiness` 摘要：
+
+- `ok`：整个数据集当前是否可进入正式训练
+- `reportPath`：训练数据总门禁报告路径
+- `authorizationMode`：通常为 `release`
+- `gates.sourceAudit`：来源记录和磁盘文件是否一致
+- `gates.sourceAuthorization`：素材授权是否满足正式训练要求
+- `gates.phase1Readiness`：200 张图片、800 个有效 mask、split 和测试覆盖是否通过
+- `totals.images` / `totals.validMasks`：当前数据量
+- `failingSteps`：仍未通过的子门禁
+
+同样的 `trainingReadiness` 摘要也会写入 `release-trace-draft.json`。后续训练和治理链路只读取 handoff/trace 就能判断数据是否准备好，不需要再回头拼接多个审计文件。
 
 ## 用法
 

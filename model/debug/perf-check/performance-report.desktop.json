@@ -1,0 +1,44 @@
+{
+  "ok": true,
+  "profile": "desktop",
+  "thresholds": {
+    "maxElapsedMs": 800,
+    "minSamples": 1
+  },
+  "totals": {
+    "inputFiles": 2,
+    "samples": 1,
+    "skippedFiles": 1,
+    "slowSamples": 0
+  },
+  "stats": {
+    "averageMs": 21.8,
+    "p50Ms": 21.8,
+    "p95Ms": 21.8,
+    "maxMs": 21.8,
+    "averageWorkerMs": null,
+    "averageClientOverheadMs": null
+  },
+  "samples": [
+    {
+      "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\perf-check\\perf-check-5188.jpg_wh860-detection-debug.json",
+      "imageId": "E:\\AI Project\\Codex\\JiaRu\\model\\5188.jpg_wh860.jpg",
+      "backend": "fallback",
+      "modelVersion": null,
+      "elapsedMs": 21.797600000000003,
+      "workerElapsedMs": null,
+      "clientOverheadMs": null
+    }
+  ],
+  "slowSamples": [],
+  "skippedFiles": [
+    "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\perf-check\\performance-report.desktop.json"
+  ],
+  "errors": [],
+  "warnings": [
+    "Some JSON files did not contain elapsedMs and were skipped."
+  ],
+  "nextSteps": [
+    "Recognition performance is within the selected budget."
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
+  "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
+  "mode": "release",
+  "recordCount": 300,
+  "counts": {
+    "byOriginType": {
+      "other": 300
+    },
+    "byLicense": {
+      "ai-generated-internal-training-candidate": 300
+    }
+  },
+  "ok": true,
+  "issues": []
+}

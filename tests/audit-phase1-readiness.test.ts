@@ -230,3 +230,85 @@ test("audit-phase1-readiness passes when all gates are satisfied", async () => {
   assert.equal(persisted.ok, true);
   assert.equal(persisted.totals.validMasks, 800);
 });
+test("audit-phase1-readiness reports split integrity issues", async () => {
+  const datasetRoot = await mkdtemp(path.join(os.tmpdir(), "nail-phase1-readiness-split-integrity-"));
+  const annotationDir = path.join(datasetRoot, "annotations", "raw-json");
+  const metadataDir = path.join(datasetRoot, "metadata");
+  await mkdir(annotationDir, { recursive: true });
+  await mkdir(metadataDir, { recursive: true });
+
+  await writeFile(
+    path.join(annotationDir, "sample-a.json"),
+    JSON.stringify(annotationDoc("sample-a.jpg", "seed-a", 4), null, 2),
+    "utf8"
+  );
+  await writeFile(
+    path.join(annotationDir, "sample-b.json"),
+    JSON.stringify(annotationDoc("sample-b.jpg", "seed-b", 4), null, 2),
+    "utf8"
+  );
+  await writeFile(
+    path.join(metadataDir, "split.json"),
+    JSON.stringify(
+      {
+        train: ["sample-a.jpg", "sample-a.jpg"],
+        val: ["ghost.jpg"],
+        test: [],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(
+    path.join(metadataDir, "sources.csv"),
+    [
+      "imageId,fileName,sourceGroup,originType,originRef,license,notes,negative,annotationPath,imagePath,annotationCount,createdAt,updatedAt",
+      "sample-a,sample-a.jpg,seed-a,reference,local,internal-test,\"sample=reference; background=light\",false,annotations/raw-json/sample-a.json,images/raw/sample-a.jpg,4,2026-07-01T00:00:00.000Z,2026-07-01T00:00:00.000Z",
+      "sample-b,sample-b.jpg,seed-b,reference,local,internal-test,\"sample=reference; background=dark\",false,annotations/raw-json/sample-b.json,images/raw/sample-b.jpg,4,2026-07-01T00:00:00.000Z,2026-07-01T00:00:00.000Z",
+      "",
+    ].join("\n"),
+    "utf8"
+  );
+
+  const stdout = await new Promise<string>((resolve, reject) => {
+    const child = spawn(
+      process.execPath,
+      ["--no-warnings", "--experimental-strip-types", "model/training/audit-phase1-readiness.ts"],
+      {
+        cwd: path.resolve("."),
+        env: { ...process.env, DATASET_ROOT: datasetRoot },
+        stdio: ["ignore", "pipe", "pipe"],
+      }
+    );
+    let out = "";
+    let err = "";
+    child.stdout.on("data", (chunk) => (out += String(chunk)));
+    child.stderr.on("data", (chunk) => (err += String(chunk)));
+    child.on("error", reject);
+    child.on("exit", (code) => {
+      if ((code ?? 0) !== 1) {
+        reject(new Error(err || `unexpected exit code: ${code}`));
+        return;
+      }
+      resolve(out);
+    });
+  });
+
+  const report = JSON.parse(stdout) as {
+    gates: { splitIntegrityPass: { ok: boolean; actual: number } };
+    splitIntegrity: {
+      missingFromSplit: string[];
+      unknownInSplit: string[];
+      duplicateInSplit: string[];
+    };
+    warnings: string[];
+  };
+
+  assert.equal(report.gates.splitIntegrityPass.ok, false);
+  assert.equal(report.gates.splitIntegrityPass.actual, 3);
+  assert.deepEqual(report.splitIntegrity.missingFromSplit, ["sample-b.jpg"]);
+  assert.deepEqual(report.splitIntegrity.unknownInSplit, ["ghost.jpg"]);
+  assert.deepEqual(report.splitIntegrity.duplicateInSplit, ["sample-a.jpg"]);
+  assert.ok(report.warnings.some((warning) => warning.includes("split integrity")));
+});

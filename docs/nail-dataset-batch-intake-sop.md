@@ -1,15 +1,14 @@
 # 美甲纹理首批样本批处理 SOP
 
-版本：v1.0  
-日期：2026-07-01
+版本：v1.1
+日期：2026-07-04
 
 这份 SOP 用来处理“拿到一整批图片之后，先预检，再导入”的场景。
 
 ## 1. 先准备两个东西
 
 - 一个图片目录，例如 `C:/path/to/nail-batch-001`
-- 一份批次清单，例如：
-  [model/fixtures/nail-dataset-intake-batch.template.json](E:/AI%20Project/Codex/JiaRu/model/fixtures/nail-dataset-intake-batch.template.json)
+- 一份批次清单，例如：[model/fixtures/nail-dataset-intake-batch.template.json](</E:/AI Project/Codex/JiaRu/model/fixtures/nail-dataset-intake-batch.template.json>)
 
 ## 2. 批次清单字段
 
@@ -34,11 +33,21 @@ node --no-warnings --experimental-strip-types model/training/validate-intake-bat
 - `sourceGroup` / `originType` / `license` 是否齐
 - 是否有重复文件名
 - manifest 里声明的图片是否真的存在
+- manifest 里声明的图片是否可以被解码，并且有有效宽高
 - 图片目录里是否有“没写进 manifest”的文件
 
 输出：
 
 - `<manifest-name>.report.json`
+
+报告里会包含：
+
+- `missingFiles`：manifest 写了但磁盘不存在的图片
+- `invalidImageFiles`：文件存在但无法作为有效图片解码的图片
+- `unlistedFiles`：磁盘存在但 manifest 没写的文件
+- `imageChecks`：每张已声明图片的解码结果、宽高、格式和通道数
+
+`missingFiles` 和 `invalidImageFiles` 是 error，会阻止后续入库；`unlistedFiles` 是 warning，用来提醒你目录里可能混入了不属于本批的文件。
 
 ## 4. 预检通过后再导入
 

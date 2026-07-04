@@ -6,6 +6,13 @@ interface PipelineReportLike {
   ok: boolean;
   reportPath?: string;
   artifacts?: {
+    trainingDatasetReadiness?: {
+      ok?: boolean;
+      outputPath?: string;
+      authorizationMode?: string;
+      steps?: Array<{ name?: string; ok?: boolean }>;
+      totals?: { images?: number; validMasks?: number };
+    } | null;
     metrics?: Record<string, unknown> | null;
     manifest?: { version?: string; modelFile?: string } | null;
     finalAudit?: {
@@ -23,18 +30,52 @@ interface PipelineReportLike {
         csvRows?: number;
       };
     } | null;
+    recognitionPerformance?: RecognitionPerformanceReportLike | null;
     finalAuditTextureQualityGate?: {
       ok?: boolean;
       directlyUsableCount?: number;
       directlyUsableRate?: number;
       contaminatedCount?: number;
       contaminationRate?: number;
+      totals?: {
+        documents?: number;
+        candidatesWithDebug?: number;
+        directlyUsableCandidates?: number;
+        contaminatedCandidates?: number;
+      };
+      rates?: {
+        directlyUsableRate?: number | null;
+        contaminationRate?: number | null;
+        roughRectangleRate?: number | null;
+      };
+      evidence?: {
+        ok?: boolean;
+        scope?: string;
+        representativeTestSplit?: boolean;
+        documentsOk?: boolean;
+        candidatesWithDebugOk?: boolean;
+        candidatesWithPolygonOk?: boolean;
+        minDocuments?: number;
+        minCandidatesWithDebug?: number;
+        minCandidatesWithPolygon?: number;
+      };
       warningBreakdown?: Record<string, number>;
       warnings?: string[];
       nextSteps?: string[];
     } | null;
   };
   steps?: Array<{ name?: string; ok?: boolean }>;
+}
+
+interface RecognitionPerformanceReportLike {
+  ok?: boolean;
+  profile?: string;
+  thresholds?: { maxElapsedMs?: number; minSamples?: number };
+  totals?: { samples?: number; slowSamples?: number; skippedFiles?: number };
+  stats?: { averageMs?: number | null; p95Ms?: number | null; maxMs?: number | null };
+  errors?: string[];
+  warnings?: string[];
+  nextSteps?: string[];
 }
 
 interface CompareSummaryLike {
@@ -55,13 +96,14 @@ interface RegistryLike {
 interface CliOptions {
   pipelineReportPath: string;
   compareSummaryPath?: string;
+  performanceReportPath?: string;
   registryPath?: string;
   outputPath: string;
 }
 
 function usage(): never {
   throw new Error(
-    "Usage: node --experimental-strip-types scripts/build-release-decision-report.ts --pipeline-report <training-release-pipeline-report.json> [--compare-summary <compare-summary.json>] [--registry <release-registry.json>] [--output <release-decision-report.json>]"
+    "Usage: node --experimental-strip-types scripts/build-release-decision-report.ts --pipeline-report <training-release-pipeline-report.json> [--compare-summary <compare-summary.json>] [--performance-report <performance-report.json>] [--registry <release-registry.json>] [--output <release-decision-report.json>]"
   );
 }
 
@@ -69,6 +111,7 @@ function parseArgs(argv: string[]): CliOptions {
   let pipelineReportPath = "";
   let compareSummaryPath: string | undefined;
   let registryPath: string | undefined;
+  let performanceReportPath: string | undefined;
   let outputPath = "";
 
   for (let index = 0; index < argv.length; index++) {
@@ -76,6 +119,7 @@ function parseArgs(argv: string[]): CliOptions {
     if (arg === "--pipeline-report") pipelineReportPath = path.resolve(argv[++index] ?? usage());
     else if (arg === "--compare-summary") compareSummaryPath = path.resolve(argv[++index] ?? usage());
     else if (arg === "--registry") registryPath = path.resolve(argv[++index] ?? usage());
+    else if (arg === "--performance-report") performanceReportPath = path.resolve(argv[++index] ?? usage());
     else if (arg === "--output") outputPath = path.resolve(argv[++index] ?? usage());
     else usage();
   }
@@ -85,7 +129,7 @@ function parseArgs(argv: string[]): CliOptions {
     outputPath = path.join(path.dirname(pipelineReportPath), "release-decision-report.json");
   }
 
-  return { pipelineReportPath, compareSummaryPath, registryPath, outputPath };
+  return { pipelineReportPath, compareSummaryPath, performanceReportPath, registryPath, outputPath };
 }
 
 async function readJson<T>(filePath: string): Promise<T> {
@@ -103,7 +147,8 @@ async function readOptionalJson<T>(filePath?: string): Promise<T | null> {
 
 function buildDecision(
   pipeline: PipelineReportLike,
-  compare: CompareSummaryLike | null
+  compare: CompareSummaryLike | null,
+  recognitionPerformance: RecognitionPerformanceReportLike | null
 ): {
   status: "approve_candidate" | "hold_candidate" | "manual_review";
   summary: string;
@@ -129,6 +174,31 @@ function buildDecision(
     nextActions.push("Review compare-training-releases output and keep the baseline version available for rollback.");
   }
 
+  if (recognitionPerformance?.ok === false) {
+    const profile = recognitionPerformance.profile ?? "unknown";
+    const slowSamples = recognitionPerformance.totals?.slowSamples ?? "unknown";
+    const maxElapsedMs = recognitionPerformance.thresholds?.maxElapsedMs ?? "unknown";
+    reasons.push(
+      `recognition performance failed for ${profile} profile (${slowSamples} slow sample(s), budget ${maxElapsedMs}ms)`
+    );
+    nextActions.push(
+      "Reduce model/runtime/postprocess latency or keep the candidate out of promotion until the performance gate passes."
+    );
+  }
+
+  const trainingDatasetReadiness = pipeline.artifacts?.trainingDatasetReadiness ?? null;
+  if (trainingDatasetReadiness?.ok === false) {
+    const failingSteps =
+      trainingDatasetReadiness.steps
+        ?.filter((step) => step.ok === false)
+        .map((step) => step.name ?? "unknown")
+        .join(", ") || "unknown";
+    reasons.push(`training dataset readiness failed (${failingSteps})`);
+    nextActions.push(
+      "Resolve source provenance, release authorization, and Phase 1 dataset coverage before retraining or promotion."
+    );
+  }
+
   const derivedAnnotationFailures = Number(
     pipeline.artifacts?.finalAuditFailureSummary?.totals?.derivedAnnotationFailures ?? 0
   );
@@ -137,8 +207,22 @@ function buildDecision(
   );
   const textureQualityGate = pipeline.artifacts?.finalAuditTextureQualityGate ?? null;
   const textureQualityGateOk = textureQualityGate?.ok ?? null;
-  const directlyUsableRate = textureQualityGate?.directlyUsableRate ?? null;
-  const contaminationRate = textureQualityGate?.contaminationRate ?? null;
+  const directlyUsableRate =
+    textureQualityGate?.rates?.directlyUsableRate ??
+    textureQualityGate?.directlyUsableRate ??
+    null;
+  const contaminationRate =
+    textureQualityGate?.rates?.contaminationRate ??
+    textureQualityGate?.contaminationRate ??
+    null;
+  const phase2ExtractionRateOk =
+    typeof directlyUsableRate === "number" ? directlyUsableRate >= 0.8 : null;
+  const phase2ExtractionEvidence = textureQualityGate?.evidence ?? null;
+  const phase2ExtractionEvidenceOk = textureQualityGate
+    ? phase2ExtractionEvidence?.ok === true &&
+      phase2ExtractionEvidence.representativeTestSplit === true &&
+      phase2ExtractionEvidence.scope === "release-test-split"
+    : null;
   if (derivedAnnotationFailures > 0 || postprocessFailures > 0) {
     reasons.push(
       `final audit still reports ${postprocessFailures} postprocess failures and ${derivedAnnotationFailures} derived annotation failures`
@@ -148,6 +232,21 @@ function buildDecision(
     }
   }
 
+  if (phase2ExtractionRateOk === false) {
+    reasons.push(
+      `Phase 2 usable texture extraction rate ${directlyUsableRate?.toFixed(3)} is below required 0.800`
+    );
+    nextActions.push(
+      "Improve test-split texture extraction to at least 80% before release promotion."
+    );
+  }
+  if (phase2ExtractionEvidenceOk === false) {
+    const evidenceScope = phase2ExtractionEvidence?.scope ?? "missing";
+    reasons.push(`Phase 2 texture extraction evidence is not release-ready (${evidenceScope})`);
+    nextActions.push(
+      "Rerun the texture quality gate on a representative release test split with enough debug and polygon samples."
+    );
+  }
   if (textureQualityGateOk === false) {
     const usableRateText =
       typeof directlyUsableRate === "number" ? directlyUsableRate.toFixed(3) : "unknown";
@@ -161,7 +260,15 @@ function buildDecision(
     );
   }
 
-  if (!pipeline.ok || finalAuditStatus === "blocked" || (compare && !compare.ok)) {
+  if (
+    !pipeline.ok ||
+    finalAuditStatus === "blocked" ||
+    (compare && !compare.ok) ||
+    recognitionPerformance?.ok === false ||
+    trainingDatasetReadiness?.ok === false ||
+    phase2ExtractionRateOk === false ||
+    phase2ExtractionEvidenceOk === false
+  ) {
     return {
       status: "hold_candidate",
       summary: "Do not promote this candidate yet.",
@@ -192,15 +299,37 @@ function buildDecision(
 const options = parseArgs(process.argv.slice(2));
 const pipeline = await readJson<PipelineReportLike>(options.pipelineReportPath);
 const compare = await readOptionalJson<CompareSummaryLike>(options.compareSummaryPath);
+const performanceReport = await readOptionalJson<RecognitionPerformanceReportLike>(options.performanceReportPath);
 const registry = await readOptionalJson<RegistryLike>(options.registryPath);
 
 const manifest = pipeline.artifacts?.manifest ?? null;
-const decision = buildDecision(pipeline, compare);
+const recognitionPerformance = performanceReport ?? pipeline.artifacts?.recognitionPerformance ?? null;
+const decision = buildDecision(pipeline, compare, recognitionPerformance);
+const decisionTextureQualityGate = pipeline.artifacts?.finalAuditTextureQualityGate ?? null;
+const decisionDirectlyUsableRate =
+  decisionTextureQualityGate?.rates?.directlyUsableRate ??
+  decisionTextureQualityGate?.directlyUsableRate ??
+  null;
+const decisionContaminationRate =
+  decisionTextureQualityGate?.rates?.contaminationRate ??
+  decisionTextureQualityGate?.contaminationRate ??
+  null;
+const decisionPhase2ExtractionRateOk =
+  typeof decisionDirectlyUsableRate === "number"
+    ? decisionDirectlyUsableRate >= 0.8
+    : null;
+const decisionPhase2ExtractionEvidence = decisionTextureQualityGate?.evidence ?? null;
+const decisionPhase2ExtractionEvidenceOk = decisionTextureQualityGate
+  ? decisionPhase2ExtractionEvidence?.ok === true &&
+    decisionPhase2ExtractionEvidence.representativeTestSplit === true &&
+    decisionPhase2ExtractionEvidence.scope === "release-test-split"
+  : null;
 
 const summary = {
   ok: decision.status !== "hold_candidate",
   pipelineReportPath: options.pipelineReportPath,
   compareSummaryPath: options.compareSummaryPath ?? null,
+  performanceReportPath: options.performanceReportPath ?? null,
   registryPath: options.registryPath ?? null,
   outputPath: options.outputPath,
   candidateVersion: manifest?.version ?? null,
@@ -209,22 +338,35 @@ const summary = {
   decision,
   inputs: {
     pipelineOk: pipeline.ok,
+    trainingDatasetReadinessOk:
+      pipeline.artifacts?.trainingDatasetReadiness?.ok ?? null,
     finalAuditStatus: pipeline.artifacts?.finalAudit?.decision?.status ?? null,
     compareOk: compare ? compare.ok : null,
+    recognitionPerformanceOk: recognitionPerformance?.ok ?? null,
+    recognitionPerformanceProfile: recognitionPerformance?.profile ?? null,
+    recognitionPerformanceMaxElapsedMs: recognitionPerformance?.thresholds?.maxElapsedMs ?? null,
+    recognitionPerformanceP95Ms: recognitionPerformance?.stats?.p95Ms ?? null,
+    recognitionPerformanceMaxMs: recognitionPerformance?.stats?.maxMs ?? null,
+    recognitionPerformanceSlowSamples: recognitionPerformance?.totals?.slowSamples ?? null,
     derivedAnnotationFailures:
       pipeline.artifacts?.finalAuditFailureSummary?.totals?.derivedAnnotationFailures ?? 0,
     postprocessFailures: pipeline.artifacts?.finalAuditFailureSummary?.categoryCounts?.postprocess ?? 0,
     textureQualityGateOk: pipeline.artifacts?.finalAuditTextureQualityGate?.ok ?? null,
-    directlyUsableRate: pipeline.artifacts?.finalAuditTextureQualityGate?.directlyUsableRate ?? null,
-    contaminationRate: pipeline.artifacts?.finalAuditTextureQualityGate?.contaminationRate ?? null,
+    phase2ExtractionRateOk: decisionPhase2ExtractionRateOk,
+    phase2ExtractionEvidenceOk: decisionPhase2ExtractionEvidenceOk,
+    phase2ExtractionEvidenceScope: decisionPhase2ExtractionEvidence?.scope ?? null,
+    directlyUsableRate: decisionDirectlyUsableRate,
+    contaminationRate: decisionContaminationRate,
   },
   artifacts: {
     manifest,
+    trainingDatasetReadiness: pipeline.artifacts?.trainingDatasetReadiness ?? null,
     metrics: pipeline.artifacts?.metrics ?? null,
     finalAudit: pipeline.artifacts?.finalAudit ?? null,
     finalAuditFailureSummary: pipeline.artifacts?.finalAuditFailureSummary ?? null,
     finalAuditTextureQualityGate: pipeline.artifacts?.finalAuditTextureQualityGate ?? null,
     compareSummary: compare,
+    recognitionPerformance,
     registry,
   },
 };

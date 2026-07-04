@@ -45,6 +45,7 @@ test("scaffold-seed-batch creates workspace directories and manifest template", 
     ok: boolean;
     imagesDir: string;
     debugDir: string;
+    fixturesDir: string;
     reviewDir: string;
     manifestPath: string;
     readmePath: string;
@@ -52,6 +53,7 @@ test("scaffold-seed-batch creates workspace directories and manifest template", 
     failureClassificationPath: string;
   };
   assert.equal(result.ok, true);
+  assert.equal(path.basename(result.fixturesDir), "fixtures");
 
   const manifest = JSON.parse(await readFile(result.manifestPath, "utf8")) as {
     sourceGroup: string;
@@ -68,6 +70,8 @@ test("scaffold-seed-batch creates workspace directories and manifest template", 
 
   const readme = await readFile(result.readmePath, "utf8");
   assert.match(readme, /batch-verify-nail-detection/);
+  assert.match(readme, /--fixture-dir/);
+  assert.match(readme, /fixtures\/: optional green-circle/);
   assert.match(readme, /build-reviewed-intake-batch/);
   assert.match(readme, /run-phase1-intake-pipeline/);
   assert.match(readme, /screening-review\.csv/);

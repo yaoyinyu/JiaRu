@@ -9,6 +9,7 @@ const execFileAsync = promisify(execFile);
 interface CliOptions {
   trainingReleasePipelineReportPath: string;
   compareSummaryPath?: string;
+  performanceReportPath?: string;
   registryPath?: string;
   releaseTraceDraftPath?: string;
   reviewedBatchImportPipelineReportPath?: string;
@@ -17,6 +18,7 @@ interface CliOptions {
   promotionReportPath: string;
   traceIndexPath: string;
   traceRegistrationReportPath: string;
+  rollbackAuditReportPath: string;
   outputPath: string;
   allowManualReview: boolean;
   setCurrent: boolean;
@@ -37,7 +39,7 @@ function findStep(steps: StepResult[], name: string): StepResult | undefined {
 
 function usage(): never {
   throw new Error(
-    "Usage: node --experimental-strip-types scripts/run-release-governance-pipeline.ts --training-release-pipeline-report <training-release-pipeline-report.json> [--compare-summary <compare-summary.json>] [--registry <release-registry.json>] [--release-trace-draft <release-trace-draft.json>] [--reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--history-manifest <release-history-manifest.json>] [--decision-report <release-decision-report.json>] [--promotion-report <promotion-report.json>] [--trace-index <release-trace-index.json>] [--trace-registration-report <trace-registration-report.json>] [--output <release-governance-pipeline-report.json>] [--allow-manual-review true|false] [--set-current true|false] [--promote true|false]"
+    "Usage: node --experimental-strip-types scripts/run-release-governance-pipeline.ts --training-release-pipeline-report <training-release-pipeline-report.json> [--compare-summary <compare-summary.json>] [--performance-report <performance-report.json>] [--registry <release-registry.json>] [--release-trace-draft <release-trace-draft.json>] [--reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--history-manifest <release-history-manifest.json>] [--decision-report <release-decision-report.json>] [--promotion-report <promotion-report.json>] [--trace-index <release-trace-index.json>] [--trace-registration-report <trace-registration-report.json>] [--rollback-audit-report <rollback-audit-report.json>] [--output <release-governance-pipeline-report.json>] [--allow-manual-review true|false] [--set-current true|false] [--promote true|false]"
   );
 }
 
@@ -52,6 +54,7 @@ function parseArgs(argv: string[]): CliOptions {
   let trainingReleasePipelineReportPath = "";
   let compareSummaryPath: string | undefined;
   let registryPath: string | undefined;
+  let performanceReportPath: string | undefined;
   let releaseTraceDraftPath: string | undefined;
   let reviewedBatchImportPipelineReportPath: string | undefined;
   let historyManifestPath: string | undefined;
@@ -59,6 +62,7 @@ function parseArgs(argv: string[]): CliOptions {
   let promotionReportPath = "";
   let traceIndexPath = "";
   let traceRegistrationReportPath = "";
+  let rollbackAuditReportPath = "";
   let outputPath = "";
   let allowManualReview = false;
   let setCurrent = true;
@@ -70,6 +74,8 @@ function parseArgs(argv: string[]): CliOptions {
       trainingReleasePipelineReportPath = path.resolve(argv[++index] ?? usage());
     } else if (arg === "--compare-summary") {
       compareSummaryPath = path.resolve(argv[++index] ?? usage());
+    } else if (arg === "--performance-report") {
+      performanceReportPath = path.resolve(argv[++index] ?? usage());
     } else if (arg === "--registry") {
       registryPath = path.resolve(argv[++index] ?? usage());
     } else if (arg === "--release-trace-draft") {
@@ -86,6 +92,8 @@ function parseArgs(argv: string[]): CliOptions {
       traceIndexPath = path.resolve(argv[++index] ?? usage());
     } else if (arg === "--trace-registration-report") {
       traceRegistrationReportPath = path.resolve(argv[++index] ?? usage());
+    } else if (arg === "--rollback-audit-report") {
+      rollbackAuditReportPath = path.resolve(argv[++index] ?? usage());
     } else if (arg === "--output") {
       outputPath = path.resolve(argv[++index] ?? usage());
     } else if (arg === "--allow-manual-review") {
@@ -108,11 +116,15 @@ function parseArgs(argv: string[]): CliOptions {
   if (!traceRegistrationReportPath) {
     traceRegistrationReportPath = path.join(reportDir, "trace-registration-report.json");
   }
+  if (!rollbackAuditReportPath) {
+    rollbackAuditReportPath = path.join(reportDir, "rollback-audit-report.json");
+  }
   if (!outputPath) outputPath = path.join(reportDir, "release-governance-pipeline-report.json");
 
   return {
     trainingReleasePipelineReportPath,
     compareSummaryPath,
+    performanceReportPath,
     registryPath,
     releaseTraceDraftPath,
     reviewedBatchImportPipelineReportPath,
@@ -121,6 +133,7 @@ function parseArgs(argv: string[]): CliOptions {
     promotionReportPath,
     traceIndexPath,
     traceRegistrationReportPath,
+    rollbackAuditReportPath,
     outputPath,
     allowManualReview,
     setCurrent,
@@ -173,6 +186,7 @@ async function finish(options: CliOptions, steps: StepResult[]) {
   const promotionStep = findStep(steps, "promote-approved-release");
   const traceIndexStep = findStep(steps, "build-release-trace-index");
   const traceRegistrationStep = findStep(steps, "register-release-trace-index");
+  const rollbackAuditStep = findStep(steps, "audit-release-rollback");
 
   const decisionStatus =
     typeof decisionStep?.stdout === "object" &&
@@ -186,11 +200,14 @@ async function finish(options: CliOptions, steps: StepResult[]) {
   const decisionAllowsPromotion =
     decisionStatus === "approve_candidate" ||
     (decisionStatus === "manual_review" && options.allowManualReview);
+  const rollbackAuditRequired = promotionAttempted && promotionSucceeded;
+  const rollbackAuditSucceeded = rollbackAuditRequired ? Boolean(rollbackAuditStep?.ok) : true;
   const reportOk =
     Boolean(traceIndexStep?.ok) &&
     Boolean(traceRegistrationStep?.ok) &&
     decisionAllowsPromotion &&
-    promotionSucceeded;
+    promotionSucceeded &&
+    rollbackAuditSucceeded;
 
   const report = {
     ok: reportOk,
@@ -198,6 +215,7 @@ async function finish(options: CliOptions, steps: StepResult[]) {
     inputs: {
       trainingReleasePipelineReportPath: options.trainingReleasePipelineReportPath,
       compareSummaryPath: options.compareSummaryPath ?? null,
+      performanceReportPath: options.performanceReportPath ?? null,
       registryPath: options.registryPath ?? null,
       releaseTraceDraftPath: options.releaseTraceDraftPath ?? null,
       reviewedBatchImportPipelineReportPath: options.reviewedBatchImportPipelineReportPath ?? null,
@@ -211,6 +229,7 @@ async function finish(options: CliOptions, steps: StepResult[]) {
       promotionReportPath: options.promotionReportPath,
       traceIndexPath: options.traceIndexPath,
       traceRegistrationReportPath: options.traceRegistrationReportPath,
+      rollbackAuditReportPath: options.rollbackAuditReportPath,
     },
     steps,
     artifacts: {
@@ -221,6 +240,10 @@ async function finish(options: CliOptions, steps: StepResult[]) {
       traceRegistration:
         (await readJsonIfExists(options.traceRegistrationReportPath)) ??
         traceRegistrationStep?.stdout ??
+        null,
+      rollbackAudit:
+        (await readJsonIfExists(options.rollbackAuditReportPath)) ??
+        rollbackAuditStep?.stdout ??
         null,
       historyManifest: await readJsonIfExists(
         options.historyManifestPath ?? path.join(path.dirname(options.traceIndexPath), "release-history-manifest.json")
@@ -252,6 +275,7 @@ async function main() {
     "--output",
     options.decisionReportPath,
     ...(options.compareSummaryPath ? ["--compare-summary", options.compareSummaryPath] : []),
+    ...(options.performanceReportPath ? ["--performance-report", options.performanceReportPath] : []),
     ...(options.registryPath ? ["--registry", options.registryPath] : []),
   ];
   const decisionResult = await runCommand("build-release-decision-report", decisionCommand, cwd);
@@ -356,6 +380,43 @@ async function main() {
     );
   }
   steps.push(traceRegistrationResult);
+
+  let rollbackAuditResult: StepResult = {
+    name: "audit-release-rollback",
+    ok: true,
+    stdout: {
+      skipped: !(promotionWasExecuted && promotionResult.ok),
+      reason:
+        promotionWasExecuted && promotionResult.ok
+          ? "rollback audit skipped because promotion report was unavailable"
+          : "rollback audit only runs after a successful promotion",
+    },
+    command: [],
+  };
+
+  if (promotionWasExecuted && promotionResult.ok) {
+    const promotionReport = (await readJsonIfExists(options.promotionReportPath)) as
+      | { manifestPath?: string; registryPath?: string }
+      | null;
+    const manifestPath = promotionReport?.manifestPath;
+    const registryPath = options.registryPath ?? promotionReport?.registryPath;
+    if (manifestPath && registryPath) {
+      const rollbackAuditCommand = [
+        process.execPath,
+        "--no-warnings",
+        "--experimental-strip-types",
+        "scripts/audit-release-rollback.ts",
+        "--registry",
+        registryPath,
+        "--manifest",
+        manifestPath,
+        "--output",
+        options.rollbackAuditReportPath,
+      ];
+      rollbackAuditResult = await runCommand("audit-release-rollback", rollbackAuditCommand, cwd);
+    }
+  }
+  steps.push(rollbackAuditResult);
 
   await finish(options, steps);
 }

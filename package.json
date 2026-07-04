@@ -7,11 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --no-warnings --experimental-strip-types --test tests/*.test.ts"
+    "test": "node --no-warnings --experimental-strip-types --test tests/*.test.ts",
+    "audit:encoding": "node --no-warnings --experimental-strip-types scripts/audit-text-encoding.ts",
+    "audit:mvp-readiness": "node --no-warnings --experimental-strip-types scripts/audit-nail-texture-mvp-readiness.ts",
+    "audit:mvp-readiness:refresh": "node --no-warnings --experimental-strip-types scripts/refresh-nail-texture-mvp-readiness.ts"
   },
   "dependencies": {
     "@mediapipe/hands": "^0.4.1675469240",
     "next": "16.2.9",
+    "onnxruntime-web": "^1.27.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "three": "^0.184.0"

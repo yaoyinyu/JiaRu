@@ -1,7 +1,7 @@
 # 模型版本 A/B 对比
 
-版本：v1.0  
-日期：2026-07-01
+版本：v1.1
+日期：2026-07-04
 
 这一步对应规划文档 Phase 5 里的：
 
@@ -12,7 +12,7 @@
 ## 命令
 
 ```bash
-node --no-warnings --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics model/exports/nail-texture-seg-v1/metrics.json --baseline-manifest public/models/nail-texture-seg-v1/manifest.json --candidate-metrics model/exports/nail-texture-seg-v2/metrics.json --candidate-manifest public/models/nail-texture-seg-v2/manifest.json
+node --no-warnings --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics model/exports/nail-texture-seg-v1/metrics.json --baseline-manifest public/models/nail-texture-seg-v1/manifest.json --candidate-metrics model/exports/nail-texture-seg-v2/metrics.json --candidate-manifest public/models/nail-texture-seg-v2/manifest.json --output model/exports/nail-texture-seg-v2/compare-summary.json
 ```
 
 ## 它会比较什么
@@ -29,7 +29,7 @@ node --no-warnings --experimental-strip-types scripts/compare-training-releases.
 
 ## 输出
 
-结构化 JSON，包括：
+结构化 JSON 会输出到 stdout；传入 `--output` 时也会写入文件，方便后续 `build-release-decision-report.ts` 和 release governance 继续读取。内容包括：
 
 - `baseline`
 - `candidate`
@@ -55,7 +55,7 @@ node --no-warnings --experimental-strip-types scripts/compare-training-releases.
 还支持可选比较两版 release 的失败摘要：
 
 ```bash
-node --no-warnings --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics model/exports/nail-texture-seg-v1/metrics.json --baseline-manifest public/models/nail-texture-seg-v1/manifest.json --baseline-failure-summary model/exports/nail-texture-seg-v1/failure-case-summary.json --candidate-metrics model/exports/nail-texture-seg-v2/metrics.json --candidate-manifest public/models/nail-texture-seg-v2/manifest.json --candidate-failure-summary model/exports/nail-texture-seg-v2/failure-case-summary.json
+node --no-warnings --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics model/exports/nail-texture-seg-v1/metrics.json --baseline-manifest public/models/nail-texture-seg-v1/manifest.json --baseline-failure-summary model/exports/nail-texture-seg-v1/failure-case-summary.json --candidate-metrics model/exports/nail-texture-seg-v2/metrics.json --candidate-manifest public/models/nail-texture-seg-v2/manifest.json --candidate-failure-summary model/exports/nail-texture-seg-v2/failure-case-summary.json --output model/exports/nail-texture-seg-v2/compare-summary.json
 ```
 
 当这两个参数都提供时，输出里还会多出：

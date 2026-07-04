@@ -91,7 +91,7 @@ async function main() {
 
   const commands = {
     bootstrap: `node --no-warnings --experimental-strip-types model/training/bootstrap-seed-batch.ts --source-dir "${toPosix(options.sourceDir)}" --root-dir "${toPosix(options.rootDir)}" --source-group ${options.sourceGroup} --origin-type ${options.originType} --license "${options.license}" --default-origin-ref "${options.defaultOriginRef}"`,
-    verifyOverlays: `node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir "${toPosix(path.join(options.rootDir, "images"))}" --output-dir "${toPosix(path.join(options.rootDir, "debug"))}" --prefix ${options.sourceGroup}`,
+    verifyOverlays: `node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir "${toPosix(path.join(options.rootDir, "images"))}" --output-dir "${toPosix(path.join(options.rootDir, "debug"))}" --prefix ${options.sourceGroup} --fixture-dir "${toPosix(path.join(options.rootDir, "fixtures"))}"`,
     prepareSeedBatch: `node --no-warnings --experimental-strip-types model/training/run-seed-batch-prep-pipeline.ts --root-dir "${toPosix(options.rootDir)}"`,
     importReviewedBatch: `node --no-warnings --experimental-strip-types model/training/run-reviewed-batch-import-pipeline.ts --root-dir "${toPosix(options.rootDir)}"`,
     readinessGate: "node --no-warnings --experimental-strip-types model/training/audit-phase1-readiness.ts",
@@ -137,7 +137,7 @@ async function main() {
         id: "bootstrap-seed-batch",
         title: "生成种子批次工作区",
         command: commands.bootstrap,
-        acceptance: `${toPosix(options.rootDir)}/images、debug、review 和 manifest 已生成`,
+        acceptance: `${toPosix(options.rootDir)}/images、debug、fixtures、review 和 manifest 已生成`,
       },
       {
         id: "verify-overlays",
