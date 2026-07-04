@@ -1,5 +1,5 @@
 {
-  "ok": false,
+  "ok": true,
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
   "totals": {
@@ -10,9 +10,9 @@
     "filesWithWarnings": 1
   },
   "splitCounts": {
-    "train": 300,
+    "train": 299,
     "val": 0,
-    "test": 1
+    "test": 2
   },
   "splitIntegrity": {
     "missingFromSplit": [],
@@ -21,11 +21,13 @@
   },
   "testCoverage": {
     "negatives": 1,
-    "complexBackground": 0,
+    "complexBackground": 1,
     "sampleKinds": {
+      "complex_background": 1,
       "negative": 1
     },
     "backgrounds": {
+      "dark": 1,
       "unspecified": 1
     }
   },
@@ -56,13 +58,12 @@
       "required": 1
     },
     "testSplitHasComplexBackground": {
-      "ok": false,
-      "actual": 0,
+      "ok": true,
+      "actual": 1,
       "required": 1
     }
   },
   "warnings": [
-    "test split does not yet contain a complex-background sample",
     "label audit still has 1 files with warning-level issues"
   ],
   "fileResults": [
