@@ -1,80 +1,77 @@
 # 发布决策汇总报告
 
-版本：v1.1  
-日期：2026-07-03
+版本：v1.4
+日期：2026-07-04
 
-这一步把训练发布链路末端已经生成的关键产物汇总成一份可直接用于“是否放行 candidate”的决策报告：
+`build-release-decision-report.ts` 会把训练发布链路末端生成的关键产物汇总成一份可用于判断“是否放行候选模型”的报告：
 
 - `training-release-pipeline-report.json`
 - 可选的 `compare-summary.json`
+- 可选的 `performance-report.*.json`
 - 可选的 `release-registry.json`
 
-现在它除了汇总 final audit 和 compare 结果，也会同步消费 `texture-quality-gate.json` 已经回写到 training release pipeline report 里的纹理质量门禁结果。
+它会同时消费 final audit、训练数据 readiness、A/B 对比、识别性能门禁、纹理质量门禁和发布证据代表性信息。
 
 ## 命令
+
+基础命令：
 
 ```bash
 node --no-warnings --experimental-strip-types scripts/build-release-decision-report.ts --pipeline-report model/exports/nail-texture-seg-v1/training-release-pipeline-report.json
 ```
 
-如果已经有 A/B 对比结果和 registry，也可以一起传入：
+带 A/B 对比、性能报告和 registry：
 
 ```bash
-node --no-warnings --experimental-strip-types scripts/build-release-decision-report.ts --pipeline-report model/exports/nail-texture-seg-v2/training-release-pipeline-report.json --compare-summary model/exports/nail-texture-seg-v2/compare-summary.json --registry public/models/nail-texture-seg/release-registry.json
+node --no-warnings --experimental-strip-types scripts/build-release-decision-report.ts --pipeline-report model/exports/nail-texture-seg-v2/training-release-pipeline-report.json --compare-summary model/exports/nail-texture-seg-v2/compare-summary.json --performance-report model/exports/nail-texture-seg-v2/performance-report.mobile.json --registry public/models/nail-texture-seg/release-registry.json
 ```
 
-## 它解决什么问题
+也兼容从 `training-release-pipeline-report.json` 的 `artifacts.recognitionPerformance` 读取性能报告。
 
-在进入发布决策前，我们通常已经有：
+## 决策状态
 
-- training release pipeline 报告
-- final audit 报告
-- failure summary
-- texture quality gate
-- A/B compare 结果
-- release registry
+- `approve_candidate`：核心发布门禁全部通过，可以进入自动 promotion。
+- `manual_review`：核心门禁通过，但仍有剩余质量风险，需要人工复核。
+- `hold_candidate`：候选不能发布。
 
-这些信息之前是分散的，人工判断时需要来回翻多份 JSON。  
-这条命令会把它们收束成一份 `release-decision-report.json`，重点回答：
+## 硬阻断规则
 
-- 当前 candidate 是否通过核心 gate
-- final audit 是 `pass / needs_adjustment / blocked`
-- compare 是否存在回退
-- 当前 registry 的 active version 是谁
-- texture quality gate 是否通过
-- 纹理裁剪是否已经达到“可直接用于后续贴图识别”的质量水平
-- 当前更适合：
-  - 直接放行
-  - 暂缓发布
-  - 进入人工复核
+以下任一情况会进入 `hold_candidate`：
 
-## 决策规则补充
+- training release pipeline 未通过。
+- final audit 为 `blocked`。
+- compare 出现回退。
+- recognition performance 明确失败，例如桌面或手机样本超过耗时预算。
+- training dataset readiness 明确失败。
+- Phase 2 可用纹理提取率低于 `0.80`。
+- 已有纹理质量门禁结果，但其发布证据不是 release-test-split，或样本量证据不通过。
 
-当前决策分三档：
+性能门禁的原则是：如果你把性能报告交给发布决策，它就会被当成硬证据。`ok === false` 时候选不能晋升，因为 Phase 3 明确要求浏览器端本地推理不能拖垮 UI。
 
-- `approve_candidate`
-- `manual_review`
-- `hold_candidate`
+纹理质量证据也必须配套：
 
-其中：
+```json
+{
+  "evidence": {
+    "ok": true,
+    "scope": "release-test-split",
+    "representativeTestSplit": true
+  }
+}
+```
 
-- 训练发布链路失败、final audit 为 `blocked`、或 compare 出现回退时，会进入 `hold_candidate`
-- 如果核心 gate 都通过，但仍有剩余风险信号，会进入 `manual_review`
+否则该结果只能算本地调试信号，不能当作发布证据。
 
-现在新增了一条剩余风险信号：
+## 人工复核规则
 
-- `finalAuditTextureQualityGate.ok === false`
+以下情况通常进入 `manual_review`：
 
-也就是说，哪怕模型训练、导出、final audit 和 compare 都通过了，只要纹理质量门禁显示：
+- Phase 2 可用纹理提取率达到 `0.80`，但 Phase 4 质量门禁仍失败。
+- final audit 虽未 blocked，但还有 postprocess 或 derived annotation 风险信号。
 
-- 可直接使用率偏低，或
-- 污染率偏高
+## 输出字段
 
-这版 candidate 也不会被直接标成 `approve_candidate`，而是进入 `manual_review`，要求先人工检查纹理裁剪质量。
-
-## 输出
-
-默认输出到与 pipeline report 同目录下的：
+默认输出到 pipeline report 同目录下：
 
 ```text
 release-decision-report.json
@@ -83,31 +80,37 @@ release-decision-report.json
 主要字段包括：
 
 - `decision.status`
-  - `approve_candidate`
-  - `manual_review`
-  - `hold_candidate`
 - `decision.summary`
 - `decision.reasons`
 - `decision.nextActions`
 - `inputs.pipelineOk`
+- `inputs.trainingDatasetReadinessOk`
 - `inputs.finalAuditStatus`
 - `inputs.compareOk`
+- `inputs.recognitionPerformanceOk`
+- `inputs.recognitionPerformanceProfile`
+- `inputs.recognitionPerformanceMaxElapsedMs`
+- `inputs.recognitionPerformanceP95Ms`
+- `inputs.recognitionPerformanceMaxMs`
+- `inputs.recognitionPerformanceSlowSamples`
 - `inputs.derivedAnnotationFailures`
 - `inputs.postprocessFailures`
 - `inputs.textureQualityGateOk`
+- `inputs.phase2ExtractionRateOk`
+- `inputs.phase2ExtractionEvidenceOk`
+- `inputs.phase2ExtractionEvidenceScope`
 - `inputs.directlyUsableRate`
 - `inputs.contaminationRate`
+- `artifacts.recognitionPerformance`
 - `artifacts.finalAuditFailureSummary`
 - `artifacts.finalAuditTextureQualityGate`
 - `artifacts.compareSummary`
 - `artifacts.registry`
 
-## 推荐用法
+## 推荐使用顺序
 
-建议顺序：
-
-1. 先跑 `run-training-release-pipeline.ts`
-2. 如有 baseline/candidate，对比跑 `compare-training-releases.ts`
-3. 最后跑 `build-release-decision-report.ts`
-
-如果 training release pipeline 已经接入了 final audit 的 texture quality gate，这一步就会把“模型是否能跑”和“纹理是否够干净、够可用”一起纳入发布判断。
+1. 跑 `run-training-release-pipeline.ts`。
+2. 如有 baseline/candidate，跑 `compare-training-releases.ts`。
+3. 从真实 debug sample 或 final audit 产物跑 `verify-recognition-performance.ts`。
+4. 跑 `build-release-decision-report.ts`。
+5. 如果需要一键串联 promotion、trace、history，继续跑 `run-release-governance-pipeline.ts`。

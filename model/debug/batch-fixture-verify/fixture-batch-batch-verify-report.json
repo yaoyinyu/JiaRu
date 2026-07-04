@@ -1,0 +1,33 @@
+{
+  "ok": true,
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\model",
+  "outputDir": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify",
+  "fixtureDir": "E:\\AI Project\\Codex\\JiaRu\\model\\fixtures",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-batch-verify-report.json",
+  "totalImages": 1,
+  "successCount": 1,
+  "failureCount": 0,
+  "matchedFixtureCount": 1,
+  "skippedAnnotationCount": 1,
+  "skippedAnnotationFiles": [
+    "5188.jpg_wh860.png"
+  ],
+  "results": [
+    {
+      "fileName": "5188.jpg_wh860.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\5188.jpg_wh860.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": "E:\\AI Project\\Codex\\JiaRu\\model\\fixtures\\nail-detection-reference-5188.json",
+      "output": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.jpg-5188.jpg_wh860-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.jpg-5188.jpg_wh860-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.jpg-5188.jpg_wh860-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.jpg-5188.jpg_wh860-detection-debug.json",
+      "count": 4,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    }
+  ]
+}

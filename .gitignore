@@ -46,6 +46,11 @@ yarn-error.log*
 next-env.d.ts
 
 # model datasets / exports
+/image/
+model/debug/**/*.png
+model/debug/**/*.jpg
+model/debug/**/*.jpeg
+model/debug/**/*.webp
 model/datasets/nail-texture-v1/images/raw/*
 !model/datasets/nail-texture-v1/images/raw/.gitkeep
 model/datasets/nail-texture-v1/annotations/raw-json/*

@@ -1,0 +1,14 @@
+{
+  "version": "nail-texture-intake-batch/v1",
+  "sourceGroup": "negative-no-nail-2026-07-05",
+  "originType": "negative",
+  "license": "ai-generated-internal-training-candidate",
+  "defaultOriginRef": "local synthetic no-nail negative sample generated in E:/AI Project/Codex/JiaRu/image/negative/2026_7_5 on 2026-07-05",
+  "copyImagesToDataset": true,
+  "items": [
+    {
+      "fileName": "no_nail_plain_dark_background_0001.png",
+      "notes": ""
+    }
+  ]
+}

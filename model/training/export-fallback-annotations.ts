@@ -19,6 +19,7 @@ const sourcesCsvPath = path.join(datasetRoot, "metadata", "sources.csv");
 
 interface CliOptions {
   copyImage: boolean;
+  negative: boolean;
   sourceGroup?: string;
   outputDir: string;
   rawImageDir: string;
@@ -32,6 +33,7 @@ interface CliOptions {
 function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = {
     copyImage: false,
+    negative: false,
     outputDir: path.join(datasetRoot, "annotations", "raw-json"),
     rawImageDir: path.join(datasetRoot, "images", "raw"),
     originType: "reference",
@@ -45,6 +47,10 @@ function parseArgs(argv: string[]): CliOptions {
     const arg = argv[i];
     if (arg === "--copy-image") {
       options.copyImage = true;
+      continue;
+    }
+    if (arg === "--negative") {
+      options.negative = true;
       continue;
     }
     if (arg === "--source-group") {
@@ -120,11 +126,13 @@ async function exportSingleImage(
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
-  const result = recognizeNailTexturesWithFallback({
-    width: info.width,
-    height: info.height,
-    data,
-  });
+  const result = options.negative
+    ? { candidates: [] }
+    : recognizeNailTexturesWithFallback({
+        width: info.width,
+        height: info.height,
+        data,
+      });
   const annotation = buildInitialAnnotationDocument(
     {
       id: imageId,
@@ -135,6 +143,7 @@ async function exportSingleImage(
     result.candidates,
     {
       sourceGroup: options.sourceGroup,
+      ...(options.negative ? { negative: true } : {}),
     }
   );
 

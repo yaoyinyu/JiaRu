@@ -1,0 +1,104 @@
+{
+  "input": "E:\\AI Project\\Codex\\JiaRu\\model\\5188.jpg_wh860.png",
+  "annotation": null,
+  "fixturePath": "E:\\AI Project\\Codex\\JiaRu\\model\\fixtures\\nail-detection-reference-5188.json",
+  "output": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.png-5188.jpg_wh860-detection-debug.png",
+  "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.png-5188.jpg_wh860-candidate-mask.png",
+  "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.png-5188.jpg_wh860-skin-mask.png",
+  "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\model\\debug\\batch-fixture-verify\\fixture-batch-5188.jpg_wh860.png-5188.jpg_wh860-detection-debug.json",
+  "width": 860,
+  "height": 573,
+  "count": 3,
+  "backend": "fallback",
+  "warnings": [
+    "model_runtime_unavailable_on_server"
+  ],
+  "modelOutputDumpPath": null,
+  "regions": [
+    {
+      "cx": 258.90696704394765,
+      "cy": 276.3642842066389,
+      "angle": 0.5235987755982987,
+      "length": 150.5,
+      "width": 98.9,
+      "confidence": "high",
+      "score": 127.92434310913086
+    },
+    {
+      "cx": 411.45416101504117,
+      "cy": 343.9453841854549,
+      "angle": 0.5235987755982987,
+      "length": 132.47486098870044,
+      "width": 95.38189991186431,
+      "confidence": "high",
+      "score": 80.46527481079102
+    },
+    {
+      "cx": 545.1325762598982,
+      "cy": 356.3648284899482,
+      "angle": 0.7853981633974483,
+      "length": 150.5,
+      "width": 98.9,
+      "confidence": "high",
+      "score": 126.59743309020996
+    }
+  ],
+  "groundTruth": [
+    {
+      "x": 134,
+      "y": 179,
+      "width": 100,
+      "height": 107,
+      "area": 1550,
+      "cx": 184.43806451612903,
+      "cy": 232.63548387096773
+    },
+    {
+      "x": 222,
+      "y": 242,
+      "width": 98,
+      "height": 120,
+      "area": 1617,
+      "cx": 272.5380333951762,
+      "cy": 301.8274582560297
+    },
+    {
+      "x": 346,
+      "y": 280,
+      "width": 113,
+      "height": 139,
+      "area": 1937,
+      "cx": 402.24367578729994,
+      "cy": 349.5818275684048
+    },
+    {
+      "x": 500,
+      "y": 322,
+      "width": 98,
+      "height": 119,
+      "area": 1615,
+      "cx": 551.1746130030959,
+      "cy": 381.15975232198144
+    }
+  ],
+  "expectedCandidateCount": 4,
+  "matches": [
+    {
+      "predictedIndex": 0,
+      "truthIndex": 0,
+      "distance": 86.35870206582972
+    },
+    {
+      "predictedIndex": 1,
+      "truthIndex": 1,
+      "distance": 145.16063584007597
+    },
+    {
+      "predictedIndex": 2,
+      "truthIndex": 2,
+      "distance": 143.04980594104194
+    }
+  ],
+  "maxCenterError": 145.16063584007597,
+  "maxAllowedCenterError": 45
+}

@@ -23,6 +23,8 @@ interface CliOptions {
   skipTrain: boolean;
   skipEvaluate: boolean;
   skipExport: boolean;
+  skipSourceAuthorization: boolean;
+  sourceAuthorizationDatasetRoot: string;
   minSegMap50: number;
   minBoxMap50: number;
   maxModelMb: number;
@@ -36,6 +38,7 @@ interface CliOptions {
   finalAuditUiReview?: string;
   runGovernance: boolean;
   governanceCompareSummary?: string;
+  governancePerformanceReport?: string;
   governanceRegistry?: string;
   governanceReleaseTraceDraft?: string;
   governanceReviewedBatchImportPipelineReport?: string;
@@ -68,6 +71,10 @@ function resolveDefaultGovernanceCompareSummary(trainOutputDir: string): string 
   return path.join(trainOutputDir, "compare-summary.json");
 }
 
+function resolveDefaultGovernancePerformanceReport(trainOutputDir: string): string {
+  return path.join(trainOutputDir, "performance-report.mobile.json");
+}
+
 function resolveDefaultGovernanceRegistry(browserModelDir: string): string {
   return path.join(browserModelDir, "release-registry.json");
 }
@@ -95,6 +102,8 @@ function parseArgs(argv: string[]): CliOptions {
     skipTrain: false,
     skipEvaluate: false,
     skipExport: false,
+    skipSourceAuthorization: false,
+    sourceAuthorizationDatasetRoot: path.resolve("model/datasets/nail-texture-v1"),
     minSegMap50: 0.75,
     minBoxMap50: 0.85,
     maxModelMb: 15,
@@ -109,6 +118,7 @@ function parseArgs(argv: string[]): CliOptions {
     runName: false,
     modelVersion: false,
     governanceCompareSummary: false,
+    governancePerformanceReport: false,
     governanceRegistry: false,
     governanceHistoryManifest: false,
   };
@@ -141,6 +151,10 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--skip-train") options.skipTrain = true;
     else if (arg === "--skip-evaluate") options.skipEvaluate = true;
     else if (arg === "--skip-export") options.skipExport = true;
+    else if (arg === "--skip-source-authorization") options.skipSourceAuthorization = true;
+    else if (arg === "--source-authorization-dataset-root") {
+      options.sourceAuthorizationDatasetRoot = path.resolve(argv[++index]);
+    }
     else if (arg === "--min-seg-map50") options.minSegMap50 = Number(argv[++index]);
     else if (arg === "--min-box-map50") options.minBoxMap50 = Number(argv[++index]);
     else if (arg === "--max-model-mb") options.maxModelMb = Number(argv[++index]);
@@ -156,6 +170,10 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--governance-compare-summary") {
       explicit.governanceCompareSummary = true;
       options.governanceCompareSummary = path.resolve(argv[++index]);
+    }
+    else if (arg === "--governance-performance-report") {
+      explicit.governancePerformanceReport = true;
+      options.governancePerformanceReport = path.resolve(argv[++index]);
     }
     else if (arg === "--governance-registry") {
       explicit.governanceRegistry = true;
@@ -189,7 +207,7 @@ function parseArgs(argv: string[]): CliOptions {
     }
     else {
       throw new Error(
-        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
+        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--skip-source-authorization] [--source-authorization-dataset-root <dir>] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-performance-report <performance-report.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
       );
     }
   }
@@ -202,6 +220,9 @@ function parseArgs(argv: string[]): CliOptions {
   }
   if (!explicit.governanceCompareSummary) {
     options.governanceCompareSummary = resolveDefaultGovernanceCompareSummary(options.trainOutputDir);
+  }
+  if (!explicit.governancePerformanceReport) {
+    options.governancePerformanceReport = resolveDefaultGovernancePerformanceReport(options.trainOutputDir);
   }
   if (!explicit.governanceRegistry) {
     options.governanceRegistry = resolveDefaultGovernanceRegistry(options.browserModelDir);
@@ -219,6 +240,14 @@ function resolveBestWeightsPath(options: CliOptions): string {
 
 function resolveMetricsPath(options: CliOptions): string {
   return path.join(options.trainOutputDir, "metrics.json");
+}
+
+function resolveEvaluationArtifactsDir(options: CliOptions): string {
+  return path.join(options.trainOutputDir, "evaluation-artifacts");
+}
+
+function resolveEvaluationArtifactIndexPath(options: CliOptions): string {
+  return path.join(resolveEvaluationArtifactsDir(options), "evaluation-artifacts.json");
 }
 
 function resolveManifestPath(options: CliOptions): string {
@@ -290,7 +319,7 @@ async function resolveGovernanceContext(options: CliOptions): Promise<{
     options.governanceReviewedBatchImportPipelineReport ?? null;
   let reviewedBatchReleaseHandoffPath = options.governanceReviewedBatchReleaseHandoff ?? null;
   let reviewedBatchRootDir = options.governanceReviewedBatchRootDir ?? null;
-  let activeLearningHandoffPath = options.governanceActiveLearningHandoff ?? null;
+  const activeLearningHandoffPath = options.governanceActiveLearningHandoff ?? null;
 
   if (reviewedBatchReleaseHandoffPath) {
     const handoff = (await readJsonIfExists(reviewedBatchReleaseHandoffPath)) as
@@ -402,10 +431,28 @@ async function main() {
 
   const weightsPath = resolveBestWeightsPath(options);
   const metricsPath = resolveMetricsPath(options);
+  const evaluationArtifactsDir = resolveEvaluationArtifactsDir(options);
+  const evaluationArtifactIndexPath = resolveEvaluationArtifactIndexPath(options);
   const manifestPath = resolveManifestPath(options);
 
   const steps: StepResult[] = [];
-
+  if (!options.dryRun && !options.skipTrain && !options.skipSourceAuthorization) {
+    const command = [
+      process.execPath,
+      "--no-warnings",
+      "--experimental-strip-types",
+      "model/training/verify-training-dataset-readiness.ts",
+      "--dataset-root",
+      options.sourceAuthorizationDatasetRoot,
+      "--authorization-mode",
+      "release",
+      "--output",
+      path.join(options.trainOutputDir, "training-dataset-readiness-release.json"),
+    ];
+    const result = await runCommand("verify-training-dataset-readiness", command, cwd);
+    steps.push(result);
+    if (!result.ok) return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+  }
   if (!options.skipTrain) {
     const command = [
       "python",
@@ -451,6 +498,8 @@ async function main() {
       weightsPath,
       "--output",
       metricsPath,
+      "--artifacts-dir",
+      evaluationArtifactsDir,
       "--split",
       options.split,
       "--imgsz",
@@ -462,6 +511,24 @@ async function main() {
     const result = await runCommand("evaluate", command, cwd);
     steps.push(result);
     if (!result.ok) return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+
+    if (!options.dryRun) {
+      const verifyCommand = [
+        process.execPath,
+        "--no-warnings",
+        "--experimental-strip-types",
+        "scripts/verify-evaluation-artifacts.ts",
+        "--index",
+        evaluationArtifactIndexPath,
+        "--require-split",
+        options.split,
+      ];
+      const verifyResult = await runCommand("verify-evaluation-artifacts", verifyCommand, cwd);
+      steps.push(verifyResult);
+      if (!verifyResult.ok) {
+        return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+      }
+    }
   }
 
   if (!options.skipExport) {
@@ -597,6 +664,8 @@ async function finish(
       browserModelDir: options.browserModelDir,
       weightsPath,
       metricsPath,
+      evaluationArtifactsDir: resolveEvaluationArtifactsDir(options),
+      evaluationArtifactIndexPath: resolveEvaluationArtifactIndexPath(options),
       manifestPath,
       governanceReportPath: options.runGovernance ? governanceReportPath : null,
     },
@@ -614,6 +683,8 @@ async function finish(
       skipTrain: options.skipTrain,
       skipEvaluate: options.skipEvaluate,
       skipExport: options.skipExport,
+      skipSourceAuthorization: options.skipSourceAuthorization,
+      sourceAuthorizationDatasetRoot: options.sourceAuthorizationDatasetRoot,
       minSegMap50: options.minSegMap50,
       minBoxMap50: options.minBoxMap50,
       maxModelMb: options.maxModelMb,
@@ -628,6 +699,7 @@ async function finish(
       finalAuditUiReview: options.finalAuditUiReview ?? null,
       runGovernance: options.runGovernance,
       governanceCompareSummary: options.governanceCompareSummary ?? null,
+      governancePerformanceReport: options.governancePerformanceReport ?? null,
       governanceRegistry: options.governanceRegistry ?? null,
       governanceReleaseTraceDraft: governanceContext.releaseTraceDraftPath,
       governanceReviewedBatchImportPipelineReport:
@@ -644,7 +716,14 @@ async function finish(
     steps,
     artifacts: {
       trainSummary: await readJsonIfExists(path.join(options.trainOutputDir, "train-summary.json")),
+      trainingDatasetReadiness: await readJsonIfExists(
+        path.join(options.trainOutputDir, "training-dataset-readiness-release.json")
+      ),
       metrics: await readJsonIfExists(metricsPath),
+      recognitionPerformance: await readJsonIfExists(options.governancePerformanceReport ?? ""),
+      evaluationArtifacts: await readJsonIfExists(
+        resolveEvaluationArtifactIndexPath(options)
+      ),
       manifest: await readJsonIfExists(manifestPath),
       finalAudit: await readJsonIfExists(
         path.join(
@@ -680,6 +759,7 @@ async function finish(
       "--training-release-pipeline-report",
       reportPath,
       ...(options.governanceCompareSummary ? ["--compare-summary", options.governanceCompareSummary] : []),
+      ...(options.governancePerformanceReport ? ["--performance-report", options.governancePerformanceReport] : []),
       ...(options.governanceRegistry ? ["--registry", options.governanceRegistry] : []),
       ...(governanceContext.releaseTraceDraftPath
         ? ["--release-trace-draft", governanceContext.releaseTraceDraftPath]

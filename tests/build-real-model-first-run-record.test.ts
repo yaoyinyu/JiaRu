@@ -29,6 +29,8 @@ test("build-real-model-first-run-record assembles readiness browser and ui revie
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -36,7 +38,7 @@ test("build-real-model-first-run-record assembles readiness browser and ui revie
     ),
     "utf8"
   );
-  await writeFile(modelPath, Buffer.alloc(1024), "binary");
+  await writeFile(modelPath, Buffer.alloc(300 * 1024), "binary");
 
   const metricsPath = path.join(exportsDir, "metrics.json");
   await writeFile(

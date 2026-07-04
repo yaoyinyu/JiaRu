@@ -309,6 +309,7 @@ function buildAnnotationDocument(
         modelVersion: sample.modelVersion,
         modelBackend: sample.modelBackend,
         elapsedMs: sample.elapsedMs,
+        workerElapsedMs: sample.workerElapsedMs,
         warnings: [...sample.warnings],
       },
     },

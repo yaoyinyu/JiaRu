@@ -9,7 +9,20 @@ interface ReviewedImportReportLike {
   sourceGroup: string;
   reportPath: string;
   importedDocuments?: Array<{ fileName?: string }>;
-}
+  trainingDatasetReadinessSnapshot?: {
+    ok?: boolean;
+    outputPath?: string;
+    authorizationMode?: string;
+    steps?: Array<{ name?: string; ok?: boolean }>;
+    artifacts?: {
+      sourceAudit?: { ok?: boolean } | null;
+      sourceAuthorization?: { ok?: boolean } | null;
+      phase1Readiness?: {
+        ok?: boolean;
+        totals?: { images?: number; validMasks?: number };
+      } | null;
+    };
+  };}
 
 interface CliOptions {
   reviewedImportReportPath: string;
@@ -54,6 +67,31 @@ const reviewedImportReport = JSON.parse(
   await readFile(options.reviewedImportReportPath, "utf8")
 ) as ReviewedImportReportLike;
 
+
+const trainingReadinessSnapshot = reviewedImportReport.trainingDatasetReadinessSnapshot;
+const trainingReadiness = {
+  ok: trainingReadinessSnapshot?.ok ?? null,
+  reportPath: trainingReadinessSnapshot?.outputPath ?? null,
+  authorizationMode: trainingReadinessSnapshot?.authorizationMode ?? null,
+  gates: {
+    sourceAudit: trainingReadinessSnapshot?.artifacts?.sourceAudit?.ok ?? null,
+    sourceAuthorization:
+      trainingReadinessSnapshot?.artifacts?.sourceAuthorization?.ok ?? null,
+    phase1Readiness:
+      trainingReadinessSnapshot?.artifacts?.phase1Readiness?.ok ?? null,
+  },
+  totals: {
+    images:
+      trainingReadinessSnapshot?.artifacts?.phase1Readiness?.totals?.images ?? null,
+    validMasks:
+      trainingReadinessSnapshot?.artifacts?.phase1Readiness?.totals?.validMasks ?? null,
+  },
+  failingSteps:
+    trainingReadinessSnapshot?.steps
+      ?.filter((step) => step.ok === false)
+      .map((step) => step.name)
+      .filter((name): name is string => Boolean(name)) ?? [],
+};
 const summary = {
   ok: true,
   draft: true,
@@ -67,6 +105,7 @@ const summary = {
     reviewedImportReportPath: reviewedImportReport.reportPath,
     importedFileCount: reviewedImportReport.importedDocuments?.length ?? 0,
   },
+  trainingReadiness,
   release: {
     trainingReleasePipelineReportPath: null,
     manifestPath: null,

@@ -1,7 +1,7 @@
 # 美甲纹理数据采集与标注执行规范
 
-版本：v1.0  
-日期：2026-07-01
+版本：v1.1
+日期：2026-07-04
 
 这份文档把 Phase 1 里“采集素材、补来源信息、做标注、跑审计”的执行口径固定下来，避免后续不同批次的数据混乱，影响训练和验收。
 
@@ -65,14 +65,16 @@
 3. 人工修正 polygon
 4. 跑 `sync-sources-csv.ts`
 5. 跑 `audit-sources-csv.ts`
-6. 跑 `split-dataset.ts`
-7. 跑 `audit-labels.ts`
-8. 跑 `convert-annotations.ts`
+6. 跑 `audit-training-source-authorization.ts --mode release`，确认训练来源授权
+7. 跑 `split-dataset.ts`
+8. 跑 `audit-labels.ts`
+9. 跑 `convert-annotations.ts`
 
 ## 6. 审计命令
 
 ```bash
 node --no-warnings --experimental-strip-types model/training/audit-sources-csv.ts
+node --no-warnings --experimental-strip-types model/training/audit-training-source-authorization.ts --mode release
 node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 ```
 
@@ -96,12 +98,38 @@ node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 - `invalid_image_path`
 - `invalid_annotation_count`
 - `invalid_timestamp`
+- `missing_source_image_file`
+- `missing_source_annotation_file`
+- `unreadable_source_annotation_file`
+- `annotation_count_mismatch`
+
+其中磁盘一致性错误用于拦截“sources.csv 记录存在，但图片或标注文件已经丢失/漂移”的情况。`annotation_count_mismatch` 表示 `sources.csv` 里的 `annotationCount` 和对应标注 JSON 的实际 `annotations.length` 不一致，需要先重新同步或修正后再进入训练转换。
 
 重点警告类型：
 
 - `missing_origin_ref`
 - `missing_license`
 - `negative_origin_mismatch`
+
+`audit-training-source-authorization.ts` 会输出：
+
+- `metadata/training-source-authorization-release.json`
+- 或 `metadata/training-source-authorization-internal.json`
+
+推荐口径：
+
+- `--mode internal`：只用于内部验证、debug、算法回归；允许 `internal-test-only`，但仍会提示缺少来源或授权字段。
+- `--mode release`：用于正式训练/候选模型发布前；会拦截网络采集图、`internal-test-only`、授权描述模糊、用户图未明确授权、商家图未明确授权。
+
+正式训练建议使用以下授权描述：
+
+- `user-authorized-internal-training`
+- `merchant-authorized-commercial-training`
+- `licensed-commercial-training`
+- `cc0` / `public-domain`
+- `owner-authorized-training`
+
+如果是网上下载的美甲素材，默认只能进入 `internal` 验证，不应直接进入 `release` 训练，除非已经拿到可训练/可商用/可二次使用的明确授权，并把 `originType` 与 `license` 重新记录清楚。
 
 ## 8. 本阶段验收标准
 

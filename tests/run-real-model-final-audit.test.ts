@@ -27,6 +27,8 @@ test("run-real-model-final-audit writes final report and first-run record", asyn
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -34,7 +36,7 @@ test("run-real-model-final-audit writes final report and first-run record", asyn
     ),
     "utf8"
   );
-  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const metricsPath = path.join(exportsDir, "metrics.json");
   await writeFile(
@@ -150,6 +152,8 @@ test("run-real-model-final-audit reports blocked when model artifact is missing"
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -226,6 +230,8 @@ test("run-real-model-final-audit can include annotation debug failures in summar
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -234,7 +240,7 @@ test("run-real-model-final-audit can include annotation debug failures in summar
     "utf8"
   );
 
-  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
   await writeFile(
     uiReviewPath,
     JSON.stringify(

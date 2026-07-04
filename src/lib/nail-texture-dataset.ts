@@ -68,6 +68,7 @@ export interface NailTextureAnnotationDocument {
       modelVersion?: string;
       modelBackend?: NailTextureModelBackend;
       elapsedMs?: number;
+      workerElapsedMs?: number;
       warnings?: string[];
     };
   };
@@ -808,6 +809,24 @@ function stableBucket(seed: string): number {
   return hash.readUInt32BE(0) % 100;
 }
 
+function pushProportionalSplit(files: string[], split: DatasetSplit): void {
+  const sorted = [...files].sort((a, b) => a.localeCompare(b));
+  const total = sorted.length;
+  const trainEnd = Math.max(1, Math.floor(total * 0.7));
+  const valEnd = Math.max(trainEnd, Math.floor(total * 0.85));
+
+  for (let index = 0; index < sorted.length; index++) {
+    const fileName = sorted[index]!;
+    if (index < trainEnd) split.train.push(fileName);
+    else if (index < valEnd) split.val.push(fileName);
+    else split.test.push(fileName);
+  }
+}
+
+function shouldSplitOversizedSourceGroup(files: string[], totalFiles: number): boolean {
+  return files.length >= 100 && files.length / Math.max(totalFiles, 1) >= 0.5;
+}
+
 export function buildDatasetSplit(
   documents: NailTextureAnnotationDocument[]
 ): DatasetSplit {
@@ -823,11 +842,22 @@ export function buildDatasetSplit(
   }
 
   const split: DatasetSplit = { train: [], val: [], test: [] };
-  for (const [groupKey, files] of groups) {
-    const bucket = stableBucket(groupKey);
-    const target =
-      bucket < 70 ? split.train : bucket < 85 ? split.val : split.test;
-    target.push(...files.sort());
+  if (groups.size <= 1) {
+    pushProportionalSplit(
+      documents.map((document) => document.image.fileName),
+      split
+    );
+  } else {
+    for (const [groupKey, files] of groups) {
+      if (shouldSplitOversizedSourceGroup(files, documents.length)) {
+        pushProportionalSplit(files, split);
+        continue;
+      }
+      const bucket = stableBucket(groupKey);
+      const target =
+        bucket < 70 ? split.train : bucket < 85 ? split.val : split.test;
+      target.push(...files.sort());
+    }
   }
 
   split.train.sort();

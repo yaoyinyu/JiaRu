@@ -12,6 +12,8 @@
 - `run-debug-sample-active-learning-pipeline.ts`：把 priority、debug sample 导入、sources 审计、split、label convert、readiness 串成一条流水线
 - `sync-sources-csv.ts`：根据现有标注回填或修复 `metadata/sources.csv`
 - `audit-sources-csv.ts`：校验 `metadata/sources.csv` 的来源字段、路径、时间戳和负样本元数据
+- `audit-training-source-authorization.ts`：区分内部验证素材和正式训练素材，拦截未授权/模糊授权来源
+- `verify-training-dataset-readiness.ts`：训练前总门禁，串联 sources 审计、授权审计和 Phase 1 readiness
 - `split-dataset.ts`：按 `sourceGroup` 稳定划分 train / val / test
 - `audit-labels.ts`：检查标注质量并输出 CSV
 - `convert-annotations.ts`：把原始 polygon JSON 转成 YOLO segmentation 标签
@@ -33,19 +35,20 @@
    - 如果想先吃高价值样本，优先走 `run-debug-sample-active-learning-pipeline.ts`
 5. 运行 `sync-sources-csv.ts` 检查并修复 `metadata/sources.csv`
 6. 运行 `audit-sources-csv.ts` 生成 `metadata/sources-audit.json`
-7. 运行 `split-dataset.ts` 生成 `metadata/split.json`
-8. 运行 `audit-labels.ts` 生成 `metadata/label-audit.csv`
-9. 运行 `convert-annotations.ts` 生成 `labels-yolo-seg/{train,val,test}`
-10. 运行 `audit-phase1-readiness.ts` 看是否通过 `200 / 800 / test coverage`
-11. 运行 `plan-phase1-collection.ts` 得到下一批补样本建议
-12. 运行 `generate-first-batch-checklist.ts` 得到首批真实数据执行清单
+7. 运行 `audit-training-source-authorization.ts --mode release` 生成正式训练授权审计
+8. 运行 `split-dataset.ts` 生成 `metadata/split.json`
+9. 运行 `audit-labels.ts` 生成 `metadata/label-audit.csv`
+10. 运行 `convert-annotations.ts` 生成 `labels-yolo-seg/{train,val,test}`
+11. 运行 `audit-phase1-readiness.ts` 看是否通过 `200 / 800 / test coverage`
+12. 运行 `plan-phase1-collection.ts` 得到下一批补样本建议
+13. 运行 `generate-first-batch-checklist.ts` 得到首批真实数据执行清单
 
 示例命令：
 
 ```bash
 node --no-warnings --experimental-strip-types model/training/scaffold-seed-batch.ts --root-dir C:/path/to/seed-batch-001 --source-group seed-batch-001 --origin-type web --default-origin-ref "manual web sourcing 2026-07-01"
 node --no-warnings --experimental-strip-types model/training/init-intake-batch.ts --image-dir C:/path/to/nail-batch-001 --source-group seed-batch-001 --origin-type web --license "internal-test-only" --default-origin-ref "manual web sourcing 2026-07-01"
-node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir C:/path/to/nail-batch-001 --output-dir C:/path/to/nail-batch-001-debug --prefix seed-batch-001
+node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir C:/path/to/nail-batch-001 --output-dir C:/path/to/nail-batch-001-debug --prefix seed-batch-001 --fixture-dir C:/path/to/seed-batch-001/fixtures
 node --no-warnings --experimental-strip-types model/training/export-fallback-annotations.ts --copy-image --source-group seed-batch-001 model/5188.jpg_wh860.jpg
 node --no-warnings --experimental-strip-types model/training/import-debug-sample.ts --copy-image --source-group user-corrections-001 local-debug-2026-06-30.json C:/path/to/original-image.jpg
 node --no-warnings --experimental-strip-types model/training/import-debug-sample.ts --copy-image --sample-dir C:/path/to/debug-samples --image-dir C:/path/to/original-images
@@ -53,6 +56,9 @@ node --no-warnings --experimental-strip-types model/training/prioritize-debug-sa
 node --no-warnings --experimental-strip-types model/training/run-debug-sample-active-learning-pipeline.ts --sample-dir C:/path/to/debug-samples --image-dir C:/path/to/original-images --copy-image --min-priority medium --top 20 --origin-type user --origin-ref "authorized debug corrections" --license "user-authorized-internal-training"
 node --no-warnings --experimental-strip-types model/training/sync-sources-csv.ts
 node --no-warnings --experimental-strip-types model/training/audit-sources-csv.ts
+node --no-warnings --experimental-strip-types model/training/audit-training-source-authorization.ts --mode release
+node --no-warnings --experimental-strip-types model/training/audit-training-source-authorization.ts --mode internal
+node --no-warnings --experimental-strip-types model/training/verify-training-dataset-readiness.ts --dataset-root model/datasets/nail-texture-v1
 node --no-warnings --experimental-strip-types model/training/split-dataset.ts
 node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 node --no-warnings --experimental-strip-types model/training/convert-annotations.ts
@@ -63,14 +69,29 @@ python model/training/train-yolo-seg.py --dry-run
 python model/training/evaluate.py --dry-run
 python model/training/export-onnx.py --dry-run
 node --no-warnings --experimental-strip-types scripts/run-training-release-pipeline.ts --dry-run
-node --no-warnings --experimental-strip-types scripts/run-training-release-pipeline.ts --final-audit-image model/5188.jpg_wh860.jpg --final-audit-ui-review model/fixtures/real-model-ui-review.template.json
+node --no-warnings --experimental-strip-types scripts/run-training-release-pipeline.ts --source-authorization-dataset-root model/datasets/nail-texture-v1 --final-audit-image model/5188.jpg_wh860.jpg --final-audit-ui-review model/fixtures/real-model-ui-review.template.json
 node --no-warnings --experimental-strip-types scripts/verify-training-release.ts --metrics model/exports/nail-texture-seg-v1/metrics.json --manifest public/models/nail-texture-seg/manifest.json
 node --no-warnings --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics model/exports/nail-texture-seg-v1/metrics.json --baseline-manifest public/models/nail-texture-seg-v1/manifest.json --candidate-metrics model/exports/nail-texture-seg-v2/metrics.json --candidate-manifest public/models/nail-texture-seg-v2/manifest.json
 node --no-warnings --experimental-strip-types scripts/register-model-release.ts --manifest public/models/nail-texture-seg/manifest.json
 node --no-warnings --experimental-strip-types scripts/switch-model-release.ts --version nail-texture-seg-v1
+node --no-warnings --experimental-strip-types scripts/audit-release-rollback.ts --registry public/models/nail-texture-seg/release-registry.json --manifest public/models/nail-texture-seg/manifest.json
+node --no-warnings --experimental-strip-types scripts/audit-failure-classification.ts --failure-csv C:/path/to/review/failure-classification.csv --output C:/path/to/review/failure-classification-audit.json
 node --no-warnings --experimental-strip-types scripts/summarize-failure-cases.ts --failure-csv C:/path/to/failure-classification.csv --first-run-record C:/path/to/real-model-first-run-record.json
 node --no-warnings --experimental-strip-types scripts/verify-browser-integration.ts --manifest public/models/nail-texture-seg/manifest.json
+node --no-warnings --experimental-strip-types scripts/verify-recognition-performance.ts --profile desktop --sample-dir C:/path/to/debug-samples --output C:/path/to/performance-report.desktop.json
+node --no-warnings --experimental-strip-types scripts/verify-recognition-performance.ts --profile mobile --sample-dir C:/path/to/debug-samples --output model/exports/nail-texture-seg-v2/performance-report.mobile.json
+node --no-warnings --experimental-strip-types scripts/run-training-release-pipeline.ts --skip-train --skip-evaluate --skip-export --run-governance --governance-performance-report model/exports/nail-texture-seg-v2/performance-report.mobile.json
 ```
+
+
+授权审计口径：
+
+- `--mode internal`：内部验证/回归测试素材可用，适合网上搜集图、debug 样本、算法预检。
+- `--mode release`：正式训练或候选模型发布前必须通过；会拦截 `web` 来源、`internal-test-only`、用户/商家未明确授权和模糊 license。
+- 正式可训练素材建议用 `user-authorized-internal-training`、`merchant-authorized-commercial-training`、`licensed-commercial-training`、`cc0`、`public-domain`、`owner-authorized-training` 这类明确 wording。
+- `run-training-release-pipeline.ts` 在真实训练且未 `--skip-train` 时，会先执行 `verify-training-dataset-readiness.ts`，同时检查来源文件一致性、正式训练授权和 Phase 1 数据量/质量门槛；只有验证旧产物或受控调试时才建议显式使用 `--skip-source-authorization`。
+
+种子批次工作区固定包含 `fixtures/`。已有绿圈真值时将 fixture JSON 放入该目录；批量预检会自动匹配，并跳过 fixture 引用的标注图。
 
 批量图片先预检时，可额外运行：
 
@@ -102,3 +123,7 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
 
 - `scripts/verify-nail-detection.ts` 的模型推理 overlay 扩展
 - 真实训练依赖安装说明与训练机环境约束
+
+## 评估可视化产物
+
+`evaluate.py` 会在 `metrics.json` 同级生成 `evaluation-artifacts/`，保存混淆矩阵、预测对照图、逐图预测标签和统一索引。正式训练发布流水线会自动执行可视化产物门禁。详细说明见 `docs/model-evaluation-artifacts.md`。

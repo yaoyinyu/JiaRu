@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   NailTextureCandidateConfidence,
   NailTextureCandidateSource,
   NailTextureModelBackend,
@@ -30,6 +30,7 @@ export interface NailDebugSampleDetectionSummary {
   modelVersion?: string;
   modelBackend?: NailTextureModelBackend;
   elapsedMs?: number;
+  workerElapsedMs?: number;
   warnings: string[];
 }
 
@@ -44,6 +45,7 @@ export interface NailDebugSampleRecord {
   modelVersion: string;
   modelBackend?: NailTextureModelBackend;
   elapsedMs: number;
+  workerElapsedMs?: number;
   warnings: string[];
   originalCandidates: NailDebugSampleCandidate[];
   correctedCandidates: NailDebugSampleCandidate[];
@@ -127,6 +129,7 @@ export function createLocalNailDebugSample(args: {
       (summary?.backend === "model" ? "model-unknown" : "fallback-v0"),
     modelBackend: summary?.modelBackend,
     elapsedMs: summary?.elapsedMs ?? 0,
+    workerElapsedMs: summary?.workerElapsedMs,
     warnings: summary?.warnings ?? [],
     originalCandidates: args.originalRegions.map(toNailDebugSampleCandidate),
     correctedCandidates: args.correctedRegions.map(toNailDebugSampleCandidate),

@@ -14,6 +14,7 @@ interface CliOptions {
   clientWorkerPath: string;
   workerPath: string;
   runtimePath: string;
+  packageJsonPath: string;
 }
 
 function parseArgs(argv: string[]): CliOptions {
@@ -23,6 +24,7 @@ function parseArgs(argv: string[]): CliOptions {
     clientWorkerPath: path.resolve("src/lib/nail-texture-recognition/client-worker.ts"),
     workerPath: path.resolve("src/workers/nail-texture-recognition.worker.ts"),
     runtimePath: path.resolve("src/lib/nail-texture-recognition/model-runtime.ts"),
+    packageJsonPath: path.resolve("package.json"),
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -55,8 +57,12 @@ function parseArgs(argv: string[]): CliOptions {
       options.runtimePath = path.resolve(argv[++index]);
       continue;
     }
+    if (arg === "--package-json") {
+      options.packageJsonPath = path.resolve(argv[++index]);
+      continue;
+    }
     throw new Error(
-      "Usage: node --experimental-strip-types scripts/verify-browser-integration.ts [--manifest <manifest.json>] [--metrics <metrics.json>] [--fixture <fixture.json>] [--picker <NailArtPicker.tsx>] [--client-worker <client-worker.ts>] [--worker <worker.ts>] [--runtime <model-runtime.ts>]"
+      "Usage: node --experimental-strip-types scripts/verify-browser-integration.ts [--manifest <manifest.json>] [--metrics <metrics.json>] [--fixture <fixture.json>] [--picker <NailArtPicker.tsx>] [--client-worker <client-worker.ts>] [--worker <worker.ts>] [--runtime <model-runtime.ts>] [--package-json <package.json>]"
     );
   }
 
@@ -102,11 +108,36 @@ const pickerSource = await readFile(options.pickerPath, "utf8");
 const clientWorkerSource = await readFile(options.clientWorkerPath, "utf8");
 const workerSource = await readFile(options.workerPath, "utf8");
 const runtimeSource = await readFile(options.runtimePath, "utf8");
+const packageJson = JSON.parse(await readFile(options.packageJsonPath, "utf8")) as {
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+};
+const onnxRuntimeWebVersion =
+  packageJson.dependencies?.["onnxruntime-web"] ?? packageJson.devDependencies?.["onnxruntime-web"] ?? null;
 
 const contractChecks = [
   {
     name: "picker_uses_worker_recognition",
     ok: hasAll(pickerSource, [/recognizeNailTexturesInWorker/, /preferModel:\s*true/]),
+  },
+  {
+    name: "picker_supports_end_to_end_cancellation",
+    ok: hasAll(pickerSource, [
+      /new AbortController\(\)/,
+      /computeImageDetectedNailRegions\([\s\S]*controller\.signal[\s\S]*\)/,
+      /detectionAbortRef\.current\?\.abort\(\)/,
+      /onClick=\{cancelDetection\}/,
+      /onClick=\{closePicker\}/,
+    ]),
+  },
+  {
+    name: "picker_caps_detection_input_and_remaps_candidates",
+    ok: hasAll(pickerSource, [
+      /MAX_DETECTION_DIM\s*=\s*800/,
+      /calculateDetectionInputGeometry/,
+      /ctx\.drawImage\(image, 0, 0, geometry\.width, geometry\.height\)/,
+      /remapNailTextureCandidatesToOriginal/,
+    ]),
   },
   {
     name: "picker_surfaces_detection_summary",
@@ -117,13 +148,28 @@ const contractChecks = [
         /modelVersion:\s*result\.modelVersion/,
         /modelBackend:\s*result\.modelInfo\?\.backend/,
         /elapsedMs:\s*result\.elapsedMs/,
-        /warnings:\s*result\.warnings/,
+        /workerElapsedMs:\s*result\.workerElapsedMs/,
+        /warnings:\s*(?:result\.warnings|\[\s*\.\.\.result\.warnings\s*\])/,
       ]
     ),
   },
   {
     name: "client_worker_passes_manifest_and_prefer_model",
     ok: hasAll(clientWorkerSource, [/new Worker\(/, /preferModel:\s*options\.preferModel \?\? true/, /manifestUrl:\s*options\.manifestUrl/]),
+  },
+  {
+    name: "client_worker_avoids_pixel_array_expansion",
+    ok:
+      /prepareWorkerImagePixels/.test(clientWorkerSource) &&
+      !/Array\.from\(source\.data\)/.test(clientWorkerSource),
+  },
+  {
+    name: "client_worker_terminates_on_abort",
+    ok: hasAll(clientWorkerSource, [
+      /signal\.addEventListener\("abort"/,
+      /terminateWorkerAndRejectPending/,
+      /worker\?\.terminate\(\)/,
+    ]),
   },
   {
     name: "worker_calls_recognition_and_posts_response",
@@ -138,8 +184,16 @@ const contractChecks = [
     ),
   },
   {
+    name: "worker_releases_transferred_image_bitmap",
+    ok: /request\.imageBitmap\.close\(\)/.test(workerSource),
+  },
+  {
     name: "runtime_loads_manifest_and_selects_execution_provider",
     ok: hasAll(runtimeSource, [/loadNailTextureModelManifest/, /createOrtSession/, /resolveOrtExecutionProviders/]),
+  },
+  {
+    name: "package_declares_onnxruntime_web",
+    ok: Boolean(onnxRuntimeWebVersion),
   },
 ];
 
@@ -162,6 +216,8 @@ const warnings = [
 const summary = {
   ok: errors.length === 0,
   manifestPath: options.manifestPath,
+  packageJsonPath: options.packageJsonPath,
+  onnxRuntimeWebVersion,
   metricsPath: options.metricsPath ?? null,
   fixturePath: options.fixturePath ?? null,
   artifact,

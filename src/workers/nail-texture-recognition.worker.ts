@@ -18,7 +18,12 @@ self.onmessage = async (event: MessageEvent<RecognizeNailTextureRequest>) => {
   const request = event.data;
 
   try {
-    const imageData = await imageBitmapToImageData(request.imageBitmap);
+    let imageData: ImageData;
+    try {
+      imageData = await imageBitmapToImageData(request.imageBitmap);
+    } finally {
+      request.imageBitmap.close();
+    }
     const result = await recognizeNailTextures(
       {
         width: imageData.width,

@@ -14,6 +14,7 @@ interface CliOptions {
   license: string;
   defaultOriginRef: string;
   copyImagesToDataset: boolean;
+  fixtureDir?: string;
 }
 
 interface StepResult {
@@ -38,6 +39,7 @@ function parseArgs(argv: string[]): CliOptions {
   let license = "internal-test-only";
   let defaultOriginRef: string | undefined;
   let copyImagesToDataset = true;
+  let fixtureDir: string | undefined;
 
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];
@@ -47,6 +49,7 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--origin-type") originType = argv[++index] as SourceRecord["originType"];
     else if (arg === "--license") license = argv[++index]?.trim() || license;
     else if (arg === "--default-origin-ref") defaultOriginRef = argv[++index]?.trim();
+    else if (arg === "--fixture-dir") fixtureDir = path.resolve(argv[++index]);
     else if (arg === "--copy-images-to-dataset") {
       copyImagesToDataset = parseBooleanFlag(argv[++index] ?? "");
     }
@@ -54,7 +57,7 @@ function parseArgs(argv: string[]): CliOptions {
 
   if (!sourceDir || !rootDir || !sourceGroup || !originType || !defaultOriginRef) {
     throw new Error(
-      "Usage: node --experimental-strip-types model/training/run-local-batch-bootstrap-pipeline.ts --source-dir <dir> --root-dir <dir> --source-group <name> --origin-type <reference|web|user|merchant|negative|other> --default-origin-ref <text> [--license <text>] [--copy-images-to-dataset <true|false>]"
+      "Usage: node --experimental-strip-types model/training/run-local-batch-bootstrap-pipeline.ts --source-dir <dir> --root-dir <dir> --source-group <name> --origin-type <reference|web|user|merchant|negative|other> --default-origin-ref <text> [--license <text>] [--copy-images-to-dataset <true|false>] [--fixture-dir <dir>]"
     );
   }
 
@@ -66,6 +69,7 @@ function parseArgs(argv: string[]): CliOptions {
     license,
     defaultOriginRef,
     copyImagesToDataset,
+    fixtureDir,
   };
 }
 
@@ -98,35 +102,50 @@ async function main() {
     ok: boolean;
     sourceDir: string;
     rootDir: string;
+    fixtureDir?: string;
     reportPath: string;
     steps: StepResult[];
   } = {
     ok: false,
     sourceDir: options.sourceDir,
     rootDir: options.rootDir,
+    fixtureDir: options.fixtureDir,
     reportPath,
     steps: [],
   };
 
-  for (const [name, script, args] of [
+  const bootstrapArgs = [
+    "--source-dir",
+    options.sourceDir,
+    "--root-dir",
+    options.rootDir,
+    "--source-group",
+    options.sourceGroup,
+    "--origin-type",
+    options.originType,
+    "--license",
+    options.license,
+    "--default-origin-ref",
+    options.defaultOriginRef,
+    "--copy-images-to-dataset",
+    String(options.copyImagesToDataset),
+  ];
+  if (options.fixtureDir) bootstrapArgs.push("--fixture-dir", options.fixtureDir);
+
+  const steps: Array<[string, string, string[]]> = [
+    ["bootstrap-seed-batch", "model/training/bootstrap-seed-batch.ts", bootstrapArgs],
     [
-      "bootstrap-seed-batch",
-      "model/training/bootstrap-seed-batch.ts",
+      "batch-verify-nail-detection",
+      "scripts/batch-verify-nail-detection.ts",
       [
-        "--source-dir",
-        options.sourceDir,
-        "--root-dir",
-        options.rootDir,
-        "--source-group",
+        "--image-dir",
+        path.join(options.rootDir, "images"),
+        "--output-dir",
+        path.join(options.rootDir, "debug"),
+        "--prefix",
         options.sourceGroup,
-        "--origin-type",
-        options.originType,
-        "--license",
-        options.license,
-        "--default-origin-ref",
-        options.defaultOriginRef,
-        "--copy-images-to-dataset",
-        String(options.copyImagesToDataset),
+        "--fixture-dir",
+        path.join(options.rootDir, "fixtures"),
       ],
     ],
     [
@@ -139,10 +158,23 @@ async function main() {
       "model/training/audit-seed-batch-workspace.ts",
       ["--root-dir", options.rootDir],
     ],
-  ] as const) {
+  ];
+
+  for (const [name, script, args] of steps) {
     try {
       const stdout = await runJsonScript(script, args);
-      report.steps.push({ name, ok: true, stdout });
+      const explicitOk =
+        typeof stdout !== "object" ||
+        stdout === null ||
+        !("ok" in stdout) ||
+        (stdout as { ok: unknown }).ok === true;
+      report.steps.push({ name, ok: explicitOk, stdout });
+      if (!explicitOk) {
+        await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
+        console.log(JSON.stringify(report, null, 2));
+        process.exitCode = 1;
+        return;
+      }
     } catch (error) {
       const execError = error as Error & { stderr?: string };
       report.steps.push({

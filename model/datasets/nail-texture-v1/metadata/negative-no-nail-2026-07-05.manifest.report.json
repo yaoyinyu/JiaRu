@@ -1,0 +1,24 @@
+{
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\negative-no-nail-2026-07-05.manifest.json",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\image\\negative\\2026_7_5",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\negative-no-nail-2026-07-05.manifest.report.json",
+  "ok": true,
+  "sourceGroup": "negative-no-nail-2026-07-05",
+  "originType": "negative",
+  "itemCount": 1,
+  "missingFiles": [],
+  "unsafeFiles": [],
+  "unlistedFiles": [],
+  "invalidImageFiles": [],
+  "imageChecks": [
+    {
+      "fileName": "no_nail_plain_dark_background_0001.png",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "png",
+      "channels": 3
+    }
+  ],
+  "issues": []
+}

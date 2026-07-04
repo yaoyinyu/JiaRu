@@ -1,6 +1,7 @@
+import { createHash } from "node:crypto";
 import path from "node:path";
 import process from "node:process";
-import { access, copyFile, readFile, writeFile } from "node:fs/promises";
+import { access, copyFile, readFile, stat, writeFile } from "node:fs/promises";
 
 interface ReleaseRegistryEntry {
   version: string;
@@ -11,7 +12,9 @@ interface ReleaseRegistryEntry {
   task: string;
   backendPreferences: string[];
   labels: string[];
+  modelSizeBytes: number;
   modelSizeMb: number;
+  sha256: string;
   registeredAt: string;
 }
 
@@ -24,6 +27,19 @@ function usage(): never {
   throw new Error(
     "Usage: node --experimental-strip-types scripts/switch-model-release.ts --version <version> [--registry <registry.json>] [--manifest <manifest.json>]"
   );
+}
+
+async function hashFileSha256(filePath: string): Promise<string> {
+  return createHash("sha256").update(await readFile(filePath)).digest("hex");
+}
+
+function assertIntegrityMetadata(entry: ReleaseRegistryEntry): void {
+  if (!Number.isInteger(entry.modelSizeBytes) || entry.modelSizeBytes <= 0) {
+    throw new Error(`release ${entry.version} is missing positive modelSizeBytes`);
+  }
+  if (!/^[a-f0-9]{64}$/i.test(entry.sha256)) {
+    throw new Error(`release ${entry.version} is missing a valid sha256`);
+  }
 }
 
 const args = process.argv.slice(2);
@@ -47,8 +63,21 @@ if (!entry) {
   throw new Error(`version not found in registry: ${version}`);
 }
 
+assertIntegrityMetadata(entry);
 await access(entry.manifestSnapshotPath);
 await access(entry.modelPath);
+
+const actualModelSizeBytes = (await stat(entry.modelPath)).size;
+const actualSha256 = await hashFileSha256(entry.modelPath);
+if (actualModelSizeBytes !== entry.modelSizeBytes) {
+  throw new Error(
+    `release ${version} model size mismatch: registry=${entry.modelSizeBytes}, actual=${actualModelSizeBytes}`
+  );
+}
+if (actualSha256 !== entry.sha256.toLowerCase()) {
+  throw new Error(`release ${version} model sha256 mismatch: registry=${entry.sha256}, actual=${actualSha256}`);
+}
+
 await copyFile(entry.manifestSnapshotPath, manifestPath);
 
 const nextRegistry: ReleaseRegistry = {
@@ -67,6 +96,8 @@ console.log(
       currentVersion: version,
       modelPath: entry.modelPath,
       snapshotPath: entry.manifestSnapshotPath,
+      modelSizeBytes: entry.modelSizeBytes,
+      sha256: entry.sha256.toLowerCase(),
     },
     null,
     2

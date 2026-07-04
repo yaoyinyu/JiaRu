@@ -1,0 +1,270 @@
+{
+  "ok": true,
+  "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
+  "generatedAt": "2026-07-04T16:04:49.522Z",
+  "readiness": {
+    "ok": false,
+    "testNegatives": 0,
+    "testComplexBackground": 0
+  },
+  "counts": {
+    "sources": 300,
+    "complexBackgroundCandidates": 28,
+    "possibleNegativeCandidates": 9
+  },
+  "complexBackgroundCandidates": [
+    {
+      "fileName": "Chrome_metallic_foil_nail_art__2026-07-04T14-53-04.png",
+      "currentSplit": "train",
+      "annotationCount": 5,
+      "score": 35,
+      "reasons": [
+        "keyword hits: chrome, foil, metallic",
+        "currently in train; can be moved to test"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Chrome_metallic_foil_nail_art__2026-07-04T14-53-04.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Nail_art_batch_D8__galaxy_nebu_2026-07-04T14-56-54.png",
+      "currentSplit": "test",
+      "annotationCount": 5,
+      "score": 30,
+      "reasons": [
+        "keyword hits: galaxy, nebu",
+        "already in test split"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Nail_art_batch_D8__galaxy_nebu_2026-07-04T14-56-54.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Galaxy_space_cosmic_nail_desig_2026-07-04T14-53-04.png",
+      "currentSplit": "train",
+      "annotationCount": 5,
+      "score": 25,
+      "reasons": [
+        "keyword hits: cosmic, galaxy",
+        "currently in train; can be moved to test"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Galaxy_space_cosmic_nail_desig_2026-07-04T14-53-04.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Holographic_chrome_mirror_nail_2026-07-04T14-50-39.png",
+      "currentSplit": "train",
+      "annotationCount": 5,
+      "score": 25,
+      "reasons": [
+        "keyword hits: chrome, holographic",
+        "currently in train; can be moved to test"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Holographic_chrome_mirror_nail_2026-07-04T14-50-39.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Nail_art_batch_D4__dark_vampir_2026-07-04T14-56-54.png",
+      "currentSplit": "val",
+      "annotationCount": 5,
+      "score": 25,
+      "reasons": [
+        "keyword hits: dark, vampir",
+        "currently in val; can be moved to test"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Nail_art_batch_D4__dark_vampir_2026-07-04T14-56-54.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Nail_art_batch_D9__tortoiseshe_2026-07-04T14-56-54.png",
+      "currentSplit": "test",
+      "annotationCount": 5,
+      "score": 20,
+      "reasons": [
+        "keyword hits: tortoise",
+        "already in test split"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Nail_art_batch_D9__tortoiseshe_2026-07-04T14-56-54.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Nail_art_batch_E1__barbed_wire_2026-07-04T14-57-40.png",
+      "currentSplit": "test",
+      "annotationCount": 5,
+      "score": 20,
+      "reasons": [
+        "keyword hits: barbed",
+        "already in test split"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Nail_art_batch_E1__barbed_wire_2026-07-04T14-57-40.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Nail_art_batch_E4__dragon_scal_2026-07-04T14-57-40.png",
+      "currentSplit": "test",
+      "annotationCount": 5,
+      "score": 20,
+      "reasons": [
+        "keyword hits: dragon",
+        "already in test split"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Nail_art_batch_E4__dragon_scal_2026-07-04T14-57-40.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Nail_art_batch_E8__cyberpunk_n_2026-07-04T14-57-40.png",
+      "currentSplit": "test",
+      "annotationCount": 5,
+      "score": 20,
+      "reasons": [
+        "keyword hits: cyberpunk",
+        "already in test split"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Nail_art_batch_E8__cyberpunk_n_2026-07-04T14-57-40.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    },
+    {
+      "fileName": "Nail_art_batch_F2__black_swan__2026-07-04T14-58-33.png",
+      "currentSplit": "test",
+      "annotationCount": 5,
+      "score": 20,
+      "reasons": [
+        "keyword hits: black",
+        "already in test split"
+      ],
+      "reviewAction": "mark_complex_background",
+      "risk": "low",
+      "suggestedCommand": "node --no-warnings --experimental-strip-types model/training/mark-phase1-samples.ts --file \"Nail_art_batch_F2__black_swan__2026-07-04T14-58-33.png\" --background mixed --reason complex_background --sample ai_generated --ensure-test"
+    }
+  ],
+  "possibleNegativeCandidates": [
+    {
+      "fileName": "nail_0011.jpg",
+      "currentSplit": "train",
+      "annotationCount": 1,
+      "score": 30,
+      "reasons": [
+        "low annotation count: 1"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    },
+    {
+      "fileName": "nail_0088.jpg",
+      "currentSplit": "train",
+      "annotationCount": 1,
+      "score": 30,
+      "reasons": [
+        "low annotation count: 1"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    },
+    {
+      "fileName": "nail_0109.jpg",
+      "currentSplit": "train",
+      "annotationCount": 1,
+      "score": 30,
+      "reasons": [
+        "low annotation count: 1"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    },
+    {
+      "fileName": "nail_0001.jpg",
+      "currentSplit": "train",
+      "annotationCount": 2,
+      "score": 18,
+      "reasons": [
+        "low annotation count: 2"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    },
+    {
+      "fileName": "nail_0030.jpg",
+      "currentSplit": "train",
+      "annotationCount": 2,
+      "score": 18,
+      "reasons": [
+        "low annotation count: 2"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    },
+    {
+      "fileName": "nail_0047.jpg",
+      "currentSplit": "train",
+      "annotationCount": 2,
+      "score": 18,
+      "reasons": [
+        "low annotation count: 2"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    },
+    {
+      "fileName": "nail_0060.jpg",
+      "currentSplit": "train",
+      "annotationCount": 2,
+      "score": 18,
+      "reasons": [
+        "low annotation count: 2"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    },
+    {
+      "fileName": "nail_0063.jpg",
+      "currentSplit": "train",
+      "annotationCount": 2,
+      "score": 18,
+      "reasons": [
+        "low annotation count: 2"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    },
+    {
+      "fileName": "Nail_art_batch_A3__negative_sp_2026-07-04T14-54-21.png",
+      "currentSplit": "val",
+      "annotationCount": 5,
+      "score": 4,
+      "reasons": [
+        "keyword-only weak signal; verify visually",
+        "keyword hits: negative"
+      ],
+      "reviewAction": "review_possible_negative",
+      "risk": "high",
+      "suggestedCommand": "Only run mark-phase1-samples with --negative true --clear-annotations after visual review confirms there is no valid nail-texture region."
+    }
+  ],
+  "warnings": [
+    "test split still needs at least one visually confirmed negative sample",
+    "test split still needs at least one visually confirmed complex-background sample",
+    "no safe automatic negative sample was found; collect or generate true no-nail/non-target negatives if review does not confirm one"
+  ],
+  "nextSteps": [
+    "Visually inspect the top complex-background candidates and run the suggested command for one confirmed sample.",
+    "Only mark a negative sample after confirming the image has no valid nail-texture target; otherwise add dedicated negative images.",
+    "After marking, rerun audit-phase1-readiness.ts and audit:mvp-readiness."
+  ],
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-review-candidates.json",
+  "csvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-review-candidates.csv"
+}

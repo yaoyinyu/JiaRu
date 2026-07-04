@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -7,6 +7,43 @@ import { promisify } from "node:util";
 import test from "node:test";
 
 const execFileAsync = promisify(execFile);
+
+async function registerBaselineRelease(modelDir: string, registryPath: string, version: string) {
+  const manifestPath = path.join(modelDir, "manifest.json");
+  const currentManifest = await readFile(manifestPath, "utf8");
+  const modelFile = `${version}.onnx`;
+  await writeFile(
+    manifestPath,
+    JSON.stringify(
+      {
+        version,
+        inputSize: 640,
+        task: "segment",
+        backendPreferences: ["webgpu", "wasm"],
+        modelFile,
+        labels: ["nail_texture"],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(path.join(modelDir, modelFile), Buffer.alloc(300 * 1024), "binary");
+  await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/register-model-release.ts",
+      "--manifest",
+      manifestPath,
+      "--registry",
+      registryPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+  await writeFile(manifestPath, currentManifest, "utf8");
+}
 
 test("run-training-release-pipeline produces a dry-run orchestration report", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-dry-"));
@@ -33,7 +70,7 @@ test("run-training-release-pipeline produces a dry-run orchestration report", as
   const report = JSON.parse(stdout) as {
     ok: boolean;
     mode: string;
-    steps: Array<{ name: string; ok: boolean; stdout?: { skipped?: boolean } }>;
+    steps: Array<{ name: string; ok: boolean; stdout?: { skipped?: boolean }; command: string[] }>;
   };
   assert.equal(report.ok, true);
   assert.equal(report.mode, "dry-run");
@@ -44,6 +81,9 @@ test("run-training-release-pipeline produces a dry-run orchestration report", as
     "verify-training-release",
     "run-real-model-final-audit",
   ]);
+  const evaluateStep = report.steps.find((step) => step.name === "evaluate");
+  assert.ok(evaluateStep?.command.includes("--artifacts-dir"));
+  assert.ok(evaluateStep?.command.some((item) => item.endsWith("evaluation-artifacts")));
   assert.equal(report.steps.at(-1)?.stdout?.skipped, true);
 });
 
@@ -76,6 +116,65 @@ test("run-training-release-pipeline aligns default runName and trainOutputDir wi
   assert.equal(report.options.modelVersion, "nail-texture-seg-v9");
   assert.equal(report.options.runName, "nail-texture-seg-v9");
   assert.match(report.paths.trainOutputDir, /model[\\/]+exports[\\/]+nail-texture-seg-v9$/);
+});
+
+
+test("run-training-release-pipeline blocks real training before python when source authorization is missing", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-source-auth-missing-"));
+  const outputDir = path.join(root, "model", "exports", "nail-texture-seg-v1");
+  const browserDir = path.join(root, "public", "models", "nail-texture-seg");
+  const datasetRoot = path.join(root, "model", "datasets", "nail-texture-v1");
+  await mkdir(outputDir, { recursive: true });
+  await mkdir(browserDir, { recursive: true });
+  await mkdir(path.join(datasetRoot, "metadata"), { recursive: true });
+
+  let caught: unknown;
+  try {
+    await execFileAsync(
+      process.execPath,
+      [
+        "--no-warnings",
+        "--experimental-strip-types",
+        "scripts/run-training-release-pipeline.ts",
+        "--train-output-dir",
+        outputDir,
+        "--browser-model-dir",
+        browserDir,
+        "--source-authorization-dataset-root",
+        datasetRoot,
+      ],
+      { cwd: path.resolve(".") }
+    );
+  } catch (error) {
+    caught = error;
+  }
+
+  assert.ok(caught, "pipeline should fail before training when source authorization is missing");
+  const stdout = (caught as { stdout?: string }).stdout ?? "";
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    steps: Array<{ name: string; ok: boolean; command: string[]; stdout?: unknown; stderr?: string }>;
+    options: { sourceAuthorizationDatasetRoot: string; skipSourceAuthorization: boolean };
+  };
+  assert.equal(report.ok, false);
+  assert.equal(report.options.sourceAuthorizationDatasetRoot, datasetRoot);
+  assert.equal(report.options.skipSourceAuthorization, false);
+  assert.deepEqual(report.steps.map((step) => step.name), ["verify-training-dataset-readiness"]);
+  assert.equal(report.steps[0]?.ok, false);
+  assert.ok(report.steps[0]?.command.includes("model/training/verify-training-dataset-readiness.ts"));
+  const readinessStdout = report.steps[0]?.stdout as { steps?: Array<{ name: string; ok: boolean }> } | undefined;
+  assert.deepEqual(readinessStdout?.steps?.map((step) => step.name), [
+    "audit-sources-csv",
+    "audit-training-source-authorization",
+    "audit-phase1-readiness",
+  ]);
+  assert.ok(readinessStdout?.steps?.some((step) => !step.ok));
+
+  const persisted = JSON.parse(
+    await readFile(path.join(outputDir, "training-release-pipeline-report.json"), "utf8")
+  ) as { ok: boolean; steps: Array<{ name: string }> };
+  assert.equal(persisted.ok, false);
+  assert.deepEqual(persisted.steps.map((step) => step.name), ["verify-training-dataset-readiness"]);
 });
 
 test("run-training-release-pipeline can verify existing release artifacts without rerunning training", async () => {
@@ -116,6 +215,8 @@ test("run-training-release-pipeline can verify existing release artifacts withou
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -123,7 +224,7 @@ test("run-training-release-pipeline can verify existing release artifacts withou
     ),
     "utf8"
   );
-  await writeFile(path.join(browserDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(browserDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const { stdout } = await execFileAsync(
     process.execPath,
@@ -197,6 +298,8 @@ test("run-training-release-pipeline can continue into final audit when audit inp
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -204,7 +307,7 @@ test("run-training-release-pipeline can continue into final audit when audit inp
     ),
     "utf8"
   );
-  await writeFile(path.join(browserDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(browserDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const uiReviewPath = path.join(root, "ui-review.json");
   await writeFile(
@@ -311,6 +414,8 @@ test("run-training-release-pipeline passes annotation debug failures through fin
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -318,7 +423,7 @@ test("run-training-release-pipeline passes annotation debug failures through fin
     ),
     "utf8"
   );
-  await writeFile(path.join(browserDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(browserDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const uiReviewPath = path.join(root, "ui-review.json");
   await writeFile(
@@ -461,6 +566,8 @@ test("run-training-release-pipeline can continue into release governance when en
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v2.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -468,7 +575,7 @@ test("run-training-release-pipeline can continue into release governance when en
     ),
     "utf8"
   );
-  await writeFile(path.join(browserDir, "nail-texture-seg-v2.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(browserDir, "nail-texture-seg-v2.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const uiReviewPath = path.join(root, "ui-review.json");
   await writeFile(
@@ -489,6 +596,25 @@ test("run-training-release-pipeline can continue into release governance when en
           status: "pass",
           summary: "ui checks passed",
         },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const performanceReportPath = path.join(outputDir, "performance-report.mobile.json");
+  await writeFile(
+    performanceReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        profile: "mobile",
+        thresholds: { maxElapsedMs: 1500, minSamples: 3 },
+        totals: { samples: 3, slowSamples: 0, skippedFiles: 0 },
+        stats: { averageMs: 860, p50Ms: 840, p95Ms: 980, maxMs: 980 },
+        errors: [],
+        warnings: [],
       },
       null,
       2
@@ -533,18 +659,7 @@ test("run-training-release-pipeline can continue into release governance when en
   );
 
   const registryPath = path.join(browserDir, "release-registry.json");
-  await writeFile(
-    registryPath,
-    JSON.stringify(
-      {
-        currentVersion: "nail-texture-seg-v1",
-        releases: [{ version: "nail-texture-seg-v1" }],
-      },
-      null,
-      2
-    ),
-    "utf8"
-  );
+  await registerBaselineRelease(browserDir, registryPath, "nail-texture-seg-v1");
 
   const historyManifestPath = path.join(outputDir, "release-history-manifest.json");
   const auditOutputDir = path.join(outputDir, "real-model-final-audit");
@@ -571,6 +686,8 @@ test("run-training-release-pipeline can continue into release governance when en
       "--run-governance",
       "--governance-compare-summary",
       compareSummaryPath,
+      "--governance-performance-report",
+      performanceReportPath,
       "--governance-registry",
       registryPath,
       "--governance-release-trace-draft",
@@ -584,13 +701,24 @@ test("run-training-release-pipeline can continue into release governance when en
   const report = JSON.parse(stdout) as {
     ok: boolean;
     steps: Array<{ name: string; ok: boolean }>;
-    options: { runGovernance: boolean; governanceCompareSummary: string | null };
+    options: {
+      runGovernance: boolean;
+      governanceCompareSummary: string | null;
+      governancePerformanceReport: string | null;
+    };
     paths: { governanceReportPath: string | null };
     artifacts: {
+      recognitionPerformance: { ok: boolean; profile: string } | null;
       releaseGovernance: {
         ok: boolean;
         artifacts: {
-          releaseDecision: { decision: { status: string } };
+          releaseDecision: {
+            decision: { status: string };
+            inputs: { recognitionPerformanceOk: boolean | null; recognitionPerformanceP95Ms: number | null };
+          };
+          traceIndex: {
+            performance: { ok: boolean | null; profile: string | null; p95Ms: number | null } | null;
+          };
           promotion: { registerSummary: { registeredVersion: string } };
           historyManifest: { totals: { traceIndexes: number } };
         };
@@ -600,6 +728,9 @@ test("run-training-release-pipeline can continue into release governance when en
   assert.equal(report.ok, true);
   assert.equal(report.options.runGovernance, true);
   assert.equal(report.options.governanceCompareSummary, compareSummaryPath);
+  assert.equal(report.options.governancePerformanceReport, performanceReportPath);
+  assert.equal(report.artifacts.recognitionPerformance?.ok, true);
+  assert.equal(report.artifacts.recognitionPerformance?.profile, "mobile");
   assert.equal(report.steps.at(-1)?.name, "run-release-governance-pipeline");
   assert.equal(report.steps.at(-1)?.ok, true);
   assert.ok(report.paths.governanceReportPath);
@@ -607,6 +738,26 @@ test("run-training-release-pipeline can continue into release governance when en
   assert.equal(
     report.artifacts.releaseGovernance?.artifacts.releaseDecision.decision.status,
     "approve_candidate"
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.releaseDecision.inputs.recognitionPerformanceOk,
+    true
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.releaseDecision.inputs.recognitionPerformanceP95Ms,
+    980
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.traceIndex.performance?.ok,
+    true
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.traceIndex.performance?.profile,
+    "mobile"
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.traceIndex.performance?.p95Ms,
+    980
   );
   assert.equal(
     report.artifacts.releaseGovernance?.artifacts.promotion.registerSummary.registeredVersion,
@@ -663,6 +814,8 @@ test("run-training-release-pipeline can auto-resolve reviewed batch governance i
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v2.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -670,7 +823,7 @@ test("run-training-release-pipeline can auto-resolve reviewed batch governance i
     ),
     "utf8"
   );
-  await writeFile(path.join(browserDir, "nail-texture-seg-v2.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(browserDir, "nail-texture-seg-v2.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const uiReviewPath = path.join(root, "ui-review.json");
   await writeFile(
@@ -691,6 +844,25 @@ test("run-training-release-pipeline can auto-resolve reviewed batch governance i
           status: "pass",
           summary: "ui checks passed",
         },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const performanceReportPath = path.join(outputDir, "performance-report.mobile.json");
+  await writeFile(
+    performanceReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        profile: "mobile",
+        thresholds: { maxElapsedMs: 1500, minSamples: 3 },
+        totals: { samples: 3, slowSamples: 0, skippedFiles: 0 },
+        stats: { averageMs: 860, p50Ms: 840, p95Ms: 980, maxMs: 980 },
+        errors: [],
+        warnings: [],
       },
       null,
       2
@@ -766,18 +938,7 @@ test("run-training-release-pipeline can auto-resolve reviewed batch governance i
   );
 
   const registryPath = path.join(browserDir, "release-registry.json");
-  await writeFile(
-    registryPath,
-    JSON.stringify(
-      {
-        currentVersion: "nail-texture-seg-v1",
-        releases: [{ version: "nail-texture-seg-v1" }],
-      },
-      null,
-      2
-    ),
-    "utf8"
-  );
+  await registerBaselineRelease(browserDir, registryPath, "nail-texture-seg-v1");
 
   const historyManifestPath = path.join(outputDir, "release-history-manifest.json");
   const auditOutputDir = path.join(outputDir, "real-model-final-audit");
@@ -804,6 +965,8 @@ test("run-training-release-pipeline can auto-resolve reviewed batch governance i
       "--run-governance",
       "--governance-compare-summary",
       compareSummaryPath,
+      "--governance-performance-report",
+      performanceReportPath,
       "--governance-registry",
       registryPath,
       "--governance-reviewed-batch-root-dir",
@@ -822,6 +985,7 @@ test("run-training-release-pipeline can auto-resolve reviewed batch governance i
       governanceReviewedBatchRootDir: string | null;
     };
     artifacts: {
+      recognitionPerformance: { ok: boolean; profile: string } | null;
       releaseGovernance: {
         ok: boolean;
         artifacts: {
@@ -899,6 +1063,8 @@ test("run-training-release-pipeline can prioritize reviewed batch release handof
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v2.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -906,7 +1072,7 @@ test("run-training-release-pipeline can prioritize reviewed batch release handof
     ),
     "utf8"
   );
-  await writeFile(path.join(browserDir, "nail-texture-seg-v2.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(browserDir, "nail-texture-seg-v2.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const uiReviewPath = path.join(root, "ui-review.json");
   await writeFile(
@@ -927,6 +1093,25 @@ test("run-training-release-pipeline can prioritize reviewed batch release handof
           status: "pass",
           summary: "ui checks passed",
         },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const performanceReportPath = path.join(outputDir, "performance-report.mobile.json");
+  await writeFile(
+    performanceReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        profile: "mobile",
+        thresholds: { maxElapsedMs: 1500, minSamples: 3 },
+        totals: { samples: 3, slowSamples: 0, skippedFiles: 0 },
+        stats: { averageMs: 860, p50Ms: 840, p95Ms: 980, maxMs: 980 },
+        errors: [],
+        warnings: [],
       },
       null,
       2
@@ -1023,18 +1208,7 @@ test("run-training-release-pipeline can prioritize reviewed batch release handof
   );
 
   const registryPath = path.join(browserDir, "release-registry.json");
-  await writeFile(
-    registryPath,
-    JSON.stringify(
-      {
-        currentVersion: "nail-texture-seg-v1",
-        releases: [{ version: "nail-texture-seg-v1" }],
-      },
-      null,
-      2
-    ),
-    "utf8"
-  );
+  await registerBaselineRelease(browserDir, registryPath, "nail-texture-seg-v1");
 
   const historyManifestPath = path.join(outputDir, "release-history-manifest.json");
   const auditOutputDir = path.join(outputDir, "real-model-final-audit");
@@ -1061,6 +1235,8 @@ test("run-training-release-pipeline can prioritize reviewed batch release handof
       "--run-governance",
       "--governance-compare-summary",
       compareSummaryPath,
+      "--governance-performance-report",
+      performanceReportPath,
       "--governance-registry",
       registryPath,
       "--governance-reviewed-batch-release-handoff",
@@ -1130,6 +1306,8 @@ test("run-training-release-pipeline can use governance default paths when handof
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v4.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -1137,7 +1315,7 @@ test("run-training-release-pipeline can use governance default paths when handof
     ),
     "utf8"
   );
-  await writeFile(path.join(browserDir, "nail-texture-seg-v4.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(browserDir, "nail-texture-seg-v4.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const uiReviewPath = path.join(root, "ui-review.json");
   await writeFile(
@@ -1254,18 +1432,7 @@ test("run-training-release-pipeline can use governance default paths when handof
   );
 
   const defaultRegistryPath = path.join(browserDir, "release-registry.json");
-  await writeFile(
-    defaultRegistryPath,
-    JSON.stringify(
-      {
-        currentVersion: "nail-texture-seg-v3",
-        releases: [{ version: "nail-texture-seg-v3" }],
-      },
-      null,
-      2
-    ),
-    "utf8"
-  );
+  await registerBaselineRelease(browserDir, defaultRegistryPath, "nail-texture-seg-v3");
 
   const defaultHistoryManifestPath = path.join(outputDir, "release-history-manifest.json");
   const auditOutputDir = path.join(outputDir, "real-model-final-audit");
@@ -1306,6 +1473,7 @@ test("run-training-release-pipeline can use governance default paths when handof
       governanceHistoryManifest: string | null;
     };
     artifacts: {
+      recognitionPerformance: { ok: boolean; profile: string } | null;
       releaseGovernance: { ok: boolean } | null;
     };
   };
@@ -1356,6 +1524,8 @@ test("run-training-release-pipeline can consume active learning handoff for gove
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v5.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
       },
       null,
@@ -1363,7 +1533,7 @@ test("run-training-release-pipeline can consume active learning handoff for gove
     ),
     "utf8"
   );
-  await writeFile(path.join(browserDir, "nail-texture-seg-v5.onnx"), Buffer.alloc(1024), "binary");
+  await writeFile(path.join(browserDir, "nail-texture-seg-v5.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const uiReviewPath = path.join(root, "ui-review.json");
   await writeFile(
@@ -1384,6 +1554,25 @@ test("run-training-release-pipeline can consume active learning handoff for gove
           status: "pass",
           summary: "ui checks passed",
         },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const performanceReportPath = path.join(outputDir, "performance-report.mobile.json");
+  await writeFile(
+    performanceReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        profile: "mobile",
+        thresholds: { maxElapsedMs: 1500, minSamples: 3 },
+        totals: { samples: 3, slowSamples: 0, skippedFiles: 0 },
+        stats: { averageMs: 860, p50Ms: 840, p95Ms: 980, maxMs: 980 },
+        errors: [],
+        warnings: [],
       },
       null,
       2
@@ -1483,18 +1672,7 @@ test("run-training-release-pipeline can consume active learning handoff for gove
   );
 
   const registryPath = path.join(browserDir, "release-registry.json");
-  await writeFile(
-    registryPath,
-    JSON.stringify(
-      {
-        currentVersion: "nail-texture-seg-v4",
-        releases: [{ version: "nail-texture-seg-v4" }],
-      },
-      null,
-      2
-    ),
-    "utf8"
-  );
+  await registerBaselineRelease(browserDir, registryPath, "nail-texture-seg-v4");
 
   const historyManifestPath = path.join(outputDir, "release-history-manifest.json");
   const auditOutputDir = path.join(outputDir, "real-model-final-audit");
@@ -1523,6 +1701,8 @@ test("run-training-release-pipeline can consume active learning handoff for gove
       "--run-governance",
       "--governance-compare-summary",
       compareSummaryPath,
+      "--governance-performance-report",
+      performanceReportPath,
       "--governance-registry",
       registryPath,
       "--governance-active-learning-handoff",
@@ -1540,6 +1720,7 @@ test("run-training-release-pipeline can consume active learning handoff for gove
       governanceReleaseTraceDraft: string | null;
     };
     artifacts: {
+      recognitionPerformance: { ok: boolean; profile: string } | null;
       releaseGovernance: {
         ok: boolean;
         artifacts: {

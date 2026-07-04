@@ -23,6 +23,13 @@ public/models/nail-texture-seg/
 node --no-warnings --experimental-strip-types scripts/verify-model-artifact.ts
 ```
 
+Model artifact size gate:
+
+- `sizeTier` must be `ideal` or `mvp`; `missing`, `placeholder`, and `too_large` are blocking states.
+- `modelSizeBytes` must be at least 262144 bytes / 256KB. This prevents 1KB or 2KB placeholder ONNX files from passing as release assets.
+- `modelSizeMb` must be <= 15 for MVP release. <= 8MB is the ideal browser startup target.
+- If this step fails, replace the artifact with a real exported segmentation ONNX before continuing.
+
 预期：
 
 - `ok: true`
@@ -127,7 +134,10 @@ node --no-warnings --experimental-strip-types scripts/verify-nail-detection.ts m
 然后上传参考图，确认：
 
 - 页面不会卡死
+  - 大图检测 Canvas 最长边不超过 800；候选仍应准确落在原图甲面上。
 - 可以取消
+  - 取消后当前推理 Worker 会被终止，下一次识别会按需创建新 Worker；用于确认耗时的 ONNX/后处理不会继续在后台占用 CPU/GPU。
+  - “跳过自动识别”和右上角“关闭”都必须触发同一条 abort 链路；关闭不能只等待父组件卸载后再被动清理。
 - `NailArtPicker` 仍能打开
 - 顶部能看到“模型识别”或“回退识别”
 - 如模型失败，会自动回退而不是直接不可用
@@ -162,3 +172,12 @@ npm.cmd run build
 - 页面里可以触发模型路径
 - 模型失败时 fallback 仍然可用
 - `npm.cmd test` / `lint` / `build` 全通过
+
+## Model artifact integrity metadata
+
+`model/training/export-onnx.py` writes two integrity fields into `manifest.json` after copying the exported ONNX file:
+
+- `modelSizeBytes`: exact byte size of the referenced ONNX file.
+- `sha256`: SHA-256 digest of the referenced ONNX file.
+
+`verify-model-artifact.ts` verifies these fields whenever they are present. `verify-training-release.ts` runs artifact verification with `--require-integrity`, so release candidates must include both fields and they must match the ONNX file on disk. This prevents a model file from being replaced without updating the manifest evidence.

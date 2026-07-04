@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -95,6 +95,14 @@ test("build-release-trace-index links batch release decision promotion and regis
           status: "manual_review",
           summary: "needs review",
         },
+        inputs: {
+          textureQualityGateOk: false,
+          phase2ExtractionRateOk: true,
+          phase2ExtractionEvidenceOk: true,
+          phase2ExtractionEvidenceScope: "release-test-split",
+          directlyUsableRate: 0.82,
+          contaminationRate: 0.06,
+        },
       },
       null,
       2
@@ -165,6 +173,15 @@ test("build-release-trace-index links batch release decision promotion and regis
     currentRegistryVersion: string | null;
     batch: { sourceGroup: string | null; importedFileCount: number } | null;
     release: { finalAuditStatus: string | null; derivedAnnotationFailures: number };
+    quality: {
+      phase2ExtractionRateOk: boolean | null;
+      directlyUsableRate: number | null;
+      phase2ExtractionEvidenceOk: boolean | null;
+      phase2ExtractionEvidenceScope: string | null;
+      phase2RequiredUsableRate: number;
+      phase4TextureQualityGateOk: boolean | null;
+      contaminationRate: number | null;
+    } | null;
     decision: { status: string } | null;
     promotion: { registeredVersion: string | null } | null;
     registry: { releaseCount: number } | null;
@@ -178,6 +195,13 @@ test("build-release-trace-index links batch release decision promotion and regis
   assert.equal(summary.batch?.importedFileCount, 2);
   assert.equal(summary.release.finalAuditStatus, "pass");
   assert.equal(summary.release.derivedAnnotationFailures, 2);
+  assert.equal(summary.quality?.phase2ExtractionRateOk, true);
+  assert.equal(summary.quality?.directlyUsableRate, 0.82);
+  assert.equal(summary.quality?.phase2ExtractionEvidenceOk, true);
+  assert.equal(summary.quality?.phase2ExtractionEvidenceScope, "release-test-split");
+  assert.equal(summary.quality?.phase2RequiredUsableRate, 0.8);
+  assert.equal(summary.quality?.phase4TextureQualityGateOk, false);
+  assert.equal(summary.quality?.contaminationRate, 0.06);
   assert.equal(summary.decision?.status, "manual_review");
   assert.equal(summary.promotion?.registeredVersion, "nail-texture-seg-v2");
   assert.equal(summary.registry?.releaseCount, 2);
@@ -402,3 +426,55 @@ test("build-release-trace-index preserves active learning trace details from rel
 });
 
 
+
+test("build-release-trace-index preserves authoritative training readiness from the training pipeline", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-trace-readiness-"));
+  const reportsDir = path.join(root, "reports");
+  await mkdir(reportsDir, { recursive: true });
+  const trainingReleasePipelineReportPath = path.join(reportsDir, "training-release-pipeline-report.json");
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify({
+      ok: true,
+      artifacts: {
+        trainingDatasetReadiness: {
+          ok: false,
+          outputPath: "C:/tmp/training-dataset-readiness-release.json",
+          authorizationMode: "release",
+          steps: [
+            { name: "audit-sources-csv", ok: true },
+            { name: "audit-training-source-authorization", ok: false },
+            { name: "audit-phase1-readiness", ok: false },
+          ],
+          totals: { images: 25, validMasks: 90 },
+        },
+        manifest: { version: "nail-texture-seg-v5", modelFile: "nail-texture-seg-v5.onnx" },
+        finalAudit: { decision: { status: "pass", summary: "ok" } },
+      },
+      steps: [],
+    }),
+    "utf8"
+  );
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    ["--no-warnings", "--experimental-strip-types", "scripts/build-release-trace-index.ts", "--training-release-pipeline-report", trainingReleasePipelineReportPath],
+    { cwd: path.resolve(".") }
+  );
+  const summary = JSON.parse(stdout) as {
+    trainingReadiness: {
+      ok: boolean | null;
+      authorizationMode: string | null;
+      gates: { sourceAudit: boolean | null; sourceAuthorization: boolean | null; phase1Readiness: boolean | null };
+      totals: { images: number | null; validMasks: number | null };
+      failingSteps: string[];
+    } | null;
+  };
+  assert.equal(summary.trainingReadiness?.ok, false);
+  assert.equal(summary.trainingReadiness?.authorizationMode, "release");
+  assert.equal(summary.trainingReadiness?.gates.sourceAudit, true);
+  assert.equal(summary.trainingReadiness?.gates.sourceAuthorization, false);
+  assert.equal(summary.trainingReadiness?.gates.phase1Readiness, false);
+  assert.equal(summary.trainingReadiness?.totals.images, 25);
+  assert.equal(summary.trainingReadiness?.totals.validMasks, 90);
+  assert.deepEqual(summary.trainingReadiness?.failingSteps, ["audit-training-source-authorization", "audit-phase1-readiness"]);
+});

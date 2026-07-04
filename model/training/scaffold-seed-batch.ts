@@ -81,12 +81,13 @@ Directories:
 
 - images/: put the batch images here
 - debug/: batch fallback overlay outputs
+- fixtures/: optional green-circle ground-truth fixtures for repeatable prechecks
 - review/: manual screening notes, acceptance decisions, and failure classification
 
 Suggested commands:
 
 \`\`\`bash
-node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir "${path.join(options.rootDir, "images").replaceAll("\\", "/")}" --output-dir "${path.join(options.rootDir, "debug").replaceAll("\\", "/")}" --prefix ${options.sourceGroup}
+node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir "${path.join(options.rootDir, "images").replaceAll("\\", "/")}" --output-dir "${path.join(options.rootDir, "debug").replaceAll("\\", "/")}" --prefix ${options.sourceGroup} --fixture-dir "${path.join(options.rootDir, "fixtures").replaceAll("\\", "/")}"
 node --no-warnings --experimental-strip-types model/training/build-reviewed-intake-batch.ts --root-dir "${options.rootDir.replaceAll("\\", "/")}"
 node --no-warnings --experimental-strip-types model/training/init-intake-batch.ts --image-dir "${path.join(options.rootDir, "images").replaceAll("\\", "/")}" --source-group ${options.sourceGroup} --origin-type ${options.originType} --license "${options.license}" --default-origin-ref "${options.defaultOriginRef}" --output "${path.join(options.rootDir, `${options.sourceGroup}.manifest.json`).replaceAll("\\", "/")}"
 node --no-warnings --experimental-strip-types model/training/validate-intake-batch.ts --manifest "${path.join(options.rootDir, `${options.sourceGroup}.manifest.json`).replaceAll("\\", "/")}" --image-dir "${path.join(options.rootDir, "images").replaceAll("\\", "/")}"
@@ -162,6 +163,7 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   const imagesDir = path.join(options.rootDir, "images");
   const debugDir = path.join(options.rootDir, "debug");
+  const fixturesDir = path.join(options.rootDir, "fixtures");
   const reviewDir = path.join(options.rootDir, "review");
   const manifestPath = path.join(options.rootDir, `${options.sourceGroup}.manifest.json`);
   const readmePath = path.join(options.rootDir, "README.md");
@@ -170,6 +172,7 @@ async function main() {
 
   await mkdir(imagesDir, { recursive: true });
   await mkdir(debugDir, { recursive: true });
+  await mkdir(fixturesDir, { recursive: true });
   await mkdir(reviewDir, { recursive: true });
   await writeFile(manifestPath, JSON.stringify(buildManifest(options), null, 2), "utf8");
   await writeFile(readmePath, buildReadme(options), "utf8");
@@ -184,6 +187,7 @@ async function main() {
         sourceGroup: options.sourceGroup,
         imagesDir,
         debugDir,
+        fixturesDir,
         reviewDir,
         manifestPath,
         readmePath,

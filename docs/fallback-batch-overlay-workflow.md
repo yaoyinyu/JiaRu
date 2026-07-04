@@ -16,8 +16,10 @@
 ## 2. 批量命令
 
 ```bash
-node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir "C:/path/to/nail-batch-001" --output-dir "C:/path/to/nail-batch-001-debug" --prefix seed-batch-001
+node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --image-dir "C:/path/to/nail-batch-001" --output-dir "C:/path/to/nail-batch-001-debug" --prefix seed-batch-001 --fixture-dir "C:/path/to/seed-batch-001/fixtures"
 ```
+
+如果某些图片已经有绿圈真值 fixture，把 JSON 放进批次的 `fixtures/`。脚本会按图片文件名或 stem 自动匹配 fixture，并自动跳过 fixture 引用的标注图；没有 fixture 的图片仍按普通 fallback 预检。
 
 ## 3. 输出内容
 

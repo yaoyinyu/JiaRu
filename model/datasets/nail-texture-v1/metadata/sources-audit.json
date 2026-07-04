@@ -2,13 +2,7 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-  "recordCount": 0,
-  "ok": false,
-  "issues": [
-    {
-      "code": "missing_sources_csv",
-      "severity": "error",
-      "message": "sources.csv does not exist yet. Run export-fallback-annotations.ts, import-debug-sample.ts, or sync-sources-csv.ts first."
-    }
-  ]
+  "recordCount": 301,
+  "ok": true,
+  "issues": []
 }

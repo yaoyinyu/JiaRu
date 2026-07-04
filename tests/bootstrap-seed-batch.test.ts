@@ -12,6 +12,9 @@ test("bootstrap-seed-batch copies local images into a seed workspace and writes 
   await mkdir(sourceDir, { recursive: true });
   await writeFile(path.join(sourceDir, "a.jpg"), "a");
   await writeFile(path.join(sourceDir, "b.png"), "b");
+  const fixtureDir = path.join(root, "fixtures");
+  await mkdir(fixtureDir, { recursive: true });
+  await writeFile(path.join(fixtureDir, "a.json"), JSON.stringify({ version: "nail-detection-fixture/v1", imagePath: "a.jpg", annotationPath: "b.png" }), "utf8");
   await writeFile(path.join(sourceDir, "ignore.txt"), "x");
 
   const stdout = await new Promise<string>((resolve, reject) => {
@@ -31,6 +34,8 @@ test("bootstrap-seed-batch copies local images into a seed workspace and writes 
         "web",
         "--default-origin-ref",
         "manual web sourcing 2026-07-01",
+        "--fixture-dir",
+        fixtureDir,
       ],
       { cwd: process.cwd(), stdio: ["ignore", "pipe", "pipe"] }
     );
@@ -51,17 +56,28 @@ test("bootstrap-seed-batch copies local images into a seed workspace and writes 
   const report = JSON.parse(stdout) as {
     copiedCount: number;
     manifestPath: string;
+    fixturesDir: string;
+    readmePath: string;
+    fixtureCount: number;
+    skippedAnnotationFiles: string[];
     screeningReviewPath: string;
   };
-  assert.equal(report.copiedCount, 2);
+  assert.equal(report.copiedCount, 1);
+  assert.equal(report.fixtureCount, 1);
+  assert.deepEqual(report.skippedAnnotationFiles, ["b.png"]);
+  assert.equal(path.basename(report.fixturesDir), "fixtures");
 
   const manifest = JSON.parse(await readFile(report.manifestPath, "utf8")) as {
     items: Array<{ fileName: string }>;
   };
   assert.deepEqual(
     manifest.items.map((item) => item.fileName),
-    ["a.jpg", "b.png"]
+    ["a.jpg"]
   );
+
+  const readme = await readFile(report.readmePath, "utf8");
+  assert.match(readme, /--fixture-dir/);
+  assert.match(readme, /seed-batch-001\/fixtures/);
 
   const screeningCsv = await readFile(report.screeningReviewPath, "utf8");
   assert.match(screeningCsv, /backgroundTone/);
