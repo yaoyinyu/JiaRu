@@ -1,6 +1,6 @@
 {
   "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\ai-nail-2026-07-04.manifest.json",
-  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\image",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu_image",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\ai-nail-2026-07-04.manifest.report.json",
   "ok": true,
   "sourceGroup": "ai-nail-2026-07-04",
@@ -8,7 +8,9 @@
   "itemCount": 300,
   "missingFiles": [],
   "unsafeFiles": [],
-  "unlistedFiles": [],
+  "unlistedFiles": [
+    "negative/2026_7_5/no_nail_plain_dark_background_0001.png"
+  ],
   "invalidImageFiles": [],
   "imageChecks": [
     {
@@ -2412,5 +2414,12 @@
       "channels": 3
     }
   ],
-  "issues": []
+  "issues": [
+    {
+      "code": "unlisted_image_file",
+      "severity": "warning",
+      "message": "image file exists on disk but is not listed in manifest: negative/2026_7_5/no_nail_plain_dark_background_0001.png",
+      "fileName": "negative/2026_7_5/no_nail_plain_dark_background_0001.png"
+    }
+  ]
 }
