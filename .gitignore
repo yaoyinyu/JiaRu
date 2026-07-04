@@ -53,6 +53,10 @@ model/debug/**/*.jpeg
 model/debug/**/*.webp
 model/datasets/nail-texture-v1/images/raw/*
 !model/datasets/nail-texture-v1/images/raw/.gitkeep
+model/datasets/nail-texture-v1/images/train/*
+model/datasets/nail-texture-v1/images/val/*
+model/datasets/nail-texture-v1/images/test/*
+model/datasets/nail-texture-v1/labels/*
 model/datasets/nail-texture-v1/annotations/raw-json/*
 !model/datasets/nail-texture-v1/annotations/raw-json/.gitkeep
 model/datasets/nail-texture-v1/labels-yolo-seg/train/*

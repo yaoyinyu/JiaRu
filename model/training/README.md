@@ -17,6 +17,7 @@
 - `split-dataset.ts`：按 `sourceGroup` 稳定划分 train / val / test
 - `audit-labels.ts`：检查标注质量并输出 CSV
 - `convert-annotations.ts`：把原始 polygon JSON 转成 YOLO segmentation 标签
+- `materialize-training-dataset.ts`：把 raw 图片和转换后的标签物化为 Ultralytics 标准 train / val / test 目录
 - `audit-phase1-readiness.ts`：检查是否达到 Phase 1 的数据量与测试覆盖门槛
 - `plan-phase1-collection.ts`：把 Phase 1 readiness 缺口翻译成下一批补样本计划
 - `generate-first-batch-checklist.ts`：把当前 readiness/collection 结果翻译成首批真实数据执行清单
@@ -62,6 +63,7 @@ node --no-warnings --experimental-strip-types model/training/verify-training-dat
 node --no-warnings --experimental-strip-types model/training/split-dataset.ts
 node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 node --no-warnings --experimental-strip-types model/training/convert-annotations.ts
+node --no-warnings --experimental-strip-types model/training/materialize-training-dataset.ts
 node --no-warnings --experimental-strip-types model/training/audit-phase1-readiness.ts
 node --no-warnings --experimental-strip-types model/training/plan-phase1-collection.ts
 node --no-warnings --experimental-strip-types model/training/generate-first-batch-checklist.ts
