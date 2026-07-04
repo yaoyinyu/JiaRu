@@ -10,9 +10,9 @@
     "filesWithWarnings": 1
   },
   "splitCounts": {
-    "train": 299,
-    "val": 0,
-    "test": 2
+    "train": 210,
+    "val": 45,
+    "test": 46
   },
   "splitIntegrity": {
     "missingFromSplit": [],
@@ -23,12 +23,13 @@
     "negatives": 1,
     "complexBackground": 1,
     "sampleKinds": {
+      "other": 44,
       "complex_background": 1,
       "negative": 1
     },
     "backgrounds": {
-      "dark": 1,
-      "unspecified": 1
+      "unspecified": 45,
+      "dark": 1
     }
   },
   "gates": {
