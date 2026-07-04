@@ -9,7 +9,7 @@ This document records how local AI-generated nail images are brought into the Ph
 Source directory:
 
 ```text
-E:/AI Project/Codex/JiaRu/image
+E:/AI Project/Codex/JiaRu_image
 ```
 
 Generated manifest:
@@ -36,12 +36,12 @@ Create a recursive intake manifest from the local `image` directory:
 
 ```bash
 node --no-warnings --experimental-strip-types model/training/init-intake-batch.ts \
-  --image-dir image \
+  --image-dir "E:/AI Project/Codex/JiaRu_image" \
   --output model/datasets/nail-texture-v1/metadata/ai-nail-2026-07-04.manifest.json \
   --source-group ai-nail-2026-07-04 \
   --origin-type other \
   --license ai-generated-internal-training-candidate \
-  --default-origin-ref "local AI generation batch in E:/AI Project/Codex/JiaRu/image on 2026-07-04" \
+  --default-origin-ref "local AI generation batch in E:/AI Project/Codex/JiaRu_image on 2026-07-04" \
   --recursive
 ```
 
@@ -50,7 +50,7 @@ Validate that every manifest entry is a safe relative path and a decodable image
 ```bash
 node --no-warnings --experimental-strip-types model/training/validate-intake-batch.ts \
   --manifest model/datasets/nail-texture-v1/metadata/ai-nail-2026-07-04.manifest.json \
-  --image-dir image
+  --image-dir "E:/AI Project/Codex/JiaRu_image"
 ```
 
 Run the Phase 1 intake pipeline:
@@ -58,7 +58,7 @@ Run the Phase 1 intake pipeline:
 ```bash
 node --no-warnings --experimental-strip-types model/training/run-phase1-intake-pipeline.ts \
   --manifest model/datasets/nail-texture-v1/metadata/ai-nail-2026-07-04.manifest.json \
-  --image-dir image
+  --image-dir "E:/AI Project/Codex/JiaRu_image"
 ```
 
 After changing split logic or labels, refresh split/conversion/readiness:
