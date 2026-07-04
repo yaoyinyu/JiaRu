@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "dryRun": false,
+  "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
+  "files": [
+    "Nail_art_batch_D8__galaxy_nebu_2026-07-04T14-56-54.png"
+  ],
+  "changes": [
+    {
+      "fileName": "Nail_art_batch_D8__galaxy_nebu_2026-07-04T14-56-54.png",
+      "annotationPath": "annotations/raw-json/Nail_art_batch_D8__galaxy_nebu_2026-07-04T14-56-54.json",
+      "sourceRecordFound": true,
+      "previousNegative": false,
+      "nextNegative": false,
+      "previousOriginType": "other",
+      "nextOriginType": "other",
+      "previousAnnotationCount": 5,
+      "nextAnnotationCount": 5,
+      "movedToTest": true,
+      "notes": "background=dark; reason=complex_background; relative_path=Worke Buudy/2026_7_4/Nail_art_batch_D8__galaxy_nebu_2026-07-04T14-56-54.png; sample=complex_background"
+    }
+  ],
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-sample-marking-report.json"
+}
