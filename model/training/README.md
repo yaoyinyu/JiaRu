@@ -129,3 +129,13 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
 ## 评估可视化产物
 
 `evaluate.py` 会在 `metrics.json` 同级生成 `evaluation-artifacts/`，保存混淆矩阵、预测对照图、逐图预测标签和统一索引。正式训练发布流水线会自动执行可视化产物门禁。详细说明见 `docs/model-evaluation-artifacts.md`。
+
+## Training environment preflight
+
+Before a real non-dry-run training starts, run:
+
+```bash
+python model/training/check-training-environment.py --require-local-model
+```
+
+This command does not train or access the network. It checks the materialized train/val/test image counts, Python version, Ultralytics/Torch availability, and whether the requested checkpoint is already local. If `yolo11n-seg.pt` is not present locally, the first real Ultralytics training run may download it.
