@@ -101,6 +101,56 @@ test("summarize-failure-cases can infer a failure category from first-run record
   assert.equal(summary.categoryCounts.postprocess, 1);
 });
 
+test("summarize-failure-cases infers model category from runtime warning prefixes", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-failure-summary-model-warning-"));
+  const recordPath = path.join(root, "first-run-record.json");
+  await writeFile(
+    recordPath,
+    JSON.stringify(
+      {
+        model: { artifactOk: true },
+        readiness: {
+          ok: false,
+          fixtureVerified: true,
+          imageVerified: true,
+          warnings: ["model_inference_error:simulated_session_run_failure"],
+        },
+        observations: {
+          newWarnings: ["model_outputs_empty_used_fallback"],
+        },
+        decision: {
+          status: "needs_adjustment",
+          nextActions: ["review model runtime fallback"],
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/summarize-failure-cases.ts",
+      "--first-run-record",
+      recordPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    categoryCounts: Record<string, number>;
+    inferredFromFirstRunRecord: { category: string; reason: string } | null;
+    nextSteps: string[];
+  };
+  assert.equal(summary.inferredFromFirstRunRecord?.category, "model");
+  assert.equal(summary.categoryCounts.model, 1);
+  assert.ok(summary.inferredFromFirstRunRecord?.reason.includes("model runtime"));
+  assert.ok(summary.nextSteps.some((item) => item.includes("妯″瀷")));
+});
 test("summarize-failure-cases can derive postprocess failures from annotation debug fields", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-failure-summary-annotation-"));
   const annotationDir = path.join(root, "annotations");

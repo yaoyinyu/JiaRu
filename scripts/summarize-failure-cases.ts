@@ -145,6 +145,9 @@ function inferRecordCategory(record: FirstRunRecordLike): {
     ...(record.readiness?.warnings ?? []),
     ...(record.observations?.newWarnings ?? []),
   ].join(" | ");
+  if (/model_(manifest|inference)_error|onnx_(runtime_not_loaded|session_init_failed|session_or_tensor_unavailable)|model_outputs_empty_used_fallback|no_supported_model_backend/i.test(warnings)) {
+    return { category: "model", reason: "warnings point to model runtime, manifest, session, or empty-output fallback issues" };
+  }
   if (/browser integration|assignment|ui/i.test(warnings)) {
     return { category: "ui", reason: "warnings point to browser integration or assignment issues" };
   }

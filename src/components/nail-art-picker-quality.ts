@@ -69,6 +69,13 @@ const RECOGNITION_WARNING_MESSAGES: Record<string, string> = {
   recognition_cancelled_by_user: "自动识别已取消，你可以继续手动添加和调整区域。",
 };
 
+const RECOGNITION_WARNING_PREFIX_MESSAGES: Array<[prefix: string, message: string]> = [
+  ["model_manifest_error", "模型清单加载或校验失败，已回退到规则识别。"],
+  ["model_inference_error", "模型推理运行失败，已回退到规则识别。"],
+  ["onnx_session_init_failed", "模型会话初始化失败，已回退到规则识别。"],
+  ["onnx_session_or_tensor_unavailable", "模型会话或张量接口不可用，已回退到规则识别。"],
+  ["model_outputs_empty_used_fallback", "模型没有输出可用候选，已回退到规则识别。"],
+];
 function dedupeMessages(messages: string[]): string[] {
   return [...new Set(messages.filter(Boolean))];
 }
@@ -83,7 +90,13 @@ export function presentCandidateWarning(warning: string): NailArtPickerWarningPr
 }
 
 export function presentRecognitionWarning(warning: string): string {
-  return RECOGNITION_WARNING_MESSAGES[warning] ?? `识别提示：${warning}`;
+  const exactMessage = RECOGNITION_WARNING_MESSAGES[warning];
+  if (exactMessage) return exactMessage;
+
+  const prefixMessage = RECOGNITION_WARNING_PREFIX_MESSAGES.find(([prefix]) =>
+    warning.startsWith(prefix)
+  )?.[1];
+  return prefixMessage ?? `识别提示：${warning}`;
 }
 
 export function regionNeedsReview(region: NailArtPickerQualityRegionLike): boolean {
