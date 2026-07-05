@@ -14,6 +14,26 @@ test("presentRecognitionWarning maps known runtime warnings to readable text", (
     "当前环境未启用 Worker，已回退到主线程识别。"
   );
   assert.equal(
+    presentRecognitionWarning("model_manifest_error:invalid_nail_texture_model_manifest"),
+    "模型清单加载或校验失败，已回退到规则识别。"
+  );
+  assert.equal(
+    presentRecognitionWarning("model_inference_error:simulated_session_run_failure"),
+    "模型推理运行失败，已回退到规则识别。"
+  );
+  assert.equal(
+    presentRecognitionWarning("onnx_session_init_failed:webgpu"),
+    "模型会话初始化失败，已回退到规则识别。"
+  );
+  assert.equal(
+    presentRecognitionWarning("onnx_session_or_tensor_unavailable"),
+    "模型会话或张量接口不可用，已回退到规则识别。"
+  );
+  assert.equal(
+    presentRecognitionWarning("model_outputs_empty_used_fallback"),
+    "模型没有输出可用候选，已回退到规则识别。"
+  );
+  assert.equal(
     presentRecognitionWarning("unknown_warning_code"),
     "识别提示：unknown_warning_code"
   );

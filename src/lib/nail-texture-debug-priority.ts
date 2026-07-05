@@ -1,4 +1,4 @@
-﻿import type {
+import type {
   NailDebugSampleCandidate,
   NailDebugSampleRecord,
 } from "./nail-texture-debug-sample.ts";
@@ -51,8 +51,12 @@ interface CandidatePair {
 }
 
 const MODEL_RUNTIME_WARNING_PREFIXES = [
+  "model_manifest_error",
+  "model_inference_error",
   "onnx_runtime_not_loaded",
   "onnx_session_init_failed",
+  "onnx_session_or_tensor_unavailable",
+  "model_outputs_empty_used_fallback",
   "model_runtime_unavailable_on_server",
   "worker_unavailable_used_main_thread",
 ];

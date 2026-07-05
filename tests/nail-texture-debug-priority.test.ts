@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import test from "node:test";
 import { assessDebugSamplePriority } from "../src/lib/nail-texture-debug-priority.ts";
 import type { NailDebugSampleRecord } from "../src/lib/nail-texture-debug-sample.ts";
@@ -149,6 +149,24 @@ test("assessDebugSamplePriority surfaces fallback runtime and deletion risks", (
   assert.equal(assessment.summary.highConfidenceDeletions, 1);
 });
 
+test("assessDebugSamplePriority treats model manifest and inference failures as runtime warnings", () => {
+  for (const warning of [
+    "model_manifest_error:invalid_nail_texture_model_manifest",
+    "model_inference_error:simulated_session_run_failure",
+    "onnx_session_or_tensor_unavailable",
+    "model_outputs_empty_used_fallback",
+  ]) {
+    const assessment = assessDebugSamplePriority(
+      createRecord({
+        warnings: [warning],
+      })
+    );
+
+    assert.equal(assessment.priorityTier, "low");
+    assert.equal(assessment.priorityScore, 2);
+    assert.ok(assessment.reasons.some((item) => item.code === "model_runtime_warning"));
+  }
+});
 test("assessDebugSamplePriority stays low when user barely changed a clean sample", () => {
   const assessment = assessDebugSamplePriority(
     createRecord({
