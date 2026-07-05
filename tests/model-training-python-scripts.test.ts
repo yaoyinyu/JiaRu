@@ -37,6 +37,35 @@ test("train script dry-run resolves dataset and hyperparameters", async () => {
   assert.equal(result.dry_run, true);
 });
 
+
+test("training environment preflight reports dataset, dependencies, and checkpoint risk", async () => {
+  const result = await runPython("model/training/check-training-environment.py");
+  assert.deepEqual(result.split_counts, { train: 210, val: 45, test: 46 });
+  assert.equal(typeof (result.dependencies as { ultralytics: { available: boolean } }).ultralytics.available, "boolean");
+  assert.equal((result.model as { may_download: boolean }).may_download, true);
+  assert.ok(
+    (result.warnings as string[]).some((warning) => warning.includes("may download it"))
+  );
+});
+
+test("training environment preflight can require a local model checkpoint", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-training-env-"));
+  const weightsPath = path.join(root, "local-yolo-seg.pt");
+  await writeFile(weightsPath, "fake weights", "utf8");
+
+  const result = await runPython("model/training/check-training-environment.py", [
+    "--model",
+    weightsPath,
+    "--require-local-model",
+  ]);
+  assert.equal((result.model as { exists: boolean }).exists, true);
+  assert.equal((result.model as { may_download: boolean }).may_download, false);
+  assert.ok(
+    (result.checks as Array<{ name: string; ok: boolean }>).some(
+      (check) => check.name === "local_model_available" && check.ok
+    )
+  );
+});
 test("evaluate script dry-run prints resolved config", async () => {
   const result = await runPython("model/training/evaluate.py", ["--dry-run"]);
   assert.equal(result.split, "test");
