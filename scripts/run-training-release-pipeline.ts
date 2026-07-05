@@ -24,6 +24,8 @@ interface CliOptions {
   skipEvaluate: boolean;
   skipExport: boolean;
   skipSourceAuthorization: boolean;
+  skipTrainingEnvironmentCheck: boolean;
+  requireLocalModel: boolean;
   sourceAuthorizationDatasetRoot: string;
   minSegMap50: number;
   minBoxMap50: number;
@@ -103,6 +105,8 @@ function parseArgs(argv: string[]): CliOptions {
     skipEvaluate: false,
     skipExport: false,
     skipSourceAuthorization: false,
+    skipTrainingEnvironmentCheck: false,
+    requireLocalModel: false,
     sourceAuthorizationDatasetRoot: path.resolve("model/datasets/nail-texture-v1"),
     minSegMap50: 0.75,
     minBoxMap50: 0.85,
@@ -152,6 +156,8 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--skip-evaluate") options.skipEvaluate = true;
     else if (arg === "--skip-export") options.skipExport = true;
     else if (arg === "--skip-source-authorization") options.skipSourceAuthorization = true;
+    else if (arg === "--skip-training-environment-check") options.skipTrainingEnvironmentCheck = true;
+    else if (arg === "--require-local-model") options.requireLocalModel = true;
     else if (arg === "--source-authorization-dataset-root") {
       options.sourceAuthorizationDatasetRoot = path.resolve(argv[++index]);
     }
@@ -207,7 +213,7 @@ function parseArgs(argv: string[]): CliOptions {
     }
     else {
       throw new Error(
-        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--skip-source-authorization] [--source-authorization-dataset-root <dir>] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-performance-report <performance-report.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
+        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--skip-source-authorization] [--skip-training-environment-check] [--require-local-model] [--source-authorization-dataset-root <dir>] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-performance-report <performance-report.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
       );
     }
   }
@@ -453,6 +459,26 @@ async function main() {
     steps.push(result);
     if (!result.ok) return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
   }
+  if (!options.skipTrain && !options.skipTrainingEnvironmentCheck) {
+    const command = [
+      "python",
+      "model/training/check-training-environment.py",
+      "--dataset",
+      options.dataset,
+      "--output-dir",
+      options.trainOutputDir,
+      "--model",
+      options.trainModel,
+      "--run-name",
+      options.runName,
+      ...(options.requireLocalModel ? ["--require-local-model"] : []),
+      ...(!options.dryRun ? ["--strict"] : []),
+    ];
+    const result = await runCommand("check-training-environment", command, cwd);
+    steps.push(result);
+    if (!result.ok) return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+  }
+
   if (!options.skipTrain) {
     const command = [
       "python",
@@ -684,6 +710,8 @@ async function finish(
       skipEvaluate: options.skipEvaluate,
       skipExport: options.skipExport,
       skipSourceAuthorization: options.skipSourceAuthorization,
+      skipTrainingEnvironmentCheck: options.skipTrainingEnvironmentCheck,
+      requireLocalModel: options.requireLocalModel,
       sourceAuthorizationDatasetRoot: options.sourceAuthorizationDatasetRoot,
       minSegMap50: options.minSegMap50,
       minBoxMap50: options.minBoxMap50,

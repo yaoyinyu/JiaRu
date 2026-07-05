@@ -9,6 +9,7 @@ export {
   resetNailTextureModelRuntimeCache,
   resolveModelUrl,
   resolveOrtExecutionProviders,
+  validateNailTextureModelManifest,
 } from "./model-runtime.ts";
 export {
   serializeModelOutputs,
