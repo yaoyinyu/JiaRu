@@ -365,6 +365,93 @@ test("recognizeNailTextures respects maxCandidates on successful model inference
   }
 });
 
+test("recognizeNailTextures distinguishes model inference failures from manifest failures", async () => {
+  resetNailTextureModelRuntimeCache();
+
+  const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  const originalFetch = globalThis.fetch;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    writable: true,
+    value: {
+      location: { href: "https://example.com/ar-tryon" },
+      ort: {
+        Tensor: class FakeTensor {
+          type: string;
+          data: Float32Array;
+          dims: readonly number[];
+
+          constructor(type: string, data: Float32Array, dims: readonly number[]) {
+            this.type = type;
+            this.data = data;
+            this.dims = dims;
+          }
+        },
+        InferenceSession: {
+          create: async () => ({
+            inputNames: ["images"],
+            run: async () => {
+              throw new Error("simulated_session_run_failure");
+            },
+          }),
+        },
+      },
+    },
+  });
+  Object.defineProperty(globalThis, "navigator", {
+    configurable: true,
+    writable: true,
+    value: {},
+  });
+  globalThis.fetch = (async () => ({
+    ok: true,
+    json: async () => ({
+      version: "nail-texture-seg-v-run-fails",
+      inputSize: 640,
+      task: "segment",
+      backendPreferences: ["wasm"],
+      modelFile: "nail-texture-seg-v-run-fails.onnx",
+      labels: ["nail_texture"],
+    }),
+  })) as typeof fetch;
+
+  try {
+    const result = await recognizeNailTextures(
+      {
+        width: 64,
+        height: 64,
+        data: new Uint8ClampedArray(64 * 64 * 4).fill(255),
+      },
+      {
+        preferModel: true,
+        manifestUrl: "https://example.com/models/nail-texture-seg/v-run-fails/manifest.json",
+      }
+    );
+
+    assert.equal(result.backend, "fallback");
+    assert.ok(
+      result.warnings.some((warning) =>
+        warning.includes("model_inference_error:simulated_session_run_failure")
+      )
+    );
+    assert.ok(!result.warnings.some((warning) => warning.includes("model_manifest_error")));
+  } finally {
+    resetNailTextureModelRuntimeCache();
+    globalThis.fetch = originalFetch;
+    if (windowDescriptor) {
+      Object.defineProperty(globalThis, "window", windowDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+    }
+    if (navigatorDescriptor) {
+      Object.defineProperty(globalThis, "navigator", navigatorDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { navigator?: unknown }).navigator;
+    }
+  }
+});
 test("recognizeNailTexturesInWorker falls back to main thread outside browser", async () => {
   const result = await recognizeNailTexturesInWorker(
     {

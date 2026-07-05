@@ -15,6 +15,7 @@ interface CliOptions {
   workerPath: string;
   runtimePath: string;
   packageJsonPath: string;
+  skipModelArtifact: boolean;
 }
 
 function parseArgs(argv: string[]): CliOptions {
@@ -25,6 +26,7 @@ function parseArgs(argv: string[]): CliOptions {
     workerPath: path.resolve("src/workers/nail-texture-recognition.worker.ts"),
     runtimePath: path.resolve("src/lib/nail-texture-recognition/model-runtime.ts"),
     packageJsonPath: path.resolve("package.json"),
+    skipModelArtifact: false,
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -61,8 +63,12 @@ function parseArgs(argv: string[]): CliOptions {
       options.packageJsonPath = path.resolve(argv[++index]);
       continue;
     }
+    if (arg === "--skip-model-artifact") {
+      options.skipModelArtifact = true;
+      continue;
+    }
     throw new Error(
-      "Usage: node --experimental-strip-types scripts/verify-browser-integration.ts [--manifest <manifest.json>] [--metrics <metrics.json>] [--fixture <fixture.json>] [--picker <NailArtPicker.tsx>] [--client-worker <client-worker.ts>] [--worker <worker.ts>] [--runtime <model-runtime.ts>] [--package-json <package.json>]"
+      "Usage: node --experimental-strip-types scripts/verify-browser-integration.ts [--manifest <manifest.json>] [--metrics <metrics.json>] [--fixture <fixture.json>] [--picker <NailArtPicker.tsx>] [--client-worker <client-worker.ts>] [--worker <worker.ts>] [--runtime <model-runtime.ts>] [--package-json <package.json>] [--skip-model-artifact]"
     );
   }
 
@@ -91,7 +97,9 @@ function hasAll(text: string, patterns: RegExp[]): boolean {
 }
 
 const options = parseArgs(process.argv.slice(2));
-const artifact = await runJsonScript("scripts/verify-model-artifact.ts", [options.manifestPath]);
+const artifact = options.skipModelArtifact
+  ? null
+  : await runJsonScript("scripts/verify-model-artifact.ts", [options.manifestPath]);
 const trainingRelease = options.metricsPath
   ? await runJsonScript("scripts/verify-training-release.ts", [
       "--metrics",
@@ -198,7 +206,7 @@ const contractChecks = [
 ];
 
 const errors = [
-  ...(!(artifact.ok as boolean) ? [String((artifact.errors as unknown[]).join("; "))] : []),
+  ...(artifact && !(artifact.ok as boolean) ? [String((artifact.errors as unknown[]).join("; "))] : []),
   ...contractChecks.filter((check) => !check.ok).map((check) => `browser contract check failed: ${check.name}`),
   ...(trainingRelease && !trainingRelease.ok
     ? [`training release gate failed: ${String((trainingRelease.errors as unknown[]).join("; "))}`]
@@ -209,6 +217,7 @@ const errors = [
 ];
 
 const warnings = [
+  ...(options.skipModelArtifact ? ["model artifact verification was skipped by --skip-model-artifact"] : []),
   ...(trainingRelease ? [] : ["training release verification was skipped because --metrics was not provided"]),
   ...(fixtureVerify ? [] : ["postprocess fixture verification was skipped because --fixture was not provided"]),
 ];
