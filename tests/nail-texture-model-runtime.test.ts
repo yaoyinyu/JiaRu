@@ -9,8 +9,101 @@ import {
   resetNailTextureModelRuntimeCache,
   resolveModelUrl,
   resolveOrtExecutionProviders,
+  validateNailTextureModelManifest,
 } from "../src/lib/nail-texture-recognition/index.ts";
 
+test("model manifest validator rejects unsafe and incompatible manifests", () => {
+  assert.deepEqual(
+    validateNailTextureModelManifest({
+      version: "nail-texture-seg-v1",
+      inputSize: 640,
+      task: "segment",
+      backendPreferences: ["webgpu", "wasm"],
+      modelFile: "nail-texture-seg-v1.onnx",
+      labels: ["nail_texture"],
+    }),
+    []
+  );
+
+  const errors = validateNailTextureModelManifest({
+    version: "",
+    inputSize: 0,
+    task: "detect",
+    backendPreferences: ["webgl"],
+    modelFile: "../escape.onnx",
+    labels: ["other"],
+  });
+  assert.ok(errors.includes("manifest_version_required"));
+  assert.ok(errors.includes("manifest_task_must_be_segment"));
+  assert.ok(errors.includes("manifest_input_size_must_be_positive_integer"));
+  assert.ok(errors.includes("manifest_model_file_must_be_safe_onnx_basename"));
+  assert.ok(errors.includes("manifest_backend_preferences_invalid"));
+  assert.ok(errors.includes("manifest_labels_must_include_nail_texture"));
+});
+
+test("recognizeNailTextures falls back when manifest is invalid", async () => {
+  resetNailTextureModelRuntimeCache();
+
+  const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  const originalFetch = globalThis.fetch;
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    writable: true,
+    value: { location: { href: "https://example.com/ar-tryon" } },
+  });
+  Object.defineProperty(globalThis, "navigator", {
+    configurable: true,
+    writable: true,
+    value: {},
+  });
+  globalThis.fetch = (async () => ({
+    ok: true,
+    json: async () => ({
+      version: "nail-texture-seg-bad",
+      inputSize: 640,
+      task: "detect",
+      backendPreferences: ["wasm"],
+      modelFile: "../bad.onnx",
+      labels: ["nail_texture"],
+    }),
+  })) as typeof fetch;
+
+  try {
+    const result = await recognizeNailTextures(
+      {
+        width: 64,
+        height: 64,
+        data: new Uint8ClampedArray(64 * 64 * 4),
+      },
+      {
+        preferModel: true,
+        manifestUrl: "https://example.com/models/nail-texture-seg/bad/manifest.json",
+      }
+    );
+
+    assert.equal(result.backend, "fallback");
+    assert.ok(
+      result.warnings.some((warning) =>
+        warning.includes("invalid_nail_texture_model_manifest")
+      )
+    );
+  } finally {
+    resetNailTextureModelRuntimeCache();
+    globalThis.fetch = originalFetch;
+    if (windowDescriptor) {
+      Object.defineProperty(globalThis, "window", windowDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+    }
+    if (navigatorDescriptor) {
+      Object.defineProperty(globalThis, "navigator", navigatorDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { navigator?: unknown }).navigator;
+    }
+  }
+});
 test("model backend chooser prefers webgpu when ort and gpu are available", () => {
   const backend = choosePreferredModelBackend(["webgpu", "wasm"], {
     hasOrt: true,

@@ -54,6 +54,66 @@ declare global {
 const manifestCache = new Map<string, Promise<NailTextureModelManifest>>();
 const runtimeCache = new Map<string, Promise<NailTextureModelRuntime>>();
 
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isSafeModelFileName(value: string): boolean {
+  return (
+    value.trim() === value &&
+    value.length > 0 &&
+    value.toLowerCase().endsWith(".onnx") &&
+    !value.includes("/") &&
+    !value.includes("\\") &&
+    !value.includes(":") &&
+    !value.includes("..")
+  );
+}
+
+export function validateNailTextureModelManifest(manifest: unknown): string[] {
+  const errors: string[] = [];
+  if (!isPlainObject(manifest)) {
+    return ["manifest_must_be_object"];
+  }
+
+  if (typeof manifest.version !== "string" || manifest.version.trim().length === 0) {
+    errors.push("manifest_version_required");
+  }
+  if (manifest.task !== "segment") {
+    errors.push("manifest_task_must_be_segment");
+  }
+  if (!Number.isInteger(manifest.inputSize) || Number(manifest.inputSize) <= 0) {
+    errors.push("manifest_input_size_must_be_positive_integer");
+  }
+  if (typeof manifest.modelFile !== "string" || !isSafeModelFileName(manifest.modelFile)) {
+    errors.push("manifest_model_file_must_be_safe_onnx_basename");
+  }
+  if (!Array.isArray(manifest.backendPreferences) || manifest.backendPreferences.length === 0) {
+    errors.push("manifest_backend_preferences_required");
+  } else {
+    const invalidBackends = manifest.backendPreferences.filter(
+      (backend) => backend !== "webgpu" && backend !== "wasm"
+    );
+    if (invalidBackends.length > 0) {
+      errors.push("manifest_backend_preferences_invalid");
+    }
+  }
+  if (!Array.isArray(manifest.labels) || !manifest.labels.includes("nail_texture")) {
+    errors.push("manifest_labels_must_include_nail_texture");
+  }
+
+  return errors;
+}
+
+function assertValidNailTextureModelManifest(
+  manifest: unknown
+): asserts manifest is NailTextureModelManifest {
+  const errors = validateNailTextureModelManifest(manifest);
+  if (errors.length > 0) {
+    throw new Error(`invalid_nail_texture_model_manifest:${errors.join(",")}`);
+  }
+}
+
 function runtimeImport(specifier: string): Promise<unknown> {
   const dynamicImport = new Function(
     "s",
@@ -87,6 +147,7 @@ export function resolveModelUrl(
   manifest: NailTextureModelManifest,
   manifestUrl = "/models/nail-texture-seg/manifest.json"
 ): string {
+  assertValidNailTextureModelManifest(manifest);
   const base = new URL(manifestUrl, typeof window !== "undefined" ? window.location.href : "http://localhost");
   return new URL(manifest.modelFile, base).toString();
 }
@@ -145,7 +206,9 @@ export async function loadNailTextureModelManifest(
       if (!response.ok) {
         throw new Error(`Failed to load nail texture manifest: ${response.status}`);
       }
-      return (await response.json()) as NailTextureModelManifest;
+      const manifest = await response.json();
+      assertValidNailTextureModelManifest(manifest);
+      return manifest;
     })();
     manifestCache.set(cacheKey, cached);
   }

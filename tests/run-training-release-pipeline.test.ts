@@ -75,18 +75,88 @@ test("run-training-release-pipeline produces a dry-run orchestration report", as
   assert.equal(report.ok, true);
   assert.equal(report.mode, "dry-run");
   assert.deepEqual(report.steps.map((step) => step.name), [
+    "check-training-environment",
     "train-yolo-seg",
     "evaluate",
     "export-onnx",
     "verify-training-release",
     "run-real-model-final-audit",
   ]);
+  const preflightStep = report.steps.find((step) => step.name === "check-training-environment");
+  assert.ok(preflightStep?.command.includes("model/training/check-training-environment.py"));
   const evaluateStep = report.steps.find((step) => step.name === "evaluate");
   assert.ok(evaluateStep?.command.includes("--artifacts-dir"));
   assert.ok(evaluateStep?.command.some((item) => item.endsWith("evaluation-artifacts")));
   assert.equal(report.steps.at(-1)?.stdout?.skipped, true);
 });
 
+
+test("run-training-release-pipeline can skip training environment preflight", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-skip-env-"));
+  const outputDir = path.join(root, "model", "exports", "nail-texture-seg-v1");
+  const browserDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(outputDir, { recursive: true });
+  await mkdir(browserDir, { recursive: true });
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-training-release-pipeline.ts",
+      "--train-output-dir",
+      outputDir,
+      "--browser-model-dir",
+      browserDir,
+      "--dry-run",
+      "--skip-training-environment-check",
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    options: { skipTrainingEnvironmentCheck: boolean };
+    steps: Array<{ name: string }>;
+  };
+  assert.equal(report.ok, true);
+  assert.equal(report.options.skipTrainingEnvironmentCheck, true);
+  assert.ok(!report.steps.some((step) => step.name === "check-training-environment"));
+});
+
+test("run-training-release-pipeline forwards local checkpoint requirement to preflight", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-require-local-"));
+  const outputDir = path.join(root, "model", "exports", "nail-texture-seg-v1");
+  const browserDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(outputDir, { recursive: true });
+  await mkdir(browserDir, { recursive: true });
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-training-release-pipeline.ts",
+      "--train-output-dir",
+      outputDir,
+      "--browser-model-dir",
+      browserDir,
+      "--dry-run",
+      "--require-local-model",
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    options: { requireLocalModel: boolean };
+    steps: Array<{ name: string; command: string[] }>;
+  };
+  const preflightStep = report.steps.find((step) => step.name === "check-training-environment");
+  assert.equal(report.ok, true);
+  assert.equal(report.options.requireLocalModel, true);
+  assert.ok(preflightStep?.command.includes("--require-local-model"));
+});
 test("run-training-release-pipeline aligns default runName and trainOutputDir with modelVersion", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-model-version-defaults-"));
   const browserDir = path.join(root, "public", "models", "nail-texture-seg");
