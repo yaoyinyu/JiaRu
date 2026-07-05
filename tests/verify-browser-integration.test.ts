@@ -140,6 +140,112 @@ const MAX_DETECTION_DIM = 800;
   assert.ok(summary.warnings.some((item) => item.includes("--metrics")));
 });
 
+test("verify-browser-integration can verify browser contracts without a real model artifact", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-browser-integration-contract-only-"));
+
+  const pickerPath = path.join(root, "NailArtPicker.tsx");
+  const clientWorkerPath = path.join(root, "client-worker.ts");
+  const workerPath = path.join(root, "worker.ts");
+  const runtimePath = path.join(root, "runtime.ts");
+  const packageJsonPath = path.join(root, "package.json");
+
+  await writeFile(
+    pickerPath,
+    `
+const controller = new AbortController();
+      const result = await recognizeNailTexturesInWorker({}, { preferModel: true });
+const MAX_DETECTION_DIM = 800;
+      const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
+      ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
+      remapNailTextureCandidatesToOriginal([]);
+      await computeImageDetectedNailRegions(
+        imageData,
+        image.naturalWidth,
+        image.naturalHeight,
+        controller.signal
+      );
+      detectionAbortRef.current?.abort();
+      const cancel = <button onClick={cancelDetection}>Cancel</button>;
+      const close = <button onClick={closePicker}>Close</button>;
+      const summary = {
+        backend: result.backend,
+        modelVersion: result.modelVersion,
+        modelBackend: result.modelInfo?.backend,
+        elapsedMs: result.elapsedMs,
+        workerElapsedMs: result.workerElapsedMs,
+        warnings: [...result.warnings]
+      };
+    `,
+    "utf8"
+  );
+  await writeFile(
+    clientWorkerPath,
+    `
+      function prepareWorkerImagePixels(source) { return source.data; }
+      new Worker("worker.ts");
+      const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl };
+      options.signal.addEventListener("abort", terminateWorkerAndRejectPending);
+      worker?.terminate();
+    `,
+    "utf8"
+  );
+  await writeFile(
+    workerPath,
+    `
+      const result = await recognizeNailTextures({}, { manifestUrl: request.manifestUrl });
+      const response = { modelInfo: result.modelInfo };
+      request.imageBitmap.close();
+      self.postMessage(response);
+    `,
+    "utf8"
+  );
+  await writeFile(
+    runtimePath,
+    `
+      loadNailTextureModelManifest();
+      createOrtSession();
+      resolveOrtExecutionProviders();
+    `,
+    "utf8"
+  );
+  await writeFile(
+    packageJsonPath,
+    JSON.stringify({ dependencies: { "onnxruntime-web": "^1.27.0" } }, null, 2),
+    "utf8"
+  );
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/verify-browser-integration.ts",
+      "--skip-model-artifact",
+      "--picker",
+      pickerPath,
+      "--client-worker",
+      clientWorkerPath,
+      "--worker",
+      workerPath,
+      "--runtime",
+      runtimePath,
+      "--package-json",
+      packageJsonPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    ok: boolean;
+    artifact: unknown;
+    contractChecks: Array<{ name: string; ok: boolean }>;
+    warnings: string[];
+  };
+  assert.equal(summary.ok, true);
+  assert.equal(summary.artifact, null);
+  assert.ok(summary.contractChecks.every((check) => check.ok));
+  assert.ok(summary.warnings.some((item) => item.includes("--skip-model-artifact")));
+});
 test("verify-browser-integration fails when contract markers are missing", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-browser-integration-fail-"));
   const modelDir = path.join(root, "model");

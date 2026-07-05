@@ -42,16 +42,29 @@ export async function recognizeNailTextures(
   }
 
   const startedAt = nowMs();
+  let runtime: Awaited<ReturnType<typeof getNailTextureModelRuntime>>;
   try {
-    const runtime = await getNailTextureModelRuntime(options.manifestUrl);
-    if (!runtime.available || !runtime.info) {
-      const fallback = getFallback();
-      return {
-        ...fallback,
-        warnings: [...fallback.warnings, ...runtime.warnings],
-      };
-    }
+    runtime = await getNailTextureModelRuntime(options.manifestUrl);
+  } catch (error) {
+    const fallback = getFallback();
+    return {
+      ...fallback,
+      warnings: [
+        ...fallback.warnings,
+        error instanceof Error ? `model_manifest_error:${error.message}` : "model_manifest_error",
+      ],
+    };
+  }
 
+  if (!runtime.available || !runtime.info) {
+    const fallback = getFallback();
+    return {
+      ...fallback,
+      warnings: [...fallback.warnings, ...runtime.warnings],
+    };
+  }
+
+  try {
     if (!runtime.session || !runtime.ort?.Tensor) {
       const fallback = getFallback();
       return {
@@ -120,7 +133,7 @@ export async function recognizeNailTextures(
       ...fallback,
       warnings: [
         ...fallback.warnings,
-        error instanceof Error ? `model_manifest_error:${error.message}` : "model_manifest_error",
+        error instanceof Error ? `model_inference_error:${error.message}` : "model_inference_error",
       ],
     };
   }
