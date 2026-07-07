@@ -69,6 +69,11 @@ export interface NailTextureAnnotationDocument {
       modelBackend?: NailTextureModelBackend;
       elapsedMs?: number;
       workerElapsedMs?: number;
+      recognitionOptions?: {
+        maxCandidates?: number;
+        workerTimeoutMs?: number;
+        includeLowConfidenceCandidates?: boolean;
+      };
       warnings?: string[];
     };
   };

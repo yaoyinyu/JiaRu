@@ -26,6 +26,7 @@ interface ReleaseInput {
   metricsPath: string;
   manifestPath: string;
   failureSummaryPath?: string;
+  traceIndexPath?: string;
 }
 
 interface FailureSummaryLike {
@@ -40,9 +41,23 @@ interface FailureSummaryLike {
   };
 }
 
+interface ReleaseTraceIndexLike {
+  activeLearning?: {
+    importedSampleCount?: number;
+    importedByPriority?: Record<string, number> | null;
+    prioritySummary?: {
+      warningBreakdown?: Record<string, number> | null;
+      backendBreakdown?: Record<string, number> | null;
+    } | null;
+    readinessSnapshot?: {
+      totals?: { images?: number; validMasks?: number } | null;
+    } | null;
+  } | null;
+}
+
 function usage(): never {
   throw new Error(
-    "Usage: node --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics <metrics.json> --baseline-manifest <manifest.json> --candidate-metrics <metrics.json> --candidate-manifest <manifest.json> [--baseline-failure-summary <summary.json>] [--candidate-failure-summary <summary.json>] [--min-seg-delta -0.02] [--min-box-delta -0.02]"
+    "Usage: node --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics <metrics.json> --baseline-manifest <manifest.json> --candidate-metrics <metrics.json> --candidate-manifest <manifest.json> [--baseline-failure-summary <summary.json>] [--candidate-failure-summary <summary.json>] [--baseline-trace-index <release-trace-index.json>] [--candidate-trace-index <release-trace-index.json>] [--min-seg-delta -0.02] [--min-box-delta -0.02]"
   );
 }
 
@@ -53,6 +68,8 @@ let candidateMetricsPath = "";
 let candidateManifestPath = "";
 let baselineFailureSummaryPath = "";
 let candidateFailureSummaryPath = "";
+let baselineTraceIndexPath = "";
+let candidateTraceIndexPath = "";
 let outputPath = "";
 let minSegDelta = -0.02;
 let minBoxDelta = -0.02;
@@ -65,6 +82,8 @@ for (let index = 0; index < args.length; index++) {
   else if (arg === "--candidate-manifest") candidateManifestPath = path.resolve(args[++index] ?? usage());
   else if (arg === "--baseline-failure-summary") baselineFailureSummaryPath = path.resolve(args[++index] ?? usage());
   else if (arg === "--candidate-failure-summary") candidateFailureSummaryPath = path.resolve(args[++index] ?? usage());
+  else if (arg === "--baseline-trace-index") baselineTraceIndexPath = path.resolve(args[++index] ?? usage());
+  else if (arg === "--candidate-trace-index") candidateTraceIndexPath = path.resolve(args[++index] ?? usage());
   else if (arg === "--output") outputPath = path.resolve(args[++index] ?? usage());
   else if (arg === "--min-seg-delta") {
     minSegDelta = Number(args[++index]);
@@ -89,12 +108,16 @@ async function loadRelease(input: ReleaseInput) {
   const failureSummary = input.failureSummaryPath
     ? (JSON.parse(await readFile(input.failureSummaryPath, "utf8")) as FailureSummaryLike)
     : null;
+  const traceIndex = input.traceIndexPath
+    ? (JSON.parse(await readFile(input.traceIndexPath, "utf8")) as ReleaseTraceIndexLike)
+    : null;
 
   return {
     ...input,
     metrics,
     manifest,
     failureSummary,
+    traceIndex,
     modelPath,
     modelSizeBytes: modelStat.size,
     modelSizeMb: Number((modelStat.size / (1024 * 1024)).toFixed(4)),
@@ -107,6 +130,25 @@ function delta(candidate: number, baseline: number) {
 
 function getCount(record: Record<string, number> | undefined, key: string) {
   return Number(record?.[key] ?? 0);
+}
+
+function recordDelta(
+  candidateRecord: Record<string, number> | null | undefined,
+  baselineRecord: Record<string, number> | null | undefined
+) {
+  const keys = new Set([
+    ...Object.keys(baselineRecord ?? {}),
+    ...Object.keys(candidateRecord ?? {}),
+  ]);
+  return Object.fromEntries(
+    Array.from(keys)
+      .sort()
+      .map((key) => [key, delta(Number(candidateRecord?.[key] ?? 0), Number(baselineRecord?.[key] ?? 0))])
+  );
+}
+
+function sumRecord(record: Record<string, number> | null | undefined) {
+  return Object.values(record ?? {}).reduce((total, value) => total + Number(value ?? 0), 0);
 }
 
 function buildFailureSummarySnapshot(summary: FailureSummaryLike | null) {
@@ -122,17 +164,31 @@ function buildFailureSummarySnapshot(summary: FailureSummaryLike | null) {
   };
 }
 
+function buildActiveLearningSnapshot(traceIndex: ReleaseTraceIndexLike | null) {
+  const activeLearning = traceIndex?.activeLearning;
+  if (!activeLearning) return null;
+  return {
+    importedSampleCount: Number(activeLearning.importedSampleCount ?? 0),
+    importedByPriority: activeLearning.importedByPriority ?? {},
+    warningBreakdown: activeLearning.prioritySummary?.warningBreakdown ?? {},
+    backendBreakdown: activeLearning.prioritySummary?.backendBreakdown ?? {},
+    readinessTotals: activeLearning.readinessSnapshot?.totals ?? null,
+  };
+}
+
 const baseline = await loadRelease({
   name: "baseline",
   metricsPath: baselineMetricsPath,
   manifestPath: baselineManifestPath,
   failureSummaryPath: baselineFailureSummaryPath || undefined,
+  traceIndexPath: baselineTraceIndexPath || undefined,
 });
 const candidate = await loadRelease({
   name: "candidate",
   metricsPath: candidateMetricsPath,
   manifestPath: candidateManifestPath,
   failureSummaryPath: candidateFailureSummaryPath || undefined,
+  traceIndexPath: candidateTraceIndexPath || undefined,
 });
 
 const segMap50Delta = delta(candidate.metrics.seg_map50, baseline.metrics.seg_map50);
@@ -142,6 +198,8 @@ const boxMapDelta = delta(candidate.metrics.box_map, baseline.metrics.box_map);
 const modelSizeMbDelta = delta(candidate.modelSizeMb, baseline.modelSizeMb);
 const baselineFailureSnapshot = buildFailureSummarySnapshot(baseline.failureSummary);
 const candidateFailureSnapshot = buildFailureSummarySnapshot(candidate.failureSummary);
+const baselineActiveLearningSnapshot = buildActiveLearningSnapshot(baseline.traceIndex);
+const candidateActiveLearningSnapshot = buildActiveLearningSnapshot(candidate.traceIndex);
 const postprocessFailureDelta =
   baselineFailureSnapshot && candidateFailureSnapshot
     ? delta(
@@ -160,6 +218,27 @@ const highlightHotspotDelta =
           baselineFailureSnapshot.derivedAnnotationSubcategoryCounts,
           "postprocess/highlight_hotspots"
         )
+      )
+    : null;
+const activeLearningImportedSampleDelta =
+  baselineActiveLearningSnapshot && candidateActiveLearningSnapshot
+    ? delta(
+        candidateActiveLearningSnapshot.importedSampleCount,
+        baselineActiveLearningSnapshot.importedSampleCount
+      )
+    : null;
+const activeLearningWarningDeltas =
+  baselineActiveLearningSnapshot && candidateActiveLearningSnapshot
+    ? recordDelta(
+        candidateActiveLearningSnapshot.warningBreakdown,
+        baselineActiveLearningSnapshot.warningBreakdown
+      )
+    : null;
+const activeLearningBackendDeltas =
+  baselineActiveLearningSnapshot && candidateActiveLearningSnapshot
+    ? recordDelta(
+        candidateActiveLearningSnapshot.backendBreakdown,
+        baselineActiveLearningSnapshot.backendBreakdown
       )
     : null;
 
@@ -218,6 +297,26 @@ if (baselineFailureSnapshot || candidateFailureSnapshot) {
     }
   }
 }
+if (baselineActiveLearningSnapshot || candidateActiveLearningSnapshot) {
+  if (!baselineActiveLearningSnapshot || !candidateActiveLearningSnapshot) {
+    warnings.push("active-learning trace comparison is partial because one release is missing a trace index");
+  } else {
+    if (activeLearningImportedSampleDelta! > 0) {
+      improvements.push(
+        `active-learning imported sample count increased by ${activeLearningImportedSampleDelta}`
+      );
+    }
+    const warningDelta = delta(
+      sumRecord(candidateActiveLearningSnapshot.warningBreakdown),
+      sumRecord(baselineActiveLearningSnapshot.warningBreakdown)
+    );
+    if (warningDelta > 0) {
+      warnings.push(`candidate active-learning warning count increased by ${warningDelta}`);
+    } else if (warningDelta < 0) {
+      improvements.push(`active-learning warning count decreased by ${Math.abs(warningDelta)}`);
+    }
+  }
+}
 
 const summary = {
   ok: regressions.length === 0,
@@ -225,6 +324,7 @@ const summary = {
     metricsPath: baseline.metricsPath,
     manifestPath: baseline.manifestPath,
     failureSummaryPath: baseline.failureSummaryPath ?? null,
+    traceIndexPath: baseline.traceIndexPath ?? null,
     version: baseline.manifest.version,
     split: baseline.metrics.split,
     imgsz: baseline.metrics.imgsz,
@@ -235,11 +335,13 @@ const summary = {
     modelPath: baseline.modelPath,
     modelSizeMb: baseline.modelSizeMb,
     failureSummary: baselineFailureSnapshot,
+    activeLearning: baselineActiveLearningSnapshot,
   },
   candidate: {
     metricsPath: candidate.metricsPath,
     manifestPath: candidate.manifestPath,
     failureSummaryPath: candidate.failureSummaryPath ?? null,
+    traceIndexPath: candidate.traceIndexPath ?? null,
     version: candidate.manifest.version,
     split: candidate.metrics.split,
     imgsz: candidate.metrics.imgsz,
@@ -250,6 +352,7 @@ const summary = {
     modelPath: candidate.modelPath,
     modelSizeMb: candidate.modelSizeMb,
     failureSummary: candidateFailureSnapshot,
+    activeLearning: candidateActiveLearningSnapshot,
   },
   deltas: {
     seg_map50: segMap50Delta,
@@ -259,6 +362,9 @@ const summary = {
     modelSizeMb: modelSizeMbDelta,
     postprocessFailures: postprocessFailureDelta,
     highlightHotspotFailures: highlightHotspotDelta,
+    activeLearningImportedSamples: activeLearningImportedSampleDelta,
+    activeLearningWarnings: activeLearningWarningDeltas,
+    activeLearningBackends: activeLearningBackendDeltas,
   },
   regressions,
   improvements,

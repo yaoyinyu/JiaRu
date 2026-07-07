@@ -98,3 +98,11 @@
 - `npm.cmd test`
 - `npm.cmd run lint`
 - `npm.cmd run build`
+
+## Low-score debug candidate hint
+
+`low_score_debug_candidate` is mapped to a user-readable informational message. It indicates that the candidate was retained only because debug review explicitly asked to expose candidates below the normal score threshold.
+
+## Low-score debug option traceability
+
+When `includeLowConfidenceCandidates` is enabled, local debug samples and imported annotations keep that flag under `recognitionOptions`. This lets active-learning review distinguish normal user-facing candidates from explicit debug reviews of candidates below the default score threshold.

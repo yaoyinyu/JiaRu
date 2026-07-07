@@ -58,6 +58,7 @@ interface ReleaseTraceDraftLike {
       backendBreakdown?: Record<string, number> | null;
       modelBackendBreakdown?: Record<string, number> | null;
       correctedCandidateSourceBreakdown?: Record<string, number> | null;
+      warningBreakdown?: Record<string, number> | null;
       reasonBreakdown?: Record<string, number> | null;
     } | null;
     readinessSnapshot?: {
@@ -473,5 +474,4 @@ const summary = {
 await mkdir(path.dirname(options.outputPath), { recursive: true });
 await writeFile(options.outputPath, JSON.stringify(summary, null, 2), "utf8");
 console.log(JSON.stringify(summary, null, 2));
-
 

@@ -7,6 +7,8 @@ export interface RankNailTextureCandidatesOptions {
   imageWidth: number;
   imageHeight: number;
   maxCandidates?: number;
+  duplicateOverlapThreshold?: number;
+  includeLowConfidenceCandidates?: boolean;
   sourceImage?: {
     width: number;
     height: number;
@@ -107,6 +109,65 @@ function maskWarningPenalty(warning: string): number {
   }
 }
 
+function withLowScoreDebugWarning(candidate: NailTextureCandidate): NailTextureCandidate {
+  if (candidate.score >= 0.35) return candidate;
+  const warning = "low_score_debug_candidate";
+  return {
+    ...candidate,
+    warnings: candidate.warnings?.includes(warning)
+      ? candidate.warnings
+      : [...(candidate.warnings ?? []), warning],
+  };
+}
+
+function candidateBounds(candidate: NailTextureCandidate): {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+} {
+  const halfWidth = Math.max(0.5, candidate.width * 0.5);
+  const halfLength = Math.max(0.5, candidate.length * 0.5);
+  return {
+    minX: candidate.cx - halfWidth,
+    minY: candidate.cy - halfLength,
+    maxX: candidate.cx + halfWidth,
+    maxY: candidate.cy + halfLength,
+  };
+}
+
+function candidateOverlapRatio(
+  left: NailTextureCandidate,
+  right: NailTextureCandidate
+): number {
+  const a = candidateBounds(left);
+  const b = candidateBounds(right);
+  const overlapWidth = Math.max(0, Math.min(a.maxX, b.maxX) - Math.max(a.minX, b.minX));
+  const overlapHeight = Math.max(0, Math.min(a.maxY, b.maxY) - Math.max(a.minY, b.minY));
+  const intersection = overlapWidth * overlapHeight;
+  if (intersection <= 0) return 0;
+
+  const leftArea = Math.max(1, (a.maxX - a.minX) * (a.maxY - a.minY));
+  const rightArea = Math.max(1, (b.maxX - b.minX) * (b.maxY - b.minY));
+  return intersection / (leftArea + rightArea - intersection);
+}
+
+function suppressDuplicateCandidates(
+  candidates: NailTextureCandidate[],
+  overlapThreshold: number
+): NailTextureCandidate[] {
+  if (overlapThreshold <= 0 || overlapThreshold > 1) return candidates;
+
+  const kept: NailTextureCandidate[] = [];
+  for (const candidate of candidates) {
+    const overlapsKept = kept.some(
+      (selected) => candidateOverlapRatio(candidate, selected) >= overlapThreshold
+    );
+    if (!overlapsKept) kept.push(candidate);
+  }
+  return kept;
+}
+
 export function assessNailTextureCandidate(
   candidate: NailTextureCandidate,
   options: Pick<RankNailTextureCandidatesOptions, "imageWidth" | "imageHeight" | "sourceImage">
@@ -144,8 +205,10 @@ export function rankNailTextureCandidates(
   options: RankNailTextureCandidatesOptions
 ): NailTextureCandidate[] {
   const maxCandidates = options.maxCandidates ?? 10;
+  const duplicateOverlapThreshold = options.duplicateOverlapThreshold ?? 0.55;
+  const includeLowConfidenceCandidates = options.includeLowConfidenceCandidates ?? false;
 
-  return candidates
+  const scored = candidates
     .map((candidate) => {
       const assessment = assessNailTextureCandidate(candidate, options);
       return {
@@ -159,8 +222,13 @@ export function rankNailTextureCandidates(
       const ratio = areaRatio(candidate, options.imageWidth * options.imageHeight);
       return ratio >= 0.0008 && ratio <= 0.08;
     })
-    .filter((candidate) => candidate.score >= 0.35)
-    .sort((a, b) => b.score - a.score)
+    .filter((candidate) => includeLowConfidenceCandidates || candidate.score >= 0.35)
+    .map((candidate) =>
+      includeLowConfidenceCandidates ? withLowScoreDebugWarning(candidate) : candidate
+    )
+    .sort((a, b) => b.score - a.score);
+
+  return suppressDuplicateCandidates(scored, duplicateOverlapThreshold)
     .slice(0, maxCandidates)
     .sort((a, b) => a.cx - b.cx);
 }

@@ -1,4 +1,4 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -44,7 +44,8 @@ test("verify-browser-integration passes with healthy artifact and contract files
     pickerPath,
     `
 const controller = new AbortController();
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true });
+const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
+      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
 const MAX_DETECTION_DIM = 800;
       const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
       ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
@@ -74,16 +75,24 @@ const MAX_DETECTION_DIM = 800;
     `
       function prepareWorkerImagePixels(source) { return source.data; }
       new Worker("worker.ts");
-      const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl };
+      const workerTimeoutMs = options.workerTimeoutMs ?? 15000;
+      const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl, workerTimeoutMs: workerTimeoutMs };
       options.signal.addEventListener("abort", terminateWorkerAndRejectPending);
       worker?.terminate();
+      setTimeout(() => {
+        workerInstance?.terminate();
+        return recognizeNailTextures(source, { preferModel: false }).then((result) => ({
+          ...result,
+          warnings: [...result.warnings, "worker_timeout_used_main_thread"],
+        }));
+      }, workerTimeoutMs);
     `,
     "utf8"
   );
   await writeFile(
     workerPath,
     `
-      const result = await recognizeNailTextures({}, { manifestUrl: request.manifestUrl });
+      const result = await recognizeNailTextures({}, { manifestUrl: request.manifestUrl, workerTimeoutMs: request.workerTimeoutMs });
       const response = { modelInfo: result.modelInfo };
       request.imageBitmap.close();
       self.postMessage(response);
@@ -153,7 +162,8 @@ test("verify-browser-integration can verify browser contracts without a real mod
     pickerPath,
     `
 const controller = new AbortController();
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true });
+const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
+      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
 const MAX_DETECTION_DIM = 800;
       const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
       ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
@@ -183,16 +193,24 @@ const MAX_DETECTION_DIM = 800;
     `
       function prepareWorkerImagePixels(source) { return source.data; }
       new Worker("worker.ts");
-      const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl };
+      const workerTimeoutMs = options.workerTimeoutMs ?? 15000;
+      const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl, workerTimeoutMs: workerTimeoutMs };
       options.signal.addEventListener("abort", terminateWorkerAndRejectPending);
       worker?.terminate();
+      setTimeout(() => {
+        workerInstance?.terminate();
+        return recognizeNailTextures(source, { preferModel: false }).then((result) => ({
+          ...result,
+          warnings: [...result.warnings, "worker_timeout_used_main_thread"],
+        }));
+      }, workerTimeoutMs);
     `,
     "utf8"
   );
   await writeFile(
     workerPath,
     `
-      const result = await recognizeNailTextures({}, { manifestUrl: request.manifestUrl });
+      const result = await recognizeNailTextures({}, { manifestUrl: request.manifestUrl, workerTimeoutMs: request.workerTimeoutMs });
       const response = { modelInfo: result.modelInfo };
       request.imageBitmap.close();
       self.postMessage(response);
@@ -344,7 +362,8 @@ test("verify-browser-integration fails when onnxruntime-web dependency is missin
     pickerPath,
     `
 const controller = new AbortController();
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true });
+const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
+      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
 const MAX_DETECTION_DIM = 800;
       const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
       ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
@@ -374,16 +393,24 @@ const MAX_DETECTION_DIM = 800;
     `
       function prepareWorkerImagePixels(source) { return source.data; }
       new Worker("worker.ts");
-      const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl };
+      const workerTimeoutMs = options.workerTimeoutMs ?? 15000;
+      const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl, workerTimeoutMs: workerTimeoutMs };
       options.signal.addEventListener("abort", terminateWorkerAndRejectPending);
       worker?.terminate();
+      setTimeout(() => {
+        workerInstance?.terminate();
+        return recognizeNailTextures(source, { preferModel: false }).then((result) => ({
+          ...result,
+          warnings: [...result.warnings, "worker_timeout_used_main_thread"],
+        }));
+      }, workerTimeoutMs);
     `,
     "utf8"
   );
   await writeFile(
     workerPath,
     `
-      const result = await recognizeNailTextures({}, { manifestUrl: request.manifestUrl });
+      const result = await recognizeNailTextures({}, { manifestUrl: request.manifestUrl, workerTimeoutMs: request.workerTimeoutMs });
       const response = { modelInfo: result.modelInfo };
       request.imageBitmap.close();
       self.postMessage(response);

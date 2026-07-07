@@ -124,3 +124,51 @@ node --no-warnings --experimental-strip-types scripts/run-release-governance-pip
 4. `run-release-governance-pipeline.ts`
 
 完整链路为：训练发布产物 → 指标/性能对比 → 决策 → 安全晋升 → 回滚审计 → trace 建档 → history 入账。
+## release-history active learning 摘要
+
+`build-release-history-manifest.ts` 现在会从每个 `release-trace-index.json` 汇总 active-learning 信息，方便跨版本查看页面修正样本是否正在改善模型链路。
+
+历史台账会保留：
+
+- `totals.activeLearningTraceIndexes`
+- `totals.activeLearningImportedSamples`
+- `activeLearning.importedByPriority`
+- `activeLearning.warningBreakdown`
+- `activeLearning.backendBreakdown`
+- `entries[].activeLearningImportedSampleCount`
+- `entries[].activeLearningWarningBreakdown`
+- `entries[].activeLearningReadinessTotals`
+
+这样不用打开单个 trace，也能直接看到某个版本是否吸收过高优先级 debug sample，以及这些样本主要暴露的是模型运行时、fallback、后处理还是数据问题。
+## active-learning warning manual_review 默认行为
+
+当 `compare-summary.json` 中的 active-learning warning delta 增加时，`build-release-decision-report.ts` 会把候选版本判为 `manual_review`。`run-release-governance-pipeline.ts` 默认不会自动 promotion 这类候选，但仍会生成 `release-trace-index.json`，保留 decision、compare、active-learning warning delta 等证据，方便复盘。
+
+如果人工确认这些 warning 可以接受，才显式使用：
+
+```bash
+--allow-manual-review true
+```
+
+这样 active-learning 回流暴露的新风险不会被静默发布，同时也不会丢失治理 trace。
+## active-learning manual_review 人工放行
+
+如果 active-learning warning delta 增加导致候选进入 `manual_review`，默认不会自动 promotion。只有人工确认风险可接受后，才使用：
+
+```bash
+--allow-manual-review true
+```
+
+此时治理流水线会继续执行 promotion、trace registration 和 rollback audit，并在 history manifest 中保留 `decisionStatus: "manual_review"`，表示该版本不是自动无风险放行，而是人工确认后放行。
+
+## training release pipeline 中的 active-learning 人工放行
+
+`run-training-release-pipeline.ts` 也会透传同一套治理参数。也就是说，一键训练发布流水线在读取 `compare-summary.json` 时，如果发现 `deltas.activeLearningWarnings` 有正向增量，会继承 release decision 的 `manual_review` 结果。
+
+默认不加参数时，这类候选不会自动 promotion；只有显式传入：
+
+```bash
+--governance-allow-manual-review true
+```
+
+总流水线才会继续执行 `promote-approved-release`、trace registration、rollback audit 和 history manifest 登记。验收重点是：`training-release-pipeline-report.json` 里的 `artifacts.releaseGovernance.artifacts.releaseDecision.decision.status` 保留 `manual_review`，promotion 报告里的 `decisionStatus` 也保留 `manual_review`，避免把人工确认放行误读成普通自动通过。

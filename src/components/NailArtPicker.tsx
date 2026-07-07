@@ -51,6 +51,8 @@ interface DetectionSummary {
   modelBackend?: "webgpu" | "wasm" | "fallback";
   elapsedMs: number;
   workerElapsedMs?: number;
+  maxCandidates: number;
+  workerTimeoutMs: number;
   warnings: string[];
 }
 
@@ -63,6 +65,7 @@ interface NailArtPickerProps {
 const FINGER_FULL = ["Thumb", "Index", "Middle", "Ring", "Pinky"];
 const MAX_CANVAS_DIM = 800;
 const MAX_DETECTION_DIM = 800;
+const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15_000;
 const MIN_NAIL_SIZE = 15;
 const BORDER_COLOR = "#22c55e";
 const SELECTED_COLOR = "#ec4899";
@@ -182,6 +185,7 @@ async function computeImageDetectedNailRegions(
   const result = await recognizeNailTexturesInWorker(imageData, {
     preferModel: true,
     maxCandidates: 10,
+    workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
     signal,
   });
 
@@ -215,6 +219,8 @@ async function computeImageDetectedNailRegions(
       modelBackend: result.modelInfo?.backend,
       elapsedMs: result.elapsedMs,
       workerElapsedMs: result.workerElapsedMs,
+      maxCandidates: 10,
+      workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
       warnings: [...result.warnings],
     },
   };
@@ -349,6 +355,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
               current ?? {
                 backend: "fallback",
                 elapsedMs: 0,
+                maxCandidates: 10,
+                workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
                 warnings: ["recognition_cancelled_by_user"],
               }
             );
@@ -388,6 +396,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       current ?? {
         backend: "fallback",
         elapsedMs: 0,
+        maxCandidates: 10,
+        workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
         warnings: ["recognition_cancelled_by_user"],
       }
     );

@@ -66,3 +66,20 @@ node --no-warnings --experimental-strip-types scripts/compare-training-releases.
 - `deltas.highlightHotspotFailures`
 
 这样做版本决策时，就不只是看 mAP 是否涨跌，也能一起看到后处理失败画像有没有变差。
+## 补充：把 active-learning trace 也纳入 A/B 对比
+
+`compare-training-releases.ts` 现在还支持可选传入两版 `release-trace-index.json`：
+
+```bash
+node --no-warnings --experimental-strip-types scripts/compare-training-releases.ts --baseline-metrics model/exports/nail-texture-seg-v1/metrics.json --baseline-manifest public/models/nail-texture-seg-v1/manifest.json --baseline-trace-index model/exports/nail-texture-seg-v1/release-trace-index.json --candidate-metrics model/exports/nail-texture-seg-v2/metrics.json --candidate-manifest public/models/nail-texture-seg-v2/manifest.json --candidate-trace-index model/exports/nail-texture-seg-v2/release-trace-index.json --output model/exports/nail-texture-seg-v2/compare-summary.json
+```
+
+传入后，输出会增加：
+
+- `baseline.activeLearning`
+- `candidate.activeLearning`
+- `deltas.activeLearningImportedSamples`
+- `deltas.activeLearningWarnings`
+- `deltas.activeLearningBackends`
+
+这样版本对比不只看 mAP 和模型大小，也能一起看到候选版本是否吸收了更多页面修正样本，以及 active-learning 样本暴露的模型运行时 / fallback warning 是否增加或减少。

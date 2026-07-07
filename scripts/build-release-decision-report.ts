@@ -83,7 +83,12 @@ interface CompareSummaryLike {
   regressions?: string[];
   improvements?: string[];
   warnings?: string[];
-  deltas?: Record<string, number | null>;
+  deltas?: {
+    activeLearningImportedSamples?: number | null;
+    activeLearningWarnings?: Record<string, number> | null;
+    activeLearningBackends?: Record<string, number> | null;
+    [key: string]: number | Record<string, number> | null | undefined;
+  };
   baseline?: { version?: string } | null;
   candidate?: { version?: string } | null;
 }
@@ -172,6 +177,14 @@ function buildDecision(
   if (compare && !compare.ok) {
     reasons.push("candidate release comparison contains regressions");
     nextActions.push("Review compare-training-releases output and keep the baseline version available for rollback.");
+  }
+
+  const activeLearningWarningDelta = sumPositiveDeltas(compare?.deltas?.activeLearningWarnings);
+  if (activeLearningWarningDelta > 0) {
+    reasons.push(`active-learning warning signals increased by ${activeLearningWarningDelta}`);
+    nextActions.push(
+      "Review active-learning warning deltas before promotion; they may indicate model runtime, fallback, or postprocess regressions in corrected samples."
+    );
   }
 
   if (recognitionPerformance?.ok === false) {
@@ -296,6 +309,13 @@ function buildDecision(
   };
 }
 
+function sumPositiveDeltas(record: Record<string, number> | null | undefined) {
+  return Object.values(record ?? {}).reduce(
+    (total, value) => total + (Number(value) > 0 ? Number(value) : 0),
+    0
+  );
+}
+
 const options = parseArgs(process.argv.slice(2));
 const pipeline = await readJson<PipelineReportLike>(options.pipelineReportPath);
 const compare = await readOptionalJson<CompareSummaryLike>(options.compareSummaryPath);
@@ -342,6 +362,13 @@ const summary = {
       pipeline.artifacts?.trainingDatasetReadiness?.ok ?? null,
     finalAuditStatus: pipeline.artifacts?.finalAudit?.decision?.status ?? null,
     compareOk: compare ? compare.ok : null,
+    activeLearningImportedSampleDelta:
+      typeof compare?.deltas?.activeLearningImportedSamples === "number"
+        ? compare.deltas.activeLearningImportedSamples
+        : null,
+    activeLearningWarningDelta: sumPositiveDeltas(compare?.deltas?.activeLearningWarnings),
+    activeLearningWarningDeltas: compare?.deltas?.activeLearningWarnings ?? null,
+    activeLearningBackendDeltas: compare?.deltas?.activeLearningBackends ?? null,
     recognitionPerformanceOk: recognitionPerformance?.ok ?? null,
     recognitionPerformanceProfile: recognitionPerformance?.profile ?? null,
     recognitionPerformanceMaxElapsedMs: recognitionPerformance?.thresholds?.maxElapsedMs ?? null,

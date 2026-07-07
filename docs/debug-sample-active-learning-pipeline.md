@@ -69,3 +69,16 @@ node --no-warnings --experimental-strip-types model/training/run-debug-sample-ac
 - 页面纠正回流
 
 这样 Phase 1 到 Phase 5 之间的数据闭环会更完整。
+## warningBreakdown 输出
+
+`prioritized-debug-samples.json` 还会包含 `warningBreakdown`，用于汇总这批样本中的运行时 warning，例如模型清单错误、ONNX session 初始化失败、模型输出为空后回退等。后续 release trace / handoff 会保留这个字段，方便在不立即训练真实模型的阶段先判断问题集中在哪条链路。
+
+## Debug sample recognition options
+
+页面导出的 debug sample 现在会保留 UI 识别配置：`recognitionOptions.maxCandidates` 与 `recognitionOptions.workerTimeoutMs`。`import-debug-sample.ts` 会把这些字段透传到 annotation 的 `image.debug.recognitionOptions`，方便后续回放某个样本时确认它是在什么候选数和 Worker 超时策略下产生的。
+
+`worker_timeout_used_main_thread` 已归类为模型运行时 warning。这样即使当前阶段不训练真实模型，active-learning 优先级和 release review 仍能把 Worker 超时回退视为需要复盘的运行时风险。
+
+## Debug low-score option handoff
+
+Debug samples and imported annotations now preserve `recognitionOptions.includeLowConfidenceCandidates` when the low-score candidate review mode was explicitly enabled. Normal samples omit the field, while debug-retained low-score candidate samples can be replayed with the same candidate visibility policy.

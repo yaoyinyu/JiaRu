@@ -329,6 +329,283 @@ test("run-release-governance-pipeline still builds decision and trace when candi
   }
 });
 
+test("run-release-governance-pipeline keeps active-learning warning reviews out of automatic promotion", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-active-learning-review-"));
+  const reportsDir = path.join(root, "reports");
+  const modelDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(reportsDir, { recursive: true });
+  await mkdir(modelDir, { recursive: true });
+
+  const manifestPath = await createManifest(modelDir, "nail-texture-seg-v4");
+  const trainingReleasePipelineReportPath = path.join(
+    reportsDir,
+    "training-release-pipeline-report.json"
+  );
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        reportPath: trainingReleasePipelineReportPath,
+        paths: {
+          manifestPath,
+          metricsPath: path.join(reportsDir, "metrics.json"),
+          trainOutputDir: path.join(root, "model", "exports", "nail-texture-seg-v4"),
+        },
+        artifacts: {
+          manifest: { version: "nail-texture-seg-v4", modelFile: "nail-texture-seg-v4.onnx" },
+          metrics: { seg_map50: 0.83, box_map50: 0.92 },
+          finalAudit: {
+            ok: true,
+            decision: { status: "pass", summary: "audit ok", nextActions: [] },
+          },
+          finalAuditFailureSummary: {
+            totals: { derivedAnnotationFailures: 0, inferredRecordFailure: 0, csvRows: 0 },
+            categoryCounts: {},
+          },
+          finalAuditTextureQualityGate: {
+            ok: true,
+            rates: { directlyUsableRate: 0.9, contaminationRate: 0.03, roughRectangleRate: 0.05 },
+            evidence: {
+              ok: true,
+              scope: "release-test-split",
+              representativeTestSplit: true,
+              documentsOk: true,
+              candidatesWithDebugOk: true,
+              candidatesWithPolygonOk: true,
+            },
+          },
+        },
+        steps: [],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const compareSummaryPath = path.join(reportsDir, "compare-summary.json");
+  await writeFile(
+    compareSummaryPath,
+    JSON.stringify(
+      {
+        ok: true,
+        regressions: [],
+        improvements: ["active-learning imported sample count increased by 3"],
+        warnings: ["candidate active-learning warning count increased by 2"],
+        deltas: {
+          activeLearningImportedSamples: 3,
+          activeLearningWarnings: {
+            model_inference_error: 2,
+            onnx_runtime_not_loaded: -1,
+          },
+          activeLearningBackends: {
+            model: 4,
+            fallback: -1,
+          },
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  await assert.rejects(
+    execFileAsync(
+      process.execPath,
+      [
+        "--no-warnings",
+        "--experimental-strip-types",
+        "scripts/run-release-governance-pipeline.ts",
+        "--training-release-pipeline-report",
+        trainingReleasePipelineReportPath,
+        "--compare-summary",
+        compareSummaryPath,
+      ],
+      { cwd: path.resolve(".") }
+    ),
+    (error: unknown) => {
+      const execError = error as Error & { stdout?: string };
+      const report = JSON.parse(execError.stdout ?? "{}") as {
+        ok: boolean;
+        steps: Array<{ name: string; ok: boolean; stdout?: { skipped?: boolean; reason?: string } }>;
+        artifacts: {
+          releaseDecision: {
+            decision: { status: string; reasons: string[]; nextActions: string[] };
+            inputs: {
+              activeLearningImportedSampleDelta: number | null;
+              activeLearningWarningDelta: number;
+              activeLearningWarningDeltas: Record<string, number> | null;
+            };
+          };
+          promotion: { skipped?: boolean; reason?: string } | null;
+          traceIndex: { decision: { status: string } | null };
+          traceRegistration: { skipped?: boolean } | null;
+          rollbackAudit: { skipped?: boolean } | null;
+        };
+      };
+      assert.equal(report.ok, false);
+      assert.equal(report.artifacts.releaseDecision.decision.status, "manual_review");
+      assert.equal(report.artifacts.releaseDecision.inputs.activeLearningImportedSampleDelta, 3);
+      assert.equal(report.artifacts.releaseDecision.inputs.activeLearningWarningDelta, 2);
+      assert.deepEqual(report.artifacts.releaseDecision.inputs.activeLearningWarningDeltas, {
+        model_inference_error: 2,
+        onnx_runtime_not_loaded: -1,
+      });
+      assert.ok(
+        report.artifacts.releaseDecision.decision.reasons.some((item) =>
+          item.includes("active-learning warning signals increased by 2")
+        )
+      );
+      assert.equal(report.steps.find((step) => step.name === "promote-approved-release")?.stdout?.skipped, true);
+      assert.equal(report.artifacts.promotion?.skipped, true);
+      assert.ok(report.artifacts.promotion?.reason?.includes("release decision did not allow automatic promotion"));
+      assert.equal(report.artifacts.traceIndex.decision?.status, "manual_review");
+      assert.equal(report.artifacts.traceRegistration?.skipped, true);
+      assert.equal(report.artifacts.rollbackAudit?.skipped, true);
+      return true;
+    }
+  );
+});
+
+test("run-release-governance-pipeline can promote active-learning warning reviews when explicitly allowed", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-active-learning-allowed-"));
+  const reportsDir = path.join(root, "reports");
+  const modelDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(reportsDir, { recursive: true });
+  await mkdir(modelDir, { recursive: true });
+
+  const manifestPath = await createManifest(modelDir, "nail-texture-seg-v4");
+  const trainingReleasePipelineReportPath = path.join(
+    reportsDir,
+    "training-release-pipeline-report.json"
+  );
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        reportPath: trainingReleasePipelineReportPath,
+        paths: {
+          manifestPath,
+          metricsPath: path.join(reportsDir, "metrics.json"),
+          trainOutputDir: path.join(root, "model", "exports", "nail-texture-seg-v4"),
+        },
+        artifacts: {
+          manifest: { version: "nail-texture-seg-v4", modelFile: "nail-texture-seg-v4.onnx" },
+          metrics: { seg_map50: 0.83, box_map50: 0.92 },
+          finalAudit: {
+            ok: true,
+            decision: { status: "pass", summary: "audit ok", nextActions: [] },
+          },
+          finalAuditFailureSummary: {
+            totals: { derivedAnnotationFailures: 0, inferredRecordFailure: 0, csvRows: 0 },
+            categoryCounts: {},
+          },
+          finalAuditTextureQualityGate: {
+            ok: true,
+            rates: { directlyUsableRate: 0.9, contaminationRate: 0.03, roughRectangleRate: 0.05 },
+            evidence: {
+              ok: true,
+              scope: "release-test-split",
+              representativeTestSplit: true,
+              documentsOk: true,
+              candidatesWithDebugOk: true,
+              candidatesWithPolygonOk: true,
+            },
+          },
+        },
+        steps: [],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const compareSummaryPath = path.join(reportsDir, "compare-summary.json");
+  await writeFile(
+    compareSummaryPath,
+    JSON.stringify(
+      {
+        ok: true,
+        regressions: [],
+        improvements: ["active-learning imported sample count increased by 3"],
+        warnings: ["candidate active-learning warning count increased by 2"],
+        deltas: {
+          activeLearningImportedSamples: 3,
+          activeLearningWarnings: {
+            model_inference_error: 2,
+            onnx_runtime_not_loaded: -1,
+          },
+          activeLearningBackends: {
+            model: 4,
+            fallback: -1,
+          },
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const registryPath = path.join(modelDir, "release-registry.json");
+  await registerRelease(await createManifest(modelDir, "nail-texture-seg-v3"), registryPath);
+  await createManifest(modelDir, "nail-texture-seg-v4");
+  const historyManifestPath = path.join(reportsDir, "release-history-manifest.json");
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-release-governance-pipeline.ts",
+      "--training-release-pipeline-report",
+      trainingReleasePipelineReportPath,
+      "--compare-summary",
+      compareSummaryPath,
+      "--registry",
+      registryPath,
+      "--history-manifest",
+      historyManifestPath,
+      "--allow-manual-review",
+      "true",
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    steps: Array<{ name: string; ok: boolean; stdout?: { skipped?: boolean } }>;
+    artifacts: {
+      releaseDecision: {
+        decision: { status: string };
+        inputs: { activeLearningWarningDelta: number };
+      };
+      promotion: { decisionStatus: string; registerSummary: { registeredVersion: string } };
+      traceIndex: { decision: { status: string } | null };
+      traceRegistration: { ok: boolean };
+      rollbackAudit: { ok: boolean; rollbackCandidates: string[] };
+      historyManifest: { totals: { traceIndexes: number }; entries: Array<{ decisionStatus: string | null }> };
+    };
+  };
+
+  assert.equal(report.ok, true);
+  assert.equal(report.artifacts.releaseDecision.decision.status, "manual_review");
+  assert.equal(report.artifacts.releaseDecision.inputs.activeLearningWarningDelta, 2);
+  assert.equal(report.artifacts.promotion.decisionStatus, "manual_review");
+  assert.equal(report.artifacts.promotion.registerSummary.registeredVersion, "nail-texture-seg-v4");
+  assert.equal(report.artifacts.traceIndex.decision?.status, "manual_review");
+  assert.equal(report.artifacts.traceRegistration.ok, true);
+  assert.equal(report.artifacts.rollbackAudit.ok, true);
+  assert.deepEqual(report.artifacts.rollbackAudit.rollbackCandidates, ["nail-texture-seg-v3"]);
+  assert.equal(report.artifacts.historyManifest.totals.traceIndexes, 1);
+  assert.equal(report.artifacts.historyManifest.entries[0]?.decisionStatus, "manual_review");
+  assert.equal(report.steps.find((step) => step.name === "promote-approved-release")?.ok, true);
+});
+
 test("run-release-governance-pipeline blocks promotion when training dataset readiness explicitly fails", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-readiness-"));
   const reportsDir = path.join(root, "reports");

@@ -1,4 +1,4 @@
-﻿import path from "node:path";
+import path from "node:path";
 import process from "node:process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 
@@ -31,6 +31,7 @@ interface ActiveLearningPipelineReportLike {
       backendBreakdown?: Record<string, number>;
       modelBackendBreakdown?: Record<string, number>;
       correctedCandidateSourceBreakdown?: Record<string, number>;
+      warningBreakdown?: Record<string, number>;
       reasonBreakdown?: Record<string, number>;
     };
   }>;
@@ -112,6 +113,7 @@ const summary = {
           modelBackendBreakdown: priorityStep.stdout.modelBackendBreakdown ?? null,
           correctedCandidateSourceBreakdown:
             priorityStep.stdout.correctedCandidateSourceBreakdown ?? null,
+          warningBreakdown: priorityStep.stdout.warningBreakdown ?? null,
           reasonBreakdown: priorityStep.stdout.reasonBreakdown ?? null,
         }
       : null,

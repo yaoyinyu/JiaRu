@@ -65,6 +65,9 @@ test("createLocalNailDebugSample preserves source and runtime summary metadata",
       modelBackend: "webgpu",
       elapsedMs: 184.2,
       workerElapsedMs: 150.5,
+      maxCandidates: 10,
+      workerTimeoutMs: 15000,
+      includeLowConfidenceCandidates: true,
       warnings: ["candidate_count_capped"],
     },
     originalRegions: [
@@ -101,6 +104,11 @@ test("createLocalNailDebugSample preserves source and runtime summary metadata",
   assert.equal(record.modelBackend, "webgpu");
   assert.equal(record.elapsedMs, 184.2);
   assert.equal(record.workerElapsedMs, 150.5);
+  assert.deepEqual(record.recognitionOptions, {
+    maxCandidates: 10,
+    workerTimeoutMs: 15000,
+    includeLowConfidenceCandidates: true,
+  });
   assert.deepEqual(record.warnings, ["candidate_count_capped"]);
   assert.equal(record.imageId, "local-debug-2026-06-30T12-34-56.000Z");
   assert.deepEqual(record.image, {
@@ -137,5 +145,6 @@ test("createLocalNailDebugSample defaults missing region source to manual and fa
   assert.equal(record.backend, "fallback");
   assert.equal(record.modelVersion, "fallback-v0");
   assert.equal(record.elapsedMs, 0);
+  assert.equal(record.recognitionOptions, undefined);
   assert.equal(record.originalCandidates[0].source, "manual");
 });

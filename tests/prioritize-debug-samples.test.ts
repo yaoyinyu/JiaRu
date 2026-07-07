@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -145,6 +145,7 @@ test("prioritize-debug-samples ranks the highest-value correction samples first"
       summary: { manualAddedCandidates: number };
       reasons: Array<{ code: string }>;
     }>;
+    warningBreakdown: Record<string, number>;
     reasonBreakdown: Record<string, number>;
   };
 
@@ -158,6 +159,7 @@ test("prioritize-debug-samples ranks the highest-value correction samples first"
   assert.equal(report.ranked[0]?.imageId, "local-debug-high");
   assert.equal(report.ranked[0]?.priorityTier, "high");
   assert.ok(report.ranked[0]?.reasons.some((item) => item.code === "high_confidence_deleted"));
+  assert.deepEqual(report.warningBreakdown, { onnx_runtime_not_loaded: 1 });
   assert.equal(report.reasonBreakdown.high_confidence_deleted, 1);
   assert.equal(report.ranked[1]?.modelBackend, "wasm");
   assert.equal(report.ranked[1]?.elapsedMs, 184);

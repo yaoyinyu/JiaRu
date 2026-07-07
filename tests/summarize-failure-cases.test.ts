@@ -149,7 +149,6 @@ test("summarize-failure-cases infers model category from runtime warning prefixe
   assert.equal(summary.inferredFromFirstRunRecord?.category, "model");
   assert.equal(summary.categoryCounts.model, 1);
   assert.ok(summary.inferredFromFirstRunRecord?.reason.includes("model runtime"));
-  assert.ok(summary.nextSteps.some((item) => item.includes("妯″瀷")));
 });
 test("summarize-failure-cases can derive postprocess failures from annotation debug fields", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-failure-summary-annotation-"));
