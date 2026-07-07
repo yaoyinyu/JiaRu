@@ -349,6 +349,118 @@ test("build-release-decision-report requires manual review when active-learning 
   assert.ok(report.decision.nextActions.some((item) => item.includes("warning deltas")));
 });
 
+test("build-release-decision-report requires manual review when failure taxonomy increases", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-decision-failure-taxonomy-"));
+  const reportsDir = path.join(root, "reports");
+  await mkdir(reportsDir, { recursive: true });
+
+  const pipelineReportPath = path.join(reportsDir, "training-release-pipeline-report.json");
+  await writeFile(
+    pipelineReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        artifacts: {
+          manifest: { version: "nail-texture-seg-v5", modelFile: "nail-texture-seg-v5.onnx" },
+          metrics: { seg_map50: 0.84, box_map50: 0.93 },
+          finalAudit: {
+            ok: true,
+            decision: { status: "pass", summary: "all good", nextActions: [] },
+          },
+          finalAuditFailureSummary: {
+            totals: { derivedAnnotationFailures: 0, inferredRecordFailure: 0, csvRows: 0 },
+            categoryCounts: {},
+          },
+          finalAuditTextureQualityGate: {
+            ok: true,
+            rates: {
+              directlyUsableRate: 0.91,
+              contaminationRate: 0.02,
+              roughRectangleRate: 0.03,
+            },
+            evidence: {
+              ok: true,
+              scope: "release-test-split",
+              representativeTestSplit: true,
+              documentsOk: true,
+              candidatesWithDebugOk: true,
+              candidatesWithPolygonOk: true,
+            },
+          },
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const compareSummaryPath = path.join(reportsDir, "compare-summary.json");
+  await writeFile(
+    compareSummaryPath,
+    JSON.stringify(
+      {
+        ok: true,
+        regressions: [],
+        improvements: [],
+        warnings: ["candidate failure categories increased (postprocess+1, ui+2)"],
+        deltas: {
+          failureCategories: {
+            postprocess: 1,
+            data: -1,
+            ui: 2,
+          },
+          failureTotal: 2,
+          derivedAnnotationFailures: 3,
+          inferredRecordFailures: 1,
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/build-release-decision-report.ts",
+      "--pipeline-report",
+      pipelineReportPath,
+      "--compare-summary",
+      compareSummaryPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    decision: { status: string; reasons: string[]; nextActions: string[] };
+    inputs: {
+      failureCategoryDelta: number;
+      failureCategoryDeltas: Record<string, number> | null;
+      failureTotalDelta: number | null;
+      derivedAnnotationFailureDelta: number | null;
+      inferredRecordFailureDelta: number | null;
+    };
+  };
+
+  assert.equal(report.ok, true);
+  assert.equal(report.decision.status, "manual_review");
+  assert.equal(report.inputs.failureCategoryDelta, 3);
+  assert.deepEqual(report.inputs.failureCategoryDeltas, {
+    postprocess: 1,
+    data: -1,
+    ui: 2,
+  });
+  assert.equal(report.inputs.failureTotalDelta, 2);
+  assert.equal(report.inputs.derivedAnnotationFailureDelta, 3);
+  assert.equal(report.inputs.inferredRecordFailureDelta, 1);
+  assert.ok(report.decision.reasons.some((item) => item.includes("failure taxonomy increased")));
+  assert.ok(report.decision.nextActions.some((item) => item.includes("failure taxonomy deltas")));
+});
 test("build-release-decision-report holds candidate when compare regresses or final audit is blocked", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-decision-hold-"));
   const reportsDir = path.join(root, "reports");

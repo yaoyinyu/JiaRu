@@ -91,7 +91,11 @@ interface TrainingReleasePipelineReportLike {
       decision?: { status?: string; summary?: string };
     } | null;
     finalAuditFailureSummary?: {
-      totals?: { derivedAnnotationFailures?: number };
+      totals?: {
+        csvRows?: number;
+        derivedAnnotationFailures?: number;
+        inferredRecordFailures?: number;
+      };
       categoryCounts?: Record<string, number>;
     } | null;
   };
@@ -120,9 +124,14 @@ interface ReleaseDecisionReportLike {
     recognitionPerformanceOk?: boolean | null;
     recognitionPerformanceProfile?: string | null;
     recognitionPerformanceMaxElapsedMs?: number | null;
+    recognitionPerformanceMaxClientOverheadMs?: number | null;
     recognitionPerformanceP95Ms?: number | null;
     recognitionPerformanceMaxMs?: number | null;
+    recognitionPerformanceP95WorkerMs?: number | null;
+    recognitionPerformanceP95ClientOverheadMs?: number | null;
     recognitionPerformanceSlowSamples?: number | null;
+    recognitionPerformanceSlowClientOverheadSamples?: number | null;
+    recognitionPerformanceMissingWorkerTimingSamples?: number | null;
     textureQualityGateOk?: boolean | null;
     phase2ExtractionRateOk?: boolean | null;
     phase2ExtractionEvidenceOk?: boolean | null;
@@ -383,15 +392,28 @@ const summary = {
     postprocessFailures:
       trainingReleasePipelineReport.artifacts?.finalAuditFailureSummary?.categoryCounts
         ?.postprocess ?? 0,
+    failureCategoryCounts:
+      trainingReleasePipelineReport.artifacts?.finalAuditFailureSummary?.categoryCounts ?? null,
+    failureSummaryTotals:
+      trainingReleasePipelineReport.artifacts?.finalAuditFailureSummary?.totals ?? null,
   },
   performance: releaseDecisionReport
     ? {
         ok: releaseDecisionReport.inputs?.recognitionPerformanceOk ?? null,
         profile: releaseDecisionReport.inputs?.recognitionPerformanceProfile ?? null,
         maxElapsedMs: releaseDecisionReport.inputs?.recognitionPerformanceMaxElapsedMs ?? null,
+        maxClientOverheadMs:
+          releaseDecisionReport.inputs?.recognitionPerformanceMaxClientOverheadMs ?? null,
         p95Ms: releaseDecisionReport.inputs?.recognitionPerformanceP95Ms ?? null,
         maxMs: releaseDecisionReport.inputs?.recognitionPerformanceMaxMs ?? null,
+        p95WorkerMs: releaseDecisionReport.inputs?.recognitionPerformanceP95WorkerMs ?? null,
+        p95ClientOverheadMs:
+          releaseDecisionReport.inputs?.recognitionPerformanceP95ClientOverheadMs ?? null,
         slowSamples: releaseDecisionReport.inputs?.recognitionPerformanceSlowSamples ?? null,
+        slowClientOverheadSamples:
+          releaseDecisionReport.inputs?.recognitionPerformanceSlowClientOverheadSamples ?? null,
+        missingWorkerTimingSamples:
+          releaseDecisionReport.inputs?.recognitionPerformanceMissingWorkerTimingSamples ?? null,
         performanceReportPath: releaseDecisionReport.performanceReportPath ?? null,
       }
     : null,

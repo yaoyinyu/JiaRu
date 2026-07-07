@@ -238,6 +238,47 @@ async function checkTrainingToolchain(): Promise<CheckResult> {
   };
 }
 
+async function checkBaselineFixtureToolchain(): Promise<CheckResult> {
+  const requiredFiles = [
+    "src/lib/nail-detection-fixture.ts",
+    "model/fixtures/nail-detection-reference-5188.json",
+    "scripts/build-nail-detection-fixture.ts",
+    "scripts/verify-nail-detection.ts",
+    "scripts/batch-verify-nail-detection.ts",
+    "model/training/export-fallback-annotations.ts",
+    "docs/fallback-batch-overlay-workflow.md",
+    "docs/reference-image-nail-extraction-plan.md",
+  ];
+  const fileResults = await Promise.all(
+    requiredFiles.map(async (filePath) => ({
+      filePath,
+      exists: await exists(path.resolve(filePath)),
+    }))
+  );
+  const missing = fileResults.filter((result) => !result.exists).map((result) => result.filePath);
+  const ok = missing.length === 0;
+
+  return {
+    name: "baseline_fixture_toolchain",
+    ok,
+    summary: ok
+      ? "Reusable green-circle fixture, fallback overlay batch verification, and fallback annotation export tools are present."
+      : "Baseline green-circle fixture or fallback overlay verification toolchain files are missing.",
+    evidence: {
+      files: fileResults,
+      requiredFileCount: requiredFiles.length,
+      missing,
+    },
+    nextSteps: missing.map((filePath) => `Add or restore ${filePath}.`),
+    commands: ok
+      ? []
+      : [
+          "node --no-warnings --experimental-strip-types scripts/build-nail-detection-fixture.ts --help",
+          "node --no-warnings --experimental-strip-types scripts/batch-verify-nail-detection.ts --help",
+          "node --no-warnings --experimental-strip-types model/training/export-fallback-annotations.ts --help",
+        ],
+  };
+}
 async function checkBrowserModel(manifestPath: string): Promise<CheckResult> {
   const manifest = await readJsonIfExists<ModelManifest>(manifestPath);
   const modelPath = manifest?.modelFile ? path.resolve(path.dirname(manifestPath), manifest.modelFile) : null;
@@ -317,6 +358,153 @@ async function checkBrowserModel(manifestPath: string): Promise<CheckResult> {
   };
 }
 
+async function checkFeedbackLoopToolchain(): Promise<CheckResult> {
+  const requiredFiles = [
+    "src/lib/nail-texture-debug-sample.ts",
+    "src/lib/nail-texture-debug-priority.ts",
+    "src/lib/nail-texture-recognition/debug.ts",
+    "src/lib/nail-texture-recognition/debug-artifacts.ts",
+    "src/lib/nail-texture-recognition/debug-compare.ts",
+    "model/training/import-debug-sample.ts",
+    "model/training/prioritize-debug-samples.ts",
+    "model/training/run-debug-sample-active-learning-pipeline.ts",
+    "scripts/build-active-learning-release-trace-draft.ts",
+    "scripts/build-debug-sample-active-learning-handoff.ts",
+    "model/training/scaffold-seed-batch.ts",
+    "model/training/bootstrap-seed-batch.ts",
+    "model/training/build-reviewed-intake-batch.ts",
+    "model/training/prepare-reviewed-annotations.ts",
+    "model/training/import-reviewed-batch.ts",
+    "model/training/run-reviewed-batch-import-pipeline.ts",
+    "scripts/build-reviewed-batch-release-handoff.ts",
+    "docs/debug-sample-active-learning-pipeline.md",
+    "docs/debug-sample-prioritization.md",
+    "docs/active-learning-trace-handoff.md",
+    "docs/reviewed-batch-release-handoff.md",
+    "docs/run-reviewed-batch-import-pipeline.md",
+  ];
+  const fileResults = await Promise.all(
+    requiredFiles.map(async (filePath) => ({
+      filePath,
+      exists: await exists(path.resolve(filePath)),
+    }))
+  );
+  const missing = fileResults.filter((result) => !result.exists).map((result) => result.filePath);
+  const ok = missing.length === 0;
+
+  return {
+    name: "feedback_loop_toolchain",
+    ok,
+    summary: ok
+      ? "User correction, debug-sample import, active-learning prioritization, reviewed-batch handoff, and dataset feedback-loop tools are present."
+      : "User correction or active-learning feedback-loop toolchain files are missing.",
+    evidence: {
+      files: fileResults,
+      requiredFileCount: requiredFiles.length,
+      missing,
+    },
+    nextSteps: missing.map((filePath) => `Add or restore ${filePath}.`),
+    commands: ok
+      ? []
+      : [
+          "node --no-warnings --experimental-strip-types model/training/prioritize-debug-samples.ts --help",
+          "node --no-warnings --experimental-strip-types model/training/run-debug-sample-active-learning-pipeline.ts --help",
+          "node --no-warnings --experimental-strip-types model/training/run-reviewed-batch-import-pipeline.ts --help",
+        ],
+  };
+}
+async function checkQualityPerformanceGates(): Promise<CheckResult> {
+  const requiredFiles = [
+    "scripts/verify-browser-integration.ts",
+    "scripts/verify-recognition-performance.ts",
+    "scripts/verify-texture-quality-gate.ts",
+    "scripts/verify-real-model-readiness.ts",
+    "scripts/verify-model-output-fixture.ts",
+    "docs/browser-integration-verification.md",
+    "docs/recognition-performance-gate.md",
+    "docs/texture-quality-gate.md",
+    "docs/transparent-mask-texture-verification.md",
+  ];
+  const fileResults = await Promise.all(
+    requiredFiles.map(async (filePath) => ({
+      filePath,
+      exists: await exists(path.resolve(filePath)),
+    }))
+  );
+  const missing = fileResults.filter((result) => !result.exists).map((result) => result.filePath);
+  const ok = missing.length === 0;
+
+  return {
+    name: "quality_performance_gates",
+    ok,
+    summary: ok
+      ? "Phase 3/4 browser integration, recognition performance, texture quality, and real-model readiness gates are present."
+      : "Phase 3/4 quality or performance validation gate files are missing.",
+    evidence: {
+      files: fileResults,
+      requiredFileCount: requiredFiles.length,
+      missing,
+    },
+    nextSteps: missing.map((filePath) => `Add or restore ${filePath}.`),
+    commands: ok
+      ? []
+      : [
+          "node --no-warnings --experimental-strip-types scripts/verify-browser-integration.ts --skip-model-artifact",
+          "node --no-warnings --experimental-strip-types scripts/verify-recognition-performance.ts --profile desktop --min-samples 1",
+          "node --no-warnings --experimental-strip-types scripts/verify-texture-quality-gate.ts --annotation-dir model/datasets/nail-texture-v1/annotations/raw-json",
+        ],
+  };
+}
+async function checkReleaseGovernanceToolchain(): Promise<CheckResult> {
+  const requiredFiles = [
+    "scripts/compare-training-releases.ts",
+    "scripts/build-release-decision-report.ts",
+    "scripts/run-release-governance-pipeline.ts",
+    "scripts/promote-approved-release.ts",
+    "scripts/audit-release-rollback.ts",
+    "scripts/build-release-trace-index.ts",
+    "scripts/register-release-trace-index.ts",
+    "scripts/build-release-history-manifest.ts",
+    "scripts/register-model-release.ts",
+    "scripts/switch-model-release.ts",
+    "scripts/audit-failure-classification.ts",
+    "scripts/summarize-failure-cases.ts",
+    "docs/training-release-comparison.md",
+    "docs/release-decision-report.md",
+    "docs/release-governance-pipeline.md",
+    "docs/model-release-registry.md",
+    "docs/failure-classification-audit.md",
+    "docs/failure-case-summary.md",
+  ];
+  const fileResults = await Promise.all(
+    requiredFiles.map(async (filePath) => ({
+      filePath,
+      exists: await exists(path.resolve(filePath)),
+    }))
+  );
+  const missing = fileResults.filter((result) => !result.exists).map((result) => result.filePath);
+  const ok = missing.length === 0;
+
+  return {
+    name: "release_governance_toolchain",
+    ok,
+    summary: ok
+      ? "Phase 5 release governance, rollback, trace/history, A/B comparison, and failure-taxonomy tools are present."
+      : "Phase 5 release governance or failure-taxonomy toolchain files are missing.",
+    evidence: {
+      files: fileResults,
+      requiredFileCount: requiredFiles.length,
+      missing,
+    },
+    nextSteps: missing.map((filePath) => `Add or restore ${filePath}.`),
+    commands: ok
+      ? []
+      : [
+          "node --no-warnings --experimental-strip-types scripts/compare-training-releases.ts --help",
+          "node --no-warnings --experimental-strip-types scripts/run-release-governance-pipeline.ts --help",
+        ],
+  };
+}
 async function checkBrowserIntegration(): Promise<CheckResult> {
   const files = [
     "src/lib/nail-texture-recognition/model-runtime.ts",
@@ -366,7 +554,14 @@ async function checkPackageValidation(packageJsonPath: string): Promise<CheckRes
     dependencies?: Record<string, string>;
     devDependencies?: Record<string, string>;
   }>(packageJsonPath);
-  const requiredScripts = ["test", "lint", "build"];
+  const requiredScripts = [
+    "test",
+    "lint",
+    "build",
+    "audit:encoding",
+    "audit:mvp-readiness",
+    "audit:mvp-readiness:refresh",
+  ];
   const missingScripts = requiredScripts.filter((scriptName) => !pkg?.scripts?.[scriptName]);
   const onnxRuntimeWebVersion =
     pkg?.dependencies?.["onnxruntime-web"] ?? pkg?.devDependencies?.["onnxruntime-web"] ?? null;
@@ -401,8 +596,12 @@ async function main() {
     await checkPhase1Dataset(options.datasetRoot),
     await checkTrainingSourceAuthorization(options.datasetRoot),
     await checkTrainingToolchain(),
+    await checkBaselineFixtureToolchain(),
     await checkBrowserModel(options.manifestPath),
     await checkBrowserIntegration(),
+    await checkFeedbackLoopToolchain(),
+    await checkQualityPerformanceGates(),
+    await checkReleaseGovernanceToolchain(),
     await checkPackageValidation(options.packageJsonPath),
   ];
   const ok = checks.every((check) => check.ok);

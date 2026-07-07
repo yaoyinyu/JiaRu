@@ -60,8 +60,12 @@ test("build-release-trace-index links batch release decision promotion and regis
           manifest: { version: "nail-texture-seg-v2", modelFile: "nail-texture-seg-v2.onnx" },
           finalAudit: { decision: { status: "pass", summary: "ok" } },
           finalAuditFailureSummary: {
-            totals: { derivedAnnotationFailures: 2 },
-            categoryCounts: { postprocess: 2 },
+            totals: {
+              csvRows: 3,
+              derivedAnnotationFailures: 2,
+              inferredRecordFailures: 1,
+            },
+            categoryCounts: { postprocess: 2, inferred_record: 1 },
           },
         },
         steps: [
@@ -172,7 +176,16 @@ test("build-release-trace-index links batch release decision promotion and regis
     candidateVersion: string | null;
     currentRegistryVersion: string | null;
     batch: { sourceGroup: string | null; importedFileCount: number } | null;
-    release: { finalAuditStatus: string | null; derivedAnnotationFailures: number };
+    release: {
+      finalAuditStatus: string | null;
+      derivedAnnotationFailures: number;
+      failureCategoryCounts: Record<string, number> | null;
+      failureSummaryTotals: {
+        csvRows?: number;
+        derivedAnnotationFailures?: number;
+        inferredRecordFailures?: number;
+      } | null;
+    };
     quality: {
       phase2ExtractionRateOk: boolean | null;
       directlyUsableRate: number | null;
@@ -195,6 +208,15 @@ test("build-release-trace-index links batch release decision promotion and regis
   assert.equal(summary.batch?.importedFileCount, 2);
   assert.equal(summary.release.finalAuditStatus, "pass");
   assert.equal(summary.release.derivedAnnotationFailures, 2);
+  assert.deepEqual(summary.release.failureCategoryCounts, {
+    postprocess: 2,
+    inferred_record: 1,
+  });
+  assert.deepEqual(summary.release.failureSummaryTotals, {
+    csvRows: 3,
+    derivedAnnotationFailures: 2,
+    inferredRecordFailures: 1,
+  });
   assert.equal(summary.quality?.phase2ExtractionRateOk, true);
   assert.equal(summary.quality?.directlyUsableRate, 0.82);
   assert.equal(summary.quality?.phase2ExtractionEvidenceOk, true);
@@ -485,4 +507,95 @@ test("build-release-trace-index preserves authoritative training readiness from 
   assert.equal(summary.trainingReadiness?.totals.images, 25);
   assert.equal(summary.trainingReadiness?.totals.validMasks, 90);
   assert.deepEqual(summary.trainingReadiness?.failingSteps, ["audit-training-source-authorization", "audit-phase1-readiness"]);
+});
+test("build-release-trace-index preserves client overhead performance evidence", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-trace-performance-overhead-"));
+  const reportsDir = path.join(root, "reports");
+  await mkdir(reportsDir, { recursive: true });
+
+  const trainingReleasePipelineReportPath = path.join(reportsDir, "training-release-pipeline-report.json");
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify({
+      ok: true,
+      paths: { manifestPath: "C:/tmp/manifest.json", metricsPath: "C:/tmp/metrics.json", trainOutputDir: "C:/tmp/export" },
+      artifacts: {
+        manifest: { version: "nail-texture-seg-v6", modelFile: "nail-texture-seg-v6.onnx" },
+        finalAudit: { decision: { status: "pass", summary: "ok" } },
+      },
+      steps: [],
+    }),
+    "utf8"
+  );
+
+  const releaseDecisionReportPath = path.join(reportsDir, "release-decision-report.json");
+  const performanceReportPath = path.join(reportsDir, "performance-report.desktop.json");
+  await writeFile(
+    releaseDecisionReportPath,
+    JSON.stringify({
+      pipelineReportPath: trainingReleasePipelineReportPath,
+      performanceReportPath,
+      outputPath: releaseDecisionReportPath,
+      candidateVersion: "nail-texture-seg-v6",
+      decision: { status: "manual_review", summary: "review performance overhead" },
+      inputs: {
+        recognitionPerformanceOk: false,
+        recognitionPerformanceProfile: "desktop",
+        recognitionPerformanceMaxElapsedMs: 800,
+        recognitionPerformanceMaxClientOverheadMs: 120,
+        recognitionPerformanceP95Ms: 790,
+        recognitionPerformanceMaxMs: 810,
+        recognitionPerformanceP95WorkerMs: 620,
+        recognitionPerformanceP95ClientOverheadMs: 180,
+        recognitionPerformanceSlowSamples: 1,
+        recognitionPerformanceSlowClientOverheadSamples: 2,
+        recognitionPerformanceMissingWorkerTimingSamples: 1,
+      },
+    }),
+    "utf8"
+  );
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/build-release-trace-index.ts",
+      "--training-release-pipeline-report",
+      trainingReleasePipelineReportPath,
+      "--release-decision-report",
+      releaseDecisionReportPath,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    performance: {
+      ok: boolean | null;
+      profile: string | null;
+      maxElapsedMs: number | null;
+      maxClientOverheadMs: number | null;
+      p95Ms: number | null;
+      maxMs: number | null;
+      p95WorkerMs: number | null;
+      p95ClientOverheadMs: number | null;
+      slowSamples: number | null;
+      slowClientOverheadSamples: number | null;
+      missingWorkerTimingSamples: number | null;
+      performanceReportPath: string | null;
+    } | null;
+  };
+
+  assert.equal(summary.performance?.ok, false);
+  assert.equal(summary.performance?.profile, "desktop");
+  assert.equal(summary.performance?.maxElapsedMs, 800);
+  assert.equal(summary.performance?.maxClientOverheadMs, 120);
+  assert.equal(summary.performance?.p95Ms, 790);
+  assert.equal(summary.performance?.maxMs, 810);
+  assert.equal(summary.performance?.p95WorkerMs, 620);
+  assert.equal(summary.performance?.p95ClientOverheadMs, 180);
+  assert.equal(summary.performance?.slowSamples, 1);
+  assert.equal(summary.performance?.slowClientOverheadSamples, 2);
+  assert.equal(summary.performance?.missingWorkerTimingSamples, 1);
+  assert.equal(summary.performance?.performanceReportPath, performanceReportPath);
 });

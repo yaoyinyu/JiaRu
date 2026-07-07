@@ -43,6 +43,12 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
           finalAuditStatus: "pass",
           derivedAnnotationFailures: 1,
           postprocessFailures: 1,
+          failureCategoryCounts: { postprocess: 1, inferred_record: 2 },
+          failureSummaryTotals: {
+            csvRows: 3,
+            derivedAnnotationFailures: 1,
+            inferredRecordFailures: 2,
+          },
         },
         decision: {
           status: "manual_review",
@@ -89,6 +95,12 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
           finalAuditStatus: "pass",
           derivedAnnotationFailures: 0,
           postprocessFailures: 0,
+          failureCategoryCounts: { low_confidence: 1 },
+          failureSummaryTotals: {
+            csvRows: 1,
+            derivedAnnotationFailures: 0,
+            inferredRecordFailures: 0,
+          },
         },
         decision: {
           status: "approve_candidate",
@@ -129,6 +141,10 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
       uniqueSourceGroups: number;
       activeLearningTraceIndexes: number;
       activeLearningImportedSamples: number;
+      failureTraceIndexes: number;
+      failureCategoryTotal: number;
+      failureSummaryCsvRows: number;
+      failureSummaryInferredRecordFailures: number;
     };
     decisionCounts: Record<string, number>;
     finalAuditStatusCounts: Record<string, number>;
@@ -136,6 +152,14 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
       importedByPriority: Record<string, number>;
       warningBreakdown: Record<string, number>;
       backendBreakdown: Record<string, number>;
+    };
+    failureSummary: {
+      categoryBreakdown: Record<string, number>;
+      categoryTotal: number;
+      csvRows: number;
+      inferredRecordFailures: number;
+      derivedAnnotationFailures: number;
+      postprocessFailures: number;
     };
     sourceGroups: string[];
     registeredVersions: string[];
@@ -145,6 +169,12 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
       activeLearningImportedSampleCount: number;
       activeLearningWarningBreakdown: Record<string, number> | null;
       activeLearningReadinessTotals: { images: number; validMasks: number } | null;
+      failureCategoryCounts: Record<string, number> | null;
+      failureSummaryTotals: {
+        csvRows?: number;
+        derivedAnnotationFailures?: number;
+        inferredRecordFailures?: number;
+      } | null;
     }>;
     outputPath: string;
   };
@@ -154,6 +184,10 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
   assert.equal(summary.totals.uniqueSourceGroups, 2);
   assert.equal(summary.totals.activeLearningTraceIndexes, 2);
   assert.equal(summary.totals.activeLearningImportedSamples, 5);
+  assert.equal(summary.totals.failureTraceIndexes, 2);
+  assert.equal(summary.totals.failureCategoryTotal, 4);
+  assert.equal(summary.totals.failureSummaryCsvRows, 4);
+  assert.equal(summary.totals.failureSummaryInferredRecordFailures, 2);
   assert.equal(summary.decisionCounts.approve_candidate, 1);
   assert.equal(summary.decisionCounts.manual_review, 1);
   assert.equal(summary.finalAuditStatusCounts.pass, 2);
@@ -163,6 +197,16 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
     model_inference_error: 1,
   });
   assert.deepEqual(summary.activeLearning.backendBreakdown, { fallback: 3, model: 2 });
+  assert.deepEqual(summary.failureSummary.categoryBreakdown, {
+    postprocess: 1,
+    inferred_record: 2,
+    low_confidence: 1,
+  });
+  assert.equal(summary.failureSummary.categoryTotal, 4);
+  assert.equal(summary.failureSummary.csvRows, 4);
+  assert.equal(summary.failureSummary.inferredRecordFailures, 2);
+  assert.equal(summary.failureSummary.derivedAnnotationFailures, 1);
+  assert.equal(summary.failureSummary.postprocessFailures, 1);
   assert.deepEqual(summary.sourceGroups, ["seed-batch-001", "seed-batch-002"]);
   assert.deepEqual(summary.registeredVersions, ["nail-texture-seg-v1", "nail-texture-seg-v2"]);
   assert.deepEqual(
@@ -178,10 +222,20 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
     images: 25,
     validMasks: 90,
   });
+  assert.deepEqual(summary.entries[0]?.failureCategoryCounts, {
+    postprocess: 1,
+    inferred_record: 2,
+  });
+  assert.deepEqual(summary.entries[1]?.failureSummaryTotals, {
+    csvRows: 1,
+    derivedAnnotationFailures: 0,
+    inferredRecordFailures: 0,
+  });
 
   const saved = JSON.parse(await readFile(summary.outputPath, "utf8")) as {
-    totals: { traceIndexes: number; activeLearningImportedSamples: number };
+    totals: { traceIndexes: number; activeLearningImportedSamples: number; failureCategoryTotal: number };
   };
   assert.equal(saved.totals.traceIndexes, 2);
   assert.equal(saved.totals.activeLearningImportedSamples, 5);
+  assert.equal(saved.totals.failureCategoryTotal, 4);
 });

@@ -200,13 +200,33 @@ const baselineFailureSnapshot = buildFailureSummarySnapshot(baseline.failureSumm
 const candidateFailureSnapshot = buildFailureSummarySnapshot(candidate.failureSummary);
 const baselineActiveLearningSnapshot = buildActiveLearningSnapshot(baseline.traceIndex);
 const candidateActiveLearningSnapshot = buildActiveLearningSnapshot(candidate.traceIndex);
-const postprocessFailureDelta =
+const failureCategoryDeltas =
+  baselineFailureSnapshot && candidateFailureSnapshot
+    ? recordDelta(candidateFailureSnapshot.categoryCounts, baselineFailureSnapshot.categoryCounts)
+    : null;
+const failureTotalDelta =
   baselineFailureSnapshot && candidateFailureSnapshot
     ? delta(
-        getCount(candidateFailureSnapshot.categoryCounts, "postprocess"),
-        getCount(baselineFailureSnapshot.categoryCounts, "postprocess")
+        sumRecord(candidateFailureSnapshot.categoryCounts),
+        sumRecord(baselineFailureSnapshot.categoryCounts)
       )
     : null;
+const derivedAnnotationFailureDelta =
+  baselineFailureSnapshot && candidateFailureSnapshot
+    ? delta(
+        candidateFailureSnapshot.totals.derivedAnnotationFailures,
+        baselineFailureSnapshot.totals.derivedAnnotationFailures
+      )
+    : null;
+const inferredRecordFailureDelta =
+  baselineFailureSnapshot && candidateFailureSnapshot
+    ? delta(
+        candidateFailureSnapshot.totals.inferredRecordFailure,
+        baselineFailureSnapshot.totals.inferredRecordFailure
+      )
+    : null;
+const postprocessFailureDelta =
+  failureCategoryDeltas ? getCount(failureCategoryDeltas, "postprocess") : null;
 const highlightHotspotDelta =
   baselineFailureSnapshot && candidateFailureSnapshot
     ? delta(
@@ -283,6 +303,45 @@ if (baselineFailureSnapshot || candidateFailureSnapshot) {
   if (!baselineFailureSnapshot || !candidateFailureSnapshot) {
     warnings.push("failure summary comparison is partial because one release is missing a failure summary");
   } else {
+    const increasedFailureCategories = Object.entries(failureCategoryDeltas ?? {})
+      .filter(([, value]) => value > 0)
+      .map(([key, value]) => `${key}+${value}`);
+    const decreasedFailureCategories = Object.entries(failureCategoryDeltas ?? {})
+      .filter(([, value]) => value < 0)
+      .map(([key, value]) => `${key}-${Math.abs(value)}`);
+    if (increasedFailureCategories.length > 0) {
+      warnings.push(
+        `candidate failure categories increased (${increasedFailureCategories.join(", ")})`
+      );
+    }
+    if (decreasedFailureCategories.length > 0) {
+      improvements.push(
+        `failure categories decreased (${decreasedFailureCategories.join(", ")})`
+      );
+    }
+    if (failureTotalDelta != null && failureTotalDelta > 0) {
+      warnings.push(`candidate total classified failures increased by ${failureTotalDelta}`);
+    } else if (failureTotalDelta != null && failureTotalDelta < 0) {
+      improvements.push(`total classified failures decreased by ${Math.abs(failureTotalDelta)}`);
+    }
+    if (derivedAnnotationFailureDelta != null && derivedAnnotationFailureDelta > 0) {
+      warnings.push(
+        `candidate derived annotation failures increased by ${derivedAnnotationFailureDelta}`
+      );
+    } else if (derivedAnnotationFailureDelta != null && derivedAnnotationFailureDelta < 0) {
+      improvements.push(
+        `derived annotation failures decreased by ${Math.abs(derivedAnnotationFailureDelta)}`
+      );
+    }
+    if (inferredRecordFailureDelta != null && inferredRecordFailureDelta > 0) {
+      warnings.push(
+        `candidate inferred-record failures increased by ${inferredRecordFailureDelta}`
+      );
+    } else if (inferredRecordFailureDelta != null && inferredRecordFailureDelta < 0) {
+      improvements.push(
+        `inferred-record failures decreased by ${Math.abs(inferredRecordFailureDelta)}`
+      );
+    }
     if (postprocessFailureDelta! > 0) {
       warnings.push(`candidate postprocess failure count increased by ${postprocessFailureDelta}`);
     } else if (postprocessFailureDelta! < 0) {
@@ -360,6 +419,10 @@ const summary = {
     seg_map: segMapDelta,
     box_map: boxMapDelta,
     modelSizeMb: modelSizeMbDelta,
+    failureCategories: failureCategoryDeltas,
+    failureTotal: failureTotalDelta,
+    derivedAnnotationFailures: derivedAnnotationFailureDelta,
+    inferredRecordFailures: inferredRecordFailureDelta,
     postprocessFailures: postprocessFailureDelta,
     highlightHotspotFailures: highlightHotspotDelta,
     activeLearningImportedSamples: activeLearningImportedSampleDelta,

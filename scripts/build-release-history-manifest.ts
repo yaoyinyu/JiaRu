@@ -26,6 +26,35 @@ interface ReleaseTraceIndexLike {
     finalAuditStatus?: string | null;
     derivedAnnotationFailures?: number;
     postprocessFailures?: number;
+    failureCategoryCounts?: Record<string, number> | null;
+    failureSummaryTotals?: {
+      csvRows?: number;
+      derivedAnnotationFailures?: number;
+      inferredRecordFailures?: number;
+    } | null;
+  } | null;
+  performance?: {
+    ok?: boolean | null;
+    profile?: string | null;
+    maxElapsedMs?: number | null;
+    maxClientOverheadMs?: number | null;
+    p95Ms?: number | null;
+    maxMs?: number | null;
+    p95WorkerMs?: number | null;
+    p95ClientOverheadMs?: number | null;
+    slowSamples?: number | null;
+    slowClientOverheadSamples?: number | null;
+    missingWorkerTimingSamples?: number | null;
+    performanceReportPath?: string | null;
+  } | null;
+  quality?: {
+    phase2ExtractionRateOk?: boolean | null;
+    directlyUsableRate?: number | null;
+    phase2ExtractionEvidenceOk?: boolean | null;
+    phase2ExtractionEvidenceScope?: string | null;
+    phase2RequiredUsableRate?: number | null;
+    phase4TextureQualityGateOk?: boolean | null;
+    contaminationRate?: number | null;
   } | null;
   decision?: {
     status?: string | null;
@@ -110,6 +139,33 @@ const entries = indexes
     finalAuditStatus: trace.release?.finalAuditStatus ?? null,
     derivedAnnotationFailures: trace.release?.derivedAnnotationFailures ?? 0,
     postprocessFailures: trace.release?.postprocessFailures ?? 0,
+    failureCategoryCounts: trace.release?.failureCategoryCounts ?? null,
+    failureSummaryTotals: trace.release?.failureSummaryTotals ?? null,
+    failureCategoryTotal: Object.values(trace.release?.failureCategoryCounts ?? {}).reduce(
+      (total, value) => total + value,
+      0
+    ),
+    failureSummaryCsvRows: trace.release?.failureSummaryTotals?.csvRows ?? 0,
+    failureSummaryInferredRecordFailures:
+      trace.release?.failureSummaryTotals?.inferredRecordFailures ?? 0,
+    performanceOk: trace.performance?.ok ?? null,
+    performanceProfile: trace.performance?.profile ?? null,
+    performanceMaxElapsedMs: trace.performance?.maxElapsedMs ?? null,
+    performanceMaxClientOverheadMs: trace.performance?.maxClientOverheadMs ?? null,
+    performanceP95Ms: trace.performance?.p95Ms ?? null,
+    performanceMaxMs: trace.performance?.maxMs ?? null,
+    performanceP95WorkerMs: trace.performance?.p95WorkerMs ?? null,
+    performanceP95ClientOverheadMs: trace.performance?.p95ClientOverheadMs ?? null,
+    performanceSlowSamples: trace.performance?.slowSamples ?? 0,
+    performanceSlowClientOverheadSamples: trace.performance?.slowClientOverheadSamples ?? 0,
+    performanceMissingWorkerTimingSamples: trace.performance?.missingWorkerTimingSamples ?? 0,
+    performanceReportPath: trace.performance?.performanceReportPath ?? null,
+    qualityPhase2ExtractionRateOk: trace.quality?.phase2ExtractionRateOk ?? null,
+    qualityDirectlyUsableRate: trace.quality?.directlyUsableRate ?? null,
+    qualityPhase2ExtractionEvidenceOk: trace.quality?.phase2ExtractionEvidenceOk ?? null,
+    qualityPhase2ExtractionEvidenceScope: trace.quality?.phase2ExtractionEvidenceScope ?? null,
+    qualityPhase4TextureQualityGateOk: trace.quality?.phase4TextureQualityGateOk ?? null,
+    qualityContaminationRate: trace.quality?.contaminationRate ?? null,
     decisionStatus: trace.decision?.status ?? null,
     decisionSummary: trace.decision?.summary ?? null,
     registeredVersion: trace.promotion?.registeredVersion ?? null,
@@ -145,6 +201,36 @@ const finalAuditStatusCounts = entries.reduce<Record<string, number>>((acc, entr
   return acc;
 }, {});
 
+const performanceStatusCounts = entries.reduce<Record<string, number>>((acc, entry) => {
+  const key = entry.performanceOk == null ? "unknown" : entry.performanceOk ? "pass" : "fail";
+  acc[key] = (acc[key] ?? 0) + 1;
+  return acc;
+}, {});
+
+const performanceProfileCounts = entries.reduce<Record<string, number>>((acc, entry) => {
+  const key = entry.performanceProfile || "unknown";
+  acc[key] = (acc[key] ?? 0) + 1;
+  return acc;
+}, {});
+
+const phase2ExtractionStatusCounts = entries.reduce<Record<string, number>>((acc, entry) => {
+  const key = entry.qualityPhase2ExtractionRateOk == null ? "unknown" : entry.qualityPhase2ExtractionRateOk ? "pass" : "fail";
+  acc[key] = (acc[key] ?? 0) + 1;
+  return acc;
+}, {});
+
+const textureQualityStatusCounts = entries.reduce<Record<string, number>>((acc, entry) => {
+  const key = entry.qualityPhase4TextureQualityGateOk == null ? "unknown" : entry.qualityPhase4TextureQualityGateOk ? "pass" : "fail";
+  acc[key] = (acc[key] ?? 0) + 1;
+  return acc;
+}, {});
+
+const phase2EvidenceScopeCounts = entries.reduce<Record<string, number>>((acc, entry) => {
+  const key = entry.qualityPhase2ExtractionEvidenceScope || "unknown";
+  acc[key] = (acc[key] ?? 0) + 1;
+  return acc;
+}, {});
+
 const registeredVersions = Array.from(
   new Set(entries.map((entry) => entry.registeredVersion).filter(Boolean))
 );
@@ -164,6 +250,60 @@ for (const entry of entries) {
   addCounts(activeLearningBackendBreakdown, entry.activeLearningBackendBreakdown);
 }
 
+const failureCategoryBreakdown: Record<string, number> = {};
+for (const entry of entries) {
+  addCounts(failureCategoryBreakdown, entry.failureCategoryCounts);
+}
+const failureTraceIndexes = entries.filter(
+  (entry) => entry.failureCategoryCounts || entry.failureSummaryTotals
+).length;
+const failureCategoryTotal = entries.reduce((total, entry) => total + entry.failureCategoryTotal, 0);
+const failureSummaryCsvRows = entries.reduce(
+  (total, entry) => total + entry.failureSummaryCsvRows,
+  0
+);
+const failureSummaryInferredRecordFailures = entries.reduce(
+  (total, entry) => total + entry.failureSummaryInferredRecordFailures,
+  0
+);
+
+const performanceTraceIndexes = entries.filter((entry) => entry.performanceOk != null).length;
+const failedPerformanceTraceIndexes = entries.filter((entry) => entry.performanceOk === false).length;
+const performanceSlowSamples = entries.reduce((total, entry) => total + entry.performanceSlowSamples, 0);
+const performanceSlowClientOverheadSamples = entries.reduce(
+  (total, entry) => total + entry.performanceSlowClientOverheadSamples,
+  0
+);
+const performanceMissingWorkerTimingSamples = entries.reduce(
+  (total, entry) => total + entry.performanceMissingWorkerTimingSamples,
+  0
+);
+const qualityTraceIndexes = entries.filter(
+  (entry) =>
+    entry.qualityPhase2ExtractionRateOk != null ||
+    entry.qualityPhase4TextureQualityGateOk != null ||
+    entry.qualityDirectlyUsableRate != null ||
+    entry.qualityContaminationRate != null
+).length;
+const failedPhase2ExtractionTraceIndexes = entries.filter(
+  (entry) => entry.qualityPhase2ExtractionRateOk === false
+).length;
+const failedTextureQualityTraceIndexes = entries.filter(
+  (entry) => entry.qualityPhase4TextureQualityGateOk === false
+).length;
+const directlyUsableRates = entries
+  .map((entry) => entry.qualityDirectlyUsableRate)
+  .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+const contaminationRates = entries
+  .map((entry) => entry.qualityContaminationRate)
+  .filter((value): value is number => typeof value === "number" && Number.isFinite(value));
+const averageDirectlyUsableRate = directlyUsableRates.length
+  ? Number((directlyUsableRates.reduce((sum, value) => sum + value, 0) / directlyUsableRates.length).toFixed(4))
+  : null;
+const averageContaminationRate = contaminationRates.length
+  ? Number((contaminationRates.reduce((sum, value) => sum + value, 0) / contaminationRates.length).toFixed(4))
+  : null;
+
 const summary = {
   ok: true,
   outputPath: options.outputPath,
@@ -176,13 +316,59 @@ const summary = {
       (entry) => entry.activeLearningImportedSampleCount > 0 || entry.activeLearningWarningBreakdown
     ).length,
     activeLearningImportedSamples,
+    failureTraceIndexes,
+    failureCategoryTotal,
+    failureSummaryCsvRows,
+    failureSummaryInferredRecordFailures,
+    performanceTraceIndexes,
+    failedPerformanceTraceIndexes,
+    performanceSlowSamples,
+    performanceSlowClientOverheadSamples,
+    performanceMissingWorkerTimingSamples,
+    qualityTraceIndexes,
+    failedPhase2ExtractionTraceIndexes,
+    failedTextureQualityTraceIndexes,
+    averageDirectlyUsableRate,
+    averageContaminationRate,
   },
   decisionCounts,
   finalAuditStatusCounts,
+  performanceStatusCounts,
+  performanceProfileCounts,
+  phase2ExtractionStatusCounts,
+  textureQualityStatusCounts,
+  phase2EvidenceScopeCounts,
   activeLearning: {
     importedByPriority: activeLearningImportedByPriority,
     warningBreakdown: activeLearningWarningBreakdown,
     backendBreakdown: activeLearningBackendBreakdown,
+  },
+  failureSummary: {
+    categoryBreakdown: failureCategoryBreakdown,
+    categoryTotal: failureCategoryTotal,
+    csvRows: failureSummaryCsvRows,
+    inferredRecordFailures: failureSummaryInferredRecordFailures,
+    derivedAnnotationFailures: entries.reduce(
+      (total, entry) => total + entry.derivedAnnotationFailures,
+      0
+    ),
+    postprocessFailures: entries.reduce((total, entry) => total + entry.postprocessFailures, 0),
+  },
+  performance: {
+    statusCounts: performanceStatusCounts,
+    profileCounts: performanceProfileCounts,
+    slowSamples: performanceSlowSamples,
+    slowClientOverheadSamples: performanceSlowClientOverheadSamples,
+    missingWorkerTimingSamples: performanceMissingWorkerTimingSamples,
+  },
+  quality: {
+    phase2ExtractionStatusCounts,
+    textureQualityStatusCounts,
+    phase2EvidenceScopeCounts,
+    failedPhase2ExtractionTraceIndexes,
+    failedTextureQualityTraceIndexes,
+    averageDirectlyUsableRate,
+    averageContaminationRate,
   },
   sourceGroups,
   registeredVersions,

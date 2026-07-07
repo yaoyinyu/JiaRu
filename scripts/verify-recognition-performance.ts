@@ -10,6 +10,7 @@ interface CliOptions {
   outputPath?: string;
   profile: PerformanceProfile;
   maxElapsedMs: number;
+  maxClientOverheadMs?: number;
   minSamples: number;
 }
 
@@ -30,7 +31,7 @@ const PROFILE_BUDGETS: Record<PerformanceProfile, number> = {
 
 function usage(): never {
   throw new Error(
-    "Usage: node --experimental-strip-types scripts/verify-recognition-performance.ts [--profile desktop|mobile] [--max-elapsed-ms <n>] [--min-samples <n>] [--sample-dir <dir>] [--output <report.json>] <debug-json-or-sample.json>..."
+    "Usage: node --experimental-strip-types scripts/verify-recognition-performance.ts [--profile desktop|mobile] [--max-elapsed-ms <n>] [--max-client-overhead-ms <n>] [--min-samples <n>] [--sample-dir <dir>] [--output <report.json>] <debug-json-or-sample.json>..."
   );
 }
 
@@ -51,6 +52,8 @@ function parseArgs(argv: string[]): CliOptions {
       options.maxElapsedMs = PROFILE_BUDGETS[profile];
     } else if (arg === "--max-elapsed-ms") {
       options.maxElapsedMs = Number(argv[++index] ?? usage());
+    } else if (arg === "--max-client-overhead-ms") {
+      options.maxClientOverheadMs = Number(argv[++index] ?? usage());
     } else if (arg === "--min-samples") {
       options.minSamples = Number(argv[++index] ?? usage());
     } else if (arg === "--sample-dir") {
@@ -69,6 +72,12 @@ function parseArgs(argv: string[]): CliOptions {
   }
   if (!Number.isInteger(options.minSamples) || options.minSamples < 1) {
     throw new Error("--min-samples must be a positive integer");
+  }
+  if (
+    options.maxClientOverheadMs != null &&
+    (!Number.isFinite(options.maxClientOverheadMs) || options.maxClientOverheadMs < 0)
+  ) {
+    throw new Error("--max-client-overhead-ms must be zero or a positive number");
   }
 
   return options;
@@ -142,6 +151,15 @@ const clientOverheadValues = samples
   .map((sample) => sample.clientOverheadMs)
   .filter((value): value is number => value != null);
 const slowSamples = samples.filter((sample) => sample.elapsedMs > options.maxElapsedMs);
+const slowClientOverheadSamples =
+  options.maxClientOverheadMs == null
+    ? []
+    : samples.filter(
+        (sample) =>
+          sample.clientOverheadMs != null &&
+          sample.clientOverheadMs > options.maxClientOverheadMs!
+      );
+const missingWorkerTimingSamples = samples.filter((sample) => sample.workerElapsedMs == null);
 const errors: string[] = [];
 if (samples.length < options.minSamples) {
   errors.push(`sample count ${samples.length} is below required minimum ${options.minSamples}`);
@@ -149,12 +167,27 @@ if (samples.length < options.minSamples) {
 if (slowSamples.length > 0) {
   errors.push(`${slowSamples.length} sample(s) exceeded ${options.profile} budget ${options.maxElapsedMs}ms`);
 }
+if (slowClientOverheadSamples.length > 0) {
+  errors.push(
+    `${slowClientOverheadSamples.length} sample(s) exceeded client overhead budget ${options.maxClientOverheadMs}ms`
+  );
+}
+
+const warnings = [
+  ...(skippedFiles.length > 0 ? ["Some JSON files did not contain elapsedMs and were skipped."] : []),
+  ...(missingWorkerTimingSamples.length > 0
+    ? [
+        `${missingWorkerTimingSamples.length} sample(s) did not contain workerElapsedMs; client overhead stats are incomplete.`,
+      ]
+    : []),
+];
 
 const summary = {
   ok: errors.length === 0,
   profile: options.profile,
   thresholds: {
     maxElapsedMs: options.maxElapsedMs,
+    maxClientOverheadMs: options.maxClientOverheadMs ?? null,
     minSamples: options.minSamples,
   },
   totals: {
@@ -162,6 +195,8 @@ const summary = {
     samples: samples.length,
     skippedFiles: skippedFiles.length,
     slowSamples: slowSamples.length,
+    slowClientOverheadSamples: slowClientOverheadSamples.length,
+    missingWorkerTimingSamples: missingWorkerTimingSamples.length,
   },
   stats: {
     averageMs: average(elapsedValues),
@@ -169,13 +204,16 @@ const summary = {
     p95Ms: percentile(elapsedValues, 0.95),
     maxMs: elapsedValues.length > 0 ? Number(Math.max(...elapsedValues).toFixed(2)) : null,
     averageWorkerMs: average(workerElapsedValues),
+    p95WorkerMs: percentile(workerElapsedValues, 0.95),
     averageClientOverheadMs: average(clientOverheadValues),
+    p95ClientOverheadMs: percentile(clientOverheadValues, 0.95),
   },
   samples,
   slowSamples,
+  slowClientOverheadSamples,
   skippedFiles,
   errors,
-  warnings: skippedFiles.length > 0 ? ["Some JSON files did not contain elapsedMs and were skipped."] : [],
+  warnings,
   nextSteps:
     errors.length === 0
       ? ["Recognition performance is within the selected budget."]
