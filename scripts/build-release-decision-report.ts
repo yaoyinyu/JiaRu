@@ -70,9 +70,21 @@ interface PipelineReportLike {
 interface RecognitionPerformanceReportLike {
   ok?: boolean;
   profile?: string;
-  thresholds?: { maxElapsedMs?: number; minSamples?: number };
-  totals?: { samples?: number; slowSamples?: number; skippedFiles?: number };
-  stats?: { averageMs?: number | null; p95Ms?: number | null; maxMs?: number | null };
+  thresholds?: { maxElapsedMs?: number; maxClientOverheadMs?: number | null; minSamples?: number };
+  totals?: {
+    samples?: number;
+    slowSamples?: number;
+    slowClientOverheadSamples?: number;
+    missingWorkerTimingSamples?: number;
+    skippedFiles?: number;
+  };
+  stats?: {
+    averageMs?: number | null;
+    p95Ms?: number | null;
+    maxMs?: number | null;
+    p95WorkerMs?: number | null;
+    p95ClientOverheadMs?: number | null;
+  };
   errors?: string[];
   warnings?: string[];
   nextSteps?: string[];
@@ -87,6 +99,10 @@ interface CompareSummaryLike {
     activeLearningImportedSamples?: number | null;
     activeLearningWarnings?: Record<string, number> | null;
     activeLearningBackends?: Record<string, number> | null;
+    failureCategories?: Record<string, number> | null;
+    failureTotal?: number | null;
+    derivedAnnotationFailures?: number | null;
+    inferredRecordFailures?: number | null;
     [key: string]: number | Record<string, number> | null | undefined;
   };
   baseline?: { version?: string } | null;
@@ -184,6 +200,32 @@ function buildDecision(
     reasons.push(`active-learning warning signals increased by ${activeLearningWarningDelta}`);
     nextActions.push(
       "Review active-learning warning deltas before promotion; they may indicate model runtime, fallback, or postprocess regressions in corrected samples."
+    );
+  }
+
+  const failureCategoryDelta = sumPositiveDeltas(compare?.deltas?.failureCategories);
+  const failureTotalDelta = Number(compare?.deltas?.failureTotal ?? 0);
+  const derivedAnnotationFailureDelta = Number(
+    compare?.deltas?.derivedAnnotationFailures ?? 0
+  );
+  const inferredRecordFailureDelta = Number(compare?.deltas?.inferredRecordFailures ?? 0);
+  if (
+    failureCategoryDelta > 0 ||
+    failureTotalDelta > 0 ||
+    derivedAnnotationFailureDelta > 0 ||
+    inferredRecordFailureDelta > 0
+  ) {
+    reasons.push(
+      `failure taxonomy increased (categories +${failureCategoryDelta}, total +${Math.max(
+        failureTotalDelta,
+        0
+      )}, derived annotations +${Math.max(
+        derivedAnnotationFailureDelta,
+        0
+      )}, inferred records +${Math.max(inferredRecordFailureDelta, 0)})`
+    );
+    nextActions.push(
+      "Review failure taxonomy deltas before promotion; increasing data/model/postprocess/UI failure classes should be accepted explicitly."
     );
   }
 
@@ -369,12 +411,33 @@ const summary = {
     activeLearningWarningDelta: sumPositiveDeltas(compare?.deltas?.activeLearningWarnings),
     activeLearningWarningDeltas: compare?.deltas?.activeLearningWarnings ?? null,
     activeLearningBackendDeltas: compare?.deltas?.activeLearningBackends ?? null,
+    failureCategoryDelta: sumPositiveDeltas(compare?.deltas?.failureCategories),
+    failureCategoryDeltas: compare?.deltas?.failureCategories ?? null,
+    failureTotalDelta:
+      typeof compare?.deltas?.failureTotal === "number" ? compare.deltas.failureTotal : null,
+    derivedAnnotationFailureDelta:
+      typeof compare?.deltas?.derivedAnnotationFailures === "number"
+        ? compare.deltas.derivedAnnotationFailures
+        : null,
+    inferredRecordFailureDelta:
+      typeof compare?.deltas?.inferredRecordFailures === "number"
+        ? compare.deltas.inferredRecordFailures
+        : null,
     recognitionPerformanceOk: recognitionPerformance?.ok ?? null,
     recognitionPerformanceProfile: recognitionPerformance?.profile ?? null,
     recognitionPerformanceMaxElapsedMs: recognitionPerformance?.thresholds?.maxElapsedMs ?? null,
+    recognitionPerformanceMaxClientOverheadMs:
+      recognitionPerformance?.thresholds?.maxClientOverheadMs ?? null,
     recognitionPerformanceP95Ms: recognitionPerformance?.stats?.p95Ms ?? null,
     recognitionPerformanceMaxMs: recognitionPerformance?.stats?.maxMs ?? null,
+    recognitionPerformanceP95WorkerMs: recognitionPerformance?.stats?.p95WorkerMs ?? null,
+    recognitionPerformanceP95ClientOverheadMs:
+      recognitionPerformance?.stats?.p95ClientOverheadMs ?? null,
     recognitionPerformanceSlowSamples: recognitionPerformance?.totals?.slowSamples ?? null,
+    recognitionPerformanceSlowClientOverheadSamples:
+      recognitionPerformance?.totals?.slowClientOverheadSamples ?? null,
+    recognitionPerformanceMissingWorkerTimingSamples:
+      recognitionPerformance?.totals?.missingWorkerTimingSamples ?? null,
     derivedAnnotationFailures:
       pipeline.artifacts?.finalAuditFailureSummary?.totals?.derivedAnnotationFailures ?? 0,
     postprocessFailures: pipeline.artifacts?.finalAuditFailureSummary?.categoryCounts?.postprocess ?? 0,

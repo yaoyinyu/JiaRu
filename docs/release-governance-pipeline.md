@@ -172,3 +172,61 @@ node --no-warnings --experimental-strip-types scripts/run-release-governance-pip
 ```
 
 总流水线才会继续执行 `promote-approved-release`、trace registration、rollback audit 和 history manifest 登记。验收重点是：`training-release-pipeline-report.json` 里的 `artifacts.releaseGovernance.artifacts.releaseDecision.decision.status` 保留 `manual_review`，promotion 报告里的 `decisionStatus` 也保留 `manual_review`，避免把人工确认放行误读成普通自动通过。
+
+## release-history performance summary
+
+`build-release-history-manifest.ts` now summarizes performance evidence from every registered `release-trace-index.json`. The history manifest keeps per-entry performance fields and aggregate counters so reviewers can compare latency risk across candidate versions:
+
+- `totals.performanceTraceIndexes`
+- `totals.failedPerformanceTraceIndexes`
+- `totals.performanceSlowSamples`
+- `totals.performanceSlowClientOverheadSamples`
+- `totals.performanceMissingWorkerTimingSamples`
+- `performance.statusCounts`
+- `performance.profileCounts`
+- `performance.slowSamples`
+- `performance.slowClientOverheadSamples`
+- `performance.missingWorkerTimingSamples`
+
+This extends the Phase 5 release history from promotion status tracking into performance-risk tracking, especially for client overhead regressions that are separate from Worker/model runtime cost.
+
+## release-history quality summary
+
+`build-release-history-manifest.ts` also summarizes texture-quality evidence from each release trace. The history manifest now keeps aggregate quality counters and per-entry quality fields so Phase 2/Phase 4 quality trends can be reviewed across candidate versions without opening each trace manually:
+
+- `totals.qualityTraceIndexes`
+- `totals.failedPhase2ExtractionTraceIndexes`
+- `totals.failedTextureQualityTraceIndexes`
+- `totals.averageDirectlyUsableRate`
+- `totals.averageContaminationRate`
+- `quality.phase2ExtractionStatusCounts`
+- `quality.textureQualityStatusCounts`
+- `quality.phase2EvidenceScopeCounts`
+
+This keeps the version-history ledger aligned with the planning document's quality goals: usable texture extraction rate, release-test-split evidence, and contamination rate remain visible after trace registration.
+
+## release-history failure summary
+
+`build-release-trace-index.ts` now preserves the full final-audit failure summary from the training release pipeline instead of only keeping the two legacy counters. Each trace keeps:
+
+- `release.failureCategoryCounts`
+- `release.failureSummaryTotals`
+- `release.derivedAnnotationFailures`
+- `release.postprocessFailures`
+
+`build-release-history-manifest.ts` then rolls these fields into cross-version history fields so review can quickly see whether failures are concentrated in postprocess, inferred-record, low-confidence, or other categories:
+
+- `totals.failureTraceIndexes`
+- `totals.failureCategoryTotal`
+- `totals.failureSummaryCsvRows`
+- `totals.failureSummaryInferredRecordFailures`
+- `failureSummary.categoryBreakdown`
+- `failureSummary.categoryTotal`
+- `failureSummary.csvRows`
+- `failureSummary.inferredRecordFailures`
+- `failureSummary.derivedAnnotationFailures`
+- `failureSummary.postprocessFailures`
+- `entries[].failureCategoryCounts`
+- `entries[].failureSummaryTotals`
+
+This keeps Phase 5 release history useful even before real model training is resumed: every candidate can still explain what failed and which failure class is trending across versions.

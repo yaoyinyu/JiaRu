@@ -96,3 +96,18 @@ Browser integration verification also checks that worker input preparation does 
 A controlled 1920x1080 benchmark on 2026-07-04 measured the removed `Array.from + set` path at 168.91 ms versus 0.0053 ms for buffer reuse. This microbenchmark is diagnostic evidence, not a replacement for the desktop/mobile end-to-end performance report.
 
 Before `getImageData`, `NailArtPicker` now caps the detection canvas to an 800-pixel longest edge and remaps candidate geometry to original-image coordinates. An 8000x6000 input therefore uses at most an 800x600 (1.92 MB) detection RGBA buffer instead of a 192 MB full-resolution buffer. The model mask remains a normalized full-image grid and is reused when extracting from the original image.
+## Client overhead budget
+
+`verify-recognition-performance.ts` can now enforce an optional `--max-client-overhead-ms` gate. The script derives `clientOverheadMs` from `elapsedMs - workerElapsedMs`, so release checks can catch browser-side image preparation, `createImageBitmap`, worker transfer, queueing, or main-thread handoff overhead even when pure worker recognition remains fast.
+
+Example:
+
+```bash
+node --no-warnings --experimental-strip-types scripts/verify-recognition-performance.ts --profile desktop --max-client-overhead-ms 120 --sample-dir C:/path/to/debug-samples --output C:/path/to/performance-report.desktop.json
+```
+
+The report now includes `thresholds.maxClientOverheadMs`, `totals.slowClientOverheadSamples`, `totals.missingWorkerTimingSamples`, `stats.p95WorkerMs`, `stats.p95ClientOverheadMs`, and `slowClientOverheadSamples`. Samples without `workerElapsedMs` still participate in end-to-end timing, but the report emits a warning because client overhead statistics are incomplete.
+
+## Release trace evidence
+
+Client overhead evidence is now carried through the release chain. `build-release-decision-report.ts` stores the optional overhead threshold and stats in `inputs.*`, and `build-release-trace-index.ts` preserves them in `performance.*`. This means a formal release trace can show whether a Phase 3 performance failure came from model/Worker execution, browser-side image preparation and transfer overhead, or incomplete `workerElapsedMs` instrumentation.

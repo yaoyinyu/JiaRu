@@ -58,7 +58,9 @@ test("verify-recognition-performance passes desktop budget and persists report",
       p95Ms: number;
       maxMs: number;
       averageWorkerMs: number;
+      p95WorkerMs: number;
       averageClientOverheadMs: number;
+      p95ClientOverheadMs: number;
     };
   };
 
@@ -70,7 +72,9 @@ test("verify-recognition-performance passes desktop budget and persists report",
   assert.equal(summary.stats.p95Ms, 640);
   assert.equal(summary.stats.maxMs, 640);
   assert.equal(summary.stats.averageWorkerMs, 375);
+  assert.equal(summary.stats.p95WorkerMs, 500);
   assert.equal(summary.stats.averageClientOverheadMs, 105);
+  assert.equal(summary.stats.p95ClientOverheadMs, 140);
 
   const persisted = JSON.parse(await readFile(outputPath, "utf8")) as { ok: boolean };
   assert.equal(persisted.ok, true);
@@ -99,6 +103,7 @@ test("verify-recognition-performance supports mobile profile sample dirs and ski
   assert.equal(summary.totals.skippedFiles, 1);
   assert.equal(summary.totals.slowSamples, 0);
   assert.ok(summary.warnings.some((item) => item.includes("elapsedMs")));
+  assert.ok(summary.warnings.some((item) => item.includes("workerElapsedMs")));
 });
 
 test("verify-recognition-performance fails when samples exceed budget", async () => {
@@ -118,6 +123,32 @@ test("verify-recognition-performance fails when samples exceed budget", async ()
       assert.equal(summary.totals.slowSamples, 1);
       assert.equal(summary.slowSamples[0]?.elapsedMs, 901);
       assert.ok(summary.errors.some((item) => item.includes("desktop budget 800ms")));
+      return true;
+    }
+  );
+});
+test("verify-recognition-performance can fail on excessive client overhead", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-perf-overhead-"));
+  const sample = await writeTimingSample(root, "slow-overhead.json", 700, "model", 420);
+
+  await assert.rejects(
+    runPerformance([sample, "--max-client-overhead-ms", "120"]),
+    (error: Error & { stdout?: string }) => {
+      const summary = JSON.parse(error.stdout ?? "{}") as {
+        ok: boolean;
+        thresholds: { maxClientOverheadMs: number };
+        totals: { slowSamples: number; slowClientOverheadSamples: number };
+        slowClientOverheadSamples: Array<{ elapsedMs: number; workerElapsedMs: number; clientOverheadMs: number }>;
+        errors: string[];
+      };
+      assert.equal(summary.ok, false);
+      assert.equal(summary.thresholds.maxClientOverheadMs, 120);
+      assert.equal(summary.totals.slowSamples, 0);
+      assert.equal(summary.totals.slowClientOverheadSamples, 1);
+      assert.equal(summary.slowClientOverheadSamples[0]?.elapsedMs, 700);
+      assert.equal(summary.slowClientOverheadSamples[0]?.workerElapsedMs, 420);
+      assert.equal(summary.slowClientOverheadSamples[0]?.clientOverheadMs, 280);
+      assert.ok(summary.errors.some((item) => item.includes("client overhead budget 120ms")));
       return true;
     }
   );

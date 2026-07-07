@@ -83,3 +83,16 @@ node --no-warnings --experimental-strip-types scripts/compare-training-releases.
 - `deltas.activeLearningBackends`
 
 这样版本对比不只看 mAP 和模型大小，也能一起看到候选版本是否吸收了更多页面修正样本，以及 active-learning 样本暴露的模型运行时 / fallback warning 是否增加或减少。
+
+## Failure taxonomy deltas
+
+`compare-training-releases.ts` now compares the full final-audit failure taxonomy, not only the legacy postprocess and highlight-hotspot counters. When both releases provide `failure-case-summary.json`, the compare summary includes:
+
+- `deltas.failureCategories`
+- `deltas.failureTotal`
+- `deltas.derivedAnnotationFailures`
+- `deltas.inferredRecordFailures`
+- `deltas.postprocessFailures`
+- `deltas.highlightHotspotFailures`
+
+Positive category deltas are emitted as warnings, while negative deltas are emitted as improvements. This keeps Phase 5 A/B comparison aligned with the release history ledger: reviewers can see whether a candidate shifted failures toward data, model, postprocess, UI, or inferred-record problems before approving promotion.

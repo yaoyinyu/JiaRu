@@ -80,6 +80,9 @@ test("audit-nail-texture-mvp-readiness passes when all MVP evidence is present",
       test: "node --test",
       lint: "eslint",
       build: "next build",
+      "audit:encoding": "node scripts/audit-text-encoding.ts",
+      "audit:mvp-readiness": "node scripts/audit-nail-texture-mvp-readiness.ts",
+      "audit:mvp-readiness:refresh": "node scripts/refresh-nail-texture-mvp-readiness.ts",
     },
     dependencies: {
       "onnxruntime-web": "^1.27.0",
@@ -115,6 +118,18 @@ test("audit-nail-texture-mvp-readiness passes when all MVP evidence is present",
   assert.equal(report.summary.failed, 0);
   assert.equal(report.summary.passed, report.checks.length);
   assert.ok(report.checks.some((check) => check.name === "browser_model_asset" && check.ok));
+  assert.ok(
+    report.checks.some((check) => check.name === "baseline_fixture_toolchain" && check.ok)
+  );
+  assert.ok(
+    report.checks.some((check) => check.name === "feedback_loop_toolchain" && check.ok)
+  );
+  assert.ok(
+    report.checks.some((check) => check.name === "quality_performance_gates" && check.ok)
+  );
+  assert.ok(
+    report.checks.some((check) => check.name === "release_governance_toolchain" && check.ok)
+  );
   assert.deepEqual(report.nextCommands, []);
   const persisted = JSON.parse(await readFile(outputPath, "utf8")) as { ok: boolean };
   assert.equal(persisted.ok, true);
@@ -129,7 +144,14 @@ test("audit-nail-texture-mvp-readiness rejects placeholder-sized browser model a
   await writeFile(path.join(path.dirname(manifestPath), "nail-texture-seg-v1.onnx"), Buffer.alloc(1024), "binary");
   const packageJsonPath = path.join(root, "package.json");
   await writeJson(packageJsonPath, {
-    scripts: { test: "node --test", lint: "eslint", build: "next build" },
+    scripts: {
+      test: "node --test",
+      lint: "eslint",
+      build: "next build",
+      "audit:encoding": "node scripts/audit-text-encoding.ts",
+      "audit:mvp-readiness": "node scripts/audit-nail-texture-mvp-readiness.ts",
+      "audit:mvp-readiness:refresh": "node scripts/refresh-nail-texture-mvp-readiness.ts",
+    },
     dependencies: { "onnxruntime-web": "^1.27.0" },
   });
 
@@ -225,6 +247,10 @@ test("audit-nail-texture-mvp-readiness reports real dataset and model gaps", asy
   assert.equal(report.checks.find((check) => check.name === "phase1_dataset")?.ok, false);
   assert.equal(report.checks.find((check) => check.name === "training_source_authorization")?.ok, false);
   assert.equal(report.checks.find((check) => check.name === "browser_model_asset")?.ok, false);
+  assert.equal(report.checks.find((check) => check.name === "baseline_fixture_toolchain")?.ok, true);
+  assert.equal(report.checks.find((check) => check.name === "feedback_loop_toolchain")?.ok, true);
+  assert.equal(report.checks.find((check) => check.name === "quality_performance_gates")?.ok, true);
+  assert.equal(report.checks.find((check) => check.name === "release_governance_toolchain")?.ok, true);
   assert.match(report.nextSteps.join("\n"), /Train\/export a real ONNX segmentation model/);
   assert.match(report.nextSteps.join("\n"), /200 images and 800 valid nail masks/);
   assert.match(report.nextSteps.join("\n"), /source authorization errors/);

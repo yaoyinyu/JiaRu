@@ -45,6 +45,8 @@ async function writeFailureSummary(
     postprocess: number;
     highlightHotspots: number;
     derivedAnnotationFailures: number;
+    inferredRecordFailure?: number;
+    extraCategories?: Record<string, number>;
   }
 ) {
   const summaryPath = path.join(root, "model", "exports", version, "failure-case-summary.json");
@@ -54,11 +56,12 @@ async function writeFailureSummary(
       {
         totals: {
           derivedAnnotationFailures: values.derivedAnnotationFailures,
-          inferredRecordFailure: 0,
+          inferredRecordFailure: values.inferredRecordFailure ?? 0,
           csvRows: 0,
         },
         categoryCounts: {
           postprocess: values.postprocess,
+          ...(values.extraCategories ?? {}),
         },
         derivedAnnotationBreakdown: {
           subcategoryCounts: {
@@ -422,15 +425,127 @@ test("compare-training-releases can compare failure summaries between releases",
   );
 
   const summary = JSON.parse(stdout) as {
-    deltas: { postprocessFailures: number; highlightHotspotFailures: number };
+    deltas: {
+      failureCategories: Record<string, number> | null;
+      failureTotal: number | null;
+      derivedAnnotationFailures: number | null;
+      inferredRecordFailures: number | null;
+      postprocessFailures: number;
+      highlightHotspotFailures: number;
+    };
     improvements: string[];
     baseline: { failureSummaryPath: string | null };
     candidate: { failureSummary: { totals: { derivedAnnotationFailures: number } } | null };
   };
+  assert.deepEqual(summary.deltas.failureCategories, { postprocess: -3 });
+  assert.equal(summary.deltas.failureTotal, -3);
+  assert.equal(summary.deltas.derivedAnnotationFailures, -3);
+  assert.equal(summary.deltas.inferredRecordFailures, 0);
   assert.equal(summary.deltas.postprocessFailures, -3);
   assert.equal(summary.deltas.highlightHotspotFailures, -2);
   assert.equal(summary.baseline.failureSummaryPath, baselineFailureSummary);
   assert.equal(summary.candidate.failureSummary?.totals.derivedAnnotationFailures, 2);
   assert.ok(summary.improvements.some((item) => item.includes("postprocess failure count decreased")));
   assert.ok(summary.improvements.some((item) => item.includes("highlight hotspot failures decreased")));
+});
+
+test("compare-training-releases reports full failure taxonomy deltas", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-compare-release-failure-taxonomy-"));
+  const baseline = await createRelease(
+    root,
+    "nail-texture-seg-v1",
+    {
+      split: "test",
+      imgsz: 640,
+      dry_run: false,
+      box_map50: 0.86,
+      box_map: 0.78,
+      seg_map50: 0.76,
+      seg_map: 0.68,
+    },
+    1024
+  );
+  const candidate = await createRelease(
+    root,
+    "nail-texture-seg-v2",
+    {
+      split: "test",
+      imgsz: 640,
+      dry_run: false,
+      box_map50: 0.87,
+      box_map: 0.79,
+      seg_map50: 0.77,
+      seg_map: 0.69,
+    },
+    1024
+  );
+  const baselineFailureSummary = await writeFailureSummary(root, "nail-texture-seg-v1", {
+    postprocess: 1,
+    highlightHotspots: 0,
+    derivedAnnotationFailures: 1,
+    inferredRecordFailure: 0,
+    extraCategories: { data: 1 },
+  });
+  const candidateFailureSummary = await writeFailureSummary(root, "nail-texture-seg-v2", {
+    postprocess: 2,
+    highlightHotspots: 1,
+    derivedAnnotationFailures: 4,
+    inferredRecordFailure: 2,
+    extraCategories: { data: 0, ui: 3 },
+  });
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/compare-training-releases.ts",
+      "--baseline-metrics",
+      baseline.metricsPath,
+      "--baseline-manifest",
+      baseline.manifestPath,
+      "--candidate-metrics",
+      candidate.metricsPath,
+      "--candidate-manifest",
+      candidate.manifestPath,
+      "--baseline-failure-summary",
+      baselineFailureSummary,
+      "--candidate-failure-summary",
+      candidateFailureSummary,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    deltas: {
+      failureCategories: Record<string, number> | null;
+      failureTotal: number | null;
+      derivedAnnotationFailures: number | null;
+      inferredRecordFailures: number | null;
+    };
+    warnings: string[];
+    improvements: string[];
+  };
+
+  assert.deepEqual(summary.deltas.failureCategories, {
+    data: -1,
+    postprocess: 1,
+    ui: 3,
+  });
+  assert.equal(summary.deltas.failureTotal, 3);
+  assert.equal(summary.deltas.derivedAnnotationFailures, 3);
+  assert.equal(summary.deltas.inferredRecordFailures, 2);
+  assert.ok(
+    summary.warnings.some((item) =>
+      item.includes("candidate failure categories increased (postprocess+1, ui+3)")
+    )
+  );
+  assert.ok(
+    summary.warnings.some((item) =>
+      item.includes("candidate total classified failures increased by 3")
+    )
+  );
+  assert.ok(
+    summary.improvements.some((item) => item.includes("failure categories decreased (data-1)"))
+  );
 });

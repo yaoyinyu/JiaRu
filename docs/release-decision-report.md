@@ -130,3 +130,29 @@ release-decision-report.json
 - `inputs.activeLearningWarningDelta`
 - `inputs.activeLearningWarningDeltas`
 - `inputs.activeLearningBackendDeltas`
+
+## Client overhead performance evidence
+
+When a performance report includes client-overhead fields, `build-release-decision-report.ts` now preserves them under `inputs` so release reviewers can distinguish end-to-end latency from Worker/runtime latency:
+
+- `inputs.recognitionPerformanceMaxClientOverheadMs`
+- `inputs.recognitionPerformanceP95WorkerMs`
+- `inputs.recognitionPerformanceP95ClientOverheadMs`
+- `inputs.recognitionPerformanceSlowClientOverheadSamples`
+- `inputs.recognitionPerformanceMissingWorkerTimingSamples`
+
+`build-release-trace-index.ts` also carries the same evidence into `performance.*`, including `performance.maxClientOverheadMs`, `performance.p95WorkerMs`, `performance.p95ClientOverheadMs`, `performance.slowClientOverheadSamples`, and `performance.missingWorkerTimingSamples`.
+
+## Failure taxonomy review signal
+
+When `compare-summary.json` includes positive `deltas.failureCategories`, `deltas.failureTotal`, `deltas.derivedAnnotationFailures`, or `deltas.inferredRecordFailures`, `build-release-decision-report.ts` records a manual-review reason instead of silently approving the candidate.
+
+The decision report now keeps these fields under `inputs`:
+
+- `inputs.failureCategoryDelta`
+- `inputs.failureCategoryDeltas`
+- `inputs.failureTotalDelta`
+- `inputs.derivedAnnotationFailureDelta`
+- `inputs.inferredRecordFailureDelta`
+
+This is intentionally a `manual_review` signal, not a hard hold: increasing failure taxonomy evidence may come from better auditing or a larger reviewed sample, but it must be explicitly inspected before promotion.
