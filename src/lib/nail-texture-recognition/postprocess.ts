@@ -16,6 +16,7 @@ export interface PostprocessModelOutputsOptions {
   maxCandidates?: number;
   scoreThreshold?: number;
   maskThreshold?: number;
+  includeLowConfidenceCandidates?: boolean;
 }
 
 interface CandidateAngleEvidence {
@@ -275,7 +276,9 @@ export function postprocessNailTextureDetections(
   if (!detectionTensor) return [];
   const prototypeTensor = selectPrototypeTensor(outputs, detectionTensor);
 
-  const scoreThreshold = options.scoreThreshold ?? 0.35;
+  const scoreThreshold = options.includeLowConfidenceCandidates
+    ? 0
+    : options.scoreThreshold ?? 0.35;
   const maxCandidates = options.maxCandidates ?? 10;
   const maskThreshold = options.maskThreshold ?? 0.5;
   const rows = flattenDetectionRows(detectionTensor);
@@ -326,6 +329,7 @@ export function postprocessNailTextureDetections(
       imageWidth: preprocess.originalWidth,
       imageHeight: preprocess.originalHeight,
       maxCandidates,
+      includeLowConfidenceCandidates: options.includeLowConfidenceCandidates,
     }
   );
   const evidenceById = new Map(

@@ -114,3 +114,19 @@ release-decision-report.json
 3. 从真实 debug sample 或 final audit 产物跑 `verify-recognition-performance.ts`。
 4. 跑 `build-release-decision-report.ts`。
 5. 如果需要一键串联 promotion、trace、history，继续跑 `run-release-governance-pipeline.ts`。
+## active-learning warning 软风险
+
+当 `compare-training-releases.ts` 的输出包含 active-learning trace 对比时，`build-release-decision-report.ts` 会读取：
+
+- `deltas.activeLearningImportedSamples`
+- `deltas.activeLearningWarnings`
+- `deltas.activeLearningBackends`
+
+如果候选版本的 active-learning warning 正向增加，发布决策会进入 `manual_review`，但不会直接 `hold_candidate`。这表示核心发布门禁可以通过，但仍建议人工查看页面修正样本暴露的模型运行时、fallback 或后处理风险。
+
+对应输入字段会写入：
+
+- `inputs.activeLearningImportedSampleDelta`
+- `inputs.activeLearningWarningDelta`
+- `inputs.activeLearningWarningDeltas`
+- `inputs.activeLearningBackendDeltas`

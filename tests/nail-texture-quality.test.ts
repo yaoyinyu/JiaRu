@@ -77,6 +77,92 @@ test("rankNailTextureCandidates defaults to keeping up to 10 candidates", () => 
   assert.equal(ranked.length, 10);
 });
 
+test("rankNailTextureCandidates suppresses highly overlapping duplicate candidates", () => {
+  const ranked = rankNailTextureCandidates(
+    [
+      {
+        id: "best-overlap",
+        cx: 100,
+        cy: 120,
+        length: 90,
+        width: 45,
+        angle: 0,
+        score: 0.92,
+        confidence: "high",
+        source: "model",
+        suggestedFinger: null,
+      },
+      {
+        id: "duplicate-overlap",
+        cx: 103,
+        cy: 122,
+        length: 88,
+        width: 44,
+        angle: 0,
+        score: 0.88,
+        confidence: "high",
+        source: "model",
+        suggestedFinger: null,
+      },
+      {
+        id: "separate-nail",
+        cx: 210,
+        cy: 122,
+        length: 86,
+        width: 43,
+        angle: 0,
+        score: 0.8,
+        confidence: "high",
+        source: "model",
+        suggestedFinger: null,
+      },
+    ],
+    {
+      imageWidth: 860,
+      imageHeight: 645,
+    }
+  );
+
+  assert.deepEqual(ranked.map((candidate) => candidate.id), [
+    "best-overlap",
+    "separate-nail",
+  ]);
+});
+
+test("rankNailTextureCandidates can keep low-score candidates for debug review", () => {
+  const candidates = [
+    {
+      id: "low-score",
+      cx: 100,
+      cy: 120,
+      length: 90,
+      width: 45,
+      angle: 0,
+      score: 0.28,
+      confidence: "low" as const,
+      source: "model" as const,
+      suggestedFinger: null,
+    },
+  ];
+
+  const defaultRanked = rankNailTextureCandidates(candidates, {
+    imageWidth: 860,
+    imageHeight: 645,
+  });
+  assert.equal(defaultRanked.length, 0);
+
+  const debugRanked = rankNailTextureCandidates(candidates, {
+    imageWidth: 860,
+    imageHeight: 645,
+    includeLowConfidenceCandidates: true,
+  });
+
+  assert.equal(debugRanked.length, 1);
+  assert.equal(debugRanked[0].id, "low-score");
+  assert.equal(debugRanked[0].confidence, "low");
+  assert.ok(debugRanked[0].warnings?.includes("low_score_debug_candidate"));
+});
+
 test("assessNailTextureCandidate surfaces sparse-mask and highlight warnings", () => {
   const sourceImage = {
     width: 100,

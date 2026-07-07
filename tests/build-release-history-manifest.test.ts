@@ -27,6 +27,17 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
           datasetRoot: "C:/tmp/dataset",
           importedFileCount: 2,
         },
+        activeLearning: {
+          importedSampleCount: 4,
+          importedByPriority: { high: 2, medium: 2 },
+          prioritySummary: {
+            backendBreakdown: { fallback: 3, model: 1 },
+            warningBreakdown: { onnx_runtime_not_loaded: 2 },
+          },
+          readinessSnapshot: {
+            totals: { images: 20, validMasks: 70 },
+          },
+        },
         release: {
           trainingReleasePipelineReportPath: "C:/tmp/v1/training-release-pipeline-report.json",
           finalAuditStatus: "pass",
@@ -61,6 +72,17 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
           sourceGroup: "seed-batch-002",
           datasetRoot: "C:/tmp/dataset",
           importedFileCount: 3,
+        },
+        activeLearning: {
+          importedSampleCount: 1,
+          importedByPriority: { high: 1 },
+          prioritySummary: {
+            backendBreakdown: { model: 1 },
+            warningBreakdown: { model_inference_error: 1, onnx_runtime_not_loaded: 1 },
+          },
+          readinessSnapshot: {
+            totals: { images: 25, validMasks: 90 },
+          },
         },
         release: {
           trainingReleasePipelineReportPath: "C:/tmp/v2/training-release-pipeline-report.json",
@@ -101,30 +123,65 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
   );
 
   const summary = JSON.parse(stdout) as {
-    totals: { traceIndexes: number; uniqueCandidateVersions: number; uniqueSourceGroups: number };
+    totals: {
+      traceIndexes: number;
+      uniqueCandidateVersions: number;
+      uniqueSourceGroups: number;
+      activeLearningTraceIndexes: number;
+      activeLearningImportedSamples: number;
+    };
     decisionCounts: Record<string, number>;
     finalAuditStatusCounts: Record<string, number>;
+    activeLearning: {
+      importedByPriority: Record<string, number>;
+      warningBreakdown: Record<string, number>;
+      backendBreakdown: Record<string, number>;
+    };
     sourceGroups: string[];
     registeredVersions: string[];
-    entries: Array<{ candidateVersion: string | null; sourceGroup: string | null }>;
+    entries: Array<{
+      candidateVersion: string | null;
+      sourceGroup: string | null;
+      activeLearningImportedSampleCount: number;
+      activeLearningWarningBreakdown: Record<string, number> | null;
+      activeLearningReadinessTotals: { images: number; validMasks: number } | null;
+    }>;
     outputPath: string;
   };
 
   assert.equal(summary.totals.traceIndexes, 2);
   assert.equal(summary.totals.uniqueCandidateVersions, 2);
   assert.equal(summary.totals.uniqueSourceGroups, 2);
+  assert.equal(summary.totals.activeLearningTraceIndexes, 2);
+  assert.equal(summary.totals.activeLearningImportedSamples, 5);
   assert.equal(summary.decisionCounts.approve_candidate, 1);
   assert.equal(summary.decisionCounts.manual_review, 1);
   assert.equal(summary.finalAuditStatusCounts.pass, 2);
+  assert.deepEqual(summary.activeLearning.importedByPriority, { high: 3, medium: 2 });
+  assert.deepEqual(summary.activeLearning.warningBreakdown, {
+    onnx_runtime_not_loaded: 3,
+    model_inference_error: 1,
+  });
+  assert.deepEqual(summary.activeLearning.backendBreakdown, { fallback: 3, model: 2 });
   assert.deepEqual(summary.sourceGroups, ["seed-batch-001", "seed-batch-002"]);
   assert.deepEqual(summary.registeredVersions, ["nail-texture-seg-v1", "nail-texture-seg-v2"]);
   assert.deepEqual(
     summary.entries.map((entry) => entry.candidateVersion),
     ["nail-texture-seg-v1", "nail-texture-seg-v2"]
   );
+  assert.equal(summary.entries[0]?.activeLearningImportedSampleCount, 4);
+  assert.deepEqual(summary.entries[1]?.activeLearningWarningBreakdown, {
+    model_inference_error: 1,
+    onnx_runtime_not_loaded: 1,
+  });
+  assert.deepEqual(summary.entries[1]?.activeLearningReadinessTotals, {
+    images: 25,
+    validMasks: 90,
+  });
 
   const saved = JSON.parse(await readFile(summary.outputPath, "utf8")) as {
-    totals: { traceIndexes: number };
+    totals: { traceIndexes: number; activeLearningImportedSamples: number };
   };
   assert.equal(saved.totals.traceIndexes, 2);
+  assert.equal(saved.totals.activeLearningImportedSamples, 5);
 });

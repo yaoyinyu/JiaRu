@@ -74,6 +74,43 @@ async function writeFailureSummary(
   return summaryPath;
 }
 
+async function writeTraceIndex(
+  root: string,
+  version: string,
+  values: {
+    importedSampleCount: number;
+    importedByPriority: Record<string, number>;
+    warningBreakdown: Record<string, number>;
+    backendBreakdown: Record<string, number>;
+    readinessTotals: { images: number; validMasks: number };
+  }
+) {
+  const traceIndexPath = path.join(root, "model", "exports", version, "release-trace-index.json");
+  await writeFile(
+    traceIndexPath,
+    JSON.stringify(
+      {
+        candidateVersion: version,
+        activeLearning: {
+          importedSampleCount: values.importedSampleCount,
+          importedByPriority: values.importedByPriority,
+          prioritySummary: {
+            warningBreakdown: values.warningBreakdown,
+            backendBreakdown: values.backendBreakdown,
+          },
+          readinessSnapshot: {
+            totals: values.readinessTotals,
+          },
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  return traceIndexPath;
+}
+
 test("compare-training-releases reports improvement summary and can persist output", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-compare-release-pass-"));
   const baseline = await createRelease(
@@ -144,6 +181,119 @@ test("compare-training-releases reports improvement summary and can persist outp
   };
   assert.equal(persisted.ok, true);
   assert.equal(persisted.candidate.version, "nail-texture-seg-v2");
+});
+
+test("compare-training-releases can compare active-learning trace indexes", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-compare-release-active-learning-"));
+  const baseline = await createRelease(
+    root,
+    "nail-texture-seg-v1",
+    {
+      split: "test",
+      imgsz: 640,
+      dry_run: false,
+      box_map50: 0.86,
+      box_map: 0.78,
+      seg_map50: 0.76,
+      seg_map: 0.68,
+    },
+    1024
+  );
+  const candidate = await createRelease(
+    root,
+    "nail-texture-seg-v2",
+    {
+      split: "test",
+      imgsz: 640,
+      dry_run: false,
+      box_map50: 0.87,
+      box_map: 0.79,
+      seg_map50: 0.77,
+      seg_map: 0.69,
+    },
+    1024
+  );
+  const baselineTraceIndex = await writeTraceIndex(root, "nail-texture-seg-v1", {
+    importedSampleCount: 2,
+    importedByPriority: { high: 1, medium: 1 },
+    warningBreakdown: { onnx_runtime_not_loaded: 2 },
+    backendBreakdown: { fallback: 2 },
+    readinessTotals: { images: 20, validMasks: 70 },
+  });
+  const candidateTraceIndex = await writeTraceIndex(root, "nail-texture-seg-v2", {
+    importedSampleCount: 5,
+    importedByPriority: { high: 3, medium: 2 },
+    warningBreakdown: { onnx_runtime_not_loaded: 1, model_inference_error: 2 },
+    backendBreakdown: { fallback: 1, model: 4 },
+    readinessTotals: { images: 28, validMasks: 96 },
+  });
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/compare-training-releases.ts",
+      "--baseline-metrics",
+      baseline.metricsPath,
+      "--baseline-manifest",
+      baseline.manifestPath,
+      "--candidate-metrics",
+      candidate.metricsPath,
+      "--candidate-manifest",
+      candidate.manifestPath,
+      "--baseline-trace-index",
+      baselineTraceIndex,
+      "--candidate-trace-index",
+      candidateTraceIndex,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    baseline: { activeLearning: { importedSampleCount: number } | null };
+    candidate: {
+      traceIndexPath: string | null;
+      activeLearning: {
+        importedSampleCount: number;
+        readinessTotals: { images: number; validMasks: number } | null;
+      } | null;
+    };
+    deltas: {
+      activeLearningImportedSamples: number | null;
+      activeLearningWarnings: Record<string, number> | null;
+      activeLearningBackends: Record<string, number> | null;
+    };
+    improvements: string[];
+    warnings: string[];
+  };
+
+  assert.equal(summary.baseline.activeLearning?.importedSampleCount, 2);
+  assert.equal(summary.candidate.traceIndexPath, candidateTraceIndex);
+  assert.equal(summary.candidate.activeLearning?.importedSampleCount, 5);
+  assert.deepEqual(summary.candidate.activeLearning?.readinessTotals, {
+    images: 28,
+    validMasks: 96,
+  });
+  assert.equal(summary.deltas.activeLearningImportedSamples, 3);
+  assert.deepEqual(summary.deltas.activeLearningWarnings, {
+    model_inference_error: 2,
+    onnx_runtime_not_loaded: -1,
+  });
+  assert.deepEqual(summary.deltas.activeLearningBackends, {
+    fallback: -1,
+    model: 4,
+  });
+  assert.ok(
+    summary.improvements.some((item) =>
+      item.includes("active-learning imported sample count increased by 3")
+    )
+  );
+  assert.ok(
+    summary.warnings.some((item) =>
+      item.includes("candidate active-learning warning count increased by 1")
+    )
+  );
 });
 
 test("compare-training-releases fails when candidate regresses too much", async () => {

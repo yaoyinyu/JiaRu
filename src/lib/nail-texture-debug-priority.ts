@@ -59,6 +59,7 @@ const MODEL_RUNTIME_WARNING_PREFIXES = [
   "model_outputs_empty_used_fallback",
   "model_runtime_unavailable_on_server",
   "worker_unavailable_used_main_thread",
+  "worker_timeout_used_main_thread",
 ];
 
 const EXTRACTION_WARNING_CODES = new Set([

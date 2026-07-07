@@ -126,7 +126,11 @@ const onnxRuntimeWebVersion =
 const contractChecks = [
   {
     name: "picker_uses_worker_recognition",
-    ok: hasAll(pickerSource, [/recognizeNailTexturesInWorker/, /preferModel:\s*true/]),
+    ok: hasAll(pickerSource, [
+      /recognizeNailTexturesInWorker/,
+      /preferModel:\s*true/,
+      /workerTimeoutMs:\s*NAIL_RECOGNITION_WORKER_TIMEOUT_MS/,
+    ]),
   },
   {
     name: "picker_supports_end_to_end_cancellation",
@@ -180,6 +184,17 @@ const contractChecks = [
     ]),
   },
   {
+    name: "client_worker_times_out_to_fallback",
+    ok: hasAll(clientWorkerSource, [
+      /workerTimeoutMs/,
+      /(?:workerTimeoutMs:\s*workerTimeoutMs|workerTimeoutMs,)/,
+      /setTimeout\(/,
+      /worker_timeout_used_main_thread/,
+      /recognizeNailTextures\(source/,
+      /workerInstance\?\.terminate\(\)/,
+    ]),
+  },
+  {
     name: "worker_calls_recognition_and_posts_response",
     ok: hasAll(
       workerSource,
@@ -187,6 +202,7 @@ const contractChecks = [
         /recognizeNailTextures\(/,
         /self\.postMessage\(response\)/,
         /manifestUrl:\s*request\.manifestUrl/,
+        /workerTimeoutMs:\s*request\.workerTimeoutMs/,
         /modelInfo:\s*result\.modelInfo/,
       ]
     ),

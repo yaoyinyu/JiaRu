@@ -1,4 +1,4 @@
-﻿import path from "node:path";
+import path from "node:path";
 import process from "node:process";
 import { readFile, readdir } from "node:fs/promises";
 import {
@@ -106,6 +106,17 @@ function summarizeCandidateSourceBreakdown(items: Array<DebugSamplePriorityAsses
   return Object.fromEntries(Object.entries(breakdown).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
 }
 
+function summarizeWarningBreakdown(
+  items: Array<DebugSamplePriorityAssessment & { samplePath: string; warnings: string[] }>
+) {
+  const breakdown: Record<string, number> = {};
+  for (const item of items) {
+    for (const warning of item.warnings) {
+      breakdown[warning] = (breakdown[warning] ?? 0) + 1;
+    }
+  }
+  return Object.fromEntries(Object.entries(breakdown).sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])));
+}
 const options = parseArgs(process.argv.slice(2));
 const samplePaths = options.sampleDir ? await listJsonFiles(options.sampleDir) : options.samplePaths;
 
@@ -116,6 +127,7 @@ const ranked = (
       return {
         samplePath,
         correctedCandidates: record.correctedCandidates,
+        warnings: record.warnings,
         ...(assessDebugSamplePriority(record)),
       };
     })
@@ -144,6 +156,7 @@ const summary = {
   backendBreakdown: summarizeBackendBreakdown(ranked),
   modelBackendBreakdown: summarizeModelBackendBreakdown(ranked),
   correctedCandidateSourceBreakdown: summarizeCandidateSourceBreakdown(ranked),
+  warningBreakdown: summarizeWarningBreakdown(ranked),
   reasonBreakdown: summarizeReasonBreakdown(ranked),
   nextSteps: [
     "优先回收 high priority 样本进入人工复核与训练集导入。",

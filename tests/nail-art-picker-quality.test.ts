@@ -1,7 +1,8 @@
-import assert from "node:assert/strict";
+﻿import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  presentCandidateWarning,
   presentRecognitionWarning,
   regionNeedsReview,
   summarizeExtractionDiagnostics,
@@ -33,9 +34,20 @@ test("presentRecognitionWarning maps known runtime warnings to readable text", (
     presentRecognitionWarning("model_outputs_empty_used_fallback"),
     "模型没有输出可用候选，已回退到规则识别。"
   );
-  assert.equal(
+  assert.ok(
+    !presentRecognitionWarning("worker_timeout_used_main_thread").includes(
+      "worker_timeout_used_main_thread"
+    )
+  );  assert.equal(
     presentRecognitionWarning("unknown_warning_code"),
     "识别提示：unknown_warning_code"
+  );
+});
+
+test("presentCandidateWarning maps debug low-score candidates to readable text", () => {
+  assert.equal(
+    presentCandidateWarning("low_score_debug_candidate").message,
+    "这是调试模式保留的低分候选，默认流程会隐藏。"
   );
 });
 

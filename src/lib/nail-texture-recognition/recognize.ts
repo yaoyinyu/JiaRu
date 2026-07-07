@@ -90,6 +90,7 @@ export async function recognizeNailTextures(
       preprocess,
       {
         maxCandidates: options.maxCandidates ?? 10,
+        includeLowConfidenceCandidates: options.includeLowConfidenceCandidates,
       }
     );
 

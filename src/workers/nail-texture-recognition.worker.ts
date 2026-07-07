@@ -34,6 +34,8 @@ self.onmessage = async (event: MessageEvent<RecognizeNailTextureRequest>) => {
         preferModel: request.preferModel,
         manifestUrl: request.manifestUrl,
         maxCandidates: request.maxCandidates,
+        workerTimeoutMs: request.workerTimeoutMs,
+        includeLowConfidenceCandidates: request.includeLowConfidenceCandidates,
       }
     );
 

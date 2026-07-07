@@ -100,3 +100,15 @@
 - `npm.cmd test`
 - `npm.cmd run lint`
 - `npm.cmd run build`
+
+## Duplicate candidate suppression
+
+Postprocess now suppresses highly overlapping candidates before applying `maxCandidates`. The quality ranking step keeps candidates sorted by adjusted score, then drops later candidates whose approximate box IoU is at or above the duplicate threshold. The default threshold is conservative (`0.55`) so adjacent nails are preserved while near-identical model rows or fallback duplicates are collapsed.
+
+This implements the plan requirement to merge duplicate candidates in the postprocess layer without depending on a real trained model. It also keeps the final UI list more stable because finger suggestions and left-to-right sorting run after duplicate suppression.
+
+## Low-score debug candidates
+
+The postprocess layer now keeps `score < 0.35` candidates hidden by default, matching the product flow, but can expose them when `includeLowConfidenceCandidates` is explicitly enabled. Debug-retained candidates receive the `low_score_debug_candidate` warning so UI and debug sample exports can distinguish them from normal user-facing candidates.
+
+This closes the plan requirement that low-score candidates remain available for debug review without changing the default picker behavior.

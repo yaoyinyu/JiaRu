@@ -63,6 +63,11 @@ async function createDebugImportFixture(options?: {
         modelBackend: "fallback",
         elapsedMs: 42,
         workerElapsedMs: 31,
+        recognitionOptions: {
+          maxCandidates: 8,
+          workerTimeoutMs: 12000,
+          includeLowConfidenceCandidates: true,
+        },
         warnings: ["worker_unavailable_used_main_thread"],
         originalCandidates: [],
         correctedCandidates: [
@@ -373,6 +378,11 @@ test("import debug sample converts corrected regions into dataset annotation", a
   assert.equal(annotation.image.debug?.modelBackend, "fallback");
   assert.equal(annotation.image.debug?.elapsedMs, 42);
   assert.equal(annotation.image.debug?.workerElapsedMs, 31);
+  assert.deepEqual(annotation.image.debug?.recognitionOptions, {
+    maxCandidates: 8,
+    workerTimeoutMs: 12000,
+    includeLowConfidenceCandidates: true,
+  });
   assert.deepEqual(annotation.image.debug?.warnings, [
     "worker_unavailable_used_main_thread",
   ]);

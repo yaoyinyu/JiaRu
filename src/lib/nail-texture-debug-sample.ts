@@ -31,6 +31,9 @@ export interface NailDebugSampleDetectionSummary {
   modelBackend?: NailTextureModelBackend;
   elapsedMs?: number;
   workerElapsedMs?: number;
+  maxCandidates?: number;
+  workerTimeoutMs?: number;
+  includeLowConfidenceCandidates?: boolean;
   warnings: string[];
 }
 
@@ -46,6 +49,11 @@ export interface NailDebugSampleRecord {
   modelBackend?: NailTextureModelBackend;
   elapsedMs: number;
   workerElapsedMs?: number;
+  recognitionOptions?: {
+    maxCandidates?: number;
+    workerTimeoutMs?: number;
+    includeLowConfidenceCandidates?: boolean;
+  };
   warnings: string[];
   originalCandidates: NailDebugSampleCandidate[];
   correctedCandidates: NailDebugSampleCandidate[];
@@ -130,6 +138,17 @@ export function createLocalNailDebugSample(args: {
     modelBackend: summary?.modelBackend,
     elapsedMs: summary?.elapsedMs ?? 0,
     workerElapsedMs: summary?.workerElapsedMs,
+    recognitionOptions:
+      summary &&
+      (summary.maxCandidates != null ||
+        summary.workerTimeoutMs != null ||
+        summary.includeLowConfidenceCandidates != null)
+        ? {
+            maxCandidates: summary.maxCandidates,
+            workerTimeoutMs: summary.workerTimeoutMs,
+            includeLowConfidenceCandidates: summary.includeLowConfidenceCandidates,
+          }
+        : undefined,
     warnings: summary?.warnings ?? [],
     originalCandidates: args.originalRegions.map(toNailDebugSampleCandidate),
     correctedCandidates: args.correctedRegions.map(toNailDebugSampleCandidate),

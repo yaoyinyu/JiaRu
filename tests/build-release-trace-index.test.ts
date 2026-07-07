@@ -340,6 +340,7 @@ test("build-release-trace-index preserves active learning trace details from rel
             backendBreakdown: { fallback: 4, model: 1 },
             modelBackendBreakdown: { fallback: 4, wasm: 1 },
             correctedCandidateSourceBreakdown: { manual: 3, model: 2 },
+            warningBreakdown: { onnx_runtime_not_loaded: 2, model_inference_error: 1 },
             reasonBreakdown: { manual_candidate_added: 3, high_confidence_deleted: 1 },
           },
           readinessSnapshot: {
@@ -405,7 +406,10 @@ test("build-release-trace-index preserves active learning trace details from rel
     activeLearning: {
       importedSampleCount: number;
       importedByPriority: { high: number; medium: number };
-      prioritySummary: { backendBreakdown: Record<string, number> } | null;
+      prioritySummary: {
+        backendBreakdown: Record<string, number>;
+        warningBreakdown: Record<string, number>;
+      } | null;
       priorityFilters: { minPriorityTier: string | null; top: number | null } | null;
       readinessSnapshot: { totals: { images: number; validMasks: number } | null } | null;
     } | null;
@@ -418,6 +422,10 @@ test("build-release-trace-index preserves active learning trace details from rel
   assert.deepEqual(summary.activeLearning?.prioritySummary?.backendBreakdown, {
     fallback: 4,
     model: 1,
+  });
+  assert.deepEqual(summary.activeLearning?.prioritySummary?.warningBreakdown, {
+    onnx_runtime_not_loaded: 2,
+    model_inference_error: 1,
   });
   assert.equal(summary.activeLearning?.priorityFilters?.minPriorityTier, "medium");
   assert.equal(summary.activeLearning?.priorityFilters?.top, 20);

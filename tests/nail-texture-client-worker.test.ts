@@ -53,7 +53,12 @@ test("recognizeNailTexturesInWorker preserves modelInfo from worker response", a
     }
   }
 
-  const postedRequests: Array<{ id: string; maxCandidates: number }> = [];
+  const postedRequests: Array<{
+    id: string;
+    maxCandidates: number;
+    workerTimeoutMs?: number;
+    includeLowConfidenceCandidates?: boolean;
+  }> = [];
   const sourcePixels = new Uint8ClampedArray(16).fill(255);
   let bitmapInputPixels: Uint8ClampedArray | null = null;
 
@@ -64,8 +69,18 @@ test("recognizeNailTexturesInWorker preserves modelInfo from worker response", a
 
     constructor() {}
 
-    postMessage(message: { id: string; maxCandidates: number }) {
-      postedRequests.push({ id: message.id, maxCandidates: message.maxCandidates });
+    postMessage(message: {
+      id: string;
+      maxCandidates: number;
+      workerTimeoutMs?: number;
+      includeLowConfidenceCandidates?: boolean;
+    }) {
+      postedRequests.push({
+        id: message.id,
+        maxCandidates: message.maxCandidates,
+        workerTimeoutMs: message.workerTimeoutMs,
+        includeLowConfidenceCandidates: message.includeLowConfidenceCandidates,
+      });
       this.onmessage?.({
         data: {
           id: message.id,
@@ -146,6 +161,7 @@ Object.defineProperty(globalThis, "window", {
     assert.equal(result.modelInfo?.backend, "webgpu");
     assert.equal(result.modelInfo?.inputSize, 640);
     assert.equal(postedRequests[0]?.maxCandidates, 10);
+    assert.equal(postedRequests[0]?.workerTimeoutMs, 15000);
     assert.equal(bitmapInputPixels, sourcePixels);
   } finally {
     disposeNailTextureRecognitionWorker();
@@ -176,13 +192,18 @@ Object.defineProperty(globalThis, "window", {
   }
 });
 
-test("recognizeNailTexturesInWorker forwards explicit maxCandidates to worker", async () => {
+test("recognizeNailTexturesInWorker forwards explicit recognition options to worker", async () => {
   const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
   const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
   const imageDataDescriptor = Object.getOwnPropertyDescriptor(globalThis, "ImageData");
   const createImageBitmapDescriptor = Object.getOwnPropertyDescriptor(globalThis, "createImageBitmap");
 
-  const postedRequests: Array<{ id: string; maxCandidates: number }> = [];
+  const postedRequests: Array<{
+    id: string;
+    maxCandidates: number;
+    workerTimeoutMs?: number;
+    includeLowConfidenceCandidates?: boolean;
+  }> = [];
 
   class FakeImageData {
     data: Uint8ClampedArray;
@@ -203,8 +224,18 @@ test("recognizeNailTexturesInWorker forwards explicit maxCandidates to worker", 
 
     constructor() {}
 
-    postMessage(message: { id: string; maxCandidates: number }) {
-      postedRequests.push({ id: message.id, maxCandidates: message.maxCandidates });
+    postMessage(message: {
+      id: string;
+      maxCandidates: number;
+      workerTimeoutMs?: number;
+      includeLowConfidenceCandidates?: boolean;
+    }) {
+      postedRequests.push({
+        id: message.id,
+        maxCandidates: message.maxCandidates,
+        workerTimeoutMs: message.workerTimeoutMs,
+        includeLowConfidenceCandidates: message.includeLowConfidenceCandidates,
+      });
       this.onmessage?.({
         data: {
           id: message.id,
@@ -250,10 +281,14 @@ test("recognizeNailTexturesInWorker forwards explicit maxCandidates to worker", 
       {
         preferModel: true,
         maxCandidates: 7,
+        workerTimeoutMs: 12000,
+        includeLowConfidenceCandidates: true,
       }
     );
 
     assert.equal(postedRequests[0]?.maxCandidates, 7);
+    assert.equal(postedRequests[0]?.workerTimeoutMs, 12000);
+    assert.equal(postedRequests[0]?.includeLowConfidenceCandidates, true);
   } finally {
     disposeNailTextureRecognitionWorker();
     if (windowDescriptor) {
@@ -373,6 +408,121 @@ test("recognizeNailTexturesInWorker rejects with AbortError when cancelled", asy
           id: requestId,
           candidates: [],
           backend: "fallback",
+          elapsedMs: 1,
+          warnings: [],
+        },
+      } as MessageEvent<RecognizeNailTextureResponse>);
+    }
+  } finally {
+    disposeNailTextureRecognitionWorker();
+    if (windowDescriptor) {
+      Object.defineProperty(globalThis, "window", windowDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+    }
+    if (workerDescriptor) {
+      Object.defineProperty(globalThis, "Worker", workerDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { Worker?: unknown }).Worker;
+    }
+    if (imageDataDescriptor) {
+      Object.defineProperty(globalThis, "ImageData", imageDataDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { ImageData?: unknown }).ImageData;
+    }
+    if (createImageBitmapDescriptor) {
+      Object.defineProperty(globalThis, "createImageBitmap", createImageBitmapDescriptor);
+    } else {
+      delete (globalThis as typeof globalThis & { createImageBitmap?: unknown }).createImageBitmap;
+    }
+  }
+});
+
+test("recognizeNailTexturesInWorker falls back when worker recognition times out", async () => {
+  const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const workerDescriptor = Object.getOwnPropertyDescriptor(globalThis, "Worker");
+  const imageDataDescriptor = Object.getOwnPropertyDescriptor(globalThis, "ImageData");
+  const createImageBitmapDescriptor = Object.getOwnPropertyDescriptor(globalThis, "createImageBitmap");
+
+  class FakeImageData {
+    data: Uint8ClampedArray;
+    width: number;
+    height: number;
+
+    constructor(data: Uint8ClampedArray, width: number, height: number) {
+      this.data = data;
+      this.width = width;
+      this.height = height;
+    }
+  }
+
+  class FakeWorker {
+    static latestInstance: FakeWorker | null = null;
+    onmessage: ((event: MessageEvent<RecognizeNailTextureResponse>) => void) | null = null;
+    onerror: ((event: ErrorEvent) => void) | null = null;
+    postedIds: string[] = [];
+    terminated = false;
+
+    constructor() {
+      FakeWorker.latestInstance = this;
+    }
+
+    postMessage(message: { id: string }) {
+      this.postedIds.push(message.id);
+    }
+
+    terminate() {
+      this.terminated = true;
+    }
+  }
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    writable: true,
+    value: {},
+  });
+  Object.defineProperty(globalThis, "Worker", {
+    configurable: true,
+    writable: true,
+    value: FakeWorker,
+  });
+  Object.defineProperty(globalThis, "ImageData", {
+    configurable: true,
+    writable: true,
+    value: FakeImageData,
+  });
+  Object.defineProperty(globalThis, "createImageBitmap", {
+    configurable: true,
+    writable: true,
+    value: async () => ({ width: 2, height: 2, close() {} }),
+  });
+
+  try {
+    const result = await recognizeNailTexturesInWorker(
+      {
+        width: 2,
+        height: 2,
+        data: new Uint8ClampedArray(16).fill(255),
+      },
+      {
+        preferModel: true,
+        maxCandidates: 4,
+        workerTimeoutMs: 1,
+      }
+    );
+
+    assert.equal(FakeWorker.latestInstance?.postedIds.length, 1);
+    assert.equal(FakeWorker.latestInstance?.terminated, true);
+    assert.equal(result.backend, "fallback");
+    assert.ok(result.warnings.includes("worker_timeout_used_main_thread"));
+
+    const requestId = FakeWorker.latestInstance?.postedIds[0];
+    if (requestId) {
+      FakeWorker.latestInstance?.onmessage?.({
+        data: {
+          id: requestId,
+          candidates: [],
+          backend: "model",
           elapsedMs: 1,
           warnings: [],
         },

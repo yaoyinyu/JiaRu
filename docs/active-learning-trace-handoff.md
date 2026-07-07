@@ -74,3 +74,22 @@ scripts/build-debug-sample-active-learning-handoff.ts
 
 - 这版模型前面是否吸收过高优先级页面修正样本
 - 吸收的力度和当前 readiness 状态大概是什么
+## 5. warningBreakdown 契约
+
+`prioritized-debug-samples.json` 会输出 `warningBreakdown`，统计本批 debug sample 里出现过的模型运行时、ONNX、fallback 等 warning。
+
+该字段现在会沿着下面链路保留：
+
+```text
+prioritized-debug-samples.json
+-> debug-sample-active-learning-pipeline-report.json
+-> active-learning-release-trace-draft.json
+-> debug-sample-active-learning-handoff.json
+-> release-trace-index.json
+```
+
+治理侧可以用它判断本批回流样本主要是在补数据、修模型运行时，还是修后处理/UI 问题。例如：
+
+- `onnx_runtime_not_loaded`
+- `model_inference_error:*`
+- `model_outputs_empty_used_fallback`

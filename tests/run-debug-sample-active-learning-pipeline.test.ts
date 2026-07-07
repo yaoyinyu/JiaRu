@@ -1,4 +1,4 @@
-﻿import assert from "node:assert/strict";
+import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -197,12 +197,14 @@ test("run-debug-sample-active-learning-pipeline prioritizes imports and runs dat
     backendBreakdown: Record<string, number>;
     modelBackendBreakdown: Record<string, number>;
     correctedCandidateSourceBreakdown: Record<string, number>;
+    warningBreakdown: Record<string, number>;
   };
   assert.equal(priorityReport.returnedCount, 1);
   assert.equal(priorityReport.ranked[0]?.imageId, "local-debug-high");
   assert.deepEqual(priorityReport.backendBreakdown, { fallback: 1, model: 1 });
   assert.deepEqual(priorityReport.modelBackendBreakdown, { fallback: 1, wasm: 1 });
   assert.deepEqual(priorityReport.correctedCandidateSourceBreakdown, { model: 1 });
+  assert.deepEqual(priorityReport.warningBreakdown, { onnx_runtime_not_loaded: 1 });
 
   const importStep = report.steps.find((step) => step.name === "import-debug-sample") as {
     stdout?: { imported?: number; outputs?: Array<{ priorityTier?: string | null }> };
@@ -226,6 +228,7 @@ test("run-debug-sample-active-learning-pipeline prioritizes imports and runs dat
         backendBreakdown: Record<string, number>;
         modelBackendBreakdown: Record<string, number>;
         correctedCandidateSourceBreakdown: Record<string, number>;
+        warningBreakdown: Record<string, number>;
       } | null;
       readinessSnapshot: { imageCountGate: { actual: number } | null } | null;
     };
@@ -244,6 +247,9 @@ test("run-debug-sample-active-learning-pipeline prioritizes imports and runs dat
     releaseTraceDraft.activeLearning.prioritySummary?.correctedCandidateSourceBreakdown,
     { model: 1 }
   );
+  assert.deepEqual(releaseTraceDraft.activeLearning.prioritySummary?.warningBreakdown, {
+    onnx_runtime_not_loaded: 1,
+  });
   assert.equal(releaseTraceDraft.activeLearning.readinessSnapshot?.imageCountGate.actual, 1);
 
   const handoff = JSON.parse(
@@ -256,6 +262,7 @@ test("run-debug-sample-active-learning-pipeline prioritizes imports and runs dat
         backendBreakdown: Record<string, number>;
         modelBackendBreakdown: Record<string, number>;
         correctedCandidateSourceBreakdown: Record<string, number>;
+        warningBreakdown: Record<string, number>;
       } | null;
     };
     governanceHints: { activeLearningPipelineReportPath: string; activeLearningReleaseTraceDraftPath: string };
@@ -272,6 +279,9 @@ test("run-debug-sample-active-learning-pipeline prioritizes imports and runs dat
   });
   assert.deepEqual(handoff.activeLearning.prioritySummary?.correctedCandidateSourceBreakdown, {
     model: 1,
+  });
+  assert.deepEqual(handoff.activeLearning.prioritySummary?.warningBreakdown, {
+    onnx_runtime_not_loaded: 1,
   });
   assert.equal(handoff.governanceHints.activeLearningPipelineReportPath, report.reportPath);
 

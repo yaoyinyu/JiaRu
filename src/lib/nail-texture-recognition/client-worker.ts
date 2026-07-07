@@ -11,6 +11,7 @@ type PendingRequest = {
   resolve: (value: NailTextureRecognitionResult) => void;
   reject: (reason?: unknown) => void;
   cleanupAbort?: () => void;
+  timeoutId?: ReturnType<typeof setTimeout>;
   startedAt: number;
 };
 
@@ -50,6 +51,12 @@ function createWorkerDisposedError(): Error {
   return new Error("recognition_worker_disposed");
 }
 
+function normalizeWorkerTimeoutMs(value: number | undefined): number {
+  if (value == null) return 15_000;
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  return value;
+}
+
 function terminateWorkerAndRejectPending(
   reason: Error | ((id: string) => Error)
 ): void {
@@ -59,6 +66,7 @@ function terminateWorkerAndRejectPending(
   for (const [id, pending] of pendingRequests) {
     pendingRequests.delete(id);
     pending.cleanupAbort?.();
+    if (pending.timeoutId) clearTimeout(pending.timeoutId);
     pending.reject(typeof reason === "function" ? reason(id) : reason);
   }
 }
@@ -83,6 +91,7 @@ function getWorkerInstance(): Worker {
       if (!pending) return;
       pendingRequests.delete(response.id);
       pending.cleanupAbort?.();
+      if (pending.timeoutId) clearTimeout(pending.timeoutId);
       pending.resolve({
         candidates: response.candidates,
         backend: response.backend,
@@ -168,11 +177,39 @@ export async function recognizeNailTexturesInWorker(
       return () => options.signal?.removeEventListener("abort", onAbort);
     })();
 
-    pendingRequests.set(id, { resolve, reject, cleanupAbort, startedAt });
+    const pending: PendingRequest = { resolve, reject, cleanupAbort, startedAt };
+    const workerTimeoutMs = normalizeWorkerTimeoutMs(options.workerTimeoutMs);
+    if (workerTimeoutMs > 0) {
+      pending.timeoutId = setTimeout(() => {
+        const current = pendingRequests.get(id);
+        if (!current) return;
+        pendingRequests.delete(id);
+        current.cleanupAbort?.();
+        workerInstance?.terminate();
+        workerInstance = null;
+
+        void recognizeNailTextures(source, {
+          ...options,
+          preferModel: false,
+          signal: options.signal,
+        })
+          .then((result) => {
+            current.resolve({
+              ...result,
+              elapsedMs: Math.max(result.elapsedMs, nowMs() - startedAt),
+              warnings: [...result.warnings, "worker_timeout_used_main_thread"],
+            });
+          })
+          .catch((error) => current.reject(error));
+      }, workerTimeoutMs);
+    }
+
+    pendingRequests.set(id, pending);
 
     if (options.signal?.aborted) {
       pendingRequests.delete(id);
       cleanupAbort?.();
+      if (pending.timeoutId) clearTimeout(pending.timeoutId);
       reject(createAbortError());
       return;
     }
@@ -181,6 +218,8 @@ export async function recognizeNailTexturesInWorker(
       id,
       imageBitmap,
       maxCandidates: Math.max(1, options.maxCandidates ?? 10),
+      workerTimeoutMs,
+      includeLowConfidenceCandidates: options.includeLowConfidenceCandidates,
       preferModel: options.preferModel ?? true,
       manifestUrl: options.manifestUrl,
     };

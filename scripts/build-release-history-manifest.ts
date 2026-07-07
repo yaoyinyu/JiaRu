@@ -10,6 +10,17 @@ interface ReleaseTraceIndexLike {
     datasetRoot?: string | null;
     importedFileCount?: number;
   } | null;
+  activeLearning?: {
+    importedSampleCount?: number;
+    importedByPriority?: Record<string, number> | null;
+    prioritySummary?: {
+      warningBreakdown?: Record<string, number> | null;
+      backendBreakdown?: Record<string, number> | null;
+    } | null;
+    readinessSnapshot?: {
+      totals?: { images?: number; validMasks?: number } | null;
+    } | null;
+  } | null;
   release?: {
     trainingReleasePipelineReportPath?: string | null;
     finalAuditStatus?: string | null;
@@ -74,6 +85,13 @@ function sortNullableText(value: string | null | undefined) {
   return value ?? "";
 }
 
+function addCounts(target: Record<string, number>, source: Record<string, number> | null | undefined) {
+  if (!source) return;
+  for (const [key, value] of Object.entries(source)) {
+    target[key] = (target[key] ?? 0) + value;
+  }
+}
+
 const options = parseArgs(process.argv.slice(2));
 const indexes = await Promise.all(
   options.traceIndexPaths.map(async (traceIndexPath) => ({
@@ -99,6 +117,14 @@ const entries = indexes
       trace.promotion?.currentVersion ?? trace.registry?.currentVersion ?? trace.currentRegistryVersion ?? null,
     sourceGroupToCandidateVersion: trace.links?.sourceGroupToCandidateVersion ?? null,
     trainingReleasePipelineReportPath: trace.release?.trainingReleasePipelineReportPath ?? null,
+    activeLearningImportedSampleCount: trace.activeLearning?.importedSampleCount ?? 0,
+    activeLearningImportedByPriority: trace.activeLearning?.importedByPriority ?? null,
+    activeLearningWarningBreakdown:
+      trace.activeLearning?.prioritySummary?.warningBreakdown ?? null,
+    activeLearningBackendBreakdown:
+      trace.activeLearning?.prioritySummary?.backendBreakdown ?? null,
+    activeLearningReadinessTotals:
+      trace.activeLearning?.readinessSnapshot?.totals ?? null,
   }))
   .sort(
     (a, b) =>
@@ -125,6 +151,18 @@ const registeredVersions = Array.from(
 const sourceGroups = Array.from(
   new Set(entries.map((entry) => entry.sourceGroup).filter(Boolean))
 );
+const activeLearningImportedSamples = entries.reduce(
+  (total, entry) => total + entry.activeLearningImportedSampleCount,
+  0
+);
+const activeLearningWarningBreakdown: Record<string, number> = {};
+const activeLearningImportedByPriority: Record<string, number> = {};
+const activeLearningBackendBreakdown: Record<string, number> = {};
+for (const entry of entries) {
+  addCounts(activeLearningWarningBreakdown, entry.activeLearningWarningBreakdown);
+  addCounts(activeLearningImportedByPriority, entry.activeLearningImportedByPriority);
+  addCounts(activeLearningBackendBreakdown, entry.activeLearningBackendBreakdown);
+}
 
 const summary = {
   ok: true,
@@ -134,9 +172,18 @@ const summary = {
     uniqueCandidateVersions: new Set(entries.map((entry) => entry.candidateVersion).filter(Boolean)).size,
     uniqueSourceGroups: sourceGroups.length,
     registeredVersions: registeredVersions.length,
+    activeLearningTraceIndexes: entries.filter(
+      (entry) => entry.activeLearningImportedSampleCount > 0 || entry.activeLearningWarningBreakdown
+    ).length,
+    activeLearningImportedSamples,
   },
   decisionCounts,
   finalAuditStatusCounts,
+  activeLearning: {
+    importedByPriority: activeLearningImportedByPriority,
+    warningBreakdown: activeLearningWarningBreakdown,
+    backendBreakdown: activeLearningBackendBreakdown,
+  },
   sourceGroups,
   registeredVersions,
   entries,

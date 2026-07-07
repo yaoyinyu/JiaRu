@@ -155,6 +155,7 @@ test("assessDebugSamplePriority treats model manifest and inference failures as 
     "model_inference_error:simulated_session_run_failure",
     "onnx_session_or_tensor_unavailable",
     "model_outputs_empty_used_fallback",
+    "worker_timeout_used_main_thread",
   ]) {
     const assessment = assessDebugSamplePriority(
       createRecord({

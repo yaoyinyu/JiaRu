@@ -71,6 +71,8 @@ export interface RecognizeNailTexturesOptions {
   preferModel?: boolean;
   manifestUrl?: string;
   maxCandidates?: number;
+  workerTimeoutMs?: number;
+  includeLowConfidenceCandidates?: boolean;
   debugOutputs?: boolean;
   debugRawModelOutputs?: boolean;
   signal?: AbortSignal;
@@ -80,6 +82,8 @@ export interface RecognizeNailTextureRequest {
   id: string;
   imageBitmap: ImageBitmap;
   maxCandidates: number;
+  workerTimeoutMs?: number;
+  includeLowConfidenceCandidates?: boolean;
   preferModel: boolean;
   manifestUrl?: string;
 }

@@ -1,4 +1,4 @@
-import type { TextureExtractionDiagnostics } from "@/lib/nail-texture-recognition";
+﻿import type { TextureExtractionDiagnostics } from "@/lib/nail-texture-recognition";
 
 export interface NailArtPickerQualityRegionLike {
   confidence?: "high" | "medium" | "low";
@@ -57,12 +57,16 @@ const CANDIDATE_WARNING_MESSAGES: Record<string, NailArtPickerWarningPresentatio
     severity: "info",
     message: "该候选主要来自几何估计，建议人工复核。",
   },
+  low_score_debug_candidate: {
+    severity: "info",
+    message: "这是调试模式保留的低分候选，默认流程会隐藏。",
+  },
 };
 
 const RECOGNITION_WARNING_MESSAGES: Record<string, string> = {
   no_candidates_detected: "没有检测到可用的美甲候选区域。",
   worker_unavailable_used_main_thread: "当前环境未启用 Worker，已回退到主线程识别。",
-  model_runtime_unavailable_on_server: "当前环境无法直接加载模型运行时，已回退到规则识别。",
+  worker_timeout_used_main_thread: "Worker recognition timed out; fallback recognition was used.",  model_runtime_unavailable_on_server: "当前环境无法直接加载模型运行时，已回退到规则识别。",
   no_supported_model_backend: "浏览器没有可用的模型推理后端，已回退到规则识别。",
   onnx_runtime_not_loaded: "模型运行时尚未就绪，已回退到规则识别。",
   onnx_session_init_failed: "模型会话初始化失败，已回退到规则识别。",

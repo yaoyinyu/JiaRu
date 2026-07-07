@@ -84,6 +84,65 @@ test("postprocessNailTextureDetections respects maxCandidates option", () => {
   assert.equal(candidates.length, 2);
 });
 
+test("postprocessNailTextureDetections suppresses duplicate model rows", () => {
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 640,
+    originalHeight: 640,
+    scaleX: 1,
+    scaleY: 1,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 3, 6],
+        data: new Float32Array([
+          120, 160, 60, 100, 0.94, 0,
+          123, 162, 58, 98, 0.82, 0,
+          260, 160, 58, 98, 0.78, 0,
+        ]),
+      },
+    },
+    preprocess
+  );
+
+  assert.equal(candidates.length, 2);
+  assert.ok(candidates.some((candidate) => Math.abs(candidate.cx - 120) < 0.01));
+  assert.ok(candidates.some((candidate) => Math.abs(candidate.cx - 260) < 0.01));
+});
+
+test("postprocessNailTextureDetections can expose low-score rows for debug mode", () => {
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 640,
+    originalHeight: 640,
+    scaleX: 1,
+    scaleY: 1,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const outputs = {
+    output0: {
+      dims: [1, 1, 6],
+      data: new Float32Array([120, 160, 60, 100, 0.28, 0]),
+    },
+  };
+
+  assert.equal(postprocessNailTextureDetections(outputs, preprocess).length, 0);
+
+  const debugCandidates = postprocessNailTextureDetections(outputs, preprocess, {
+    includeLowConfidenceCandidates: true,
+  });
+
+  assert.equal(debugCandidates.length, 1);
+  assert.equal(debugCandidates[0].confidence, "low");
+  assert.ok(debugCandidates[0].warnings?.includes("low_score_debug_candidate"));
+});
+
 test("postprocessNailTextureDetections defaults to keeping up to 10 candidates", () => {
   const preprocess = {
     inputSize: 640,
