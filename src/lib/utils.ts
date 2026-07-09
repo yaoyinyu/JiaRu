@@ -1,4 +1,4 @@
-// 预设美甲颜色（20种流行色）
+// 预设美甲颜色：20 种常用试色
 export const PRESET_COLORS = [
   { name: "裸粉色", color: "#F5D5CB" },
   { name: "豆沙红", color: "#C4737D" },
@@ -22,7 +22,7 @@ export const PRESET_COLORS = [
   { name: "珊瑚粉", color: "#F88379" },
 ];
 
-// 预设美甲图库（占位图）
+// 预设美甲图库
 export const GALLERY_IMAGES = [
   { id: 1, src: "/nail-gallery/placeholder-1.svg", name: "渐变裸粉" },
   { id: 2, src: "/nail-gallery/placeholder-2.svg", name: "法式白边" },
@@ -32,13 +32,21 @@ export const GALLERY_IMAGES = [
   { id: 6, src: "/nail-gallery/placeholder-6.svg", name: "宝石镶嵌" },
 ];
 
-// 手指名称（复用于编辑器和 AR 模块）
-export const FINGER_NAMES = ["\u62D9\u6307", "\u98DF\u6307", "\u4E2D\u6307", "\u65E0\u540D\u6307", "\u5C0F\u6307"];
+// 手指名称：复用于编辑器和 AR 模块
+export const FINGER_NAMES = ["拇指", "食指", "中指", "无名指", "小指"];
 
-// AI风格关键词
+// AI 风格关键词
 export const AI_STYLES = [
-  "甜美风", "欧美风", "日系", "极简", "复古",
-  "节日", "水墨", "几何", "花卉", "金属",
+  "甜美风",
+  "欧美风",
+  "日系",
+  "极简",
+  "复古",
+  "节日",
+  "水墨",
+  "几何",
+  "花草",
+  "金属",
 ];
 
 // 工具函数
