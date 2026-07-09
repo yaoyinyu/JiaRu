@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Header } from "@/components/Header";
+import { FlowingShell, GlassPanel, PageHero } from "@/components/FlowingShell";
 import { UploadButton } from "@/components/UploadButton";
 import { NailCanvas } from "@/components/NailCanvas";
 import { ColorPalette } from "@/components/ColorPalette";
@@ -9,9 +9,7 @@ import { FINGER_NAMES } from "@/lib/utils";
 
 export default function EditorPage() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [nailColors, setNailColors] = useState<string[]>(
-    Array(5).fill("#E8A0BF")
-  );
+  const [nailColors, setNailColors] = useState<string[]>(Array(5).fill("#E8A0BF"));
   const [activeFinger, setActiveFinger] = useState(0);
   const [brushSize] = useState(15);
 
@@ -33,99 +31,81 @@ export default function EditorPage() {
   };
 
   return (
-    <div className="min-h-dvh flex flex-col">
-      <Header />
+    <FlowingShell>
+      <PageHero
+        eyebrow="上传试色"
+        title={imageUrl ? "涂抹你的专属甲色" : "上传手部照片开始试色"}
+        description="选择手指、挑选颜色，在照片上快速预览不同美甲配色。"
+      />
 
-      <main className="flex-1 pt-20 pb-8 px-4 max-w-md mx-auto w-full">
-        <h2 className="text-lg font-semibold text-center mb-4">
-          {imageUrl ? "💅 涂抹试色" : "📷 上传手部照片"}
-        </h2>
+      {!imageUrl && <UploadButton onUpload={handleUpload} />}
 
-        {/* 未上传 -> 显示上传按钮 */}
-        {!imageUrl && <UploadButton onUpload={handleUpload} />}
-
-        {/* 已上传 -> 显示编辑器 */}
-        {imageUrl && (
-          <>
-            {/* 手指选择 tab */}
-            <div className="flex gap-2 mb-3 justify-center">
-              {FINGER_NAMES.map((name, i) => (
-                <button
-                  key={i}
-                  onClick={() => setActiveFinger(i)}
-                  className={`px-3 py-1.5 rounded-full text-xs transition-all
-                    ${
-                      activeFinger === i
-                        ? "bg-[#E8A0BF] text-white shadow-sm"
-                        : "bg-pink-50 text-gray-400 hover:bg-pink-100"
-                    }`}
-                >
-                  {name}
-                </button>
-              ))}
-            </div>
-
-            {/* 当前手指颜色预览 + 应用到全部 */}
-            <div className="flex items-center gap-3 justify-center mb-3">
-              <div
-                className="w-7 h-7 rounded-full border-2 border-gray-100 shadow-sm"
-                style={{ backgroundColor: currentColor }}
-              />
-              <span className="text-xs text-gray-400">
-                {FINGER_NAMES[activeFinger]}颜色
-              </span>
+      {imageUrl && (
+        <GlassPanel className="p-4">
+          <div className="mb-4 flex flex-wrap justify-center gap-2">
+            {FINGER_NAMES.map((name, i) => (
               <button
-                onClick={applyToAll}
-                className="text-xs text-[#E8A0BF] underline hover:text-[#D4749D]"
+                key={name}
+                onClick={() => setActiveFinger(i)}
+                className={`rounded-full px-3 py-1.5 text-xs transition-all ${
+                  activeFinger === i
+                    ? "bg-[#d4749d] text-white shadow-sm"
+                    : "bg-white/70 text-gray-400 hover:bg-pink-50"
+                }`}
               >
-                应用到全部
+                {name}
               </button>
-            </div>
+            ))}
+          </div>
 
-            <NailCanvas
-              imageUrl={imageUrl}
-              nailColors={nailColors}
-              activeFinger={activeFinger}
-              brushSize={brushSize}
+          <div className="mb-4 flex items-center justify-center gap-3">
+            <div
+              className="h-8 w-8 rounded-full border-2 border-white shadow-sm"
+              style={{ backgroundColor: currentColor }}
             />
+            <span className="text-xs text-gray-400">{FINGER_NAMES[activeFinger]}颜色</span>
+            <button
+              onClick={applyToAll}
+              className="text-xs font-medium text-[#d4749d] underline underline-offset-4 hover:text-[#b95f86]"
+            >
+              应用到全部
+            </button>
+          </div>
 
-            <div className="mt-6">
-              <p className="text-center text-xs text-gray-400 mb-3">
-                选择颜色后，在指甲位置点击或涂抹
-              </p>
-              <ColorPalette
-                selectedColor={currentColor}
-                onSelectColor={changeColor}
-              />
-            </div>
+          <NailCanvas
+            imageUrl={imageUrl}
+            nailColors={nailColors}
+            activeFinger={activeFinger}
+            brushSize={brushSize}
+          />
 
-            {/* 重新上传 */}
-            <div className="mt-4 text-center">
-              <button
-                onClick={() => {
-                  setImageUrl(null);
-                }}
-                className="text-sm text-gray-400 underline hover:text-pink-400"
-              >
-                换一张照片
-              </button>
-            </div>
-          </>
-        )}
+          <div className="mt-6">
+            <p className="mb-3 text-center text-xs text-gray-400">
+              选择颜色后，在指甲位置点击或涂抹。
+            </p>
+            <ColorPalette selectedColor={currentColor} onSelectColor={changeColor} />
+          </div>
 
-        {/* 使用提示 */}
-        <div className="mt-6 p-4 bg-white/60 rounded-2xl border border-pink-50">
-          <h4 className="text-xs font-semibold text-gray-500 mb-2">💡 使用提示</h4>
-          <ul className="text-xs text-gray-400 space-y-1">
-            <li>• 上传清晰的手部照片效果更好</li>
-            <li>• 选择手指后涂抹对应指甲</li>
-            <li>• 不同手指可以选不同颜色</li>
-            <li>• 涂抹时可以拖动手指连续上色</li>
-            <li>• 使用撤销按钮可以回退上一步</li>
-            <li>• 所有处理在本地完成，照片不会上传</li>
-          </ul>
-        </div>
-      </main>
-    </div>
+          <div className="mt-5 text-center">
+            <button
+              onClick={() => setImageUrl(null)}
+              className="text-sm font-medium text-gray-400 underline underline-offset-4 hover:text-[#d4749d]"
+            >
+              换一张照片
+            </button>
+          </div>
+        </GlassPanel>
+      )}
+
+      <GlassPanel className="mt-6 p-5">
+        <h2 className="mb-3 text-sm font-semibold text-[#4a4a4a]">使用提示</h2>
+        <ul className="space-y-2 text-xs leading-5 text-gray-400">
+          <li>• 上传清晰、光线均匀的手部照片效果更好。</li>
+          <li>• 先选择手指，再给对应指甲涂色。</li>
+          <li>• 不同手指可以设置不同颜色，也可以一键应用到全部。</li>
+          <li>• 所有处理都在本地完成，照片不会上传。</li>
+        </ul>
+      </GlassPanel>
+    </FlowingShell>
   );
 }
