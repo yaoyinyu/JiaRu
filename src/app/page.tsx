@@ -1,369 +1,243 @@
-"use client";
-
-import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 
-const BTNS = [
-  { icon: "📱", label: "AR 实时穿戴", desc: "打开摄像头，实时预览美甲效果", href: "/ar-tryon" },
-  { icon: "✨", label: "AI 贴合穿戴", desc: "AI智能生成设计，贴合到手部照片", href: "/ai-generate" },
+const navItems = [
+  { label: "首页", href: "/" },
+  { label: "功能", href: "#features" },
+  { label: "关于", href: "#about" },
 ];
 
-export default function Home() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const spotlightRef = useRef<HTMLDivElement>(null);
-  const glowRef = useRef<HTMLDivElement>(null);
-  const btnRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+const featureCards = [
+  {
+    title: "上传试色",
+    desc: "上传手部照片，选择喜欢的颜色或纹理，快速预览指尖效果。",
+    href: "/editor",
+    icon: "upload",
+  },
+  {
+    title: "灵感图库",
+    desc: "浏览精选美甲款式，找到适合你的风格与配色灵感。",
+    href: "/gallery",
+    icon: "grid",
+  },
+  {
+    title: "AI 生成",
+    desc: "用文字描述想要的风格，让 AI 生成新的美甲设计方向。",
+    href: "/ai-generate",
+    icon: "sparkle",
+  },
+  {
+    title: "AR 试戴",
+    desc: "打开摄像头，实时把美甲效果贴合到手指上。",
+    href: "/ar-tryon",
+    icon: "camera",
+  },
+];
 
-  // 物理状态
-  const st = useRef({
-    cursor: { x: -999, y: -999 },
-    light: { x: -999, y: -999 },
-    captured: -1,
-    captureP: 0,
-    captureFrom: { x: -999, y: -999 },
-    btnTilt: [{ x: 0, y: 0 }, { x: 0, y: 0 }],
-    btnGlow: [0, 0],
-    clickLock: -1, // 正在点击动画的按钮索引，-1=无
-  });
-
-  // 弹性缓出：产生过冲回弹
-  function elasticOut(t: number) {
-    if (t <= 0 || t >= 1) return t;
-    return Math.pow(2, -9 * t) * Math.sin((t - 0.075) * (2 * Math.PI) / 0.35) + 1;
+function FeatureIcon({ icon }: { icon: string }) {
+  if (icon === "upload") {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="3" y="9" width="22" height="15" rx="3" />
+        <path d="M9 17l3-3 4 5 3-3 3 3" />
+        <circle cx="10" cy="6" r="3" />
+        <path d="M14 6h8" />
+      </svg>
+    );
   }
 
-  const [showHint, setShowHint] = useState(true);
+  if (icon === "grid") {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <rect x="3" y="3" width="9" height="9" rx="2" />
+        <rect x="16" y="3" width="9" height="9" rx="2" />
+        <rect x="3" y="16" width="9" height="9" rx="2" />
+        <rect x="16" y="16" width="9" height="9" rx="2" />
+      </svg>
+    );
+  }
 
-  // ---------- 按需运行的指针动画 ----------
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    let rafId = 0;
-    let disposed = false;
-    let layoutDirty = true;
-    let hintDismissed = false;
-    let buttonCenters: { x: number; y: number }[] = [];
-
-    function measureButtons() {
-      buttonCenters = btnRefs.current.map((el) => {
-        if (!el) return { x: -999, y: -999 };
-        const r = el.getBoundingClientRect();
-        return { x: r.left + r.width / 2, y: r.top + r.height / 2 };
-      });
-      layoutDirty = false;
-    }
-
-    function scheduleTick() {
-      if (!disposed && rafId === 0) {
-        rafId = requestAnimationFrame(tick);
-      }
-    }
-
-    function tick() {
-      rafId = 0;
-      if (disposed) return;
-
-      const s = st.current;
-      const sp = spotlightRef.current;
-      const gw = glowRef.current;
-      if (!sp || !gw) return;
-      if (layoutDirty) measureButtons();
-
-      const cx = s.cursor.x;
-      const cy = s.cursor.y;
-      let needsAnotherFrame = false;
-      let captured = -1;
-      let minDist = Infinity;
-
-      for (let i = 0; i < BTNS.length; i++) {
-        const center = buttonCenters[i];
-        if (!center) continue;
-        const cdx = cx - center.x;
-        const cdy = cy - center.y;
-        const cDist = Math.hypot(cdx, cdy);
-        if (cDist < minDist) minDist = cDist;
-        if (cDist < 100 || (s.captured === i && cDist < 160)) {
-          captured = i;
-          break;
-        }
-      }
-
-      if (captured >= 0) {
-        if (s.captured < 0) {
-          s.captured = captured;
-          s.captureP = 0;
-          s.captureFrom.x = s.light.x;
-          s.captureFrom.y = s.light.y;
-        }
-      } else if (s.captured >= 0) {
-        s.captured = -1;
-        s.captureP = 0;
-      }
-
-      if (s.captured >= 0) {
-        const el = btnRefs.current[s.captured];
-        const center = buttonCenters[s.captured];
-        if (el && center) {
-          s.captureP = Math.min(s.captureP + 0.05, 1);
-          needsAnotherFrame ||= s.captureP < 1;
-          const k = elasticOut(s.captureP);
-          s.light.x = s.captureFrom.x + (center.x - s.captureFrom.x) * k;
-          s.light.y = s.captureFrom.y + (center.y - s.captureFrom.y) * k;
-
-          if (s.clickLock !== s.captured) {
-            const btnScale = 1 + Math.min(k, 1) * 0.05 + Math.max(0, k - 1) * 0.03;
-            el.style.transform = "scale(" + btnScale + ")";
-            el.style.boxShadow = "0 0 " + (20 + Math.min(k, 1) * 60) + "px rgba(232,160,191,"
-              + (0.3 + Math.min(k, 1) * 0.6) + ")";
-            if (s.captured === 0) {
-              el.style.boxShadow += ", inset 0 0 30px rgba(255,255,255," + (Math.min(k, 1) * 0.15) + ")";
-            }
-          }
-        }
-      } else {
-        const deltaX = cx - s.light.x;
-        const deltaY = cy - s.light.y;
-        s.light.x += deltaX * 0.065;
-        s.light.y += deltaY * 0.065;
-        needsAnotherFrame ||= Math.abs(deltaX) > 0.25 || Math.abs(deltaY) > 0.25;
-      }
-
-      for (let i = 0; i < BTNS.length; i++) {
-        if (i === s.captured || i === s.clickLock) continue;
-        const el = btnRefs.current[i];
-        const center = buttonCenters[i];
-        if (!el || !center) continue;
-        const dx = s.light.x - center.x;
-        const dy = s.light.y - center.y;
-        const dist = Math.hypot(dx, dy);
-        const field = 200;
-
-        if (dist > 0 && dist < field) {
-          const force = 1 - dist / field;
-          const ease = force * force * (3 - 2 * force);
-          const tiltMag = ease * 10;
-          s.btnTilt[i].x += (-dx / dist * tiltMag - s.btnTilt[i].x) * 0.1;
-          s.btnTilt[i].y += (-dy / dist * tiltMag - s.btnTilt[i].y) * 0.1;
-          s.btnGlow[i] += (ease - s.btnGlow[i]) * 0.12;
-        } else {
-          s.btnTilt[i].x += (0 - s.btnTilt[i].x) * 0.08;
-          s.btnTilt[i].y += (0 - s.btnTilt[i].y) * 0.08;
-          s.btnGlow[i] += (0 - s.btnGlow[i]) * 0.08;
-        }
-
-        const tiltX = s.btnTilt[i].x;
-        const tiltY = s.btnTilt[i].y;
-        const gl = s.btnGlow[i];
-        needsAnotherFrame ||= Math.abs(tiltX) >= 0.3 || Math.abs(tiltY) >= 0.3 || gl >= 0.01;
-        if (Math.abs(tiltX) < 0.3 && Math.abs(tiltY) < 0.3 && gl < 0.01) {
-          el.style.transform = "";
-          el.style.boxShadow = "";
-        } else {
-          el.style.transform = "translate(" + tiltX.toFixed(1) + "px, " + tiltY.toFixed(1) + "px)";
-          el.style.boxShadow = i === 0
-            ? "0 0 " + (20 + gl * 40) + "px rgba(232,160,191," + (0.25 + gl * 0.5) + ")"
-            : "0 0 " + (10 + gl * 30) + "px rgba(232,160,191," + (0.1 + gl * 0.35) + ")";
-        }
-      }
-
-      sp.style.transform = "translate(" + (s.light.x - 200) + "px, " + (s.light.y - 200) + "px)";
-      if (s.captured >= 0) {
-        const ease = 1 - Math.pow(1 - s.captureP, 3);
-        sp.style.opacity = String(0.3 + ease * 0.5);
-        sp.style.transform += " scale(" + (1 - ease * 0.35) + ")";
-        gw.style.opacity = String(0.4 + ease * 0.4);
-      } else {
-        sp.style.opacity = String(Math.max(0.2, 0.45 - minDist * 0.001));
-        gw.style.opacity = "0.4";
-      }
-
-      if (needsAnotherFrame) scheduleTick();
-    }
-
-    function move(e: PointerEvent) {
-      st.current.cursor = { x: e.clientX, y: e.clientY };
-      if (!hintDismissed) {
-        hintDismissed = true;
-        setShowHint(false);
-      }
-      scheduleTick();
-    }
-
-    function leave() {
-      const s = st.current;
-      s.cursor = { x: -999, y: -999 };
-      s.light = { x: -999, y: -999 };
-      s.captured = -1;
-      s.captureP = 0;
-      scheduleTick();
-    }
-
-    function invalidateLayout() {
-      layoutDirty = true;
-      scheduleTick();
-    }
-
-    const resizeObserver = new ResizeObserver(invalidateLayout);
-    resizeObserver.observe(container);
-    btnRefs.current.forEach((el) => {
-      if (el) resizeObserver.observe(el);
-    });
-    container.addEventListener("pointermove", move, { passive: true });
-    container.addEventListener("pointerleave", leave);
-    window.addEventListener("resize", invalidateLayout);
-    measureButtons();
-
-    return () => {
-      disposed = true;
-      if (rafId !== 0) cancelAnimationFrame(rafId);
-      resizeObserver.disconnect();
-      container.removeEventListener("pointermove", move);
-      container.removeEventListener("pointerleave", leave);
-      window.removeEventListener("resize", invalidateLayout);
-    };
-  }, []);
-
-  // 点击动画
-  function handleClick(i: number) {
-    return function(btn: HTMLAnchorElement) {
-      st.current.clickLock = i;
-      btn.style.transition = "transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s";
-      btn.style.transform = "scale(0.94)";
-      btn.style.boxShadow = "0 4px 12px rgba(232,160,191,0.3)";
-      setTimeout(() => {
-        btn.style.transform = "scale(1)";
-        setTimeout(() => {
-          btn.style.transition = "";
-          btn.style.boxShadow = "";
-          st.current.clickLock = -1;
-        }, 250);
-      }, 200);
-    };
+  if (icon === "sparkle") {
+    return (
+      <svg viewBox="0 0 28 28" aria-hidden="true">
+        <path d="M14 3l2.5 7.5L24 13l-7.5 2.5L14 23l-2.5-7.5L4 13l7.5-2.5L14 3z" />
+        <circle cx="21" cy="20" r="2" />
+        <circle cx="7" cy="21" r="1.5" />
+      </svg>
+    );
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="relative min-h-dvh bg-gradient-to-b from-[#FFF5F7] via-white to-[#FFF0F3] overflow-hidden flex flex-col select-none"
-    >
-      {/* 环境辉光 */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div
-          ref={glowRef}
-          className="absolute inset-0 transition-opacity duration-500"
-          style={{
-            background: "radial-gradient(ellipse at 50% 40%, rgba(232,160,191,0.12) 0%, transparent 60%)",
-            opacity: 0.4,
-          }}
-        />
-        <div className="absolute -top-20 -right-20 w-80 h-80 bg-gradient-to-br from-[#E8A0BF]/15 to-transparent rounded-full blur-3xl" />
+    <svg viewBox="0 0 28 28" aria-hidden="true">
+      <rect x="4" y="8" width="20" height="14" rx="3" />
+      <circle cx="14" cy="15" r="4" />
+      <circle cx="14" cy="15" r="1.5" className="fill-current" />
+      <path d="M4 12h16" opacity="0.3" />
+    </svg>
+  );
+}
+
+export default function Home() {
+  return (
+    <main className="relative min-h-dvh overflow-hidden bg-gradient-to-b from-[#fff5f7] to-white text-[#4a4a4a]">
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
+        <div className="home-ambient-blob home-amb-a" />
+        <div className="home-ambient-blob home-amb-b" />
+        <div className="home-ambient-blob home-amb-c" />
+        <div className="home-ambient-blob home-amb-d" />
+        <div className="home-ambient-blob home-amb-e" />
+        <div className="absolute inset-0 bg-white/30 backdrop-blur-[50px] backdrop-saturate-[1.3]" />
       </div>
 
-      {/* 光标聚光灯 */}
-      <div
-        ref={spotlightRef}
-        className="pointer-events-none fixed z-50 w-[400px] h-[400px] rounded-full"
-        style={{
-          background: "radial-gradient(circle at center, rgba(232,160,191,0.35) 0%, rgba(212,116,157,0.12) 35%, transparent 65%)",
-          transform: "translate(-9999px, -9999px)",
-          willChange: "transform, opacity",
-        }}
-      />
-
-      {/* 顶部 */}
-      <div className="relative z-10 pt-8 px-6">
-        <div className="flex items-center justify-center gap-3">
-          <span className="h-px w-12 bg-gradient-to-r from-transparent via-[#E8A0BF]/40 to-transparent" />
-          <span className="text-[#E8A0BF]/40 text-xs tracking-[0.3em]">JIA RU</span>
-          <span className="h-px w-12 bg-gradient-to-r from-transparent via-[#E8A0BF]/40 to-transparent" />
-        </div>
-      </div>
-
-      {/* 主视觉 */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 pt-8 pb-6">
-        <div className="relative mb-8">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#E8A0BF]/10 via-[#D4749D]/5 to-transparent rounded-full blur-2xl scale-150" />
-          <div
-            className="relative w-32 h-32 rounded-full bg-gradient-to-br from-[#FFF5F7] via-white to-[#FFE4EC] shadow-xl shadow-pink-200/30 flex items-center justify-center border border-white/60"
-          >
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/40 to-transparent" />
-            <span className="text-5xl relative z-10">💅</span>
-          </div>
-        </div>
-
-        <h1 className="text-5xl font-bold text-[#4A4A4A] tracking-[0.08em] mb-2">
+      <header className="relative z-10 flex h-20 items-center justify-between px-5 sm:px-10 lg:px-20">
+        <Link href="/" className="text-[28px] font-bold tracking-[-0.5px] text-[#d4749d]" aria-label="甲如首页">
           甲如
-        </h1>
-        <p className="text-sm text-gray-400 tracking-[0.15em] mb-8">
-          美甲试戴 · 如你所见
-        </p>
-
-        {/* 按钮 */}
-        <div className="w-full max-w-xs flex flex-col gap-4">
-          {BTNS.map((btn, i) => (
+        </Link>
+        <nav className="hidden items-center gap-10 md:flex" aria-label="主导航">
+          {navItems.map((item) => (
             <Link
-              key={btn.href}
-              ref={(el) => { btnRefs.current[i] = el; }}
-              href={btn.href}
-              onClick={(e) => handleClick(i)(e.currentTarget as HTMLAnchorElement)}
+              key={item.href}
+              href={item.href}
               className={
-                "group relative overflow-hidden rounded-3xl p-5 will-change-transform " +
-                (i === 0
-                  ? "bg-gradient-to-br from-[#E8A0BF] to-[#D4749D] shadow-lg shadow-pink-200/40"
-                  : "bg-white border border-pink-100 shadow-md shadow-pink-50")
+                item.href === "/"
+                  ? "text-base font-medium text-[#d4749d]"
+                  : "text-base font-normal text-gray-400 transition-colors hover:text-[#d4749d]"
               }
             >
-              {i === 0 && (
-                <>
-                  <div className="absolute -top-6 -right-6 w-24 h-24 bg-white/10 rounded-full blur-xl" />
-                  <div className="absolute -bottom-4 -left-4 w-16 h-16 bg-white/5 rounded-full blur-lg" />
-                </>
-              )}
-              {i === 1 && (
-                <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-[#E8A0BF]/5 to-transparent rounded-full blur-xl" />
-              )}
+              {item.label}
+            </Link>
+          ))}
+        </nav>
+        <Link
+          href="/ar-tryon"
+          className="rounded-full bg-gradient-to-b from-[#f0b8d0] to-[#d4749d] px-6 py-3 text-sm font-semibold text-white shadow-[0_1px_0_rgba(255,255,255,0.25)_inset,0_4px_12px_rgba(212,116,157,0.35),0_8px_24px_rgba(212,116,157,0.15)] transition hover:-translate-y-0.5 hover:shadow-[0_1px_0_rgba(255,255,255,0.3)_inset,0_6px_16px_rgba(212,116,157,0.4),0_12px_32px_rgba(212,116,157,0.2)] active:translate-y-0.5 active:scale-[0.97] sm:px-7 sm:py-3.5 sm:text-base"
+        >
+          开始试色
+        </Link>
+      </header>
 
-              <div className="relative z-10 flex items-center gap-4">
-                <span className="text-3xl">{btn.icon}</span>
-                <div>
-                  <h3 className={"font-bold text-lg " + (i === 0 ? "text-white" : "text-[#4A4A4A]")}>
-                    {btn.label}
-                  </h3>
-                  <p className={"text-xs mt-0.5 " + (i === 0 ? "text-white/70" : "text-gray-400")}>
-                    {btn.desc}
-                  </p>
-                </div>
-                <span
-                  className={
-                    "ml-auto text-lg group-hover:translate-x-1 transition-transform duration-200 " +
-                    (i === 0 ? "text-white/50" : "text-gray-300")
-                  }
-                >
-                  →
+      <section className="relative z-10 flex min-h-[calc(100dvh-80px)] flex-col items-center justify-center gap-10 px-4 py-16 sm:px-10 lg:px-20 lg:py-24">
+        <div className="flex max-w-2xl flex-col items-center gap-6 text-center">
+          <p className="rounded-full border border-[#e8a0bf]/25 bg-gradient-to-b from-[#fff5f7] to-[#ffe8ee] px-4 py-1.5 text-sm font-medium text-[#d4749d] shadow-[0_2px_8px_rgba(212,116,157,0.06)]">
+            你的随身美甲师
+          </p>
+          <h1 className="max-w-3xl text-balance text-[clamp(2rem,5vw,3.5rem)] font-bold leading-tight">
+            找到属于你的完美甲色
+          </h1>
+          <p className="max-w-2xl text-balance text-[clamp(0.95rem,1.4vw,1.125rem)] leading-7 text-gray-400">
+            上传照片或开启摄像头，即时预览美甲效果。无需下载，浏览器打开就能用。
+          </p>
+        </div>
+
+        <div
+          id="features"
+          className="grid w-full max-w-xl grid-cols-1 gap-4 rounded-[28px] border border-[#e8a0bf]/15 bg-white/60 p-4 shadow-[0_8px_32px_rgba(232,160,191,0.08)] sm:grid-cols-2 sm:p-5 xl:max-w-6xl xl:grid-cols-4"
+        >
+          {featureCards.map((card) => (
+            <Link
+              key={card.href}
+              href={card.href}
+              className="group flex flex-col items-center gap-3 rounded-[20px] bg-gradient-to-b from-white to-[#fff5f7] p-6 text-center shadow-[0_0_0_1px_rgba(232,160,191,0.1)_inset,0_1px_3px_rgba(212,116,157,0.06),0_4px_12px_rgba(212,116,157,0.08),0_12px_32px_rgba(212,116,157,0.04)] transition duration-300 hover:-translate-y-1 hover:scale-[1.02] hover:shadow-[0_0_0_1px_rgba(232,160,191,0.15)_inset,0_2px_6px_rgba(212,116,157,0.1),0_8px_20px_rgba(212,116,157,0.14),0_20px_48px_rgba(212,116,157,0.08)] active:-translate-y-0.5 active:scale-[0.98]"
+            >
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-[#fff5f7] to-[#ffe8ee] text-[#d4749d] shadow-[0_2px_8px_rgba(212,116,157,0.1),0_0_0_1px_rgba(232,160,191,0.12)_inset]">
+                <span className="[&_svg]:h-7 [&_svg]:w-7 [&_svg]:fill-none [&_svg]:stroke-current [&_svg]:stroke-2 [&_svg]:[stroke-linecap:round] [&_svg]:[stroke-linejoin:round]">
+                  <FeatureIcon icon={card.icon} />
                 </span>
-              </div>
+              </span>
+              <span className="text-lg font-semibold text-[#4a4a4a]">{card.title}</span>
+              <span className="text-balance text-sm leading-6 text-gray-400">{card.desc}</span>
             </Link>
           ))}
         </div>
-      </div>
+      </section>
 
-      {/* 底部 */}
-      <div className="relative z-10 pb-6 px-6">
-        <div className="text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/60 backdrop-blur-sm border border-white/80 shadow-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-            <span className="text-xs text-gray-400">所有照片本地处理，不上传服务器</span>
+      <footer id="about" className="relative z-10 flex flex-col items-center gap-10 px-5 pb-10 pt-16 sm:px-10 lg:px-20">
+        <div className="flex w-full max-w-7xl flex-col justify-between gap-10 md:flex-row">
+          <div className="flex flex-col gap-3">
+            <span className="text-2xl font-bold text-[#d4749d]">甲如</span>
+            <span className="text-sm text-gray-400">在指尖遇见更好的美甲选择</span>
+          </div>
+          <div className="flex flex-wrap gap-12 sm:gap-20">
+            <div className="flex flex-col gap-2.5">
+              <span className="mb-1 text-sm font-semibold text-[#4a4a4a]">产品</span>
+              <Link href="/editor" className="text-sm text-gray-400 hover:text-[#d4749d]">
+                上传试色
+              </Link>
+              <Link href="/ai-generate" className="text-sm text-gray-400 hover:text-[#d4749d]">
+                AI 生成
+              </Link>
+              <Link href="/ar-tryon" className="text-sm text-gray-400 hover:text-[#d4749d]">
+                AR 试戴
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2.5">
+              <span className="mb-1 text-sm font-semibold text-[#4a4a4a]">支持</span>
+              <Link href="/privacy" className="text-sm text-gray-400 hover:text-[#d4749d]">
+                隐私政策
+              </Link>
+              <a href="mailto:support@example.com" className="text-sm text-gray-400 hover:text-[#d4749d]">
+                联系我们
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* 提示 */}
-      {showHint && (
-        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 text-xs text-gray-300 animate-bounce pointer-events-none">
-          移动鼠标探索 ✨
+        <div className="h-px w-full max-w-7xl bg-[#fff0f5]" />
+        <div className="flex w-full max-w-7xl flex-col justify-between gap-2 text-sm text-gray-400 md:flex-row">
+          <span>2026 甲如 JiaRu. 保留所有权利。</span>
+          <span>照片在本地处理，不上传至服务器。</span>
         </div>
-      )}
-    </div>
+      </footer>
+
+      <style>{`
+        .home-ambient-blob {
+          position: absolute;
+          border-radius: 9999px;
+          filter: blur(90px);
+          opacity: 0.58;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
+          will-change: transform, border-radius;
+        }
+        .home-amb-a { width: 750px; height: 750px; left: 45%; top: -30%; background: #e8a0bf; animation: home-amb-1 20s infinite; }
+        .home-amb-b { width: 580px; height: 580px; left: 5%; top: 45%; background: #a694e4; animation: home-amb-2 24s infinite; }
+        .home-amb-c { width: 460px; height: 460px; left: 60%; top: 42%; background: #ffd278; animation: home-amb-3 18s infinite; }
+        .home-amb-d { width: 640px; height: 640px; left: 15%; top: -5%; background: #ffb4c8; animation: home-amb-4 26s infinite; }
+        .home-amb-e { width: 520px; height: 520px; left: 30%; top: 35%; background: #fff0f5; animation: home-amb-5 22s infinite; }
+        @keyframes home-amb-1 {
+          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
+          20% { transform: translate(-130px,90px) scale(1.35,0.55) rotate(15deg); border-radius: 35% 65% 58% 42%; }
+          40% { transform: translate(80px,-180px) scale(0.5,1.6) rotate(-12deg); border-radius: 68% 32% 40% 60%; }
+          60% { transform: translate(-160px,-70px) scale(1.25,0.7) rotate(22deg); border-radius: 42% 58% 65% 35%; }
+          80% { transform: translate(50px,140px) scale(0.6,1.45) rotate(-18deg); border-radius: 60% 40% 35% 65%; }
+        }
+        @keyframes home-amb-2 {
+          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
+          25% { transform: translate(140px,-100px) scale(0.55,1.5) rotate(-20deg); border-radius: 62% 38% 45% 55%; }
+          50% { transform: translate(-120px,130px) scale(1.45,0.55) rotate(14deg); border-radius: 38% 62% 60% 40%; }
+          75% { transform: translate(60px,-80px) scale(0.8,1.25) rotate(-8deg); border-radius: 55% 45% 38% 62%; }
+        }
+        @keyframes home-amb-3 {
+          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
+          25% { transform: translate(-110px,110px) scale(1.4,0.5) rotate(18deg); border-radius: 40% 60% 55% 45%; }
+          50% { transform: translate(70px,-150px) scale(0.5,1.55) rotate(-15deg); border-radius: 65% 35% 42% 58%; }
+          75% { transform: translate(130px,60px) scale(1.15,1.3) rotate(6deg); border-radius: 50% 50% 60% 40%; }
+        }
+        @keyframes home-amb-4 {
+          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
+          25% { transform: translate(100px,-130px) scale(0.55,1.5) rotate(-22deg); border-radius: 60% 40% 48% 52%; }
+          50% { transform: translate(-140px,80px) scale(1.5,0.55) rotate(20deg); border-radius: 35% 65% 58% 42%; }
+          75% { transform: translate(-50px,-100px) scale(0.75,1.2) rotate(-6deg); border-radius: 52% 48% 40% 60%; }
+        }
+        @keyframes home-amb-5 {
+          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
+          33% { transform: translate(-100px,-90px) scale(1.3,0.6) rotate(-10deg); border-radius: 42% 58% 55% 45%; }
+          66% { transform: translate(90px,100px) scale(0.55,1.45) rotate(12deg); border-radius: 62% 38% 40% 60%; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .home-ambient-blob {
+            animation: none;
+          }
+        }
+      `}</style>
+    </main>
   );
 }
