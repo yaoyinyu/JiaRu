@@ -86,6 +86,7 @@ async function writeTraceIndex(
     warningBreakdown: Record<string, number>;
     backendBreakdown: Record<string, number>;
     readinessTotals: { images: number; validMasks: number };
+    firstRunOutputs?: Record<string, string | null>;
   }
 ) {
   const traceIndexPath = path.join(root, "model", "exports", version, "release-trace-index.json");
@@ -94,6 +95,9 @@ async function writeTraceIndex(
     JSON.stringify(
       {
         candidateVersion: version,
+        release: values.firstRunOutputs
+          ? { firstRunOutputs: values.firstRunOutputs }
+          : null,
         activeLearning: {
           importedSampleCount: values.importedSampleCount,
           importedByPriority: values.importedByPriority,
@@ -295,6 +299,119 @@ test("compare-training-releases can compare active-learning trace indexes", asyn
   assert.ok(
     summary.warnings.some((item) =>
       item.includes("candidate active-learning warning count increased by 1")
+    )
+  );
+});
+
+
+test("compare-training-releases warns when candidate loses recognition mask visual evidence", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-compare-release-visual-evidence-"));
+  const baseline = await createRelease(
+    root,
+    "nail-texture-seg-v1",
+    {
+      split: "test",
+      imgsz: 640,
+      dry_run: false,
+      box_map50: 0.86,
+      box_map: 0.78,
+      seg_map50: 0.76,
+      seg_map: 0.68,
+    },
+    1024
+  );
+  const candidate = await createRelease(
+    root,
+    "nail-texture-seg-v2",
+    {
+      split: "test",
+      imgsz: 640,
+      dry_run: false,
+      box_map50: 0.87,
+      box_map: 0.79,
+      seg_map50: 0.77,
+      seg_map: 0.69,
+    },
+    1024
+  );
+  const baselineTraceIndex = await writeTraceIndex(root, "nail-texture-seg-v1", {
+    importedSampleCount: 2,
+    importedByPriority: { high: 1, medium: 1 },
+    warningBreakdown: {},
+    backendBreakdown: { model: 2 },
+    readinessTotals: { images: 20, validMasks: 70 },
+    firstRunOutputs: {
+      debugJsonPath: "model/exports/nail-texture-seg-v1/debug/real-model-debug.json",
+      recognitionMaskPath: "model/exports/nail-texture-seg-v1/debug/real-model-recognition-mask-overlay.png",
+    },
+  });
+  const candidateTraceIndex = await writeTraceIndex(root, "nail-texture-seg-v2", {
+    importedSampleCount: 2,
+    importedByPriority: { high: 1, medium: 1 },
+    warningBreakdown: {},
+    backendBreakdown: { model: 2 },
+    readinessTotals: { images: 20, validMasks: 70 },
+    firstRunOutputs: {
+      debugJsonPath: "model/exports/nail-texture-seg-v2/debug/real-model-debug.json",
+      recognitionMaskPath: null,
+    },
+  });
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/compare-training-releases.ts",
+      "--baseline-metrics",
+      baseline.metricsPath,
+      "--baseline-manifest",
+      baseline.manifestPath,
+      "--candidate-metrics",
+      candidate.metricsPath,
+      "--candidate-manifest",
+      candidate.manifestPath,
+      "--baseline-trace-index",
+      baselineTraceIndex,
+      "--candidate-trace-index",
+      candidateTraceIndex,
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const summary = JSON.parse(stdout) as {
+    baseline: {
+      visualEvidence: {
+        firstRunOutputsPresent: boolean;
+        recognitionMaskPath: string | null;
+        recognitionMaskEvidencePresent: boolean;
+      };
+    };
+    candidate: {
+      visualEvidence: {
+        firstRunOutputsPresent: boolean;
+        recognitionMaskPath: string | null;
+        recognitionMaskEvidencePresent: boolean;
+      };
+    };
+    deltas: {
+      firstRunVisualEvidence: number;
+      recognitionMaskEvidence: number;
+    };
+    warnings: string[];
+  };
+
+  assert.equal(summary.baseline.visualEvidence.firstRunOutputsPresent, true);
+  assert.match(summary.baseline.visualEvidence.recognitionMaskPath ?? "", /recognition-mask-overlay\.png$/);
+  assert.equal(summary.baseline.visualEvidence.recognitionMaskEvidencePresent, true);
+  assert.equal(summary.candidate.visualEvidence.firstRunOutputsPresent, true);
+  assert.equal(summary.candidate.visualEvidence.recognitionMaskPath, null);
+  assert.equal(summary.candidate.visualEvidence.recognitionMaskEvidencePresent, false);
+  assert.equal(summary.deltas.firstRunVisualEvidence, 0);
+  assert.equal(summary.deltas.recognitionMaskEvidence, -1);
+  assert.ok(
+    summary.warnings.some((item) =>
+      item.includes("candidate recognition mask visual evidence is missing")
     )
   );
 });

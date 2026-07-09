@@ -156,3 +156,13 @@ The decision report now keeps these fields under `inputs`:
 - `inputs.inferredRecordFailureDelta`
 
 This is intentionally a `manual_review` signal, not a hard hold: increasing failure taxonomy evidence may come from better auditing or a larger reviewed sample, but it must be explicitly inspected before promotion.
+## First-run visual evidence manual_review
+
+When `compare-training-releases.ts` reports `deltas.firstRunVisualEvidence` or `deltas.recognitionMaskEvidence` below zero, `build-release-decision-report.ts` now moves the candidate to `manual_review`. This is a soft governance risk, not a hard hold: the core model gates may still pass, but reviewers must explicitly confirm why first-run output evidence or recognition-mask overlay evidence disappeared before promotion.
+
+The decision report exposes these values in:
+
+- `inputs.firstRunVisualEvidenceDelta`
+- `inputs.recognitionMaskEvidenceDelta`
+
+This keeps the release decision aligned with the trace/history evidence chain and prevents a candidate with missing mask-overlay inspection proof from being treated as a clean automatic approval.

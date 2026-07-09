@@ -131,4 +131,5 @@ test("build-real-model-first-run-record assembles readiness browser and ui revie
   assert.equal(record.model.artifactOk, true);
   assert.equal(record.input.imagePath, imagePath);
   assert.equal(record.decision.status, "pass");
+  assert.match(record.outputs.recognitionMaskPath, /real-model-5188\.jpg_wh860-recognition-mask-overlay\.png$/);
 });

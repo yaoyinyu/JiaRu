@@ -9,6 +9,7 @@ const IMAGE_EXTENSIONS = new Set([".jpg", ".jpeg", ".png", ".webp"]);
 const SKIP_NAME_PATTERNS = [
   /-candidate-mask\./i,
   /-skin-mask\./i,
+  /-recognition-mask-overlay\./i,
   /-detection-debug\./i,
   /-green-annotation\./i,
   /batch-verify-report\.json$/i,
@@ -30,6 +31,7 @@ interface BatchImageReport {
   output?: string;
   candidateMaskOutput?: string;
   skinMaskOutput?: string;
+  recognitionMaskOutput?: string;
   debugJsonOutput?: string;
   count?: number;
   backend?: string;
@@ -194,6 +196,7 @@ async function runSingleImage(
       output: string;
       candidateMaskOutput: string;
       skinMaskOutput: string;
+      recognitionMaskOutput: string;
       debugJsonOutput: string;
       count: number;
       backend: string;
@@ -210,6 +213,7 @@ async function runSingleImage(
       output: result.output,
       candidateMaskOutput: result.candidateMaskOutput,
       skinMaskOutput: result.skinMaskOutput,
+      recognitionMaskOutput: result.recognitionMaskOutput,
       debugJsonOutput: result.debugJsonOutput,
       count: result.count,
       backend: result.backend,
@@ -226,6 +230,7 @@ async function runSingleImage(
           output?: string;
           candidateMaskOutput?: string;
           skinMaskOutput?: string;
+          recognitionMaskOutput?: string;
           debugJsonOutput?: string;
           count?: number;
           backend?: string;
@@ -248,6 +253,7 @@ async function runSingleImage(
       output: parsed?.output,
       candidateMaskOutput: parsed?.candidateMaskOutput,
       skinMaskOutput: parsed?.skinMaskOutput,
+      recognitionMaskOutput: parsed?.recognitionMaskOutput,
       debugJsonOutput: parsed?.debugJsonOutput,
       count: parsed?.count,
       backend: parsed?.backend,

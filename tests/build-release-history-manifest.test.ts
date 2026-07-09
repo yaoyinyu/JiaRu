@@ -40,6 +40,10 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
         },
         release: {
           trainingReleasePipelineReportPath: "C:/tmp/v1/training-release-pipeline-report.json",
+          firstRunOutputs: {
+            debugJsonPath: "C:/tmp/v1/real-model-5188-detection-debug.json",
+            recognitionMaskPath: "C:/tmp/v1/real-model-5188-recognition-mask-overlay.png",
+          },
           finalAuditStatus: "pass",
           derivedAnnotationFailures: 1,
           postprocessFailures: 1,
@@ -92,6 +96,10 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
         },
         release: {
           trainingReleasePipelineReportPath: "C:/tmp/v2/training-release-pipeline-report.json",
+          firstRunOutputs: {
+            debugJsonPath: "C:/tmp/v2/real-model-5188-detection-debug.json",
+            recognitionMaskPath: null,
+          },
           finalAuditStatus: "pass",
           derivedAnnotationFailures: 0,
           postprocessFailures: 0,
@@ -188,6 +196,8 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
   assert.equal(summary.totals.failureCategoryTotal, 4);
   assert.equal(summary.totals.failureSummaryCsvRows, 4);
   assert.equal(summary.totals.failureSummaryInferredRecordFailures, 2);
+  assert.equal(summary.totals.visualEvidenceTraceIndexes, 2);
+  assert.equal(summary.totals.recognitionMaskEvidenceTraceIndexes, 1);
   assert.equal(summary.decisionCounts.approve_candidate, 1);
   assert.equal(summary.decisionCounts.manual_review, 1);
   assert.equal(summary.finalAuditStatusCounts.pass, 2);
