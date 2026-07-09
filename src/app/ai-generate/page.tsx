@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Header } from "@/components/Header";
+import { FlowingShell, GlassPanel, PageHero } from "@/components/FlowingShell";
 import { AI_STYLES } from "@/lib/utils";
 
 type Status = "idle" | "loading" | "success" | "error";
@@ -56,115 +56,83 @@ export default function AiGeneratePage() {
       link.click();
       URL.revokeObjectURL(url);
     } catch {
-      // 跨域下载失败时回退到新窗口打开
       window.open(imageUrl, "_blank");
     }
   };
 
   return (
-    <div className="min-h-dvh flex flex-col">
-      <Header />
+    <FlowingShell>
+      <PageHero
+        eyebrow="AI 生成"
+        title="用一句话生成美甲灵感"
+        description="描述颜色、质感、图案或场景，生成一张可保存的美甲效果图。"
+      />
 
-      <main className="flex-1 pt-20 pb-8 px-4 max-w-md mx-auto w-full">
-        <h2 className="text-lg font-semibold text-center mb-1">
-          ✨ AI 生成美甲
-        </h2>
-        <p className="text-xs text-gray-400 text-center mb-6">
-          输入风格描述，AI为你设计独一无二的美甲
-        </p>
+      <GlassPanel className="p-5">
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          placeholder="描述你想要的风格，例如：银色亮片渐变，极简气质，适合通勤..."
+          maxLength={500}
+          className="h-28 w-full resize-none rounded-2xl border border-[#e8a0bf]/15 bg-white/70 p-4 text-sm text-gray-700 outline-none placeholder:text-gray-300 focus:border-[#d4749d]/40 focus:ring-4 focus:ring-[#e8a0bf]/10"
+        />
 
-        {/* 输入区 */}
-        <div className="bg-white rounded-2xl p-4 shadow-sm border border-pink-100 mb-4">
-          <textarea
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            placeholder="描述你想要的风格，如：银色亮片渐变，简约气质..."
-            maxLength={500}
-            className="w-full h-24 resize-none outline-none text-sm
-                       text-gray-700 placeholder:text-gray-300"
-          />
+        <div className="mt-2 text-right text-[10px] text-gray-300">{prompt.length}/500</div>
 
-          {/* 字数统计 */}
-          <div className="text-right text-[10px] text-gray-300 mt-1">
-            {prompt.length}/500
-          </div>
-
-          {/* 预设风格关键词 */}
-          <div className="flex flex-wrap gap-2 mt-2">
-            {AI_STYLES.map((style) => (
-              <button
-                key={style}
-                onClick={() => setPrompt(style)}
-                className="px-3 py-1.5 rounded-full text-xs
-                           bg-pink-50 text-pink-400 border border-pink-100
-                           hover:bg-pink-100 transition-colors"
-              >
-                {style}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* 生成按钮 */}
-        <button
-          onClick={handleGenerate}
-          disabled={status === "loading" || !prompt.trim()}
-          className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#D4749D]
-                     text-white text-sm font-medium shadow-sm
-                     hover:shadow-md active:scale-[0.98] transition-all
-                     disabled:opacity-40 disabled:cursor-not-allowed
-                     flex items-center justify-center gap-2"
-        >
-          {status === "loading" ? (
-            <>
-              <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              生成中...
-            </>
-          ) : (
-            <>✨ AI 生成</>
-          )}
-        </button>
-
-        {/* 结果展示 — 错误 */}
-        {status === "error" && (
-          <div className="mt-6 bg-red-50 rounded-2xl p-4 shadow-sm border border-red-200">
-            <p className="text-sm text-red-500 font-medium mb-1">❌ 生成失败</p>
-            <p className="text-xs text-red-400">{errorMsg}</p>
+        <div className="mt-4 flex flex-wrap gap-2">
+          {AI_STYLES.map((style) => (
             <button
-              onClick={handleGenerate}
-              className="mt-3 text-xs text-red-500 underline hover:text-red-600"
+              key={style}
+              onClick={() => setPrompt(style)}
+              className="rounded-full border border-[#e8a0bf]/15 bg-pink-50/80 px-3 py-1.5 text-xs text-[#d4749d] transition-colors hover:bg-pink-100"
             >
-              重试
+              {style}
             </button>
-          </div>
-        )}
-
-        {/* 结果展示 — 成功 */}
-        {status === "success" && imageUrl && (
-          <div className="mt-6 bg-white rounded-2xl p-4 shadow-sm border border-pink-100">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={imageUrl}
-              alt="AI生成效果"
-              className="w-full rounded-xl"
-            />
-            <button
-              onClick={handleSave}
-              className="mt-3 w-full h-10 rounded-xl bg-pink-50 text-pink-500 text-sm
-                         hover:bg-pink-100 transition-colors font-medium"
-            >
-              💾 保存图片
-            </button>
-          </div>
-        )}
-
-        {/* 隐私说明 */}
-        <div className="mt-6 p-3 bg-white/60 rounded-2xl border border-pink-50 text-center">
-          <p className="text-xs text-gray-400">
-            🔒 只发送文字描述，不发送你的照片
-          </p>
+          ))}
         </div>
-      </main>
-    </div>
+      </GlassPanel>
+
+      <button
+        onClick={handleGenerate}
+        disabled={status === "loading" || !prompt.trim()}
+        className="mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#f0b8d0] to-[#d4749d] text-sm font-semibold text-white shadow-[0_8px_24px_rgba(212,116,157,0.2)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(212,116,157,0.24)] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40"
+      >
+        {status === "loading" ? (
+          <>
+            <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+            生成中...
+          </>
+        ) : (
+          <>✨ AI 生成</>
+        )}
+      </button>
+
+      {status === "error" && (
+        <GlassPanel className="mt-6 border-red-200 bg-red-50/80 p-5">
+          <p className="mb-1 text-sm font-semibold text-red-500">生成失败</p>
+          <p className="text-xs text-red-400">{errorMsg}</p>
+          <button onClick={handleGenerate} className="mt-3 text-xs font-medium text-red-500 underline underline-offset-4">
+            重试
+          </button>
+        </GlassPanel>
+      )}
+
+      {status === "success" && imageUrl && (
+        <GlassPanel className="mt-6 p-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={imageUrl} alt="AI 生成效果" className="w-full rounded-2xl" />
+          <button
+            onClick={handleSave}
+            className="mt-3 h-11 w-full rounded-2xl bg-pink-50 text-sm font-semibold text-[#d4749d] transition-colors hover:bg-pink-100"
+          >
+            保存图片
+          </button>
+        </GlassPanel>
+      )}
+
+      <GlassPanel className="mt-6 p-4 text-center">
+        <p className="text-xs leading-5 text-gray-400">只发送文字描述，不发送你的照片。</p>
+      </GlassPanel>
+    </FlowingShell>
   );
 }
