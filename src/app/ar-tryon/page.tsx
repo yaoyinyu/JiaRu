@@ -193,9 +193,34 @@ export default function ArTryonPage() {
         description="打开摄像头，让颜色和纹理跟随手指移动；也可以上传参考图自动提取多枚美甲纹理。"
       />
 
+<<<<<<< HEAD
       <GlassPanel className="overflow-hidden p-3">
         <ArView nailColors={nailColors} nailTextures={nailTextures} mode={mode} />
       </GlassPanel>
+=======
+      {!isStarted && (
+        <GlassPanel className="p-6 text-center">
+          <div className="mx-auto mb-5 flex h-40 w-40 items-center justify-center rounded-full border border-white/60 bg-gradient-to-br from-[#fff5f7] via-white to-[#ffe4ec] text-6xl shadow-xl shadow-pink-200/30">
+            💅
+          </div>
+          <button
+            onClick={() => setIsStarted(true)}
+            className="h-14 w-full rounded-2xl bg-gradient-to-b from-[#f0b8d0] to-[#d4749d] text-base font-semibold text-white shadow-[0_8px_24px_rgba(212,116,157,0.2)] transition hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(212,116,157,0.24)] active:scale-[0.98]"
+          >
+            开启摄像头
+          </button>
+          <p className="mt-4 text-xs leading-5 text-gray-400">
+            需要摄像头权限。画面仅在本地实时处理，不录制也不上传。
+          </p>
+        </GlassPanel>
+      )}
+
+      {isStarted && (
+        <GlassPanel className="overflow-hidden p-3">
+          <ArView nailColors={nailColors} nailTextures={nailTextures} mode={mode} />
+        </GlassPanel>
+      )}
+>>>>>>> b6786dd9403a34a2b35448e7c2ebda8e7f2d6608
 
       <GlassPanel className="mt-4 p-4">
         <div className="mb-4 flex gap-1 rounded-2xl bg-pink-50/80 p-1">
@@ -390,4 +415,8 @@ function TextureThumb({
   }, [bitmap, size]);
 
   return <canvas ref={ref} width={size} height={size} className="h-full w-full object-contain" />;
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> b6786dd9403a34a2b35448e7c2ebda8e7f2d6608
