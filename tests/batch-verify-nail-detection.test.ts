@@ -69,6 +69,7 @@ test("batch-verify-nail-detection generates overlay artifacts and report", async
       output?: string;
       candidateMaskOutput?: string;
       skinMaskOutput?: string;
+      recognitionMaskOutput?: string;
       debugJsonOutput?: string;
     }>;
   };
@@ -87,6 +88,7 @@ test("batch-verify-nail-detection generates overlay artifacts and report", async
       output?: string;
       candidateMaskOutput?: string;
       skinMaskOutput?: string;
+      recognitionMaskOutput?: string;
       debugJsonOutput?: string;
     }>;
   };

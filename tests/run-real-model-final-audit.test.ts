@@ -132,6 +132,8 @@ test("run-real-model-final-audit writes final report and first-run record", asyn
   assert.equal(finalReport.decision.status, "pass");
   assert.equal(firstRunRecord.decision.status, "pass");
   assert.equal(finalReport.failureSummary.totals.inferredRecordFailure, 0);
+  assert.equal(finalReport.firstRunOutputs.recognitionMaskPath, firstRunRecord.outputs.recognitionMaskPath);
+  assert.match(finalReport.firstRunOutputs.recognitionMaskPath ?? "", /real-model-5188\.jpg_wh860-recognition-mask-overlay\.png$/);
   assert.equal(failureSummary.totals.inferredRecordFailure, 0);
 });
 

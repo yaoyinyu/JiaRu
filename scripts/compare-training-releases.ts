@@ -42,6 +42,9 @@ interface FailureSummaryLike {
 }
 
 interface ReleaseTraceIndexLike {
+  release?: {
+    firstRunOutputs?: Record<string, string | null> | null;
+  } | null;
   activeLearning?: {
     importedSampleCount?: number;
     importedByPriority?: Record<string, number> | null;
@@ -176,6 +179,20 @@ function buildActiveLearningSnapshot(traceIndex: ReleaseTraceIndexLike | null) {
   };
 }
 
+function buildVisualEvidenceSnapshot(traceIndex: ReleaseTraceIndexLike | null) {
+  const firstRunOutputs = traceIndex?.release?.firstRunOutputs ?? null;
+  const recognitionMaskPath = firstRunOutputs?.recognitionMaskPath ?? null;
+  return {
+    firstRunOutputsPresent: Boolean(firstRunOutputs),
+    recognitionMaskPath:
+      typeof recognitionMaskPath === "string" && recognitionMaskPath.length > 0
+        ? recognitionMaskPath
+        : null,
+    recognitionMaskEvidencePresent:
+      typeof recognitionMaskPath === "string" && recognitionMaskPath.length > 0,
+  };
+}
+
 const baseline = await loadRelease({
   name: "baseline",
   metricsPath: baselineMetricsPath,
@@ -200,6 +217,8 @@ const baselineFailureSnapshot = buildFailureSummarySnapshot(baseline.failureSumm
 const candidateFailureSnapshot = buildFailureSummarySnapshot(candidate.failureSummary);
 const baselineActiveLearningSnapshot = buildActiveLearningSnapshot(baseline.traceIndex);
 const candidateActiveLearningSnapshot = buildActiveLearningSnapshot(candidate.traceIndex);
+const baselineVisualEvidenceSnapshot = buildVisualEvidenceSnapshot(baseline.traceIndex);
+const candidateVisualEvidenceSnapshot = buildVisualEvidenceSnapshot(candidate.traceIndex);
 const failureCategoryDeltas =
   baselineFailureSnapshot && candidateFailureSnapshot
     ? recordDelta(candidateFailureSnapshot.categoryCounts, baselineFailureSnapshot.categoryCounts)
@@ -261,7 +280,14 @@ const activeLearningBackendDeltas =
         baselineActiveLearningSnapshot.backendBreakdown
       )
     : null;
-
+const firstRunVisualEvidenceDelta = delta(
+  Number(candidateVisualEvidenceSnapshot.firstRunOutputsPresent),
+  Number(baselineVisualEvidenceSnapshot.firstRunOutputsPresent)
+);
+const recognitionMaskEvidenceDelta = delta(
+  Number(candidateVisualEvidenceSnapshot.recognitionMaskEvidencePresent),
+  Number(baselineVisualEvidenceSnapshot.recognitionMaskEvidencePresent)
+);
 const regressions: string[] = [];
 const improvements: string[] = [];
 const warnings: string[] = [];
@@ -377,6 +403,19 @@ if (baselineActiveLearningSnapshot || candidateActiveLearningSnapshot) {
   }
 }
 
+if (baseline.traceIndex || candidate.traceIndex) {
+  if (recognitionMaskEvidenceDelta < 0) {
+    warnings.push("candidate recognition mask visual evidence is missing");
+  } else if (recognitionMaskEvidenceDelta > 0) {
+    improvements.push("candidate recognition mask visual evidence was added");
+  }
+  if (firstRunVisualEvidenceDelta < 0) {
+    warnings.push("candidate first-run visual evidence is missing");
+  } else if (firstRunVisualEvidenceDelta > 0) {
+    improvements.push("candidate first-run visual evidence was added");
+  }
+}
+
 const summary = {
   ok: regressions.length === 0,
   baseline: {
@@ -395,6 +434,7 @@ const summary = {
     modelSizeMb: baseline.modelSizeMb,
     failureSummary: baselineFailureSnapshot,
     activeLearning: baselineActiveLearningSnapshot,
+    visualEvidence: baselineVisualEvidenceSnapshot,
   },
   candidate: {
     metricsPath: candidate.metricsPath,
@@ -412,6 +452,7 @@ const summary = {
     modelSizeMb: candidate.modelSizeMb,
     failureSummary: candidateFailureSnapshot,
     activeLearning: candidateActiveLearningSnapshot,
+    visualEvidence: candidateVisualEvidenceSnapshot,
   },
   deltas: {
     seg_map50: segMap50Delta,
@@ -428,6 +469,8 @@ const summary = {
     activeLearningImportedSamples: activeLearningImportedSampleDelta,
     activeLearningWarnings: activeLearningWarningDeltas,
     activeLearningBackends: activeLearningBackendDeltas,
+    firstRunVisualEvidence: firstRunVisualEvidenceDelta,
+    recognitionMaskEvidence: recognitionMaskEvidenceDelta,
   },
   regressions,
   improvements,

@@ -2008,3 +2008,167 @@ test("run-training-release-pipeline can promote active-learning warning manual r
     "manual_review"
   );
 });
+test("run-training-release-pipeline can promote visual evidence manual reviews when explicitly allowed", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-visual-evidence-allow-"));
+  const outputDir = path.join(root, "model", "exports", "nail-texture-seg-v7");
+  const browserDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(outputDir, { recursive: true });
+  await mkdir(browserDir, { recursive: true });
+
+  await writeFile(
+    path.join(outputDir, "metrics.json"),
+    JSON.stringify(
+      {
+        dataset_yaml: "model/training/dataset.yaml",
+        dataset_root: "model/datasets/nail-texture-v1",
+        weights: "model/exports/nail-texture-seg-v7/nail-texture-seg-v7/weights/best.pt",
+        output: "model/exports/nail-texture-seg-v7/metrics.json",
+        split: "test",
+        imgsz: 640,
+        device: "auto",
+        dry_run: false,
+        box_map50: 0.94,
+        box_map: 0.86,
+        seg_map50: 0.84,
+        seg_map: 0.75,
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(
+    path.join(browserDir, "manifest.json"),
+    JSON.stringify(
+      {
+        version: "nail-texture-seg-v7",
+        inputSize: 640,
+        task: "segment",
+        backendPreferences: ["webgpu", "wasm"],
+        modelFile: "nail-texture-seg-v7.onnx",
+        modelSizeBytes: 307200,
+        sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
+        labels: ["nail_texture"],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+  await writeFile(path.join(browserDir, "nail-texture-seg-v7.onnx"), Buffer.alloc(300 * 1024), "binary");
+
+  const compareSummaryPath = path.join(outputDir, "compare-summary.json");
+  await writeFile(
+    compareSummaryPath,
+    JSON.stringify(
+      {
+        ok: true,
+        regressions: [],
+        improvements: ["seg_map50 improved by 0.05"],
+        warnings: ["candidate recognition mask visual evidence is missing"],
+        deltas: {
+          firstRunVisualEvidence: 0,
+          recognitionMaskEvidence: -1,
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const registryPath = path.join(browserDir, "release-registry.json");
+  await registerBaselineRelease(browserDir, registryPath, "nail-texture-seg-v6");
+
+  const historyManifestPath = path.join(outputDir, "release-history-manifest.json");
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-training-release-pipeline.ts",
+      "--train-output-dir",
+      outputDir,
+      "--browser-model-dir",
+      browserDir,
+      "--model-version",
+      "nail-texture-seg-v7",
+      "--skip-train",
+      "--skip-evaluate",
+      "--skip-export",
+      "--run-governance",
+      "--governance-compare-summary",
+      compareSummaryPath,
+      "--governance-registry",
+      registryPath,
+      "--governance-history-manifest",
+      historyManifestPath,
+      "--governance-allow-manual-review",
+      "true",
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    options: { governanceAllowManualReview: boolean };
+    artifacts: {
+      releaseGovernance: {
+        ok: boolean;
+        artifacts: {
+          releaseDecision: {
+            decision: { status: string; reasons: string[] };
+            inputs: {
+              firstRunVisualEvidenceDelta: number | null;
+              recognitionMaskEvidenceDelta: number | null;
+            };
+          };
+          promotion: {
+            ok: boolean;
+            decisionStatus: string;
+            registerSummary: { registeredVersion: string };
+          };
+          traceIndex: { decision: { status: string } | null };
+          traceRegistration: { ok: boolean };
+          rollbackAudit: { ok: boolean; rollbackCandidates: string[] };
+          historyManifest: { totals: { traceIndexes: number }; entries: Array<{ decisionStatus: string }> };
+        };
+      } | null;
+    };
+  };
+
+  assert.equal(report.ok, true);
+  assert.equal(report.options.governanceAllowManualReview, true);
+  assert.equal(report.artifacts.releaseGovernance?.ok, true);
+  assert.equal(report.artifacts.releaseGovernance?.artifacts.releaseDecision.decision.status, "manual_review");
+  assert.ok(
+    report.artifacts.releaseGovernance?.artifacts.releaseDecision.decision.reasons.some((item) =>
+      item.includes("candidate visual evidence decreased")
+    )
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.releaseDecision.inputs.firstRunVisualEvidenceDelta,
+    0
+  );
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.releaseDecision.inputs.recognitionMaskEvidenceDelta,
+    -1
+  );
+  assert.equal(report.artifacts.releaseGovernance?.artifacts.promotion.ok, true);
+  assert.equal(report.artifacts.releaseGovernance?.artifacts.promotion.decisionStatus, "manual_review");
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.promotion.registerSummary.registeredVersion,
+    "nail-texture-seg-v7"
+  );
+  assert.equal(report.artifacts.releaseGovernance?.artifacts.traceIndex.decision?.status, "manual_review");
+  assert.equal(report.artifacts.releaseGovernance?.artifacts.traceRegistration.ok, true);
+  assert.equal(report.artifacts.releaseGovernance?.artifacts.rollbackAudit.ok, true);
+  assert.deepEqual(report.artifacts.releaseGovernance?.artifacts.rollbackAudit.rollbackCandidates, [
+    "nail-texture-seg-v6",
+  ]);
+  assert.equal(report.artifacts.releaseGovernance?.artifacts.historyManifest.totals.traceIndexes, 1);
+  assert.equal(
+    report.artifacts.releaseGovernance?.artifacts.historyManifest.entries[0]?.decisionStatus,
+    "manual_review"
+  );
+});

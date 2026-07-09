@@ -5,6 +5,7 @@ import sharp from "sharp";
 import { createNailDetectionMasks } from "../src/lib/nail-image-detection.ts";
 import {
   buildNailDebugArtifactPaths,
+  buildNailRecognitionMaskOverlay,
   recognizeNailTextures,
 } from "../src/lib/nail-texture-recognition/index.ts";
 import {
@@ -140,6 +141,7 @@ const {
   output,
   candidateMaskOutput,
   skinMaskOutput,
+  recognitionMaskOutput,
   debugJsonOutput,
   modelOutputDumpPath,
 } = buildNailDebugArtifactPaths({
@@ -165,6 +167,22 @@ await sharp(Buffer.from(masks.skin), {
   .png()
   .toFile(skinMaskOutput);
 
+const recognitionMaskOverlay = buildNailRecognitionMaskOverlay({
+  width: info.width,
+  height: info.height,
+  candidates: recognition.candidates,
+  preprocess: recognition.preprocess ?? null,
+});
+await sharp(Buffer.from(recognitionMaskOverlay.data), {
+  raw: {
+    width: recognitionMaskOverlay.width,
+    height: recognitionMaskOverlay.height,
+    channels: 4,
+  },
+})
+  .png()
+  .toFile(recognitionMaskOutput);
+
 const fixture = await loadFixture();
 const groundTruth = await loadGroundTruth(info.width, info.height, fixture);
 const comparison = groundTruth
@@ -180,6 +198,7 @@ const debugPayload = {
   output,
   candidateMaskOutput,
   skinMaskOutput,
+  recognitionMaskOutput,
   debugJsonOutput,
   width: info.width,
   height: info.height,
@@ -189,6 +208,10 @@ const debugPayload = {
   elapsedMs: recognition.elapsedMs,
   modelInfo: recognition.modelInfo,
   warnings: recognition.warnings,
+  recognitionMaskOverlay: {
+    maskCandidateCount: recognitionMaskOverlay.maskCandidateCount,
+    coveredPixels: recognitionMaskOverlay.coveredPixels,
+  },
   debugOutputs: recognition.debugOutputs,
   rawModelOutputs: recognition.rawModelOutputs,
   preprocess: recognition.preprocess,

@@ -103,6 +103,8 @@ interface CompareSummaryLike {
     failureTotal?: number | null;
     derivedAnnotationFailures?: number | null;
     inferredRecordFailures?: number | null;
+    firstRunVisualEvidence?: number | null;
+    recognitionMaskEvidence?: number | null;
     [key: string]: number | Record<string, number> | null | undefined;
   };
   baseline?: { version?: string } | null;
@@ -209,6 +211,16 @@ function buildDecision(
     compare?.deltas?.derivedAnnotationFailures ?? 0
   );
   const inferredRecordFailureDelta = Number(compare?.deltas?.inferredRecordFailures ?? 0);
+  const firstRunVisualEvidenceDelta = Number(compare?.deltas?.firstRunVisualEvidence ?? 0);
+  const recognitionMaskEvidenceDelta = Number(compare?.deltas?.recognitionMaskEvidence ?? 0);
+  if (recognitionMaskEvidenceDelta < 0 || firstRunVisualEvidenceDelta < 0) {
+    reasons.push(
+      `candidate visual evidence decreased (first-run ${firstRunVisualEvidenceDelta}, recognition mask ${recognitionMaskEvidenceDelta})`
+    );
+    nextActions.push(
+      "Review release trace first-run outputs before promotion; recognition-mask overlay evidence should stay available for candidate inspection."
+    );
+  }
   if (
     failureCategoryDelta > 0 ||
     failureTotalDelta > 0 ||
@@ -422,6 +434,14 @@ const summary = {
     inferredRecordFailureDelta:
       typeof compare?.deltas?.inferredRecordFailures === "number"
         ? compare.deltas.inferredRecordFailures
+        : null,
+    firstRunVisualEvidenceDelta:
+      typeof compare?.deltas?.firstRunVisualEvidence === "number"
+        ? compare.deltas.firstRunVisualEvidence
+        : null,
+    recognitionMaskEvidenceDelta:
+      typeof compare?.deltas?.recognitionMaskEvidence === "number"
+        ? compare.deltas.recognitionMaskEvidence
         : null,
     recognitionPerformanceOk: recognitionPerformance?.ok ?? null,
     recognitionPerformanceProfile: recognitionPerformance?.profile ?? null,
