@@ -9,10 +9,7 @@ const navItems = [
   { label: "图库", href: "/gallery" },
   { label: "AI 生成", href: "/ai-generate" },
   { label: "AR 试戴", href: "/ar-tryon" },
-<<<<<<< HEAD
   { label: "模型Demo", href: "/ar-demo" },
-=======
->>>>>>> b6786dd9403a34a2b35448e7c2ebda8e7f2d6608
 ];
 
 export function Header() {
