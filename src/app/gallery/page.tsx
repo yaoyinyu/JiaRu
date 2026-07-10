@@ -1,21 +1,12 @@
-"use client";
-
-import { Header } from "@/components/Header";
+import { AppShell } from "@/components/AppShell";
 import { GalleryGrid } from "@/components/GalleryGrid";
 
 export default function GalleryPage() {
   return (
-    <div className="min-h-dvh flex flex-col">
-      <Header />
-
-      <main className="flex-1 pt-20 pb-8">
-        <h2 className="text-lg font-semibold text-center mb-4">🖼️ 预设美甲图库</h2>
-        <p className="text-xs text-gray-400 text-center mb-6 px-4">
-          选择喜欢的款式作为参考，进入编辑器试色
-        </p>
-
+    <AppShell eyebrow="Inspiration Library" title="把心动款式，变成你的下一次美甲" description="从柔和裸色到大胆纹理，浏览我们精选的灵感系列，点击任意款式即可进入试色。">
+      <div className="rounded-[30px] border border-white/80 bg-white/48 p-3 shadow-[0_24px_70px_rgba(116,73,92,.08)] backdrop-blur-2xl sm:p-5">
         <GalleryGrid />
-      </main>
-    </div>
+      </div>
+    </AppShell>
   );
 }

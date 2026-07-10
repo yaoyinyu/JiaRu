@@ -10,36 +10,24 @@ interface ColorPaletteProps {
 export function ColorPalette({ selectedColor, onSelectColor }: ColorPaletteProps) {
   return (
     <div className="w-full">
-      {/* 预设颜色 */}
-      <div className="flex flex-wrap gap-3 justify-center">
+      <div className="grid grid-cols-6 gap-2.5">
         {PRESET_COLORS.map((item) => (
           <button
             key={item.name}
+            type="button"
             title={item.name}
+            aria-label={`选择${item.name}`}
+            aria-pressed={selectedColor === item.color}
             onClick={() => onSelectColor(item.color)}
-            className={`w-10 h-10 rounded-full shadow-sm border-2 transition-all duration-200
-              ${
-                selectedColor === item.color
-                  ? "ring-2 ring-offset-2 ring-pink-400 scale-110"
-                  : "hover:scale-105"
-              }
-              ${item.color === "#FFFFFF" ? "border-gray-200" : "border-transparent"}
-            `}
+            className={`aspect-square w-full rounded-full border-2 shadow-[0_4px_10px_rgba(63,48,55,.10)] transition duration-200 ${selectedColor === item.color ? "scale-110 border-white ring-2 ring-[#D4749D] ring-offset-2" : "border-white/80 hover:-translate-y-0.5 hover:scale-105"}`}
             style={{ backgroundColor: item.color }}
           />
         ))}
       </div>
-
-      {/* 自定义颜色 */}
-      <div className="flex items-center justify-center gap-2 mt-3">
-        <span className="text-xs text-gray-400">自定义:</span>
-        <input
-          type="color"
-          value={selectedColor}
-          onChange={(e) => onSelectColor(e.target.value)}
-          className="w-10 h-10 rounded-full cursor-pointer border-0 p-0"
-        />
-      </div>
+      <label className="mt-5 flex items-center justify-between rounded-2xl border border-pink-100/70 bg-pink-50/45 px-4 py-3">
+        <span><span className="block text-xs font-medium text-[#6B6166]">自定义颜色</span><span className="mt-0.5 block text-[10px] text-[#A79DA2]">打开系统取色器</span></span>
+        <input type="color" value={selectedColor} onChange={(event) => onSelectColor(event.target.value)} className="h-10 w-10 cursor-pointer rounded-full border-0 bg-transparent p-0" />
+      </label>
     </div>
   );
 }

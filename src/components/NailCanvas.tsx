@@ -191,7 +191,7 @@ export function NailCanvas({
     <div className="flex flex-col items-center gap-4">
       <canvas
         ref={canvasRef}
-        className="w-full max-w-[400px] rounded-2xl shadow-sm bg-white touch-none"
+        className="w-full max-w-[640px] rounded-[22px] bg-white shadow-[0_18px_55px_rgba(75,52,63,.12)] touch-none"
         onMouseDown={handleStart}
         onMouseMove={handleMove}
         onMouseUp={handleEnd}
@@ -201,32 +201,24 @@ export function NailCanvas({
         onTouchEnd={handleEnd}
       />
 
-      <div className="flex gap-4 w-full max-w-[400px]">
+      <div className="flex gap-3 w-full max-w-[640px]">
         <button
           onClick={handleUndo}
           disabled={history.length < 2}
-          className="flex-1 h-12 rounded-2xl bg-white border border-pink-200
-                     text-sm text-gray-500 font-medium
-                     disabled:opacity-30 disabled:cursor-not-allowed
-                     hover:bg-pink-50 active:scale-95 transition-all"
+          className="h-12 flex-1 rounded-2xl border border-pink-100 bg-white/80 text-sm font-medium text-[#71676C] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
         >
           ↩ 撤销
         </button>
         <button
           onClick={handleReset}
           disabled={history.length < 2}
-          className="flex-1 h-12 rounded-2xl bg-white border border-pink-200
-                     text-sm text-gray-500 font-medium
-                     disabled:opacity-30 disabled:cursor-not-allowed
-                     hover:bg-pink-50 active:scale-95 transition-all"
+          className="h-12 flex-1 rounded-2xl border border-pink-100 bg-white/80 text-sm font-medium text-[#71676C] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
         >
           ↺ 重置
         </button>
         <button
           onClick={handleSave}
-          className="flex-1 h-12 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#D4749D]
-                     text-sm text-white font-medium shadow-sm
-                     hover:shadow-md active:scale-95 transition-all"
+          className="h-12 flex-1 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#C96591] text-sm font-medium text-white shadow-[0_10px_22px_rgba(207,111,153,.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(207,111,153,.3)] active:scale-95"
         >
           💾 保存
         </button>

@@ -1,0 +1,14 @@
+.header { position: fixed; z-index: 40; top: 0; right: 0; left: 0; padding: 12px 20px 0; pointer-events: none; }
+.inner { display: flex; width: min(100%, 1280px); height: 60px; padding: 0 10px 0 18px; margin: 0 auto; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,.72); border-radius: 20px; background: rgba(255,255,255,.68); box-shadow: 0 12px 40px rgba(105,76,91,.08), inset 0 1px 0 rgba(255,255,255,.9); backdrop-filter: blur(22px) saturate(1.25); pointer-events: auto; }
+.brand { display: flex; align-items: center; gap: 10px; color: #3f3a3d; font-size: 18px; font-weight: 700; letter-spacing: -.02em; text-decoration: none; }
+.brandMark { display: grid; width: 34px; height: 34px; border-radius: 11px; place-items: center; background: linear-gradient(145deg,#f4bfd5 0%,#cf6f99 100%); box-shadow: 0 7px 18px rgba(212,116,157,.25), inset 0 1px 0 rgba(255,255,255,.5); color: white; font-family: Georgia,serif; font-size: 17px; font-style: italic; }
+.nav { display: flex; align-items: center; gap: 6px; }
+.nav a { padding: 8px 13px; border-radius: 12px; color: #8e878b; font-size: 14px; text-decoration: none; transition: color .2s ease,background .2s ease; }
+.nav a:hover,.nav a:focus-visible,.nav a.active { background: rgba(255,238,245,.8); color: #c7648e; }
+.action { display: flex; height: 42px; padding: 0 16px; border-radius: 14px; align-items: center; gap: 8px; background: linear-gradient(180deg,#e9a8c4 0%,#cf6f99 100%); box-shadow: 0 8px 20px rgba(207,111,153,.22),inset 0 1px 0 rgba(255,255,255,.35); color: white; font-size: 13px; font-weight: 600; text-decoration: none; transition: transform .2s ease,box-shadow .2s ease; }
+.action:hover,.action:focus-visible { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(207,111,153,.3),inset 0 1px 0 rgba(255,255,255,.4); }
+.actionActive { box-shadow: 0 0 0 3px rgba(255,255,255,.8),0 8px 20px rgba(207,111,153,.25); }
+.actionShort { display: none; }
+.brand:focus-visible,.nav a:focus-visible,.action:focus-visible { outline: 3px solid rgba(212,116,157,.35); outline-offset: 3px; }
+@media (max-width:700px) { .header{padding:8px 12px 0}.inner{height:56px;padding-left:12px;border-radius:18px}.nav{display:none}.action{height:38px;padding:0 13px}.actionFull{display:none}.actionShort{display:inline} }
+@media (prefers-reduced-motion:reduce) { .nav a,.action{transition-duration:.01ms} }

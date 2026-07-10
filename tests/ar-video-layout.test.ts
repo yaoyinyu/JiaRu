@@ -21,6 +21,9 @@ test("landscape video is center-cropped for a portrait frame without distortion"
   assert.ok(layout.scaledWidth > 1080);
   assert.ok(layout.cropX > 0);
   assert.equal(layout.cropY, 0);
+  assert.equal(layout.cropLeft, layout.cropRight);
+  assert.equal(layout.cropTop, 0);
+  assert.equal(layout.cropBottom, 0);
   assert.equal(layout.offsetX, -layout.cropX);
 });
 
@@ -30,6 +33,9 @@ test("portrait video is center-cropped vertically for a landscape frame", () => 
   assert.ok(layout.scaledHeight > 1080);
   assert.equal(layout.cropX, 0);
   assert.ok(layout.cropY > 0);
+  assert.equal(layout.cropLeft, 0);
+  assert.equal(layout.cropRight, 0);
+  assert.equal(layout.cropTop, layout.cropBottom);
 });
 
 test("viewport ratio follows the actual webpage display area", () => {
