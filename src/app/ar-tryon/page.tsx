@@ -196,14 +196,14 @@ export default function ArTryonPage() {
     <div className="min-h-dvh flex flex-col">
       <Header />
 
-      <main className="flex-1 w-full max-w-md mx-auto px-4 pt-20 pb-8">
+      <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pb-8 pt-20">
         <h2 className="mb-1 text-center text-lg font-semibold">?? AR 实时试戴</h2>
         <p className="mb-4 text-center text-xs text-gray-400">
           摄像头实时预览美甲效果，手指移动时颜色和纹理会同步跟随。
         </p>
 
         {!isStarted && (
-          <div className="flex flex-col items-center gap-4 py-8">
+          <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 py-8">
             <div className="flex h-40 w-40 items-center justify-center rounded-full bg-gradient-to-br from-pink-100 to-purple-100 shadow-inner">
               <span className="text-6xl">??</span>
             </div>
@@ -223,7 +223,7 @@ export default function ArTryonPage() {
           <ArView nailColors={nailColors} nailTextures={nailTextures} mode={mode} />
         )}
 
-        <div className="mt-4 rounded-2xl border border-pink-100 bg-white p-4 shadow-sm">
+        <div className="mx-auto mt-4 w-full max-w-md rounded-2xl border border-pink-100 bg-white p-4 shadow-sm">
           <div className="mb-3 flex gap-1 rounded-xl bg-pink-50 p-1">
             <button
               onClick={() => setMode("color")}
@@ -386,7 +386,7 @@ export default function ArTryonPage() {
           />
         )}
 
-        <div className="mt-4 space-y-2">
+        <div className="mx-auto mt-4 w-full max-w-md space-y-2">
           <div className="rounded-xl border border-pink-50 bg-white/60 p-3 text-center">
             <p className="text-xs text-gray-400">
               ?? 摄像头画面仅在内存中处理，不录制，也不会上传。
