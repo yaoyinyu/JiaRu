@@ -1,0 +1,17 @@
+.shell { position:relative; min-height:100dvh; overflow:clip; background:linear-gradient(180deg,#fff9fb 0%,#fff 62%,#fff9f5 100%); }
+.ambient { position:fixed; z-index:0; inset:0; overflow:hidden; pointer-events:none; }
+.ambient span { position:absolute; border-radius:50%; opacity:.34; filter:blur(110px); animation:drift 22s ease-in-out infinite alternate; }
+.pink { top:-300px; right:-100px; width:680px; height:680px; background:#f2a8c8; }
+.purple { top:38%; left:-260px; width:620px; height:620px; background:#b8a8ed; animation-delay:-7s!important; }
+.gold { right:-180px; bottom:-260px; width:560px; height:560px; background:#ffd792; animation-delay:-13s!important; }
+@keyframes drift { from{transform:translate3d(-2%,-2%,0) scale(.92)} to{transform:translate3d(8%,6%,0) scale(1.12)} }
+.main { position:relative; z-index:1; width:min(calc(100% - 32px),1040px); min-height:calc(100dvh - 84px); padding:132px 0 72px; margin:0 auto; }
+.wide { width:min(calc(100% - 32px),1440px); }
+.pageHeader { max-width:720px; margin:0 auto 36px; text-align:center; }
+.eyebrow { display:inline-flex; padding:7px 13px; border:1px solid rgba(218,125,165,.15); border-radius:999px; margin:0 0 16px; background:rgba(255,255,255,.58); box-shadow:0 8px 24px rgba(159,95,122,.06); color:#cf6f99; font-size:11px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; }
+.pageHeader h1 { margin:0; color:#403b3e; font-size:clamp(30px,4vw,48px); font-weight:720; letter-spacing:-.045em; line-height:1.12; }
+.description { max-width:620px; margin:16px auto 0; color:#938b90; font-size:15px; line-height:1.75; text-wrap:balance; }
+.content { position:relative; }
+.footer { position:relative; z-index:1; display:flex; width:min(calc(100% - 40px),1280px); padding:24px 0 34px; border-top:1px solid rgba(212,116,157,.1); margin:0 auto; justify-content:space-between; color:#aaa1a6; font-size:12px; }
+@media (max-width:700px) { .main,.wide{width:min(calc(100% - 24px),1040px);padding-top:106px;padding-bottom:48px}.pageHeader{margin-bottom:26px}.pageHeader h1{font-size:32px}.description{font-size:14px;line-height:1.65}.footer{flex-direction:column;gap:5px}.ambient span{opacity:.24;filter:blur(80px)} }
+@media (prefers-reduced-motion:reduce) { .ambient span{animation:none} }

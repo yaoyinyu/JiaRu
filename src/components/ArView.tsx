@@ -12,6 +12,12 @@ import {
   calculateCoverVideoLayout,
   calculateViewportAspectRatio,
 } from "@/lib/ar-video-layout";
+import {
+  classifyHandOrientation,
+  getHandOrientationPresentation,
+  type HandOrientationDecision,
+  type HandOrientation,
+} from "@/lib/ar-hand-orientation";
 
 // MediaPipe 手部关键点索引
 const TIPS = NAIL_TIPS;
@@ -22,20 +28,8 @@ const PIPS = NAIL_PIPS;
 const EMA_ALPHA = 0.45;
 const EMA_ALPHA_PALM = 0.3; // 朝向深度差平滑（更保守）
 
-// ── 手心/手背朝向检测参数 ──
-// 手心判定阈值低（灵敏），手背判定阈值高（严格）
-const DEPTH_DIFF_THRESHOLD_DORSUM = 0.005;  // depthDiff 超过此值才判手背（更严格）
-const DEPTH_DIFF_THRESHOLD_PALM = 0.001;    // depthDiff 超过此值就判手心（更灵敏）
-const FINGER_Z_VOTE_THRESHOLD_DORSUM = 0.003; // 单指投票手背阈值（严格）
-const FINGER_Z_VOTE_THRESHOLD_PALM = 0.001;   // 单指投票手心阈值（灵敏）
 const OUT_OF_FRAME_THRESHOLD = 0.1;   // x/y 超出 [0.1, 0.9] = 出画面
-
-// 叉积法向量 z 分量阈值
-const CROSS_PRODUCT_Z_THRESHOLD_DORSUM = 0.002;  // 手背判定（严格）
-const CROSS_PRODUCT_Z_THRESHOLD_PALM = 0.0005;   // 手心判定（灵敏）
-
-// 拇指位置辅助验证：拇指 TIP.x 相对手掌中心 x 的偏移
-const THUMB_X_THRESHOLD = 0.02;
+const ORIENTATION_STABLE_FRAMES = 3;
 
 // 逐指指甲可见性阈值
 // 手心侧：TIP.z - DIP.z > 此值 = 指甲被遮挡 → 不渲染
@@ -150,7 +144,12 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     Array.from({ length: 5 }, () => null)
   );
   // 朝向状态（用于 UI 显示）
-  const [orientation, setOrientation] = useState<"dorsum" | "palm" | "ambiguous" | "none">("none");
+  const [orientation, setOrientation] = useState<HandOrientation>("none");
+  const orientationRef = useRef<HandOrientation>("none");
+  const orientationCandidateRef = useRef<{
+    orientation: Exclude<HandOrientation, "none">;
+    frames: number;
+  }>({ orientation: "ambiguous", frames: 0 });
   // 左右标识（用于 UI 显示）
   const [handLabel, setHandLabel] = useState<"左手" | "右手" | null>(null);
   // 左右手反转开关（用于前置摄像头镜像补偿）
@@ -167,6 +166,23 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     console.log("[AR]", m);
     setDiag((p) => [...p.slice(-8), m]);
   };
+
+  function updateStableOrientation(next: Exclude<HandOrientation, "none">): HandOrientation {
+    const candidate = orientationCandidateRef.current;
+    if (candidate.orientation === next) {
+      candidate.frames += 1;
+    } else {
+      candidate.orientation = next;
+      candidate.frames = 1;
+    }
+
+    const requiredFrames = next === "ambiguous" ? ORIENTATION_STABLE_FRAMES + 2 : ORIENTATION_STABLE_FRAMES;
+    if (candidate.frames >= requiredFrames && orientationRef.current !== next) {
+      orientationRef.current = next;
+      setOrientation(next);
+    }
+    return orientationRef.current;
+  }
 
   /** 指数移动平均平滑（NaN 安全：首次值直接采用） */
   function ema(prev: number, curr: number, alpha: number = EMA_ALPHA): number {
@@ -434,8 +450,8 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   function shouldRenderNails(
     lm: Landmark[],
     smoothDepthDiff: number,
-    handedness: "Left" | "Right" | null
-  ): { render: boolean; confidence: "high" | "low" | "none"; reason: string } {
+    handedness: "Left" | "Right" | null,
+  ): HandOrientationDecision {
     // 边界检查：手部出画面
     const palmPts = [lm[0], lm[5], lm[9], lm[17]];
     const outOfFrame = palmPts.some(
@@ -446,85 +462,32 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         p.y > 1 - OUT_OF_FRAME_THRESHOLD
     );
     if (outOfFrame) {
-      return { render: false, confidence: "none", reason: "手部出画面" };
+      return {
+        orientation: "ambiguous",
+        render: false,
+        confidence: "none",
+        reason: "手部出画面",
+        palmScore: 0,
+        dorsumScore: 0,
+      };
     }
 
-    // ── 方案 A：叉积法向量（基于 x/y，精度最高）──
-    const v5x = lm[5].x - lm[0].x;
-    const v5y = lm[5].y - lm[0].y;
-    const v17x = lm[17].x - lm[0].x;
-    const v17y = lm[17].y - lm[0].y;
-    const crossZ = v5x * v17y - v5y * v17x;
+    const fingerDepthDiffs = VOTE_FINGERS.map(
+      (finger) => lm[TIPS[finger]].z - lm[PIPS[finger]].z,
+    );
+    const wrist = lm[0];
+    const indexMcp = lm[5];
+    const pinkyMcp = lm[17];
+    const palmCrossZ =
+      (indexMcp.x - wrist.x) * (pinkyMcp.y - wrist.y) -
+      (indexMcp.y - wrist.y) * (pinkyMcp.x - wrist.x);
 
-    let isDorsumByCross = false;
-    let isPalmByCross = false;
-    if (handedness === "Right") {
-      isDorsumByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD_DORSUM;
-      isPalmByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD_PALM;
-    } else if (handedness === "Left") {
-      isDorsumByCross = crossZ > CROSS_PRODUCT_Z_THRESHOLD_DORSUM;
-      isPalmByCross = crossZ < -CROSS_PRODUCT_Z_THRESHOLD_PALM;
-    }
-
-    // ── 方案 B：深度差判断（z 坐标）──
-    // 手心判定灵敏（低阈值），手背判定严格（高阈值）
-    const isDorsumByDepth = smoothDepthDiff < -DEPTH_DIFF_THRESHOLD_DORSUM;
-    const isPalmByDepth = smoothDepthDiff > DEPTH_DIFF_THRESHOLD_PALM;
-
-    // ── 方案 C：4 指投票（排除拇指，z 坐标）──
-    let dorsumVotes = 0;
-    let palmVotes = 0;
-    for (const f of VOTE_FINGERS) {
-      const dz = lm[TIPS[f]].z - lm[PIPS[f]].z;
-      if (dz < -FINGER_Z_VOTE_THRESHOLD_DORSUM) dorsumVotes++;
-      else if (dz > FINGER_Z_VOTE_THRESHOLD_PALM) palmVotes++;
-    }
-    const isDorsumByVote = dorsumVotes >= 3;
-    const isPalmByVote = palmVotes >= 3;
-
-    // ── 方案 D：拇指位置辅助验证（基于 x 坐标，精度高）──
-    const palmCenterX = (lm[0].x + lm[5].x + lm[9].x + lm[17].x) / 4;
-    const thumbOffsetX = lm[4].x - palmCenterX;
-    let isDorsumByThumb = false;
-    let isPalmByThumb = false;
-    if (handedness === "Right") {
-      isDorsumByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
-      isPalmByThumb = thumbOffsetX < -THUMB_X_THRESHOLD;
-    } else if (handedness === "Left") {
-      isDorsumByThumb = thumbOffsetX < -THUMB_X_THRESHOLD;
-      isPalmByThumb = thumbOffsetX > THUMB_X_THRESHOLD;
-    }
-
-    // ── 融合决策：比较手心 vs 手背总得分 ──
-    // 注意：叉积(方案A)和拇指位置(方案D)仅用 x/y 坐标，
-    // 手部在画面中旋转时它们的值会改变甚至反号。
-    // 深度差(方案B)和手指投票(方案C)用 z 坐标，旋转不变。
-    //
-    // 融合时比较两个总分，而不是独立阈值：
-    //   palmScore > dorsumScore → 手心占优 → 阻止
-    //   否则 → 渲染（宽松策略，宁可多渲也不要漏渲）
-    const dorsumScore =
-      (isDorsumByCross ? 2 : 0) +
-      (isDorsumByThumb ? 1 : 0) +
-      (isDorsumByDepth ? 1 : 0) +
-      (isDorsumByVote ? 1 : 0);
-    const palmScore =
-      (isPalmByCross ? 2 : 0) +
-      (isPalmByThumb ? 1 : 0) +
-      (isPalmByDepth ? 1 : 0) +
-      (isPalmByVote ? 1 : 0);
-
-    if (palmScore > dorsumScore) {
-      return { render: false, confidence: "high", reason: `手心占优 p${palmScore}/d${dorsumScore}` };
-    }
-    if (dorsumScore > 0 || palmScore === 0) {
-      return { render: true, confidence: "high", reason: `手背/非手心态 d${dorsumScore}/p${palmScore}` };
-    }
-    return {
-      render: true,
-      confidence: "low",
-      reason: `模糊态 d${dorsumScore}/p${palmScore}`,
-    };
+    return classifyHandOrientation({
+      palmDepthDiff: smoothDepthDiff,
+      fingerDepthDiffs,
+      palmCrossZ,
+      handedness,
+    });
   }
 
   /**
@@ -1038,22 +1001,15 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               );
               const smoothDepthDiff = palmDepthSmoothRef.current;
 
-              // 朝向检测使用原始 handedness（匹配画面几何，不反转）
-              // UI 显示的左右手标签在上面使用 effectiveHandedness
+              // 朝向拓扑基于推理帧几何，必须使用 MediaPipe 原始 handedness。
+              // handFlip 只修正镜像后的用户可见左右手标签，不能影响朝向。
               const decision = shouldRenderNails(lm, smoothDepthDiff, rawHandedness);
-
-              // 更新 UI 朝向指示器
-              if (decision.reason.includes("手心")) {
-                setOrientation("palm");
-              } else if (decision.reason.includes("手背") || decision.reason.includes("非手心")) {
-                setOrientation("dorsum");
-              } else {
-                setOrientation("ambiguous");
-              }
+              const stableOrientation = updateStableOrientation(decision.orientation);
+              const renderNails = decision.render && stableOrientation !== "palm";
 
               // 全局渲染门控：手心朝镜头时完全跳过贴图
               // 只有手背/侧手/模糊态时才进入 paintNails 做逐指精细可见性判定
-              if (decision.render) {
+              if (renderNails) {
                 paintNails(
                   ctx, lm, colRef.current, texRef.current,
                   modeRef.current, cvs.width, cvs.height, video
@@ -1061,7 +1017,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               }
 
               // 同步逐指可见性到 UI（从平滑值读取，阈值 0.5 判定显隐）
-              if (decision.render) {
+              if (renderNails) {
                 const vis: boolean[] = [];
                 for (let fi = 0; fi < 5; fi++) {
                   vis.push(visibleSmoothRef.current[fi] >= VISIBILITY_SMOOTH_THRESHOLD);
@@ -1073,6 +1029,9 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
             }
           } else {
             setHandCnt(0);
+            orientationRef.current = "none";
+            orientationCandidateRef.current = { orientation: "ambiguous", frames: 0 };
+            palmDepthSmoothRef.current = NaN;
             setOrientation("none");
             updateFingerVisibility([false, false, false, false, false]);
           }
@@ -1129,22 +1088,28 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStarted]);
 
+  const orientationPresentation = getHandOrientationPresentation(orientation);
+
   return (
     <div
-      className="relative mx-auto w-full overflow-hidden rounded-2xl bg-black shadow-lg"
+      className="relative mx-auto w-full overflow-hidden rounded-[24px] bg-black shadow-[0_24px_70px_rgba(24,18,21,.28)]"
       style={{ aspectRatio: frameAspectRatio }}
     >
       <video
         ref={vref}
         playsInline
         muted
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{ transform: "scaleX(-1)" }}
+        className="absolute inset-0 h-full w-full object-cover object-center"
+        style={{
+          objectPosition: "50% 50%",
+          transform: "scaleX(-1)",
+          transformOrigin: "50% 50%",
+        }}
       />
       <canvas
         ref={cref}
         className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ transform: "scaleX(-1)" }}
+        style={{ transform: "scaleX(-1)", transformOrigin: "50% 50%" }}
       />
 
       {/* 未启动时显示开始按钮 */}
@@ -1235,24 +1200,16 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               {/* 朝向 + 左右手 */}
               <span
                 className={`inline-block text-xs px-3 py-1 rounded-full backdrop-blur-sm ${
-                  orientation === "dorsum"
-                    ? "text-orange-300 bg-orange-900/40"
-                    : orientation === "palm"
-                      ? "text-green-300 bg-green-900/40"
+                  orientationPresentation.tone === "dorsum"
+                    ? "text-green-300 bg-green-900/40"
+                    : orientationPresentation.tone === "palm"
+                      ? "text-orange-300 bg-orange-900/40"
                       : "text-gray-300 bg-gray-800/40"
                 }`}
               >
-                {orientation === "dorsum"
-                  ? "✋"
-                  : orientation === "palm"
-                    ? "🖐️"
-                    : "🤚"}{" "}
+                {orientationPresentation.icon}{" "}
                 {handLabel ? handLabel + " · " : ""}
-                {orientation === "dorsum"
-                  ? "手心"
-                  : orientation === "palm"
-                    ? "手背"
-                    : "侧手"}
+                {orientationPresentation.label}
               </span>
 
               {/* 逐指可见性指示器 */}

@@ -6,6 +6,10 @@ export interface CoverVideoLayout {
   offsetY: number;
   cropX: number;
   cropY: number;
+  cropLeft: number;
+  cropRight: number;
+  cropTop: number;
+  cropBottom: number;
 }
 
 function requirePositiveDimension(value: number, name: string): void {
@@ -29,17 +33,25 @@ export function calculateCoverVideoLayout(
   const scale = Math.max(frameWidth / sourceWidth, frameHeight / sourceHeight);
   const scaledWidth = sourceWidth * scale;
   const scaledHeight = sourceHeight * scale;
-  const cropX = Math.max(0, (scaledWidth - frameWidth) / 2);
-  const cropY = Math.max(0, (scaledHeight - frameHeight) / 2);
+  const horizontalOverflow = Math.max(0, scaledWidth - frameWidth);
+  const verticalOverflow = Math.max(0, scaledHeight - frameHeight);
+  const cropLeft = horizontalOverflow / 2;
+  const cropRight = horizontalOverflow - cropLeft;
+  const cropTop = verticalOverflow / 2;
+  const cropBottom = verticalOverflow - cropTop;
 
   return {
     scale,
     scaledWidth,
     scaledHeight,
-    offsetX: -cropX,
-    offsetY: -cropY,
-    cropX,
-    cropY,
+    offsetX: -cropLeft,
+    offsetY: -cropTop,
+    cropX: cropLeft,
+    cropY: cropTop,
+    cropLeft,
+    cropRight,
+    cropTop,
+    cropBottom,
   };
 }
 

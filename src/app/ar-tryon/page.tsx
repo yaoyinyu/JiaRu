@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { Header } from "@/components/Header";
+import { AppShell } from "@/components/AppShell";
 import { ArView } from "@/components/ArView";
 import { PRESET_COLORS } from "@/lib/utils";
 import { disposeAllTextures } from "@/lib/texture";
@@ -193,25 +193,24 @@ export default function ArTryonPage() {
   };
 
   return (
-    <div className="min-h-dvh flex flex-col">
-      <Header />
-
-      <main className="mx-auto w-full max-w-[1600px] flex-1 px-4 pb-8 pt-20">
-        <h2 className="mb-1 text-center text-lg font-semibold">?? AR 实时试戴</h2>
-        <p className="mb-4 text-center text-xs text-gray-400">
-          摄像头实时预览美甲效果，手指移动时颜色和纹理会同步跟随。
-        </p>
-
+    <AppShell
+      wide
+      eyebrow="Live Try-on"
+      title="让每一次抬手，都提前看见效果"
+      description="实时追踪手部动作，让颜色与纹理自然贴合指甲。所有摄像头画面都只在本地内存中处理。"
+    >
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
+        <section className="overflow-hidden rounded-[30px] border border-white/80 bg-white/55 p-3 shadow-[0_26px_80px_rgba(71,49,60,.12)] backdrop-blur-2xl sm:p-5">
         {!isStarted && (
           <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 py-8">
             <div className="flex h-40 w-40 items-center justify-center rounded-full bg-gradient-to-br from-pink-100 to-purple-100 shadow-inner">
-              <span className="text-6xl">??</span>
+              <span className="text-6xl">💅</span>
             </div>
             <button
               onClick={() => setIsStarted(true)}
               className="h-14 w-full rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#D4749D] text-base font-medium text-white shadow-md transition-all hover:shadow-lg active:scale-[0.98]"
             >
-              ?? 开启摄像头
+              📷 开启摄像头
             </button>
             <p className="text-center text-xs text-gray-300">
               需要摄像头权限 · 仅在本地处理，不录制也不会上传。
@@ -222,8 +221,13 @@ export default function ArTryonPage() {
         {isStarted && (
           <ArView nailColors={nailColors} nailTextures={nailTextures} mode={mode} />
         )}
-
-        <div className="mx-auto mt-4 w-full max-w-md rounded-2xl border border-pink-100 bg-white p-4 shadow-sm">
+        </section>
+        <aside className="rounded-[28px] border border-white/80 bg-white/68 p-5 shadow-[0_22px_65px_rgba(91,59,74,.09)] backdrop-blur-2xl xl:sticky xl:top-24">
+          <div className="mb-5">
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#CF6F99]">Style controls</p>
+            <h2 className="mt-1 text-lg font-semibold text-[#4A4447]">试戴设置</h2>
+          </div>
+        <div className="w-full">
           <div className="mb-3 flex gap-1 rounded-xl bg-pink-50 p-1">
             <button
               onClick={() => setMode("color")}
@@ -233,7 +237,7 @@ export default function ArTryonPage() {
                   : "text-gray-400"
               }`}
             >
-              ?? 纯色
+              🎨 纯色
             </button>
             <button
               onClick={() => setMode("texture")}
@@ -243,7 +247,7 @@ export default function ArTryonPage() {
                   : "text-gray-400"
               }`}
             >
-              ??? 纹理
+              🖼️ 纹理
             </button>
           </div>
 
@@ -291,7 +295,7 @@ export default function ArTryonPage() {
 
               <div className="flex justify-center gap-2">
                 <label className="cursor-pointer rounded-full bg-pink-50 px-3 py-1.5 text-xs text-[#E8A0BF] transition-colors hover:bg-pink-100">
-                  ?? 上传美甲照片
+                  📷 上传美甲照片
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -301,7 +305,7 @@ export default function ArTryonPage() {
                   />
                 </label>
                 <label className="cursor-pointer rounded-full bg-purple-50 px-3 py-1.5 text-xs text-purple-500 transition-colors hover:bg-purple-100">
-                  ?? 多纹理提取
+                  ✨ 多纹理提取
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
@@ -369,6 +373,8 @@ export default function ArTryonPage() {
             </>
           )}
         </div>
+        </aside>
+      </div>
 
         {showCropper && uploadedPhotoUrl && (
           <TextureCropper
@@ -386,20 +392,11 @@ export default function ArTryonPage() {
           />
         )}
 
-        <div className="mx-auto mt-4 w-full max-w-md space-y-2">
-          <div className="rounded-xl border border-pink-50 bg-white/60 p-3 text-center">
-            <p className="text-xs text-gray-400">
-              ?? 摄像头画面仅在内存中处理，不录制，也不会上传。
-            </p>
-          </div>
-          <div className="rounded-xl border border-pink-50 bg-white/60 p-3 text-center">
-            <p className="text-xs text-gray-400">
-              ?? 首次加载大约需要 5-10 秒，建议在光线充足的环境使用。
-            </p>
-          </div>
+        <div className="mx-auto mt-5 grid w-full max-w-3xl gap-3 text-center sm:grid-cols-2">
+          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl">🔒 摄像头画面仅在内存中处理，不录制，也不会上传。</div>
+          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl">💡 首次加载大约需要 5-10 秒，建议在光线充足的环境使用。</div>
         </div>
-      </main>
-    </div>
+    </AppShell>
   );
 }
 
