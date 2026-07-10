@@ -186,7 +186,7 @@ export default function ArTryonPage() {
   };
 
   return (
-    <FlowingShell>
+    <FlowingShell maxWidth="max-w-[1600px]">
       <PageHero
         eyebrow="AR 试戴"
         title="实时预览指尖效果"
@@ -197,7 +197,7 @@ export default function ArTryonPage() {
         <ArView nailColors={nailColors} nailTextures={nailTextures} mode={mode} />
       </GlassPanel>
 
-      <GlassPanel className="mt-4 p-4">
+      <GlassPanel className="mx-auto mt-4 w-full max-w-md p-4">
         <div className="mb-4 flex gap-1 rounded-2xl bg-pink-50/80 p-1">
           <button
             onClick={() => setMode("color")}

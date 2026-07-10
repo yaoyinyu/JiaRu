@@ -1,0 +1,63 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "甲如首页" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - text: 甲如
+        - navigation "主导航" [ref=e6]:
+          - link "首页" [ref=e7] [cursor=pointer]:
+            - /url: /
+          - link "上传试色" [ref=e8] [cursor=pointer]:
+            - /url: /editor
+          - link "图库" [ref=e9] [cursor=pointer]:
+            - /url: /gallery
+          - link "AI 生成" [ref=e10] [cursor=pointer]:
+            - /url: /ai-generate
+          - link "AR 试戴" [ref=e11] [cursor=pointer]:
+            - /url: /ar-tryon
+          - link "模型Demo" [ref=e12] [cursor=pointer]:
+            - /url: /ar-demo
+        - link "开始试色" [ref=e13] [cursor=pointer]:
+          - /url: /ar-tryon
+    - main [ref=e14]:
+      - generic [ref=e15]:
+        - paragraph [ref=e16]: AR 试戴
+        - heading "实时预览指尖效果" [level=1] [ref=e17]
+        - paragraph [ref=e18]: 打开摄像头，让颜色和纹理跟随手指移动；也可以上传参考图自动提取多枚美甲纹理。
+      - generic [ref=e22]:
+        - button "📷 开启摄像头" [ref=e23]
+        - paragraph [ref=e24]: 点击后浏览器会请求摄像头权限，请允许
+      - generic [ref=e25]:
+        - generic [ref=e26]:
+          - button "纯色" [ref=e27]
+          - button "纹理" [ref=e28]
+        - generic [ref=e29]:
+          - button "拇指" [ref=e30]
+          - button "食指" [ref=e31]
+          - button "中指" [ref=e32]
+          - button "无名指" [ref=e33]
+          - button "小指" [ref=e34]
+        - generic [ref=e35]:
+          - generic [ref=e37]: 拇指颜色
+          - button "应用到全部" [ref=e38]
+        - generic [ref=e39]:
+          - button "裸粉色" [ref=e40]
+          - button "豆沙红" [ref=e41]
+          - button "酒红色" [ref=e42]
+          - button "焦糖色" [ref=e43]
+          - button "裸色" [ref=e44]
+          - button "纯白色" [ref=e45]
+          - button "银色" [ref=e46]
+          - button "黑色" [ref=e47]
+          - button "雾霾蓝" [ref=e48]
+          - button "抹茶绿" [ref=e49]
+          - button "薰衣草紫" [ref=e50]
+          - button "橘色" [ref=e51]
+        - generic [ref=e52]:
+          - generic [ref=e53]: 自定义
+          - textbox [ref=e54] [cursor=pointer]: "#e8a0bf"
+      - generic [ref=e55]:
+        - paragraph [ref=e57]: 摄像头画面仅在内存中处理，不录制，也不会上传。
+        - paragraph [ref=e59]: 首次加载可能需要几秒，建议在光线充足的环境使用。
+  - button "Open Next.js Dev Tools" [ref=e65] [cursor=pointer]
