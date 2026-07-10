@@ -8,6 +8,10 @@ import {
   smoothAngle,
   type NailGeometry,
 } from "@/lib/nail-geometry";
+import {
+  calculateCoverVideoLayout,
+  calculateViewportAspectRatio,
+} from "@/lib/ar-video-layout";
 
 // MediaPipe 手部关键点索引
 const TIPS = NAIL_TIPS;
@@ -122,6 +126,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   const [statusMsg, setStatusMsg] = useState("初始化...");
   const [handCnt, setHandCnt] = useState(-1); // -1=未检测, 0=无手, N=有手
   const [diag, setDiag] = useState<string[]>([]);
+  const [frameAspectRatio, setFrameAspectRatio] = useState(16 / 9);
 
   // 时序平滑状态：每指存储 smoothedTip/smoothedDip/smoothedPip
   // 用 NaN 标记"未初始化"，首次检测到手指时直接采用原始值
@@ -750,6 +755,31 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   }, [mode]);
 
   useEffect(() => {
+    const viewport = window.visualViewport;
+    const updateFrameRatio = () => {
+      const width = viewport?.width ?? window.innerWidth;
+      const height = viewport?.height ?? window.innerHeight;
+      if (width <= 0 || height <= 0) return;
+
+      const nextRatio = calculateViewportAspectRatio(width, height);
+      setFrameAspectRatio((current) =>
+        Math.abs(current - nextRatio) < 0.001 ? current : nextRatio,
+      );
+    };
+
+    updateFrameRatio();
+    window.addEventListener("resize", updateFrameRatio);
+    window.addEventListener("orientationchange", updateFrameRatio);
+    viewport?.addEventListener("resize", updateFrameRatio);
+
+    return () => {
+      window.removeEventListener("resize", updateFrameRatio);
+      window.removeEventListener("orientationchange", updateFrameRatio);
+      viewport?.removeEventListener("resize", updateFrameRatio);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!userStarted) return; // 等待用户点击按钮
     let dead = false;
     let handsInst: HandsInstance | null = null;
@@ -833,11 +863,16 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           return;
         }
 
-        // 竖屏 480x640（3:4）匹配 CSS aspect-[3/4]，避免 canvas 拉伸导致贴图错位
+        // 优先获取高清标准比例画面；比例不一致时由展示层等比缩放并居中裁切。
         let stream: MediaStream;
         try {
           stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: "user", width: { ideal: 480 }, height: { ideal: 640 } },
+            video: {
+              facingMode: { ideal: "user" },
+              width: { ideal: 1920 },
+              height: { ideal: 1080 },
+              frameRate: { ideal: 30, max: 30 },
+            },
             audio: false,
           });
         } catch (camErr) {
@@ -845,7 +880,11 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           log("  首次尝试失败，降级尝试..." + (camErr instanceof Error ? ": " + camErr.message : ""));
           try {
             stream = await navigator.mediaDevices.getUserMedia({
-              video: { width: { ideal: 480 }, height: { ideal: 640 } },
+              video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 },
+                frameRate: { ideal: 30, max: 30 },
+              },
               audio: false,
             });
           } catch (camErr2) {
@@ -951,18 +990,13 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           // 需要变换到 canvas 显示坐标
           const vw = video.videoWidth;
           const vh = video.videoHeight;
-          const containerRatio = cvs.width / cvs.height;
-          const videoRatio = vw / vh;
-          let scale = 1, offsetX = 0, offsetY = 0;
-          if (videoRatio > containerRatio) {
-            // 视频更宽 → 左右裁剪
-            scale = cvs.height / vh;
-            offsetX = -(vw * scale - cvs.width) / 2;
-          } else {
-            // 视频更高 → 上下裁剪
-            scale = cvs.width / vw;
-            offsetY = -(vh * scale - cvs.height) / 2;
-          }
+          if (vw <= 0 || vh <= 0 || cvs.width <= 0 || cvs.height <= 0) return;
+          const { scale, offsetX, offsetY } = calculateCoverVideoLayout(
+            vw,
+            vh,
+            cvs.width,
+            cvs.height,
+          );
           // 变换函数：归一化坐标 → canvas 像素坐标
           const tx2px = (nx: number) => nx * vw * scale + offsetX;
           const ty2py = (ny: number) => ny * vh * scale + offsetY;
@@ -1096,12 +1130,15 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   }, [userStarted]);
 
   return (
-    <div className="relative w-full max-w-[480px] mx-auto rounded-2xl overflow-hidden bg-black shadow-lg">
+    <div
+      className="relative mx-auto w-full overflow-hidden rounded-2xl bg-black shadow-lg"
+      style={{ aspectRatio: frameAspectRatio }}
+    >
       <video
         ref={vref}
         playsInline
         muted
-        className="w-full aspect-[3/4] object-cover"
+        className="absolute inset-0 h-full w-full object-cover"
         style={{ transform: "scaleX(-1)" }}
       />
       <canvas
@@ -1199,22 +1236,22 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
               <span
                 className={`inline-block text-xs px-3 py-1 rounded-full backdrop-blur-sm ${
                   orientation === "dorsum"
-                    ? "text-green-300 bg-green-900/40"
+                    ? "text-orange-300 bg-orange-900/40"
                     : orientation === "palm"
-                      ? "text-orange-300 bg-orange-900/40"
+                      ? "text-green-300 bg-green-900/40"
                       : "text-gray-300 bg-gray-800/40"
                 }`}
               >
                 {orientation === "dorsum"
-                  ? "🖐️"
+                  ? "✋"
                   : orientation === "palm"
-                    ? "✋"
+                    ? "🖐️"
                     : "🤚"}{" "}
                 {handLabel ? handLabel + " · " : ""}
                 {orientation === "dorsum"
-                  ? "手背"
+                  ? "手心"
                   : orientation === "palm"
-                    ? "手心"
+                    ? "手背"
                     : "侧手"}
               </span>
 
