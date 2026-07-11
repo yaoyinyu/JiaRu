@@ -1,0 +1,39 @@
+{
+  "ok": false,
+  "rootDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review",
+  "reviewPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\review\\screening-review.csv",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\review\\screening-review-audit.json",
+  "totalRows": 22,
+  "keptCount": 22,
+  "droppedCount": 0,
+  "manualFixCount": 22,
+  "manualFixRate": 1,
+  "decisions": {
+    "needs_manual_fix": 22
+  },
+  "splitHints": {
+    "train": 22
+  },
+  "sampleKinds": {
+    "reference": 22
+  },
+  "backgroundTones": {
+    "unknown": 22
+  },
+  "colorFamilies": {
+    "other": 22
+  },
+  "effectTags": {},
+  "topDropReasons": {},
+  "warnings": [
+    "kept sample count is below the recommended first-batch target of 50",
+    "missing dark-background samples",
+    "missing light-background samples",
+    "missing negative samples",
+    "missing merchant or swatch-style samples",
+    "no samples are reserved for test split",
+    "missing highlight effect coverage",
+    "missing gold-line effect coverage",
+    "missing glitter or cat-eye effect coverage"
+  ]
+}

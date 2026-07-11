@@ -1,0 +1,20 @@
+{
+  "version": "nail-texture-seg-synthetic-v1",
+  "task": "segment",
+  "inputSize": 640,
+  "inputLayout": "NCHW",
+  "colorOrder": "RGB",
+  "normalization": "zero_to_one",
+  "resizeMode": "letterbox",
+  "backendPreferences": [
+    "webgpu",
+    "wasm"
+  ],
+  "modelFile": "nail-texture-seg-synthetic-v1.onnx",
+  "outputContract": "ultralytics-seg-raw-v1",
+  "modelSizeBytes": 11626577,
+  "sha256": "0af74c0429035f627abd8fadf5e37eeb21cbcf4ebf00e4ed2fdfe78684f96868",
+  "labels": [
+    "nail_texture"
+  ]
+}

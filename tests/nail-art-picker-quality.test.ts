@@ -134,3 +134,19 @@ test("summarizeExtractionDiagnostics builds readable extraction summary", () => 
   assert.ok(summary?.messages.includes("裁剪区域混入了较多非甲面像素，建议检查边界。"));
   assert.ok(summary?.messages.includes("检测到高光区域，已对可修复部分做轻微修复。"));
 });
+
+test("summarizeExtractionDiagnostics explains the default highlight preservation policy", () => {
+  const summary = summarizeExtractionDiagnostics({
+    quality: { ok: true, warnings: [] },
+    highlightRepair: {
+      strategy: "preserve",
+      highlightPixels: 2,
+      repairedPixels: 0,
+      highlightRatio: 0.08,
+    },
+  });
+
+  assert.ok(
+    summary?.messages.includes("检测到高光区域；当前按原图保留，未进行猜测性修复。")
+  );
+});

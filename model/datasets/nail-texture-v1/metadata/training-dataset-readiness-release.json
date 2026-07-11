@@ -1,5 +1,5 @@
 {
-  "ok": false,
+  "ok": true,
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "authorizationMode": "release",
   "outputPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-dataset-readiness-release.json",
@@ -16,7 +16,7 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-        "recordCount": 300,
+        "recordCount": 323,
         "ok": true,
         "issues": []
       },
@@ -35,13 +35,16 @@
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
         "mode": "release",
-        "recordCount": 300,
+        "recordCount": 323,
         "counts": {
           "byOriginType": {
-            "other": 300
+            "user": 22,
+            "other": 300,
+            "negative": 1
           },
           "byLicense": {
-            "ai-generated-internal-training-candidate": 300
+            "owner-authorized-commercial-training-and-regression": 22,
+            "ai-generated-internal-training-candidate": 301
           }
         },
         "ok": true,
@@ -60,22 +63,29 @@
     },
     {
       "name": "audit-phase1-readiness",
-      "ok": false,
+      "ok": true,
       "stdout": {
-        "ok": false,
+        "ok": true,
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
         "totals": {
-          "images": 300,
-          "masks": 1411,
-          "validMasks": 1411,
+          "images": 323,
+          "masks": 1521,
+          "validMasks": 1521,
           "filesWithErrors": 0,
-          "filesWithWarnings": 0
+          "filesWithWarnings": 1
         },
         "splitCounts": {
-          "train": 210,
+          "train": 232,
           "val": 45,
-          "test": 45
+          "test": 46
+        },
+        "splitRatios": {
+          "train": 0.718266253869969,
+          "val": 0.1393188854489164,
+          "test": 0.14241486068111456,
+          "maxDeviation": 0.01826625386996905,
+          "allowedDeviation": 0.05
         },
         "splitIntegrity": {
           "missingFromSplit": [],
@@ -83,24 +93,27 @@
           "duplicateInSplit": []
         },
         "testCoverage": {
-          "negatives": 0,
-          "complexBackground": 0,
+          "negatives": 1,
+          "complexBackground": 1,
           "sampleKinds": {
-            "other": 45
+            "other": 44,
+            "complex_background": 1,
+            "negative": 1
           },
           "backgrounds": {
-            "unspecified": 45
+            "unspecified": 45,
+            "dark": 1
           }
         },
         "gates": {
           "imageCount": {
             "ok": true,
-            "actual": 300,
+            "actual": 323,
             "required": 200
           },
           "validMaskCount": {
             "ok": true,
-            "actual": 1411,
+            "actual": 1521,
             "required": 800
           },
           "labelAuditPass": {
@@ -113,22 +126,96 @@
             "actual": 0,
             "required": 0
           },
+          "splitRatioPass": {
+            "ok": true,
+            "actual": 0.01826625386996905,
+            "required": 0.05
+          },
           "testSplitHasNegative": {
-            "ok": false,
-            "actual": 0,
+            "ok": true,
+            "actual": 1,
             "required": 1
           },
           "testSplitHasComplexBackground": {
-            "ok": false,
-            "actual": 0,
+            "ok": true,
+            "actual": 1,
             "required": 1
           }
         },
         "warnings": [
-          "test split does not yet contain a negative sample",
-          "test split does not yet contain a complex-background sample"
+          "label audit still has 1 files with warning-level issues"
         ],
         "fileResults": [
+          {
+            "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "19e1ff892bc03296309118564517395c.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
           {
             "fileName": "Animal_print_nail_art_collecti_2026-07-04T14-53-04.png",
             "ok": true,
@@ -824,6 +911,90 @@
           },
           {
             "fileName": "Vintage_lace_pattern_nails__cr_2026-07-04T14-50-39.png",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
             "ok": true,
             "polygonCount": 5,
             "errorCount": 0,
@@ -2228,10 +2399,16 @@
             "polygonCount": 5,
             "errorCount": 0,
             "warningCount": 0
+          },
+          {
+            "fileName": "no_nail_plain_dark_background_0001.png",
+            "ok": true,
+            "polygonCount": 0,
+            "errorCount": 0,
+            "warningCount": 1
           }
         ]
       },
-      "stderr": "Command failed: C:\\Program Files\\nodejs\\node.exe --no-warnings --experimental-strip-types model/training/audit-phase1-readiness.ts\n",
       "command": [
         "C:\\Program Files\\nodejs\\node.exe",
         "--no-warnings",
@@ -2245,7 +2422,7 @@
       "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
       "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
       "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-      "recordCount": 300,
+      "recordCount": 323,
       "ok": true,
       "issues": []
     },
@@ -2254,33 +2431,43 @@
       "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
       "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
       "mode": "release",
-      "recordCount": 300,
+      "recordCount": 323,
       "counts": {
         "byOriginType": {
-          "other": 300
+          "user": 22,
+          "other": 300,
+          "negative": 1
         },
         "byLicense": {
-          "ai-generated-internal-training-candidate": 300
+          "owner-authorized-commercial-training-and-regression": 22,
+          "ai-generated-internal-training-candidate": 301
         }
       },
       "ok": true,
       "issues": []
     },
     "phase1Readiness": {
-      "ok": false,
+      "ok": true,
       "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
       "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
       "totals": {
-        "images": 300,
-        "masks": 1411,
-        "validMasks": 1411,
+        "images": 323,
+        "masks": 1521,
+        "validMasks": 1521,
         "filesWithErrors": 0,
-        "filesWithWarnings": 0
+        "filesWithWarnings": 1
       },
       "splitCounts": {
-        "train": 210,
+        "train": 232,
         "val": 45,
-        "test": 45
+        "test": 46
+      },
+      "splitRatios": {
+        "train": 0.718266253869969,
+        "val": 0.1393188854489164,
+        "test": 0.14241486068111456,
+        "maxDeviation": 0.01826625386996905,
+        "allowedDeviation": 0.05
       },
       "splitIntegrity": {
         "missingFromSplit": [],
@@ -2288,24 +2475,27 @@
         "duplicateInSplit": []
       },
       "testCoverage": {
-        "negatives": 0,
-        "complexBackground": 0,
+        "negatives": 1,
+        "complexBackground": 1,
         "sampleKinds": {
-          "other": 45
+          "other": 44,
+          "complex_background": 1,
+          "negative": 1
         },
         "backgrounds": {
-          "unspecified": 45
+          "unspecified": 45,
+          "dark": 1
         }
       },
       "gates": {
         "imageCount": {
           "ok": true,
-          "actual": 300,
+          "actual": 323,
           "required": 200
         },
         "validMaskCount": {
           "ok": true,
-          "actual": 1411,
+          "actual": 1521,
           "required": 800
         },
         "labelAuditPass": {
@@ -2318,22 +2508,96 @@
           "actual": 0,
           "required": 0
         },
+        "splitRatioPass": {
+          "ok": true,
+          "actual": 0.01826625386996905,
+          "required": 0.05
+        },
         "testSplitHasNegative": {
-          "ok": false,
-          "actual": 0,
+          "ok": true,
+          "actual": 1,
           "required": 1
         },
         "testSplitHasComplexBackground": {
-          "ok": false,
-          "actual": 0,
+          "ok": true,
+          "actual": 1,
           "required": 1
         }
       },
       "warnings": [
-        "test split does not yet contain a negative sample",
-        "test split does not yet contain a complex-background sample"
+        "label audit still has 1 files with warning-level issues"
       ],
       "fileResults": [
+        {
+          "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "19e1ff892bc03296309118564517395c.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
         {
           "fileName": "Animal_print_nail_art_collecti_2026-07-04T14-53-04.png",
           "ok": true,
@@ -3029,6 +3293,90 @@
         },
         {
           "fileName": "Vintage_lace_pattern_nails__cr_2026-07-04T14-50-39.png",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+          "ok": true,
+          "polygonCount": 5,
+          "errorCount": 0,
+          "warningCount": 0
+        },
+        {
+          "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
           "ok": true,
           "polygonCount": 5,
           "errorCount": 0,
@@ -4433,6 +4781,13 @@
           "polygonCount": 5,
           "errorCount": 0,
           "warningCount": 0
+        },
+        {
+          "fileName": "no_nail_plain_dark_background_0001.png",
+          "ok": true,
+          "polygonCount": 0,
+          "errorCount": 0,
+          "warningCount": 1
         }
       ]
     }

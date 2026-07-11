@@ -1,0 +1,192 @@
+{
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-pending\\intake-manifest.json",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-pending\\intake-manifest.report.json",
+  "ok": true,
+  "sourceGroup": "real-user-authorized-2026-07-11",
+  "originType": "user",
+  "itemCount": 22,
+  "missingFiles": [],
+  "unsafeFiles": [],
+  "unlistedFiles": [],
+  "invalidImageFiles": [],
+  "imageChecks": [
+    {
+      "fileName": "2027_7_11/0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "ok": true,
+      "width": 1280,
+      "height": 1707,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1344,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/075757517fbb6e42840328dcfd1c984b.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1344,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/19e1ff892bc03296309118564517395c.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1427,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1280,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1218,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/586430bda51171eda6acac9b78044e86.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1086,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "ok": true,
+      "width": 1280,
+      "height": 1707,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/916243c8917244d2b399ae2674266b6b.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1186,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1344,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1351,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1280,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1529,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/cefb43f688de010c12d6a22c058188ed.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1345,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1280,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/d91d43318c1f87f3c3118f42de25de57.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1280,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1393,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "ok": true,
+      "width": 1280,
+      "height": 1408,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/ec02f0d2830587d57caadd728bdebe82.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1280,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/ecd34e2fb116522263394fd443fab987.jpg",
+      "ok": true,
+      "width": 960,
+      "height": 1080,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/f03408b03bcc28080f07f84d2507868b.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1375,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2027_7_11/f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "ok": true,
+      "width": 1279,
+      "height": 1354,
+      "format": "jpeg",
+      "channels": 3
+    }
+  ],
+  "issues": []
+}

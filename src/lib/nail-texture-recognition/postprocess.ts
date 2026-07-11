@@ -16,11 +16,23 @@ export interface PostprocessModelOutputsOptions {
   maxCandidates?: number;
   scoreThreshold?: number;
   maskThreshold?: number;
+  nmsThreshold?: number;
+  preNmsTopK?: number;
   includeLowConfidenceCandidates?: boolean;
 }
 
 interface CandidateAngleEvidence {
   reliable: boolean;
+}
+
+interface RawDetectionCandidate {
+  id: string;
+  cx: number;
+  cy: number;
+  width: number;
+  length: number;
+  score: number;
+  coefficients: number[];
 }
 
 function scoreToConfidence(score: number): NailTextureCandidateConfidence {
@@ -45,10 +57,26 @@ function flattenDetectionRows(tensor: ModelTensorLike): number[][] {
   const dims = tensor.dims ? Array.from(tensor.dims) : [];
 
   if (dims.length === 3 && dims[0] === 1) {
-    const [, rows, cols] = dims;
+    const [, first, second] = dims;
     const output: number[][] = [];
-    for (let row = 0; row < rows; row++) {
-      output.push(values.slice(row * cols, (row + 1) * cols));
+    const looksLikeAttributeCount = (value: number) => value >= 5 && value <= 256;
+    const channelMajor =
+      looksLikeAttributeCount(first) &&
+      (!looksLikeAttributeCount(second) || second > first);
+
+    if (channelMajor) {
+      for (let prediction = 0; prediction < second; prediction++) {
+        const row: number[] = [];
+        for (let attribute = 0; attribute < first; attribute++) {
+          row.push(values[attribute * second + prediction] ?? 0);
+        }
+        output.push(row);
+      }
+      return output;
+    }
+
+    for (let row = 0; row < first; row++) {
+      output.push(values.slice(row * second, (row + 1) * second));
     }
     return output;
   }
@@ -128,37 +156,137 @@ function decodeCandidateMask(
   prototypeTensor: ModelTensorLike,
   coefficients: number[],
   preprocess: NailTexturePreprocessResult,
-  maskThreshold: number
+  maskThreshold: number,
+  modelBox: Pick<RawDetectionCandidate, "cx" | "cy" | "width" | "length">
 ): NailMask | undefined {
   const shape = decodePrototypeShape(prototypeTensor);
   if (!shape || coefficients.length === 0) return undefined;
 
   const { channels, height, width } = shape;
-  const source = Array.from(prototypeTensor.data, (value) => Number(value) || 0);
-  const binary = new Uint8Array(width * height);
-  const scale = preprocess.inputSize / width;
+  const source = prototypeTensor.data;
+  const padLeft = preprocess.padLeft ?? 0;
+  const padTop = preprocess.padTop ?? 0;
+  const resizedWidth = preprocess.resizedWidth ?? preprocess.inputSize;
+  const resizedHeight = preprocess.resizedHeight ?? preprocess.inputSize;
+  const contentMinX = clamp(Math.floor((padLeft / preprocess.inputSize) * width), 0, width - 1);
+  const contentMinY = clamp(Math.floor((padTop / preprocess.inputSize) * height), 0, height - 1);
+  const contentMaxX = clamp(
+    Math.ceil(((padLeft + resizedWidth) / preprocess.inputSize) * width),
+    contentMinX + 1,
+    width
+  );
+  const contentMaxY = clamp(
+    Math.ceil(((padTop + resizedHeight) / preprocess.inputSize) * height),
+    contentMinY + 1,
+    height
+  );
+  const outputWidth = contentMaxX - contentMinX;
+  const outputHeight = contentMaxY - contentMinY;
+  const binary = new Uint8Array(outputWidth * outputHeight);
 
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
+  const boxMinX = clamp(
+    Math.floor(((modelBox.cx - modelBox.width / 2) / preprocess.inputSize) * width),
+    contentMinX,
+    contentMaxX - 1
+  );
+  const boxMaxX = clamp(
+    Math.ceil(((modelBox.cx + modelBox.width / 2) / preprocess.inputSize) * width),
+    boxMinX + 1,
+    contentMaxX
+  );
+  const boxMinY = clamp(
+    Math.floor(((modelBox.cy - modelBox.length / 2) / preprocess.inputSize) * height),
+    contentMinY,
+    contentMaxY - 1
+  );
+  const boxMaxY = clamp(
+    Math.ceil(((modelBox.cy + modelBox.length / 2) / preprocess.inputSize) * height),
+    boxMinY + 1,
+    contentMaxY
+  );
+
+  for (let y = boxMinY; y < boxMaxY; y++) {
+    for (let x = boxMinX; x < boxMaxX; x++) {
       let activation = 0;
       for (let channel = 0; channel < channels; channel++) {
         const coefficient = coefficients[channel] ?? 0;
         if (coefficient === 0) continue;
         const offset = channel * width * height + y * width + x;
-        activation += coefficient * source[offset];
+        activation += coefficient * (Number(source[offset]) || 0);
       }
-      binary[y * width + x] = sigmoid(activation) >= maskThreshold ? 1 : 0;
+      const outputX = x - contentMinX;
+      const outputY = y - contentMinY;
+      binary[outputY * outputWidth + outputX] =
+        sigmoid(activation) >= maskThreshold ? 1 : 0;
     }
   }
 
   return {
-    width,
-    height,
+    width: outputWidth,
+    height: outputHeight,
     data: binary,
     originX: 0,
     originY: 0,
-    scale,
+    scale: Math.max(
+      preprocess.originalWidth / outputWidth,
+      preprocess.originalHeight / outputHeight
+    ),
   };
+}
+
+function rawCandidateIou(left: RawDetectionCandidate, right: RawDetectionCandidate): number {
+  const leftMinX = left.cx - left.width / 2;
+  const leftMaxX = left.cx + left.width / 2;
+  const leftMinY = left.cy - left.length / 2;
+  const leftMaxY = left.cy + left.length / 2;
+  const rightMinX = right.cx - right.width / 2;
+  const rightMaxX = right.cx + right.width / 2;
+  const rightMinY = right.cy - right.length / 2;
+  const rightMaxY = right.cy + right.length / 2;
+  const intersectionWidth = Math.max(0, Math.min(leftMaxX, rightMaxX) - Math.max(leftMinX, rightMinX));
+  const intersectionHeight = Math.max(0, Math.min(leftMaxY, rightMaxY) - Math.max(leftMinY, rightMinY));
+  const intersection = intersectionWidth * intersectionHeight;
+  if (intersection <= 0) return 0;
+  const leftArea = Math.max(1, left.width * left.length);
+  const rightArea = Math.max(1, right.width * right.length);
+  return intersection / (leftArea + rightArea - intersection);
+}
+
+function suppressRawCandidates(
+  candidates: RawDetectionCandidate[],
+  overlapThreshold: number,
+  limit: number
+): RawDetectionCandidate[] {
+  const kept: RawDetectionCandidate[] = [];
+  for (const candidate of candidates) {
+    if (kept.some((selected) => rawCandidateIou(candidate, selected) >= overlapThreshold)) {
+      continue;
+    }
+    kept.push(candidate);
+    if (kept.length >= limit) break;
+  }
+  return kept;
+}
+
+function modelCoordinateToOriginal(
+  value: number,
+  padding: number,
+  preprocess: NailTexturePreprocessResult,
+  legacyInverseScale: number,
+  max: number
+): number {
+  const resizeScale = preprocess.resizeScale ?? 1 / legacyInverseScale;
+  return clamp((value - padding) / resizeScale, 0, max);
+}
+
+function modelLengthToOriginal(
+  value: number,
+  preprocess: NailTexturePreprocessResult,
+  legacyInverseScale: number,
+  max: number
+): number {
+  const resizeScale = preprocess.resizeScale ?? 1 / legacyInverseScale;
+  return clamp(value / resizeScale, 1, max);
 }
 
 export function estimateMaskPrincipalAngle(mask: NailMask): number | null {
@@ -281,35 +409,93 @@ export function postprocessNailTextureDetections(
     : options.scoreThreshold ?? 0.35;
   const maxCandidates = options.maxCandidates ?? 10;
   const maskThreshold = options.maskThreshold ?? 0.5;
+  const nmsThreshold = options.nmsThreshold ?? 0.55;
+  const preNmsTopK = Math.max(maxCandidates, options.preNmsTopK ?? 100);
   const rows = flattenDetectionRows(detectionTensor);
 
-  const angleEvidences: CandidateAngleEvidence[] = [];
-  const candidates = rows
+  const rawCandidates = rows
     .filter((row) => row.length >= 5)
     .map((row, index) => {
       const [cx, cy, width, length, score] = row;
-      const coefficients = row.slice(5);
+      return {
+        id: `model-raw-${index + 1}`,
+        cx,
+        cy,
+        width,
+        length,
+        score,
+        coefficients: row.slice(5),
+      } satisfies RawDetectionCandidate;
+    })
+    .filter((candidate) =>
+      Number.isFinite(candidate.cx) &&
+      Number.isFinite(candidate.cy) &&
+      Number.isFinite(candidate.width) &&
+      Number.isFinite(candidate.length) &&
+      Number.isFinite(candidate.score) &&
+      candidate.width > 0 &&
+      candidate.length > 0 &&
+      candidate.score >= scoreThreshold
+    )
+    .sort((left, right) => right.score - left.score)
+    .slice(0, preNmsTopK);
+
+  const selectedRawCandidates = suppressRawCandidates(
+    rawCandidates,
+    nmsThreshold,
+    Math.max(maxCandidates, maxCandidates * 2)
+  );
+
+  const angleEvidenceById = new Map<string, CandidateAngleEvidence>();
+  const candidates = selectedRawCandidates.map((raw, index) => {
       const mask =
-        prototypeTensor && coefficients.length > 0
-          ? decodeCandidateMask(prototypeTensor, coefficients, preprocess, maskThreshold)
+        prototypeTensor && raw.coefficients.length > 0
+          ? decodeCandidateMask(
+              prototypeTensor,
+              raw.coefficients,
+              preprocess,
+              maskThreshold,
+              raw
+            )
           : undefined;
       const estimatedAngle = mask ? estimateMaskPrincipalAngle(mask) : null;
       const candidate = {
         id: `model-${index + 1}`,
-        cx: clamp(cx * preprocess.scaleX, 0, preprocess.originalWidth),
-        cy: clamp(cy * preprocess.scaleY, 0, preprocess.originalHeight),
-        width: clamp(width * preprocess.scaleX, 1, preprocess.originalWidth),
-        length: clamp(length * preprocess.scaleY, 1, preprocess.originalHeight),
-        score,
+        cx: modelCoordinateToOriginal(
+          raw.cx,
+          preprocess.padLeft ?? 0,
+          preprocess,
+          preprocess.scaleX,
+          preprocess.originalWidth
+        ),
+        cy: modelCoordinateToOriginal(
+          raw.cy,
+          preprocess.padTop ?? 0,
+          preprocess,
+          preprocess.scaleY,
+          preprocess.originalHeight
+        ),
+        width: modelLengthToOriginal(
+          raw.width,
+          preprocess,
+          preprocess.scaleX,
+          preprocess.originalWidth
+        ),
+        length: modelLengthToOriginal(
+          raw.length,
+          preprocess,
+          preprocess.scaleY,
+          preprocess.originalHeight
+        ),
+        score: raw.score,
         mask,
         angle: estimatedAngle ?? 0,
       };
-      angleEvidences.push({
+      angleEvidenceById.set(candidate.id, {
         reliable: isReliableOrientationCandidate(candidate, estimatedAngle != null),
       });
       return candidate;
-    })
-    .filter((row) => row.score >= scoreThreshold);
+    });
 
   const ranked = rankNailTextureCandidates(
     candidates.map((candidate) => ({
@@ -332,12 +518,9 @@ export function postprocessNailTextureDetections(
       includeLowConfidenceCandidates: options.includeLowConfidenceCandidates,
     }
   );
-  const evidenceById = new Map(
-    candidates.map((candidate, index) => [candidate.id, angleEvidences[index] as CandidateAngleEvidence])
-  );
   const stabilized = stabilizeNailTextureCandidateAngles(
     ranked,
-    ranked.map((candidate) => evidenceById.get(candidate.id) ?? { angle: candidate.angle, reliable: false })
+    ranked.map((candidate) => angleEvidenceById.get(candidate.id) ?? { reliable: false })
   );
 
   const suggestedFingers = inferSuggestedFingers(stabilized.length);

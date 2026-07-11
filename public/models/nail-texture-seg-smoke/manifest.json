@@ -1,0 +1,21 @@
+{
+  "version": "nail-texture-seg-smoke-v1",
+  "task": "segment",
+  "inputSize": 64,
+  "inputLayout": "NCHW",
+  "colorOrder": "RGB",
+  "normalization": "zero_to_one",
+  "resizeMode": "letterbox",
+  "backendPreferences": [
+    "webgpu",
+    "wasm"
+  ],
+  "modelFile": "nail-texture-seg-smoke-v1.onnx",
+  "outputContract": "ultralytics-seg-raw-v1",
+  "modelSizeBytes": 33518,
+  "sha256": "3daa876fb529c3d21d87d731b609a30d8beab8ad9ea29ee45c30566c7692b5cf",
+  "labels": [
+    "nail_texture"
+  ],
+  "smokeOnly": true
+}

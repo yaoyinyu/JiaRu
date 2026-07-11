@@ -45,3 +45,24 @@ test("verify-model-output-fixture validates offline postprocess assumptions", as
     ["boxes", "proto"]
   );
 });
+
+test("verify-model-output-fixture proves TypeScript parity with Python reference postprocess", async () => {
+  const fixturePath = path.resolve(
+    "model/fixtures/nail-texture-browser-smoke-output.json"
+  );
+  const { stdout } = await execFileAsync(process.execPath, [
+    "--no-warnings",
+    "--experimental-strip-types",
+    "scripts/verify-model-output-fixture.ts",
+    fixturePath,
+  ], { cwd: path.resolve(".") });
+
+  const summary = JSON.parse(stdout) as {
+    ok: boolean;
+    pythonReferenceVerified: boolean;
+    candidateCount: number;
+  };
+  assert.equal(summary.ok, true);
+  assert.equal(summary.pythonReferenceVerified, true);
+  assert.equal(summary.candidateCount, 2);
+});

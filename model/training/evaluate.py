@@ -9,6 +9,7 @@ from _training_common import (
     load_dataset_config,
     resolve_best_weights_path,
     write_json,
+    write_resolved_dataset_yaml,
 )
 
 
@@ -39,10 +40,12 @@ def main() -> None:
         else (output.parent / "evaluation-artifacts").resolve()
     )
     config = load_dataset_config(dataset_yaml)
+    runtime_dataset_yaml = output.parent / "resolved-dataset.yaml"
 
     summary = {
         "dataset_yaml": str(dataset_yaml),
         "dataset_root": str(config.dataset_root),
+        "runtime_dataset_yaml": str(runtime_dataset_yaml),
         "weights": str(weights),
         "train_output_dir": str(train_output_dir),
         "run_name": args.run_name,
@@ -60,10 +63,11 @@ def main() -> None:
         return
 
     ultralytics = ensure_python_dependency("ultralytics", "pip install ultralytics")
+    write_resolved_dataset_yaml(runtime_dataset_yaml, config)
     model = ultralytics.YOLO(str(weights))
     artifacts_dir.parent.mkdir(parents=True, exist_ok=True)
     metrics = model.val(
-        data=str(dataset_yaml),
+        data=str(runtime_dataset_yaml),
         split=args.split,
         imgsz=args.imgsz,
         device=args.device,

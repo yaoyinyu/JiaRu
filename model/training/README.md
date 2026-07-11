@@ -25,6 +25,8 @@
 - `train-yolo-seg.py`：训练 YOLO segmentation 模型
 - `evaluate.py`：输出验证/测试指标
 - `export-onnx.py`：导出浏览器端 ONNX 和 manifest
+- `quantize-onnx-int8.py`：生成隔离的 QDQ INT8 评估候选；默认禁止 promotion，必须继续通过精度和浏览器门禁
+- `assess-model-metrics.py`：比较输入尺寸或量化候选与 FP32 基线，自动拒绝超过允许退化幅度的候选
 - `../scripts/run-training-release-pipeline.ts`：把训练、评估、导出、发布门禁串成一条流水线
 
 推荐流程：

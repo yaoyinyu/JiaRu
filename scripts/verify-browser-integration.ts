@@ -129,6 +129,7 @@ const contractChecks = [
     ok: hasAll(pickerSource, [
       /recognizeNailTexturesInWorker/,
       /preferModel:\s*true/,
+      /manifestUrl:\s*NAIL_TEXTURE_MODEL_MANIFEST_URL/,
       /workerTimeoutMs:\s*NAIL_RECOGNITION_WORKER_TIMEOUT_MS/,
     ]),
   },
@@ -176,6 +177,13 @@ const contractChecks = [
       !/Array\.from\(source\.data\)/.test(clientWorkerSource),
   },
   {
+    name: "client_worker_checks_worker_canvas_capability",
+    ok: hasAll(clientWorkerSource, [
+      /runtimeGlobal\.OffscreenCanvas/,
+      /worker_unavailable_used_main_thread/,
+    ]),
+  },
+  {
     name: "client_worker_terminates_on_abort",
     ok: hasAll(clientWorkerSource, [
       /signal\.addEventListener\("abort"/,
@@ -214,6 +222,32 @@ const contractChecks = [
   {
     name: "runtime_loads_manifest_and_selects_execution_provider",
     ok: hasAll(runtimeSource, [/loadNailTextureModelManifest/, /createOrtSession/, /resolveOrtExecutionProviders/]),
+  },
+  {
+    name: "runtime_supports_browser_worker_environment",
+    ok: hasAll(runtimeSource, [
+      /detectNailTextureRuntimeEnvironment/,
+      /self\s*===\s*globalThis/,
+      /return\s+"worker"/,
+    ]),
+  },
+  {
+    name: "runtime_uses_bundler_visible_ort_imports",
+    ok:
+      hasAll(runtimeSource, [
+        /import\("onnxruntime-web\/webgpu"\)/,
+        /import\("onnxruntime-web\/wasm"\)/,
+      ]) &&
+      !/new Function\(/.test(runtimeSource) &&
+      !/typeof\s+window/.test(runtimeSource),
+  },
+  {
+    name: "runtime_retries_available_execution_providers",
+    ok: hasAll(runtimeSource, [
+      /getBackendCandidates/,
+      /for\s*\(const backend of candidates\)/,
+      /onnx_session_init_failed:\$\{backend\}/,
+    ]),
   },
   {
     name: "package_declares_onnxruntime_web",

@@ -17,6 +17,8 @@ export interface NailTextureModelInfo {
   modelUrl?: string;
   inputNames?: string[];
   outputNames?: string[];
+  outputContract?: string;
+  resizeMode?: "letterbox";
 }
 
 export interface NailTextureTensorSummary {
@@ -64,6 +66,11 @@ export interface NailTextureRecognitionResult {
     originalHeight: number;
     scaleX: number;
     scaleY: number;
+    resizeScale?: number;
+    resizedWidth?: number;
+    resizedHeight?: number;
+    padLeft?: number;
+    padTop?: number;
   };
 }
 
@@ -105,4 +112,9 @@ export interface NailTextureModelManifest {
   backendPreferences: Array<"webgpu" | "wasm">;
   modelFile: string;
   labels: string[];
+  inputLayout?: "NCHW";
+  colorOrder?: "RGB";
+  normalization?: "zero_to_one";
+  resizeMode?: "letterbox";
+  outputContract?: string;
 }

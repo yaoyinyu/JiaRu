@@ -1,0 +1,132 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner:
+      - generic [ref=e3]:
+        - link "甲如首页" [ref=e4] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e5]: J
+          - generic [ref=e6]: 甲如
+        - navigation "主导航" [ref=e7]:
+          - link "首页" [ref=e8] [cursor=pointer]:
+            - /url: /
+          - link "灵感" [ref=e9] [cursor=pointer]:
+            - /url: /gallery
+          - link "AI 设计" [ref=e10] [cursor=pointer]:
+            - /url: /ai-generate
+          - link "AR 试戴" [ref=e11] [cursor=pointer]:
+            - /url: /ar-tryon
+        - link "上传试色" [ref=e12] [cursor=pointer]:
+          - /url: /editor
+          - generic [ref=e14]: ↗
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - paragraph [ref=e17]: Live Try-on
+        - heading "让每一次抬手，都提前看见效果" [level=1] [ref=e18]
+        - paragraph [ref=e19]: 实时追踪手部动作，让颜色与纹理自然贴合指甲。所有摄像头画面都只在本地内存中处理。
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e23]:
+            - generic [ref=e24]: 💅
+            - button "📷 开启摄像头" [ref=e26]
+            - paragraph [ref=e27]: 需要摄像头权限 · 仅在本地处理，不录制也不会上传。
+          - complementary [ref=e28]:
+            - generic [ref=e29]:
+              - paragraph [ref=e30]: Style controls
+              - heading "试戴设置" [level=2] [ref=e31]
+            - generic [ref=e32]:
+              - generic [ref=e33]:
+                - button "🎨 纯色" [ref=e34]
+                - button "🖼️ 纹理" [ref=e35]
+              - generic [ref=e36]:
+                - button "拇指" [ref=e37]
+                - button "食指" [ref=e38]
+                - button "中指" [ref=e39]
+                - button "无名指" [ref=e40]
+                - button "小指" [ref=e41]
+              - generic [ref=e78]:
+                - paragraph [ref=e79]: 拇指暂未设置纹理
+                - generic [ref=e80]:
+                  - generic [ref=e81] [cursor=pointer]: 📷 上传美甲照片
+                  - generic [ref=e82] [cursor=pointer]: ✨ 多纹理提取
+        - generic [ref=e88]:
+          - generic [ref=e89]:
+            - generic [ref=e90]:
+              - heading "Nail texture picker" [level=2] [ref=e91]
+              - paragraph [ref=e92]: Auto-detect the nails, then fine-tune and assign each region.
+            - button "Close" [ref=e93]
+          - generic [ref=e94]:
+            - generic [ref=e95]:
+              - generic [ref=e96]: "Regions: 4"
+              - generic [ref=e97]: "Assigned: 4"
+              - generic [ref=e98]: fallback
+            - generic [ref=e99]:
+              - generic [ref=e100]: "Elapsed: 242 ms"
+              - generic [ref=e101]: "Worker: 22 ms"
+            - list [ref=e102]:
+              - listitem [ref=e103]: 模型清单加载或校验失败，已回退到规则识别。
+          - generic [ref=e104]:
+            - button "Add region" [ref=e105]
+            - button "Export debug JSON" [ref=e106]
+          - generic [ref=e107]:
+            - generic [ref=e108]:
+              - generic [ref=e109]: Detected regions
+              - generic [ref=e110]:
+                - 'button "Region 1 · Index high source: saliency" [ref=e111]':
+                  - generic [ref=e112]:
+                    - generic [ref=e113]: Region 1 · Index
+                    - generic [ref=e114]: high
+                  - generic [ref=e115]: "source: saliency"
+                - 'button "Region 2 · Middle high source: saliency" [ref=e116]':
+                  - generic [ref=e117]:
+                    - generic [ref=e118]: Region 2 · Middle
+                    - generic [ref=e119]: high
+                  - generic [ref=e120]: "source: saliency"
+                - 'button "Region 3 · Ring high source: saliency" [ref=e121]':
+                  - generic [ref=e122]:
+                    - generic [ref=e123]: Region 3 · Ring
+                    - generic [ref=e124]: high
+                  - generic [ref=e125]: "source: saliency"
+                - 'button "Region 4 · Pinky high source: saliency" [ref=e126]':
+                  - generic [ref=e127]:
+                    - generic [ref=e128]: Region 4 · Pinky
+                    - generic [ref=e129]: high
+                  - generic [ref=e130]: "source: saliency"
+            - generic [ref=e131]:
+              - generic [ref=e132]: Adjust selected region
+              - generic [ref=e133]:
+                - button "Up" [ref=e134]
+                - button "Rotate -" [ref=e135]
+                - button "Length +" [ref=e136]
+                - button "Left" [ref=e137]
+                - button "Down" [ref=e138]
+                - button "Right" [ref=e139]
+                - button "Rotate +" [ref=e140]
+                - button "Length -" [ref=e141]
+                - button "Width +" [ref=e142]
+              - generic [ref=e143]:
+                - button "Width -" [ref=e144]
+                - button "Remove" [ref=e145]
+            - generic [ref=e146]:
+              - generic [ref=e147]: Assign finger
+              - generic [ref=e148]:
+                - button "Thumb" [ref=e149]
+                - button "Index" [ref=e150]
+                - button "Middle" [ref=e151]
+                - button "Ring" [ref=e152]
+                - button "Pinky" [ref=e153]
+            - generic [ref=e154]:
+              - generic [ref=e155]: Quality review
+              - generic [ref=e156]: 当前候选状态良好
+              - generic [ref=e157]: No issues detected for this region.
+          - generic [ref=e158]:
+            - button "Cancel" [ref=e159]
+            - button "Confirm textures" [ref=e160]
+          - generic [ref=e161]: "Tip: click a detected region on the image to select it, then adjust it with the controls on the right."
+        - generic [ref=e62]:
+          - generic [ref=e63]: 🔒 摄像头画面仅在内存中处理，不录制，也不会上传。
+          - generic [ref=e64]: 💡 首次加载大约需要 5-10 秒，建议在光线充足的环境使用。
+    - contentinfo [ref=e65]:
+      - generic [ref=e66]: 甲如 JiaRu
+      - generic [ref=e67]: 在指尖，遇见更好的选择
+  - button "Open Next.js Dev Tools" [ref=e74] [cursor=pointer]
+  - alert [ref=e68]

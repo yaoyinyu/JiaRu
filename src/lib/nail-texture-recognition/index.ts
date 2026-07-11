@@ -3,6 +3,7 @@ export {
 } from "./fallback-adapter.ts";
 export {
   choosePreferredModelBackend,
+  detectNailTextureRuntimeEnvironment,
   getSessionIoNames,
   getNailTextureModelRuntime,
   loadNailTextureModelManifest,
@@ -10,6 +11,9 @@ export {
   resolveModelUrl,
   resolveOrtExecutionProviders,
   validateNailTextureModelManifest,
+} from "./model-runtime.ts";
+export type {
+  NailTextureRuntimeEnvironment,
 } from "./model-runtime.ts";
 export {
   serializeModelOutputs,
@@ -57,6 +61,7 @@ export {
   extractTextureFromMaskDetailed,
   extractTextureFromMask,
   findMaskBounds,
+  inspectSpecularHighlights,
   isSpecularHighlightPixel,
   repairSpecularHighlights,
   summarizeMaskExtractionQuality,
@@ -84,6 +89,7 @@ export {
 } from "./quality.ts";
 export {
   disposeNailTextureRecognitionWorker,
+  isWorkerRecognitionSupported,
   recognizeNailTexturesInWorker,
 } from "./client-worker.ts";
 export {

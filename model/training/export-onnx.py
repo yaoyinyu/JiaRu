@@ -25,6 +25,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-dir", default="public/models/nail-texture-seg", help="Browser model output directory")
     parser.add_argument("--model-version", default="nail-texture-seg-v1")
     parser.add_argument("--input-size", type=int, default=640)
+    parser.add_argument("--input-layout", default="NCHW")
+    parser.add_argument("--color-order", default="RGB")
+    parser.add_argument("--normalization", default="zero_to_one")
+    parser.add_argument("--resize-mode", default="letterbox")
+    parser.add_argument("--output-contract", default="ultralytics-seg-raw-v1")
     parser.add_argument("--task", default="segment")
     parser.add_argument("--backend-preferences", nargs="+", default=["webgpu", "wasm"])
     parser.add_argument("--labels", nargs="+", default=["nail_texture"])
@@ -49,6 +54,11 @@ def main() -> None:
         "manifest_path": str(manifest_path),
         "model_version": args.model_version,
         "input_size": args.input_size,
+        "input_layout": args.input_layout,
+        "color_order": args.color_order,
+        "normalization": args.normalization,
+        "resize_mode": args.resize_mode,
+        "output_contract": args.output_contract,
         "task": args.task,
         "backend_preferences": args.backend_preferences,
         "labels": args.labels,
@@ -73,8 +83,13 @@ def main() -> None:
             "version": args.model_version,
             "task": args.task,
             "inputSize": args.input_size,
+            "inputLayout": args.input_layout,
+            "colorOrder": args.color_order,
+            "normalization": args.normalization,
+            "resizeMode": args.resize_mode,
             "backendPreferences": args.backend_preferences,
             "modelFile": onnx_path.name,
+            "outputContract": args.output_contract,
             "modelSizeBytes": model_size_bytes,
             "sha256": model_sha256,
             "labels": args.labels,

@@ -25,7 +25,7 @@ interface OrtModuleLike {
       modelUrl: string,
       options?: {
         executionProviders?: string[];
-        graphOptimizationLevel?: string;
+        graphOptimizationLevel?: "disabled" | "basic" | "extended" | "layout" | "all";
       }
     ) => Promise<unknown>;
   };
@@ -35,6 +35,8 @@ interface OrtModuleLike {
     dims: readonly number[]
   ) => unknown;
 }
+
+export type NailTextureRuntimeEnvironment = "window" | "worker" | "server";
 
 interface SessionLike {
   inputNames?: string[];
@@ -101,6 +103,24 @@ export function validateNailTextureModelManifest(manifest: unknown): string[] {
   if (!Array.isArray(manifest.labels) || !manifest.labels.includes("nail_texture")) {
     errors.push("manifest_labels_must_include_nail_texture");
   }
+  if (manifest.inputLayout != null && manifest.inputLayout !== "NCHW") {
+    errors.push("manifest_input_layout_must_be_nchw");
+  }
+  if (manifest.colorOrder != null && manifest.colorOrder !== "RGB") {
+    errors.push("manifest_color_order_must_be_rgb");
+  }
+  if (manifest.normalization != null && manifest.normalization !== "zero_to_one") {
+    errors.push("manifest_normalization_must_be_zero_to_one");
+  }
+  if (manifest.resizeMode != null && manifest.resizeMode !== "letterbox") {
+    errors.push("manifest_resize_mode_must_be_letterbox");
+  }
+  if (
+    manifest.outputContract != null &&
+    (typeof manifest.outputContract !== "string" || manifest.outputContract.trim().length === 0)
+  ) {
+    errors.push("manifest_output_contract_must_be_non_empty_string");
+  }
 
   return errors;
 }
@@ -114,12 +134,40 @@ function assertValidNailTextureModelManifest(
   }
 }
 
-function runtimeImport(specifier: string): Promise<unknown> {
-  const dynamicImport = new Function(
-    "s",
-    "return import(s)"
-  ) as (s: string) => Promise<unknown>;
-  return dynamicImport(specifier);
+export function detectNailTextureRuntimeEnvironment(): NailTextureRuntimeEnvironment {
+  const workerGlobal = globalThis as typeof globalThis & {
+    window?: unknown;
+    location?: { href?: string };
+    postMessage?: unknown;
+  };
+  if (workerGlobal.window) return "window";
+  if (
+    typeof self !== "undefined" &&
+    self === globalThis &&
+    typeof workerGlobal.postMessage === "function" &&
+    typeof workerGlobal.location?.href === "string"
+  ) {
+    return "worker";
+  }
+
+  return "server";
+}
+
+function getRuntimeBaseHref(): string {
+  const runtimeGlobal = globalThis as typeof globalThis & {
+    window?: { location?: { href?: string } };
+    location?: { href?: string };
+  };
+  return runtimeGlobal.location?.href ?? runtimeGlobal.window?.location?.href ?? "http://localhost";
+}
+
+function getInjectedOrtModule(): OrtModuleLike | null {
+  const runtimeGlobal = globalThis as typeof globalThis & {
+    ort?: unknown;
+    window?: { ort?: unknown };
+  };
+  const injected = runtimeGlobal.ort ?? runtimeGlobal.window?.ort;
+  return injected ? (injected as OrtModuleLike) : null;
 }
 
 export function choosePreferredModelBackend(
@@ -148,21 +196,36 @@ export function resolveModelUrl(
   manifestUrl = "/models/nail-texture-seg/manifest.json"
 ): string {
   assertValidNailTextureModelManifest(manifest);
-  const base = new URL(manifestUrl, typeof window !== "undefined" ? window.location.href : "http://localhost");
+  const base = new URL(manifestUrl, getRuntimeBaseHref());
   return new URL(manifest.modelFile, base).toString();
 }
 
-async function loadOrtModule(): Promise<OrtModuleLike | null> {
-  if (typeof window !== "undefined" && window.ort) {
-    return window.ort as OrtModuleLike;
-  }
+async function loadOrtModule(
+  backend: Exclude<NailTextureModelBackend, "fallback">
+): Promise<OrtModuleLike | null> {
+  const injected = getInjectedOrtModule();
+  if (injected) return injected;
 
   try {
-    const imported = (await runtimeImport("onnxruntime-web")) as OrtModuleLike;
+    const imported = backend === "webgpu"
+      ? await import("onnxruntime-web/webgpu")
+      : await import("onnxruntime-web/wasm");
     return imported;
   } catch {
     return null;
   }
+}
+
+function getBackendCandidates(
+  backendPreferences: Array<"webgpu" | "wasm">,
+  hasWebGpu: boolean
+): Array<Exclude<NailTextureModelBackend, "fallback">> {
+  const candidates: Array<Exclude<NailTextureModelBackend, "fallback">> = [];
+  for (const backend of backendPreferences) {
+    if (backend === "webgpu" && !hasWebGpu) continue;
+    if (!candidates.includes(backend)) candidates.push(backend);
+  }
+  return candidates;
 }
 
 async function createOrtSession(
@@ -222,7 +285,8 @@ export async function getNailTextureModelRuntime(
   let cached = runtimeCache.get(cacheKey);
   if (!cached) {
     cached = (async () => {
-      if (typeof window === "undefined") {
+      const environment = detectNailTextureRuntimeEnvironment();
+      if (environment === "server") {
         return {
           available: false,
           backend: "fallback",
@@ -231,55 +295,64 @@ export async function getNailTextureModelRuntime(
       }
 
       const manifest = await loadNailTextureModelManifest(manifestUrl);
-      const ort = await loadOrtModule();
-      const hasOrt = ort != null;
       const hasWebGpu = typeof navigator !== "undefined" && typeof navigator.gpu !== "undefined";
-      const backend = choosePreferredModelBackend(manifest.backendPreferences, {
-        hasOrt,
-        hasWebGpu,
-      });
+      const modelUrl = resolveModelUrl(manifest, manifestUrl);
+      const warnings: string[] = [];
+      const candidates = getBackendCandidates(manifest.backendPreferences, hasWebGpu);
 
-      if (backend === "fallback") {
-        return {
-          available: false,
-          backend,
-          warnings: hasOrt ? ["no_supported_model_backend"] : ["onnx_runtime_not_loaded"],
-        };
+      for (const backend of candidates) {
+        const ort = await loadOrtModule(backend);
+        if (!ort) {
+          warnings.push(`onnx_runtime_import_failed:${backend}`);
+          continue;
+        }
+
+        try {
+          const session = await createOrtSession(ort, modelUrl, backend);
+          const ioNames = getSessionIoNames(session);
+
+          return {
+            available: true,
+            backend,
+            session,
+            ort,
+            info: {
+              version: manifest.version,
+              backend,
+              inputSize: manifest.inputSize,
+              loadedAt: Date.now(),
+              modelUrl,
+              inputNames: ioNames.inputNames,
+              outputNames: ioNames.outputNames,
+              outputContract: manifest.outputContract,
+              resizeMode: manifest.resizeMode,
+            },
+            warnings,
+          };
+        } catch (error) {
+          warnings.push(
+            error instanceof Error
+              ? `onnx_session_init_failed:${backend}:${error.message}`
+              : `onnx_session_init_failed:${backend}`
+          );
+        }
       }
 
-      const modelUrl = resolveModelUrl(manifest, manifestUrl);
-      try {
-        const session = await createOrtSession(ort as OrtModuleLike, modelUrl, backend);
-        const ioNames = getSessionIoNames(session);
-
-        return {
-          available: true,
-          backend,
-          session,
-          ort: ort as OrtModuleLike,
-          info: {
-            version: manifest.version,
-            backend,
-            inputSize: manifest.inputSize,
-            loadedAt: Date.now(),
-            modelUrl,
-            inputNames: ioNames.inputNames,
-            outputNames: ioNames.outputNames,
-          },
-          warnings: [],
-        };
-      } catch (error) {
+      if (candidates.length === 0) {
         return {
           available: false,
           backend: "fallback",
-          warnings: [
-            error instanceof Error
-              ? `onnx_session_init_failed:${error.message}`
-              : "onnx_session_init_failed",
-          ],
+          warnings: ["no_supported_model_backend"],
         };
       }
 
+      return {
+        available: false,
+        backend: "fallback",
+        warnings: warnings.some((warning) => warning.startsWith("onnx_session_init_failed"))
+          ? warnings
+          : [...warnings, "onnx_runtime_not_loaded"],
+      };
     })();
     runtimeCache.set(cacheKey, cached);
   }

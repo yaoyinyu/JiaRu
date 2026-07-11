@@ -99,8 +99,7 @@ async function collectJsonFiles(dirPath: string): Promise<string[]> {
     .sort();
 }
 
-async function loadSample(filePath: string): Promise<TimingSample | null> {
-  const document = JSON.parse(await readFile(filePath, "utf8")) as Record<string, unknown>;
+function parseSample(filePath: string, document: Record<string, unknown>): TimingSample | null {
   const elapsedMs = toNumber(document.elapsedMs);
   if (elapsedMs == null) return null;
   const workerElapsedMs = toNumber(document.workerElapsedMs);
@@ -115,6 +114,19 @@ async function loadSample(filePath: string): Promise<TimingSample | null> {
     clientOverheadMs:
       workerElapsedMs == null ? null : Math.max(0, elapsedMs - workerElapsedMs),
   };
+}
+
+async function loadSamples(filePath: string): Promise<TimingSample[]> {
+  const document = JSON.parse(await readFile(filePath, "utf8")) as unknown;
+  const candidates = Array.isArray(document)
+    ? document
+    : document && typeof document === "object" && Array.isArray((document as { samples?: unknown }).samples)
+      ? (document as { samples: unknown[] }).samples
+      : [document];
+  return candidates
+    .filter((candidate): candidate is Record<string, unknown> => Boolean(candidate) && typeof candidate === "object")
+    .map((candidate) => parseSample(filePath, candidate))
+    .filter((sample): sample is TimingSample => sample != null);
 }
 
 function percentile(values: number[], ratio: number): number | null {
@@ -138,8 +150,8 @@ const inputPaths = [
 const samples: TimingSample[] = [];
 const skippedFiles: string[] = [];
 for (const filePath of inputPaths) {
-  const sample = await loadSample(filePath);
-  if (sample) samples.push(sample);
+  const loadedSamples = await loadSamples(filePath);
+  if (loadedSamples.length > 0) samples.push(...loadedSamples);
   else skippedFiles.push(filePath);
 }
 

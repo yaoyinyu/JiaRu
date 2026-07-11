@@ -21,6 +21,7 @@ export interface MaskExtractionQualitySummary {
 }
 
 export interface TextureHighlightRepairSummary {
+  strategy?: "preserve" | "repair";
   highlightPixels: number;
   repairedPixels: number;
   highlightRatio: number;
@@ -259,8 +260,40 @@ export function repairSpecularHighlights(
     .length;
 
   return {
+    strategy: "repair",
     highlightPixels,
     repairedPixels,
+    highlightRatio:
+      foregroundPixels > 0 ? Number((highlightPixels / foregroundPixels).toFixed(4)) : 0,
+  };
+}
+
+export function inspectSpecularHighlights(
+  imageData: ImageData
+): TextureHighlightRepairSummary {
+  let foregroundPixels = 0;
+  let highlightPixels = 0;
+
+  for (let offset = 0; offset < imageData.data.length; offset += 4) {
+    const alpha = imageData.data[offset + 3] ?? 0;
+    if (alpha <= 0) continue;
+    foregroundPixels++;
+    if (
+      isSpecularHighlightPixel(
+        imageData.data[offset] ?? 0,
+        imageData.data[offset + 1] ?? 0,
+        imageData.data[offset + 2] ?? 0,
+        alpha
+      )
+    ) {
+      highlightPixels++;
+    }
+  }
+
+  return {
+    strategy: "preserve",
+    highlightPixels,
+    repairedPixels: 0,
     highlightRatio:
       foregroundPixels > 0 ? Number((highlightPixels / foregroundPixels).toFixed(4)) : 0,
   };
@@ -272,7 +305,8 @@ export async function extractTextureFromMaskDetailed(
   imageHeight: number,
   mask: NailMask,
   maxTextureSize: number = MAX_TEXTURE_SIZE,
-  featherRadius: number = DEFAULT_FEATHER_RADIUS
+  featherRadius: number = DEFAULT_FEATHER_RADIUS,
+  highlightStrategy: "preserve" | "repair" = "preserve"
 ): Promise<ExtractedMaskTexture> {
   const quality = summarizeMaskExtractionQuality(mask);
   const bounds = findMaskBounds(mask);
@@ -316,7 +350,10 @@ export async function extractTextureFromMaskDetailed(
     }
   }
 
-  const highlightRepair = repairSpecularHighlights(imageData);
+  const highlightRepair =
+    highlightStrategy === "repair"
+      ? repairSpecularHighlights(imageData)
+      : inspectSpecularHighlights(imageData);
   ctx.putImageData(imageData, 0, 0);
   return {
     texture: await createImageBitmap(canvas),
@@ -333,7 +370,8 @@ export async function extractTextureFromMask(
   imageHeight: number,
   mask: NailMask,
   maxTextureSize: number = MAX_TEXTURE_SIZE,
-  featherRadius: number = DEFAULT_FEATHER_RADIUS
+  featherRadius: number = DEFAULT_FEATHER_RADIUS,
+  highlightStrategy: "preserve" | "repair" = "preserve"
 ): Promise<ImageBitmap> {
   const extracted = await extractTextureFromMaskDetailed(
     image,
@@ -341,7 +379,8 @@ export async function extractTextureFromMask(
     imageHeight,
     mask,
     maxTextureSize,
-    featherRadius
+    featherRadius,
+    highlightStrategy
   );
   return extracted.texture;
 }

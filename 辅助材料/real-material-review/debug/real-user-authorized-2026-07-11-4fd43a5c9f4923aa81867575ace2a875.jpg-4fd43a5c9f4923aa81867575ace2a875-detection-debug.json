@@ -1,0 +1,69 @@
+{
+  "input": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\4fd43a5c9f4923aa81867575ace2a875.jpg",
+  "annotation": null,
+  "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4fd43a5c9f4923aa81867575ace2a875.jpg-4fd43a5c9f4923aa81867575ace2a875-detection-debug.png",
+  "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4fd43a5c9f4923aa81867575ace2a875.jpg-4fd43a5c9f4923aa81867575ace2a875-candidate-mask.png",
+  "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4fd43a5c9f4923aa81867575ace2a875.jpg-4fd43a5c9f4923aa81867575ace2a875-skin-mask.png",
+  "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4fd43a5c9f4923aa81867575ace2a875.jpg-4fd43a5c9f4923aa81867575ace2a875-detection-debug.json",
+  "width": 960,
+  "height": 1218,
+  "count": 5,
+  "backend": "fallback",
+  "elapsedMs": 27.859100000000012,
+  "warnings": [
+    "model_runtime_unavailable_on_server"
+  ],
+  "modelOutputDumpPath": null,
+  "regions": [
+    {
+      "cx": 88.59202923990651,
+      "cy": 556.2812130336047,
+      "angle": -0.5235987755982989,
+      "length": 197.61580741377256,
+      "width": 140.07000000000002,
+      "confidence": "high",
+      "score": 44.63705825805664
+    },
+    {
+      "cx": 310.6960484103046,
+      "cy": 410.75892222831556,
+      "angle": -1.0471975511965979,
+      "length": 213.15,
+      "width": 140.07000000000002,
+      "confidence": "high",
+      "score": 53.235002517700195
+    },
+    {
+      "cx": 639.7560478619539,
+      "cy": 957.8124422462726,
+      "angle": 0.5235987755982987,
+      "length": 196.30295190834522,
+      "width": 140.07000000000002,
+      "confidence": "high",
+      "score": 36.067203521728516
+    },
+    {
+      "cx": 868.0521657016445,
+      "cy": 526.3983285082229,
+      "angle": 1.5707963267948966,
+      "length": 213.15,
+      "width": 140.07000000000002,
+      "confidence": "high",
+      "score": 54.55715751647949
+    },
+    {
+      "cx": 890.6625,
+      "cy": 337.4875,
+      "angle": 0.7853981633974483,
+      "length": 152.25,
+      "width": 109.61999999999999,
+      "confidence": "high",
+      "score": 20.36093521118164
+    }
+  ],
+  "groundTruth": null,
+  "expectedCandidateCount": null,
+  "matches": [],
+  "maxCenterError": 0,
+  "maxAllowedCenterError": 45
+}

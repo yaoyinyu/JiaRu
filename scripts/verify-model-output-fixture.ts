@@ -14,8 +14,21 @@ interface ModelOutputFixture {
     originalHeight: number;
     scaleX: number;
     scaleY: number;
+    resizeScale?: number;
+    resizedWidth?: number;
+    resizedHeight?: number;
+    padLeft?: number;
+    padTop?: number;
   };
   outputs: Record<string, { dims?: number[]; data: number[] }>;
+  pythonReference?: Array<{
+    cx: number;
+    cy: number;
+    width: number;
+    length: number;
+    score: number;
+    maskForegroundPixels: number;
+  }>;
   expect?: {
     candidateCount?: number;
     minScore?: number;
@@ -43,11 +56,7 @@ const outputs = Object.fromEntries(
 ) as Record<string, ModelTensorLike>;
 
 const preprocess = {
-  inputSize: fixture.preprocess.inputSize,
-  originalWidth: fixture.preprocess.originalWidth,
-  originalHeight: fixture.preprocess.originalHeight,
-  scaleX: fixture.preprocess.scaleX,
-  scaleY: fixture.preprocess.scaleY,
+  ...fixture.preprocess,
   tensorData: new Float32Array(),
   tensorShape: [1, 3, fixture.preprocess.inputSize, fixture.preprocess.inputSize] as [
     1,
@@ -61,6 +70,30 @@ const candidates = postprocessNailTextureDetections(outputs, preprocess);
 const debugOutputs = summarizeModelOutputs(outputs);
 const expectations = fixture.expect ?? {};
 const failures: string[] = [];
+const pythonReference = fixture.pythonReference;
+
+if (pythonReference) {
+  if (pythonReference.length !== candidates.length) {
+    failures.push(`python_reference_count_mismatch:${pythonReference.length}!==${candidates.length}`);
+  }
+  for (let index = 0; index < Math.min(pythonReference.length, candidates.length); index++) {
+    const reference = pythonReference[index]!;
+    const candidate = candidates[index]!;
+    for (const key of ["cx", "cy", "width", "length", "score"] as const) {
+      if (Math.abs(candidate[key] - reference[key]) > 1e-4) {
+        failures.push(`python_reference_${key}_mismatch:${index}`);
+      }
+    }
+    const foregroundPixels = candidate.mask
+      ? candidate.mask.data.reduce((sum, value) => sum + (value ? 1 : 0), 0)
+      : 0;
+    if (foregroundPixels !== reference.maskForegroundPixels) {
+      failures.push(
+        `python_reference_mask_foreground_mismatch:${index}:${foregroundPixels}!==${reference.maskForegroundPixels}`
+      );
+    }
+  }
+}
 
 if (
   expectations.candidateCount != null &&
@@ -98,6 +131,7 @@ console.log(
       ok: failures.length === 0,
       failures,
       candidateCount: candidates.length,
+      pythonReferenceVerified: Boolean(pythonReference) && failures.length === 0,
       candidates: candidates.map((candidate) => ({
         id: candidate.id,
         cx: candidate.cx,

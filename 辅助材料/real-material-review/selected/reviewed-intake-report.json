@@ -1,0 +1,43 @@
+{
+  "ok": true,
+  "rootDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review",
+  "outputDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected",
+  "baseManifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\real-user-authorized-2026-07-11.manifest.json",
+  "reviewPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\review\\screening-review.csv",
+  "outputManifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\real-user-authorized-2026-07-11.manifest.json",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\reviewed-intake-report.json",
+  "selectedCount": 22,
+  "copiedCount": 22,
+  "missingFiles": [],
+  "copiedFiles": [
+    "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+    "02a57340bbd2ef39c02e66b503f077a0.jpg",
+    "075757517fbb6e42840328dcfd1c984b.jpg",
+    "19e1ff892bc03296309118564517395c.jpg",
+    "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+    "4fd43a5c9f4923aa81867575ace2a875.jpg",
+    "586430bda51171eda6acac9b78044e86.jpg",
+    "8c4793356e5af0d460bc7967919fd6ba.jpg",
+    "916243c8917244d2b399ae2674266b6b.jpg",
+    "9a0c13d0485ade01a084dbfeff865d99.jpg",
+    "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+    "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+    "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+    "cefb43f688de010c12d6a22c058188ed.jpg",
+    "d59b3facac1d4ce8507d1de491a583d6.jpg",
+    "d91d43318c1f87f3c3118f42de25de57.jpg",
+    "df5b39c10a2185218d507bfd6a9f26df.jpg",
+    "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+    "ec02f0d2830587d57caadd728bdebe82.jpg",
+    "ecd34e2fb116522263394fd443fab987.jpg",
+    "f03408b03bcc28080f07f84d2507868b.jpg",
+    "f5e4fc362a7b4115cbf3607d22d87e72.jpg"
+  ],
+  "droppedCount": 0,
+  "decisions": {
+    "keep": 0,
+    "drop": 0,
+    "needs_manual_fix": 22,
+    "reserve_for_test": 0
+  }
+}

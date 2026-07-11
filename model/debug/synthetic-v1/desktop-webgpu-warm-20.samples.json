@@ -1,0 +1,31 @@
+{
+  "version": "nail-texture-browser-performance-samples/v1",
+  "generatedAt": "2026-07-11T14:12:00+08:00",
+  "profile": "desktop",
+  "browser": "Chromium via Playwright CLI",
+  "modelVersion": "nail-texture-seg-synthetic-v1",
+  "input": "model/5188.jpg_wh860.jpg",
+  "coldStartReferenceMs": 4252,
+  "samples": [
+    { "imageId": "warm-01", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 79, "workerElapsedMs": 64, "regions": 4 },
+    { "imageId": "warm-02", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 72, "workerElapsedMs": 55, "regions": 4 },
+    { "imageId": "warm-03", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 67, "workerElapsedMs": 50, "regions": 4 },
+    { "imageId": "warm-04", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 62, "workerElapsedMs": 48, "regions": 4 },
+    { "imageId": "warm-05", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 69, "workerElapsedMs": 52, "regions": 4 },
+    { "imageId": "warm-06", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 61, "workerElapsedMs": 45, "regions": 4 },
+    { "imageId": "warm-07", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 63, "workerElapsedMs": 49, "regions": 4 },
+    { "imageId": "warm-08", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 62, "workerElapsedMs": 48, "regions": 4 },
+    { "imageId": "warm-09", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 64, "workerElapsedMs": 48, "regions": 4 },
+    { "imageId": "warm-10", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 60, "workerElapsedMs": 45, "regions": 4 },
+    { "imageId": "warm-11", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 65, "workerElapsedMs": 50, "regions": 4 },
+    { "imageId": "warm-12", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 62, "workerElapsedMs": 48, "regions": 4 },
+    { "imageId": "warm-13", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 70, "workerElapsedMs": 54, "regions": 4 },
+    { "imageId": "warm-14", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 58, "workerElapsedMs": 44, "regions": 4 },
+    { "imageId": "warm-15", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 63, "workerElapsedMs": 49, "regions": 4 },
+    { "imageId": "warm-16", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 62, "workerElapsedMs": 47, "regions": 4 },
+    { "imageId": "warm-17", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 63, "workerElapsedMs": 49, "regions": 4 },
+    { "imageId": "warm-18", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 60, "workerElapsedMs": 46, "regions": 4 },
+    { "imageId": "warm-19", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 72, "workerElapsedMs": 57, "regions": 4 },
+    { "imageId": "warm-20", "backend": "model / webgpu", "modelVersion": "nail-texture-seg-synthetic-v1", "elapsedMs": 62, "workerElapsedMs": 45, "regions": 4 }
+  ]
+}

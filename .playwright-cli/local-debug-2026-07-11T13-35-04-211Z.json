@@ -1,0 +1,143 @@
+{
+  "imageId": "local-debug-2026-07-11T13-35-04.211Z",
+  "imageUrl": "blob:http://localhost:3000/c6c90d01-e560-48ce-aba0-3c328ee5acd0",
+  "image": {
+    "width": 860,
+    "height": 573
+  },
+  "backend": "model",
+  "modelVersion": "nail-texture-seg-synthetic-v1",
+  "modelBackend": "webgpu",
+  "elapsedMs": 3897.900000002235,
+  "workerElapsedMs": 3669.60000000149,
+  "recognitionOptions": {
+    "maxCandidates": 10,
+    "workerTimeoutMs": 15000
+  },
+  "warnings": [],
+  "originalCandidates": [
+    {
+      "id": "model-1",
+      "cx": 180.23379039764404,
+      "cy": 225.64104455944295,
+      "angle": 0,
+      "length": 90.38452008875404,
+      "width": 93.23493814468384,
+      "assignedFinger": 1,
+      "confidence": "medium",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "angle_defaulted_vertical"
+      ]
+    },
+    {
+      "id": "model-2",
+      "cx": 277.2420997619629,
+      "cy": 295.81793164222813,
+      "angle": 0,
+      "length": 114.40958992848923,
+      "width": 95.69330596923828,
+      "assignedFinger": 2,
+      "confidence": "medium",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "angle_defaulted_vertical"
+      ]
+    },
+    {
+      "id": "model-3",
+      "cx": 407.23018741607666,
+      "cy": 339.84242781018224,
+      "angle": 0,
+      "length": 114.18670174775829,
+      "width": 107.88145637512207,
+      "assignedFinger": 3,
+      "confidence": "medium",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "angle_defaulted_vertical"
+      ]
+    },
+    {
+      "id": "model-4",
+      "cx": 552.5407485961914,
+      "cy": 370.5382517802111,
+      "angle": 0,
+      "length": 105.84855127960834,
+      "width": 98.45416927337646,
+      "assignedFinger": 4,
+      "confidence": "medium",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "angle_defaulted_vertical"
+      ]
+    }
+  ],
+  "correctedCandidates": [
+    {
+      "id": "model-1",
+      "cx": 180.23379039764404,
+      "cy": 225.64104455944295,
+      "angle": 0,
+      "length": 90.38452008875404,
+      "width": 93.23493814468384,
+      "assignedFinger": 1,
+      "confidence": "medium",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "angle_defaulted_vertical"
+      ]
+    },
+    {
+      "id": "model-2",
+      "cx": 277.2420997619629,
+      "cy": 295.81793164222813,
+      "angle": 0,
+      "length": 114.40958992848923,
+      "width": 95.69330596923828,
+      "assignedFinger": 2,
+      "confidence": "medium",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "angle_defaulted_vertical"
+      ]
+    },
+    {
+      "id": "model-3",
+      "cx": 407.23018741607666,
+      "cy": 339.84242781018224,
+      "angle": 0,
+      "length": 114.18670174775829,
+      "width": 107.88145637512207,
+      "assignedFinger": 3,
+      "confidence": "medium",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "angle_defaulted_vertical"
+      ]
+    },
+    {
+      "id": "model-4",
+      "cx": 552.5407485961914,
+      "cy": 370.5382517802111,
+      "angle": 0,
+      "length": 105.84855127960834,
+      "width": 98.45416927337646,
+      "assignedFinger": 4,
+      "confidence": "medium",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "angle_defaulted_vertical"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-11T13:35:04.211Z"
+}

@@ -1,5 +1,10 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Project documentation
+
+- [Technical whitepaper](docs/technical-whitepaper.md) — canonical module status, interface contracts, integration guidance, usage, and maintenance rules.
+- Daily development records are kept under [`dev-log/`](dev-log/), with one file per day.
+
 ## Getting Started
 
 First, run the development server:

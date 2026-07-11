@@ -23,6 +23,88 @@ test("preprocessNailTextureImage creates CHW float tensor", () => {
   assert.ok(result.tensorData[8] >= 0 && result.tensorData[8] <= 1);
 });
 
+test("preprocessNailTextureImage letterboxes landscape input without stretching", () => {
+  const source = {
+    width: 4,
+    height: 2,
+    data: new Uint8ClampedArray([
+      255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255,
+      0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255,
+    ]),
+  };
+
+  const result = preprocessNailTextureImage(source, 4);
+
+  assert.equal(result.resizeScale, 1);
+  assert.equal(result.resizedWidth, 4);
+  assert.equal(result.resizedHeight, 2);
+  assert.equal(result.padLeft, 0);
+  assert.equal(result.padTop, 1);
+  assert.ok(Math.abs(result.tensorData[0] - 114 / 255) < 1e-6);
+  assert.equal(result.tensorData[4], 1);
+  assert.equal(result.tensorData[16 + 8], 1);
+});
+
+test("postprocessNailTextureDetections reverses letterbox padding", () => {
+  const preprocess = preprocessNailTextureImage(
+    {
+      width: 400,
+      height: 200,
+      data: new Uint8ClampedArray(400 * 200 * 4),
+    },
+    640
+  );
+
+  const [candidate] = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 1, 6],
+        data: new Float32Array([320, 320, 96, 128, 0.95, 0]),
+      },
+    },
+    preprocess
+  );
+
+  assert.ok(Math.abs(candidate.cx - 200) < 0.01);
+  assert.ok(Math.abs(candidate.cy - 100) < 0.01);
+  assert.ok(Math.abs(candidate.width - 60) < 0.01);
+  assert.ok(Math.abs(candidate.length - 80) < 0.01);
+});
+
+test("postprocessNailTextureDetections transposes channel-major Ultralytics rows", () => {
+  const preprocess = {
+    inputSize: 640,
+    originalWidth: 640,
+    originalHeight: 640,
+    scaleX: 1,
+    scaleY: 1,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 640, 640] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      output0: {
+        dims: [1, 6, 2],
+        data: new Float32Array([
+          120, 360,
+          160, 180,
+          60, 58,
+          100, 96,
+          0.95, 0.82,
+          0, 0,
+        ]),
+      },
+    },
+    preprocess
+  );
+
+  assert.equal(candidates.length, 2);
+  assert.ok(Math.abs(candidates[0].cx - 120) < 0.01);
+  assert.ok(Math.abs(candidates[1].cx - 360) < 0.01);
+  assert.equal(candidates[0].confidence, "high");
+});
+
 test("postprocessNailTextureDetections maps model rows to candidates", () => {
   const preprocess = {
     inputSize: 640,
@@ -262,15 +344,19 @@ test("estimateMaskPrincipalAngle and postprocess keep a stable mask-derived angl
     {
       output0: {
         dims: [1, 1, 6],
-        data: new Float32Array([320, 320, 120, 60, 0.95, 1]),
+        data: new Float32Array([320, 320, 260, 60, 0.95, 1]),
       },
       output1: {
-        dims: [1, 1, 4, 4],
+        dims: [1, 1, 8, 8],
         data: new Float32Array([
-          -8, -8, -8, -8,
-          8, 8, 8, 8,
-          -8, -8, -8, -8,
-          -8, -8, -8, -8,
+          -8, -8, -8, -8, -8, -8, -8, -8,
+          -8, -8, -8, -8, -8, -8, -8, -8,
+          -8, -8, -8, -8, -8, -8, -8, -8,
+          -8, -8, 8, 8, 8, 8, -8, -8,
+          -8, -8, -8, -8, -8, -8, -8, -8,
+          -8, -8, -8, -8, -8, -8, -8, -8,
+          -8, -8, -8, -8, -8, -8, -8, -8,
+          -8, -8, -8, -8, -8, -8, -8, -8,
         ]),
       },
     },
