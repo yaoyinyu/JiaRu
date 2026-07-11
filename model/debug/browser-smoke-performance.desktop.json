@@ -1,0 +1,46 @@
+{
+  "ok": true,
+  "profile": "desktop",
+  "thresholds": {
+    "maxElapsedMs": 800,
+    "maxClientOverheadMs": 120,
+    "minSamples": 1
+  },
+  "totals": {
+    "inputFiles": 1,
+    "samples": 1,
+    "skippedFiles": 0,
+    "slowSamples": 0,
+    "slowClientOverheadSamples": 0,
+    "missingWorkerTimingSamples": 0
+  },
+  "stats": {
+    "averageMs": 491.3,
+    "p50Ms": 491.3,
+    "p95Ms": 491.3,
+    "maxMs": 491.3,
+    "averageWorkerMs": 461,
+    "p95WorkerMs": 461,
+    "averageClientOverheadMs": 30.3,
+    "p95ClientOverheadMs": 30.3
+  },
+  "samples": [
+    {
+      "filePath": "E:\\AI Project\\Codex\\JiaRu\\.playwright-cli\\local-debug-2026-07-11T07-01-13-023Z.json",
+      "imageId": "local-debug-2026-07-11T07-01-13.023Z",
+      "backend": "model",
+      "modelVersion": "nail-texture-seg-smoke-v1",
+      "elapsedMs": 491.29999999981374,
+      "workerElapsedMs": 461,
+      "clientOverheadMs": 30.299999999813735
+    }
+  ],
+  "slowSamples": [],
+  "slowClientOverheadSamples": [],
+  "skippedFiles": [],
+  "errors": [],
+  "warnings": [],
+  "nextSteps": [
+    "Recognition performance is within the selected budget."
+  ]
+}

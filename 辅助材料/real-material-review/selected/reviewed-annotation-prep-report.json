@@ -1,0 +1,755 @@
+{
+  "ok": true,
+  "rootDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review",
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\real-user-authorized-2026-07-11.manifest.json",
+  "reviewPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\review\\screening-review.csv",
+  "annotationDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\reviewed-annotation-prep-report.json",
+  "preparedCount": 22,
+  "totalPolygons": 110,
+  "averagePolygonCount": 5,
+  "manualFixCount": 22,
+  "splitHints": {
+    "train": 22
+  },
+  "qualityGate": {
+    "ok": true,
+    "failOnIssues": false,
+    "errorCount": 0,
+    "warningCount": 0,
+    "infoCount": 22,
+    "issueCount": 22,
+    "manualReviewQueue": [
+      {
+        "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "19e1ff892bc03296309118564517395c.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      },
+      {
+        "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+        "polygonCount": 5,
+        "expectedCandidateCount": null,
+        "issues": [
+          {
+            "severity": "info",
+            "code": "manual_fix_required",
+            "message": "Reviewer marked this sample as needing manual polygon correction."
+          }
+        ]
+      }
+    ]
+  },
+  "issues": [
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "severity": "info",
+      "code": "manual_fix_required",
+      "message": "Reviewer marked this sample as needing manual polygon correction."
+    }
+  ],
+  "outputs": [
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\0132d6d2f15c7eeb06c6b20b2b9899db.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\02a57340bbd2ef39c02e66b503f077a0.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\075757517fbb6e42840328dcfd1c984b.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\19e1ff892bc03296309118564517395c.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\4a0e76a068f83cac81efed7aaeeb8e96.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\4fd43a5c9f4923aa81867575ace2a875.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\586430bda51171eda6acac9b78044e86.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\8c4793356e5af0d460bc7967919fd6ba.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\916243c8917244d2b399ae2674266b6b.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\9a0c13d0485ade01a084dbfeff865d99.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\aaa6fab381af1c61b619a9807d52a1f0.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\ca2d14573bfe3c0c83cdc3100e074b3c.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\cb7a371d6826a7e71a49ca4bf1ce2382.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\cefb43f688de010c12d6a22c058188ed.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\d59b3facac1d4ce8507d1de491a583d6.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\d91d43318c1f87f3c3118f42de25de57.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\df5b39c10a2185218d507bfd6a9f26df.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\e0bd54d05d6cdad6e2adedb784be875c.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\ec02f0d2830587d57caadd728bdebe82.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\ecd34e2fb116522263394fd443fab987.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\f03408b03bcc28080f07f84d2507868b.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\raw-json\\f5e4fc362a7b4115cbf3607d22d87e72.json",
+      "polygonCount": 5,
+      "expectedCandidateCount": null,
+      "needsManualFix": true,
+      "targetSplitHint": "train",
+      "issues": [
+        {
+          "severity": "info",
+          "code": "manual_fix_required",
+          "message": "Reviewer marked this sample as needing manual polygon correction."
+        }
+      ]
+    }
+  ]
+}

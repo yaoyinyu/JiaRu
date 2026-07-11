@@ -13,8 +13,21 @@ interface FixtureLike {
     originalHeight: number;
     scaleX: number;
     scaleY: number;
+    resizeScale?: number;
+    resizedWidth?: number;
+    resizedHeight?: number;
+    padLeft?: number;
+    padTop?: number;
   };
   outputs: Record<string, { dims?: number[]; data: number[] }>;
+  pythonReference?: Array<{
+    cx: number;
+    cy: number;
+    width: number;
+    length: number;
+    score: number;
+    maskForegroundPixels: number;
+  }>;
   expect?: {
     candidateCount?: number;
     minScore?: number;
@@ -27,6 +40,7 @@ interface DumpLike {
   preprocess?: FixtureLike["preprocess"];
   outputs?: Record<string, { dims?: number[]; data: number[] }>;
   rawModelOutputs?: Record<string, { dims?: number[]; data: number[] }>;
+  pythonReference?: FixtureLike["pythonReference"];
   expect?: FixtureLike["expect"];
 }
 
@@ -62,6 +76,7 @@ const normalizedOutputs = Object.fromEntries(
 const fixture: FixtureLike = {
   preprocess,
   outputs: serializeModelOutputs(normalizedOutputs),
+  pythonReference: source.pythonReference,
   expect: source.expect,
 };
 

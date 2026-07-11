@@ -4,6 +4,7 @@ import {
   buildFeatheredAlphaMask,
   findMaskBounds,
   isSpecularHighlightPixel,
+  inspectSpecularHighlights,
   repairSpecularHighlights,
   summarizeMaskExtractionQuality,
 } from "../src/lib/nail-texture-recognition/index.ts";
@@ -96,10 +97,28 @@ test("repairSpecularHighlights blends glare pixels from nearby texture colors", 
   const center = 4 * 4;
 
   assert.equal(summary.highlightPixels, 1);
+  assert.equal(summary.strategy, "repair");
   assert.equal(summary.repairedPixels, 1);
   assert.ok(summary.highlightRatio > 0.1);
   assert.ok(imageData.data[center] < 255);
   assert.ok(imageData.data[center + 1] < 255);
   assert.ok(imageData.data[center + 2] < 255);
   assert.ok(imageData.data[center] > 180);
+});
+
+test("inspectSpecularHighlights reports glare without changing source pixels", () => {
+  const data = new Uint8ClampedArray([
+    180, 40, 60, 255,
+    255, 255, 252, 255,
+  ]);
+  const imageData = { width: 2, height: 1, data } as ImageData;
+  const before = new Uint8ClampedArray(data);
+
+  const summary = inspectSpecularHighlights(imageData);
+
+  assert.equal(summary.strategy, "preserve");
+  assert.equal(summary.highlightPixels, 1);
+  assert.equal(summary.repairedPixels, 0);
+  assert.equal(summary.highlightRatio, 0.5);
+  assert.deepEqual(data, before);
 });

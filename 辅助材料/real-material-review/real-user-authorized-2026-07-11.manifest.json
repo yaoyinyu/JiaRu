@@ -1,0 +1,120 @@
+{
+  "version": "nail-texture-intake-batch/v1",
+  "sourceGroup": "real-user-authorized-2026-07-11",
+  "originType": "user",
+  "license": "owner-authorized-commercial-training-and-regression",
+  "defaultOriginRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+  "copyImagesToDataset": true,
+  "items": [
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "originRef": "user confirmed full commercial training and long-term regression rights; response A on 2026-07-11",
+      "notes": "bootstrapped from local source directory"
+    }
+  ]
+}

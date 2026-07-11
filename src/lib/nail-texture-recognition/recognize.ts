@@ -106,6 +106,11 @@ export async function recognizeNailTextures(
           originalHeight: preprocess.originalHeight,
           scaleX: preprocess.scaleX,
           scaleY: preprocess.scaleY,
+          resizeScale: preprocess.resizeScale,
+          resizedWidth: preprocess.resizedWidth,
+          resizedHeight: preprocess.resizedHeight,
+          padLeft: preprocess.padLeft,
+          padTop: preprocess.padTop,
         },
         warnings: [...fallback.warnings, ...runtime.warnings, "model_outputs_empty_used_fallback"],
       };
@@ -126,6 +131,11 @@ export async function recognizeNailTextures(
         originalHeight: preprocess.originalHeight,
         scaleX: preprocess.scaleX,
         scaleY: preprocess.scaleY,
+        resizeScale: preprocess.resizeScale,
+        resizedWidth: preprocess.resizedWidth,
+        resizedHeight: preprocess.resizedHeight,
+        padLeft: preprocess.padLeft,
+        padTop: preprocess.padTop,
       },
       };
   } catch (error) {

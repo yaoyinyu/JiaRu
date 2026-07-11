@@ -102,6 +102,26 @@ def write_json(path: Path, payload: Any) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def write_resolved_dataset_yaml(path: Path, config: DatasetConfig) -> Path:
+    """Write an Ultralytics runtime YAML with an absolute dataset root."""
+    lines = [
+        f"path: {json.dumps(str(config.dataset_root), ensure_ascii=False)}",
+        f"train: {config.train}",
+        f"val: {config.val}",
+        f"test: {config.test}",
+        "",
+        "names:",
+        *[f"  {index}: {json.dumps(name, ensure_ascii=False)}" for index, name in sorted(config.names.items())],
+        "",
+        f"task: {config.task}",
+        f"class_count: {config.class_count}",
+        f"image_size: {config.image_size}",
+    ]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
 def resolve_training_run_dir(output_dir: Path, run_name: str) -> Path:
     return output_dir / run_name
 

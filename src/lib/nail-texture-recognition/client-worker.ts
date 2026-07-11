@@ -18,11 +18,19 @@ type PendingRequest = {
 let workerInstance: Worker | null = null;
 const pendingRequests = new Map<string, PendingRequest>();
 
-function isWorkerRecognitionSupported(): boolean {
+export function isWorkerRecognitionSupported(
+  runtimeGlobal: {
+    window?: unknown;
+    Worker?: unknown;
+    createImageBitmap?: unknown;
+    OffscreenCanvas?: unknown;
+  } = globalThis
+): boolean {
   return (
-    typeof window !== "undefined" &&
-    typeof Worker !== "undefined" &&
-    typeof createImageBitmap !== "undefined"
+    runtimeGlobal.window != null &&
+    typeof runtimeGlobal.Worker === "function" &&
+    typeof runtimeGlobal.createImageBitmap === "function" &&
+    typeof runtimeGlobal.OffscreenCanvas === "function"
   );
 }
 

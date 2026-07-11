@@ -1,0 +1,80 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner:
+      - generic [ref=e3]:
+        - link "甲如首页" [ref=e4] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e5]: J
+          - generic [ref=e6]: 甲如
+        - navigation "主导航" [ref=e7]:
+          - link "首页" [ref=e8] [cursor=pointer]:
+            - /url: /
+          - link "灵感" [ref=e9] [cursor=pointer]:
+            - /url: /gallery
+          - link "AI 设计" [ref=e10] [cursor=pointer]:
+            - /url: /ai-generate
+          - link "AR 试戴" [ref=e11] [cursor=pointer]:
+            - /url: /ar-tryon
+        - link "上传试色" [ref=e12] [cursor=pointer]:
+          - /url: /editor
+          - generic [ref=e14]: ↗
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - paragraph [ref=e17]: Photo Studio
+        - heading "在照片上试出你的心动甲色" [level=1] [ref=e57]
+        - paragraph [ref=e19]: 照片只在你的浏览器中处理。选择不同手指与颜色，像在真实甲片上一样轻松调整。
+      - generic [ref=e21]:
+        - generic [ref=e60]:
+          - button "↩ 撤销" [ref=e61]
+          - button "↺ 重置" [ref=e62]
+          - button "💾 保存" [ref=e63]
+        - complementary [ref=e30]:
+          - generic [ref=e64]:
+            - generic [ref=e65]:
+              - paragraph [ref=e66]: Color Lab
+              - heading "手指与颜色" [level=2] [ref=e67]
+            - button "更换照片" [ref=e68]
+          - generic [ref=e69]:
+            - button "拙指" [ref=e70]
+            - button "食指" [ref=e71]
+            - button "中指" [ref=e72]
+            - button "无名指" [ref=e73]
+            - button "小指" [ref=e74]
+          - generic [ref=e75]:
+            - generic [ref=e77]:
+              - paragraph [ref=e78]: 拙指当前颜色
+              - paragraph [ref=e79]: "#E8A0BF"
+            - button "应用全部" [ref=e80]
+          - generic [ref=e81]:
+            - generic [ref=e82]:
+              - button "选择裸粉色" [ref=e83]
+              - button "选择豆沙红" [ref=e84]
+              - button "选择酒红色" [ref=e85]
+              - button "选择焦糖色" [ref=e86]
+              - button "选择裸色" [ref=e87]
+              - button "选择纯白色" [ref=e88]
+              - button "选择银色" [ref=e89]
+              - button "选择黑色" [ref=e90]
+              - button "选择雾霾蓝" [ref=e91]
+              - button "选择抹茶绿" [ref=e92]
+              - button "选择薰衣草紫" [ref=e93]
+              - button "选择橘色" [ref=e94]
+              - button "选择玫红色" [ref=e95]
+              - button "选择深蓝色" [ref=e96]
+              - button "选择金色" [ref=e97]
+              - button "选择亮片银" [ref=e98]
+              - button "选择透明" [ref=e99]
+              - button "选择奶茶色" [ref=e100]
+              - button "选择樱桃红" [ref=e101]
+              - button "选择珊瑚粉" [ref=e102]
+            - generic [ref=e103]:
+              - generic [ref=e104]:
+                - generic [ref=e105]: 自定义颜色
+                - generic [ref=e106]: 打开系统取色器
+              - textbox "自定义颜色 打开系统取色器" [ref=e107] [cursor=pointer]: "#e8a0bf"
+          - paragraph [ref=e108]: 选色后，在指甲位置点击或拖动涂抹
+    - contentinfo [ref=e44]:
+      - generic [ref=e45]: 甲如 JiaRu
+      - generic [ref=e46]: 在指尖，遇见更好的选择
+  - button "Open Next.js Dev Tools" [ref=e53] [cursor=pointer]
+  - alert [ref=e47]

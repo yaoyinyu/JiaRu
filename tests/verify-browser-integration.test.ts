@@ -45,7 +45,8 @@ test("verify-browser-integration passes with healthy artifact and contract files
     `
 const controller = new AbortController();
 const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
+const NAIL_TEXTURE_MODEL_MANIFEST_URL = "/models/smoke/manifest.json";
+      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
 const MAX_DETECTION_DIM = 800;
       const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
       ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
@@ -74,6 +75,7 @@ const MAX_DETECTION_DIM = 800;
     clientWorkerPath,
     `
       function prepareWorkerImagePixels(source) { return source.data; }
+      runtimeGlobal.OffscreenCanvas; worker_unavailable_used_main_thread;
       new Worker("worker.ts");
       const workerTimeoutMs = options.workerTimeoutMs ?? 15000;
       const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl, workerTimeoutMs: workerTimeoutMs };
@@ -105,6 +107,15 @@ const MAX_DETECTION_DIM = 800;
       loadNailTextureModelManifest();
       createOrtSession();
       resolveOrtExecutionProviders();
+      function detectNailTextureRuntimeEnvironment() {
+        if (self === globalThis) return "worker";
+      }
+      import("onnxruntime-web/webgpu");
+      import("onnxruntime-web/wasm");
+      const candidates = getBackendCandidates();
+      for (const backend of candidates) {
+        const warning = \`onnx_session_init_failed:\${backend}\`;
+      }
     `,
     "utf8"
   );
@@ -163,7 +174,8 @@ test("verify-browser-integration can verify browser contracts without a real mod
     `
 const controller = new AbortController();
 const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
+const NAIL_TEXTURE_MODEL_MANIFEST_URL = "/models/smoke/manifest.json";
+      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
 const MAX_DETECTION_DIM = 800;
       const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
       ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
@@ -192,6 +204,7 @@ const MAX_DETECTION_DIM = 800;
     clientWorkerPath,
     `
       function prepareWorkerImagePixels(source) { return source.data; }
+      runtimeGlobal.OffscreenCanvas; worker_unavailable_used_main_thread;
       new Worker("worker.ts");
       const workerTimeoutMs = options.workerTimeoutMs ?? 15000;
       const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl, workerTimeoutMs: workerTimeoutMs };
@@ -223,6 +236,15 @@ const MAX_DETECTION_DIM = 800;
       loadNailTextureModelManifest();
       createOrtSession();
       resolveOrtExecutionProviders();
+      function detectNailTextureRuntimeEnvironment() {
+        if (self === globalThis) return "worker";
+      }
+      import("onnxruntime-web/webgpu");
+      import("onnxruntime-web/wasm");
+      const candidates = getBackendCandidates();
+      for (const backend of candidates) {
+        const warning = \`onnx_session_init_failed:\${backend}\`;
+      }
     `,
     "utf8"
   );
@@ -363,7 +385,8 @@ test("verify-browser-integration fails when onnxruntime-web dependency is missin
     `
 const controller = new AbortController();
 const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
+const NAIL_TEXTURE_MODEL_MANIFEST_URL = "/models/smoke/manifest.json";
+      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
 const MAX_DETECTION_DIM = 800;
       const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
       ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
@@ -392,6 +415,7 @@ const MAX_DETECTION_DIM = 800;
     clientWorkerPath,
     `
       function prepareWorkerImagePixels(source) { return source.data; }
+      runtimeGlobal.OffscreenCanvas; worker_unavailable_used_main_thread;
       new Worker("worker.ts");
       const workerTimeoutMs = options.workerTimeoutMs ?? 15000;
       const request = { preferModel: options.preferModel ?? true, manifestUrl: options.manifestUrl, workerTimeoutMs: workerTimeoutMs };
@@ -423,6 +447,15 @@ const MAX_DETECTION_DIM = 800;
       loadNailTextureModelManifest();
       createOrtSession();
       resolveOrtExecutionProviders();
+      function detectNailTextureRuntimeEnvironment() {
+        if (self === globalThis) return "worker";
+      }
+      import("onnxruntime-web/webgpu");
+      import("onnxruntime-web/wasm");
+      const candidates = getBackendCandidates();
+      for (const backend of candidates) {
+        const warning = \`onnx_session_init_failed:\${backend}\`;
+      }
     `,
     "utf8"
   );

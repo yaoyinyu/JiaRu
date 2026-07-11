@@ -38,6 +38,14 @@ test("build-model-output-fixture converts rawModelOutputs dump into fixture", as
           candidateCount: 1,
           requireMasks: true,
         },
+        pythonReference: [{
+          cx: 2,
+          cy: 2,
+          width: 0.5,
+          length: 0.5,
+          score: 0.9,
+          maskForegroundPixels: 1,
+        }],
       },
       null,
       2
@@ -68,9 +76,11 @@ test("build-model-output-fixture converts rawModelOutputs dump into fixture", as
     preprocess: { inputSize: number };
     outputs: Record<string, { dims: number[]; data: number[] }>;
     expect: { candidateCount: number };
+    pythonReference: Array<{ maskForegroundPixels: number }>;
   };
   assert.equal(fixture.preprocess.inputSize, 4);
   assert.deepEqual(fixture.outputs.boxes.dims, [1, 1, 6]);
   assert.equal(fixture.outputs.boxes.data.length, 6);
   assert.equal(fixture.expect.candidateCount, 1);
+  assert.equal(fixture.pythonReference[0]?.maskForegroundPixels, 1);
 });

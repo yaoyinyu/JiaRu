@@ -128,7 +128,9 @@ export function summarizeExtractionDiagnostics(
 
   if (highlightRepair.highlightPixels > 0) {
     messages.push(
-      highlightRepair.repairedPixels > 0
+      highlightRepair.strategy === "preserve"
+        ? "检测到高光区域；当前按原图保留，未进行猜测性修复。"
+        : highlightRepair.repairedPixels > 0
         ? "检测到高光区域，已对可修复部分做轻微修复。"
         : "检测到高光区域，但周边可参考纹理不足，暂未完成修复。"
     );

@@ -66,6 +66,8 @@ const FINGER_FULL = ["Thumb", "Index", "Middle", "Ring", "Pinky"];
 const MAX_CANVAS_DIM = 800;
 const MAX_DETECTION_DIM = 800;
 const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15_000;
+const NAIL_TEXTURE_MODEL_MANIFEST_URL =
+  process.env.NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL?.trim() || undefined;
 const MIN_NAIL_SIZE = 15;
 const BORDER_COLOR = "#22c55e";
 const SELECTED_COLOR = "#ec4899";
@@ -184,6 +186,7 @@ async function computeImageDetectedNailRegions(
 ): Promise<{ regions: NailRegion[]; summary: DetectionSummary }> {
   const result = await recognizeNailTexturesInWorker(imageData, {
     preferModel: true,
+    manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL,
     maxCandidates: 10,
     workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
     signal,

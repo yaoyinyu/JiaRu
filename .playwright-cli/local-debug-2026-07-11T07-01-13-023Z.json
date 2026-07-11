@@ -1,0 +1,83 @@
+{
+  "imageId": "local-debug-2026-07-11T07-01-13.023Z",
+  "imageUrl": "blob:http://localhost:3000/0288c52b-1e66-4de8-a3ba-e270a7aff5d3",
+  "image": {
+    "width": 860,
+    "height": 573
+  },
+  "backend": "model",
+  "modelVersion": "nail-texture-seg-smoke-v1",
+  "modelBackend": "webgpu",
+  "elapsedMs": 491.29999999981374,
+  "workerElapsedMs": 461,
+  "recognitionOptions": {
+    "maxCandidates": 10,
+    "workerTimeoutMs": 15000
+  },
+  "warnings": [],
+  "originalCandidates": [
+    {
+      "id": "model-1",
+      "cx": 268.75,
+      "cy": 295.63789868667914,
+      "angle": 0,
+      "length": 268.7617260787992,
+      "width": 107.5,
+      "assignedFinger": null,
+      "confidence": "high",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "mask_foreground_too_small"
+      ]
+    },
+    {
+      "id": "model-2",
+      "cx": 591.25,
+      "cy": 295.63789868667914,
+      "angle": 0,
+      "length": 268.7617260787992,
+      "width": 107.5,
+      "assignedFinger": null,
+      "confidence": "high",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "mask_foreground_too_small"
+      ]
+    }
+  ],
+  "correctedCandidates": [
+    {
+      "id": "model-1",
+      "cx": 268.75,
+      "cy": 295.63789868667914,
+      "angle": 0,
+      "length": 268.7617260787992,
+      "width": 107.5,
+      "assignedFinger": null,
+      "confidence": "high",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "mask_foreground_too_small"
+      ]
+    },
+    {
+      "id": "model-2",
+      "cx": 591.25,
+      "cy": 295.63789868667914,
+      "angle": 0,
+      "length": 268.7617260787992,
+      "width": 107.5,
+      "assignedFinger": null,
+      "confidence": "high",
+      "source": "model",
+      "hasMask": true,
+      "warnings": [
+        "mask_foreground_too_small"
+      ]
+    }
+  ],
+  "createdAt": "2026-07-11T07:01:13.023Z"
+}

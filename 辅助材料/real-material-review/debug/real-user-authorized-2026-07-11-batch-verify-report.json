@@ -1,0 +1,367 @@
+{
+  "ok": true,
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images",
+  "outputDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug",
+  "fixtureDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\fixtures",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-batch-verify-report.json",
+  "totalImages": 22,
+  "successCount": 22,
+  "failureCount": 0,
+  "matchedFixtureCount": 0,
+  "skippedAnnotationCount": 0,
+  "skippedAnnotationFiles": [],
+  "results": [
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-0132d6d2f15c7eeb06c6b20b2b9899db.jpg-0132d6d2f15c7eeb06c6b20b2b9899db-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-0132d6d2f15c7eeb06c6b20b2b9899db.jpg-0132d6d2f15c7eeb06c6b20b2b9899db-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-0132d6d2f15c7eeb06c6b20b2b9899db.jpg-0132d6d2f15c7eeb06c6b20b2b9899db-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-0132d6d2f15c7eeb06c6b20b2b9899db.jpg-0132d6d2f15c7eeb06c6b20b2b9899db-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-02a57340bbd2ef39c02e66b503f077a0.jpg-02a57340bbd2ef39c02e66b503f077a0-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-02a57340bbd2ef39c02e66b503f077a0.jpg-02a57340bbd2ef39c02e66b503f077a0-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-02a57340bbd2ef39c02e66b503f077a0.jpg-02a57340bbd2ef39c02e66b503f077a0-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-02a57340bbd2ef39c02e66b503f077a0.jpg-02a57340bbd2ef39c02e66b503f077a0-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\075757517fbb6e42840328dcfd1c984b.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-075757517fbb6e42840328dcfd1c984b.jpg-075757517fbb6e42840328dcfd1c984b-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-075757517fbb6e42840328dcfd1c984b.jpg-075757517fbb6e42840328dcfd1c984b-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-075757517fbb6e42840328dcfd1c984b.jpg-075757517fbb6e42840328dcfd1c984b-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-075757517fbb6e42840328dcfd1c984b.jpg-075757517fbb6e42840328dcfd1c984b-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\19e1ff892bc03296309118564517395c.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-19e1ff892bc03296309118564517395c.jpg-19e1ff892bc03296309118564517395c-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-19e1ff892bc03296309118564517395c.jpg-19e1ff892bc03296309118564517395c-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-19e1ff892bc03296309118564517395c.jpg-19e1ff892bc03296309118564517395c-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-19e1ff892bc03296309118564517395c.jpg-19e1ff892bc03296309118564517395c-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4a0e76a068f83cac81efed7aaeeb8e96.jpg-4a0e76a068f83cac81efed7aaeeb8e96-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4a0e76a068f83cac81efed7aaeeb8e96.jpg-4a0e76a068f83cac81efed7aaeeb8e96-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4a0e76a068f83cac81efed7aaeeb8e96.jpg-4a0e76a068f83cac81efed7aaeeb8e96-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4a0e76a068f83cac81efed7aaeeb8e96.jpg-4a0e76a068f83cac81efed7aaeeb8e96-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4fd43a5c9f4923aa81867575ace2a875.jpg-4fd43a5c9f4923aa81867575ace2a875-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4fd43a5c9f4923aa81867575ace2a875.jpg-4fd43a5c9f4923aa81867575ace2a875-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4fd43a5c9f4923aa81867575ace2a875.jpg-4fd43a5c9f4923aa81867575ace2a875-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-4fd43a5c9f4923aa81867575ace2a875.jpg-4fd43a5c9f4923aa81867575ace2a875-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\586430bda51171eda6acac9b78044e86.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-586430bda51171eda6acac9b78044e86.jpg-586430bda51171eda6acac9b78044e86-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-586430bda51171eda6acac9b78044e86.jpg-586430bda51171eda6acac9b78044e86-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-586430bda51171eda6acac9b78044e86.jpg-586430bda51171eda6acac9b78044e86-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-586430bda51171eda6acac9b78044e86.jpg-586430bda51171eda6acac9b78044e86-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-8c4793356e5af0d460bc7967919fd6ba.jpg-8c4793356e5af0d460bc7967919fd6ba-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-8c4793356e5af0d460bc7967919fd6ba.jpg-8c4793356e5af0d460bc7967919fd6ba-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-8c4793356e5af0d460bc7967919fd6ba.jpg-8c4793356e5af0d460bc7967919fd6ba-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-8c4793356e5af0d460bc7967919fd6ba.jpg-8c4793356e5af0d460bc7967919fd6ba-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\916243c8917244d2b399ae2674266b6b.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-916243c8917244d2b399ae2674266b6b.jpg-916243c8917244d2b399ae2674266b6b-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-916243c8917244d2b399ae2674266b6b.jpg-916243c8917244d2b399ae2674266b6b-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-916243c8917244d2b399ae2674266b6b.jpg-916243c8917244d2b399ae2674266b6b-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-916243c8917244d2b399ae2674266b6b.jpg-916243c8917244d2b399ae2674266b6b-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-9a0c13d0485ade01a084dbfeff865d99.jpg-9a0c13d0485ade01a084dbfeff865d99-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-9a0c13d0485ade01a084dbfeff865d99.jpg-9a0c13d0485ade01a084dbfeff865d99-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-9a0c13d0485ade01a084dbfeff865d99.jpg-9a0c13d0485ade01a084dbfeff865d99-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-9a0c13d0485ade01a084dbfeff865d99.jpg-9a0c13d0485ade01a084dbfeff865d99-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-aaa6fab381af1c61b619a9807d52a1f0.jpg-aaa6fab381af1c61b619a9807d52a1f0-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-aaa6fab381af1c61b619a9807d52a1f0.jpg-aaa6fab381af1c61b619a9807d52a1f0-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-aaa6fab381af1c61b619a9807d52a1f0.jpg-aaa6fab381af1c61b619a9807d52a1f0-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-aaa6fab381af1c61b619a9807d52a1f0.jpg-aaa6fab381af1c61b619a9807d52a1f0-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ca2d14573bfe3c0c83cdc3100e074b3c.jpg-ca2d14573bfe3c0c83cdc3100e074b3c-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ca2d14573bfe3c0c83cdc3100e074b3c.jpg-ca2d14573bfe3c0c83cdc3100e074b3c-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ca2d14573bfe3c0c83cdc3100e074b3c.jpg-ca2d14573bfe3c0c83cdc3100e074b3c-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ca2d14573bfe3c0c83cdc3100e074b3c.jpg-ca2d14573bfe3c0c83cdc3100e074b3c-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-cb7a371d6826a7e71a49ca4bf1ce2382.jpg-cb7a371d6826a7e71a49ca4bf1ce2382-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-cb7a371d6826a7e71a49ca4bf1ce2382.jpg-cb7a371d6826a7e71a49ca4bf1ce2382-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-cb7a371d6826a7e71a49ca4bf1ce2382.jpg-cb7a371d6826a7e71a49ca4bf1ce2382-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-cb7a371d6826a7e71a49ca4bf1ce2382.jpg-cb7a371d6826a7e71a49ca4bf1ce2382-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\cefb43f688de010c12d6a22c058188ed.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-cefb43f688de010c12d6a22c058188ed.jpg-cefb43f688de010c12d6a22c058188ed-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-cefb43f688de010c12d6a22c058188ed.jpg-cefb43f688de010c12d6a22c058188ed-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-cefb43f688de010c12d6a22c058188ed.jpg-cefb43f688de010c12d6a22c058188ed-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-cefb43f688de010c12d6a22c058188ed.jpg-cefb43f688de010c12d6a22c058188ed-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-d59b3facac1d4ce8507d1de491a583d6.jpg-d59b3facac1d4ce8507d1de491a583d6-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-d59b3facac1d4ce8507d1de491a583d6.jpg-d59b3facac1d4ce8507d1de491a583d6-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-d59b3facac1d4ce8507d1de491a583d6.jpg-d59b3facac1d4ce8507d1de491a583d6-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-d59b3facac1d4ce8507d1de491a583d6.jpg-d59b3facac1d4ce8507d1de491a583d6-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\d91d43318c1f87f3c3118f42de25de57.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-d91d43318c1f87f3c3118f42de25de57.jpg-d91d43318c1f87f3c3118f42de25de57-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-d91d43318c1f87f3c3118f42de25de57.jpg-d91d43318c1f87f3c3118f42de25de57-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-d91d43318c1f87f3c3118f42de25de57.jpg-d91d43318c1f87f3c3118f42de25de57-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-d91d43318c1f87f3c3118f42de25de57.jpg-d91d43318c1f87f3c3118f42de25de57-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-df5b39c10a2185218d507bfd6a9f26df.jpg-df5b39c10a2185218d507bfd6a9f26df-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-df5b39c10a2185218d507bfd6a9f26df.jpg-df5b39c10a2185218d507bfd6a9f26df-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-df5b39c10a2185218d507bfd6a9f26df.jpg-df5b39c10a2185218d507bfd6a9f26df-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-df5b39c10a2185218d507bfd6a9f26df.jpg-df5b39c10a2185218d507bfd6a9f26df-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-e0bd54d05d6cdad6e2adedb784be875c.jpg-e0bd54d05d6cdad6e2adedb784be875c-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-e0bd54d05d6cdad6e2adedb784be875c.jpg-e0bd54d05d6cdad6e2adedb784be875c-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-e0bd54d05d6cdad6e2adedb784be875c.jpg-e0bd54d05d6cdad6e2adedb784be875c-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-e0bd54d05d6cdad6e2adedb784be875c.jpg-e0bd54d05d6cdad6e2adedb784be875c-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\ec02f0d2830587d57caadd728bdebe82.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ec02f0d2830587d57caadd728bdebe82.jpg-ec02f0d2830587d57caadd728bdebe82-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ec02f0d2830587d57caadd728bdebe82.jpg-ec02f0d2830587d57caadd728bdebe82-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ec02f0d2830587d57caadd728bdebe82.jpg-ec02f0d2830587d57caadd728bdebe82-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ec02f0d2830587d57caadd728bdebe82.jpg-ec02f0d2830587d57caadd728bdebe82-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\ecd34e2fb116522263394fd443fab987.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ecd34e2fb116522263394fd443fab987.jpg-ecd34e2fb116522263394fd443fab987-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ecd34e2fb116522263394fd443fab987.jpg-ecd34e2fb116522263394fd443fab987-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ecd34e2fb116522263394fd443fab987.jpg-ecd34e2fb116522263394fd443fab987-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-ecd34e2fb116522263394fd443fab987.jpg-ecd34e2fb116522263394fd443fab987-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\f03408b03bcc28080f07f84d2507868b.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-f03408b03bcc28080f07f84d2507868b.jpg-f03408b03bcc28080f07f84d2507868b-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-f03408b03bcc28080f07f84d2507868b.jpg-f03408b03bcc28080f07f84d2507868b-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-f03408b03bcc28080f07f84d2507868b.jpg-f03408b03bcc28080f07f84d2507868b-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-f03408b03bcc28080f07f84d2507868b.jpg-f03408b03bcc28080f07f84d2507868b-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\images\\f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "ok": true,
+      "exitCode": 0,
+      "fixturePath": null,
+      "output": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-f5e4fc362a7b4115cbf3607d22d87e72.jpg-f5e4fc362a7b4115cbf3607d22d87e72-detection-debug.png",
+      "candidateMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-f5e4fc362a7b4115cbf3607d22d87e72.jpg-f5e4fc362a7b4115cbf3607d22d87e72-candidate-mask.png",
+      "skinMaskOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-f5e4fc362a7b4115cbf3607d22d87e72.jpg-f5e4fc362a7b4115cbf3607d22d87e72-skin-mask.png",
+      "debugJsonOutput": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\debug\\real-user-authorized-2026-07-11-f5e4fc362a7b4115cbf3607d22d87e72.jpg-f5e4fc362a7b4115cbf3607d22d87e72-detection-debug.json",
+      "count": 5,
+      "backend": "fallback",
+      "warnings": [
+        "model_runtime_unavailable_on_server"
+      ]
+    }
+  ]
+}

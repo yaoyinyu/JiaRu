@@ -153,3 +153,36 @@ test("verify-recognition-performance can fail on excessive client overhead", asy
     }
   );
 });
+
+test("verify-recognition-performance accepts a browser batch sample array", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-performance-batch-"));
+  const input = path.join(root, "batch.json");
+  const output = path.join(root, "report.json");
+  await writeFile(
+    input,
+    JSON.stringify({
+      samples: Array.from({ length: 20 }, (_, index) => ({
+        imageId: `warm-${index + 1}`,
+        backend: "model / webgpu",
+        modelVersion: "nail-texture-seg-test",
+        elapsedMs: 60 + index,
+        workerElapsedMs: 45 + index,
+      })),
+    })
+  );
+
+  const { stdout } = await execFileAsync("node", [
+    "--no-warnings",
+    "--experimental-strip-types",
+    "scripts/verify-recognition-performance.ts",
+    "--profile", "desktop",
+    "--min-samples", "20",
+    "--output", output,
+    input,
+  ]);
+  assert.match(stdout, /"ok": true/);
+  const report = JSON.parse(await readFile(output, "utf8"));
+  assert.equal(report.ok, true);
+  assert.equal(report.totals.inputFiles, 1);
+  assert.equal(report.totals.samples, 20);
+});

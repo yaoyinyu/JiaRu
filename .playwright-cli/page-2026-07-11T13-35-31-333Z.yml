@@ -1,0 +1,137 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner:
+      - generic [ref=e3]:
+        - link "甲如首页" [ref=e4] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e5]: J
+          - generic [ref=e6]: 甲如
+        - navigation "主导航" [ref=e7]:
+          - link "首页" [ref=e8] [cursor=pointer]:
+            - /url: /
+          - link "灵感" [ref=e9] [cursor=pointer]:
+            - /url: /gallery
+          - link "AI 设计" [ref=e10] [cursor=pointer]:
+            - /url: /ai-generate
+          - link "AR 试戴" [ref=e11] [cursor=pointer]:
+            - /url: /ar-tryon
+        - link "上传试色" [ref=e12] [cursor=pointer]:
+          - /url: /editor
+          - generic [ref=e14]: ↗
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - paragraph [ref=e17]: Live Try-on
+        - heading "让每一次抬手，都提前看见效果" [level=1] [ref=e18]
+        - paragraph [ref=e19]: 实时追踪手部动作，让颜色与纹理自然贴合指甲。所有摄像头画面都只在本地内存中处理。
+      - generic [ref=e20]:
+        - generic [ref=e21]:
+          - generic [ref=e23]:
+            - generic [ref=e24]: 💅
+            - button "📷 开启摄像头" [ref=e26]
+            - paragraph [ref=e27]: 需要摄像头权限 · 仅在本地处理，不录制也不会上传。
+          - complementary [ref=e28]:
+            - generic [ref=e29]:
+              - paragraph [ref=e30]: Style controls
+              - heading "试戴设置" [level=2] [ref=e31]
+            - generic [ref=e32]:
+              - generic [ref=e33]:
+                - button "🎨 纯色" [ref=e34]
+                - button "🖼️ 纹理" [ref=e35]
+              - generic [ref=e36]:
+                - button "拇指" [ref=e37]
+                - button "食指" [ref=e38]
+                - button "中指" [ref=e39]
+                - button "无名指" [ref=e40]
+                - button "小指" [ref=e41]
+              - generic [ref=e78]:
+                - paragraph [ref=e79]: 拇指暂未设置纹理
+                - generic [ref=e80]:
+                  - generic [ref=e81] [cursor=pointer]: 📷 上传美甲照片
+                  - generic [ref=e82] [cursor=pointer]: ✨ 多纹理提取
+        - generic [ref=e176]:
+          - generic [ref=e177]:
+            - generic [ref=e178]:
+              - heading "Nail texture picker" [level=2] [ref=e179]
+              - paragraph [ref=e180]: Auto-detect the nails, then fine-tune and assign each region.
+            - button "Close" [ref=e181]
+          - generic [ref=e182]:
+            - generic [ref=e183]:
+              - generic [ref=e184]: "Regions: 4"
+              - generic [ref=e185]: "Assigned: 4"
+              - generic [ref=e186]: model / webgpu
+            - generic [ref=e187]:
+              - generic [ref=e188]: "Elapsed: 82 ms"
+              - generic [ref=e189]: "Worker: 67 ms"
+              - generic [ref=e190]: "Model: nail-texture-seg-synthetic-v1"
+            - generic [ref=e191]: Some regions need review before you confirm.
+          - generic [ref=e192]:
+            - button "Add region" [ref=e193]
+            - button "Export debug JSON" [ref=e194]
+          - generic [ref=e195]:
+            - generic [ref=e196]:
+              - generic [ref=e197]: Detected regions
+              - generic [ref=e198]:
+                - 'button "Region 1 · Index medium source: model 候选方向不够稳定，已回退为竖直方向，建议手动调整。" [ref=e199]':
+                  - generic [ref=e200]:
+                    - generic [ref=e201]: Region 1 · Index
+                    - generic [ref=e202]: medium
+                  - generic [ref=e203]: "source: model"
+                  - generic [ref=e204]: 候选方向不够稳定，已回退为竖直方向，建议手动调整。
+                - 'button "Region 2 · Middle medium source: model 候选方向不够稳定，已回退为竖直方向，建议手动调整。" [ref=e205]':
+                  - generic [ref=e206]:
+                    - generic [ref=e207]: Region 2 · Middle
+                    - generic [ref=e208]: medium
+                  - generic [ref=e209]: "source: model"
+                  - generic [ref=e210]: 候选方向不够稳定，已回退为竖直方向，建议手动调整。
+                - 'button "Region 3 · Ring medium source: model 候选方向不够稳定，已回退为竖直方向，建议手动调整。" [ref=e211]':
+                  - generic [ref=e212]:
+                    - generic [ref=e213]: Region 3 · Ring
+                    - generic [ref=e214]: medium
+                  - generic [ref=e215]: "source: model"
+                  - generic [ref=e216]: 候选方向不够稳定，已回退为竖直方向，建议手动调整。
+                - 'button "Region 4 · Pinky medium source: model 候选方向不够稳定，已回退为竖直方向，建议手动调整。" [ref=e217]':
+                  - generic [ref=e218]:
+                    - generic [ref=e219]: Region 4 · Pinky
+                    - generic [ref=e220]: medium
+                  - generic [ref=e221]: "source: model"
+                  - generic [ref=e222]: 候选方向不够稳定，已回退为竖直方向，建议手动调整。
+            - generic [ref=e223]:
+              - generic [ref=e224]: Adjust selected region
+              - generic [ref=e225]:
+                - button "Up" [ref=e226]
+                - button "Rotate -" [ref=e227]
+                - button "Length +" [ref=e228]
+                - button "Left" [ref=e229]
+                - button "Down" [ref=e230]
+                - button "Right" [ref=e231]
+                - button "Rotate +" [ref=e232]
+                - button "Length -" [ref=e233]
+                - button "Width +" [ref=e234]
+              - generic [ref=e235]:
+                - button "Width -" [ref=e236]
+                - button "Remove" [ref=e237]
+            - generic [ref=e238]:
+              - generic [ref=e239]: Assign finger
+              - generic [ref=e240]:
+                - button "Thumb" [ref=e241]
+                - button "Index" [ref=e242]
+                - button "Middle" [ref=e243]
+                - button "Ring" [ref=e244]
+                - button "Pinky" [ref=e245]
+            - generic [ref=e246]:
+              - generic [ref=e247]: Quality review
+              - generic [ref=e248]: 建议复核当前候选
+              - list [ref=e249]:
+                - listitem [ref=e250]: 候选方向不够稳定，已回退为竖直方向，建议手动调整。
+          - generic [ref=e251]:
+            - button "Cancel" [ref=e252]
+            - button "Confirm textures" [ref=e253]
+          - generic [ref=e254]: "Tip: click a detected region on the image to select it, then adjust it with the controls on the right."
+        - generic [ref=e62]:
+          - generic [ref=e63]: 🔒 摄像头画面仅在内存中处理，不录制，也不会上传。
+          - generic [ref=e64]: 💡 首次加载大约需要 5-10 秒，建议在光线充足的环境使用。
+    - contentinfo [ref=e65]:
+      - generic [ref=e66]: 甲如 JiaRu
+      - generic [ref=e67]: 在指尖，遇见更好的选择
+  - button "Open Next.js Dev Tools" [ref=e74] [cursor=pointer]
+  - alert [ref=e68]

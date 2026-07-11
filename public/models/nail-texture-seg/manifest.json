@@ -1,8 +1,13 @@
 {
   "version": "nail-texture-seg-v1",
   "inputSize": 640,
+  "inputLayout": "NCHW",
+  "colorOrder": "RGB",
+  "normalization": "zero_to_one",
+  "resizeMode": "letterbox",
   "task": "segment",
   "backendPreferences": ["webgpu", "wasm"],
   "modelFile": "nail-texture-seg-v1.onnx",
+  "outputContract": "ultralytics-seg-raw-v1",
   "labels": ["nail_texture"]
 }

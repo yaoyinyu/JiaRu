@@ -2,10 +2,30 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   disposeNailTextureRecognitionWorker,
+  isWorkerRecognitionSupported,
   recognizeNailTexturesInWorker,
   type RecognizeNailTextureResponse,
 } from "../src/lib/nail-texture-recognition/index.ts";
 import { prepareWorkerImagePixels } from "../src/lib/nail-texture-recognition/client-worker.ts";
+
+Object.defineProperty(globalThis, "OffscreenCanvas", {
+  configurable: true,
+  writable: true,
+  value: class FakeWorkerOffscreenCanvas {},
+});
+
+test("worker recognition capability requires OffscreenCanvas in addition to Worker APIs", () => {
+  const base = {
+    window: {},
+    Worker: class {},
+    createImageBitmap: () => undefined,
+  };
+  assert.equal(isWorkerRecognitionSupported(base), false);
+  assert.equal(
+    isWorkerRecognitionSupported({ ...base, OffscreenCanvas: class {} }),
+    true
+  );
+});
 
 test("prepareWorkerImagePixels reuses clamped RGBA storage without copying", () => {
   const source = new Uint8ClampedArray(16).fill(127);

@@ -1,0 +1,50 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner:
+      - generic [ref=e3]:
+        - link "甲如首页" [ref=e4] [cursor=pointer]:
+          - /url: /
+          - generic [ref=e5]: J
+          - generic [ref=e6]: 甲如
+        - navigation "主导航" [ref=e7]:
+          - link "首页" [ref=e8] [cursor=pointer]:
+            - /url: /
+          - link "灵感" [ref=e9] [cursor=pointer]:
+            - /url: /gallery
+          - link "AI 设计" [ref=e10] [cursor=pointer]:
+            - /url: /ai-generate
+          - link "AR 试戴" [ref=e11] [cursor=pointer]:
+            - /url: /ar-tryon
+        - link "上传试色" [ref=e12] [cursor=pointer]:
+          - /url: /editor
+          - generic [ref=e14]: ↗
+    - main [ref=e15]:
+      - generic [ref=e16]:
+        - paragraph [ref=e17]: Photo Studio
+        - heading "上传一张照片，开始自由试色" [level=1] [ref=e18]
+        - paragraph [ref=e19]: 照片只在你的浏览器中处理。选择不同手指与颜色，像在真实甲片上一样轻松调整。
+      - generic [ref=e21]:
+        - generic [ref=e23] [cursor=pointer]:
+          - generic [ref=e25]: ↥
+          - generic [ref=e26]: 选择或拍摄手部照片
+          - generic [ref=e27]: 支持 JPG、PNG 与 WebP，建议使用清晰的手部正面照片
+          - generic [ref=e28]: 浏览照片
+          - button "↥ 选择或拍摄手部照片 支持 JPG、PNG 与 WebP，建议使用清晰的手部正面照片 浏览照片" [ref=e29]
+        - complementary [ref=e30]:
+          - generic [ref=e31]: ✦
+          - heading "获得更自然的效果" [level=2] [ref=e32]
+          - list [ref=e33]:
+            - listitem [ref=e34]:
+              - generic [ref=e35]: "01"
+              - generic [ref=e36]: 选择光线均匀、手指清晰的正面照片
+            - listitem [ref=e37]:
+              - generic [ref=e38]: "02"
+              - generic [ref=e39]: 逐个选择手指，可为每一指搭配不同颜色
+            - listitem [ref=e40]:
+              - generic [ref=e41]: "03"
+              - generic [ref=e42]: 用撤销与重置随时回退，满意后保存到本地
+          - generic [ref=e43]: 🔒 本地优先：照片不会离开你的设备
+    - contentinfo [ref=e44]:
+      - generic [ref=e45]: 甲如 JiaRu
+      - generic [ref=e46]: 在指尖，遇见更好的选择
+  - alert [ref=e47]

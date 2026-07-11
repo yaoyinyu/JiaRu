@@ -33,8 +33,17 @@ test("train script dry-run resolves dataset and hyperparameters", async () => {
   assert.equal(result.task, "segment");
   assert.equal(result.class_count, 1);
   assert.equal(result.imgsz, 640);
+  assert.equal(result.batch, -1);
+  assert.match(String(result.runtime_dataset_yaml), /resolved-dataset\.yaml$/);
   assert.match(String(result.best_weights_path), /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+nail-texture-seg-v1[\\/]+weights[\\/]+best\.pt$/);
   assert.equal(result.dry_run, true);
+});
+
+test("train script normalizes automatic and fractional batch settings", async () => {
+  const automatic = await runPython("model/training/train-yolo-seg.py", ["--dry-run", "--batch", "auto"]);
+  const fractional = await runPython("model/training/train-yolo-seg.py", ["--dry-run", "--batch", "0.7"]);
+  assert.equal(automatic.batch, -1);
+  assert.equal(fractional.batch, 0.7);
 });
 
 
@@ -42,10 +51,13 @@ test("training environment preflight reports dataset, dependencies, and checkpoi
   const result = await runPython("model/training/check-training-environment.py");
   assert.deepEqual(result.split_counts, { train: 210, val: 45, test: 46 });
   assert.equal(typeof (result.dependencies as { ultralytics: { available: boolean } }).ultralytics.available, "boolean");
-  assert.equal((result.model as { may_download: boolean }).may_download, true);
-  assert.ok(
-    (result.warnings as string[]).some((warning) => warning.includes("may download it"))
-  );
+  const model = result.model as { exists: boolean; may_download: boolean };
+  assert.equal(model.may_download, !model.exists);
+  if (model.may_download) {
+    assert.ok(
+      (result.warnings as string[]).some((warning) => warning.includes("may download it"))
+    );
+  }
 });
 
 test("training environment preflight can require a local model checkpoint", async () => {

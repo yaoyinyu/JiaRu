@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   choosePreferredModelBackend,
+  detectNailTextureRuntimeEnvironment,
   getSessionIoNames,
   getNailTextureModelRuntime,
   recognizeNailTextures,
@@ -11,6 +12,17 @@ import {
   resolveOrtExecutionProviders,
   validateNailTextureModelManifest,
 } from "../src/lib/nail-texture-recognition/index.ts";
+
+function restoreGlobalProperty(
+  name: string,
+  descriptor: PropertyDescriptor | undefined
+): void {
+  if (descriptor) {
+    Object.defineProperty(globalThis, name, descriptor);
+  } else {
+    delete (globalThis as typeof globalThis & Record<string, unknown>)[name];
+  }
+}
 
 test("model manifest validator rejects unsafe and incompatible manifests", () => {
   assert.deepEqual(
@@ -39,6 +51,25 @@ test("model manifest validator rejects unsafe and incompatible manifests", () =>
   assert.ok(errors.includes("manifest_model_file_must_be_safe_onnx_basename"));
   assert.ok(errors.includes("manifest_backend_preferences_invalid"));
   assert.ok(errors.includes("manifest_labels_must_include_nail_texture"));
+
+  const protocolErrors = validateNailTextureModelManifest({
+    version: "nail-texture-seg-v2",
+    inputSize: 512,
+    task: "segment",
+    backendPreferences: ["wasm"],
+    modelFile: "nail-texture-seg-v2.onnx",
+    labels: ["nail_texture"],
+    inputLayout: "NHWC",
+    colorOrder: "BGR",
+    normalization: "minus_one_to_one",
+    resizeMode: "stretch",
+    outputContract: "",
+  });
+  assert.ok(protocolErrors.includes("manifest_input_layout_must_be_nchw"));
+  assert.ok(protocolErrors.includes("manifest_color_order_must_be_rgb"));
+  assert.ok(protocolErrors.includes("manifest_normalization_must_be_zero_to_one"));
+  assert.ok(protocolErrors.includes("manifest_resize_mode_must_be_letterbox"));
+  assert.ok(protocolErrors.includes("manifest_output_contract_must_be_non_empty_string"));
 });
 
 test("recognizeNailTextures falls back when manifest is invalid", async () => {
@@ -118,6 +149,180 @@ test("model backend chooser falls back to wasm without webgpu", () => {
     hasWebGpu: false,
   });
   assert.equal(backend, "wasm");
+});
+
+test("runtime environment detector recognizes a browser worker without window", () => {
+  const descriptors = {
+    window: Object.getOwnPropertyDescriptor(globalThis, "window"),
+    self: Object.getOwnPropertyDescriptor(globalThis, "self"),
+    location: Object.getOwnPropertyDescriptor(globalThis, "location"),
+    postMessage: Object.getOwnPropertyDescriptor(globalThis, "postMessage"),
+  };
+
+  try {
+    delete (globalThis as typeof globalThis & { window?: unknown }).window;
+    Object.defineProperty(globalThis, "self", {
+      configurable: true,
+      value: globalThis,
+    });
+    Object.defineProperty(globalThis, "location", {
+      configurable: true,
+      value: { href: "https://example.com/ar-tryon" },
+    });
+    Object.defineProperty(globalThis, "postMessage", {
+      configurable: true,
+      value: () => undefined,
+    });
+
+    assert.equal(detectNailTextureRuntimeEnvironment(), "worker");
+  } finally {
+    restoreGlobalProperty("window", descriptors.window);
+    restoreGlobalProperty("self", descriptors.self);
+    restoreGlobalProperty("location", descriptors.location);
+    restoreGlobalProperty("postMessage", descriptors.postMessage);
+  }
+});
+
+test("model runtime initializes inside a browser worker without window", async () => {
+  resetNailTextureModelRuntimeCache();
+  const descriptors = {
+    window: Object.getOwnPropertyDescriptor(globalThis, "window"),
+    self: Object.getOwnPropertyDescriptor(globalThis, "self"),
+    location: Object.getOwnPropertyDescriptor(globalThis, "location"),
+    postMessage: Object.getOwnPropertyDescriptor(globalThis, "postMessage"),
+    navigator: Object.getOwnPropertyDescriptor(globalThis, "navigator"),
+    ort: Object.getOwnPropertyDescriptor(globalThis, "ort"),
+  };
+  const originalFetch = globalThis.fetch;
+
+  try {
+    delete (globalThis as typeof globalThis & { window?: unknown }).window;
+    Object.defineProperty(globalThis, "self", {
+      configurable: true,
+      value: globalThis,
+    });
+    Object.defineProperty(globalThis, "location", {
+      configurable: true,
+      value: { href: "https://example.com/ar-tryon" },
+    });
+    Object.defineProperty(globalThis, "postMessage", {
+      configurable: true,
+      value: () => undefined,
+    });
+    Object.defineProperty(globalThis, "navigator", {
+      configurable: true,
+      value: {},
+    });
+    Object.defineProperty(globalThis, "ort", {
+      configurable: true,
+      value: {
+        InferenceSession: {
+          create: async () => ({
+            inputNames: ["images"],
+            outputNames: ["output0", "proto"],
+          }),
+        },
+      },
+    });
+    globalThis.fetch = (async () => ({
+      ok: true,
+      json: async () => ({
+        version: "nail-texture-seg-worker",
+        inputSize: 512,
+        task: "segment",
+        backendPreferences: ["wasm"],
+        modelFile: "nail-texture-seg-worker.onnx",
+        outputContract: "ultralytics-seg-raw-v1",
+        resizeMode: "letterbox",
+        labels: ["nail_texture"],
+      }),
+    })) as typeof fetch;
+
+    const runtime = await getNailTextureModelRuntime(
+      "/models/nail-texture-seg/manifest.json"
+    );
+
+    assert.equal(runtime.available, true);
+    assert.equal(runtime.backend, "wasm");
+    assert.equal(runtime.info?.version, "nail-texture-seg-worker");
+    assert.equal(runtime.info?.outputContract, "ultralytics-seg-raw-v1");
+    assert.equal(runtime.info?.resizeMode, "letterbox");
+    assert.equal(
+      runtime.info?.modelUrl,
+      "https://example.com/models/nail-texture-seg/nail-texture-seg-worker.onnx"
+    );
+  } finally {
+    resetNailTextureModelRuntimeCache();
+    globalThis.fetch = originalFetch;
+    restoreGlobalProperty("window", descriptors.window);
+    restoreGlobalProperty("self", descriptors.self);
+    restoreGlobalProperty("location", descriptors.location);
+    restoreGlobalProperty("postMessage", descriptors.postMessage);
+    restoreGlobalProperty("navigator", descriptors.navigator);
+    restoreGlobalProperty("ort", descriptors.ort);
+  }
+});
+
+test("model runtime retries wasm when webgpu session initialization fails", async () => {
+  resetNailTextureModelRuntimeCache();
+  const windowDescriptor = Object.getOwnPropertyDescriptor(globalThis, "window");
+  const navigatorDescriptor = Object.getOwnPropertyDescriptor(globalThis, "navigator");
+  const originalFetch = globalThis.fetch;
+  const attemptedProviders: string[][] = [];
+
+  Object.defineProperty(globalThis, "window", {
+    configurable: true,
+    value: {
+      location: { href: "https://example.com/ar-tryon" },
+      ort: {
+        InferenceSession: {
+          create: async (_modelUrl: string, options?: { executionProviders?: string[] }) => {
+            const providers = options?.executionProviders ?? [];
+            attemptedProviders.push(providers);
+            if (providers[0] === "webgpu") {
+              throw new Error("simulated_webgpu_failure");
+            }
+            return { inputNames: ["images"], outputNames: ["output0"] };
+          },
+        },
+      },
+    },
+  });
+  Object.defineProperty(globalThis, "navigator", {
+    configurable: true,
+    value: { gpu: {} },
+  });
+  globalThis.fetch = (async () => ({
+    ok: true,
+    json: async () => ({
+      version: "nail-texture-seg-provider-fallback",
+      inputSize: 512,
+      task: "segment",
+      backendPreferences: ["webgpu", "wasm"],
+      modelFile: "nail-texture-seg-provider-fallback.onnx",
+      labels: ["nail_texture"],
+    }),
+  })) as typeof fetch;
+
+  try {
+    const runtime = await getNailTextureModelRuntime(
+      "https://example.com/models/nail-texture-seg/provider-fallback/manifest.json"
+    );
+
+    assert.equal(runtime.available, true);
+    assert.equal(runtime.backend, "wasm");
+    assert.deepEqual(attemptedProviders, [["webgpu", "wasm"], ["wasm"]]);
+    assert.ok(
+      runtime.warnings.some((warning) =>
+        warning.includes("onnx_session_init_failed:webgpu:simulated_webgpu_failure")
+      )
+    );
+  } finally {
+    resetNailTextureModelRuntimeCache();
+    globalThis.fetch = originalFetch;
+    restoreGlobalProperty("window", windowDescriptor);
+    restoreGlobalProperty("navigator", navigatorDescriptor);
+  }
 });
 
 test("execution providers follow backend preference", () => {

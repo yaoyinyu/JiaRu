@@ -22,6 +22,7 @@ export interface NailDebugSampleCandidate {
     highlightPixels: number;
     repairedPixels: number;
     highlightRatio: number;
+    highlightStrategy?: "preserve" | "repair";
   };
 }
 
@@ -81,6 +82,7 @@ export interface NailDebugSampleRegionLike {
       highlightPixels: number;
       repairedPixels: number;
       highlightRatio: number;
+      strategy?: "preserve" | "repair";
     };
   };
 }
@@ -107,6 +109,9 @@ export function toNailDebugSampleCandidate(
           highlightPixels: region.extractionDiagnostics.highlightRepair.highlightPixels,
           repairedPixels: region.extractionDiagnostics.highlightRepair.repairedPixels,
           highlightRatio: region.extractionDiagnostics.highlightRepair.highlightRatio,
+          ...(region.extractionDiagnostics.highlightRepair.strategy
+            ? { highlightStrategy: region.extractionDiagnostics.highlightRepair.strategy }
+            : {}),
         }
       : undefined,
   };

@@ -1,0 +1,128 @@
+{
+  "imageId": "local-debug-2026-07-11T06-55-35.826Z",
+  "imageUrl": "blob:http://localhost:3000/204c219a-4b49-4123-be3d-bc9135d0d159",
+  "image": {
+    "width": 860,
+    "height": 573
+  },
+  "backend": "fallback",
+  "modelVersion": "fallback-v0",
+  "elapsedMs": 242.39999999990687,
+  "workerElapsedMs": 21.800000000046566,
+  "recognitionOptions": {
+    "maxCandidates": 10,
+    "workerTimeoutMs": 15000
+  },
+  "warnings": [
+    "model_manifest_error:window is not defined"
+  ],
+  "originalCandidates": [
+    {
+      "id": "fallback-1",
+      "cx": 182.75,
+      "cy": 223.96810506566604,
+      "angle": 1.308996938995747,
+      "length": 107.50469043151969,
+      "width": 77.39999999999999,
+      "assignedFinger": 1,
+      "confidence": "high",
+      "source": "saliency",
+      "hasMask": false,
+      "warnings": []
+    },
+    {
+      "id": "fallback-2",
+      "cx": 275.2183930904934,
+      "cy": 299.0919672250529,
+      "angle": 0.5235987755982987,
+      "length": 129.74179964099523,
+      "width": 93.41002008288909,
+      "assignedFinger": 2,
+      "confidence": "high",
+      "source": "saliency",
+      "hasMask": false,
+      "warnings": []
+    },
+    {
+      "id": "fallback-3",
+      "cx": 412.9029706704569,
+      "cy": 342.7704941221377,
+      "angle": 0.5235987755982987,
+      "length": 136.27802710790286,
+      "width": 98.11589853254532,
+      "assignedFinger": 3,
+      "confidence": "high",
+      "source": "saliency",
+      "hasMask": false,
+      "warnings": []
+    },
+    {
+      "id": "fallback-4",
+      "cx": 544.5041691513263,
+      "cy": 353.2800468321779,
+      "angle": -0.7853981633974483,
+      "length": 150.50656660412756,
+      "width": 98.9,
+      "assignedFinger": 4,
+      "confidence": "high",
+      "source": "saliency",
+      "hasMask": false,
+      "warnings": []
+    }
+  ],
+  "correctedCandidates": [
+    {
+      "id": "fallback-1",
+      "cx": 182.75,
+      "cy": 223.96810506566604,
+      "angle": 1.308996938995747,
+      "length": 107.50469043151969,
+      "width": 77.39999999999999,
+      "assignedFinger": 1,
+      "confidence": "high",
+      "source": "saliency",
+      "hasMask": false,
+      "warnings": []
+    },
+    {
+      "id": "fallback-2",
+      "cx": 275.2183930904934,
+      "cy": 299.0919672250529,
+      "angle": 0.5235987755982987,
+      "length": 129.74179964099523,
+      "width": 93.41002008288909,
+      "assignedFinger": 2,
+      "confidence": "high",
+      "source": "saliency",
+      "hasMask": false,
+      "warnings": []
+    },
+    {
+      "id": "fallback-3",
+      "cx": 412.9029706704569,
+      "cy": 342.7704941221377,
+      "angle": 0.5235987755982987,
+      "length": 136.27802710790286,
+      "width": 98.11589853254532,
+      "assignedFinger": 3,
+      "confidence": "high",
+      "source": "saliency",
+      "hasMask": false,
+      "warnings": []
+    },
+    {
+      "id": "fallback-4",
+      "cx": 544.5041691513263,
+      "cy": 353.2800468321779,
+      "angle": -0.7853981633974483,
+      "length": 150.50656660412756,
+      "width": 98.9,
+      "assignedFinger": 4,
+      "confidence": "high",
+      "source": "saliency",
+      "hasMask": false,
+      "warnings": []
+    }
+  ],
+  "createdAt": "2026-07-11T06:55:35.826Z"
+}

@@ -1,0 +1,71 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - banner:
+      - generic [ref=f1e3]:
+        - link "甲如首页" [ref=f1e4] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f1e5]: J
+          - generic [ref=f1e6]: 甲如
+        - navigation "主导航" [ref=f1e7]:
+          - link "首页" [ref=f1e8] [cursor=pointer]:
+            - /url: /
+          - link "灵感" [ref=f1e9] [cursor=pointer]:
+            - /url: /gallery
+          - link "AI 设计" [ref=f1e10] [cursor=pointer]:
+            - /url: /ai-generate
+          - link "AR 试戴" [ref=f1e11] [cursor=pointer]:
+            - /url: /ar-tryon
+        - link "上传试色" [ref=f1e12] [cursor=pointer]:
+          - /url: /editor
+          - generic [ref=f1e14]: ↗
+    - main [ref=f1e15]:
+      - generic [ref=f1e16]:
+        - paragraph [ref=f1e17]: Live Try-on
+        - heading "让每一次抬手，都提前看见效果" [level=1] [ref=f1e18]
+        - paragraph [ref=f1e19]: 实时追踪手部动作，让颜色与纹理自然贴合指甲。所有摄像头画面都只在本地内存中处理。
+      - generic [ref=f1e20]:
+        - generic [ref=f1e21]:
+          - generic [ref=f1e23]:
+            - generic [ref=f1e24]: 💅
+            - button "📷 开启摄像头" [ref=f1e26]
+            - paragraph [ref=f1e27]: 需要摄像头权限 · 仅在本地处理，不录制也不会上传。
+          - complementary [ref=f1e28]:
+            - generic [ref=f1e29]:
+              - paragraph [ref=f1e30]: Style controls
+              - heading "试戴设置" [level=2] [ref=f1e31]
+            - generic [ref=f1e32]:
+              - generic [ref=f1e33]:
+                - button "🎨 纯色" [ref=f1e34]
+                - button "🖼️ 纹理" [ref=f1e35]
+              - generic [ref=f1e36]:
+                - button "拇指" [ref=f1e37]
+                - button "食指" [ref=f1e38]
+                - button "中指" [ref=f1e39]
+                - button "无名指" [ref=f1e40]
+                - button "小指" [ref=f1e41]
+              - generic [ref=f1e42]:
+                - generic [ref=f1e44]: 拇指颜色
+                - button "应用到全部" [ref=f1e45]
+              - generic [ref=f1e46]:
+                - button "裸粉色" [ref=f1e47]
+                - button "豆沙红" [ref=f1e48]
+                - button "酒红色" [ref=f1e49]
+                - button "焦糖色" [ref=f1e50]
+                - button "裸色" [ref=f1e51]
+                - button "纯白色" [ref=f1e52]
+                - button "银色" [ref=f1e53]
+                - button "黑色" [ref=f1e54]
+                - button "雾霾蓝" [ref=f1e55]
+                - button "抹茶绿" [ref=f1e56]
+                - button "薰衣草紫" [ref=f1e57]
+                - button "橘色" [ref=f1e58]
+              - generic [ref=f1e59]:
+                - generic [ref=f1e60]: 自定义
+                - textbox [ref=f1e61] [cursor=pointer]: "#e8a0bf"
+        - generic [ref=f1e62]:
+          - generic [ref=f1e63]: 🔒 摄像头画面仅在内存中处理，不录制，也不会上传。
+          - generic [ref=f1e64]: 💡 首次加载大约需要 5-10 秒，建议在光线充足的环境使用。
+    - contentinfo [ref=f1e65]:
+      - generic [ref=f1e66]: 甲如 JiaRu
+      - generic [ref=f1e67]: 在指尖，遇见更好的选择
+  - button "Open Next.js Dev Tools" [ref=f1e73] [cursor=pointer]

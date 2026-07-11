@@ -86,7 +86,7 @@ class FakeOffscreenCanvas {
   }
 }
 
-test("extractTextureFromMaskDetailed returns transparent crop with feathered alpha and repaired highlight diagnostics", async () => {
+test("extractTextureFromMaskDetailed preserves highlights by default and repairs only when requested", async () => {
   const previousOffscreenCanvas = globalThis.OffscreenCanvas;
   const previousCreateImageBitmap = globalThis.createImageBitmap;
   const previousImageData = globalThis.ImageData;
@@ -113,25 +113,44 @@ test("extractTextureFromMaskDetailed returns transparent crop with feathered alp
       ]),
     };
 
+    const mask = {
+      width: 4,
+      height: 4,
+      data: new Uint8Array([
+        0, 0, 0, 0,
+        0, 1, 1, 0,
+        0, 1, 1, 0,
+        0, 0, 0, 0,
+      ]),
+      originX: 0,
+      originY: 0,
+      scale: 1,
+    };
+
+    const preserved = await extractTextureFromMaskDetailed(
+      source as unknown as CanvasImageSource,
+      source.width,
+      source.height,
+      mask,
+      256,
+      2
+    );
+    const preservedTexture = preserved.texture as unknown as {
+      data: Uint8ClampedArray;
+    };
+    assert.equal(preserved.diagnostics.highlightRepair.strategy, "preserve");
+    assert.equal(preserved.diagnostics.highlightRepair.highlightPixels, 1);
+    assert.equal(preserved.diagnostics.highlightRepair.repairedPixels, 0);
+    assert.equal(preservedTexture.data[4], 255);
+
     const extracted = await extractTextureFromMaskDetailed(
       source as unknown as CanvasImageSource,
       source.width,
       source.height,
-      {
-        width: 4,
-        height: 4,
-        data: new Uint8Array([
-          0, 0, 0, 0,
-          0, 1, 1, 0,
-          0, 1, 1, 0,
-          0, 0, 0, 0,
-        ]),
-        originX: 0,
-        originY: 0,
-        scale: 1,
-      },
+      mask,
       256,
-      2
+      2,
+      "repair"
     );
 
     const texture = extracted.texture as unknown as {
