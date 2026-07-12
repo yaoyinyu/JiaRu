@@ -10,7 +10,7 @@ fileName,keepForTraining,decision,reasonCode,candidateCount,needsManualFix,targe
 916243c8917244d2b399ae2674266b6b.jpg,true,needs_manual_fix,annotation_incorrect,,true,train,reference,unknown,other,,图片清晰可用；现有自动标注有问题，需重新标注甲面
 9a0c13d0485ade01a084dbfeff865d99.jpg,true,needs_manual_fix,annotation_incorrect,,true,train,reference,unknown,other,,图片清晰可用；现有自动标注有问题，需重新标注甲面
 aaa6fab381af1c61b619a9807d52a1f0.jpg,true,needs_manual_fix,annotation_incorrect,,true,train,reference,unknown,other,,图片清晰可用；现有自动标注有问题，需重新标注甲面
-ca2d14573bfe3c0c83cdc3100e074b3c.jpg,true,needs_manual_fix,annotation_incorrect,,true,train,reference,unknown,other,,图片清晰可用；现有自动标注有问题，需重新标注甲面
+ca2d14573bfe3c0c83cdc3100e074b3c.jpg,false,reject,incomplete_nail_visibility,,false,excluded,reference,unknown,other,,用户复核确认指甲部分露出不全；不得用于标注、训练、验证或回归
 cb7a371d6826a7e71a49ca4bf1ce2382.jpg,true,needs_manual_fix,annotation_incorrect,,true,train,reference,unknown,other,,图片清晰可用；现有自动标注有问题，需重新标注甲面
 cefb43f688de010c12d6a22c058188ed.jpg,true,needs_manual_fix,annotation_incorrect,,true,train,reference,unknown,other,,图片清晰可用；现有自动标注有问题，需重新标注甲面
 d59b3facac1d4ce8507d1de491a583d6.jpg,true,needs_manual_fix,annotation_incorrect,,true,train,reference,unknown,other,,图片清晰可用；现有自动标注有问题，需重新标注甲面

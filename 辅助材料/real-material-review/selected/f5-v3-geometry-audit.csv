@@ -1,0 +1,9 @@
+﻿fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,1,f5-v3,pass,,0.35,0.8997,True,"[0.0, 636.0, 255.0, 870.0]",0.0
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,2,f5-v3,pass,,0.4303,0.9183,True,"[270.0, 589.0, 464.0, 865.0]",0.0175
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,3,f5-v3,pass,,0.288,1.0,True,"[457.0, 653.0, 574.0, 838.0]",0.0175
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,4,f5-v3,pass,,0.1247,1.0,True,"[635.0, 565.0, 747.0, 770.0]",0.1698
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,5,f5-v3,pass,,0.4252,0.9509,True,"[683.0, 451.0, 839.0, 708.0]",0.1698
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,6,f5-v3,pass,,0.2475,1.0,True,"[848.0, 579.0, 997.0, 743.0]",0.099
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,7,f5-v3,pass,,0.397,0.8669,True,"[932.0, 450.0, 1129.0, 674.0]",0.1249
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,8,f5-v3,pass,,0.3293,0.942,True,"[1082.0, 477.0, 1260.0, 657.0]",0.1249

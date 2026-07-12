@@ -3,22 +3,22 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
   "totals": {
-    "images": 323,
-    "masks": 1521,
-    "validMasks": 1521,
+    "images": 322,
+    "masks": 1585,
+    "validMasks": 1585,
     "filesWithErrors": 0,
     "filesWithWarnings": 1
   },
   "splitCounts": {
-    "train": 232,
+    "train": 231,
     "val": 45,
     "test": 46
   },
   "splitRatios": {
-    "train": 0.718266253869969,
-    "val": 0.1393188854489164,
-    "test": 0.14241486068111456,
-    "maxDeviation": 0.01826625386996905,
+    "train": 0.717391304347826,
+    "val": 0.13975155279503104,
+    "test": 0.14285714285714285,
+    "maxDeviation": 0.017391304347826098,
     "allowedDeviation": 0.05
   },
   "splitIntegrity": {
@@ -42,12 +42,12 @@
   "gates": {
     "imageCount": {
       "ok": true,
-      "actual": 323,
+      "actual": 322,
       "required": 200
     },
     "validMaskCount": {
       "ok": true,
-      "actual": 1521,
+      "actual": 1585,
       "required": 800
     },
     "labelAuditPass": {
@@ -62,7 +62,7 @@
     },
     "splitRatioPass": {
       "ok": true,
-      "actual": 0.01826625386996905,
+      "actual": 0.017391304347826098,
       "required": 0.05
     },
     "testSplitHasNegative": {
@@ -90,21 +90,21 @@
     {
       "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 10,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 10,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "19e1ff892bc03296309118564517395c.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 9,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -118,14 +118,14 @@
     {
       "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 10,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "586430bda51171eda6acac9b78044e86.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 10,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -139,14 +139,14 @@
     {
       "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 8,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 9,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -853,28 +853,21 @@
     {
       "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
       "ok": true,
-      "polygonCount": 5,
-      "errorCount": 0,
-      "warningCount": 0
-    },
-    {
-      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
-      "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 9,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 9,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 7,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -888,49 +881,49 @@
     {
       "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 10,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 8,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 10,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 10,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 9,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 8,
       "errorCount": 0,
       "warningCount": 0
     },
     {
       "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
       "ok": true,
-      "polygonCount": 5,
+      "polygonCount": 8,
       "errorCount": 0,
       "warningCount": 0
     },

@@ -1,0 +1,23 @@
+{
+  "ok": true,
+  "method": "vision-guided-box-center-positive-corner-negative-prompts-plus-sam2",
+  "engine": "sam2",
+  "promptMode": "center-negative-corners",
+  "model": "sam2.1_t.pt",
+  "promptCount": 8,
+  "imageCount": 1,
+  "excludedFiles": [
+    "ca2d14573bfe3c0c83cdc3100e074b3c.jpg"
+  ],
+  "completedCount": 1,
+  "boxOnlyFallbackPromptCount": 0,
+  "errors": [],
+  "outputs": [
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v3-negative-corners-json\\f5e4fc362a7b4115cbf3607d22d87e72.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v3-negative-corners\\f5e4fc362a7b4115cbf3607d22d87e72-sam-reviewed-overlay.png",
+      "polygonCount": 8
+    }
+  ]
+}

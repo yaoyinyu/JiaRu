@@ -1,0 +1,13 @@
+{
+  "version": "nail-texture-dataset/v1",
+  "decision": "candidate_only_not_training_truth",
+  "image": {
+    "id": "more_-2021-07-28-4.20.38_1655999097610113f093c6a",
+    "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
+    "width": 800,
+    "height": 821,
+    "sourceGroup": "real-reference-2026-07-12-batch-02",
+    "negative": false
+  },
+  "annotations": []
+}

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
@@ -166,9 +167,8 @@ async function runSingleImage(
   fixture?: FixtureIndexEntry | null
 ): Promise<BatchImageReport> {
   const fileName = path.basename(imagePath);
-  const filePrefix = prefix
-    ? `${prefix}-${fileName.replaceAll(/[^a-z0-9._-]+/gi, "_")}`
-    : fileName.replaceAll(/[^a-z0-9._-]+/gi, "_");
+  const fileDigest = createHash("sha256").update(fileName).digest("hex").slice(0, 12);
+  const filePrefix = prefix ? `${prefix}-${fileDigest}` : fileDigest;
 
   const args = [
     "--no-warnings",

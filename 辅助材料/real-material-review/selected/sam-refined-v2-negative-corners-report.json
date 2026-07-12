@@ -1,0 +1,119 @@
+{
+  "ok": true,
+  "method": "vision-guided-box-center-positive-corner-negative-prompts-plus-sam2",
+  "engine": "sam2",
+  "promptMode": "center-negative-corners",
+  "model": "sam2.1_t.pt",
+  "promptCount": 146,
+  "imageCount": 17,
+  "excludedFiles": [
+    "ca2d14573bfe3c0c83cdc3100e074b3c.jpg"
+  ],
+  "completedCount": 17,
+  "boxOnlyFallbackPromptCount": 5,
+  "errors": [],
+  "outputs": [
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\4fd43a5c9f4923aa81867575ace2a875.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\4fd43a5c9f4923aa81867575ace2a875-sam-reviewed-overlay.png",
+      "polygonCount": 10
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\f03408b03bcc28080f07f84d2507868b.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\f03408b03bcc28080f07f84d2507868b-sam-reviewed-overlay.png",
+      "polygonCount": 8
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\8c4793356e5af0d460bc7967919fd6ba.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\8c4793356e5af0d460bc7967919fd6ba-sam-reviewed-overlay.png",
+      "polygonCount": 5
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\d59b3facac1d4ce8507d1de491a583d6.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\d59b3facac1d4ce8507d1de491a583d6-sam-reviewed-overlay.png",
+      "polygonCount": 5
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\916243c8917244d2b399ae2674266b6b.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\916243c8917244d2b399ae2674266b6b-sam-reviewed-overlay.png",
+      "polygonCount": 8
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\9a0c13d0485ade01a084dbfeff865d99.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\9a0c13d0485ade01a084dbfeff865d99-sam-reviewed-overlay.png",
+      "polygonCount": 9
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\aaa6fab381af1c61b619a9807d52a1f0.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\aaa6fab381af1c61b619a9807d52a1f0-sam-reviewed-overlay.png",
+      "polygonCount": 9
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\ecd34e2fb116522263394fd443fab987.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\ecd34e2fb116522263394fd443fab987-sam-reviewed-overlay.png",
+      "polygonCount": 9
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\075757517fbb6e42840328dcfd1c984b.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\075757517fbb6e42840328dcfd1c984b-sam-reviewed-overlay.png",
+      "polygonCount": 10
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\19e1ff892bc03296309118564517395c.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\19e1ff892bc03296309118564517395c-sam-reviewed-overlay.png",
+      "polygonCount": 9
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\586430bda51171eda6acac9b78044e86.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\586430bda51171eda6acac9b78044e86-sam-reviewed-overlay.png",
+      "polygonCount": 10
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\cb7a371d6826a7e71a49ca4bf1ce2382.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\cb7a371d6826a7e71a49ca4bf1ce2382-sam-reviewed-overlay.png",
+      "polygonCount": 9
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\d91d43318c1f87f3c3118f42de25de57.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\d91d43318c1f87f3c3118f42de25de57-sam-reviewed-overlay.png",
+      "polygonCount": 10
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\df5b39c10a2185218d507bfd6a9f26df.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\df5b39c10a2185218d507bfd6a9f26df-sam-reviewed-overlay.png",
+      "polygonCount": 8
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\e0bd54d05d6cdad6e2adedb784be875c.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\e0bd54d05d6cdad6e2adedb784be875c-sam-reviewed-overlay.png",
+      "polygonCount": 10
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\ec02f0d2830587d57caadd728bdebe82.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\ec02f0d2830587d57caadd728bdebe82-sam-reviewed-overlay.png",
+      "polygonCount": 10
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\annotations\\sam-refined-v2-negative-corners-json\\cefb43f688de010c12d6a22c058188ed.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review\\selected\\overlays\\sam-refined-v2-negative-corners\\cefb43f688de010c12d6a22c058188ed-sam-reviewed-overlay.png",
+      "polygonCount": 7
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+﻿fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,1,final,pass,,0.4763,0.8221,True,"[81, 515, 253, 727]",0.0
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,2,final,pass,,0.4303,0.9183,True,"[270, 589, 464, 865]",0.0175
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,3,final,pass,,0.288,1.0,True,"[457, 653, 574, 838]",0.0175
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,4,final,pass,,0.1247,1.0,True,"[635, 565, 747, 770]",0.1698
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,5,final,pass,,0.4252,0.9509,True,"[683, 451, 839, 708]",0.1698
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,6,final,pass,,0.2475,1.0,True,"[848, 579, 997, 743]",0.099
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,7,final,pass,,0.397,0.8669,True,"[932, 450, 1129, 674]",0.1249
+f5e4fc362a7b4115cbf3607d22d87e72.jpg,8,final,pass,,0.3293,0.942,True,"[1082, 477, 1260, 657]",0.1249

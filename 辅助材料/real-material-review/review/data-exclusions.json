@@ -1,0 +1,13 @@
+{
+  "version": "nail-texture-data-exclusions/v1",
+  "updatedAt": "2026-07-12",
+  "items": [
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "reasonCode": "incomplete_nail_visibility",
+      "reason": "用户复核确认指甲部分露出不全",
+      "prohibitedUses": ["annotation", "training", "validation", "test", "regression"],
+      "retainOriginalForAuditOnly": true
+    }
+  ]
+}

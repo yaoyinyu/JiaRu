@@ -1,0 +1,190 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "ec02": {
+      "pass": 10,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 1,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3652,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        97.0,
+        627.0,
+        222.0,
+        734.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 2,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4653,
+      "boundsContainment": 0.9275,
+      "centerInside": true,
+      "bounds": [
+        134.0,
+        411.0,
+        341.0,
+        555.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 3,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2762,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        354.0,
+        247.0,
+        486.0,
+        495.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 4,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3586,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        523.0,
+        278.0,
+        679.0,
+        529.0
+      ],
+      "maximumPeerBoundsIou": 0.0269
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 5,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3848,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        351.0,
+        584.0,
+        507.0,
+        815.0
+      ],
+      "maximumPeerBoundsIou": 0.1109
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 6,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4898,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        635.0,
+        483.0,
+        893.0,
+        631.0
+      ],
+      "maximumPeerBoundsIou": 0.0269
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 7,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4945,
+      "boundsContainment": 0.9846,
+      "centerInside": true,
+      "bounds": [
+        451.0,
+        662.0,
+        651.0,
+        911.0
+      ],
+      "maximumPeerBoundsIou": 0.1109
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 8,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3291,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        287.0,
+        892.0,
+        553.0,
+        1083.0
+      ],
+      "maximumPeerBoundsIou": 0.04
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 9,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6402,
+      "boundsContainment": 0.9486,
+      "centerInside": true,
+      "bounds": [
+        562.0,
+        917.0,
+        754.0,
+        1053.0
+      ],
+      "maximumPeerBoundsIou": 0.016
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 10,
+      "source": "ec02",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3246,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        464.0,
+        1046.0,
+        699.0,
+        1194.0
+      ],
+      "maximumPeerBoundsIou": 0.04
+    }
+  ]
+}

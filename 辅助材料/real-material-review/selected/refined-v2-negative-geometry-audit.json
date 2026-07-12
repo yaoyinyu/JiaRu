@@ -1,0 +1,2514 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "negative": {
+      "pass": 141,
+      "suspect": 5,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7205,
+      "boundsContainment": 0.8935,
+      "centerInside": true,
+      "bounds": [
+        35.0,
+        492.0,
+        139.0,
+        722.0
+      ],
+      "maximumPeerBoundsIou": 0.0648
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.482,
+      "boundsContainment": 0.9904,
+      "centerInside": true,
+      "bounds": [
+        120.0,
+        412.0,
+        211.0,
+        633.0
+      ],
+      "maximumPeerBoundsIou": 0.0648
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3687,
+      "boundsContainment": 0.9827,
+      "centerInside": true,
+      "bounds": [
+        205.0,
+        399.0,
+        309.0,
+        590.0
+      ],
+      "maximumPeerBoundsIou": 0.0462
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2957,
+      "boundsContainment": 0.9355,
+      "centerInside": true,
+      "bounds": [
+        299.0,
+        403.0,
+        413.0,
+        580.0
+      ],
+      "maximumPeerBoundsIou": 0.0462
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4459,
+      "boundsContainment": 0.9819,
+      "centerInside": true,
+      "bounds": [
+        415.0,
+        269.0,
+        535.0,
+        454.0
+      ],
+      "maximumPeerBoundsIou": 0.0395
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3098,
+      "boundsContainment": 0.7695,
+      "centerInside": true,
+      "bounds": [
+        511.0,
+        187.0,
+        677.0,
+        346.0
+      ],
+      "maximumPeerBoundsIou": 0.2101
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3327,
+      "boundsContainment": 0.9155,
+      "centerInside": true,
+      "bounds": [
+        612.0,
+        211.0,
+        754.0,
+        381.0
+      ],
+      "maximumPeerBoundsIou": 0.2101
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3868,
+      "boundsContainment": 0.8935,
+      "centerInside": true,
+      "bounds": [
+        724.0,
+        251.0,
+        848.0,
+        515.0
+      ],
+      "maximumPeerBoundsIou": 0.1175
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4559,
+      "boundsContainment": 0.8768,
+      "centerInside": true,
+      "bounds": [
+        815.0,
+        334.0,
+        929.0,
+        545.0
+      ],
+      "maximumPeerBoundsIou": 0.1175
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 10,
+      "source": "negative",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon",
+        "polygon_extends_beyond_prompt"
+      ],
+      "areaRatio": 0.2088,
+      "boundsContainment": 0.6612,
+      "centerInside": false,
+      "bounds": [
+        828.0,
+        762.0,
+        924.0,
+        863.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2495,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        65.0,
+        774.0,
+        210.0,
+        919.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2615,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        242.0,
+        757.0,
+        409.0,
+        929.0
+      ],
+      "maximumPeerBoundsIou": 0.1331
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.325,
+      "boundsContainment": 0.8624,
+      "centerInside": true,
+      "bounds": [
+        370.0,
+        758.0,
+        516.0,
+        950.0
+      ],
+      "maximumPeerBoundsIou": 0.1331
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3667,
+      "boundsContainment": 0.8305,
+      "centerInside": true,
+      "bounds": [
+        467.0,
+        632.0,
+        590.0,
+        808.0
+      ],
+      "maximumPeerBoundsIou": 0.0519
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3347,
+      "boundsContainment": 0.8675,
+      "centerInside": true,
+      "bounds": [
+        624.0,
+        467.0,
+        741.0,
+        636.0
+      ],
+      "maximumPeerBoundsIou": 0.0205
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.336,
+      "boundsContainment": 0.9148,
+      "centerInside": true,
+      "bounds": [
+        720.0,
+        602.0,
+        826.0,
+        750.0
+      ],
+      "maximumPeerBoundsIou": 0.0205
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2557,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        838.0,
+        627.0,
+        948.0,
+        776.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2123,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        1051.0,
+        667.0,
+        1204.0,
+        806.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4154,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        389.0,
+        434.0,
+        550.0,
+        761.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3782,
+      "boundsContainment": 0.974,
+      "centerInside": true,
+      "bounds": [
+        586.0,
+        467.0,
+        786.0,
+        723.0
+      ],
+      "maximumPeerBoundsIou": 0.1167
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3445,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        716.0,
+        589.0,
+        880.0,
+        824.0
+      ],
+      "maximumPeerBoundsIou": 0.1167
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2602,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        706.0,
+        815.0,
+        890.0,
+        923.0
+      ],
+      "maximumPeerBoundsIou": 0.0269
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5247,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        543.0,
+        911.0,
+        875.0,
+        1084.0
+      ],
+      "maximumPeerBoundsIou": 0.0269
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4419,
+      "boundsContainment": 0.7367,
+      "centerInside": true,
+      "bounds": [
+        355.0,
+        250.0,
+        453.0,
+        511.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1593,
+      "boundsContainment": 0.9745,
+      "centerInside": true,
+      "bounds": [
+        488.0,
+        475.0,
+        598.0,
+        612.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1808,
+      "boundsContainment": 0.9639,
+      "centerInside": true,
+      "bounds": [
+        466.0,
+        661.0,
+        610.0,
+        798.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2983,
+      "boundsContainment": 0.9836,
+      "centerInside": true,
+      "bounds": [
+        262.0,
+        593.0,
+        447.0,
+        727.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3367,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        400.0,
+        811.0,
+        614.0,
+        902.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5066,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        104.0,
+        650.0,
+        205.0,
+        905.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5172,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        240.0,
+        543.0,
+        360.0,
+        769.0
+      ],
+      "maximumPeerBoundsIou": 0.1092
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4271,
+      "boundsContainment": 0.9254,
+      "centerInside": true,
+      "bounds": [
+        322.0,
+        464.0,
+        445.0,
+        683.0
+      ],
+      "maximumPeerBoundsIou": 0.1092
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3066,
+      "boundsContainment": 0.9754,
+      "centerInside": true,
+      "bounds": [
+        427.0,
+        479.0,
+        565.0,
+        655.0
+      ],
+      "maximumPeerBoundsIou": 0.0659
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3259,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        332.0,
+        124.0,
+        482.0,
+        317.0
+      ],
+      "maximumPeerBoundsIou": 0.1765
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.313,
+      "boundsContainment": 0.8994,
+      "centerInside": true,
+      "bounds": [
+        340.0,
+        252.0,
+        517.0,
+        436.0
+      ],
+      "maximumPeerBoundsIou": 0.1765
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3615,
+      "boundsContainment": 0.9156,
+      "centerInside": true,
+      "bounds": [
+        504.0,
+        317.0,
+        677.0,
+        499.0
+      ],
+      "maximumPeerBoundsIou": 0.0247
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2876,
+      "boundsContainment": 0.9401,
+      "centerInside": true,
+      "bounds": [
+        760.0,
+        260.0,
+        937.0,
+        397.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.305,
+      "boundsContainment": 0.9669,
+      "centerInside": true,
+      "bounds": [
+        40.0,
+        651.0,
+        184.0,
+        800.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3488,
+      "boundsContainment": 0.9505,
+      "centerInside": true,
+      "bounds": [
+        228.0,
+        669.0,
+        402.0,
+        851.0
+      ],
+      "maximumPeerBoundsIou": 0.0873
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2333,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        370.0,
+        625.0,
+        515.0,
+        819.0
+      ],
+      "maximumPeerBoundsIou": 0.1343
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2633,
+      "boundsContainment": 0.9625,
+      "centerInside": true,
+      "bounds": [
+        472.0,
+        591.0,
+        621.0,
+        780.0
+      ],
+      "maximumPeerBoundsIou": 0.1343
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2735,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        645.0,
+        373.0,
+        819.0,
+        549.0
+      ],
+      "maximumPeerBoundsIou": 0.1934
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3382,
+      "boundsContainment": 0.9095,
+      "centerInside": true,
+      "bounds": [
+        644.0,
+        491.0,
+        843.0,
+        650.0
+      ],
+      "maximumPeerBoundsIou": 0.1934
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2931,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        788.0,
+        553.0,
+        994.0,
+        703.0
+      ],
+      "maximumPeerBoundsIou": 0.0933
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2637,
+      "boundsContainment": 0.9937,
+      "centerInside": true,
+      "bounds": [
+        1072.0,
+        558.0,
+        1261.0,
+        671.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.427,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        330.0,
+        162.0,
+        457.0,
+        297.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.522,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        0.0,
+        355.0,
+        222.0,
+        522.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3728,
+      "boundsContainment": 0.9676,
+      "centerInside": true,
+      "bounds": [
+        36.0,
+        525.0,
+        139.0,
+        792.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3468,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        225.0,
+        512.0,
+        362.0,
+        801.0
+      ],
+      "maximumPeerBoundsIou": 0.1006
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.472,
+      "boundsContainment": 0.931,
+      "centerInside": true,
+      "bounds": [
+        330.0,
+        502.0,
+        531.0,
+        791.0
+      ],
+      "maximumPeerBoundsIou": 0.1641
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3786,
+      "boundsContainment": 0.9617,
+      "centerInside": true,
+      "bounds": [
+        473.0,
+        514.0,
+        663.0,
+        808.0
+      ],
+      "maximumPeerBoundsIou": 0.1641
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4879,
+      "boundsContainment": 0.8981,
+      "centerInside": true,
+      "bounds": [
+        774.0,
+        294.0,
+        967.0,
+        604.0
+      ],
+      "maximumPeerBoundsIou": 0.2425
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3363,
+      "boundsContainment": 0.9255,
+      "centerInside": true,
+      "bounds": [
+        872.0,
+        196.0,
+        1013.0,
+        507.0
+      ],
+      "maximumPeerBoundsIou": 0.2425
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3939,
+      "boundsContainment": 0.9246,
+      "centerInside": true,
+      "bounds": [
+        973.0,
+        256.0,
+        1130.0,
+        521.0
+      ],
+      "maximumPeerBoundsIou": 0.1331
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4087,
+      "boundsContainment": 0.9966,
+      "centerInside": true,
+      "bounds": [
+        1114.0,
+        303.0,
+        1219.0,
+        590.0
+      ],
+      "maximumPeerBoundsIou": 0.0511
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3076,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        351.0,
+        250.0,
+        433.0,
+        352.0
+      ],
+      "maximumPeerBoundsIou": 0.0533
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3217,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        392.0,
+        326.0,
+        498.0,
+        446.0
+      ],
+      "maximumPeerBoundsIou": 0.2177
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5297,
+      "boundsContainment": 0.9644,
+      "centerInside": true,
+      "bounds": [
+        446.0,
+        337.0,
+        592.0,
+        467.0
+      ],
+      "maximumPeerBoundsIou": 0.2177
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2823,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        689.0,
+        334.0,
+        792.0,
+        418.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3049,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        246.0,
+        671.0,
+        331.0,
+        804.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2733,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        347.0,
+        597.0,
+        436.0,
+        730.0
+      ],
+      "maximumPeerBoundsIou": 0.0473
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2227,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        427.0,
+        588.0,
+        516.0,
+        753.0
+      ],
+      "maximumPeerBoundsIou": 0.0473
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2176,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        519.0,
+        635.0,
+        605.0,
+        753.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5177,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        95.0,
+        957.0,
+        163.0,
+        1077.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4421,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        151.0,
+        695.0,
+        280.0,
+        889.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3899,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        292.0,
+        610.0,
+        395.0,
+        774.0
+      ],
+      "maximumPeerBoundsIou": 0.0258
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3722,
+      "boundsContainment": 0.9901,
+      "centerInside": true,
+      "bounds": [
+        389.0,
+        602.0,
+        500.0,
+        749.0
+      ],
+      "maximumPeerBoundsIou": 0.0258
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3452,
+      "boundsContainment": 0.9749,
+      "centerInside": true,
+      "bounds": [
+        503.0,
+        661.0,
+        591.0,
+        816.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3732,
+      "boundsContainment": 0.9208,
+      "centerInside": true,
+      "bounds": [
+        651.0,
+        444.0,
+        748.0,
+        608.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3751,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        761.0,
+        382.0,
+        862.0,
+        569.0
+      ],
+      "maximumPeerBoundsIou": 0.0724
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.2185,
+      "boundsContainment": 0.8432,
+      "centerInside": false,
+      "bounds": [
+        840.0,
+        460.0,
+        948.0,
+        614.0
+      ],
+      "maximumPeerBoundsIou": 0.0724
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.419,
+      "boundsContainment": 0.8721,
+      "centerInside": true,
+      "bounds": [
+        956.0,
+        528.0,
+        1042.0,
+        690.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1435,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        1137.0,
+        800.0,
+        1203.0,
+        984.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 10,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.316,
+      "boundsContainment": 0.9986,
+      "centerInside": true,
+      "bounds": [
+        0.0,
+        1122.0,
+        46.0,
+        1297.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3407,
+      "boundsContainment": 0.9625,
+      "centerInside": true,
+      "bounds": [
+        242.0,
+        779.0,
+        356.0,
+        964.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5432,
+      "boundsContainment": 0.9534,
+      "centerInside": true,
+      "bounds": [
+        371.0,
+        693.0,
+        495.0,
+        980.0
+      ],
+      "maximumPeerBoundsIou": 0.0609
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.272,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        476.0,
+        719.0,
+        605.0,
+        895.0
+      ],
+      "maximumPeerBoundsIou": 0.2288
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.297,
+      "boundsContainment": 0.9232,
+      "centerInside": true,
+      "bounds": [
+        546.0,
+        704.0,
+        681.0,
+        855.0
+      ],
+      "maximumPeerBoundsIou": 0.2288
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4413,
+      "boundsContainment": 0.9519,
+      "centerInside": true,
+      "bounds": [
+        811.0,
+        387.0,
+        913.0,
+        602.0
+      ],
+      "maximumPeerBoundsIou": 0.2344
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3675,
+      "boundsContainment": 0.9066,
+      "centerInside": true,
+      "bounds": [
+        852.0,
+        290.0,
+        985.0,
+        572.0
+      ],
+      "maximumPeerBoundsIou": 0.2344
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5441,
+      "boundsContainment": 0.9391,
+      "centerInside": true,
+      "bounds": [
+        960.0,
+        289.0,
+        1074.0,
+        583.0
+      ],
+      "maximumPeerBoundsIou": 0.1102
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4987,
+      "boundsContainment": 0.8724,
+      "centerInside": true,
+      "bounds": [
+        1035.0,
+        463.0,
+        1143.0,
+        736.0
+      ],
+      "maximumPeerBoundsIou": 0.0802
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon",
+        "polygon_extends_beyond_prompt"
+      ],
+      "areaRatio": 0.4067,
+      "boundsContainment": 0.6565,
+      "centerInside": false,
+      "bounds": [
+        51.0,
+        1082.0,
+        119.0,
+        1211.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.379,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        58.0,
+        481.0,
+        148.0,
+        618.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.493,
+      "boundsContainment": 0.7281,
+      "centerInside": false,
+      "bounds": [
+        171.0,
+        548.0,
+        286.0,
+        698.0
+      ],
+      "maximumPeerBoundsIou": 0.0517
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4372,
+      "boundsContainment": 0.9561,
+      "centerInside": true,
+      "bounds": [
+        275.0,
+        552.0,
+        368.0,
+        718.0
+      ],
+      "maximumPeerBoundsIou": 0.0517
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3727,
+      "boundsContainment": 0.9388,
+      "centerInside": true,
+      "bounds": [
+        363.0,
+        526.0,
+        431.0,
+        651.0
+      ],
+      "maximumPeerBoundsIou": 0.0317
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3289,
+      "boundsContainment": 0.924,
+      "centerInside": true,
+      "bounds": [
+        405.0,
+        441.0,
+        455.0,
+        542.0
+      ],
+      "maximumPeerBoundsIou": 0.0317
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3431,
+      "boundsContainment": 0.9925,
+      "centerInside": true,
+      "bounds": [
+        473.0,
+        287.0,
+        547.0,
+        392.0
+      ],
+      "maximumPeerBoundsIou": 0.002
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2473,
+      "boundsContainment": 0.914,
+      "centerInside": true,
+      "bounds": [
+        505.0,
+        391.0,
+        605.0,
+        526.0
+      ],
+      "maximumPeerBoundsIou": 0.1076
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3523,
+      "boundsContainment": 0.8931,
+      "centerInside": true,
+      "bounds": [
+        546.0,
+        481.0,
+        647.0,
+        618.0
+      ],
+      "maximumPeerBoundsIou": 0.1184
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3236,
+      "boundsContainment": 0.9049,
+      "centerInside": true,
+      "bounds": [
+        622.0,
+        485.0,
+        744.0,
+        629.0
+      ],
+      "maximumPeerBoundsIou": 0.1184
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 10,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2733,
+      "boundsContainment": 0.9796,
+      "centerInside": true,
+      "bounds": [
+        815.0,
+        446.0,
+        911.0,
+        606.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "suspect",
+      "reasons": [
+        "polygon_too_small"
+      ],
+      "areaRatio": 0.0902,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        562.0,
+        401.0,
+        606.0,
+        560.0
+      ],
+      "maximumPeerBoundsIou": 0.3215
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4643,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        566.0,
+        405.0,
+        685.0,
+        559.0
+      ],
+      "maximumPeerBoundsIou": 0.3215
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3512,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        689.0,
+        472.0,
+        810.0,
+        606.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.351,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        867.0,
+        475.0,
+        1020.0,
+        584.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2153,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        95.0,
+        1204.0,
+        197.0,
+        1362.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4777,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        306.0,
+        932.0,
+        418.0,
+        1126.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4487,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        439.0,
+        839.0,
+        559.0,
+        1051.0
+      ],
+      "maximumPeerBoundsIou": 0.071
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3744,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        540.0,
+        850.0,
+        675.0,
+        1018.0
+      ],
+      "maximumPeerBoundsIou": 0.2647
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.341,
+      "boundsContainment": 0.9159,
+      "centerInside": true,
+      "bounds": [
+        596.0,
+        819.0,
+        733.0,
+        962.0
+      ],
+      "maximumPeerBoundsIou": 0.2647
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6214,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        120.0,
+        652.0,
+        236.0,
+        757.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2069,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        187.0,
+        442.0,
+        269.0,
+        547.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4002,
+      "boundsContainment": 0.9539,
+      "centerInside": true,
+      "bounds": [
+        320.0,
+        222.0,
+        517.0,
+        508.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3387,
+      "boundsContainment": 0.9557,
+      "centerInside": true,
+      "bounds": [
+        569.0,
+        322.0,
+        727.0,
+        559.0
+      ],
+      "maximumPeerBoundsIou": 0.055
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4014,
+      "boundsContainment": 0.9615,
+      "centerInside": true,
+      "bounds": [
+        326.0,
+        597.0,
+        461.0,
+        873.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5096,
+      "boundsContainment": 0.9631,
+      "centerInside": true,
+      "bounds": [
+        621.0,
+        517.0,
+        930.0,
+        672.0
+      ],
+      "maximumPeerBoundsIou": 0.055
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3676,
+      "boundsContainment": 0.9668,
+      "centerInside": true,
+      "bounds": [
+        493.0,
+        726.0,
+        698.0,
+        922.0
+      ],
+      "maximumPeerBoundsIou": 0.0241
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4267,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        283.0,
+        879.0,
+        546.0,
+        1094.0
+      ],
+      "maximumPeerBoundsIou": 0.0577
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4971,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        515.0,
+        917.0,
+        753.0,
+        1102.0
+      ],
+      "maximumPeerBoundsIou": 0.0577
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 10,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2625,
+      "boundsContainment": 0.9699,
+      "centerInside": true,
+      "bounds": [
+        511.0,
+        1105.0,
+        757.0,
+        1233.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4719,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        203.0,
+        846.0,
+        373.0,
+        1124.0
+      ],
+      "maximumPeerBoundsIou": 0.1678
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3963,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        282.0,
+        726.0,
+        472.0,
+        1004.0
+      ],
+      "maximumPeerBoundsIou": 0.2339
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3798,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        388.0,
+        674.0,
+        597.0,
+        998.0
+      ],
+      "maximumPeerBoundsIou": 0.2339
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3148,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        514.0,
+        655.0,
+        727.0,
+        940.0
+      ],
+      "maximumPeerBoundsIou": 0.2076
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3219,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        622.0,
+        257.0,
+        843.0,
+        449.0
+      ],
+      "maximumPeerBoundsIou": 0.1196
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4732,
+      "boundsContainment": 0.9817,
+      "centerInside": true,
+      "bounds": [
+        584.0,
+        408.0,
+        849.0,
+        568.0
+      ],
+      "maximumPeerBoundsIou": 0.1196
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.434,
+      "boundsContainment": 0.9983,
+      "centerInside": true,
+      "bounds": [
+        639.0,
+        531.0,
+        927.0,
+        652.0
+      ],
+      "maximumPeerBoundsIou": 0.1118
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3996,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        836.0,
+        624.0,
+        1090.0,
+        730.0
+      ],
+      "maximumPeerBoundsIou": 0.043
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4128,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        139.0,
+        679.0,
+        304.0,
+        830.0
+      ],
+      "maximumPeerBoundsIou": 0.105
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.52,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        194.0,
+        777.0,
+        362.0,
+        994.0
+      ],
+      "maximumPeerBoundsIou": 0.105
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5533,
+      "boundsContainment": 0.9734,
+      "centerInside": true,
+      "bounds": [
+        326.0,
+        751.0,
+        514.0,
+        992.0
+      ],
+      "maximumPeerBoundsIou": 0.1046
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4925,
+      "boundsContainment": 0.9906,
+      "centerInside": true,
+      "bounds": [
+        507.0,
+        716.0,
+        669.0,
+        937.0
+      ],
+      "maximumPeerBoundsIou": 0.1339
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5522,
+      "boundsContainment": 0.928,
+      "centerInside": true,
+      "bounds": [
+        623.0,
+        738.0,
+        823.0,
+        927.0
+      ],
+      "maximumPeerBoundsIou": 0.1339
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4268,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        619.0,
+        233.0,
+        718.0,
+        384.0
+      ],
+      "maximumPeerBoundsIou": 0.126
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4684,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        688.0,
+        253.0,
+        811.0,
+        417.0
+      ],
+      "maximumPeerBoundsIou": 0.126
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5361,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        770.0,
+        335.0,
+        889.0,
+        506.0
+      ],
+      "maximumPeerBoundsIou": 0.0905
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4913,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        890.0,
+        376.0,
+        1023.0,
+        548.0
+      ],
+      "maximumPeerBoundsIou": 0.0245
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 10,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6621,
+      "boundsContainment": 0.9014,
+      "centerInside": true,
+      "bounds": [
+        977.0,
+        195.0,
+        1222.0,
+        416.0
+      ],
+      "maximumPeerBoundsIou": 0.0245
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3652,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        97.0,
+        627.0,
+        222.0,
+        734.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4653,
+      "boundsContainment": 0.9275,
+      "centerInside": true,
+      "bounds": [
+        134.0,
+        411.0,
+        341.0,
+        555.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2762,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        354.0,
+        247.0,
+        486.0,
+        495.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3586,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        523.0,
+        278.0,
+        679.0,
+        529.0
+      ],
+      "maximumPeerBoundsIou": 0.0269
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3848,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        351.0,
+        584.0,
+        507.0,
+        815.0
+      ],
+      "maximumPeerBoundsIou": 0.1109
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4898,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        635.0,
+        483.0,
+        893.0,
+        631.0
+      ],
+      "maximumPeerBoundsIou": 0.0269
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4945,
+      "boundsContainment": 0.9846,
+      "centerInside": true,
+      "bounds": [
+        451.0,
+        662.0,
+        651.0,
+        911.0
+      ],
+      "maximumPeerBoundsIou": 0.1109
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 8,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3291,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        287.0,
+        892.0,
+        553.0,
+        1083.0
+      ],
+      "maximumPeerBoundsIou": 0.04
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 9,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6402,
+      "boundsContainment": 0.9486,
+      "centerInside": true,
+      "bounds": [
+        562.0,
+        917.0,
+        754.0,
+        1053.0
+      ],
+      "maximumPeerBoundsIou": 0.016
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 10,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3246,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        464.0,
+        1046.0,
+        699.0,
+        1194.0
+      ],
+      "maximumPeerBoundsIou": 0.04
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 1,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4575,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        43.0,
+        654.0,
+        169.0,
+        815.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 2,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3073,
+      "boundsContainment": 0.8981,
+      "centerInside": true,
+      "bounds": [
+        293.0,
+        813.0,
+        430.0,
+        965.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 3,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3199,
+      "boundsContainment": 0.9055,
+      "centerInside": true,
+      "bounds": [
+        468.0,
+        737.0,
+        591.0,
+        913.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 4,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.433,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        654.0,
+        399.0,
+        766.0,
+        548.0
+      ],
+      "maximumPeerBoundsIou": 0.1764
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 5,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4662,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        680.0,
+        446.0,
+        855.0,
+        685.0
+      ],
+      "maximumPeerBoundsIou": 0.1764
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 6,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3801,
+      "boundsContainment": 0.8451,
+      "centerInside": true,
+      "bounds": [
+        839.0,
+        506.0,
+        996.0,
+        700.0
+      ],
+      "maximumPeerBoundsIou": 0.0413
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 7,
+      "source": "negative",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1813,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        1072.0,
+        447.0,
+        1192.0,
+        599.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    }
+  ]
+}

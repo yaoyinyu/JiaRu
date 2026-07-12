@@ -29,3 +29,14 @@ test("buildNailDebugArtifactPaths supports custom output directory and prefix", 
     path.resolve("C:/archives/run-001/model-v1-session-source-image-candidate-mask.png")
   );
 });
+test("buildNailDebugArtifactPaths bounds long and non-ASCII path segments", () => {
+  const paths = buildNailDebugArtifactPaths({
+    inputPath: `C:/images/${"超长中文美甲素材名称".repeat(12)}.jpg`,
+    outputDir: "C:/archives/run-001",
+    prefix: "real-reference-2026-07-12-batch-02-128b70cc4121",
+  });
+
+  assert.ok(path.basename(paths.output).length < 110);
+  assert.match(path.basename(paths.output), /-[a-f0-9]{12}-detection-debug\.png$/);
+  assert.ok(paths.output.length < 260);
+});

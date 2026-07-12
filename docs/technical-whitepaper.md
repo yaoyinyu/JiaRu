@@ -1,8 +1,13 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.0.0  
-> 基线日期：2026-07-12  
-> 文档状态：持续维护  
+> 文档版本：v1.1.1
+>
+> 基线日期：2026-07-12
+>
+> 最近全面审查：2026-07-12
+>
+> 文档状态：持续维护
+>
 > 适用范围：产品页面、前端组件、浏览器端识别、AR 试戴、服务端 API、数据集、训练、模型发布与验证
 
 ## 1. 文档定位与维护规则
@@ -25,9 +30,47 @@
 | 未完成 | 尚无可用实现 | 需要先完成设计和开发 |
 | 阻塞 | 已有实现或流程，但存在明确发布阻断项 | 修复阻断项并重新验证后才能发布 |
 
-### 1.2 强制维护流程
+### 1.2 信息来源与冲突处理
 
-以后每完成一项会影响功能、接口、使用方式、配置、数据结构、模型、脚本或部署方式的任务，必须在结束任务前同步更新本文档：
+白皮书不是独立于代码的事实来源。审查或对接时按以下优先级确认当前事实：
+
+1. 当前工作区实际源码、`package.json`、manifest 和文件是否存在；
+2. 当前生成的机器可读审计报告；
+3. 自动化测试和最近一次有记录的真机/浏览器验证；
+4. 本白皮书；
+5. 其他规划、历史记录和归档文档。
+
+如果白皮书与更高优先级来源冲突，应以可复现的当前事实为准，并在同一任务内修订白皮书和开发日志。历史规划中的“已完成”不能覆盖当前审计中的 `blocked` 或文件缺失事实。
+
+### 1.3 强制任务生命周期
+
+每个任务都必须执行以下门禁；“任务”包括代码修改、文档修改、诊断、测试、配置、模型、数据和脚本工作。
+
+#### 开始任务前
+
+1. 读取 `AGENTS.md`；
+2. 读取本文档，至少覆盖“功能状态总表”、任务对应模块、已知限制和最新变更记录；
+3. 对照当前源码或机器可读报告确认相关状态没有过期；
+4. 在开始实施前确定本次需要修改或新增的白皮书章节；
+5. 若白皮书与源码冲突，先把冲突列入本次任务范围，不得继续引用错误信息。
+
+任务第一次进度更新必须明确说明已读取白皮书，并指出本次采用的模块章节和当前状态，作为可观察的开始凭证。
+
+#### 结束任务前
+
+1. 更新对应模块的状态、接口、使用方式、配置、限制或验证结论；
+2. 在“版本与变更记录”追加本次任务记录；
+3. 将同一摘要追加到当天唯一的 `dev-log/YYYY-MM-DD.md`；
+4. 执行文档差异检查和编码审计；行为变更还需执行相应代码测试；
+5. 最终答复必须说明白皮书和开发日志已同步；任一项未完成时不得宣称任务完成。
+
+最终答复应点名本次修改的白皮书章节/变更记录和当天日志文件，作为结束凭证。
+
+即使任务没有改变任何接口，也必须在白皮书变更记录和当天日志中写明“已复核，无接口/状态变化”及原因。这样可以留下任务确实读取并核对白皮书的证据。
+
+### 1.4 内容维护要求
+
+每完成一项会影响功能、接口、使用方式、配置、数据结构、模型、脚本或部署方式的任务，必须在结束任务前同步更新本文档：
 
 1. 更新对应模块的状态、接口或使用说明；
 2. 若新增或修改 HTTP/TypeScript/Worker/模型接口，更新相应契约；
@@ -36,7 +79,7 @@
 5. 在当天唯一的 `dev-log/YYYY-MM-DD.md` 中记录任务摘要；
 6. 执行与风险相匹配的验证，并记录验证结论，不得把“代码存在”直接写成“生产可用”。
 
-仅修改注释、拼写或不影响行为的格式调整时，可只追加简短变更记录；如果确认完全不影响白皮书内容，应在当天开发日志注明“白皮书无需变更”及原因。
+仅修改注释、拼写或不影响行为的格式调整时，可只追加简短变更记录，但仍须同步当天开发日志。
 
 ## 2. 系统概览
 
@@ -50,19 +93,24 @@
 | UI | React | 19.2.4 |
 | 语言 | TypeScript | 5.x |
 | 样式 | Tailwind CSS + CSS Modules | Tailwind 4 |
-| 手部关键点 | MediaPipe Hands | 浏览器端 |
+| 手部关键点 | MediaPipe Hands | 浏览器端运行；当前脚本和运行资源从 jsDelivr CDN 加载 |
 | 纹理模型推理 | ONNX Runtime Web | 1.27.0，WebGPU/WASM |
 | 图形处理 | Canvas、OffscreenCanvas、ImageBitmap | 浏览器端 |
-| 3D 依赖 | Three.js | 0.184.0，当前未形成正式 3D 试戴链路 |
+| 3D 依赖 | Three.js | 0.184.0，仅安装依赖，当前 `src` 未使用 |
 | AI 生图 | OpenAI Images HTTP API | 当前代码使用 `dall-e-3`，依赖服务端密钥 |
 
 ### 2.2 逻辑数据流
 
 ```text
-用户照片 ──> 本地编辑器 / 本地纹理识别 ──> ImageBitmap 纹理 ──┐
-摄像头 ────> MediaPipe 手部关键点 ───────> 指甲几何 ─────────┼─> Canvas AR 合成
-文字描述 ──> POST /api/generate-ai ──────> 外部图像 API ─────┘   （仅文字离开设备）
+图片试色：用户照片 -> 浏览器 Canvas 手工涂色 -> 本地 PNG 下载
+
+纹理 AR：参考图 -> 浏览器纹理识别/人工裁剪 -> ImageBitmap
+                                      + 摄像头 -> MediaPipe 关键点 -> Canvas AR 合成
+
+AI 生图：文字描述 -> POST /api/generate-ai -> 外部图像 API -> 远程图片 URL/本地下载
 ```
+
+三条流程目前彼此独立：AI 生成结果和图库款式不会自动写入编辑器或 AR；只有 `/ar-tryon` 内上传的参考图可以进入纹理识别/裁剪链路。
 
 ## 3. 功能状态总表
 
@@ -70,19 +118,19 @@
 | --- | --- | --- | --- |
 | 首页与统一导航 | `/` | 已完成 | 提供功能入口与统一视觉框架 |
 | 灵感图库 | `/gallery` | 占位 | 当前使用本地占位素材，尚无真实内容管理后端 |
-| 图片试色编辑器 | `/editor` | 已完成 | 本地上传、逐指选色、Canvas 涂抹与本地保存链路可用 |
+| 图片试色编辑器 | `/editor` | 已完成 | 本地上传、逐指选色、Canvas 涂抹与本地保存链路存在；上传校验仍需补强 |
 | AI 美甲生图 | `/ai-generate`、`POST /api/generate-ai` | 待验证 | 前后端已实现；依赖有效密钥、联网和当前模型可用性，尚无正式服务可用性承诺 |
-| AR 纯色试戴 | `/ar-tryon` | 待验证 | 摄像头、手部关键点、指甲绘制、手心/手背识别已实现；仍需多设备真机验收 |
+| AR 纯色试戴 | `/ar-tryon` | 待验证 | 单手摄像头、关键点、指甲绘制、手心/手背识别已实现；依赖 CDN，仍需多设备真机验收 |
 | AR 纹理试戴 | `/ar-tryon` | 待验证 | 支持手动裁剪和多候选纹理分配；贴合质量需继续实测 |
 | 视频自适应展示 | `calculateCoverVideoLayout()` | 已完成 | 保持比例，采用居中 cover 裁切，不拉伸 |
 | 美甲纹理自动识别 | `recognizeNailTextures()` | 进行中 | 浏览器推理、Worker、后处理和 fallback 已实现；正式模型产物缺失 |
 | 传统算法降级 | `recognizeNailTexturesWithFallback()` | 已完成 | 模型不可用时仍可返回候选，但质量不等同正式模型 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
 | 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞 | manifest 已存在，但正式 `nail-texture-seg-v1.onnx` 不存在，最终审计为 blocked |
-| 数据集治理 | `model/datasets/nail-texture-v1` | 进行中 | 当前 readiness 报告通过：323 图、1521 有效 mask；仍有 1 个 warning，且数据质量需持续人工审核 |
+| 数据集治理 | `model/datasets/nail-texture-v1` | 进行中 | 当前标签与来源审计通过：322 图、1577 个 mask；19 张实拍图的 156 个审核甲面已导入，仍有 1 个允许的空负样本 warning，新增 113 张实拍素材尚待逐图标注与来源隔离 |
 | 训练/评估/导出 | `model/training/*` | 进行中 | 脚本链路已建立；正式可发布模型尚未产出 |
 | 模型发布治理 | `scripts/*release*` | 进行中 | 已有注册、切换、回滚、质量门和审计脚本，尚未完成正式模型发布闭环 |
-| 隐私说明 | `/privacy` | 已完成 | 已说明本地图片/摄像头处理和 AI 文本传输边界 |
+| 隐私说明 | `/privacy` | 待验证 | 静态说明页已实现；尚未完成法律/产品审核，部分“保存试戴效果图”文案领先于现有 AR 能力 |
 | 用户账户、云同步、商城/门店 | 无 | 未完成 | 当前没有对应后端接口或数据模型 |
 
 ## 4. 页面与用户使用接口
@@ -96,6 +144,8 @@ npm.cmd run dev
 ```
 
 默认访问 `https://localhost:3000`。开发脚本使用 `next dev --experimental-https`；若本机自签名证书生成失败，Next.js 可能回退至 HTTP。摄像头应通过 `localhost` 或正式 HTTPS 域名访问，不应使用普通局域网 HTTP 地址。
+
+生产启动应先执行 `npm.cmd run build`，再执行 `npm.cmd run start`。开发模式的实验性自签名 HTTPS 不等同正式部署证书。
 
 生产验证命令：
 
@@ -112,13 +162,15 @@ npm.cmd run build
 
 使用方式：
 
-1. 上传清晰的手部 PNG/JPEG/WebP 图片；
+1. 上传或拍摄清晰的手部图片；界面提示 JPG/PNG/WebP，但当前文件选择器实际为 `accept="image/*"`；
 2. 选择拇指至小指之一；
 3. 选择颜色，可将当前颜色应用到全部手指；
 4. 在 Canvas 上点击或拖动完成局部涂色；
 5. 使用组件提供的撤销、重置和保存能力。
 
 数据边界：上传文件通过 `URL.createObjectURL()` 留在浏览器，页面卸载或更换文件时释放对象 URL。
+
+已知限制：`/editor` 当前没有运行时 MIME、文件大小、最小分辨率和解码失败提示校验；浏览器可能允许选择界面提示之外的图片格式。该限制只影响编辑器，`/ar-tryon` 的纹理上传另有 PNG/JPEG/WebP 和 10 MB 校验。
 
 核心组件接口：
 
@@ -127,8 +179,9 @@ npm.cmd run build
 
 <NailCanvas
   imageUrl={string}
-  nailColors={string[5]}
-  activeFinger={0 | 1 | 2 | 3 | 4}
+  selectedColor={string | undefined}
+  nailColors={string[] | undefined}
+  activeFinger={number | undefined}
   brushSize={number}
 />
 
@@ -142,13 +195,15 @@ npm.cmd run build
 
 状态：占位。
 
-当前使用 `src/lib/utils.ts` 中的 `GALLERY_IMAGES` 和 `public/nail-gallery/placeholder-*.svg`。没有数据库、上传管理、分页、搜索、收藏或真实素材授权接口。后续接入真实图库时应至少补充：资源 ID、来源授权、缩略图、原图、标签、创建时间、审核状态和删除策略。
+当前使用 `src/lib/utils.ts` 中的 `GALLERY_IMAGES` 和 `public/nail-gallery/placeholder-*.svg`。点击条目会跳转到 `/editor?gallery=<id>`，但 `/editor` 当前没有读取 `gallery` 参数，因此只会打开编辑器，不会自动载入对应款式。这是未完成的模块对接，不应把“点击进入试色”理解为已应用图库设计。
+
+当前没有数据库、上传管理、分页、搜索、收藏或真实素材授权接口。后续接入真实图库时应至少补充：资源 ID、来源授权、缩略图、原图、可试戴纹理、标签、创建时间、审核状态和删除策略。
 
 ### 4.4 `/ai-generate` AI 生图
 
 状态：待验证。
 
-使用方式：输入 1～500 字符描述，或选择预设风格，点击生成；成功后可下载图片。前端只发送文字，不发送用户照片。
+使用方式：输入 1～500 字符描述，或选择预设风格，点击生成；成功后前端显示外部服务返回的远程图片 URL，并尝试跨域下载，失败时在新窗口打开图片。前端只向本项目 API 发送文字，不发送用户照片。
 
 前置条件：
 
@@ -156,7 +211,7 @@ npm.cmd run build
 OPENAI_API_KEY=有效的服务端密钥
 ```
 
-限制：当前代码固定请求 `dall-e-3`、`1024x1024`、`standard`，超时 30 秒。该模型名称和接口可用性属于外部依赖，正式部署前必须重新确认并完成联网实测。
+限制：当前代码固定请求 `dall-e-3`、`1024x1024`、`standard`，超时 30 秒。该模型名称和接口可用性属于外部依赖，正式部署前必须重新确认并完成联网实测。AI 输出不会自动进入图库、编辑器或 AR，当前需要用户先下载再手动上传。
 
 ### 4.5 `/ar-tryon` AR 试戴
 
@@ -173,15 +228,37 @@ OPENAI_API_KEY=有效的服务端密钥
 
 上传约束：PNG/JPEG/WebP，最大 10 MB。摄像头画面只在内存中处理，不录制、不上传。
 
+运行约束：当前 `maxNumHands: 1`、`modelComplexity: 0`，检测和跟踪阈值均为 `0.5`。`hands.js`、WASM 和相关 MediaPipe 文件从固定版本的 jsDelivr URL 加载，脚本等待超时为 15 秒；离线、CSP 限制或 CDN 故障会导致 AR 无法启动。
+
 主要组件：
 
 ```ts
 <ArView
-  nailColors={string[5]}
-  nailTextures={(ImageBitmap | null)[5]}
-  mode={"color" | "texture"}
+  nailColors={string[]}
+  nailTextures={(ImageBitmap | null)[] | undefined}
+  mode={"color" | "texture" | undefined}
 />
+
+<TextureCropper
+  imageUrl={string}
+  onConfirm={(bitmap: ImageBitmap) => void}
+  onCancel={() => void}
+/>
+
+<NailArtPicker
+  imageUrl={string}
+  onConfirm={(assignments: NailAssignment[]) => void}
+  onCancel={() => void}
+/>
+
+interface NailAssignment {
+  texture: ImageBitmap;
+  diagnostics?: TextureExtractionDiagnostics;
+  finger: number;
+}
 ```
+
+约定上页面始终传入 5 个颜色/纹理槽位并使用手指索引 `0..4`，但组件公开的 TypeScript Props 当前只是普通数组和 `number`，没有在类型层强制长度或索引范围；外部调用方必须自行校验。
 
 AR 内部关键契约：
 
@@ -196,6 +273,8 @@ interface NailGeometry {
   angle: number;
 }
 ```
+
+朝向语义：`palm` 明确禁止绘制；`dorsum` 允许绘制；`ambiguous` 在 UI 中显示“侧手”，当前采用 fail-open 策略仍允许绘制。状态切换需要连续稳定帧以减少抖动，因此提示不会在单帧内立即变化。这个策略有误贴风险，仍属于真机待验证项。
 
 视频布局使用 `calculateCoverVideoLayout(videoWidth, videoHeight, viewportWidth, viewportHeight)`，输出缩放后的显示尺寸和居中偏移。宽屏转竖屏时从左右两侧对称裁切，竖屏转宽屏时从上下两侧对称裁切，不做非等比拉伸。
 
@@ -242,16 +321,23 @@ Content-Type: application/json
 
 ### 6.1 对外入口
 
-主入口位于 `src/lib/nail-texture-recognition/index.ts`：
+公共 barrel 位于 `src/lib/nail-texture-recognition/index.ts`。业务主入口是 `recognizeNailTexturesInWorker()`；底层同步流程入口是 `recognizeNailTextures()`：
 
 ```ts
+async function recognizeNailTexturesInWorker(
+  source: ImagePixels,
+  options?: RecognizeNailTexturesOptions
+): Promise<NailTextureRecognitionResult>
+
 async function recognizeNailTextures(
   source: ImagePixels,
   options?: RecognizeNailTexturesOptions
 ): Promise<NailTextureRecognitionResult>
 ```
 
-`ImagePixels` 的结构为 `{ width: number; height: number; data: Uint8ClampedArray }`，与浏览器 `ImageData` 的核心像素字段兼容。
+`ImagePixels` 的实际结构为 `{ width: number; height: number; data: ArrayLike<number> }`，浏览器 `ImageData.data` 的 `Uint8ClampedArray` 是兼容输入之一。
+
+同一 barrel 还导出 manifest/runtime、预处理、后处理、质量排序、mask 提取、反光修复、debug 对比、首跑记录验证和 Worker 生命周期接口。这些属于内部研发接口，除上述识别入口和稳定类型外暂不承诺跨版本兼容；新增外部调用方前必须在本节登记具体函数、输入输出和兼容策略。
 
 主要选项：
 
@@ -304,6 +390,8 @@ interface NailTextureCandidate {
 4. 候选经过置信度评估、角度稳定、手指建议和纹理提取；
 5. UI 必须展示低置信度或提取质量告警，并允许用户人工调整或取消。
 
+当前 `NailArtPicker` 将检测输入最长边限制在 800 像素，最多请求 10 个候选，Worker 超时为 15 秒。候选确认后以 `NailAssignment[]` 返回，每个 `ImageBitmap` 的所有权转移给 `/ar-tryon` 页面，页面在替换或卸载时负责释放。
+
 环境变量：
 
 ```env
@@ -316,7 +404,9 @@ NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL=/models/nail-texture-seg/manifest.js
 NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL=/models/nail-texture-seg-smoke/manifest.json
 ```
 
-烟雾/合成模型只验证工程链路，不得用于宣称真实美甲识别质量。
+重要：当前 `.env.local.example` 的实际值就是 smoke manifest。直接复制该文件会启用烟雾模型，而不是正式模型。正式环境必须删除该覆盖项以使用代码默认路径，或显式改为正式 manifest；在正式 ONNX 缺失期间，两种方式都不能产生正式模型能力。
+
+烟雾/合成模型只验证工程链路，不得用于宣称真实美甲识别质量。结果顶层 `backend: "model"` 只表示走了模型路径；实际执行提供程序 `webgpu`/`wasm` 位于 `modelInfo.backend`。
 
 ### 6.3 Worker 消息契约
 
@@ -342,7 +432,7 @@ interface RecognizeNailTextureResponse {
 }
 ```
 
-调用方应在超时、取消、页面卸载或更换图片时释放 `ImageBitmap` 和 Worker 资源。
+调用方应在超时、取消、页面卸载或更换图片时释放 `ImageBitmap` 和 Worker 资源。当前 Worker 超时后会重置 Worker，并通过主线程 fallback 尝试返回降级结果；用户取消会重置 Worker 并以 `AbortError` 拒绝当前请求，不执行 fallback。调用方必须分别处理异常和 `warnings`，不能只检查是否返回候选。
 
 ### 6.4 纹理提取接口
 
@@ -397,12 +487,14 @@ disposeAllTextures(bitmaps): void
 
 | 指标 | 当前值 |
 | --- | ---: |
-| 图片 | 323 |
-| mask | 1521 |
-| 有效 mask | 1521 |
-| train / val / test | 232 / 45 / 46 |
+| 图片 | 322 |
+| mask | 1577 |
+| 有效 mask | 1577 |
+| train / val / test | 231 / 45 / 46 |
 | 错误文件 | 0 |
 | warning 文件 | 1 |
+
+2026-07-12 实拍数据同步：首批素材的有效来源目录已由误写的 `真实素材/2027_7_11` 纠正为 `真实素材/2026_7_11`。用户明确禁用的 `ca2d14573bfe3c0c83cdc3100e074b3c.jpg` 已从有效图片、原始标注、YOLO 标签、来源表和 split 中移除；其余 19 张审核通过图片共 156 个甲面已覆盖旧 fallback 标注并通过来源审计与标签审计。第二批 `真实素材/2026_7_12` 共 113 张已完成可解码、重复项和视觉初筛，当前仅进入审核工作区，尚未作为正式训练真值导入。
 
 这代表数据结构门当前通过，不代表模型质量已经达标。
 
@@ -466,16 +558,39 @@ npm.cmd run build
 - 数据 readiness 通过不等于训练指标或用户体验通过；
 - 摄像头、WebGPU、移动端裁切和手心/手背识别必须进行目标浏览器真机测试。
 
+### 9.1 最近一次白皮书一致性审查
+
+2026-07-12 v1.1.0 审查结果：
+
+- 当前 6 个页面路由和唯一 HTTP API 均已在本文档登记；
+- Next.js/React 版本与 `package.json` 一致；
+- 正式 ONNX 文件缺失与最终审计 `blocked` 状态一致；
+- smoke 环境变量覆盖风险已登记；
+- 文本编码审计通过：294 个文件，0 个失败；
+- 本次只修改文档与项目规则，未重新执行运行时代码测试，不能用本次审查替代最近一次功能测试或真机测试。
+
+### 9.2 端侧实施技术规范复核
+
+2026-07-12 对 `docs/nail-texture-local-inference-implementation-spec.md` v1.0 进行现状复核：
+
+- 文档的产品边界、浏览器端侧架构、模型/数据/性能分阶段门禁、隐私和回滚原则仍可作为目标实施规范；
+- 第 3.2 节及第 16–17 节部分“当前缺口/待办”已过期：源码现已具备 Worker 环境识别、可静态分析的 ONNX Runtime WebGPU/WASM 导入和 letterbox 预处理，对应进度文档的 `M1-T1-RUNTIME` 已通过；
+- 正式 `nail-texture-seg-v1.onnx` 仍缺失，生产 manifest 的最终状态继续为 blocked；真实数据已开始导入和视觉审核，但尚未形成独立真实测试集与正式发布证据；
+- 因此该文档当前应定位为“目标规范 + 历史实施基线”，不能单独作为当前完成度来源；实时状态应以本白皮书和 `docs/nail-texture-local-inference-implementation-progress.md` 为准。
+
+本次为只读评审，没有修改运行时接口、模块状态或被评审规范原文。
+
 ## 10. 隐私、安全与资源管理
 
 - `/editor` 上传照片在浏览器本地处理；
-- `/ar-tryon` 摄像头帧在浏览器内存中处理，不录制、不上传；
+- `/ar-tryon` 摄像头帧在浏览器内存中处理，不录制、不上传，但 MediaPipe 程序资源会从 jsDelivr CDN 下载；
 - 自动纹理识别默认在浏览器 Worker/主线程中运行；
-- `/api/generate-ai` 只接收文字，但会把增强后的文字发送给外部图像服务；
+- `/api/generate-ai` 只接收文字，但会把增强后的文字发送给外部图像服务，返回的图片也由浏览器访问外部 URL；
 - `OPENAI_API_KEY` 只能存在于服务端环境变量；
 - `ImageBitmap`、对象 URL、MediaStream track、Worker 和动画帧循环必须在取消或卸载时释放；
 - 用户素材、训练图片、大模型权重和生成数据默认不应加入 Git；应通过 `.gitignore`、对象存储或独立数据盘管理；
 - 正式 API 上线前需增加鉴权、限流、内容安全、审计、费用保护和错误信息脱敏。
+- `/privacy` 是当前产品文案，不构成已完成的法律合规审计；其中“保存的试戴效果图”在现有 AR 页面没有对应保存按钮，应在实现功能或修订文案后再验收。
 
 ## 11. 已知限制与下一阶段
 
@@ -484,6 +599,7 @@ npm.cmd run build
 1. 正式 `nail-texture-seg-v1.onnx` 尚未产出，正式模型审计 blocked；
 2. AI 生图依赖外部模型与密钥，尚未完成生产环境可用性、成本和内容安全验证；
 3. AR 摄像头和朝向识别仍需要更多手机、浏览器、光线和肤色组合的真机验收。
+4. `.env.local.example` 当前默认指向 smoke manifest，复制后容易误把测试模型当成正式模型。
 
 ### 11.2 未完成或占位能力
 
@@ -493,6 +609,9 @@ npm.cmd run build
 4. 正式 3D 指甲网格、遮挡、光照和物理材质试戴；
 5. AI 生图的供应商抽象、任务队列、结果持久化和配额系统；
 6. 正式模型监控、线上质量回流和自动回滚闭环。
+7. 图库款式到编辑器/AR 的参数消费和纹理传递；
+8. AI 生成结果一键进入图库、编辑器或 AR 的集成链路；
+9. 编辑器上传文件的 MIME、大小、分辨率和解码错误校验。
 
 ## 12. 新模块对接登记模板
 
@@ -520,4 +639,9 @@ npm.cmd run build
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-07-12 | v1.1.4 | 清理尚未推送的 Git 历史：将两次本地提交重写为一个不含图片、模型权重和生成型调试资产的提交；补充 `.gitignore`，移除 `weights/clip/ViT-B-32.pt` 的 Git 跟踪但保留本地文件。复核确认相对 `origin/master` 的新增对象无超过 100 MB 文件，运行时接口与功能状态不变 | 仓库治理、版本历史、资源管理 |
+| 2026-07-12 | v1.1.3 | 复核 Git 推送失败：确认远端未接收本地提交，根因包含 353,976,522 字节权重文件超过 GitHub 单文件限制及大量生成调试资产；本次仅登记仓库治理风险，无运行时接口/功能状态变化 | 仓库治理、文档记录 |
+| 2026-07-12 | v1.1.2 | 同步实拍素材目录纠正与人工标注导入：永久移除 1 张禁用图片，登记 19 张/156 个审核甲面和 113 张新增实拍素材初筛结果，重建来源表、split 与 YOLO 标签 | 数据集治理、训练输入、质量门 |
+| 2026-07-12 | v1.1.1 | 复核端侧实施技术规范：确认总体方案仍有效，登记 Worker/ORT/letterbox 等历史缺口已完成，并明确规范与实时进度的文档定位 | 文档治理、纹理识别 |
+| 2026-07-12 | v1.1.0 | 全面源码审查；增加任务前必读与任务后必更新门禁；纠正数据流、编辑器上传、图库参数、CDN、smoke 配置、隐私文案、Worker 和网络边界说明 | 全项目 |
 | 2026-07-12 | v1.0.0 | 创建技术白皮书；盘点页面、HTTP API、AR、纹理识别、模型、数据集、训练和发布接口；建立任务后强制维护规则 | 全项目 |
