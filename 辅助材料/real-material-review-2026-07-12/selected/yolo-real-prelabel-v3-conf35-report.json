@@ -1,0 +1,939 @@
+{
+  "version": "nail-texture-yolo-prelabel/v1",
+  "ok": true,
+  "decision": "candidate_only_not_training_truth",
+  "model": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-prelabel-v3\\nail-texture-seg-real-prelabel-v3\\weights\\best.pt",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\images",
+  "sourceGroup": "real-reference-2026-07-12-batch-02",
+  "settings": {
+    "conf": 0.35,
+    "iou": 0.5,
+    "imgsz": 512,
+    "maxDet": 12
+  },
+  "imageCount": 113,
+  "imagesWithCandidates": 109,
+  "imagesWithoutCandidates": 4,
+  "totalCandidates": 694,
+  "candidateCountHistogram": {
+    "0": 4,
+    "1": 3,
+    "2": 7,
+    "3": 7,
+    "4": 10,
+    "5": 16,
+    "6": 13,
+    "7": 11,
+    "8": 16,
+    "9": 12,
+    "10": 10,
+    "11": 3,
+    "12": 1
+  },
+  "items": [
+    {
+      "fileName": "-2022-01-16-17.31.27_136220716561e40a52d395e.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.766989,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2022-01-16-17.31.27_136220716561e40a52d395e.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2022-01-16-17.31.27_136220716561e40a52d395e-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2022-01-16-17.32.24_14865833961e3f33f15e4e.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.684286,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2022-01-16-17.32.24_14865833961e3f33f15e4e.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2022-01-16-17.32.24_14865833961e3f33f15e4e-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.648872,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2022-01-16-17.33.16_16788849361e4261e11255.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2022-01-16-17.33.16_16788849361e4261e11255-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.588633,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2022-01-16-19.13.13_130717900561e3feb6dea97.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2022-01-16-19.13.13_130717900561e3feb6dea97-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2022-01-16-22.23.01_86396604061e42c5663eec.png",
+      "candidateCount": 4,
+      "meanConfidence": 0.686095,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2022-01-16-22.23.01_86396604061e42c5663eec.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2022-01-16-22.23.01_86396604061e42c5663eec-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-14.42.37_40712667864cf412ac5c04-991x1024.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.821512,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-14.42.37_40712667864cf412ac5c04-991x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-14.42.37_40712667864cf412ac5c04-991x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-14.42.50_135764628264cf41332bfaa-1016x1024.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.774045,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-14.42.50_135764628264cf41332bfaa-1016x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-14.42.50_135764628264cf41332bfaa-1016x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-14.43.34_87901967164cf413baf0de-1024x882.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.797707,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-14.43.34_87901967164cf413baf0de-1024x882.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-14.43.34_87901967164cf413baf0de-1024x882-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-14.45.11_116187332364cf4188268a1-1022x1024.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.59778,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-14.45.11_116187332364cf4188268a1-1022x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-14.45.11_116187332364cf4188268a1-1022x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-14.55.19_127362700664cf4512ce8f4-1014x1024.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.79867,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-14.55.19_127362700664cf4512ce8f4-1014x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-14.55.19_127362700664cf4512ce8f4-1014x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-14.59.19_27285705564cf451ba86a4-1024x1021.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.647673,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-14.59.19_27285705564cf451ba86a4-1024x1021.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-14.59.19_27285705564cf451ba86a4-1024x1021-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-14.59.27_84426486564cf45261b926-1024x1022.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.679571,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-14.59.27_84426486564cf45261b926-1024x1022.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-14.59.27_84426486564cf45261b926-1024x1022-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-15.00.00_26901435664cf45304fb1d-1024x1024.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.730429,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-15.00.00_26901435664cf45304fb1d-1024x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-15.00.00_26901435664cf45304fb1d-1024x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.14.11_29284708864cf80e8dad3e-1021x1024.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.770513,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.14.11_29284708864cf80e8dad3e-1021x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.14.11_29284708864cf80e8dad3e-1021x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.14.32_185832256364cf80f2ac554-1014x1024.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.700208,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.14.32_185832256364cf80f2ac554-1014x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.14.32_185832256364cf80f2ac554-1014x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.15.12_5176554164cf80fb423f1-1015x1024.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.829889,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.15.12_5176554164cf80fb423f1-1015x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.15.12_5176554164cf80fb423f1-1015x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.15.30_212108924564cf810459e84-1024x1001.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.833755,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.15.30_212108924564cf810459e84-1024x1001.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.15.30_212108924564cf810459e84-1024x1001-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.23.30_182458238864cf830482139-1024x1016.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.740698,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.23.30_182458238864cf830482139-1024x1016.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.23.30_182458238864cf830482139-1024x1016-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.31.37_201230495964cf8577773bb-1024x844.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.860844,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.31.37_201230495964cf8577773bb-1024x844.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.31.37_201230495964cf8577773bb-1024x844-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.31.49_9391442164cf8580bea50-1024x773.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.708059,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.31.49_9391442164cf8580bea50-1024x773.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.31.49_9391442164cf8580bea50-1024x773-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.32.21_22532801864cf8588659e3-1017x1024.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.771252,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.32.21_22532801864cf8588659e3-1017x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.32.21_22532801864cf8588659e3-1017x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.32.32_133848737464cf85909a276-1024x1021.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.619409,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.32.32_133848737464cf85909a276-1024x1021.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.32.32_133848737464cf85909a276-1024x1021-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.33.51_136799368864cf859893c8c-936x1024.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.89905,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.33.51_136799368864cf859893c8c-936x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.33.51_136799368864cf859893c8c-936x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-2023-08-06-19.34.46_166890785964cf85a8af4db-1024x1016.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.678544,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-2023-08-06-19.34.46_166890785964cf85a8af4db-1024x1016.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-2023-08-06-19.34.46_166890785964cf85a8af4db-1024x1016-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-_1400308954697837b667255.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.820986,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-_1400308954697837b667255.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-_1400308954697837b667255-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-_224832368697836db93ea3-819x1024.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.852853,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-_224832368697836db93ea3-819x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-_224832368697836db93ea3-819x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-_725197325697837365af0b.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.656334,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-_725197325697837365af0b.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-_725197325697837365af0b-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-nekogel_official-_16549684369783828b8b7b.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.759678,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-nekogel_official-_16549684369783828b8b7b.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-nekogel_official-_16549684369783828b8b7b-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-the_favorigel_kr-_2019989392697833e2930c9.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.815667,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-the_favorigel_kr-_2019989392697833e2930c9.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-the_favorigel_kr-_2019989392697833e2930c9-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "-the_favorigel_kr-x-nail_gamseong-_55523228769783490457e0.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.808703,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\-the_favorigel_kr-x-nail_gamseong-_55523228769783490457e0.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\-the_favorigel_kr-x-nail_gamseong-_55523228769783490457e0-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "1-_1581885688697838dad0750.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.601546,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\1-_1581885688697838dad0750.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\1-_1581885688697838dad0750-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "2021-01-29-3.37.23_16034556916013bb8382be0_166587987661e431aac3c38.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.713428,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\2021-01-29-3.37.23_16034556916013bb8382be0_166587987661e431aac3c38.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\2021-01-29-3.37.23_16034556916013bb8382be0_166587987661e431aac3c38-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "340850638_776654050491920_7039948216290097633_n_158567653664c221250c775-878x1024.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.556128,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\340850638_776654050491920_7039948216290097633_n_158567653664c221250c775-878x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\340850638_776654050491920_7039948216290097633_n_158567653664c221250c775-878x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "348644193_2175075552679395_3618681887782612611_n_103959041064c21903bdee7-1024x1024.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.796357,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\348644193_2175075552679395_3618681887782612611_n_103959041064c21903bdee7-1024x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\348644193_2175075552679395_3618681887782612611_n_103959041064c21903bdee7-1024x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "348727405_619879160089485_4861463540350829565_n_23718304664c225fec9a52-819x1024.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.654539,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\348727405_619879160089485_4861463540350829565_n_23718304664c225fec9a52-819x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\348727405_619879160089485_4861463540350829565_n_23718304664c225fec9a52-819x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "349480885_1649524872217500_7189329909082553793_n_68025889064c1fedab6f13-819x1024.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.378854,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\349480885_1649524872217500_7189329909082553793_n_68025889064c1fedab6f13-819x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\349480885_1649524872217500_7189329909082553793_n_68025889064c1fedab6f13-819x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "check-french.394801100dmo_191651365069783312aaa3d.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.499439,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\check-french.394801100dmo_191651365069783312aaa3d.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\check-french.394801100dmo_191651365069783312aaa3d-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.631471,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.543847,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_145086907_2510572082582724_2097671085045523348_n_141663314260de933ec1057.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.600563,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_145086907_2510572082582724_2097671085045523348_n_141663314260de933ec1057.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_145086907_2510572082582724_2097671085045523348_n_141663314260de933ec1057-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.726025,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_175700750_1444053485937863_2401750176912024858_n_34742466160de9338f2c94.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.621956,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_175700750_1444053485937863_2401750176912024858_n_34742466160de9338f2c94.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_175700750_1444053485937863_2401750176912024858_n_34742466160de9338f2c94-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.663302,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_189738136_817755759122324_6566260232266868061_n_196209916560de93328e40c.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.634647,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_189738136_817755759122324_6566260232266868061_n_196209916560de93328e40c.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_189738136_817755759122324_6566260232266868061_n_196209916560de93328e40c-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_193141622_4041042375983974_8169574045117868081_n_83576624060de933404296.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.649679,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_193141622_4041042375983974_8169574045117868081_n_83576624060de933404296.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_193141622_4041042375983974_8169574045117868081_n_83576624060de933404296-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_194405064_380192613403897_7538444306174078788_n_62056844960de9335333e0.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.705569,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_194405064_380192613403897_7538444306174078788_n_62056844960de9335333e0.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_194405064_380192613403897_7538444306174078788_n_62056844960de9335333e0-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_67534239_509480953151105_1912938229533455502_n_12200508160de934620f58.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.690398,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_67534239_509480953151105_1912938229533455502_n_12200508160de934620f58.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_67534239_509480953151105_1912938229533455502_n_12200508160de934620f58-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_67965397_392252228130536_2305852547117550506_n_50252508860de934346d02.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.440228,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_67965397_392252228130536_2305852547117550506_n_50252508860de934346d02.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_67965397_392252228130536_2305852547117550506_n_50252508860de934346d02-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_69438827_1705740922904042_1070497742504474766_n_197278036860de93401f961.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.559665,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_69438827_1705740922904042_1070497742504474766_n_197278036860de93401f961.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_69438827_1705740922904042_1070497742504474766_n_197278036860de93401f961-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_69616773_1133280020191627_7833073563596645692_n_23959908860de933d58d79.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.495525,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_69616773_1133280020191627_7833073563596645692_n_23959908860de933d58d79.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_69616773_1133280020191627_7833073563596645692_n_23959908860de933d58d79-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_72875584_557382935096038_6869937692326043889_n_107076907060de933aa2880.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.492965,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_72875584_557382935096038_6869937692326043889_n_107076907060de933aa2880.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_72875584_557382935096038_6869937692326043889_n_107076907060de933aa2880-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_80441241_283571195937465_2075133321636690776_n_187059896560decbe6ed938-1024x1024.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.645984,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_80441241_283571195937465_2075133321636690776_n_187059896560decbe6ed938-1024x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_80441241_283571195937465_2075133321636690776_n_187059896560decbe6ed938-1024x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_82778324_176408020395925_3616137926562357514_n_174093562460de9337b071c.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.565053,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_82778324_176408020395925_3616137926562357514_n_174093562460de9337b071c.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_82778324_176408020395925_3616137926562357514_n_174093562460de9337b071c-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_90422165_852882571848901_8175916871923346823_n_11151915060de932c92e00.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.723714,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_90422165_852882571848901_8175916871923346823_n_11151915060de932c92e00.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_90422165_852882571848901_8175916871923346823_n_11151915060de932c92e00-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_90766748_1085501555159202_7913870109098411378_n_185048533760de932b1d16b.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.609262,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_90766748_1085501555159202_7913870109098411378_n_185048533760de932b1d16b.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_90766748_1085501555159202_7913870109098411378_n_185048533760de932b1d16b-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "deerplanet.tw_95188606_665072584226567_8498580710747686036_n_145225825760de93479e877.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.735759,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\deerplanet.tw_95188606_665072584226567_8498580710747686036_n_145225825760de93479e877.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\deerplanet.tw_95188606_665072584226567_8498580710747686036_n_145225825760de93479e877-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "img_1196_113791062564cf426a0a07b-814x1024.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.571122,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\img_1196_113791062564cf426a0a07b-814x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\img_1196_113791062564cf426a0a07b-814x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.848617,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.35_71375674261010cdb4f881.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.852418,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-3.40.35_71375674261010cdb4f881.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-3.40.35_71375674261010cdb4f881-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.42_84368137561010ce299910.jpg",
+      "candidateCount": 3,
+      "meanConfidence": 0.58209,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-3.40.42_84368137561010ce299910.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-3.40.42_84368137561010ce299910-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.jpg",
+      "candidateCount": 1,
+      "meanConfidence": 0.881994,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-3.40.50_29966733461010ce78c55e.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-3.40.50_29966733461010ce78c55e-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.55.58_180943230761010ea04553d.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.785394,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-3.55.58_180943230761010ea04553d.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-3.55.58_180943230761010ea04553d-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.jpg",
+      "candidateCount": 1,
+      "meanConfidence": 0.92318,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.16_1647649788610112a3bcc84.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.792638,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-4.13.16_1647649788610112a3bcc84.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-4.13.16_1647649788610112a3bcc84-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.73611,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-4.13.29_1179122534610112ae7200d.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-4.13.29_1179122534610112ae7200d-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.872277,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-4.20.28_2060593474610113e89beef.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-4.20.28_2060593474610113e89beef-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.71188,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-4.20.38_1655999097610113f093c6a.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-4.20.38_1655999097610113f093c6a-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.63763,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-4.20.43_848623705610114038884a.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-4.20.43_848623705610114038884a-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.42.39_163325967361011922b9577.jpg",
+      "candidateCount": 0,
+      "meanConfidence": 0,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-4.42.39_163325967361011922b9577.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-4.42.39_163325967361011922b9577-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.49.42_205237935261011a56521d7.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.687811,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-4.49.42_205237935261011a56521d7.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-4.49.42_205237935261011a56521d7-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.07_1174265329610120d2f31a9.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.689717,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.18_1163987480610120c30016c.jpg",
+      "candidateCount": 0,
+      "meanConfidence": 0,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-5.14.18_1163987480610120c30016c.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-5.14.18_1163987480610120c30016c-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_-2021-07-28-5.15.46_904469491610120cb2f987.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.69527,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_-2021-07-28-5.15.46_904469491610120cb2f987.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_-2021-07-28-5.15.46_904469491610120cb2f987-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.jpg",
+      "candidateCount": 3,
+      "meanConfidence": 0.795679,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "red-brown-design-by-runa.nail__-reservationhot-pepper-beauty-tel-line-03-3797-1466-1_9347424286978326af1db0.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.589452,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\red-brown-design-by-runa.nail__-reservationhot-pepper-beauty-tel-line-03-3797-1466-1_9347424286978326af1db0.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\red-brown-design-by-runa.nail__-reservationhot-pepper-beauty-tel-line-03-3797-1466-1_9347424286978326af1db0-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-089904147b281e84f4c780e45bd7c1bc_1440w.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.880989,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-089904147b281e84f4c780e45bd7c1bc_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-089904147b281e84f4c780e45bd7c1bc_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-09b8a37b744148207318820cb55f8927_1440w.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.656825,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-09b8a37b744148207318820cb55f8927_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-09b8a37b744148207318820cb55f8927_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-0f9ee0b067f9b89e2f621a9122daeea7_1440w.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.50324,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-0f9ee0b067f9b89e2f621a9122daeea7_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-0f9ee0b067f9b89e2f621a9122daeea7_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-1b1a4ea6882d93553824910f95c98866_1440w.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.661479,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-1b1a4ea6882d93553824910f95c98866_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-1b1a4ea6882d93553824910f95c98866_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-2226311c57264c2b44fa51cd42154fbb_1440w.jpg",
+      "candidateCount": 3,
+      "meanConfidence": 0.738609,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-2226311c57264c2b44fa51cd42154fbb_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-2226311c57264c2b44fa51cd42154fbb_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-2bbfc64e94c1a530e12028f5db016095_1440w.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.637439,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-2bbfc64e94c1a530e12028f5db016095_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-2bbfc64e94c1a530e12028f5db016095_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-3deba3824ab2a3c0d8fefd730fad7985_1440w.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.704232,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-3deba3824ab2a3c0d8fefd730fad7985_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-3deba3824ab2a3c0d8fefd730fad7985_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-529e165c7654f49864fb8fbe53e966d4_1440w.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.694362,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-529e165c7654f49864fb8fbe53e966d4_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-529e165c7654f49864fb8fbe53e966d4_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-64d55b3729ab547895c8ae0f962199fe_1440w.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.598877,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-64d55b3729ab547895c8ae0f962199fe_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-64d55b3729ab547895c8ae0f962199fe_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-6fbe233d3e0d34a1ba9176e115a37d49_1440w.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.603306,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-6fbe233d3e0d34a1ba9176e115a37d49_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-6fbe233d3e0d34a1ba9176e115a37d49_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-767de742f14a76d442326db78f7327b7_1440w.jpg",
+      "candidateCount": 3,
+      "meanConfidence": 0.709343,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-767de742f14a76d442326db78f7327b7_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-767de742f14a76d442326db78f7327b7_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-85e92d52cbef7078fe5e0feb1f232304_1440w.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.534545,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-85e92d52cbef7078fe5e0feb1f232304_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-85e92d52cbef7078fe5e0feb1f232304_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-86e189d04394c241ff4e93469c448ae1_1440w.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.562472,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-86e189d04394c241ff4e93469c448ae1_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-86e189d04394c241ff4e93469c448ae1_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-87e0ff126f120af17994c4dcb9ec113d_1440w.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.538547,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-87e0ff126f120af17994c4dcb9ec113d_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-87e0ff126f120af17994c4dcb9ec113d_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-b480049f4b582d77485bd95460388d10_1440w.jpg",
+      "candidateCount": 0,
+      "meanConfidence": 0,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-b480049f4b582d77485bd95460388d10_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-b480049f4b582d77485bd95460388d10_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-b4a1a8f59b4be8fbca507be6b663356e_1440w.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.545124,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-b4a1a8f59b4be8fbca507be6b663356e_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-b4a1a8f59b4be8fbca507be6b663356e_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-ba527be95ab9f8760f964e47d211fac4_1440w.jpg",
+      "candidateCount": 3,
+      "meanConfidence": 0.577699,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-ba527be95ab9f8760f964e47d211fac4_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-ba527be95ab9f8760f964e47d211fac4_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-cc71a9ff705f3dbee79156dfb2c1d2d1_1440w.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.746394,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-cc71a9ff705f3dbee79156dfb2c1d2d1_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-cc71a9ff705f3dbee79156dfb2c1d2d1_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-cd78b252e7cb51feed2479810eef6d3c_1440w.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.72455,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-cd78b252e7cb51feed2479810eef6d3c_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-cd78b252e7cb51feed2479810eef6d3c_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "v2-cfcdea5c7f3b1108c1e79ea522cb873b_1440w.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.765811,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\v2-cfcdea5c7f3b1108c1e79ea522cb873b_1440w.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\v2-cfcdea5c7f3b1108c1e79ea522cb873b_1440w-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._10_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.551499,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._10_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._10_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._2_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 0,
+      "meanConfidence": 0,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._2_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._2_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._3_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 3,
+      "meanConfidence": 0.587851,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._3_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._3_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._4_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 12,
+      "meanConfidence": 0.651351,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._4_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._4_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._5_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.534718,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._5_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._5_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._6_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.58237,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._6_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._6_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 3,
+      "meanConfidence": 0.396501,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._8_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 1,
+      "meanConfidence": 0.647672,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._8_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._8_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._9_鱿鱼大王是也_来自小红书网页版.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.756499,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._9_鱿鱼大王是也_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\⋆˚波点美甲🐾⸝⸝꙳˙⋆._9_鱿鱼大王是也_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_10_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.677933,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_10_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_10_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_2_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.505989,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_2_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_2_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_3_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.681335,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_3_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_3_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_4_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.639983,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_4_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_4_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_5_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.739082,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_5_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_5_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_6_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.714554,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_6_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_6_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_7_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.636742,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_7_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_7_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_8_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.717198,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_8_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_8_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_9_炸弹小猫_来自小红书网页版.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.687228,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\annotations\\yolo-real-prelabel-v3-candidate-json\\✨Mark｜自存一些超漂亮的短款美甲_9_炸弹小猫_来自小红书网页版.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\overlays\\yolo-real-prelabel-v3-conf35\\✨Mark｜自存一些超漂亮的短款美甲_9_炸弹小猫_来自小红书网页版-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    }
+  ]
+}
