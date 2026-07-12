@@ -92,6 +92,7 @@ model/exports/
 辅助材料/**/*.webp
 辅助材料/**/*.gif
 辅助材料/**/annotations/yolo-*-candidate-json/
+辅助材料/**/annotations/v*-rework-*-json/
 
 # python cache
 __pycache__/

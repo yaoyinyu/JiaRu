@@ -49,7 +49,14 @@ test("train script normalizes automatic and fractional batch settings", async ()
 
 test("training environment preflight reports dataset, dependencies, and checkpoint risk", async () => {
   const result = await runPython("model/training/check-training-environment.py");
-  assert.deepEqual(result.split_counts, { train: 210, val: 45, test: 46 });
+  const split = JSON.parse(
+    await readFile("model/datasets/nail-texture-v1/metadata/split.json", "utf8")
+  ) as Record<"train" | "val" | "test", string[]>;
+  assert.deepEqual(result.split_counts, {
+    train: split.train.length,
+    val: split.val.length,
+    test: split.test.length,
+  });
   assert.equal(typeof (result.dependencies as { ultralytics: { available: boolean } }).ultralytics.available, "boolean");
   const model = result.model as { exists: boolean; may_download: boolean };
   assert.equal(model.may_download, !model.exists);

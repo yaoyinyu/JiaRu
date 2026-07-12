@@ -3,22 +3,22 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
   "totals": {
-    "images": 393,
-    "masks": 2056,
-    "validMasks": 2056,
+    "images": 398,
+    "masks": 2083,
+    "validMasks": 2083,
     "filesWithErrors": 0,
     "filesWithWarnings": 2
   },
   "splitCounts": {
-    "train": 289,
+    "train": 292,
     "val": 45,
-    "test": 59
+    "test": 61
   },
   "splitRatios": {
-    "train": 0.7353689567430025,
-    "val": 0.11450381679389313,
-    "test": 0.15012722646310434,
-    "maxDeviation": 0.03549618320610687,
+    "train": 0.7336683417085427,
+    "val": 0.11306532663316583,
+    "test": 0.15326633165829145,
+    "maxDeviation": 0.03693467336683416,
     "allowedDeviation": 0.05
   },
   "splitIntegrity": {
@@ -30,26 +30,26 @@
     "negatives": 2,
     "complexBackground": 2,
     "sampleKinds": {
-      "reference": 12,
+      "reference": 14,
       "negative": 2,
       "other": 44,
       "complex_background": 1
     },
     "backgrounds": {
       "dark": 2,
-      "light": 12,
+      "light": 14,
       "unspecified": 45
     }
   },
   "gates": {
     "imageCount": {
       "ok": true,
-      "actual": 393,
+      "actual": 398,
       "required": 200
     },
     "validMaskCount": {
       "ok": true,
-      "actual": 2056,
+      "actual": 2083,
       "required": 800
     },
     "labelAuditPass": {
@@ -64,7 +64,7 @@
     },
     "splitRatioPass": {
       "ok": true,
-      "actual": 0.03549618320610687,
+      "actual": 0.03693467336683416,
       "required": 0.05
     },
     "testSplitHasNegative": {
@@ -254,6 +254,13 @@
       "fileName": "-nekogel_official-_16549684369783828b8b7b.jpg",
       "ok": true,
       "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-the_favorigel_kr-_2019989392697833e2930c9.jpg",
+      "ok": true,
+      "polygonCount": 7,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -1259,6 +1266,13 @@
       "warningCount": 0
     },
     {
+      "fileName": "more_-2021-07-28-3.40.42_84368137561010ce299910.jpg",
+      "ok": true,
+      "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
       "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.jpg",
       "ok": true,
       "polygonCount": 2,
@@ -1276,6 +1290,13 @@
       "fileName": "more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.jpg",
       "ok": true,
       "polygonCount": 1,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.16_1647649788610112a3bcc84.jpg",
+      "ok": true,
+      "polygonCount": 9,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -2757,6 +2778,13 @@
       "warningCount": 0
     },
     {
+      "fileName": "v2-09b8a37b744148207318820cb55f8927_1440w.jpg",
+      "ok": true,
+      "polygonCount": 3,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
       "fileName": "v2-0f9ee0b067f9b89e2f621a9122daeea7_1440w.jpg",
       "ok": true,
       "polygonCount": 5,
@@ -2816,6 +2844,13 @@
       "fileName": "v2-b4a1a8f59b4be8fbca507be6b663356e_1440w.jpg",
       "ok": true,
       "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-cc71a9ff705f3dbee79156dfb2c1d2d1_1440w.jpg",
+      "ok": true,
+      "polygonCount": 4,
       "errorCount": 0,
       "warningCount": 0
     },
