@@ -1,0 +1,34 @@
+{
+  "ok": true,
+  "version": "nail-texture-recognition-memory-verification/v1",
+  "modelVersion": "nail-texture-seg-real-candidate-v6",
+  "profile": "desktop-chromium-webgpu",
+  "sampleCount": 20,
+  "thresholds": {
+    "maxJsLastWindowGrowthMiB": 32,
+    "maxBrowserPrivateLastWindowGrowthMiB": 128,
+    "maxConsecutiveGrowthTransitions": 18
+  },
+  "stats": {
+    "peakUsedJSHeapMiB": 19.86,
+    "peakBrowserPrivateMiB": 929.5,
+    "peakBrowserWorkingSetMiB": 840.63,
+    "jsLastWindowGrowthMiB": 1.69,
+    "browserPrivateLastWindowGrowthMiB": 121.81,
+    "jsConsecutiveGrowthTransitions": 14,
+    "browserPrivateConsecutiveGrowthTransitions": 7
+  },
+  "scope": {
+    "operatingSystem": "Windows",
+    "browser": "Playwright Chromium",
+    "backend": "webgpu",
+    "inputSize": 512,
+    "coldRunIncluded": true,
+    "mobileMemoryGateCovered": false
+  },
+  "decision": "pass_desktop_provisional_memory_and_repeated_run_gate",
+  "limitations": [
+    "Whole-browser private memory includes Chromium renderer, GPU, utility, cache, and automation processes; it is not model-only memory.",
+    "Android, iPhone, and iPad incremental peak memory still require physical-device measurement."
+  ]
+}
