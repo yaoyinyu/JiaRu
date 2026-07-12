@@ -75,7 +75,7 @@ npm.cmd run build
 | `M2-T3-VISION-ANNOTATION` | 识图提示 + SAM2/YOLO 辅助重建真实甲面多边形 | 🟡 IN PROGRESS | 首批 21 张/174 个甲面全部通过；新增批次经 v2/v3 常规及高召回候选逐图视觉审核，隔离包现为 71 图/471 个 mask，标签审计 0 错误、1 条允许的空负样本 warning。候选只在覆盖全部可见甲面且无明显污染时提升，剩余 42 张继续返修 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
-| `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | 🟡 IN PROGRESS | 已训练仅用于辅助标注的 real-prelabel-v3；9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511。该模型使用未授权并入正式集的隔离标注，只能辅助复核，不能注册为正式候选 |
+| `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |
 
 ## 里程碑 3：Beta、设备与质量验收
 
