@@ -97,12 +97,14 @@ def main() -> None:
         project=str(output_dir),
         name=args.run_name,
     )
+    results_dir = Path(getattr(results, "save_dir", output_dir)).resolve()
+    actual_best_weights_path = results_dir / "weights" / "best.pt"
     write_json(
         output_dir / "train-summary.json",
         {
             **summary,
-            "results_dir": str(getattr(results, "save_dir", output_dir)),
-            "best_weights_path": str(resolve_best_weights_path(output_dir, args.run_name)),
+            "results_dir": str(results_dir),
+            "best_weights_path": str(actual_best_weights_path),
         },
     )
     print(f"Training finished. Summary written to {output_dir / 'train-summary.json'}")
