@@ -1,0 +1,575 @@
+{
+  "version": "nail-texture-intake-batch/v1",
+  "sourceGroup": "real-reference-2026-07-12-batch-02",
+  "originType": "reference",
+  "license": "user-authorized-internal-training",
+  "defaultOriginRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+  "copyImagesToDataset": true,
+  "items": [
+    {
+      "fileName": "-_1400308954697837b667255.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=25; manual nail polygon required"
+    },
+    {
+      "fileName": "-_224832368697836db93ea3-819x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=26; manual nail polygon required"
+    },
+    {
+      "fileName": "-_725197325697837365af0b.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=27; manual nail polygon required"
+    },
+    {
+      "fileName": "-2022-01-16-17.31.27_136220716561e40a52d395e.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter|gold_line; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=1; manual nail polygon required"
+    },
+    {
+      "fileName": "-2022-01-16-17.32.24_14865833961e3f33f15e4e.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=2; manual nail polygon required"
+    },
+    {
+      "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=3; manual nail polygon required"
+    },
+    {
+      "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=4; manual nail polygon required"
+    },
+    {
+      "fileName": "-2022-01-16-22.23.01_86396604061e42c5663eec.png",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=5; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-14.42.37_40712667864cf412ac5c04-991x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=6; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-14.42.50_135764628264cf41332bfaa-1016x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=7; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-14.43.34_87901967164cf413baf0de-1024x882.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=8; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-14.45.11_116187332364cf4188268a1-1022x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=9; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-14.55.19_127362700664cf4512ce8f4-1014x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=10; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-14.59.19_27285705564cf451ba86a4-1024x1021.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=11; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-14.59.27_84426486564cf45261b926-1024x1022.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=12; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-15.00.00_26901435664cf45304fb1d-1024x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=13; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.14.11_29284708864cf80e8dad3e-1021x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=14; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.14.32_185832256364cf80f2ac554-1014x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=15; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.15.12_5176554164cf80fb423f1-1015x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=16; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.15.30_212108924564cf810459e84-1024x1001.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=17; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.23.30_182458238864cf830482139-1024x1016.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=18; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.31.37_201230495964cf8577773bb-1024x844.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=19; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.31.49_9391442164cf8580bea50-1024x773.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=20; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.32.21_22532801864cf8588659e3-1017x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=21; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.32.32_133848737464cf85909a276-1024x1021.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=22; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.33.51_136799368864cf859893c8c-936x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=23; manual nail polygon required"
+    },
+    {
+      "fileName": "-2023-08-06-19.34.46_166890785964cf85a8af4db-1024x1016.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|cat_eye; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=24; manual nail polygon required"
+    },
+    {
+      "fileName": "-nekogel_official-_16549684369783828b8b7b.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=28; manual nail polygon required"
+    },
+    {
+      "fileName": "-the_favorigel_kr-_2019989392697833e2930c9.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=29; manual nail polygon required"
+    },
+    {
+      "fileName": "-the_favorigel_kr-x-nail_gamseong-_55523228769783490457e0.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=30; manual nail polygon required"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._10_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=96; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._2_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=97; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._3_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=98; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._4_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=99; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._5_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=100; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._6_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=101; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=102; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._8_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=103; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._9_鱿鱼大王是也_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=104; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_10_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=105; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_2_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=106; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_3_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=107; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_4_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=108; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_5_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=109; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_6_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=110; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_7_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=111; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_8_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=112; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_9_炸弹小猫_来自小红书网页版.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=reserve_for_test; split=test; sample=reference; background=mixed; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=113; social-ui collage hard-case; reserve for independent review"
+    },
+    {
+      "fileName": "1-_1581885688697838dad0750.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=31; manual nail polygon required"
+    },
+    {
+      "fileName": "2021-01-29-3.37.23_16034556916013bb8382be0_166587987661e431aac3c38.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=32; manual nail polygon required"
+    },
+    {
+      "fileName": "340850638_776654050491920_7039948216290097633_n_158567653664c221250c775-878x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=33; manual nail polygon required"
+    },
+    {
+      "fileName": "348644193_2175075552679395_3618681887782612611_n_103959041064c21903bdee7-1024x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=34; manual nail polygon required"
+    },
+    {
+      "fileName": "348727405_619879160089485_4861463540350829565_n_23718304664c225fec9a52-819x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=35; manual nail polygon required"
+    },
+    {
+      "fileName": "349480885_1649524872217500_7189329909082553793_n_68025889064c1fedab6f13-819x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=36; manual nail polygon required"
+    },
+    {
+      "fileName": "check-french.394801100dmo_191651365069783312aaa3d.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=37; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=38; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=39; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_145086907_2510572082582724_2097671085045523348_n_141663314260de933ec1057.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=40; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=41; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_175700750_1444053485937863_2401750176912024858_n_34742466160de9338f2c94.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=42; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=43; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_189738136_817755759122324_6566260232266868061_n_196209916560de93328e40c.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=44; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_193141622_4041042375983974_8169574045117868081_n_83576624060de933404296.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=45; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_194405064_380192613403897_7538444306174078788_n_62056844960de9335333e0.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=46; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_67534239_509480953151105_1912938229533455502_n_12200508160de934620f58.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=47; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_67965397_392252228130536_2305852547117550506_n_50252508860de934346d02.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=48; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_69438827_1705740922904042_1070497742504474766_n_197278036860de93401f961.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=49; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_69616773_1133280020191627_7833073563596645692_n_23959908860de933d58d79.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=50; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_72875584_557382935096038_6869937692326043889_n_107076907060de933aa2880.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=51; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_80441241_283571195937465_2075133321636690776_n_187059896560decbe6ed938-1024x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=52; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_82778324_176408020395925_3616137926562357514_n_174093562460de9337b071c.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=53; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_90422165_852882571848901_8175916871923346823_n_11151915060de932c92e00.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=54; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_90766748_1085501555159202_7913870109098411378_n_185048533760de932b1d16b.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=55; manual nail polygon required"
+    },
+    {
+      "fileName": "deerplanet.tw_95188606_665072584226567_8498580710747686036_n_145225825760de93479e877.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=56; manual nail polygon required"
+    },
+    {
+      "fileName": "img_1196_113791062564cf426a0a07b-814x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=57; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=dark; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=58; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.35_71375674261010cdb4f881.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=59; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.42_84368137561010ce299910.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=60; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=61; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.55.58_180943230761010ea04553d.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=62; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=63; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.16_1647649788610112a3bcc84.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=64; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=65; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=66; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=67; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=68; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.42.39_163325967361011922b9577.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=negative; background=light; color=other; effects=highlight|glitter; vision-screened-2026-07-12; detached nail-tip display; retain as hard negative for hand-conditioned segmentation"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.49.42_205237935261011a56521d7.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=70; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.07_1174265329610120d2f31a9.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=71; manual nail polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.18_1163987480610120c30016c.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=merchant; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; close-up single-nail merchant-style reference; manual polygon required"
+    },
+    {
+      "fileName": "more_-2021-07-28-5.15.46_904469491610120cb2f987.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=73; manual nail polygon required"
+    },
+    {
+      "fileName": "more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=74; manual nail polygon required"
+    },
+    {
+      "fileName": "red-brown-design-by-runa.nail__-reservationhot-pepper-beauty-tel-line-03-3797-1466-1_9347424286978326af1db0.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=75; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-089904147b281e84f4c780e45bd7c1bc_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=76; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-09b8a37b744148207318820cb55f8927_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=77; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-0f9ee0b067f9b89e2f621a9122daeea7_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=78; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-1b1a4ea6882d93553824910f95c98866_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=79; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-2226311c57264c2b44fa51cd42154fbb_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=80; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-2bbfc64e94c1a530e12028f5db016095_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=81; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-3deba3824ab2a3c0d8fefd730fad7985_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=82; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-529e165c7654f49864fb8fbe53e966d4_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=83; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-64d55b3729ab547895c8ae0f962199fe_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=84; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-6fbe233d3e0d34a1ba9176e115a37d49_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=85; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-767de742f14a76d442326db78f7327b7_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=86; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-85e92d52cbef7078fe5e0feb1f232304_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=87; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-86e189d04394c241ff4e93469c448ae1_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=88; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-87e0ff126f120af17994c4dcb9ec113d_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=89; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-b480049f4b582d77485bd95460388d10_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=90; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-b4a1a8f59b4be8fbca507be6b663356e_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=91; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-ba527be95ab9f8760f964e47d211fac4_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=92; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-cc71a9ff705f3dbee79156dfb2c1d2d1_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=93; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-cd78b252e7cb51feed2479810eef6d3c_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=94; manual nail polygon required"
+    },
+    {
+      "fileName": "v2-cfcdea5c7f3b1108c1e79ea522cb873b_1440w.jpg",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+      "notes": "decision=keep; split=train; sample=reference; background=light; color=other; effects=highlight|glitter; needs_manual_fix=true; vision-screened-2026-07-12; contact-index=95; manual nail polygon required"
+    }
+  ]
+}

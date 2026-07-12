@@ -289,3 +289,29 @@ test("batch-verify-nail-detection skips generated debug artifacts and keeps uniq
   );
   assert.notEqual(report.results[0]?.output, report.results[1]?.output);
 });
+test("batch-verify-nail-detection bounds artifact paths for long non-ASCII filenames", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-batch-verify-long-name-"));
+  const imageDir = path.join(root, "images");
+  const outputDir = path.join(root, "output");
+  await mkdir(imageDir, { recursive: true });
+  const longFileName = `${"超长中文美甲素材名称".repeat(8)}.jpg`;
+  await cp(path.resolve("model/5188.jpg_wh860.jpg"), path.join(imageDir, longFileName));
+
+  const stdout = await runBatchVerify([
+    "--image-dir",
+    imageDir,
+    "--output-dir",
+    outputDir,
+    "--prefix",
+    "real-2026-07-12",
+  ]);
+  const report = JSON.parse(stdout) as {
+    results: Array<{ fileName: string; output?: string; debugJsonOutput?: string }>;
+  };
+
+  assert.equal(report.results[0]?.fileName, longFileName);
+  assert.match(path.basename(report.results[0]?.output ?? ""), /^real-2026-07-12-[a-f0-9]{12}-/);
+  assert.ok((report.results[0]?.output?.length ?? Infinity) < 260);
+  assert.ok(await readFile(report.results[0]?.output ?? ""));
+  assert.ok(await readFile(report.results[0]?.debugJsonOutput ?? "", "utf8"));
+});

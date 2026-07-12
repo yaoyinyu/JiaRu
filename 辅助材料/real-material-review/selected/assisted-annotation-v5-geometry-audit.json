@@ -1,0 +1,3070 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "sam2-v5-box-center": {
+      "pass": 166,
+      "suspect": 12,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4544,
+      "boundsContainment": 0.9977,
+      "centerInside": true,
+      "bounds": [
+        497.0,
+        614.0,
+        669.0,
+        840.0
+      ],
+      "maximumPeerBoundsIou": 0.0079
+    },
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5043,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        666.0,
+        622.0,
+        866.0,
+        835.0
+      ],
+      "maximumPeerBoundsIou": 0.0267
+    },
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5149,
+      "boundsContainment": 0.885,
+      "centerInside": true,
+      "bounds": [
+        779.0,
+        812.0,
+        967.0,
+        994.0
+      ],
+      "maximumPeerBoundsIou": 0.0742
+    },
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3978,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        811.0,
+        972.0,
+        962.0,
+        1064.0
+      ],
+      "maximumPeerBoundsIou": 0.0742
+    },
+    {
+      "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5638,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        529.0,
+        870.0,
+        773.0,
+        1038.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5026,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        164.0,
+        476.0,
+        401.0,
+        590.0
+      ],
+      "maximumPeerBoundsIou": 0.0366
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4905,
+      "boundsContainment": 0.9897,
+      "centerInside": true,
+      "bounds": [
+        74.0,
+        556.0,
+        208.0,
+        809.0
+      ],
+      "maximumPeerBoundsIou": 0.0252
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4753,
+      "boundsContainment": 0.9609,
+      "centerInside": true,
+      "bounds": [
+        240.0,
+        570.0,
+        328.0,
+        830.0
+      ],
+      "maximumPeerBoundsIou": 0.0366
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3832,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        393.0,
+        577.0,
+        482.0,
+        828.0
+      ],
+      "maximumPeerBoundsIou": 0.0021
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3626,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        521.0,
+        611.0,
+        586.0,
+        823.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2453,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        640.0,
+        329.0,
+        788.0,
+        502.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.208,
+      "boundsContainment": 0.9899,
+      "centerInside": true,
+      "bounds": [
+        796.0,
+        304.0,
+        948.0,
+        567.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.4006,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        955.0,
+        463.0,
+        1054.0,
+        744.0
+      ],
+      "maximumPeerBoundsIou": 0.5591
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.3248,
+      "boundsContainment": 0.8102,
+      "centerInside": true,
+      "bounds": [
+        965.0,
+        459.0,
+        1054.0,
+        640.0
+      ],
+      "maximumPeerBoundsIou": 0.5591
+    },
+    {
+      "fileName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "nailIndex": 10,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.39,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        1004.0,
+        396.0,
+        1196.0,
+        518.0
+      ],
+      "maximumPeerBoundsIou": 0.0806
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5092,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        144.0,
+        696.0,
+        288.0,
+        899.0
+      ],
+      "maximumPeerBoundsIou": 0.0272
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4185,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        277.0,
+        610.0,
+        400.0,
+        832.0
+      ],
+      "maximumPeerBoundsIou": 0.0373
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3012,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        388.0,
+        602.0,
+        516.0,
+        748.0
+      ],
+      "maximumPeerBoundsIou": 0.0376
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2132,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        501.0,
+        660.0,
+        598.0,
+        843.0
+      ],
+      "maximumPeerBoundsIou": 0.0376
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5982,
+      "boundsContainment": 0.7616,
+      "centerInside": true,
+      "bounds": [
+        693.0,
+        433.0,
+        852.0,
+        639.0
+      ],
+      "maximumPeerBoundsIou": 0.3228
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2978,
+      "boundsContainment": 0.9476,
+      "centerInside": true,
+      "bounds": [
+        762.0,
+        382.0,
+        865.0,
+        576.0
+      ],
+      "maximumPeerBoundsIou": 0.3228
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4164,
+      "boundsContainment": 0.737,
+      "centerInside": true,
+      "bounds": [
+        840.0,
+        459.0,
+        953.0,
+        654.0
+      ],
+      "maximumPeerBoundsIou": 0.0748
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6389,
+      "boundsContainment": 0.8819,
+      "centerInside": true,
+      "bounds": [
+        947.0,
+        529.0,
+        1092.0,
+        763.0
+      ],
+      "maximumPeerBoundsIou": 0.0324
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.9161,
+      "boundsContainment": 0.7428,
+      "centerInside": true,
+      "bounds": [
+        1070.0,
+        640.0,
+        1253.0,
+        926.0
+      ],
+      "maximumPeerBoundsIou": 0.0324
+    },
+    {
+      "fileName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "nailIndex": 10,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5673,
+      "boundsContainment": 0.9824,
+      "centerInside": true,
+      "bounds": [
+        0.0,
+        1080.0,
+        95.0,
+        1294.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4471,
+      "boundsContainment": 0.8185,
+      "centerInside": true,
+      "bounds": [
+        241.0,
+        780.0,
+        355.0,
+        961.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6489,
+      "boundsContainment": 0.823,
+      "centerInside": true,
+      "bounds": [
+        372.0,
+        696.0,
+        494.0,
+        962.0
+      ],
+      "maximumPeerBoundsIou": 0.058
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3953,
+      "boundsContainment": 0.9548,
+      "centerInside": true,
+      "bounds": [
+        477.0,
+        719.0,
+        607.0,
+        899.0
+      ],
+      "maximumPeerBoundsIou": 0.1741
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6582,
+      "boundsContainment": 0.7903,
+      "centerInside": true,
+      "bounds": [
+        547.0,
+        726.0,
+        729.0,
+        982.0
+      ],
+      "maximumPeerBoundsIou": 0.1741
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.357,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        823.0,
+        393.0,
+        931.0,
+        592.0
+      ],
+      "maximumPeerBoundsIou": 0.1218
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6644,
+      "boundsContainment": 0.816,
+      "centerInside": true,
+      "bounds": [
+        893.0,
+        318.0,
+        1060.0,
+        579.0
+      ],
+      "maximumPeerBoundsIou": 0.2141
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.251,
+      "boundsContainment": 0.9349,
+      "centerInside": true,
+      "bounds": [
+        1001.0,
+        286.0,
+        1077.0,
+        496.0
+      ],
+      "maximumPeerBoundsIou": 0.2141
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5532,
+      "boundsContainment": 0.8051,
+      "centerInside": true,
+      "bounds": [
+        1063.0,
+        462.0,
+        1217.0,
+        692.0
+      ],
+      "maximumPeerBoundsIou": 0.0094
+    },
+    {
+      "fileName": "19e1ff892bc03296309118564517395c.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.772,
+      "boundsContainment": 0.7468,
+      "centerInside": true,
+      "bounds": [
+        0.0,
+        1083.0,
+        136.0,
+        1290.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3269,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        263.0,
+        450.0,
+        291.0,
+        584.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3317,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        462.0,
+        338.0,
+        534.0,
+        475.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4311,
+      "boundsContainment": 0.7878,
+      "centerInside": true,
+      "bounds": [
+        591.0,
+        410.0,
+        679.0,
+        523.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2637,
+      "boundsContainment": 0.984,
+      "centerInside": true,
+      "bounds": [
+        756.0,
+        490.0,
+        856.0,
+        619.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2488,
+      "boundsContainment": 0.9746,
+      "centerInside": true,
+      "bounds": [
+        701.0,
+        811.0,
+        819.0,
+        911.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7518,
+      "boundsContainment": 0.8684,
+      "centerInside": true,
+      "bounds": [
+        34.0,
+        492.0,
+        141.0,
+        722.0
+      ],
+      "maximumPeerBoundsIou": 0.073
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5157,
+      "boundsContainment": 0.9415,
+      "centerInside": true,
+      "bounds": [
+        119.0,
+        412.0,
+        216.0,
+        635.0
+      ],
+      "maximumPeerBoundsIou": 0.073
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3801,
+      "boundsContainment": 0.9736,
+      "centerInside": true,
+      "bounds": [
+        204.0,
+        398.0,
+        310.0,
+        590.0
+      ],
+      "maximumPeerBoundsIou": 0.0598
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.306,
+      "boundsContainment": 0.9102,
+      "centerInside": true,
+      "bounds": [
+        297.0,
+        401.0,
+        415.0,
+        582.0
+      ],
+      "maximumPeerBoundsIou": 0.0598
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5141,
+      "boundsContainment": 0.8708,
+      "centerInside": true,
+      "bounds": [
+        407.0,
+        270.0,
+        544.0,
+        459.0
+      ],
+      "maximumPeerBoundsIou": 0.0698
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3358,
+      "boundsContainment": 0.7751,
+      "centerInside": true,
+      "bounds": [
+        510.0,
+        190.0,
+        679.0,
+        382.0
+      ],
+      "maximumPeerBoundsIou": 0.2409
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3757,
+      "boundsContainment": 0.8413,
+      "centerInside": true,
+      "bounds": [
+        611.0,
+        205.0,
+        769.0,
+        392.0
+      ],
+      "maximumPeerBoundsIou": 0.2409
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4351,
+      "boundsContainment": 0.7853,
+      "centerInside": true,
+      "bounds": [
+        712.0,
+        240.0,
+        850.0,
+        520.0
+      ],
+      "maximumPeerBoundsIou": 0.1456
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4226,
+      "boundsContainment": 0.8572,
+      "centerInside": true,
+      "bounds": [
+        814.0,
+        332.0,
+        930.0,
+        522.0
+      ],
+      "maximumPeerBoundsIou": 0.1255
+    },
+    {
+      "fileName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "nailIndex": 10,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5428,
+      "boundsContainment": 0.9085,
+      "centerInside": true,
+      "bounds": [
+        865.0,
+        729.0,
+        959.0,
+        883.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2914,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        57.0,
+        480.0,
+        148.0,
+        619.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3316,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        164.0,
+        445.0,
+        274.0,
+        638.0
+      ],
+      "maximumPeerBoundsIou": 0.0895
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5233,
+      "boundsContainment": 0.8324,
+      "centerInside": true,
+      "bounds": [
+        251.0,
+        415.0,
+        365.0,
+        703.0
+      ],
+      "maximumPeerBoundsIou": 0.0895
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "polygon_too_small"
+      ],
+      "areaRatio": 0.1055,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        404.0,
+        427.0,
+        468.0,
+        561.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.2957,
+      "boundsContainment": 0.9533,
+      "centerInside": false,
+      "bounds": [
+        494.0,
+        371.0,
+        589.0,
+        523.0
+      ],
+      "maximumPeerBoundsIou": 0.1622
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7014,
+      "boundsContainment": 0.9091,
+      "centerInside": true,
+      "bounds": [
+        547.0,
+        332.0,
+        678.0,
+        571.0
+      ],
+      "maximumPeerBoundsIou": 0.1622
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2399,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        645.0,
+        462.0,
+        739.0,
+        619.0
+      ],
+      "maximumPeerBoundsIou": 0.0847
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4348,
+      "boundsContainment": 0.8765,
+      "centerInside": true,
+      "bounds": [
+        734.0,
+        423.0,
+        876.0,
+        627.0
+      ],
+      "maximumPeerBoundsIou": 0.2132
+    },
+    {
+      "fileName": "586430bda51171eda6acac9b78044e86.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "polygon_extends_beyond_prompt"
+      ],
+      "areaRatio": 0.6083,
+      "boundsContainment": 0.708,
+      "centerInside": true,
+      "bounds": [
+        817.0,
+        380.0,
+        959.0,
+        604.0
+      ],
+      "maximumPeerBoundsIou": 0.2132
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7877,
+      "boundsContainment": 0.8966,
+      "centerInside": true,
+      "bounds": [
+        369.0,
+        432.0,
+        558.0,
+        871.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5763,
+      "boundsContainment": 0.874,
+      "centerInside": true,
+      "bounds": [
+        586.0,
+        483.0,
+        788.0,
+        885.0
+      ],
+      "maximumPeerBoundsIou": 0.0479
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1404,
+      "boundsContainment": 0.9305,
+      "centerInside": true,
+      "bounds": [
+        731.0,
+        803.0,
+        895.0,
+        931.0
+      ],
+      "maximumPeerBoundsIou": 0.0479
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3278,
+      "boundsContainment": 0.8861,
+      "centerInside": true,
+      "bounds": [
+        737.0,
+        913.0,
+        1032.0,
+        1083.0
+      ],
+      "maximumPeerBoundsIou": 0.1872
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6799,
+      "boundsContainment": 0.832,
+      "centerInside": true,
+      "bounds": [
+        518.0,
+        909.0,
+        874.0,
+        1183.0
+      ],
+      "maximumPeerBoundsIou": 0.1872
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5145,
+      "boundsContainment": 0.9872,
+      "centerInside": true,
+      "bounds": [
+        103.0,
+        649.0,
+        205.0,
+        906.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4769,
+      "boundsContainment": 0.881,
+      "centerInside": true,
+      "bounds": [
+        239.0,
+        540.0,
+        360.0,
+        769.0
+      ],
+      "maximumPeerBoundsIou": 0.1242
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4109,
+      "boundsContainment": 0.924,
+      "centerInside": true,
+      "bounds": [
+        322.0,
+        464.0,
+        447.0,
+        710.0
+      ],
+      "maximumPeerBoundsIou": 0.1242
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3514,
+      "boundsContainment": 0.9049,
+      "centerInside": true,
+      "bounds": [
+        428.0,
+        482.0,
+        571.0,
+        675.0
+      ],
+      "maximumPeerBoundsIou": 0.0671
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3361,
+      "boundsContainment": 0.896,
+      "centerInside": true,
+      "bounds": [
+        508.0,
+        322.0,
+        658.0,
+        497.0
+      ],
+      "maximumPeerBoundsIou": 0.1514
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6256,
+      "boundsContainment": 0.7503,
+      "centerInside": true,
+      "bounds": [
+        603.0,
+        301.0,
+        790.0,
+        552.0
+      ],
+      "maximumPeerBoundsIou": 0.1727
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2403,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        732.0,
+        362.0,
+        823.0,
+        517.0
+      ],
+      "maximumPeerBoundsIou": 0.1727
+    },
+    {
+      "fileName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.8465,
+      "boundsContainment": 0.8455,
+      "centerInside": true,
+      "bounds": [
+        805.0,
+        349.0,
+        959.0,
+        567.0
+      ],
+      "maximumPeerBoundsIou": 0.0622
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2869,
+      "boundsContainment": 0.8428,
+      "centerInside": true,
+      "bounds": [
+        41.0,
+        651.0,
+        187.0,
+        804.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5229,
+      "boundsContainment": 0.8959,
+      "centerInside": true,
+      "bounds": [
+        306.0,
+        511.0,
+        494.0,
+        761.0
+      ],
+      "maximumPeerBoundsIou": 0.0403
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2613,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        477.0,
+        586.0,
+        626.0,
+        786.0
+      ],
+      "maximumPeerBoundsIou": 0.1134
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3864,
+      "boundsContainment": 0.9252,
+      "centerInside": true,
+      "bounds": [
+        591.0,
+        524.0,
+        732.0,
+        800.0
+      ],
+      "maximumPeerBoundsIou": 0.1637
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3955,
+      "boundsContainment": 0.8908,
+      "centerInside": true,
+      "bounds": [
+        647.0,
+        472.0,
+        847.0,
+        646.0
+      ],
+      "maximumPeerBoundsIou": 0.1637
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3103,
+      "boundsContainment": 0.9451,
+      "centerInside": true,
+      "bounds": [
+        790.0,
+        548.0,
+        993.0,
+        702.0
+      ],
+      "maximumPeerBoundsIou": 0.1282
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.598,
+      "boundsContainment": 0.874,
+      "centerInside": true,
+      "bounds": [
+        903.0,
+        617.0,
+        1100.0,
+        800.0
+      ],
+      "maximumPeerBoundsIou": 0.1634
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "polygon_extends_beyond_prompt"
+      ],
+      "areaRatio": 0.8079,
+      "boundsContainment": 0.5838,
+      "centerInside": true,
+      "bounds": [
+        1023.0,
+        570.0,
+        1278.0,
+        822.0
+      ],
+      "maximumPeerBoundsIou": 0.1634
+    },
+    {
+      "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.427,
+      "boundsContainment": 0.9348,
+      "centerInside": true,
+      "bounds": [
+        326.0,
+        162.0,
+        455.0,
+        357.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.621,
+      "boundsContainment": 0.9424,
+      "centerInside": true,
+      "bounds": [
+        0.0,
+        342.0,
+        222.0,
+        523.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6634,
+      "boundsContainment": 0.7997,
+      "centerInside": true,
+      "bounds": [
+        24.0,
+        603.0,
+        207.0,
+        896.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4403,
+      "boundsContainment": 0.9516,
+      "centerInside": true,
+      "bounds": [
+        226.0,
+        513.0,
+        363.0,
+        800.0
+      ],
+      "maximumPeerBoundsIou": 0.1007
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5286,
+      "boundsContainment": 0.8812,
+      "centerInside": true,
+      "bounds": [
+        331.0,
+        506.0,
+        522.0,
+        769.0
+      ],
+      "maximumPeerBoundsIou": 0.1249
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5134,
+      "boundsContainment": 0.9066,
+      "centerInside": true,
+      "bounds": [
+        478.0,
+        518.0,
+        663.0,
+        784.0
+      ],
+      "maximumPeerBoundsIou": 0.1249
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5807,
+      "boundsContainment": 0.8278,
+      "centerInside": true,
+      "bounds": [
+        774.0,
+        295.0,
+        966.0,
+        580.0
+      ],
+      "maximumPeerBoundsIou": 0.0869
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.1706,
+      "boundsContainment": 0.8993,
+      "centerInside": false,
+      "bounds": [
+        914.0,
+        194.0,
+        1017.0,
+        414.0
+      ],
+      "maximumPeerBoundsIou": 0.1207
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4891,
+      "boundsContainment": 0.8075,
+      "centerInside": true,
+      "bounds": [
+        975.0,
+        257.0,
+        1128.0,
+        509.0
+      ],
+      "maximumPeerBoundsIou": 0.1207
+    },
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5933,
+      "boundsContainment": 0.8977,
+      "centerInside": true,
+      "bounds": [
+        1106.0,
+        309.0,
+        1223.0,
+        590.0
+      ],
+      "maximumPeerBoundsIou": 0.0656
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2637,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        447.0,
+        96.0,
+        503.0,
+        201.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2166,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        693.0,
+        315.0,
+        794.0,
+        388.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "polygon_too_small"
+      ],
+      "areaRatio": 0.1133,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        809.0,
+        445.0,
+        849.0,
+        487.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1201,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        863.0,
+        519.0,
+        939.0,
+        595.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "polygon_extends_beyond_prompt"
+      ],
+      "areaRatio": 0.5951,
+      "boundsContainment": 0.6694,
+      "centerInside": true,
+      "bounds": [
+        750.0,
+        649.0,
+        920.0,
+        766.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7326,
+      "boundsContainment": 0.8361,
+      "centerInside": true,
+      "bounds": [
+        537.0,
+        278.0,
+        690.0,
+        552.0
+      ],
+      "maximumPeerBoundsIou": 0.0017
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3041,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        689.0,
+        447.0,
+        811.0,
+        604.0
+      ],
+      "maximumPeerBoundsIou": 0.0546
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.316,
+      "boundsContainment": 0.805,
+      "centerInside": false,
+      "bounds": [
+        773.0,
+        550.0,
+        976.0,
+        651.0
+      ],
+      "maximumPeerBoundsIou": 0.0648
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4163,
+      "boundsContainment": 0.9117,
+      "centerInside": true,
+      "bounds": [
+        950.0,
+        553.0,
+        1121.0,
+        678.0
+      ],
+      "maximumPeerBoundsIou": 0.0648
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4011,
+      "boundsContainment": 0.9441,
+      "centerInside": true,
+      "bounds": [
+        306.0,
+        932.0,
+        415.0,
+        1121.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5096,
+      "boundsContainment": 0.8853,
+      "centerInside": true,
+      "bounds": [
+        418.0,
+        844.0,
+        558.0,
+        1084.0
+      ],
+      "maximumPeerBoundsIou": 0.0463
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.688,
+      "boundsContainment": 0.7438,
+      "centerInside": true,
+      "bounds": [
+        541.0,
+        853.0,
+        744.0,
+        1125.0
+      ],
+      "maximumPeerBoundsIou": 0.2541
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5019,
+      "boundsContainment": 0.8687,
+      "centerInside": true,
+      "bounds": [
+        666.0,
+        849.0,
+        836.0,
+        1113.0
+      ],
+      "maximumPeerBoundsIou": 0.2541
+    },
+    {
+      "fileName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5858,
+      "boundsContainment": 0.9627,
+      "centerInside": true,
+      "bounds": [
+        38.0,
+        1230.0,
+        131.0,
+        1387.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3618,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        49.0,
+        688.0,
+        169.0,
+        816.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3685,
+      "boundsContainment": 0.8093,
+      "centerInside": true,
+      "bounds": [
+        294.0,
+        813.0,
+        429.0,
+        964.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.483,
+      "boundsContainment": 0.8222,
+      "centerInside": true,
+      "bounds": [
+        470.0,
+        716.0,
+        632.0,
+        910.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3592,
+      "boundsContainment": 0.8909,
+      "centerInside": true,
+      "bounds": [
+        681.0,
+        479.0,
+        817.0,
+        666.0
+      ],
+      "maximumPeerBoundsIou": 0.2096
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6334,
+      "boundsContainment": 0.7879,
+      "centerInside": true,
+      "bounds": [
+        749.0,
+        457.0,
+        948.0,
+        698.0
+      ],
+      "maximumPeerBoundsIou": 0.2096
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4152,
+      "boundsContainment": 0.8721,
+      "centerInside": true,
+      "bounds": [
+        875.0,
+        509.0,
+        1048.0,
+        685.0
+      ],
+      "maximumPeerBoundsIou": 0.196
+    },
+    {
+      "fileName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1904,
+      "boundsContainment": 0.989,
+      "centerInside": true,
+      "bounds": [
+        1060.0,
+        436.0,
+        1203.0,
+        600.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2753,
+      "boundsContainment": 0.9308,
+      "centerInside": true,
+      "bounds": [
+        266.0,
+        384.0,
+        399.0,
+        559.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1804,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        490.0,
+        465.0,
+        611.0,
+        612.0
+      ],
+      "maximumPeerBoundsIou": 0.0192
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3166,
+      "boundsContainment": 0.9059,
+      "centerInside": true,
+      "bounds": [
+        536.0,
+        596.0,
+        757.0,
+        804.0
+      ],
+      "maximumPeerBoundsIou": 0.0192
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2153,
+      "boundsContainment": 0.9911,
+      "centerInside": true,
+      "bounds": [
+        360.0,
+        626.0,
+        535.0,
+        761.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5487,
+      "boundsContainment": 0.8559,
+      "centerInside": true,
+      "bounds": [
+        398.0,
+        815.0,
+        647.0,
+        977.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2133,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        147.0,
+        653.0,
+        232.0,
+        734.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2805,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        186.0,
+        441.0,
+        315.0,
+        605.0
+      ],
+      "maximumPeerBoundsIou": 0.0007
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5221,
+      "boundsContainment": 0.7912,
+      "centerInside": true,
+      "bounds": [
+        314.0,
+        232.0,
+        512.0,
+        489.0
+      ],
+      "maximumPeerBoundsIou": 0.0218
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3821,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        495.0,
+        387.0,
+        636.0,
+        603.0
+      ],
+      "maximumPeerBoundsIou": 0.0665
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4619,
+      "boundsContainment": 0.8211,
+      "centerInside": true,
+      "bounds": [
+        312.0,
+        603.0,
+        455.0,
+        874.0
+      ],
+      "maximumPeerBoundsIou": 0.0001
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3475,
+      "boundsContainment": 0.8817,
+      "centerInside": true,
+      "bounds": [
+        560.0,
+        535.0,
+        774.0,
+        780.0
+      ],
+      "maximumPeerBoundsIou": 0.0665
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2819,
+      "boundsContainment": 0.9437,
+      "centerInside": true,
+      "bounds": [
+        490.0,
+        750.0,
+        632.0,
+        931.0
+      ],
+      "maximumPeerBoundsIou": 0.0291
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4915,
+      "boundsContainment": 0.9749,
+      "centerInside": true,
+      "bounds": [
+        276.0,
+        879.0,
+        528.0,
+        1054.0
+      ],
+      "maximumPeerBoundsIou": 0.0305
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4199,
+      "boundsContainment": 0.9139,
+      "centerInside": true,
+      "bounds": [
+        511.0,
+        918.0,
+        747.0,
+        1062.0
+      ],
+      "maximumPeerBoundsIou": 0.0899
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "nailIndex": 10,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4974,
+      "boundsContainment": 0.9324,
+      "centerInside": true,
+      "bounds": [
+        600.0,
+        1022.0,
+        818.0,
+        1193.0
+      ],
+      "maximumPeerBoundsIou": 0.0899
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5341,
+      "boundsContainment": 0.9388,
+      "centerInside": true,
+      "bounds": [
+        202.0,
+        846.0,
+        373.0,
+        1124.0
+      ],
+      "maximumPeerBoundsIou": 0.1062
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.359,
+      "boundsContainment": 0.9827,
+      "centerInside": true,
+      "bounds": [
+        317.0,
+        734.0,
+        476.0,
+        1000.0
+      ],
+      "maximumPeerBoundsIou": 0.1062
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3107,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        474.0,
+        766.0,
+        624.0,
+        993.0
+      ],
+      "maximumPeerBoundsIou": 0.1539
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4303,
+      "boundsContainment": 0.8325,
+      "centerInside": true,
+      "bounds": [
+        553.0,
+        673.0,
+        764.0,
+        933.0
+      ],
+      "maximumPeerBoundsIou": 0.1539
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3321,
+      "boundsContainment": 0.872,
+      "centerInside": true,
+      "bounds": [
+        622.0,
+        257.0,
+        842.0,
+        447.0
+      ],
+      "maximumPeerBoundsIou": 0.0447
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4772,
+      "boundsContainment": 0.9098,
+      "centerInside": true,
+      "bounds": [
+        752.0,
+        402.0,
+        958.0,
+        659.0
+      ],
+      "maximumPeerBoundsIou": 0.1072
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5239,
+      "boundsContainment": 0.9324,
+      "centerInside": true,
+      "bounds": [
+        909.0,
+        469.0,
+        1086.0,
+        713.0
+      ],
+      "maximumPeerBoundsIou": 0.1072
+    },
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5,
+      "boundsContainment": 0.8642,
+      "centerInside": true,
+      "bounds": [
+        1033.0,
+        581.0,
+        1255.0,
+        726.0
+      ],
+      "maximumPeerBoundsIou": 0.1023
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3644,
+      "boundsContainment": 0.9869,
+      "centerInside": true,
+      "bounds": [
+        108.0,
+        679.0,
+        245.0,
+        866.0
+      ],
+      "maximumPeerBoundsIou": 0.078
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6732,
+      "boundsContainment": 0.8806,
+      "centerInside": true,
+      "bounds": [
+        183.0,
+        777.0,
+        364.0,
+        1057.0
+      ],
+      "maximumPeerBoundsIou": 0.1022
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5105,
+      "boundsContainment": 0.9074,
+      "centerInside": true,
+      "bounds": [
+        323.0,
+        752.0,
+        510.0,
+        994.0
+      ],
+      "maximumPeerBoundsIou": 0.1022
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4117,
+      "boundsContainment": 0.9939,
+      "centerInside": true,
+      "bounds": [
+        508.0,
+        787.0,
+        670.0,
+        1042.0
+      ],
+      "maximumPeerBoundsIou": 0.1217
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4529,
+      "boundsContainment": 0.8422,
+      "centerInside": true,
+      "bounds": [
+        621.0,
+        746.0,
+        809.0,
+        973.0
+      ],
+      "maximumPeerBoundsIou": 0.1217
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4568,
+      "boundsContainment": 0.9474,
+      "centerInside": true,
+      "bounds": [
+        673.0,
+        253.0,
+        812.0,
+        529.0
+      ],
+      "maximumPeerBoundsIou": 0.1268
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3926,
+      "boundsContainment": 0.9347,
+      "centerInside": true,
+      "bounds": [
+        771.0,
+        334.0,
+        921.0,
+        513.0
+      ],
+      "maximumPeerBoundsIou": 0.1268
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4443,
+      "boundsContainment": 0.9916,
+      "centerInside": true,
+      "bounds": [
+        882.0,
+        376.0,
+        1025.0,
+        589.0
+      ],
+      "maximumPeerBoundsIou": 0.1028
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3648,
+      "boundsContainment": 0.8947,
+      "centerInside": true,
+      "bounds": [
+        1023.0,
+        382.0,
+        1110.0,
+        681.0
+      ],
+      "maximumPeerBoundsIou": 0.0074
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "nailIndex": 10,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7326,
+      "boundsContainment": 0.7557,
+      "centerInside": true,
+      "bounds": [
+        1042.0,
+        194.0,
+        1248.0,
+        388.0
+      ],
+      "maximumPeerBoundsIou": 0.0062
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4028,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        137.0,
+        587.0,
+        254.0,
+        733.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4243,
+      "boundsContainment": 0.9701,
+      "centerInside": true,
+      "bounds": [
+        174.0,
+        359.0,
+        341.0,
+        547.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2052,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        357.0,
+        241.0,
+        485.0,
+        482.0
+      ],
+      "maximumPeerBoundsIou": 0.0507
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3296,
+      "boundsContainment": 0.9107,
+      "centerInside": true,
+      "bounds": [
+        457.0,
+        375.0,
+        607.0,
+        583.0
+      ],
+      "maximumPeerBoundsIou": 0.0553
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3711,
+      "boundsContainment": 0.9786,
+      "centerInside": true,
+      "bounds": [
+        351.0,
+        584.0,
+        511.0,
+        808.0
+      ],
+      "maximumPeerBoundsIou": 0.0871
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.3707,
+      "boundsContainment": 0.9485,
+      "centerInside": false,
+      "bounds": [
+        556.0,
+        499.0,
+        758.0,
+        749.0
+      ],
+      "maximumPeerBoundsIou": 0.0554
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5126,
+      "boundsContainment": 0.9611,
+      "centerInside": true,
+      "bounds": [
+        450.0,
+        696.0,
+        655.0,
+        937.0
+      ],
+      "maximumPeerBoundsIou": 0.1782
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3567,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        266.0,
+        856.0,
+        485.0,
+        1049.0
+      ],
+      "maximumPeerBoundsIou": 0.0319
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.354,
+      "boundsContainment": 0.8913,
+      "centerInside": true,
+      "bounds": [
+        485.0,
+        864.0,
+        704.0,
+        1013.0
+      ],
+      "maximumPeerBoundsIou": 0.1782
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "nailIndex": 10,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5585,
+      "boundsContainment": 0.9401,
+      "centerInside": true,
+      "bounds": [
+        580.0,
+        1000.0,
+        824.0,
+        1187.0
+      ],
+      "maximumPeerBoundsIou": 0.021
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2322,
+      "boundsContainment": 0.966,
+      "centerInside": true,
+      "bounds": [
+        246.0,
+        280.0,
+        352.0,
+        339.0
+      ],
+      "maximumPeerBoundsIou": 0.0029
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2155,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        348.0,
+        328.0,
+        448.0,
+        418.0
+      ],
+      "maximumPeerBoundsIou": 0.0962
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6742,
+      "boundsContainment": 0.7869,
+      "centerInside": true,
+      "bounds": [
+        414.0,
+        313.0,
+        583.0,
+        466.0
+      ],
+      "maximumPeerBoundsIou": 0.0962
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4766,
+      "boundsContainment": 0.976,
+      "centerInside": true,
+      "bounds": [
+        637.0,
+        234.0,
+        748.0,
+        384.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7962,
+      "boundsContainment": 0.8221,
+      "centerInside": true,
+      "bounds": [
+        178.0,
+        575.0,
+        334.0,
+        754.0
+      ],
+      "maximumPeerBoundsIou": 0.1573
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.718,
+      "boundsContainment": 0.7835,
+      "centerInside": true,
+      "bounds": [
+        275.0,
+        508.0,
+        435.0,
+        716.0
+      ],
+      "maximumPeerBoundsIou": 0.1573
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6375,
+      "boundsContainment": 0.8253,
+      "centerInside": true,
+      "bounds": [
+        393.0,
+        480.0,
+        550.0,
+        647.0
+      ],
+      "maximumPeerBoundsIou": 0.138
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4833,
+      "boundsContainment": 0.8822,
+      "centerInside": true,
+      "bounds": [
+        499.0,
+        532.0,
+        634.0,
+        696.0
+      ],
+      "maximumPeerBoundsIou": 0.138
+    },
+    {
+      "fileName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "nailIndex": 9,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6035,
+      "boundsContainment": 0.9387,
+      "centerInside": true,
+      "bounds": [
+        64.0,
+        826.0,
+        139.0,
+        989.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1996,
+      "boundsContainment": 0.8891,
+      "centerInside": true,
+      "bounds": [
+        48.0,
+        662.0,
+        235.0,
+        890.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2544,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        242.0,
+        759.0,
+        409.0,
+        930.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4084,
+      "boundsContainment": 0.9103,
+      "centerInside": true,
+      "bounds": [
+        430.0,
+        634.0,
+        596.0,
+        902.0
+      ],
+      "maximumPeerBoundsIou": 0.1096
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2312,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        560.0,
+        607.0,
+        674.0,
+        824.0
+      ],
+      "maximumPeerBoundsIou": 0.1096
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3939,
+      "boundsContainment": 0.9467,
+      "centerInside": true,
+      "bounds": [
+        615.0,
+        467.0,
+        803.0,
+        695.0
+      ],
+      "maximumPeerBoundsIou": 0.0832
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2803,
+      "boundsContainment": 0.9337,
+      "centerInside": true,
+      "bounds": [
+        774.0,
+        626.0,
+        945.0,
+        795.0
+      ],
+      "maximumPeerBoundsIou": 0.1801
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4837,
+      "boundsContainment": 0.9871,
+      "centerInside": true,
+      "bounds": [
+        880.0,
+        609.0,
+        1074.0,
+        831.0
+      ],
+      "maximumPeerBoundsIou": 0.1801
+    },
+    {
+      "fileName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2142,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        1051.0,
+        666.0,
+        1204.0,
+        806.0
+      ],
+      "maximumPeerBoundsIou": 0.0526
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 1,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4763,
+      "boundsContainment": 0.8221,
+      "centerInside": true,
+      "bounds": [
+        81.0,
+        515.0,
+        253.0,
+        727.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 2,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2536,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        329.0,
+        693.0,
+        452.0,
+        818.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 3,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3304,
+      "boundsContainment": 0.9428,
+      "centerInside": true,
+      "bounds": [
+        459.0,
+        627.0,
+        574.0,
+        838.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 4,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1971,
+      "boundsContainment": 0.9247,
+      "centerInside": true,
+      "bounds": [
+        607.0,
+        508.0,
+        759.0,
+        717.0
+      ],
+      "maximumPeerBoundsIou": 0.2312
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 5,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3957,
+      "boundsContainment": 0.9687,
+      "centerInside": true,
+      "bounds": [
+        699.0,
+        483.0,
+        841.0,
+        707.0
+      ],
+      "maximumPeerBoundsIou": 0.2312
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 6,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3451,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        846.0,
+        553.0,
+        1000.0,
+        743.0
+      ],
+      "maximumPeerBoundsIou": 0.1459
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 7,
+      "source": "sam2-v5-box-center",
+      "status": "suspect",
+      "reasons": [
+        "polygon_extends_beyond_prompt"
+      ],
+      "areaRatio": 0.4537,
+      "boundsContainment": 0.7052,
+      "centerInside": true,
+      "bounds": [
+        923.0,
+        477.0,
+        1146.0,
+        674.0
+      ],
+      "maximumPeerBoundsIou": 0.1574
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 8,
+      "source": "sam2-v5-box-center",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3538,
+      "boundsContainment": 0.9573,
+      "centerInside": true,
+      "bounds": [
+        1081.0,
+        512.0,
+        1258.0,
+        658.0
+      ],
+      "maximumPeerBoundsIou": 0.1574
+    }
+  ]
+}

@@ -1,0 +1,920 @@
+{
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\real-reference-2026-07-12-batch-02.manifest.json",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\images",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\real-reference-2026-07-12-batch-02.manifest.report.json",
+  "ok": true,
+  "sourceGroup": "real-reference-2026-07-12-batch-02",
+  "originType": "reference",
+  "itemCount": 113,
+  "missingFiles": [],
+  "unsafeFiles": [],
+  "unlistedFiles": [],
+  "invalidImageFiles": [],
+  "imageChecks": [
+    {
+      "fileName": "-_1400308954697837b667255.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1350,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-_224832368697836db93ea3-819x1024.jpg",
+      "ok": true,
+      "width": 819,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-_725197325697837365af0b.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1351,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2022-01-16-17.31.27_136220716561e40a52d395e.jpg",
+      "ok": true,
+      "width": 538,
+      "height": 628,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2022-01-16-17.32.24_14865833961e3f33f15e4e.jpg",
+      "ok": true,
+      "width": 600,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+      "ok": true,
+      "width": 596,
+      "height": 798,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
+      "ok": true,
+      "width": 528,
+      "height": 696,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2022-01-16-22.23.01_86396604061e42c5663eec.png",
+      "ok": true,
+      "width": 622,
+      "height": 626,
+      "format": "png",
+      "channels": 4
+    },
+    {
+      "fileName": "-2023-08-06-14.42.37_40712667864cf412ac5c04-991x1024.jpg",
+      "ok": true,
+      "width": 991,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-14.42.50_135764628264cf41332bfaa-1016x1024.jpg",
+      "ok": true,
+      "width": 1016,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-14.43.34_87901967164cf413baf0de-1024x882.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 882,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-14.45.11_116187332364cf4188268a1-1022x1024.jpg",
+      "ok": true,
+      "width": 1022,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-14.55.19_127362700664cf4512ce8f4-1014x1024.jpg",
+      "ok": true,
+      "width": 1014,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-14.59.19_27285705564cf451ba86a4-1024x1021.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1021,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-14.59.27_84426486564cf45261b926-1024x1022.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1022,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-15.00.00_26901435664cf45304fb1d-1024x1024.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.14.11_29284708864cf80e8dad3e-1021x1024.jpg",
+      "ok": true,
+      "width": 1021,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.14.32_185832256364cf80f2ac554-1014x1024.jpg",
+      "ok": true,
+      "width": 1014,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.15.12_5176554164cf80fb423f1-1015x1024.jpg",
+      "ok": true,
+      "width": 1015,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.15.30_212108924564cf810459e84-1024x1001.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1001,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.23.30_182458238864cf830482139-1024x1016.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1016,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.31.37_201230495964cf8577773bb-1024x844.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 844,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.31.49_9391442164cf8580bea50-1024x773.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 773,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.32.21_22532801864cf8588659e3-1017x1024.jpg",
+      "ok": true,
+      "width": 1017,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.32.32_133848737464cf85909a276-1024x1021.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1021,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.33.51_136799368864cf859893c8c-936x1024.jpg",
+      "ok": true,
+      "width": 936,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-2023-08-06-19.34.46_166890785964cf85a8af4db-1024x1016.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1016,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-nekogel_official-_16549684369783828b8b7b.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1350,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-the_favorigel_kr-_2019989392697833e2930c9.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1350,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "-the_favorigel_kr-x-nail_gamseong-_55523228769783490457e0.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1437,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._10_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._2_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._3_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._4_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._5_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._6_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._8_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._9_鱿鱼大王是也_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1620,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_10_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_2_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_3_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_4_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_5_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_6_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_7_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_8_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "✨Mark｜自存一些超漂亮的短款美甲_9_炸弹小猫_来自小红书网页版.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1445,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "1-_1581885688697838dad0750.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1350,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "2021-01-29-3.37.23_16034556916013bb8382be0_166587987661e431aac3c38.jpg",
+      "ok": true,
+      "width": 764,
+      "height": 582,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "340850638_776654050491920_7039948216290097633_n_158567653664c221250c775-878x1024.jpg",
+      "ok": true,
+      "width": 878,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "348644193_2175075552679395_3618681887782612611_n_103959041064c21903bdee7-1024x1024.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "348727405_619879160089485_4861463540350829565_n_23718304664c225fec9a52-819x1024.jpg",
+      "ok": true,
+      "width": 819,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "349480885_1649524872217500_7189329909082553793_n_68025889064c1fedab6f13-819x1024.jpg",
+      "ok": true,
+      "width": 819,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "check-french.394801100dmo_191651365069783312aaa3d.jpg",
+      "ok": true,
+      "width": 1040,
+      "height": 1202,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_145086907_2510572082582724_2097671085045523348_n_141663314260de933ec1057.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_175700750_1444053485937863_2401750176912024858_n_34742466160de9338f2c94.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 799,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_189738136_817755759122324_6566260232266868061_n_196209916560de93328e40c.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_193141622_4041042375983974_8169574045117868081_n_83576624060de933404296.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_194405064_380192613403897_7538444306174078788_n_62056844960de9335333e0.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_67534239_509480953151105_1912938229533455502_n_12200508160de934620f58.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_67965397_392252228130536_2305852547117550506_n_50252508860de934346d02.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_69438827_1705740922904042_1070497742504474766_n_197278036860de93401f961.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_69616773_1133280020191627_7833073563596645692_n_23959908860de933d58d79.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_72875584_557382935096038_6869937692326043889_n_107076907060de933aa2880.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_80441241_283571195937465_2075133321636690776_n_187059896560decbe6ed938-1024x1024.jpg",
+      "ok": true,
+      "width": 1024,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_82778324_176408020395925_3616137926562357514_n_174093562460de9337b071c.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_90422165_852882571848901_8175916871923346823_n_11151915060de932c92e00.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_90766748_1085501555159202_7913870109098411378_n_185048533760de932b1d16b.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "deerplanet.tw_95188606_665072584226567_8498580710747686036_n_145225825760de93479e877.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 800,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "img_1196_113791062564cf426a0a07b-814x1024.jpg",
+      "ok": true,
+      "width": 814,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.jpg",
+      "ok": true,
+      "width": 756,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.35_71375674261010cdb4f881.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 713,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.42_84368137561010ce299910.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 812,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 562,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-3.55.58_180943230761010ea04553d.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 815,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.jpg",
+      "ok": true,
+      "width": 752,
+      "height": 1024,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.16_1647649788610112a3bcc84.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 729,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 680,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 717,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 821,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 819,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.42.39_163325967361011922b9577.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 554,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.49.42_205237935261011a56521d7.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 678,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.07_1174265329610120d2f31a9.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 813,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.18_1163987480610120c30016c.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 956,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-5.15.46_904469491610120cb2f987.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 812,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.jpg",
+      "ok": true,
+      "width": 800,
+      "height": 679,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "red-brown-design-by-runa.nail__-reservationhot-pepper-beauty-tel-line-03-3797-1466-1_9347424286978326af1db0.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1427,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-089904147b281e84f4c780e45bd7c1bc_1440w.jpg",
+      "ok": true,
+      "width": 1340,
+      "height": 1678,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-09b8a37b744148207318820cb55f8927_1440w.jpg",
+      "ok": true,
+      "width": 1440,
+      "height": 1447,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-0f9ee0b067f9b89e2f621a9122daeea7_1440w.jpg",
+      "ok": true,
+      "width": 1440,
+      "height": 1920,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-1b1a4ea6882d93553824910f95c98866_1440w.jpg",
+      "ok": true,
+      "width": 1130,
+      "height": 1417,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-2226311c57264c2b44fa51cd42154fbb_1440w.jpg",
+      "ok": true,
+      "width": 1179,
+      "height": 1539,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-2bbfc64e94c1a530e12028f5db016095_1440w.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1440,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-3deba3824ab2a3c0d8fefd730fad7985_1440w.jpg",
+      "ok": true,
+      "width": 1440,
+      "height": 1920,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-529e165c7654f49864fb8fbe53e966d4_1440w.jpg",
+      "ok": true,
+      "width": 1256,
+      "height": 1674,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-64d55b3729ab547895c8ae0f962199fe_1440w.jpg",
+      "ok": true,
+      "width": 1136,
+      "height": 1270,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-6fbe233d3e0d34a1ba9176e115a37d49_1440w.jpg",
+      "ok": true,
+      "width": 1133,
+      "height": 1417,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-767de742f14a76d442326db78f7327b7_1440w.jpg",
+      "ok": true,
+      "width": 941,
+      "height": 998,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-85e92d52cbef7078fe5e0feb1f232304_1440w.jpg",
+      "ok": true,
+      "width": 1440,
+      "height": 873,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-86e189d04394c241ff4e93469c448ae1_1440w.jpg",
+      "ok": true,
+      "width": 1080,
+      "height": 1440,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-87e0ff126f120af17994c4dcb9ec113d_1440w.jpg",
+      "ok": true,
+      "width": 1440,
+      "height": 1920,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-b480049f4b582d77485bd95460388d10_1440w.jpg",
+      "ok": true,
+      "width": 1136,
+      "height": 1142,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-b4a1a8f59b4be8fbca507be6b663356e_1440w.jpg",
+      "ok": true,
+      "width": 954,
+      "height": 1135,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-ba527be95ab9f8760f964e47d211fac4_1440w.jpg",
+      "ok": true,
+      "width": 1136,
+      "height": 1382,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-cc71a9ff705f3dbee79156dfb2c1d2d1_1440w.jpg",
+      "ok": true,
+      "width": 1440,
+      "height": 1521,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-cd78b252e7cb51feed2479810eef6d3c_1440w.jpg",
+      "ok": true,
+      "width": 1136,
+      "height": 1238,
+      "format": "jpeg",
+      "channels": 3
+    },
+    {
+      "fileName": "v2-cfcdea5c7f3b1108c1e79ea522cb873b_1440w.jpg",
+      "ok": true,
+      "width": 1440,
+      "height": 1922,
+      "format": "jpeg",
+      "channels": 3
+    }
+  ],
+  "issues": []
+}

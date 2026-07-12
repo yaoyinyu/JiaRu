@@ -3,15 +3,15 @@
   "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
   "mode": "release",
-  "recordCount": 323,
+  "recordCount": 322,
   "counts": {
     "byOriginType": {
-      "user": 22,
+      "user": 21,
       "other": 300,
       "negative": 1
     },
     "byLicense": {
-      "owner-authorized-commercial-training-and-regression": 22,
+      "owner-authorized-commercial-training-and-regression": 21,
       "ai-generated-internal-training-candidate": 301
     }
   },

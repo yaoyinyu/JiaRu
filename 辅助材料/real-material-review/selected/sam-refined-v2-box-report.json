@@ -1,0 +1,18 @@
+{
+  "ok": false,
+  "method": "vision-guided-box-center-positive-corner-negative-prompts-plus-sam2",
+  "engine": "sam2",
+  "promptMode": "box",
+  "model": "sam2.1_t.pt",
+  "promptCount": 5,
+  "imageCount": 1,
+  "completedCount": 0,
+  "boxOnlyFallbackPromptCount": 1,
+  "errors": [
+    {
+      "fileName": "ca2d14573bfe3c0c83cdc3100e074b3c.jpg",
+      "message": "isolated prompt and box-only fallback returned 0 masks instead of one"
+    }
+  ],
+  "outputs": []
+}

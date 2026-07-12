@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "rootDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12",
+  "reviewPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\screening-review.csv",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\screening-review-audit.json",
+  "totalRows": 113,
+  "keptCount": 113,
+  "droppedCount": 0,
+  "manualFixCount": 112,
+  "manualFixRate": 0.9911504424778761,
+  "decisions": {
+    "keep": 95,
+    "reserve_for_test": 18
+  },
+  "splitHints": {
+    "train": 95,
+    "test": 18
+  },
+  "sampleKinds": {
+    "reference": 111,
+    "negative": 1,
+    "merchant": 1
+  },
+  "backgroundTones": {
+    "light": 94,
+    "mixed": 18,
+    "dark": 1
+  },
+  "colorFamilies": {
+    "other": 113
+  },
+  "effectTags": {
+    "highlight": 113,
+    "glitter": 112,
+    "gold_line": 1,
+    "cat_eye": 1
+  },
+  "topDropReasons": {},
+  "warnings": []
+}

@@ -1,0 +1,12 @@
+{
+  "version": "nail-texture-dataset/v1",
+  "image": {
+    "id": "more_-2021-07-28-4.42.39_163325967361011922b9577",
+    "fileName": "more_-2021-07-28-4.42.39_163325967361011922b9577.jpg",
+    "width": 800,
+    "height": 554,
+    "sourceGroup": "real-reference-2026-07-12-batch-02",
+    "negative": true
+  },
+  "annotations": []
+}

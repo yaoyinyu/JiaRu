@@ -1,0 +1,156 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "final": {
+      "pass": 8,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 1,
+      "source": "final",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4763,
+      "boundsContainment": 0.8221,
+      "centerInside": true,
+      "bounds": [
+        81,
+        515,
+        253,
+        727
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 2,
+      "source": "final",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4303,
+      "boundsContainment": 0.9183,
+      "centerInside": true,
+      "bounds": [
+        270,
+        589,
+        464,
+        865
+      ],
+      "maximumPeerBoundsIou": 0.0175
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 3,
+      "source": "final",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.288,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        457,
+        653,
+        574,
+        838
+      ],
+      "maximumPeerBoundsIou": 0.0175
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 4,
+      "source": "final",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1247,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        635,
+        565,
+        747,
+        770
+      ],
+      "maximumPeerBoundsIou": 0.1698
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 5,
+      "source": "final",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4252,
+      "boundsContainment": 0.9509,
+      "centerInside": true,
+      "bounds": [
+        683,
+        451,
+        839,
+        708
+      ],
+      "maximumPeerBoundsIou": 0.1698
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 6,
+      "source": "final",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2475,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        848,
+        579,
+        997,
+        743
+      ],
+      "maximumPeerBoundsIou": 0.099
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 7,
+      "source": "final",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.397,
+      "boundsContainment": 0.8669,
+      "centerInside": true,
+      "bounds": [
+        932,
+        450,
+        1129,
+        674
+      ],
+      "maximumPeerBoundsIou": 0.1249
+    },
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "nailIndex": 8,
+      "source": "final",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3293,
+      "boundsContainment": 0.942,
+      "centerInside": true,
+      "bounds": [
+        1082,
+        477,
+        1260,
+        657
+      ],
+      "maximumPeerBoundsIou": 0.1249
+    }
+  ]
+}

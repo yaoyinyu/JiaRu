@@ -1,4 +1,5 @@
 import path from "node:path";
+import { createHash } from "node:crypto";
 
 export interface NailDebugArtifactPaths {
   output: string;
@@ -8,8 +9,12 @@ export interface NailDebugArtifactPaths {
   modelOutputDumpPath: string;
 }
 
-function sanitizeSegment(value: string): string {
-  return value.trim().replace(/[^a-z0-9._-]+/gi, "-").replace(/-+/g, "-");
+function sanitizeSegment(value: string, maxLength = 40): string {
+  const sanitized = value.trim().replace(/[^a-z0-9._-]+/gi, "-").replace(/-+/g, "-");
+  const digest = createHash("sha256").update(value).digest("hex").slice(0, 12);
+  if (!sanitized.replace(/[._-]/g, "")) return `item-${digest}`;
+  if (sanitized.length <= maxLength) return sanitized;
+  return `${sanitized.slice(0, maxLength - digest.length - 1)}-${digest}`;
 }
 
 export function buildNailDebugArtifactPaths(args: {

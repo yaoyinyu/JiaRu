@@ -1,0 +1,13 @@
+{
+  "version": "nail-texture-dataset/v1",
+  "decision": "candidate_only_not_training_truth",
+  "image": {
+    "id": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版",
+    "fileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版.jpg",
+    "width": 1080,
+    "height": 1620,
+    "sourceGroup": "real-reference-2026-07-12-batch-02",
+    "negative": false
+  },
+  "annotations": []
+}
