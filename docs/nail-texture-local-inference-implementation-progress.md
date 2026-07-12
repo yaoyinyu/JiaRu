@@ -88,7 +88,7 @@ npm.cmd run build
 | --- | --- | --- | --- |
 | `M3-T1-GATES` | 性能、纹理质量、发布测试集代表性与发布决策门禁 | ✅ PASS | 性能、客户端开销、直接可用率、污染率、形状保真、样本量和 release-test-split 硬门禁均有自动测试；发布决策会阻止不合格候选 |
 | `M3-T2-DESKTOP-SMOKE` | 桌面浏览器工程性能冒烟 | ✅ PASS | Chromium Worker + WebGPU 连续 20 次已预热实测：端到端 P50=63ms、P95=72ms、max=79ms；Worker P95=57ms；客户端开销 P95=17ms；20/20 均返回 4 个候选。仅证明合成基线工程性能，不代表正式模型质量 |
-| `M3-T3-DEVICE` | Windows、Android 与 iPhone 真机矩阵 | ⏭ USER INPUT | 等待 `USER-DEVICE-01`；自动性能报告格式与 desktop/mobile 阈值已经实现 |
+| `M3-T3-DEVICE` | Windows、Android 与 iPhone 真机矩阵 | 🟠 PARTIAL | Windows Chromium WebGPU 已完成29次热性能和20次内存稳定性基准：P95=133.7ms，JS heap 峰值19.86MiB、首末增长1.69MiB，浏览器私有内存首末增长121.81MiB；Android/iPhone/iPad 真机仍等待执行 |
 | `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | ⏭ USER INPUT | 等待 `USER-DATA-01` 与 `USER-REVIEW-01`；发布门禁拒绝用单张 debug 图代替代表性测试集 |
 | `M3-T5-BETA` | Beta 发布决策 | 🔴 HOLD | v6 已通过正式候选工程门，但仍缺代表性真实测试集、真机矩阵和人工质量验收，禁止提前 promotion |
 
