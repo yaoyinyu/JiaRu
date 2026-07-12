@@ -18,6 +18,8 @@ const datasetRoot = path.resolve(
 
 interface CliOptions {
   rootDir: string;
+  reviewCsv?: string;
+  annotationsDir?: string;
 }
 
 interface StepResult {
@@ -35,15 +37,77 @@ interface JsonScriptResult {
 
 function parseArgs(argv: string[]): CliOptions {
   let rootDir: string | undefined;
+  let reviewCsv: string | undefined;
+  let annotationsDir: string | undefined;
   for (let index = 0; index < argv.length; index++) {
     if (argv[index] === "--root-dir") rootDir = path.resolve(argv[++index]);
+    else if (argv[index] === "--review-csv") reviewCsv = path.resolve(argv[++index]);
+    else if (argv[index] === "--annotations-dir") annotationsDir = path.resolve(argv[++index]);
   }
   if (!rootDir) {
     throw new Error(
       "Usage: node --experimental-strip-types model/training/import-reviewed-batch.ts --root-dir <seed-batch-dir>"
     );
   }
-  return { rootDir };
+  return { rootDir, reviewCsv, annotationsDir };
+}
+
+function parseCsvLine(line: string): string[] {
+  const cells: string[] = [];
+  let value = "";
+  let quoted = false;
+  for (let index = 0; index < line.length; index++) {
+    const char = line[index];
+    if (char === '"') {
+      if (quoted && line[index + 1] === '"') {
+        value += '"';
+        index++;
+      } else {
+        quoted = !quoted;
+      }
+    } else if (char === "," && !quoted) {
+      cells.push(value);
+      value = "";
+    } else {
+      value += char;
+    }
+  }
+  cells.push(value);
+  return cells;
+}
+
+async function readAcceptedFileNames(reviewCsv?: string): Promise<Set<string> | null> {
+  if (!reviewCsv) return null;
+  const lines = (await readFile(reviewCsv, "utf8")).trim().split(/\r?\n/).filter(Boolean);
+  const header = parseCsvLine(lines.shift() ?? "");
+  const fileIndex = header.indexOf("fileName");
+  const statusIndex = header.indexOf("status");
+  if (fileIndex < 0 || statusIndex < 0) {
+    throw new Error("Review CSV must contain fileName and status columns");
+  }
+  return new Set(
+    lines
+      .map(parseCsvLine)
+      .filter((cells) => cells[statusIndex]?.trim().toLowerCase() === "pass")
+      .map((cells) => cells[fileIndex]?.trim())
+      .filter(Boolean)
+  );
+}
+
+function resolveSourceGroup(
+  batchSourceGroup: string,
+  fileName: string,
+  splitReviewedCollections: boolean
+): string {
+  if (!splitReviewedCollections) return batchSourceGroup;
+  const normalized = fileName.toLowerCase();
+  if (normalized.startsWith("deerplanet.tw_")) {
+    return `${batchSourceGroup}:deerplanet`;
+  }
+  if (normalized.startsWith("more_") || normalized.startsWith("more_more_")) {
+    return `${batchSourceGroup}:more`;
+  }
+  return `${batchSourceGroup}:other`;
 }
 
 async function runJsonScript(
@@ -96,7 +160,7 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   const selectedRoot = path.join(options.rootDir, "selected");
   const selectedImagesDir = path.join(selectedRoot, "images");
-  const selectedAnnotationsDir = path.join(selectedRoot, "annotations", "raw-json");
+  const selectedAnnotationsDir = options.annotationsDir ?? path.join(selectedRoot, "annotations", "raw-json");
   const manifestCandidates = (await readdir(selectedRoot))
     .filter((name) => name.endsWith(".manifest.json"))
     .sort();
@@ -107,6 +171,15 @@ async function main() {
   const manifest = JSON.parse(
     await readFile(manifestPath, "utf8")
   ) as NailTextureIntakeBatchManifest;
+  const acceptedFileNames = await readAcceptedFileNames(options.reviewCsv);
+  const importItems = acceptedFileNames
+    ? manifest.items.filter((item) => acceptedFileNames.has(item.fileName))
+    : manifest.items;
+  if (acceptedFileNames && importItems.length !== acceptedFileNames.size) {
+    const manifestNames = new Set(manifest.items.map((item) => item.fileName));
+    const missing = [...acceptedFileNames].filter((fileName) => !manifestNames.has(fileName));
+    throw new Error(`Review CSV pass rows missing from manifest: ${missing.join(", ")}`);
+  }
 
   const datasetImagesDir = path.join(datasetRoot, "images", "raw");
   const datasetAnnotationsDir = path.join(datasetRoot, "annotations", "raw-json");
@@ -137,7 +210,7 @@ async function main() {
     polygonCount: number;
   }> = [];
 
-  for (const item of manifest.items) {
+  for (const item of importItems) {
     const fileName = item.fileName;
     const imageId = fileName.replace(/\.[^.]+$/, "");
     const sourceImagePath = path.join(selectedImagesDir, fileName);
@@ -153,11 +226,18 @@ async function main() {
     const document = JSON.parse(
       await readFile(targetAnnotationPath, "utf8")
     ) as NailTextureAnnotationDocument;
+    const sourceGroup = resolveSourceGroup(
+      manifest.sourceGroup,
+      fileName,
+      acceptedFileNames !== null
+    );
+    document.image.sourceGroup = sourceGroup;
+    await writeFile(targetAnnotationPath, JSON.stringify(document, null, 2) + "\n", "utf8");
     const now = new Date().toISOString();
     sourceRecords = upsertSourceRecord(sourceRecords, {
       imageId: document.image.id,
       fileName,
-      sourceGroup: manifest.sourceGroup,
+      sourceGroup,
       originType: manifest.originType,
       originRef: item.originRef?.trim() || manifest.defaultOriginRef,
       license: manifest.license,
@@ -188,6 +268,10 @@ async function main() {
     rootDir: string;
     datasetRoot: string;
     sourceGroup: string;
+    reviewCsv: string | null;
+    filteredImport: boolean;
+    manifestItemCount: number;
+    importedItemCount: number;
     reportPath: string;
     copiedImages: string[];
     copiedAnnotations: string[];
@@ -199,6 +283,10 @@ async function main() {
     rootDir: options.rootDir,
     datasetRoot,
     sourceGroup: manifest.sourceGroup,
+    reviewCsv: options.reviewCsv ?? null,
+    filteredImport: acceptedFileNames !== null,
+    manifestItemCount: manifest.items.length,
+    importedItemCount: importItems.length,
     reportPath,
     copiedImages,
     copiedAnnotations,

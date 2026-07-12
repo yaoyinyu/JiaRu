@@ -69,14 +69,17 @@ npm.cmd run build
 | --- | --- | --- | --- |
 | `M2-T1-PROTOCOL` | 统一 letterbox、输出布局、Top-K、NMS、mask crop 与坐标还原 | ✅ PASS | 横竖图 letterbox、逆映射、channel-major 输出、重复框抑制及 mask crop 单元测试通过；fixture 会逐候选核对 Python/TypeScript 几何、分数与 mask 前景像素 |
 | `M2-T2-TEXTURE` | 原图 mask 采样、透明边缘与高光策略 | ✅ PASS | 默认保留高光且不改像素；修复仅在显式指定时启用；透明羽化、紧边界裁剪、诊断和 UI 提示测试通过 |
-| `M2-T2-DATA-GATE` | 数据结构、来源授权、split 与训练环境门禁 | ✅ PASS | 正式有效集 322 图/1585 个 mask、322 条来源记录，split=231/45/46；来源审计 0 问题、标签审计 0 错误和 1 条允许的空负样本 warning；21 张授权实拍图的 174 个审核甲面已替换 fallback 标注 |
+| `M2-T2-DATA-GATE` | 数据结构、来源授权、split 与训练环境门禁 | ✅ PASS | 正式有效集 393 图/2056 个 mask、393 条来源记录，split=289/45/59；第二批通过项按 deerplanet/more/other 集合隔离，来源授权、标签、split 比例和训练 readiness 通过 |
 | `M2-T3-SYNTHETIC-BASELINE` | 训练、评测并导出隔离的合成数据基线 | ✅ PASS | 300 张 AI 图逐 SHA-256 核对无缺失；88 epochs early stop；test box mAP50=0.522、mask mAP50=0.454；11.09MB ONNX 完整性与浏览器 WebGPU 通过；发布门禁按预期拒绝 |
-| `M2-T3-REAL-DATA` | 导入授权真实图片并建立来源隔离测试集 | 🟠 PARTIAL | 首批 21 张/174 个甲面已全部正式导入，1 张禁用图已永久排除；新增 113 张中已有 70 张正样本和 1 张 hard negative 进入隔离审核包，42 张继续返修。新增批次尚缺正式训练授权且独立真实测试组尚未冻结 |
+| `M2-T3-REAL-DATA` | 导入授权真实图片并建立来源隔离测试集 | 🟠 PARTIAL | 新增 113 张已获商业训练与长期回归授权；71 张审核通过图/471 mask 正式导入，42 张继续返修。另建 92 图来源隔离实验集并冻结 deerplanet 13 图/102 mask 为独立 test；样本量尚未达到 100–200 张代表性发布测试要求 |
 | `M2-T3-VISION-ANNOTATION` | 识图提示 + SAM2/YOLO 辅助重建真实甲面多边形 | 🟡 IN PROGRESS | 首批 21 张/174 个甲面全部通过；新增批次经 v2/v3 常规及高召回候选逐图视觉审核，隔离包现为 71 图/471 个 mask，标签审计 0 错误、1 条允许的空负样本 warning。候选只在覆盖全部可见甲面且无明显污染时提升，剩余 42 张继续返修 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
 | `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |
 | `M2-T6-SEED-CANDIDATE` | 评估仅使用当前授权正式集训练的 real-seed-v1 | ✅ PASS（拒绝候选） | 46 张独立 test 的 box/mask mAP50=0.380/0.367；相对 512 基线下降 0.143/0.101，均超过 0.02 退化上限，自动质量门拒绝继续导出和发布 |
+| `M2-T6-V4-CANDIDATE` | 评估 393 图混合续训候选 | ✅ PASS（拒绝候选） | 独立原 test box/mask mAP50=0.429/0.397，未通过质量门，未导出或发布 |
+| `M2-T6-V5-CANDIDATE` | 评估 512 来源隔离真实候选 | ✅ PASS（拒绝候选） | 13 张 deerplanet 独立 test 的 box/mask mAP50=0.848/0.836；box 略低于 0.85，资产门通过但 release gate 拒绝 |
+| `M2-T6-V6-CANDIDATE` | 评估 640 训练/512 部署来源隔离真实候选 | ✅ PASS（候选门） | 13 张独立真实 test、102 mask：box/mask mAP50=0.853/0.848；11.03MB ONNX 完整性、ORT 双输出、7 候选 fixture 和 Chromium WebGPU 29 次热推理 P95=133.7ms 均通过 |
 
 ## 里程碑 3：Beta、设备与质量验收
 
@@ -93,7 +96,7 @@ npm.cmd run build
 | 标记 ID | 任务 | 状态 | 审核证据 |
 | --- | --- | --- | --- |
 | `REL-T1-TOOLCHAIN` | 模型登记、A/B 比较、发布决策、promotion、trace、历史与回滚 | ✅ PASS | 全量测试覆盖注册完整性、回滚候选、失败阻断、主动学习告警和 trace 证据传递 |
-| `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD | 总体验收报告明确仅缺正式浏览器 ONNX；smoke artifact 被隔离且不会注册为生产候选 |
+| `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD | v6 已通过候选精度、资产、协议和桌面性能门；独立真实 test 仅 13 张，仍缺 100–200 张代表性测试集、移动真机矩阵和 Beta 人工质量门，暂不切换生产 manifest |
 
 ## 当前总体验收
 
@@ -119,7 +122,7 @@ npm.cmd run build
 | `USER-DEVICE-01` | 确认 Windows、Android、iPhone 的优先级和可测试机型 | ✅ PASS | 已确认普通 Windows、Android、Android Pad、iPhone、iPad；可测 ROG 枪神 8 Plus、vivo Pad2、vivo X100s Pro、小米 13 Pro、vivo S30 |
 | `USER-REVIEW-01` | 对固定样本标记直接可用、需修正或不可用 | ✅ PASS | 用户确认 22 张图片均清晰可用，但现有自动标注全部有问题；审核表已统一登记为 `needs_manual_fix`，22/22 进入人工多边形修正队列 |
 | `USER-ANNOTATION-01` | 修正真实图片的甲面多边形 | 🟡 IN PROGRESS | 首批 21 张/174 个甲面已完成；新增批次已有 70 张正样本/471 个甲面 mask 和 1 张 hard negative 通过隔离审核，剩余 42 张继续返修。当前无需用户逐点重画 |
-| `USER-AUTH-02` | 确认 `真实素材/2026_7_12` 新增 113 张素材是否可用于商业模型训练和长期回归测试 | ⏭ USER INPUT | 正式数据导入前；未确认前仅允许隔离辅助标注和非正式试验，不得进入正式训练、测试或发布证据 |
+| `USER-AUTH-02` | 确认 `真实素材/2026_7_12` 新增 113 张素材是否可用于商业模型训练和长期回归测试 | ✅ PASS | 用户于 2026-07-12 选择 A，明确允许用于商业模型训练和长期回归；71 张审核通过项已导入，42 张返修项仍隔离 |
 | `USER-SCOPE-01` | 确认 MVP 产品范围保持为“单张上传图片纹理抠图”，实时视频分割不进入本期 | ✅ PASS | 已确认支持单图、单指和多图提取；实时视频分割不进入本期 |
 | `USER-FAILURE-01` | 提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲 | ⏭ USER INPUT | hard negative 与失败类型优化 |
 | `USER-TESTSET-01` | 最终形成至少 100–200 张来源隔离的独立真实发布测试图 | ⏭ USER INPUT | 正式发布验收 |

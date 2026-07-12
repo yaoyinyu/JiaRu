@@ -3,22 +3,22 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
   "totals": {
-    "images": 322,
-    "masks": 1585,
-    "validMasks": 1585,
+    "images": 393,
+    "masks": 2056,
+    "validMasks": 2056,
     "filesWithErrors": 0,
-    "filesWithWarnings": 1
+    "filesWithWarnings": 2
   },
   "splitCounts": {
-    "train": 231,
+    "train": 289,
     "val": 45,
-    "test": 46
+    "test": 59
   },
   "splitRatios": {
-    "train": 0.717391304347826,
-    "val": 0.13975155279503104,
-    "test": 0.14285714285714285,
-    "maxDeviation": 0.017391304347826098,
+    "train": 0.7353689567430025,
+    "val": 0.11450381679389313,
+    "test": 0.15012722646310434,
+    "maxDeviation": 0.03549618320610687,
     "allowedDeviation": 0.05
   },
   "splitIntegrity": {
@@ -27,27 +27,29 @@
     "duplicateInSplit": []
   },
   "testCoverage": {
-    "negatives": 1,
-    "complexBackground": 1,
+    "negatives": 2,
+    "complexBackground": 2,
     "sampleKinds": {
+      "reference": 12,
+      "negative": 2,
       "other": 44,
-      "complex_background": 1,
-      "negative": 1
+      "complex_background": 1
     },
     "backgrounds": {
-      "unspecified": 45,
-      "dark": 1
+      "dark": 2,
+      "light": 12,
+      "unspecified": 45
     }
   },
   "gates": {
     "imageCount": {
       "ok": true,
-      "actual": 322,
+      "actual": 393,
       "required": 200
     },
     "validMaskCount": {
       "ok": true,
-      "actual": 1585,
+      "actual": 2056,
       "required": 800
     },
     "labelAuditPass": {
@@ -62,24 +64,206 @@
     },
     "splitRatioPass": {
       "ok": true,
-      "actual": 0.017391304347826098,
+      "actual": 0.03549618320610687,
       "required": 0.05
     },
     "testSplitHasNegative": {
       "ok": true,
-      "actual": 1,
+      "actual": 2,
       "required": 1
     },
     "testSplitHasComplexBackground": {
       "ok": true,
-      "actual": 1,
+      "actual": 2,
       "required": 1
     }
   },
   "warnings": [
-    "label audit still has 1 files with warning-level issues"
+    "label audit still has 2 files with warning-level issues"
   ],
   "fileResults": [
+    {
+      "fileName": "-2022-01-16-17.31.27_136220716561e40a52d395e.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2022-01-16-17.32.24_14865833961e3f33f15e4e.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2022-01-16-22.23.01_86396604061e42c5663eec.png",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-14.42.37_40712667864cf412ac5c04-991x1024.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-14.42.50_135764628264cf41332bfaa-1016x1024.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-14.43.34_87901967164cf413baf0de-1024x882.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-14.45.11_116187332364cf4188268a1-1022x1024.jpg",
+      "ok": true,
+      "polygonCount": 7,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-14.55.19_127362700664cf4512ce8f4-1014x1024.jpg",
+      "ok": true,
+      "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-14.59.19_27285705564cf451ba86a4-1024x1021.jpg",
+      "ok": true,
+      "polygonCount": 11,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-14.59.27_84426486564cf45261b926-1024x1022.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-15.00.00_26901435664cf45304fb1d-1024x1024.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.14.11_29284708864cf80e8dad3e-1021x1024.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.14.32_185832256364cf80f2ac554-1014x1024.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.15.12_5176554164cf80fb423f1-1015x1024.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.15.30_212108924564cf810459e84-1024x1001.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.23.30_182458238864cf830482139-1024x1016.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.31.37_201230495964cf8577773bb-1024x844.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.31.49_9391442164cf8580bea50-1024x773.jpg",
+      "ok": true,
+      "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.32.21_22532801864cf8588659e3-1017x1024.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.32.32_133848737464cf85909a276-1024x1021.jpg",
+      "ok": true,
+      "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.33.51_136799368864cf859893c8c-936x1024.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2023-08-06-19.34.46_166890785964cf85a8af4db-1024x1016.jpg",
+      "ok": true,
+      "polygonCount": 7,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-_1400308954697837b667255.jpg",
+      "ok": true,
+      "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-nekogel_official-_16549684369783828b8b7b.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-the_favorigel_kr-x-nail_gamseong-_55523228769783490457e0.jpg",
+      "ok": true,
+      "polygonCount": 7,
+      "errorCount": 0,
+      "warningCount": 0
+    },
     {
       "fileName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
       "ok": true,
@@ -102,9 +286,44 @@
       "warningCount": 0
     },
     {
+      "fileName": "1-_1581885688697838dad0750.jpg",
+      "ok": true,
+      "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
       "fileName": "19e1ff892bc03296309118564517395c.jpg",
       "ok": true,
       "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "2021-01-29-3.37.23_16034556916013bb8382be0_166587987661e431aac3c38.jpg",
+      "ok": true,
+      "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "340850638_776654050491920_7039948216290097633_n_158567653664c221250c775-878x1024.jpg",
+      "ok": true,
+      "polygonCount": 11,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "348644193_2175075552679395_3618681887782612611_n_103959041064c21903bdee7-1024x1024.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "348727405_619879160089485_4861463540350829565_n_23718304664c225fec9a52-819x1024.jpg",
+      "ok": true,
+      "polygonCount": 8,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -886,6 +1105,97 @@
       "warningCount": 0
     },
     {
+      "fileName": "deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024.jpg",
+      "ok": true,
+      "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
+      "ok": true,
+      "polygonCount": 7,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.jpg",
+      "ok": true,
+      "polygonCount": 6,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_193141622_4041042375983974_8169574045117868081_n_83576624060de933404296.jpg",
+      "ok": true,
+      "polygonCount": 6,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_67534239_509480953151105_1912938229533455502_n_12200508160de934620f58.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_69438827_1705740922904042_1070497742504474766_n_197278036860de93401f961.jpg",
+      "ok": true,
+      "polygonCount": 6,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_69616773_1133280020191627_7833073563596645692_n_23959908860de933d58d79.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_72875584_557382935096038_6869937692326043889_n_107076907060de933aa2880.jpg",
+      "ok": true,
+      "polygonCount": 7,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_80441241_283571195937465_2075133321636690776_n_187059896560decbe6ed938-1024x1024.jpg",
+      "ok": true,
+      "polygonCount": 7,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_82778324_176408020395925_3616137926562357514_n_174093562460de9337b071c.jpg",
+      "ok": true,
+      "polygonCount": 7,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_90422165_852882571848901_8175916871923346823_n_11151915060de932c92e00.jpg",
+      "ok": true,
+      "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_90766748_1085501555159202_7913870109098411378_n_185048533760de932b1d16b.jpg",
+      "ok": true,
+      "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "deerplanet.tw_95188606_665072584226567_8498580710747686036_n_145225825760de93479e877.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
       "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
       "ok": true,
       "polygonCount": 8,
@@ -924,6 +1234,104 @@
       "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
       "ok": true,
       "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "img_1196_113791062564cf426a0a07b-814x1024.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.jpg",
+      "ok": true,
+      "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.35_71375674261010cdb4f881.jpg",
+      "ok": true,
+      "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.jpg",
+      "ok": true,
+      "polygonCount": 2,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-3.55.58_180943230761010ea04553d.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.jpg",
+      "ok": true,
+      "polygonCount": 1,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.jpg",
+      "ok": true,
+      "polygonCount": 6,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+      "ok": true,
+      "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.jpg",
+      "ok": true,
+      "polygonCount": 2,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-4.42.39_163325967361011922b9577.jpg",
+      "ok": true,
+      "polygonCount": 0,
+      "errorCount": 0,
+      "warningCount": 1
+    },
+    {
+      "fileName": "more_-2021-07-28-4.49.42_205237935261011a56521d7.jpg",
+      "ok": true,
+      "polygonCount": 6,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.07_1174265329610120d2f31a9.jpg",
+      "ok": true,
+      "polygonCount": 3,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-5.15.46_904469491610120cb2f987.jpg",
+      "ok": true,
+      "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.jpg",
+      "ok": true,
+      "polygonCount": 4,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -2333,6 +2741,97 @@
       "polygonCount": 0,
       "errorCount": 0,
       "warningCount": 1
+    },
+    {
+      "fileName": "red-brown-design-by-runa.nail__-reservationhot-pepper-beauty-tel-line-03-3797-1466-1_9347424286978326af1db0.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-089904147b281e84f4c780e45bd7c1bc_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-0f9ee0b067f9b89e2f621a9122daeea7_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-1b1a4ea6882d93553824910f95c98866_1440w.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-3deba3824ab2a3c0d8fefd730fad7985_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-529e165c7654f49864fb8fbe53e966d4_1440w.jpg",
+      "ok": true,
+      "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-6fbe233d3e0d34a1ba9176e115a37d49_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-85e92d52cbef7078fe5e0feb1f232304_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-86e189d04394c241ff4e93469c448ae1_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-87e0ff126f120af17994c4dcb9ec113d_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-b4a1a8f59b4be8fbca507be6b663356e_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-cd78b252e7cb51feed2479810eef6d3c_1440w.jpg",
+      "ok": true,
+      "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "v2-cfcdea5c7f3b1108c1e79ea522cb873b_1440w.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
     }
   ]
 }

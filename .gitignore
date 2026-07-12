@@ -80,6 +80,7 @@ model/exports/
 /public/models/**/*.onnx
 /runs/
 /review-temp/
+/.playwright-cli/
 
 # local review media; keep manifests, CSV and JSON annotations in Git
 辅助材料/**/images/

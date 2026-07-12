@@ -170,3 +170,63 @@ test("import-reviewed-batch copies selected artifacts into dataset and runs down
   assert.equal(readinessReport.ok, false);
   assert.equal(readinessReport.totals.images, 2);
 });
+
+test("import-reviewed-batch can filter manifest items by pass rows and use an annotation override", async () => {
+  const datasetRoot = await mkdtemp(path.join(os.tmpdir(), "nail-reviewed-filter-dataset-"));
+  const rootDir = await mkdtemp(path.join(os.tmpdir(), "nail-reviewed-filter-root-"));
+  const selectedDir = path.join(rootDir, "selected");
+  const selectedImagesDir = path.join(selectedDir, "images");
+  const overrideAnnotationsDir = path.join(rootDir, "accepted-annotations");
+  await mkdir(selectedImagesDir, { recursive: true });
+  await mkdir(overrideAnnotationsDir, { recursive: true });
+  await cp(path.resolve("model/5188.jpg_wh860.jpg"), path.join(selectedImagesDir, "pass.jpg"));
+  await cp(path.resolve("model/5188.jpg_wh860.jpg"), path.join(selectedImagesDir, "rework.jpg"));
+  await writeFile(
+    path.join(selectedDir, "filter-batch.manifest.json"),
+    JSON.stringify({
+      version: "nail-texture-intake-batch/v1",
+      sourceGroup: "filter-batch",
+      originType: "reference",
+      license: "user-authorized-commercial-training-and-long-term-regression",
+      defaultOriginRef: "user supplied",
+      copyImagesToDataset: true,
+      items: [{ fileName: "pass.jpg" }, { fileName: "rework.jpg" }],
+    }),
+    "utf8"
+  );
+  const annotation = {
+    version: "nail-texture-dataset/v1",
+    image: { id: "pass", fileName: "pass.jpg", width: 860, height: 574, sourceGroup: "filter-batch", negative: false },
+    annotations: [{
+      id: "pass-nail-1",
+      label: "nail_texture",
+      polygon: [{ x: 10, y: 10 }, { x: 60, y: 10 }, { x: 60, y: 60 }, { x: 10, y: 60 }],
+    }],
+  };
+  await writeFile(path.join(overrideAnnotationsDir, "pass.json"), JSON.stringify(annotation), "utf8");
+  const reviewCsv = path.join(rootDir, "review.csv");
+  await writeFile(reviewCsv, "fileName,status\npass.jpg,pass\nrework.jpg,rework\n", "utf8");
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings", "--experimental-strip-types", "model/training/import-reviewed-batch.ts",
+      "--root-dir", rootDir, "--review-csv", reviewCsv, "--annotations-dir", overrideAnnotationsDir,
+    ],
+    { cwd: path.resolve("."), env: { ...process.env, DATASET_ROOT: datasetRoot } }
+  );
+  const report = JSON.parse(stdout) as {
+    filteredImport: boolean;
+    manifestItemCount: number;
+    importedItemCount: number;
+    copiedImages: string[];
+  };
+  assert.equal(report.filteredImport, true);
+  assert.equal(report.manifestItemCount, 2);
+  assert.equal(report.importedItemCount, 1);
+  assert.deepEqual(report.copiedImages, ["pass.jpg"]);
+  await access(path.join(datasetRoot, "annotations", "raw-json", "pass.json"));
+  await assert.rejects(access(path.join(datasetRoot, "annotations", "raw-json", "rework.json")));
+  const sourcesCsv = await readFile(path.join(datasetRoot, "metadata", "sources.csv"), "utf8");
+  assert.match(sourcesCsv, /filter-batch:other/);
+});

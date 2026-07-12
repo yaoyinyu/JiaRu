@@ -2,7 +2,15 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-  "recordCount": 322,
+  "recordCount": 393,
   "ok": true,
-  "issues": []
+  "issues": [
+    {
+      "code": "negative_origin_mismatch",
+      "severity": "warning",
+      "message": "negative samples are recommended to use originType=negative for easier filtering",
+      "imageId": "more_-2021-07-28-4.42.39_163325967361011922b9577",
+      "fileName": "more_-2021-07-28-4.42.39_163325967361011922b9577.jpg"
+    }
+  ]
 }
