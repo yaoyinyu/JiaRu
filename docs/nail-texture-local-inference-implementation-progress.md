@@ -1,6 +1,6 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-07-11  
+更新日期：2026-07-12
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
 ## 标记规则
@@ -69,13 +69,13 @@ npm.cmd run build
 | --- | --- | --- | --- |
 | `M2-T1-PROTOCOL` | 统一 letterbox、输出布局、Top-K、NMS、mask crop 与坐标还原 | ✅ PASS | 横竖图 letterbox、逆映射、channel-major 输出、重复框抑制及 mask crop 单元测试通过；fixture 会逐候选核对 Python/TypeScript 几何、分数与 mask 前景像素 |
 | `M2-T2-TEXTURE` | 原图 mask 采样、透明边缘与高光策略 | ✅ PASS | 默认保留高光且不改像素；修复仅在显式指定时启用；透明羽化、紧边界裁剪、诊断和 UI 提示测试通过 |
-| `M2-T2-DATA-GATE` | 数据结构、来源授权、split 与训练环境门禁 | ✅ PASS | 有效集 322 图/1577 个 mask、322 条来源记录，split=231/45/46；来源审计 0 问题、标签审计 0 错误和 1 条允许的空负样本 warning；19 张实拍图的 156 个审核甲面已替换 fallback 标注 |
+| `M2-T2-DATA-GATE` | 数据结构、来源授权、split 与训练环境门禁 | ✅ PASS | 正式有效集 322 图/1585 个 mask、322 条来源记录，split=231/45/46；来源审计 0 问题、标签审计 0 错误和 1 条允许的空负样本 warning；21 张授权实拍图的 174 个审核甲面已替换 fallback 标注 |
 | `M2-T3-SYNTHETIC-BASELINE` | 训练、评测并导出隔离的合成数据基线 | ✅ PASS | 300 张 AI 图逐 SHA-256 核对无缺失；88 epochs early stop；test box mAP50=0.522、mask mAP50=0.454；11.09MB ONNX 完整性与浏览器 WebGPU 通过；发布门禁按预期拒绝 |
-| `M2-T3-REAL-DATA` | 导入授权真实图片并建立来源隔离测试集 | 🟠 PARTIAL | 首批 21 张有效素材中 19 张审核标注已正式导入、2 张待返修，1 张禁用图已永久排除；新增 113 张实拍素材已完成语料与视觉初筛（112 正样本、1 hard negative、18 张预留测试复核），尚待逐图真值标注与最终来源隔离 |
-| `M2-T3-VISION-ANNOTATION` | 识图提示 + SAM2 重建真实甲面多边形 | 🟡 IN PROGRESS | SAM2 `box+center` v5 已完成首批候选及逐图视觉审核；19 张整图、156 个甲面已导入有效数据集并通过严格审计，2 张继续按失败实例返修，`ca2d...jpg` 已从全部有效训练资产永久移除。新增 113 张仅完成筛选，不把 fallback 候选当作真值 |
+| `M2-T3-REAL-DATA` | 导入授权真实图片并建立来源隔离测试集 | 🟠 PARTIAL | 首批 21 张/174 个甲面已全部正式导入，1 张禁用图已永久排除；新增 113 张中已有 70 张正样本和 1 张 hard negative 进入隔离审核包，42 张继续返修。新增批次尚缺正式训练授权且独立真实测试组尚未冻结 |
+| `M2-T3-VISION-ANNOTATION` | 识图提示 + SAM2/YOLO 辅助重建真实甲面多边形 | 🟡 IN PROGRESS | 首批 21 张/174 个甲面全部通过；新增批次经 v2/v3 常规及高召回候选逐图视觉审核，隔离包现为 71 图/471 个 mask，标签审计 0 错误、1 条允许的空负样本 warning。候选只在覆盖全部可见甲面且无明显污染时提升，剩余 42 张继续返修 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
-| `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ⏭ USER INPUT | 22 张真实图审核包已生成；人工复核通过并补充独立真实测试组后再训练，避免将 fallback 初标当作真值 |
+| `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | 🟡 IN PROGRESS | 已训练仅用于辅助标注的 real-prelabel-v3；9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511。该模型使用未授权并入正式集的隔离标注，只能辅助复核，不能注册为正式候选 |
 
 ## 里程碑 3：Beta、设备与质量验收
 
@@ -117,7 +117,8 @@ npm.cmd run build
 | `USER-AUTH-01` | 明确图片仅内部测试或可用于正式训练 | ✅ PASS | 用户于 2026-07-11 选择 A，确认 22 张真实素材可用于商业模型训练和长期回归测试；300 张团队 AI 图亦已确认商业训练授权 |
 | `USER-DEVICE-01` | 确认 Windows、Android、iPhone 的优先级和可测试机型 | ✅ PASS | 已确认普通 Windows、Android、Android Pad、iPhone、iPad；可测 ROG 枪神 8 Plus、vivo Pad2、vivo X100s Pro、小米 13 Pro、vivo S30 |
 | `USER-REVIEW-01` | 对固定样本标记直接可用、需修正或不可用 | ✅ PASS | 用户确认 22 张图片均清晰可用，但现有自动标注全部有问题；审核表已统一登记为 `needs_manual_fix`，22/22 进入人工多边形修正队列 |
-| `USER-ANNOTATION-01` | 修正真实图片的甲面多边形 | 🟡 IN PROGRESS | 19 张/156 个甲面已由 Codex 视觉审核并正式导入；首批剩余 2 张及新增批次 112 张正样本继续返修/标注。当前无需用户逐点重画，遇到无法可靠判断的遮挡或甲面边界时再暂停沟通 |
+| `USER-ANNOTATION-01` | 修正真实图片的甲面多边形 | 🟡 IN PROGRESS | 首批 21 张/174 个甲面已完成；新增批次已有 70 张正样本/471 个甲面 mask 和 1 张 hard negative 通过隔离审核，剩余 42 张继续返修。当前无需用户逐点重画 |
+| `USER-AUTH-02` | 确认 `真实素材/2026_7_12` 新增 113 张素材是否可用于商业模型训练和长期回归测试 | ⏭ USER INPUT | 正式数据导入前；未确认前仅允许隔离辅助标注和非正式试验，不得进入正式训练、测试或发布证据 |
 | `USER-SCOPE-01` | 确认 MVP 产品范围保持为“单张上传图片纹理抠图”，实时视频分割不进入本期 | ✅ PASS | 已确认支持单图、单指和多图提取；实时视频分割不进入本期 |
 | `USER-FAILURE-01` | 提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲 | ⏭ USER INPUT | hard negative 与失败类型优化 |
 | `USER-TESTSET-01` | 最终形成至少 100–200 张来源隔离的独立真实发布测试图 | ⏭ USER INPUT | 正式发布验收 |
