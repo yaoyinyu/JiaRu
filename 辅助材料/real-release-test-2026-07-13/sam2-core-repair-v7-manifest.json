@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-seventh-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_051.jpg",
+      "keepPromptIndices": [1, 2, 4, 5],
+      "addBoxes": [[0.59, 0.35, 0.74, 0.53]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "replace_two_overlapping_prompts_on_the_upper_right_nail"
+    },
+    {
+      "fileName": "real_release_20260713_052.jpg",
+      "keepPromptIndices": [1, 2, 4, 5],
+      "addBoxes": [[0.545, 0.54, 0.725, 0.74]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "replace_two_overlapping_prompts_on_the_decorated_middle_nail"
+    },
+    {
+      "fileName": "real_release_20260713_054.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 8],
+      "addBoxes": [[0.3, 0.205, 0.515, 0.505]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "merge_three_fragmented_prompts_into_one_complete_upper_decorated_nail"
+    },
+    {
+      "fileName": "real_release_20260713_077.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "addPromptModes": [],
+      "reviewReason": "remove_large_translucent_fabric_false_positive"
+    },
+    {
+      "fileName": "real_release_20260713_083.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.15, 0.32, 0.43, 0.48]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "add_missing_left_nude_thumb_nail"
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "keepPromptIndices": [1, 2, 3],
+      "addBoxes": [[0.11, 0.63, 0.27, 0.76], [0.82, 0.555, 0.995, 0.69]],
+      "addPromptModes": ["center-negative-corners", "center-negative-corners"],
+      "reviewReason": "replace_fragmented_left_thumb_and_add_missing_right_pinky_nail"
+    }
+  ]
+}
