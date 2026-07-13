@@ -14,6 +14,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output", required=True)
     parser.add_argument("--max-box-map50-drop", type=float, default=0.02)
     parser.add_argument("--max-mask-map50-drop", type=float, default=0.02)
+    parser.add_argument("--min-box-map50", type=float)
+    parser.add_argument("--min-mask-map50", type=float)
     return parser
 
 
@@ -41,6 +43,14 @@ def main() -> None:
         box_drop = baseline["boxMap50"] - metrics["boxMap50"]
         mask_drop = baseline["maskMap50"] - metrics["maskMap50"]
         errors = []
+        if args.min_box_map50 is not None and metrics["boxMap50"] < args.min_box_map50:
+            errors.append(
+                f'box mAP50 {metrics["boxMap50"]:.6f} is below {args.min_box_map50:.6f}'
+            )
+        if args.min_mask_map50 is not None and metrics["maskMap50"] < args.min_mask_map50:
+            errors.append(
+                f'mask mAP50 {metrics["maskMap50"]:.6f} is below {args.min_mask_map50:.6f}'
+            )
         if box_drop > args.max_box_map50_drop:
             errors.append(
                 f"box mAP50 drop {box_drop:.6f} exceeds {args.max_box_map50_drop:.6f}"
@@ -69,6 +79,8 @@ def main() -> None:
         "thresholds": {
             "maxBoxMap50Drop": args.max_box_map50_drop,
             "maxMaskMap50Drop": args.max_mask_map50_drop,
+            "minBoxMap50": args.min_box_map50,
+            "minMaskMap50": args.min_mask_map50,
         },
         "candidates": candidates,
     }

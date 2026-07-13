@@ -1,0 +1,40 @@
+{
+  "ok": false,
+  "baseline": {
+    "metricsPath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\test-metrics.512.json",
+    "metrics": {
+      "boxMap50": 0.8527541703044659,
+      "maskMap50": 0.847659037958229,
+      "boxMap50To95": 0.610989105533976,
+      "maskMap50To95": 0.5614487652127769
+    }
+  },
+  "thresholds": {
+    "maxBoxMap50Drop": 0.0,
+    "maxMaskMap50Drop": 0.0,
+    "minBoxMap50": 0.85,
+    "minMaskMap50": 0.75
+  },
+  "candidates": [
+    {
+      "label": "v9",
+      "metricsPath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v9\\test-metrics.512.json",
+      "metrics": {
+        "boxMap50": 0.8411119261188786,
+        "maskMap50": 0.8393022096181535,
+        "boxMap50To95": 0.5621769203434017,
+        "maskMap50To95": 0.5123096959658688
+      },
+      "deltaFromBaseline": {
+        "boxMap50": -0.01164224,
+        "maskMap50": -0.00835683
+      },
+      "qualityGatePassed": false,
+      "errors": [
+        "box mAP50 0.841112 is below 0.850000",
+        "box mAP50 drop 0.011642 exceeds 0.000000",
+        "mask mAP50 drop 0.008357 exceeds 0.000000"
+      ]
+    }
+  ]
+}

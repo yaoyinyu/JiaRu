@@ -87,6 +87,7 @@ npm.cmd run build
 | `M2-T6-V6-CANDIDATE` | 评估 640 训练/512 部署来源隔离真实候选 | ✅ PASS（候选门） | 13 张独立真实 test、102 mask：box/mask mAP50=0.853/0.848；11.03MB ONNX 完整性、ORT 双输出、7 候选 fixture 和 Chromium WebGPU 29 次热推理 P95=133.7ms 均通过 |
 | `M2-T6-V7-CANDIDATE` | 将新增 5 张审核图并入来源隔离集后续训复评 | ✅ PASS（拒绝候选） | 97 图/672 mask，train/val/test=69/15/13；冻结 test box/mask mAP50=0.840/0.833，box 低于 0.85 且较 v6 退化，未导出或发布 |
 | `M2-T6-V8-CANDIDATE` | 将跨分辨率共识审核新增2张并入来源隔离集后续训复评 | ✅ PASS（拒绝候选） | 99图/681 mask，train/val/test=70/16/13；冻结 test box/mask mAP50=0.8487/0.8472，box低于0.85且未超过v6，未导出、注册或发布 |
+| `M2-T6-V9-CANDIDATE` | 将7张已审核截图派生图并入v8来源隔离集后续训复评 | ✅ PASS（拒绝候选） | 106图/722 mask，train/val/test=76/17/13；冻结test图片与标签联合SHA-256前后相同，512 test box/mask mAP50=0.8411/0.8393，box低于0.85且两项较v6退化，未导出、注册或发布 |
 
 ## 里程碑 3：Beta、设备与质量验收
 
