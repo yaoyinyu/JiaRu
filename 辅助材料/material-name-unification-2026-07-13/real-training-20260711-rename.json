@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 1,
+  "root": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_11",
+  "prefix": "real_training_20260711",
+  "sequenceWidth": 4,
+  "count": 21,
+  "entries": [
+    {
+      "index": 1,
+      "originalName": "0132d6d2f15c7eeb06c6b20b2b9899db.jpg",
+      "renamedName": "real_training_20260711_0001.jpg",
+      "sha256": "88876fc74b96b3018ae8df2f7dd3f63e1d925afc582958e6491308c466758c28",
+      "sourceGroup": "file-4b364b1f87a4",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 2,
+      "originalName": "02a57340bbd2ef39c02e66b503f077a0.jpg",
+      "renamedName": "real_training_20260711_0002.jpg",
+      "sha256": "aae957578d2f4d0906e119f13d61d8ec5ecab4e62561373975780865bf7f4c60",
+      "sourceGroup": "file-9b887a1c4c27",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 3,
+      "originalName": "075757517fbb6e42840328dcfd1c984b.jpg",
+      "renamedName": "real_training_20260711_0003.jpg",
+      "sha256": "13ecbbdae70cfebd6fde191863a36edcb6cc91b6154a9e78e1e7cb6913f19703",
+      "sourceGroup": "file-6bbdaf5e4a74",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 4,
+      "originalName": "19e1ff892bc03296309118564517395c.jpg",
+      "renamedName": "real_training_20260711_0004.jpg",
+      "sha256": "e410208c4bbea5c6dd4d2f339551bd8a7e7dd245d53af17f2ae2b7295664decb",
+      "sourceGroup": "file-578103ee0e3e",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 5,
+      "originalName": "4a0e76a068f83cac81efed7aaeeb8e96.jpg",
+      "renamedName": "real_training_20260711_0005.jpg",
+      "sha256": "7a3f83a3020bb0d0272ec4557f30fdfc0473cbf3209b6a9daf41369f9dec909b",
+      "sourceGroup": "file-5dfd29b0aa9c",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 6,
+      "originalName": "4fd43a5c9f4923aa81867575ace2a875.jpg",
+      "renamedName": "real_training_20260711_0006.jpg",
+      "sha256": "cb577637008ca2fd376d4673a118a662181def7be29b761ca3ac9a9ccab20cce",
+      "sourceGroup": "file-ead587afc8a1",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 7,
+      "originalName": "586430bda51171eda6acac9b78044e86.jpg",
+      "renamedName": "real_training_20260711_0007.jpg",
+      "sha256": "9c9c554ca495507c666393a4ab56b24b71ff995b72bea66814476f5bbd829d8b",
+      "sourceGroup": "file-7f5484522640",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 8,
+      "originalName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "renamedName": "real_training_20260711_0008.jpg",
+      "sha256": "c06ba33fe94b1dbeb0d07c653064d78a1675621c7b75899d28511d06e4ef71e7",
+      "sourceGroup": "file-b67b2b91f709",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 9,
+      "originalName": "916243c8917244d2b399ae2674266b6b.jpg",
+      "renamedName": "real_training_20260711_0009.jpg",
+      "sha256": "bee60872ce61472fb6b522787ca516e8e5fbe80cff66d546b6f7265305c1dc15",
+      "sourceGroup": "file-434e21580716",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 10,
+      "originalName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+      "renamedName": "real_training_20260711_0010.jpg",
+      "sha256": "93fc4b8a2f405f838b5eb7b94d5c23ce68f4c39e789d755a6253218425ff7539",
+      "sourceGroup": "file-951673619549",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 11,
+      "originalName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "renamedName": "real_training_20260711_0011.jpg",
+      "sha256": "9785c6e6972defc273647828ae12b4e8138f37583a4ab1596bfe01d751a85f39",
+      "sourceGroup": "file-8728abba75f1",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 12,
+      "originalName": "cb7a371d6826a7e71a49ca4bf1ce2382.jpg",
+      "renamedName": "real_training_20260711_0012.jpg",
+      "sha256": "bf9b835e4409b5ee4a053d141321e19644913714049bd6be05dbbc75d417e857",
+      "sourceGroup": "file-943ab7b94722",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 13,
+      "originalName": "cefb43f688de010c12d6a22c058188ed.jpg",
+      "renamedName": "real_training_20260711_0013.jpg",
+      "sha256": "b676dc4c9ad48ae06c906dedebbec108e79b346b1f0b20478fd911d65064c876",
+      "sourceGroup": "file-d247e4e35184",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 14,
+      "originalName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "renamedName": "real_training_20260711_0014.jpg",
+      "sha256": "18c4ff06d58611c68003cff86be12420e6129353f520350ce6cf971c09e6cc42",
+      "sourceGroup": "file-89803227ced3",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 15,
+      "originalName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "renamedName": "real_training_20260711_0015.jpg",
+      "sha256": "e8f219768407151b1864ed611e15353797a207d77d7d8efe337133eee911b89b",
+      "sourceGroup": "file-917f8680131b",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 16,
+      "originalName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "renamedName": "real_training_20260711_0016.jpg",
+      "sha256": "55ed3b7c90ab8ac2e79c08424d6b05968dfe2bb1c065070bc424a3a1191cd565",
+      "sourceGroup": "file-5ae552a714b2",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 17,
+      "originalName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "renamedName": "real_training_20260711_0017.jpg",
+      "sha256": "310560921afa80afed347edadabba19c7ad7c5c3104ca65208a3ae7a77bcf041",
+      "sourceGroup": "file-eaa86ca2e10e",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 18,
+      "originalName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "renamedName": "real_training_20260711_0018.jpg",
+      "sha256": "3a8c47ba2bc7f99ff786c71a9dddafd2d5d489ec51d3ff912945239744456dca",
+      "sourceGroup": "file-9924085db947",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 19,
+      "originalName": "ecd34e2fb116522263394fd443fab987.jpg",
+      "renamedName": "real_training_20260711_0019.jpg",
+      "sha256": "5facc3970bcce16ed9ef7aadec076e61def98ca1ea9ea6ebd9445d3e8f77fad7",
+      "sourceGroup": "file-9f16c9622aac",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 20,
+      "originalName": "f03408b03bcc28080f07f84d2507868b.jpg",
+      "renamedName": "real_training_20260711_0020.jpg",
+      "sha256": "5f27efdc684fd31f97464eb43b2ec5d2b7146954d371e31df46c2eb33d8f50e1",
+      "sourceGroup": "file-3c63e02c2eb0",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    },
+    {
+      "index": 21,
+      "originalName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "renamedName": "real_training_20260711_0021.jpg",
+      "sha256": "8224b6887510fda0189c27e8781b6f6330440f11a15314076121748ab9fc3536",
+      "sourceGroup": "file-9a3471cc711f",
+      "sourceTitle": null,
+      "sourceAuthor": null,
+      "sourceSequence": null
+    }
+  ],
+  "status": "applied"
+}
