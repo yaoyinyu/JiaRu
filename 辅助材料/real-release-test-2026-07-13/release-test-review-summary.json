@@ -5,10 +5,10 @@
   "ok": true,
   "counts": {
     "parents": 92,
-    "pass": 39,
-    "rework": 41,
+    "pass": 40,
+    "rework": 40,
     "excluded": 12,
-    "acceptedMasks": 225,
+    "acceptedMasks": 230,
     "acceptedSourceGroups": 12,
     "upstreamExcluded": 9
   },
@@ -16,6 +16,7 @@
     "real_release_20260713_001.jpg",
     "real_release_20260713_002.jpg",
     "real_release_20260713_003.jpg",
+    "real_release_20260713_004.jpg",
     "real_release_20260713_024.jpg",
     "real_release_20260713_025.jpg",
     "real_release_20260713_027.jpg",
@@ -54,7 +55,6 @@
     "real_release_20260713_092.jpg"
   ],
   "reworkParentFiles": [
-    "real_release_20260713_004.jpg",
     "real_release_20260713_005.jpg",
     "real_release_20260713_006.jpg",
     "real_release_20260713_007.jpg",

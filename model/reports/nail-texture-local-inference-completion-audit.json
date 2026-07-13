@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-13T20:35:02.282Z",
+  "generatedAt": "2026-07-13T20:46:32.512Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -38,8 +38,8 @@
     "gateCount": 10,
     "passedGates": 3,
     "failedGates": 7,
-    "progressMarkerCount": 67,
-    "passMarkerCount": 55,
+    "progressMarkerCount": 68,
+    "passMarkerCount": 56,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -57,7 +57,7 @@
         "id": "M2-T3-RELEASE-TEST-ANNOTATION",
         "task": "新增真实发布测试素材逐甲标注与整图复核",
         "status": "🟡 IN PROGRESS",
-        "evidence": "核心首轮8张/59 mask、压力首轮2张/10 mask通过；十五轮修复累计再提升29张/156 mask。92张父图累计39张/225 mask暂通过、41张返修、12张源图裁断或遮挡排除；候选不得直接当作test真值"
+        "evidence": "核心首轮8张/59 mask、压力首轮2张/10 mask通过；十六轮修复累计再提升30张/161 mask。92张父图累计40张/230 mask暂通过、40张返修、12张源图裁断或遮挡排除；候选不得直接当作test真值"
       },
       {
         "id": "M3-T3-DEVICE",
@@ -69,7 +69,7 @@
         "id": "M3-T4-QUALITY",
         "task": "真实测试集直接可用率、污染率和人工修正成本",
         "status": "🟡 IN PROGRESS",
-        "evidence": "新增92张来源隔离发布测试父图均完成首轮及十五轮受审计返修，当前39张/225 mask暂通过、41张返修、12张源图裁断或遮挡排除。完整露出甲面只在单一完整mask覆盖时通过；仍等待`USER-FAILURE-01`和完整Beta逐图质量审核"
+        "evidence": "新增92张来源隔离发布测试父图均完成首轮及十六轮受审计返修，当前40张/230 mask暂通过、40张返修、12张源图裁断或遮挡排除。完整露出甲面只在单一完整mask覆盖时通过；仍等待`USER-FAILURE-01`和完整Beta逐图质量审核"
       },
       {
         "id": "M3-T5-BETA",
@@ -105,7 +105,7 @@
         "id": "USER-TESTSET-01",
         "task": "最终形成至少 100–200 张来源隔离的独立真实发布测试图",
         "status": "🟡 IN PROGRESS",
-        "evidence": "新增92张来源隔离父图均完成首轮及十五轮受审计返修；当前39张/225 mask暂通过，41张返修、12张源图裁断或遮挡排除，尚未冻结为发布test真值；未审候选不计入合格规模"
+        "evidence": "新增92张来源隔离父图均完成首轮及十六轮受审计返修；当前40张/230 mask暂通过，40张返修、12张源图裁断或遮挡排除，尚未冻结为发布test真值；未审候选不计入合格规模"
       },
       {
         "id": "USER-THRESHOLD-01",
@@ -178,7 +178,7 @@
         },
         {
           "checked": false,
-          "text": "完善真实数据来源、授权、分组拆分和人工复核。（正式训练集已有80张原图/516 mask及7张截图派生图/41 mask导入；新增92张独立发布测试父图均完成核心/压力首轮及十五轮受审计返修，当前39张/225 mask暂通过、41张返修、12张源图裁断或遮挡排除，尚未冻结为100–200张代表性test真值。完整露出甲面必须由单一完整mask覆盖；1001张Claude生成图在本批授权与逐图标注审核前仍仅作为合成候选池）"
+          "text": "完善真实数据来源、授权、分组拆分和人工复核。（正式训练集已有80张原图/516 mask及7张截图派生图/41 mask导入；新增92张独立发布测试父图均完成核心/压力首轮及十六轮受审计返修，当前40张/230 mask暂通过、40张返修、12张源图裁断或遮挡排除，尚未冻结为100–200张代表性test真值。完整露出甲面必须由单一完整mask覆盖；1001张Claude生成图在本批授权与逐图标注审核前仍仅作为合成候选池）"
         },
         {
           "checked": true,

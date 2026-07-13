@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-multipoint-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_004.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.27, 0.34, 0.40, 0.395]],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [[[0.285, 0.375], [0.33, 0.36], [0.385, 0.345]]],
+      "addNegativePoints": [[[0.26, 0.335], [0.41, 0.335], [0.26, 0.405], [0.41, 0.405], [0.35, 0.40]]],
+      "reviewReason": "keep_four_complete_finger_nails_and_tightly_rebuild_the_thumb_without_lower_skin_contamination"
+    }
+  ]
+}
