@@ -7,8 +7,8 @@
   "counts": {
     "core": 57,
     "pass": 28,
-    "rework": 25,
-    "excluded": 4,
+    "rework": 21,
+    "excluded": 8,
     "acceptedMasks": 161,
     "acceptedSourceGroups": 10,
     "stressPending": 35
@@ -47,7 +47,6 @@
     "real_release_20260713_001.jpg",
     "real_release_20260713_004.jpg",
     "real_release_20260713_022.jpg",
-    "real_release_20260713_023.jpg",
     "real_release_20260713_024.jpg",
     "real_release_20260713_025.jpg",
     "real_release_20260713_026.jpg",
@@ -65,22 +64,27 @@
     "real_release_20260713_080.jpg",
     "real_release_20260713_081.jpg",
     "real_release_20260713_083.jpg",
-    "real_release_20260713_084.jpg",
-    "real_release_20260713_085.jpg",
-    "real_release_20260713_088.jpg",
     "real_release_20260713_091.jpg"
   ],
   "excludeFiles": [
+    "real_release_20260713_023.jpg",
     "real_release_20260713_034.jpg",
     "real_release_20260713_049.jpg",
     "real_release_20260713_053.jpg",
-    "real_release_20260713_070.jpg"
+    "real_release_20260713_070.jpg",
+    "real_release_20260713_084.jpg",
+    "real_release_20260713_085.jpg",
+    "real_release_20260713_088.jpg"
   ],
   "excludeReasons": {
+    "real_release_20260713_023.jpg": "background_hand_contains_required_nails_cropped_by_the_top_and_right_image_edges",
     "real_release_20260713_034.jpg": "source_image_has_a_nail_cropped_at_the_top_image_edge",
     "real_release_20260713_049.jpg": "source_image_has_a_nail_cropped_at_the_bottom_image_edge",
     "real_release_20260713_053.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge",
-    "real_release_20260713_070.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge"
+    "real_release_20260713_070.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge",
+    "real_release_20260713_084.jpg": "overlapping_hands_leave_a_required_nail_partially_occluded",
+    "real_release_20260713_085.jpg": "satin_prop_occludes_required_nail_surfaces",
+    "real_release_20260713_088.jpg": "cup_and_overlapping_hands_occlude_required_nail_surfaces"
   },
   "reviewPolicy": {
     "requireEveryVisibleNail": true,
@@ -96,7 +100,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v4-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v5-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v6-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v7-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v7-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v8-report.json"
   ],
   "repairBatches": [
     {
@@ -152,6 +157,17 @@
       "review": "sam2-core-repair-v7-review.json",
       "passCount": 3,
       "acceptedMaskCount": 16
+    },
+    {
+      "id": "sam2-core-repair-v8",
+      "manifest": "sam2-core-repair-v8-manifest.json",
+      "prompts": "sam2-core-repair-v8-prompts.json",
+      "candidateReport": "sam2-core-repair-v8-report.json",
+      "review": "sam2-core-repair-v8-review.json",
+      "passCount": 0,
+      "acceptedMaskCount": 0,
+      "excludedInCandidateBatch": 2,
+      "additionalSourceExclusions": 2
     }
   ],
   "errors": []
