@@ -1,0 +1,380 @@
+{
+  "ok": false,
+  "version": "nail-texture-local-inference-completion-audit/v1",
+  "generatedAt": "2026-07-13T05:59:26.013Z",
+  "decision": "hold",
+  "inputs": {
+    "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
+    "progressPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-progress.md",
+    "datasetReadinessPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-dataset-readiness-release.json",
+    "candidateReviewPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v9-review.json",
+    "bestMetricsPath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\test-metrics.512.json",
+    "productionManifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
+    "desktopPerformancePath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\browser-performance-report.json",
+    "desktopMemoryPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-desktop-memory.json",
+    "betaReviewPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-beta-quality-review.json",
+    "failureCasesPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-user-failure-cases.json",
+    "mobileReports": [
+      {
+        "device": "android",
+        "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-android.json"
+      },
+      {
+        "device": "android-tablet",
+        "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-android-tablet.json"
+      },
+      {
+        "device": "iphone",
+        "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-iphone.json"
+      },
+      {
+        "device": "ipad",
+        "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-ipad.json"
+      }
+    ],
+    "outputPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-local-inference-completion-audit.json"
+  },
+  "summary": {
+    "gateCount": 10,
+    "passedGates": 3,
+    "failedGates": 7,
+    "progressMarkerCount": 45,
+    "passMarkerCount": 34,
+    "incompleteProgressMarkers": [
+      {
+        "id": "M2-T3-REAL-DATA",
+        "task": "导入授权真实图片并建立来源隔离测试集",
+        "status": "🟠 PARTIAL",
+        "evidence": "新增113张已获商业训练与长期回归授权；80张原图/516 mask及7张截图派生图/41 mask正式导入，5张源图排除、28张原图继续返修。真实发布测试样本仍未达到100–200张代表性要求"
+      },
+      {
+        "id": "M2-T3-VISION-ANNOTATION",
+        "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
+        "status": "🟡 IN PROGRESS",
+        "evidence": "9张截图派生照片7张/41 mask已通过并安全导入，2张返修；正式集409图/2142 mask，剩余原图返修和代表性test扩充继续推进"
+      },
+      {
+        "id": "M3-T3-DEVICE",
+        "task": "Windows、Android 与 iPhone 真机矩阵",
+        "status": "🟠 PARTIAL",
+        "evidence": "Windows Chromium WebGPU 已完成29次热性能和20次内存稳定性基准：P95=133.7ms，JS heap 峰值19.86MiB、首末增长1.69MiB，浏览器私有内存首末增长121.81MiB；Android/iPhone/iPad 真机仍等待执行"
+      },
+      {
+        "id": "M3-T4-QUALITY",
+        "task": "真实测试集直接可用率、污染率和人工修正成本",
+        "status": "⏭ USER INPUT",
+        "evidence": "`USER-DATA-01`与`USER-REVIEW-01`已完成基础素材确认；当前等待`USER-TESTSET-01`、`USER-FAILURE-01`和Beta逐图质量审核，发布门禁拒绝用单张debug图代替代表性测试集"
+      },
+      {
+        "id": "M3-T5-BETA",
+        "task": "Beta 发布决策",
+        "status": "🔴 HOLD",
+        "evidence": "v6 已通过正式候选工程门，但仍缺代表性真实测试集、真机矩阵和人工质量验收，禁止提前 promotion"
+      },
+      {
+        "id": "REL-T2-CANDIDATE",
+        "task": "正式模型候选发布",
+        "status": "🔴 HOLD",
+        "evidence": "v6 已通过候选精度、资产、协议和桌面性能门；独立真实 test 仅 13 张，仍缺 100–200 张代表性测试集、移动真机矩阵和 Beta 人工质量门，暂不切换生产 manifest"
+      },
+      {
+        "id": "USER-ANNOTATION-01",
+        "task": "修正真实图片的甲面多边形",
+        "status": "🟡 IN PROGRESS",
+        "evidence": "首批21张/174个甲面已完成；新增批次已有79张正样本/516个甲面mask和1张hard negative通过，5张源图排除，剩余28张继续返修。当前无需用户逐点重画"
+      },
+      {
+        "id": "USER-AUTH-03",
+        "task": "确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试",
+        "status": "⏸️ USER INPUT",
+        "evidence": "机器审计与11页视觉总览已完成；当前仅登记为合成候选池，未导入正式集。需明确授权后再进入逐图筛选和标注流程"
+      },
+      {
+        "id": "USER-FAILURE-01",
+        "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
+        "status": "⏭ USER INPUT",
+        "evidence": "hard negative 与失败类型优化"
+      },
+      {
+        "id": "USER-TESTSET-01",
+        "task": "最终形成至少 100–200 张来源隔离的独立真实发布测试图",
+        "status": "⏭ USER INPUT",
+        "evidence": "正式发布验收"
+      },
+      {
+        "id": "USER-THRESHOLD-01",
+        "task": "根据首轮真实测试冻结甲面缺失率与分组退化门槛",
+        "status": "⏭ USER INPUT",
+        "evidence": "Beta 后、正式发布前"
+      }
+    ]
+  },
+  "gates": {
+    "userChecklist": {
+      "ok": false,
+      "items": [
+        {
+          "checked": true,
+          "text": "确认 MVP 首先只做单张上传图片的纹理抠图。"
+        },
+        {
+          "checked": true,
+          "text": "指定优先目标设备和最低设备档位。"
+        },
+        {
+          "checked": true,
+          "text": "提供首批 50–100 张真实参考图。"
+        },
+        {
+          "checked": true,
+          "text": "明确图片是否允许用于内部训练、商业发布训练和回归测试。（首批 22 张、300 张 AI 图和新增 113 张均已确认）"
+        },
+        {
+          "checked": false,
+          "text": "提供实际用户可能上传的典型失败案例。"
+        },
+        {
+          "checked": false,
+          "text": "在 Beta 阶段参与“直接可用/需要修正/不可用”审核。"
+        }
+      ]
+    },
+    "engineeringChecklist": {
+      "ok": false,
+      "items": [
+        {
+          "checked": true,
+          "text": "修复 Worker 环境判断和 ONNX Runtime 加载。"
+        },
+        {
+          "checked": true,
+          "text": "接入真实 ONNX 冒烟模型。"
+        },
+        {
+          "checked": true,
+          "text": "固定并版本化模型输入输出协议。"
+        },
+        {
+          "checked": true,
+          "text": "实现 letterbox 和精确坐标还原。"
+        },
+        {
+          "checked": true,
+          "text": "实现真实输出转置、Top-K、NMS 和按框 mask 解码。"
+        },
+        {
+          "checked": true,
+          "text": "优化 prototype 和 typed array 内存使用。"
+        },
+        {
+          "checked": true,
+          "text": "建立真实输出 fixture 与 Python 对照测试。"
+        },
+        {
+          "checked": false,
+          "text": "完善真实数据来源、授权、分组拆分和人工复核。（新增实拍批次授权与80张原图/516 mask、7张截图派生图/41 mask导入已完成，5张源图排除、28张原图待返修；独立真实test仍需扩充至100–200张代表性样本。1001张Claude生成图在本批授权与逐图标注审核前仍仅作为合成候选池）"
+        },
+        {
+          "checked": true,
+          "text": "训练 FP32 基线并评估输入尺寸。"
+        },
+        {
+          "checked": true,
+          "text": "评估量化，但不牺牲纹理细边缘。（INT8 候选经门禁拒绝，FP32 保持默认）"
+        },
+        {
+          "checked": false,
+          "text": "建立真实设备性能和内存报告。（v6 桌面 Chromium WebGPU 29 次热推理 P95=133.7ms、20 次内存稳定性门已通过；Android/iPhone/iPad 真机矩阵与移动端峰值内存等待执行）"
+        },
+        {
+          "checked": true,
+          "text": "将质量、性能和模型资产门禁接入发布决策。"
+        },
+        {
+          "checked": true,
+          "text": "保持 fallback、手动修正和回滚能力。"
+        },
+        {
+          "checked": true,
+          "text": "建立本地上传图片的 MIME、10 MB、320–4096 像素和解码失败门禁，并统一编辑器与 AR 入口。"
+        },
+        {
+          "checked": true,
+          "text": "辅助标注失败报告定位到具体提示序号、提示模式和多边形转换阶段，支持低对比单甲定点返修。"
+        },
+        {
+          "checked": true,
+          "text": "对截图/拼图素材建立受审计区域提取流程，记录父子哈希、裁剪坐标和父图稳定分组，防止派生样本跨 split 泄漏。"
+        },
+        {
+          "checked": true,
+          "text": "对派生照片建立逐图 `sourceGroup` 的SAM2标注与机器审计流程；首批9张均有审核决定，7张/41 mask通过、2张返修。"
+        },
+        {
+          "checked": true,
+          "text": "将审核通过派生样本按父图稳定分组和原批次授权安全导入；正式集更新为409图/2142 mask、split=300/46/63，来源与训练readiness通过。"
+        },
+        {
+          "checked": true,
+          "text": "基于已审计v8快照构建v9来源隔离实验集；7张/41 mask仅进入train/val，冻结13张/102 mask test逐文件哈希不变。v9冻结test box/mask mAP50=0.8411/0.8393，按0.85 box门及不退化门拒绝，v6保持最佳候选。"
+        },
+        {
+          "checked": true,
+          "text": "建立实施规范最终完成度机器审计，逐项核验规范勾选、进度标记、数据/精度、代表性test、桌面与四类移动设备、失败案例、Beta质量及生产资产；缺证据时必须输出HOLD和明确责任方。"
+        }
+      ]
+    },
+    "datasetReadiness": {
+      "ok": true,
+      "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-dataset-readiness-release.json",
+      "evidence": {
+        "authorizationMode": "release",
+        "sourceRecordCount": 409,
+        "imageCount": 409,
+        "validMaskCount": 2142,
+        "splitCounts": {
+          "train": 300,
+          "val": 46,
+          "test": 63
+        },
+        "steps": [
+          {
+            "name": "audit-sources-csv",
+            "ok": true
+          },
+          {
+            "name": "audit-training-source-authorization",
+            "ok": true
+          },
+          {
+            "name": "audit-phase1-readiness",
+            "ok": true
+          }
+        ]
+      }
+    },
+    "bestCandidateMetrics": {
+      "ok": true,
+      "boxMap50": 0.8527541703044659,
+      "maskMap50": 0.847659037958229,
+      "minimumBoxMap50": 0.85,
+      "minimumMaskMap50": 0.75
+    },
+    "representativeReleaseTest": {
+      "ok": false,
+      "actual": 13,
+      "required": 100,
+      "recommendedMaximum": 200
+    },
+    "desktopAcceptance": {
+      "ok": true,
+      "performancePath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\browser-performance-report.json",
+      "performanceOk": true,
+      "performanceSamples": 29,
+      "memoryPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-desktop-memory.json",
+      "memoryOk": true,
+      "memorySamples": 20
+    },
+    "mobileAcceptance": {
+      "ok": false,
+      "requiredDevices": [
+        "android",
+        "android-tablet",
+        "iphone",
+        "ipad"
+      ],
+      "devices": [
+        {
+          "device": "android",
+          "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-android.json",
+          "found": false,
+          "ok": false,
+          "evidence": null
+        },
+        {
+          "device": "android-tablet",
+          "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-android-tablet.json",
+          "found": false,
+          "ok": false,
+          "evidence": null
+        },
+        {
+          "device": "iphone",
+          "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-iphone.json",
+          "found": false,
+          "ok": false,
+          "evidence": null
+        },
+        {
+          "device": "ipad",
+          "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-ipad.json",
+          "found": false,
+          "ok": false,
+          "evidence": null
+        }
+      ]
+    },
+    "failureCases": {
+      "ok": false,
+      "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-user-failure-cases.json",
+      "found": false,
+      "evidence": null
+    },
+    "betaQualityReview": {
+      "ok": false,
+      "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-beta-quality-review.json",
+      "found": false,
+      "evidence": null
+    },
+    "productionModelAsset": {
+      "ok": false,
+      "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
+      "manifest": {
+        "version": "nail-texture-seg-v1",
+        "inputSize": 640,
+        "inputLayout": "NCHW",
+        "colorOrder": "RGB",
+        "normalization": "zero_to_one",
+        "resizeMode": "letterbox",
+        "task": "segment",
+        "backendPreferences": [
+          "webgpu",
+          "wasm"
+        ],
+        "modelFile": "nail-texture-seg-v1.onnx",
+        "outputContract": "ultralytics-seg-raw-v1",
+        "labels": [
+          "nail_texture"
+        ]
+      },
+      "modelPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\nail-texture-seg-v1.onnx",
+      "modelExists": false,
+      "modelSizeBytes": 0,
+      "actualSha256": null,
+      "integrityOk": false
+    }
+  },
+  "blockingInputs": [
+    {
+      "code": "USER_FAILURE_CASES",
+      "owner": "user",
+      "summary": "Provide representative real-world failure images and an approved failure-case report."
+    },
+    {
+      "code": "REPRESENTATIVE_RELEASE_TESTSET",
+      "owner": "user+engineering",
+      "summary": "Provide and review at least 87 more source-isolated real release-test images."
+    },
+    {
+      "code": "MOBILE_DEVICE_ACCEPTANCE",
+      "owner": "user+engineering",
+      "summary": "Run performance and memory acceptance on Android phone/tablet, iPhone, and iPad physical devices."
+    },
+    {
+      "code": "USER_BETA_QUALITY_REVIEW",
+      "owner": "user",
+      "summary": "Complete the directly-usable / needs-fix / unusable Beta review on at least 100 representative images."
+    }
+  ],
+  "nextAction": "Collect external/user evidence without promoting the production model."
+}
