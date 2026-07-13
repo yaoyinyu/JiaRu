@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "source": "human-reviewed-keep-drop-add-repair",
+  "decision": "sam_repair_candidate_only_not_test_truth",
+  "sourcePromptFile": "sam2-core-repair-v6-prompts.json",
+  "sourcePromptSha256": "048940f8eb77c09ff06edcd766d2486d22a34b927498d5b010001c4bc892fdc1",
+  "repairManifestFile": "sam2-core-repair-v18-manifest.json",
+  "repairManifestSha256": "82c9e22bd4eefe4f16017c3170bad2b2c90c050b8b67c0651e361627d1d25aca",
+  "imageCount": 1,
+  "promptCount": 5,
+  "images": [
+    {
+      "fileName": "real_release_20260713_022.jpg",
+      "sourceGroup": "xhs-aaa458e163a2",
+      "boxes": [
+        [
+          0.39396296296296296,
+          0.34929178470254957,
+          0.4819629629629629,
+          0.498441926345609
+        ],
+        [
+          0.14762962962962964,
+          0.43586402266288954,
+          0.23662962962962963,
+          0.5613031161473088
+        ],
+        [
+          0.26966666666666667,
+          0.37552407932011334,
+          0.36366666666666664,
+          0.5239093484419264
+        ],
+        [
+          0.40362962962962967,
+          0.5988951841359773,
+          0.5806296296296297,
+          0.6822662889518414
+        ],
+        [
+          0.535,
+          0.37,
+          0.65,
+          0.51
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box-center"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.62,
+            0.395
+          ],
+          [
+            0.6,
+            0.43
+          ],
+          [
+            0.575,
+            0.47
+          ],
+          [
+            0.55,
+            0.5
+          ]
+        ]
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.525,
+            0.36
+          ],
+          [
+            0.66,
+            0.36
+          ],
+          [
+            0.64,
+            0.375
+          ],
+          [
+            0.525,
+            0.52
+          ],
+          [
+            0.66,
+            0.52
+          ],
+          [
+            0.65,
+            0.445
+          ],
+          [
+            0.535,
+            0.43
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          4
+        ],
+        "addedNegativePointCounts": [
+          7
+        ],
+        "reviewReason": "keep_four_complete_nails_and_rebuild_the_upper_right_long_nail_across_its_full_axis_without_side_skin"
+      }
+    }
+  ]
+}

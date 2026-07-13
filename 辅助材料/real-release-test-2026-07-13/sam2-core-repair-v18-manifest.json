@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-multipoint-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_022.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.535, 0.37, 0.65, 0.51]],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [[[0.62, 0.395], [0.60, 0.43], [0.575, 0.47], [0.55, 0.50]]],
+      "addNegativePoints": [[[0.525, 0.36], [0.66, 0.36], [0.64, 0.375], [0.525, 0.52], [0.66, 0.52], [0.65, 0.445], [0.535, 0.43]]],
+      "reviewReason": "keep_four_complete_nails_and_rebuild_the_upper_right_long_nail_across_its_full_axis_without_side_skin"
+    }
+  ]
+}
