@@ -1,0 +1,22 @@
+{
+  "version": "nail-texture-vision-prompts/v1",
+  "sourceGroup": "real-reference-2026-07-12-batch-06",
+  "decision": "vision_supplied_tight_boxes_require_overlay_review",
+  "images": [
+    {
+      "fileName": "deerplanet.tw_145086907_2510572082582724_2097671085045523348_n_141663314260de933ec1057.jpg",
+      "boxes": [
+        [0.46, 0.19, 0.51, 0.31],
+        [0.55, 0.27, 0.61, 0.36],
+        [0.47, 0.31, 0.54, 0.40],
+        [0.38, 0.36, 0.45, 0.44],
+        [0.37, 0.44, 0.42, 0.52],
+        [0.25, 0.545, 0.31, 0.63],
+        [0.315, 0.61, 0.395, 0.705],
+        [0.36, 0.73, 0.43, 0.84],
+        [0.19, 0.68, 0.29, 0.82]
+      ],
+      "promptModes": ["box", "box", "box", "box", "box", "box-center", "box-center", "box", "box"]
+    }
+  ]
+}
