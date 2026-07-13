@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-multipoint-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_080.jpg"
+  ],
+  "acceptedMaskCount": 5,
+  "reworkFiles": [],
+  "excludeFiles": [
+    "real_release_20260713_091.jpg"
+  ],
+  "reviewNotes": {
+    "real_release_20260713_080.jpg": "five_single_masks_cover_all_fully_visible_low_contrast_glitter_nails_after_thumb_prompt_was_tightened_to_the_visible_nail_axis_without_the_previous_large_skin_region",
+    "real_release_20260713_091.jpg": "rightmost_pinky_nail_is_cropped_by_the_right_image_edge_so_the_source_is_excluded_instead_of_repaired"
+  }
+}

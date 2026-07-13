@@ -1,0 +1,190 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "sam2-core-repair-v14": {
+      "pass": 10,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "nailIndex": 1,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4817,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        694.0,
+        881.0,
+        783.0,
+        1098.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "nailIndex": 2,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4678,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        659.0,
+        501.0,
+        824.0,
+        724.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "nailIndex": 3,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4227,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        461.0,
+        322.0,
+        675.0,
+        498.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "nailIndex": 4,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4245,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        705.0,
+        194.0,
+        882.0,
+        410.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "nailIndex": 5,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5589,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        228.0,
+        347.0,
+        363.0,
+        483.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "nailIndex": 1,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4252,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        491.0,
+        976.0,
+        661.0,
+        1155.0
+      ],
+      "maximumPeerBoundsIou": 0.0276
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "nailIndex": 2,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4955,
+      "boundsContainment": 0.9593,
+      "centerInside": true,
+      "bounds": [
+        435.0,
+        760.0,
+        577.0,
+        996.0
+      ],
+      "maximumPeerBoundsIou": 0.0276
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "nailIndex": 3,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.536,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        240.0,
+        711.0,
+        370.0,
+        925.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "nailIndex": 4,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4315,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        124.0,
+        931.0,
+        275.0,
+        1064.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "nailIndex": 5,
+      "source": "sam2-core-repair-v14",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4596,
+      "boundsContainment": 0.834,
+      "centerInside": true,
+      "bounds": [
+        906.0,
+        858.0,
+        1079.0,
+        986.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    }
+  ]
+}

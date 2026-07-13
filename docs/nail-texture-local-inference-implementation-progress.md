@@ -81,7 +81,7 @@ npm.cmd run build
 | `M2-T3-RELEASE-TEST-INTAKE` | 新增真实发布测试素材统一命名、去重与用途隔离 | ✅ PASS | 101张统一为`real_release_20260713_001..101.jpg`并保留原名/来源/哈希映射；9张跨旧批次精确重复排除，92张按57核心/35压力图进入独立发布测试与长期回归，19个来源组且训练用途明确禁止 |
 | `M2-T3-MATERIAL-NAMING` | 外部素材全集统一命名与可逆追溯 | ✅ PASS | 其余5批1435张统一为类型/来源/日期/四位序号命名，5份映射保留原名、新名、SHA-256和来源组；1435/1435哈希复核一致。101张已稳定引用的发布测试图保持原命名，外部素材共1536张纳入统一管理 |
 | `M2-T3-RELEASE-TEST-STRESS-REGIONS` | 35张截图/拼图压力图主照片区域提取与来源继承 | ✅ PASS | 35/35区域提取成功，父图/派生SHA-256、裁剪框和父图稳定sourceGroup审计通过；派生intake强制父项为stress、每父图一个主区域并继承发布测试/长期回归授权，训练用途prohibited；专项测试2/2通过 |
-| `M2-T3-RELEASE-TEST-ANNOTATION` | 新增真实发布测试素材逐甲标注与整图复核 | 🟡 IN PROGRESS | 核心首轮8张/59 mask、压力首轮2张/10 mask通过；十二轮修复累计再提升26张/136 mask。92张父图累计36张/205 mask暂通过、48张返修、8张源图裁断或遮挡排除；候选不得直接当作test真值 |
+| `M2-T3-RELEASE-TEST-ANNOTATION` | 新增真实发布测试素材逐甲标注与整图复核 | 🟡 IN PROGRESS | 核心首轮8张/59 mask、压力首轮2张/10 mask通过；十三轮修复累计再提升27张/141 mask。92张父图累计37张/210 mask暂通过、46张返修、9张源图裁断或遮挡排除；候选不得直接当作test真值 |
 | `M2-T3-RELEASE-TEST-REPAIR-V2` | 返修提示keep/drop/add与父图级审核聚合 | ✅ PASS | 5张/25提示SAM2完成且几何25 pass/0 suspect；原分辨率4张/20 mask提升、1张返修。修复提示记录双清单SHA-256，审核叠加核对polygon数/来源组，聚合报告覆盖92/92父图并保持trainingUse=prohibited；专项5/5通过 |
 | `M2-T3-RELEASE-TEST-REPAIR-V3` | 第二轮逐甲返修与原分辨率污染复核 | ✅ PASS | 6张/29提示SAM2完成且几何29 pass/0 suspect；原分辨率仅002、027两张/9 mask提升，001、051、052、091因皮肤污染继续返修。父图聚合为16张/98 mask暂通过、75张返修、1张排除，训练用途保持prohibited |
 | `M2-T3-RELEASE-TEST-REPAIR-V4` | 逐新增框提示模式与第三轮高潜力返修 | ✅ PASS | 构建器支持逐框`box-center`并拒绝数量不匹配/非法模式；5张/24提示SAM2完成、0 fallback、几何24 pass/0 suspect，原分辨率5张/24 mask全部提升。父图聚合为21张/122 mask暂通过、70张返修、1张排除、9个来源组，训练用途保持prohibited |
@@ -95,6 +95,7 @@ npm.cmd run build
 | `M2-T3-RELEASE-TEST-REPAIR-V11` | 第十轮双手相邻长甲完整轴向多点返修 | ✅ PASS | 073共9提示完成、0 fallback，几何9 pass/0 suspect；原分辨率确认上手带钻白色延长段和下手相邻三甲均完整分离，一甲一mask且无皮肤污染，接受1张/9 mask。父图聚合更新为34张/195 mask暂通过、50张返修、8张排除、12个来源组 |
 | `M2-T3-RELEASE-TEST-REPAIR-V12` | 第十一轮同源长甲重建与严格拇指皮肤复核 | ✅ PASS | 025/026共10提示完成、0 fallback，几何10 pass/0 suspect；原分辨率仅接受025的1张/5 mask，026的拇指仍吸收矩形皮肤区域而继续返修。父图聚合更新为35张/200 mask暂通过、49张返修、8张排除、12个来源组 |
 | `M2-T3-RELEASE-TEST-REPAIR-V13` | 第十二轮低对比裸色甲、透明侧向拇指与衣物污染复核 | ✅ PASS | 065/071共10提示完成、0 fallback，几何9 pass/1 suspect；原分辨率仅接受071的1张/5 mask，065拇指仍吸收牛仔布与皮肤而继续返修。父图聚合更新为36张/205 mask暂通过、48张返修、8张排除、12个来源组 |
+| `M2-T3-RELEASE-TEST-REPAIR-V14` | 第十三轮低对比单手甲重建与右边界裁断复核 | ✅ PASS | 080/091共10提示完成、0 fallback，几何10 pass/0 suspect；原分辨率接受080的1张/5完整mask，091因最右侧小拇指甲被图片边界裁断转为排除。父图聚合更新为37张/210 mask暂通过、46张返修、9张排除、12个来源组 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
 | `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |
@@ -113,7 +114,7 @@ npm.cmd run build
 | `M3-T1-GATES` | 性能、纹理质量、发布测试集代表性与发布决策门禁 | ✅ PASS | 性能、客户端开销、直接可用率、污染率、形状保真、样本量和 release-test-split 硬门禁均有自动测试；发布决策会阻止不合格候选 |
 | `M3-T2-DESKTOP-SMOKE` | 桌面浏览器工程性能冒烟 | ✅ PASS | Chromium Worker + WebGPU 连续 20 次已预热实测：端到端 P50=63ms、P95=72ms、max=79ms；Worker P95=57ms；客户端开销 P95=17ms；20/20 均返回 4 个候选。仅证明合成基线工程性能，不代表正式模型质量 |
 | `M3-T3-DEVICE` | Windows、Android 与 iPhone 真机矩阵 | 🟠 PARTIAL | Windows Chromium WebGPU 已完成29次热性能和20次内存稳定性基准：P95=133.7ms，JS heap 峰值19.86MiB、首末增长1.69MiB，浏览器私有内存首末增长121.81MiB；Android/iPhone/iPad 真机仍等待执行 |
-| `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | 🟡 IN PROGRESS | 新增92张来源隔离发布测试父图均完成首轮及十二轮受审计返修，当前36张/205 mask暂通过、48张返修、8张源图裁断或遮挡排除。完整露出甲面只在单一完整mask覆盖时通过；仍等待`USER-FAILURE-01`和完整Beta逐图质量审核 |
+| `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | 🟡 IN PROGRESS | 新增92张来源隔离发布测试父图均完成首轮及十三轮受审计返修，当前37张/210 mask暂通过、46张返修、9张源图裁断或遮挡排除。完整露出甲面只在单一完整mask覆盖时通过；仍等待`USER-FAILURE-01`和完整Beta逐图质量审核 |
 | `M3-T5-BETA` | Beta 发布决策 | 🔴 HOLD | v6 已通过正式候选工程门，但仍缺代表性真实测试集、真机矩阵和人工质量验收，禁止提前 promotion |
 
 ## 正式发布与回滚
@@ -155,7 +156,7 @@ npm.cmd run build
 | `USER-AUTH-04` | 确认 `真实素材/2026_7_13` 的101张素材用途 | ✅ PASS | 用户确认允许用于独立发布测试和长期回归；intake将训练用途固定为prohibited，9张跨批重复排除，92张保留 |
 | `USER-SCOPE-01` | 确认 MVP 产品范围保持为“单张上传图片纹理抠图”，实时视频分割不进入本期 | ✅ PASS | 已确认支持单图、单指和多图提取；实时视频分割不进入本期 |
 | `USER-FAILURE-01` | 提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲 | ⏭ USER INPUT | hard negative 与失败类型优化 |
-| `USER-TESTSET-01` | 最终形成至少 100–200 张来源隔离的独立真实发布测试图 | 🟡 IN PROGRESS | 新增92张来源隔离父图均完成首轮及十二轮受审计返修；当前36张/205 mask暂通过，48张返修、8张源图裁断或遮挡排除，尚未冻结为发布test真值；未审候选不计入合格规模 |
+| `USER-TESTSET-01` | 最终形成至少 100–200 张来源隔离的独立真实发布测试图 | 🟡 IN PROGRESS | 新增92张来源隔离父图均完成首轮及十三轮受审计返修；当前37张/210 mask暂通过，46张返修、9张源图裁断或遮挡排除，尚未冻结为发布test真值；未审候选不计入合格规模 |
 | `USER-THRESHOLD-01` | 根据首轮真实测试冻结甲面缺失率与分组退化门槛 | ⏭ USER INPUT | Beta 后、正式发布前 |
 
 ## 后续里程碑
