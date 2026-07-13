@@ -1,0 +1,414 @@
+{
+  "ok": true,
+  "method": "vision-guided-box-center-positive-corner-negative-prompts-plus-sam2",
+  "engine": "sam2",
+  "promptMode": "box",
+  "model": "sam2.1_t.pt",
+  "promptCount": 345,
+  "imageCount": 57,
+  "excludedFiles": [],
+  "completedCount": 57,
+  "boxOnlyFallbackPromptCount": 0,
+  "errors": [],
+  "outputs": [
+    {
+      "fileName": "real_release_20260713_001.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_001.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_001-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-9c78df6308ed"
+    },
+    {
+      "fileName": "real_release_20260713_002.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_002.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_002-sam-reviewed-overlay.png",
+      "polygonCount": 6,
+      "sourceGroup": "xhs-9c78df6308ed"
+    },
+    {
+      "fileName": "real_release_20260713_003.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_003.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_003-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-9c78df6308ed"
+    },
+    {
+      "fileName": "real_release_20260713_004.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_004.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_004-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-9c78df6308ed"
+    },
+    {
+      "fileName": "real_release_20260713_022.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_022.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_022-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-aaa458e163a2"
+    },
+    {
+      "fileName": "real_release_20260713_023.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_023.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_023-sam-reviewed-overlay.png",
+      "polygonCount": 7,
+      "sourceGroup": "xhs-9fc073d64429"
+    },
+    {
+      "fileName": "real_release_20260713_024.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_024-sam-reviewed-overlay.png",
+      "polygonCount": 2,
+      "sourceGroup": "xhs-719a2d46baca"
+    },
+    {
+      "fileName": "real_release_20260713_025.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_025.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_025-sam-reviewed-overlay.png",
+      "polygonCount": 2,
+      "sourceGroup": "xhs-719a2d46baca"
+    },
+    {
+      "fileName": "real_release_20260713_026.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_026.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_026-sam-reviewed-overlay.png",
+      "polygonCount": 7,
+      "sourceGroup": "xhs-719a2d46baca"
+    },
+    {
+      "fileName": "real_release_20260713_027.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_027.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_027-sam-reviewed-overlay.png",
+      "polygonCount": 2,
+      "sourceGroup": "xhs-73c8f485071a"
+    },
+    {
+      "fileName": "real_release_20260713_028.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_028.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_028-sam-reviewed-overlay.png",
+      "polygonCount": 8,
+      "sourceGroup": "xhs-73c8f485071a"
+    },
+    {
+      "fileName": "real_release_20260713_029.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_029.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_029-sam-reviewed-overlay.png",
+      "polygonCount": 8,
+      "sourceGroup": "xhs-73c8f485071a"
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_030.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_030-sam-reviewed-overlay.png",
+      "polygonCount": 9,
+      "sourceGroup": "xhs-73c8f485071a"
+    },
+    {
+      "fileName": "real_release_20260713_031.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_031.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_031-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-73c8f485071a"
+    },
+    {
+      "fileName": "real_release_20260713_032.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_032.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_032-sam-reviewed-overlay.png",
+      "polygonCount": 10,
+      "sourceGroup": "xhs-73c8f485071a"
+    },
+    {
+      "fileName": "real_release_20260713_033.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_033.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_033-sam-reviewed-overlay.png",
+      "polygonCount": 8,
+      "sourceGroup": "xhs-73c8f485071a"
+    },
+    {
+      "fileName": "real_release_20260713_034.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_034.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_034-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-73c8f485071a"
+    },
+    {
+      "fileName": "real_release_20260713_043.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_043.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_043-sam-reviewed-overlay.png",
+      "polygonCount": 6,
+      "sourceGroup": "xhs-31a8a7089b8a"
+    },
+    {
+      "fileName": "real_release_20260713_044.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_044.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_044-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-31a8a7089b8a"
+    },
+    {
+      "fileName": "real_release_20260713_045.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_045.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_045-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-31a8a7089b8a"
+    },
+    {
+      "fileName": "real_release_20260713_046.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_046.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_046-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-31a8a7089b8a"
+    },
+    {
+      "fileName": "real_release_20260713_047.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_047.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_047-sam-reviewed-overlay.png",
+      "polygonCount": 9,
+      "sourceGroup": "xhs-83cdca812139"
+    },
+    {
+      "fileName": "real_release_20260713_048.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_048.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_048-sam-reviewed-overlay.png",
+      "polygonCount": 9,
+      "sourceGroup": "xhs-83cdca812139"
+    },
+    {
+      "fileName": "real_release_20260713_049.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_049.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_049-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-83cdca812139"
+    },
+    {
+      "fileName": "real_release_20260713_050.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_050.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_050-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-83cdca812139"
+    },
+    {
+      "fileName": "real_release_20260713_051.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_051.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_051-sam-reviewed-overlay.png",
+      "polygonCount": 6,
+      "sourceGroup": "xhs-54f8135cabeb"
+    },
+    {
+      "fileName": "real_release_20260713_052.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_052.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_052-sam-reviewed-overlay.png",
+      "polygonCount": 6,
+      "sourceGroup": "xhs-54f8135cabeb"
+    },
+    {
+      "fileName": "real_release_20260713_053.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_053.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_053-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-54f8135cabeb"
+    },
+    {
+      "fileName": "real_release_20260713_054.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_054.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_054-sam-reviewed-overlay.png",
+      "polygonCount": 8,
+      "sourceGroup": "xhs-54f8135cabeb"
+    },
+    {
+      "fileName": "real_release_20260713_064.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_064.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_064-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-c2b81592e213"
+    },
+    {
+      "fileName": "real_release_20260713_065.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_065.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_065-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-055d7f3c88fc"
+    },
+    {
+      "fileName": "real_release_20260713_067.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_067.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_067-sam-reviewed-overlay.png",
+      "polygonCount": 7,
+      "sourceGroup": "xhs-7fcda5eb6fd1"
+    },
+    {
+      "fileName": "real_release_20260713_068.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_068.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_068-sam-reviewed-overlay.png",
+      "polygonCount": 9,
+      "sourceGroup": "xhs-7fcda5eb6fd1"
+    },
+    {
+      "fileName": "real_release_20260713_069.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_069.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_069-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-7fcda5eb6fd1"
+    },
+    {
+      "fileName": "real_release_20260713_070.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_070.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_070-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-7fcda5eb6fd1"
+    },
+    {
+      "fileName": "real_release_20260713_071.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_071.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_071-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-7fcda5eb6fd1"
+    },
+    {
+      "fileName": "real_release_20260713_072.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_072.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_072-sam-reviewed-overlay.png",
+      "polygonCount": 10,
+      "sourceGroup": "xhs-7fcda5eb6fd1"
+    },
+    {
+      "fileName": "real_release_20260713_073.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_073.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_073-sam-reviewed-overlay.png",
+      "polygonCount": 9,
+      "sourceGroup": "xhs-7fcda5eb6fd1"
+    },
+    {
+      "fileName": "real_release_20260713_074.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_074.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_074-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-46742c5a7a3a"
+    },
+    {
+      "fileName": "real_release_20260713_075.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_075.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_075-sam-reviewed-overlay.png",
+      "polygonCount": 3,
+      "sourceGroup": "xhs-46742c5a7a3a"
+    },
+    {
+      "fileName": "real_release_20260713_076.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_076.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_076-sam-reviewed-overlay.png",
+      "polygonCount": 12,
+      "sourceGroup": "xhs-46742c5a7a3a"
+    },
+    {
+      "fileName": "real_release_20260713_077.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_077.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_077-sam-reviewed-overlay.png",
+      "polygonCount": 6,
+      "sourceGroup": "xhs-46742c5a7a3a"
+    },
+    {
+      "fileName": "real_release_20260713_078.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_078.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_078-sam-reviewed-overlay.png",
+      "polygonCount": 10,
+      "sourceGroup": "xhs-46742c5a7a3a"
+    },
+    {
+      "fileName": "real_release_20260713_079.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_079.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_079-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-d6a8bff8e3e8"
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_080.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_080-sam-reviewed-overlay.png",
+      "polygonCount": 6,
+      "sourceGroup": "xhs-d6a8bff8e3e8"
+    },
+    {
+      "fileName": "real_release_20260713_081.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_081.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_081-sam-reviewed-overlay.png",
+      "polygonCount": 7,
+      "sourceGroup": "xhs-d6a8bff8e3e8"
+    },
+    {
+      "fileName": "real_release_20260713_082.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_082.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_082-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-d6a8bff8e3e8"
+    },
+    {
+      "fileName": "real_release_20260713_083.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_083.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_083-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-d6a8bff8e3e8"
+    },
+    {
+      "fileName": "real_release_20260713_084.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_084.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_084-sam-reviewed-overlay.png",
+      "polygonCount": 10,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    },
+    {
+      "fileName": "real_release_20260713_085.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_085.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_085-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    },
+    {
+      "fileName": "real_release_20260713_086.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_086.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_086-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    },
+    {
+      "fileName": "real_release_20260713_087.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_087.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_087-sam-reviewed-overlay.png",
+      "polygonCount": 8,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    },
+    {
+      "fileName": "real_release_20260713_088.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_088.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_088-sam-reviewed-overlay.png",
+      "polygonCount": 8,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    },
+    {
+      "fileName": "real_release_20260713_089.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_089.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_089-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    },
+    {
+      "fileName": "real_release_20260713_090.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_090.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_090-sam-reviewed-overlay.png",
+      "polygonCount": 6,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_091.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_091-sam-reviewed-overlay.png",
+      "polygonCount": 4,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    },
+    {
+      "fileName": "real_release_20260713_092.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-v1-json\\real_release_20260713_092.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-v1\\real_release_20260713_092-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "xhs-c2d6f9638bf5"
+    }
+  ]
+}

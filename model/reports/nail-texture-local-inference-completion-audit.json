@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-13T06:24:10.243Z",
+  "generatedAt": "2026-07-13T08:04:58.006Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -38,8 +38,8 @@
     "gateCount": 10,
     "passedGates": 3,
     "failedGates": 7,
-    "progressMarkerCount": 46,
-    "passMarkerCount": 35,
+    "progressMarkerCount": 49,
+    "passMarkerCount": 37,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -54,6 +54,12 @@
         "evidence": "9张截图派生照片7张/41 mask已通过并安全导入，2张返修；正式集409图/2142 mask，剩余原图返修和代表性test扩充继续推进"
       },
       {
+        "id": "M2-T3-RELEASE-TEST-ANNOTATION",
+        "task": "新增真实发布测试素材逐甲标注与整图复核",
+        "status": "🟡 IN PROGRESS",
+        "evidence": "v6为101张生成852个候选，SAM2完成57张核心图/345提示且0失败；原分辨率复核暂通过8张/59 mask，48张返修，1张源图裁断排除，35张压力图待第二阶段处理；候选不得直接当作test真值"
+      },
+      {
         "id": "M3-T3-DEVICE",
         "task": "Windows、Android 与 iPhone 真机矩阵",
         "status": "🟠 PARTIAL",
@@ -62,8 +68,8 @@
       {
         "id": "M3-T4-QUALITY",
         "task": "真实测试集直接可用率、污染率和人工修正成本",
-        "status": "⏭ USER INPUT",
-        "evidence": "`USER-DATA-01`与`USER-REVIEW-01`已完成基础素材确认；当前等待`USER-TESTSET-01`、`USER-FAILURE-01`和Beta逐图质量审核，发布门禁拒绝用单张debug图代替代表性测试集"
+        "status": "🟡 IN PROGRESS",
+        "evidence": "新增92张来源隔离发布测试候选已完成intake，核心图首轮仅8张/59 mask通过；48张返修、35张压力图待审。仍等待`USER-FAILURE-01`和完整Beta逐图质量审核，发布门禁拒绝把未审候选计为合格test"
       },
       {
         "id": "M3-T5-BETA",
@@ -98,8 +104,8 @@
       {
         "id": "USER-TESTSET-01",
         "task": "最终形成至少 100–200 张来源隔离的独立真实发布测试图",
-        "status": "⏭ USER INPUT",
-        "evidence": "正式发布验收"
+        "status": "🟡 IN PROGRESS",
+        "evidence": "新增92张来源隔离候选已入队，但当前仅8张/59 mask通过核心图首轮复核，48张返修、35张压力图待审；未审候选不计入合格test规模"
       },
       {
         "id": "USER-THRESHOLD-01",

@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-visual-review",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_028.jpg",
+    "real_release_20260713_029.jpg",
+    "real_release_20260713_030.jpg",
+    "real_release_20260713_032.jpg",
+    "real_release_20260713_068.jpg",
+    "real_release_20260713_074.jpg",
+    "real_release_20260713_089.jpg",
+    "real_release_20260713_092.jpg"
+  ],
+  "excludeFiles": [
+    "real_release_20260713_053.jpg"
+  ],
+  "excludeReasons": {
+    "real_release_20260713_053.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge"
+  }
+}
