@@ -6,19 +6,29 @@ import { UploadButton } from "@/components/UploadButton";
 import { NailCanvas } from "@/components/NailCanvas";
 import { ColorPalette } from "@/components/ColorPalette";
 import { FINGER_NAMES } from "@/lib/utils";
+import { validateImageUpload } from "@/lib/image-upload-validation";
 
 export default function EditorPage() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [nailColors, setNailColors] = useState<string[]>(Array(5).fill("#E8A0BF"));
   const [activeFinger, setActiveFinger] = useState(0);
   const [brushSize] = useState(15);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const currentColor = nailColors[activeFinger];
 
   useEffect(() => () => {
     if (imageUrl) URL.revokeObjectURL(imageUrl);
   }, [imageUrl]);
 
-  const handleUpload = (file: File) => setImageUrl(URL.createObjectURL(file));
+  const handleUpload = async (file: File) => {
+    setUploadError(null);
+    const validation = await validateImageUpload(file);
+    if (!validation.ok) {
+      setUploadError(validation.message);
+      return;
+    }
+    setImageUrl(URL.createObjectURL(file));
+  };
   const changeColor = (color: string) => {
     const updated = [...nailColors];
     updated[activeFinger] = color;
@@ -36,6 +46,11 @@ export default function EditorPage() {
         <div className="grid gap-5 md:grid-cols-[1.25fr_.75fr]">
           <section className="rounded-[28px] border border-white/80 bg-white/65 p-3 shadow-[0_24px_70px_rgba(116,73,92,.10)] backdrop-blur-2xl sm:p-5">
             <UploadButton onUpload={handleUpload} />
+            {uploadError && (
+              <p role="alert" className="px-3 pb-2 pt-3 text-center text-sm text-red-600">
+                {uploadError}
+              </p>
+            )}
           </section>
           <aside className="rounded-[28px] border border-white/75 bg-white/55 p-6 shadow-[0_20px_60px_rgba(116,73,92,.07)] backdrop-blur-xl">
             <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-100 to-purple-100 text-xl">✦</span>

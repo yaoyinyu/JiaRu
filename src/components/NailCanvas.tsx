@@ -17,6 +17,10 @@ interface NailCanvasProps {
   brushSize: number;
 }
 
+function getCanvasContext(canvas: HTMLCanvasElement) {
+  return canvas.getContext("2d", { willReadFrequently: true });
+}
+
 export function NailCanvas({
   imageUrl,
   selectedColor,
@@ -53,7 +57,7 @@ export function NailCanvas({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = getCanvasContext(canvas);
     if (!ctx) return;
 
     const img = new Image();
@@ -76,7 +80,7 @@ export function NailCanvas({
     saveHistoryRef.current = () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-      const ctx = canvas.getContext("2d");
+      const ctx = getCanvasContext(canvas);
       if (!ctx) return;
       const data = ctx.getImageData(0, 0, canvas.width, canvas.height);
       setHistory((prev) => [...prev.slice(-19), data]);
@@ -102,7 +106,7 @@ export function NailCanvas({
   const drawDot = (pos: Point) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = getCanvasContext(canvas);
     if (!ctx) return;
 
     ctx.beginPath();
@@ -160,7 +164,7 @@ export function NailCanvas({
   const handleUndo = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = getCanvasContext(canvas);
     if (!ctx || history.length < 2) return;
     const prev = history[history.length - 2];
     ctx.putImageData(prev, 0, 0);
@@ -171,7 +175,7 @@ export function NailCanvas({
   const handleReset = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
+    const ctx = getCanvasContext(canvas);
     if (!ctx || history.length === 0) return;
     ctx.putImageData(history[0], 0, 0);
     setHistory([history[0]]);
