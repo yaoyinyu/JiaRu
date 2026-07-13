@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-visual-review",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "b8f91eb08fc3-primary.png",
+    "c6edb7fea814-primary.png"
+  ],
+  "excludeFiles": [],
+  "excludeReasons": {}
+}

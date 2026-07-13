@@ -93,7 +93,7 @@ def main() -> None:
             "excluded": len(exclude_files),
             "acceptedMasks": accepted_masks,
             "acceptedSourceGroups": len(accepted_source_groups),
-            "stressPending": intake["counts"]["stress"],
+            "stressPending": intake["counts"].get("stress", 0),
         },
         "passFiles": sorted(pass_files),
         "reworkFiles": sorted(rework_files),

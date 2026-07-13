@@ -82,7 +82,7 @@ model/exports/
 /review-temp/
 /.playwright-cli/
 
-# local review media; keep manifests, CSV and JSON annotations in Git
+# local review media; keep compact manifests/reports in Git, but exclude reproducible candidate polygons
 辅助材料/**/images/
 辅助材料/**/overlays/
 辅助材料/**/debug/
@@ -97,6 +97,7 @@ model/exports/
 辅助材料/**/annotations/v*-cross-resolution-consensus/
 辅助材料/**/annotations/vision-reviewed-plus-consensus-*-json/
 辅助材料/**/annotations/sam2-*-json/
+辅助材料/**/annotations/v*-json/
 辅助材料/**/selected/*-yolo*-json/
 辅助材料/**/selected/*-sam2-*-json/
 辅助材料/**/*cross-resolution-consensus-report.json

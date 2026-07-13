@@ -1,0 +1,863 @@
+{
+  "schemaVersion": 1,
+  "batchId": "real-release-test-2026-07-13-v1-stress-primary-regions-v1",
+  "ok": true,
+  "authorization": {
+    "authorizedUses": [
+      "independent-release-test",
+      "long-term-regression"
+    ],
+    "trainingUse": "prohibited",
+    "inheritedFrom": "real-release-test-2026-07-13-v1"
+  },
+  "root": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\stress-primary-regions-v1",
+  "counts": {
+    "parentStress": 35,
+    "derivedRegions": 35,
+    "annotationPending": 35
+  },
+  "status": "derived_region_intake_pass_annotation_pending",
+  "errors": [],
+  "entries": [
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "sha256": "d79155f248e545d41620ec397e22c519281fceda55472a902aeb5ae6d657337f",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-51a2eded5eda",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_005.jpg",
+      "parentSha256": "b94fd9504ee5004aab4d812da36c382429eab84dbb05864978d42d341598413e",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.4,
+        0.62,
+        0.97,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "a4a440e7e2fc-primary.png",
+      "sha256": "a4700388dcffbd874c268dd18c7e9cb5cbf2e7b9d41cbd90268fb142b24107ba",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-a4a440e7e2fc",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_006.jpg",
+      "parentSha256": "d941590a4048eaa2e3572f6118242d513d6012ff2261aeb2dd2ca2c3e281faae",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.65,
+        0.97,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "sha256": "191dbdda3e197bd82497e9fb3dfac52fff0dbe9fd80a314f11b40e498e693e95",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-7a92b2c08d0f",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_007.jpg",
+      "parentSha256": "f97b9ab9333dddb6b7291f538d62a84b3490368b86279a7a4ca5deacff23a890",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.52,
+        0.64,
+        0.97,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "6d835166ab9e-primary.png",
+      "sha256": "92b7064196777a0310707d66284abb2f1d4ba0d7bd6e302f9f3f96f0faf1b4ee",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6d835166ab9e",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_008.jpg",
+      "parentSha256": "6f9960639bc309a1a4c86d212e1453d56364facc5d7c6e8c6c1707c51aadd8b8",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.65,
+        0.93,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "b548e28934d4-primary.png",
+      "sha256": "0a20ca6ddb6d29e21238c1025b5ccb76332aef1958aaa686374bc86a49ef48f2",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b548e28934d4",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_009.jpg",
+      "parentSha256": "cf48236a6f4146d18e2094f3fd3b3a50c4a0442fd720b5d52ab1a5236a181b9d",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.47,
+        0.59,
+        0.96,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "6be466dc2f6d-primary.png",
+      "sha256": "a9b56b85bb2c78a377d8706dba62518b4f00963b4cb42734c2dccd45da4bb297",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6be466dc2f6d",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_010.jpg",
+      "parentSha256": "46097167e74363840805fdf25863de3bba55c14ecb824e356ce066dcb2514c04",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.66,
+        0.94,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "f8c543cdd6ff-primary.png",
+      "sha256": "9733a91da5da8f741bf66fc005455f676658f8623031cc2dcb09597ad59d7899",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f8c543cdd6ff",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_011.jpg",
+      "parentSha256": "0b68a7de1b33f0ecbad269f93138f3c583bea59072d7d4fb334c73a57abe9daa",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.48,
+        0.64,
+        0.96,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "sha256": "15795b2b338b4f23cbaafc0abe8d006a332a2df287f7c90328132f66eade0060",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-066207e1c3ef",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_012.jpg",
+      "parentSha256": "d7c9a35038f399264efab17f73a9be5133fade5c577da53a3af96725fc2dc67f",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.63,
+        0.96,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "sha256": "01657e95ddf33dff31dc95cddfd8613d4795bc9bcc81782bbb5204b2c3fa8bb3",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d17ab88ac58a",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_035.jpg",
+      "parentSha256": "c41413ccf8cdeaf9a76d005f8183e1a87f6591231743e4b21363965aa53ab65b",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "c6edb7fea814-primary.png",
+      "sha256": "b52547325a461552d4fe55f41fdaa8b60cbc2ea9a3c4d40842a646bb41d0a32e",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c6edb7fea814",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_036.jpg",
+      "parentSha256": "4450e0e4f9846702d1ccf8a764d9afead1ef8685676a6eaa8d69b0acd4fa6e65",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        0.5,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "86ac688f2753-primary.png",
+      "sha256": "7631588f8432a2544d6d61578afbacb513bb0a633741d6f6767b52557acb06f0",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-86ac688f2753",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_037.jpg",
+      "parentSha256": "7bad3a874a047325157554c6dfa76737fda318a5c93f106488c880175e2856a8",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.5,
+        1.0,
+        1.0
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "b8f91eb08fc3-primary.png",
+      "sha256": "6adf44f38d9ec1203241d07b7dd73373659beaa44cda5cae9f440b914f2be352",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b8f91eb08fc3",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_038.jpg",
+      "parentSha256": "995d81f4117f0f7af3a5f83476583433f9badb1504384cd0e6f9dc1c9f11f19d",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        0.5,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "sha256": "c2ae18649265a9f7b37eb182854be08f1aa2ec8c1bf6cb6b0f11129c15f31189",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-3e9b2b906fda",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_039.jpg",
+      "parentSha256": "ac7d8dba01ff3546cba9fd7226659aade3a40ea8d086f8ed733f49cbbaa43eaf",
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.5,
+        1.0,
+        1.0
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "sha256": "3a02172617f11a16940dda8492b91cf0894e50a1a380394654dcf272f88b3a51",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e826babe1b3a",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_040.jpg",
+      "parentSha256": "a76d313c7b2b8e952f13029a5bedc8a5ceadbd4d6619062a6803562802382479",
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "c0e03d680edc-primary.png",
+      "sha256": "eb08ab96c31310ac95bf6635add5647186fd093bef8942a844a4c6baaf73ac90",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c0e03d680edc",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_041.jpg",
+      "parentSha256": "e17c3df61182e256b7771dfe74f449ddc10eb5fc5ac6c8964399db5cf8c2b6c3",
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        0.5,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "sha256": "3ce4be6fd144a999dc62e6c038634e996b77f6682467978c9fac5ad00e766bd7",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-9da2611ded25",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_042.jpg",
+      "parentSha256": "f9b797a74740c4e7a1c2bad1bebf1274cad0da6a52aa560d24e8d5a20a9d512d",
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "6df0c9c91f81-primary.png",
+      "sha256": "4e917a2a358c148998b7bfc10bd98805183f3c122efd28fad6bdfb936c5a21a6",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6df0c9c91f81",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_055.jpg",
+      "parentSha256": "f888d018cbf91e3195924c14749361b06799e0fab57739159f619d71ebfe21ce",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "sha256": "2cd31cd4dc59155db13e27dd99865aa541367d7e6ccdc31637394124b6699df9",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-406bc158c41d",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_056.jpg",
+      "parentSha256": "399dac976838540285fed13fb269fef0af97125965742297602d288b2080e890",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "sha256": "51a11dd687638c84994fb9aabd432518d0a14c81d45641c5ccf5d1b11413b2f1",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f0752db2009c",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_057.jpg",
+      "parentSha256": "2dc40742e836ca3351c60bc0b2355627cc2d81b8b705162ca6682eeded3e0d38",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "sha256": "f87fbebd038e90767d44bbcfa8146900d4a52ac832c2bc55ef6bf77ce0c18b93",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d970653d6111",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_058.jpg",
+      "parentSha256": "00449d90018ef4e00c41eea9767d69bd7b07c35364d9d478914341dc0636bf84",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "sha256": "d32db7f498643eb89d940a5069a7b50ea7d6f530984fa43cd0f4020a344a0a59",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d9518b2dc889",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_059.jpg",
+      "parentSha256": "54dd07de7e0e7b9e0300a58350f425ba9e08e00d43fb406ec3a6ba899623d39f",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "sha256": "16da94b51ca9f7f4b2749a7ca93c42262accfea3531d922c78b921a1362e1555",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-223683d91dc4",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_060.jpg",
+      "parentSha256": "316582e63fa9b101ae63ed65d6b41c3b488cd9608c4d92b231b924dc3cb4a539",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "sha256": "982e066579e61dc272a1b82e1e5449e052ea8c060865ab8098de1e2a17482255",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-2c793788bdec",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_061.jpg",
+      "parentSha256": "c63df1022d2c97c3f5cc4a50e6f16d433250de5b7df7dd95237e7662ceb1016c",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "sha256": "baf2b301895f6ee1e2fd2aa8630f655bcae1160f7af5aecbd14b7962278e7099",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6d9a192d4168",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_062.jpg",
+      "parentSha256": "8e52282d68057dc0faae7008ea2cdcdf5222a157c4faf301a66cc99783573d5c",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "sha256": "ef3e9118e73c116a895b1e37b957b1ca771fafaed3a2b50085aaab31f3671637",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f8a25604ea58",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_063.jpg",
+      "parentSha256": "5415625204d604e41da522fce85d3902a9969a36a15851d11c99f162f4724a64",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "e0ee33ff3706-primary.png",
+      "sha256": "a97c77ca6de85c713e3d3230ba95902b28455be2dd21cdc39699e127b24dd4d6",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e0ee33ff3706",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_066.jpg",
+      "parentSha256": "a2f5befa16750855f17ffdc0f2c0b9656c4fd6ab562a0597de22efff4863d336",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.17,
+        1.0,
+        0.83
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "cf0c5a421a71-primary.png",
+      "sha256": "84f460820c8c9fcd0ccb0ba3ced8512ae14cfe57819ad596e3d43d775b79bf3d",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-cf0c5a421a71",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_093.jpg",
+      "parentSha256": "2bd4ddbec830f4b8d3b75204a75771ae6d3234303626dbb8adb8182db7b8f59a",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.47,
+        0.62,
+        0.98,
+        0.97
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "956d94380abf-primary.png",
+      "sha256": "0288fcaefaffe93acbe6ba7124ce961e478241dd9141ac1f6fa44748cce2d6b6",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-956d94380abf",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_094.jpg",
+      "parentSha256": "5ebbce43dc4a845f00ad8c5196045d72777e972044fb251234cc7ef33fdcf7a2",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.2,
+        0.68,
+        0.97,
+        0.97
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "b1184e010679-primary.png",
+      "sha256": "35164a74b6ed5d07e3bed329e5ee4ebb5802c050be2f7c32fb4dddca14078e81",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b1184e010679",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_095.jpg",
+      "parentSha256": "d47b6f4beda74c80138ac8f87582aa3303de9d3d20f790892d504e26138755d6",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.4,
+        0.55,
+        0.97,
+        0.97
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "bc6b23d6a1ce-primary.png",
+      "sha256": "e7c4982754bfcbddbfa3cca33d45f9c665b07adbceb2819d783f5b686075cae8",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-bc6b23d6a1ce",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_096.jpg",
+      "parentSha256": "0d505e8fc7e7ced2639ac823a198699b91b077390c2b528a3535a77eb4afd161",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.43,
+        0.58,
+        0.98,
+        0.97
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "sha256": "9aa68a332633a78fc8e59bcf035c2766fcb1b9dbd9709b32a564568527e97d10",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-02f011058d1f",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_097.jpg",
+      "parentSha256": "83aaf1d9c3955abed2568a2bf50bfac98767470bd6e1da8d870d5a32890a9f0b",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.38,
+        0.67,
+        0.95,
+        0.97
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "c541feb05c54-primary.png",
+      "sha256": "a7955e0a644a3fd43250bb16056ad475e261ea5742a0f6ede27bcc6bcc04be40",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c541feb05c54",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_098.jpg",
+      "parentSha256": "06833643eb4ce1e9a8daaf7800d3aecf4a42e2fe978a8ec2209313bedb4308af",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.43,
+        0.58,
+        0.98,
+        0.97
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "sha256": "4ce97ea13f47b4646f2f59c15242cca1b0e1e875d19e3d6ea5d3862c2169fb08",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-0c2bd7cc24b7",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_099.jpg",
+      "parentSha256": "67a02f31222bedb8c2bca702491fa2695c8925840e2412da9b19f2884e6d3851",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.56,
+        0.66,
+        0.96,
+        0.96
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "424a9b7d8798-primary.png",
+      "sha256": "c6fb51352b658c4869e0d2b1fcfc4fe29573d9d1385c202e32c7c4cb0558f08b",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-424a9b7d8798",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_100.jpg",
+      "parentSha256": "5b28d1fd3ea8155fe7142c9e2fab0690808ae493241187ac17e709472a75cf6f",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.46,
+        0.67,
+        0.98,
+        0.98
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "eac9a2f87f4c-primary.png",
+      "sha256": "ca76712730b8798158c4e6e1883366e577b713ad55b71c9e6f0c1a2fb291aad4",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_101.jpg",
+      "parentSha256": "c509c80fc83d8672309a82f71acf61e10f523c60f5a0e9611912697dd1ccf70a",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.4,
+        0.66,
+        0.96,
+        0.98
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    }
+  ]
+}
