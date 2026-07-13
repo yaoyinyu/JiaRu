@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-fourth-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_031.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.47, 0.065, 0.69, 0.23]],
+      "addPromptModes": ["box-center"],
+      "reviewReason": "remove_skin_contaminated_side_prompt_and_add_missing_nude_thumb_nail"
+    },
+    {
+      "fileName": "real_release_20260713_050.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.655, 0.318, 0.78, 0.398]],
+      "addPromptModes": ["box-center"],
+      "reviewReason": "replace_top_nail_prompt_that_absorbed_black_fabric_gap"
+    },
+    {
+      "fileName": "real_release_20260713_079.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.075, 0.414, 0.275, 0.505]],
+      "addPromptModes": ["box-center"],
+      "reviewReason": "replace_left_thumb_prompt_that_absorbed_skin_and_sleeve"
+    },
+    {
+      "fileName": "real_release_20260713_082.jpg",
+      "keepPromptIndices": [1, 2, 3],
+      "addBoxes": [[0.625, 0.43, 0.855, 0.55]],
+      "addPromptModes": ["box-center"],
+      "reviewReason": "replace_two_overlapping_prompts_with_one_complete_right_nail_prompt"
+    },
+    {
+      "fileName": "real_release_20260713_090.jpg",
+      "keepPromptIndices": [1, 2, 3, 5],
+      "addBoxes": [[0.135, 0.405, 0.24, 0.515]],
+      "addPromptModes": ["box-center"],
+      "reviewReason": "remove_background_false_positive_and_replace_incomplete_left_nail_prompt"
+    }
+  ]
+}
