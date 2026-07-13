@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-eighth-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_023.jpg",
+      "keepPromptIndices": [1, 2, 3, 5, 6],
+      "addBoxes": [[0.215, 0.515, 0.43, 0.67]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "replace_two_overlapping_masks_on_the_lower_left_nail_with_one_complete_mask"
+    },
+    {
+      "fileName": "real_release_20260713_067.jpg",
+      "keepPromptIndices": [1, 2, 4, 6, 7],
+      "addBoxes": [],
+      "addPromptModes": [],
+      "reviewReason": "remove_two_fragmented_duplicate_masks_while_preserving_five_complete_visible_nails"
+    },
+    {
+      "fileName": "real_release_20260713_073.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 6, 7, 8],
+      "addBoxes": [[0.43, 0.595, 0.585, 0.735]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "replace_partial_lower_center_nail_mask_with_one_complete_mask"
+    },
+    {
+      "fileName": "real_release_20260713_084.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+      "addBoxes": [],
+      "addPromptModes": [],
+      "reviewReason": "recheck_all_ten_single_masks_at_original_resolution_under_complete_nail_policy"
+    },
+    {
+      "fileName": "real_release_20260713_024.jpg",
+      "keepPromptIndices": [],
+      "addBoxes": [
+        [0.415, 0.25, 0.55, 0.37],
+        [0.605, 0.39, 0.765, 0.485],
+        [0.74, 0.41, 0.89, 0.515],
+        [0.735, 0.515, 0.905, 0.615],
+        [0.45, 0.69, 0.615, 0.795]
+      ],
+      "addPromptModes": [
+        "center-negative-corners",
+        "center-negative-corners",
+        "center-negative-corners",
+        "center-negative-corners",
+        "center-negative-corners"
+      ],
+      "reviewReason": "replace_incomplete_two_mask_candidate_with_five_tight_full_nail_prompts"
+    },
+    {
+      "fileName": "real_release_20260713_075.jpg",
+      "keepPromptIndices": [],
+      "addBoxes": [
+        [0.055, 0.385, 0.3, 0.59],
+        [0.45, 0.19, 0.71, 0.34],
+        [0.385, 0.365, 0.655, 0.54],
+        [0.385, 0.54, 0.71, 0.685],
+        [0.415, 0.685, 0.67, 0.825]
+      ],
+      "addPromptModes": [
+        "center-negative-corners",
+        "center-negative-corners",
+        "center-negative-corners",
+        "center-negative-corners",
+        "center-negative-corners"
+      ],
+      "reviewReason": "replace_partial_green_only_candidates_with_five_full_nail_prompts_including_nude_surfaces"
+    }
+  ]
+}
