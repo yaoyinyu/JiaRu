@@ -46,6 +46,24 @@ def polygon_from_mask(mask: np.ndarray, center: tuple[int, int]) -> list[dict[st
     return [{"x": float(x), "y": float(y)} for x, y in simplified]
 
 
+def normalized_points_to_pixels(
+    points: object, label: str, width: int, height: int
+) -> list[list[float]]:
+    if points is None:
+        return []
+    if not isinstance(points, list):
+        raise ValueError(f"{label} must be null or a list of normalized [x, y] points")
+    pixels: list[list[float]] = []
+    for point_index, point in enumerate(points, start=1):
+        if not isinstance(point, list) or len(point) != 2:
+            raise ValueError(f"{label} point {point_index} must contain normalized x and y")
+        x, y = [float(value) for value in point]
+        if not (0 <= x <= 1 and 0 <= y <= 1):
+            raise ValueError(f"{label} point {point_index} must stay inside normalized image bounds")
+        pixels.append([x * width, y * height])
+    return pixels
+
+
 def main() -> None:
     args = build_parser().parse_args()
     prompts_path = Path(args.prompts).resolve()
@@ -85,8 +103,11 @@ def main() -> None:
             for box in item["boxes"]
         ]
         custom_positive_points = item.get("positivePoints", [None] * len(boxes))
+        custom_negative_points = item.get("negativePoints", [None] * len(boxes))
         if len(custom_positive_points) != len(boxes):
             raise ValueError(f"{file_name} positivePoints count must match boxes count")
+        if len(custom_negative_points) != len(boxes):
+            raise ValueError(f"{file_name} negativePoints count must match boxes count")
         prompt_modes = item.get("promptModes", [args.prompt_mode] * len(boxes))
         if len(prompt_modes) != len(boxes):
             raise ValueError(f"{file_name} promptModes count must match boxes count")
@@ -105,25 +126,35 @@ def main() -> None:
         points = []
         positive_points = []
         labels = []
-        for box_index, (x1, y1, x2, y2) in enumerate(boxes):
+        for box_index, ((x1, y1, x2, y2), prompt_mode) in enumerate(
+            zip(boxes, prompt_modes, strict=True)
+        ):
             inset_x = max(2.0, (x2 - x1) * 0.08)
             inset_y = max(2.0, (y2 - y1) * 0.08)
-            item_positive_points = custom_positive_points[box_index]
-            if item_positive_points:
-                positive_set = [[point[0] * width, point[1] * height] for point in item_positive_points]
-            else:
+            positive_set = normalized_points_to_pixels(
+                custom_positive_points[box_index],
+                f"{file_name} positivePoints {box_index + 1}",
+                width,
+                height,
+            )
+            if not positive_set:
                 positive_set = [[(x1 + x2) / 2, (y1 + y2) / 2]]
-            positive_points.append(positive_set)
-            points.append(
-                positive_set
-                + [
+            negative_set = normalized_points_to_pixels(
+                custom_negative_points[box_index],
+                f"{file_name} negativePoints {box_index + 1}",
+                width,
+                height,
+            )
+            if not negative_set and prompt_mode == "center-negative-corners":
+                negative_set = [
                     [x1 + inset_x, y1 + inset_y],
                     [x2 - inset_x, y1 + inset_y],
                     [x1 + inset_x, y2 - inset_y],
                     [x2 - inset_x, y2 - inset_y],
                 ]
-            )
-            labels.append([1, 0, 0, 0, 0])
+            positive_points.append(positive_set)
+            points.append(positive_set + negative_set)
+            labels.append(([1] * len(positive_set)) + ([0] * len(negative_set)))
         try:
             mask_outputs = []
             if args.engine == "fastsam":
@@ -146,17 +177,17 @@ def main() -> None:
                     prompt_arguments = {"bboxes": [box]}
                     if prompt_mode == "center":
                         prompt_arguments = {
-                            "points": [positive_set],
-                            "labels": [[1] * len(positive_set)],
+                            "points": [point_set],
+                            "labels": [label_set],
                         }
                     elif prompt_mode == "box-center":
                         prompt_arguments.update(
-                            points=[positive_set], labels=[[1] * len(positive_set)]
+                            points=[point_set], labels=[label_set]
                         )
                     elif prompt_mode == "center-negative-corners":
                         prompt_arguments.update(
                             points=[point_set],
-                            labels=[([1] * len(positive_set)) + label_set[1:]],
+                            labels=[label_set],
                         )
                     result = model(str(image_path), verbose=False, **prompt_arguments)[0]
                     if result.masks is None or len(result.masks.data) != 1:

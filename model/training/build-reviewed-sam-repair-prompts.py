@@ -36,6 +36,22 @@ def validate_box(box: object, label: str) -> list[float]:
     return values
 
 
+def validate_point_set(points: object, label: str) -> list[list[float]] | None:
+    if points is None:
+        return None
+    if not isinstance(points, list):
+        raise ValueError(f"{label} must be null or a list of normalized [x, y] points")
+    normalized: list[list[float]] = []
+    for point_index, point in enumerate(points, start=1):
+        if not isinstance(point, list) or len(point) != 2:
+            raise ValueError(f"{label} point {point_index} must contain normalized x and y")
+        x, y = [float(value) for value in point]
+        if not (0 <= x <= 1 and 0 <= y <= 1):
+            raise ValueError(f"{label} point {point_index} must stay inside normalized image bounds")
+        normalized.append([x, y])
+    return normalized
+
+
 def build_document(source_path: Path, manifest_path: Path) -> dict:
     source = json.loads(source_path.read_text(encoding="utf-8"))
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -82,20 +98,57 @@ def build_document(source_path: Path, manifest_path: Path) -> dict:
         if invalid_source_modes:
             raise ValueError(f"{file_name} has invalid source promptModes: {invalid_source_modes}")
 
+        source_positive_points = source_item.get("positivePoints", [None] * len(source_boxes))
+        source_negative_points = source_item.get("negativePoints", [None] * len(source_boxes))
+        if not isinstance(source_positive_points, list) or len(source_positive_points) != len(source_boxes):
+            raise ValueError(f"{file_name} source positivePoints count must match source boxes")
+        if not isinstance(source_negative_points, list) or len(source_negative_points) != len(source_boxes):
+            raise ValueError(f"{file_name} source negativePoints count must match source boxes")
+
         boxes = [
             validate_box(source_boxes[index - 1], f"{file_name} source box {index}")
             for index in keep_indices
         ]
         prompt_modes = [source_modes[index - 1] for index in keep_indices]
+        positive_points = [
+            validate_point_set(
+                source_positive_points[index - 1], f"{file_name} source positivePoints {index}"
+            )
+            for index in keep_indices
+        ]
+        negative_points = [
+            validate_point_set(
+                source_negative_points[index - 1], f"{file_name} source negativePoints {index}"
+            )
+            for index in keep_indices
+        ]
         add_boxes = repair.get("addBoxes", [])
         add_prompt_modes = repair.get("addPromptModes", ["box"] * len(add_boxes))
+        add_positive_points = repair.get("addPositivePoints", [None] * len(add_boxes))
+        add_negative_points = repair.get("addNegativePoints", [None] * len(add_boxes))
         if not isinstance(add_prompt_modes, list) or len(add_prompt_modes) != len(add_boxes):
             raise ValueError(f"{file_name} addPromptModes count must match addBoxes")
+        if not isinstance(add_positive_points, list) or len(add_positive_points) != len(add_boxes):
+            raise ValueError(f"{file_name} addPositivePoints count must match addBoxes")
+        if not isinstance(add_negative_points, list) or len(add_negative_points) != len(add_boxes):
+            raise ValueError(f"{file_name} addNegativePoints count must match addBoxes")
         invalid_add_modes = [mode for mode in add_prompt_modes if mode not in allowed_prompt_modes]
         if invalid_add_modes:
             raise ValueError(f"{file_name} has invalid addPromptModes: {invalid_add_modes}")
         for add_index, box in enumerate(add_boxes, start=1):
             boxes.append(validate_box(box, f"{file_name} add box {add_index}"))
+            positive_points.append(
+                validate_point_set(
+                    add_positive_points[add_index - 1],
+                    f"{file_name} addPositivePoints {add_index}",
+                )
+            )
+            negative_points.append(
+                validate_point_set(
+                    add_negative_points[add_index - 1],
+                    f"{file_name} addNegativePoints {add_index}",
+                )
+            )
         prompt_modes.extend(add_prompt_modes)
         if not boxes:
             raise ValueError(f"{file_name} repair produces no prompts")
@@ -111,10 +164,18 @@ def build_document(source_path: Path, manifest_path: Path) -> dict:
                 "sourceGroup": source_group.strip(),
                 "boxes": boxes,
                 "promptModes": prompt_modes,
+                "positivePoints": positive_points,
+                "negativePoints": negative_points,
                 "repairProvenance": {
                     "keptSourcePromptIndices": keep_indices,
                     "addedBoxCount": len(add_boxes),
                     "addedPromptModes": add_prompt_modes,
+                    "addedPositivePointCounts": [
+                        len(points or []) for points in positive_points[len(keep_indices) :]
+                    ],
+                    "addedNegativePointCounts": [
+                        len(points or []) for points in negative_points[len(keep_indices) :]
+                    ],
                     "reviewReason": repair.get("reviewReason", "manual_original_resolution_review"),
                 },
             }
