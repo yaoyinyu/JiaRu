@@ -6,10 +6,10 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 35,
-    "rework": 13,
-    "excluded": 9,
-    "acceptedMasks": 200,
+    "pass": 36,
+    "rework": 11,
+    "excluded": 10,
+    "acceptedMasks": 210,
     "acceptedSourceGroups": 11,
     "stressPending": 35
   },
@@ -41,6 +41,7 @@
     "real_release_20260713_074.jpg",
     "real_release_20260713_075.jpg",
     "real_release_20260713_077.jpg",
+    "real_release_20260713_078.jpg",
     "real_release_20260713_079.jpg",
     "real_release_20260713_080.jpg",
     "real_release_20260713_082.jpg",
@@ -58,10 +59,8 @@
     "real_release_20260713_047.jpg",
     "real_release_20260713_052.jpg",
     "real_release_20260713_065.jpg",
-    "real_release_20260713_069.jpg",
     "real_release_20260713_072.jpg",
     "real_release_20260713_076.jpg",
-    "real_release_20260713_078.jpg",
     "real_release_20260713_081.jpg",
     "real_release_20260713_083.jpg"
   ],
@@ -70,6 +69,7 @@
     "real_release_20260713_034.jpg",
     "real_release_20260713_049.jpg",
     "real_release_20260713_053.jpg",
+    "real_release_20260713_069.jpg",
     "real_release_20260713_070.jpg",
     "real_release_20260713_084.jpg",
     "real_release_20260713_085.jpg",
@@ -85,7 +85,8 @@
     "real_release_20260713_084.jpg": "overlapping_hands_leave_a_required_nail_partially_occluded",
     "real_release_20260713_085.jpg": "satin_prop_occludes_required_nail_surfaces",
     "real_release_20260713_088.jpg": "cup_and_overlapping_hands_occlude_required_nail_surfaces",
-    "real_release_20260713_091.jpg": "source_image_has_a_pinky_nail_cropped_at_the_right_image_edge"
+    "real_release_20260713_091.jpg": "source_image_has_a_pinky_nail_cropped_at_the_right_image_edge",
+    "real_release_20260713_069.jpg": "source_image_has_a_long_nail_tip_cropped_at_the_left_image_edge"
   },
   "reviewPolicy": {
     "requireEveryVisibleNail": true,
@@ -108,7 +109,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v11-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v12-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v13-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v14-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v14-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v15-report.json"
   ],
   "repairBatches": [
     {
@@ -238,6 +240,17 @@
       "acceptedMaskCount": 5,
       "excludedInCandidateBatch": 1,
       "promptStrategy": "tightened_thumb_axis_multipoint_rebuild_with_strict_source_edge_crop_exclusion"
+    },
+    {
+      "id": "sam2-core-repair-v15",
+      "manifest": "sam2-core-repair-v15-manifest.json",
+      "prompts": "sam2-core-repair-v15-prompts.json",
+      "candidateReport": "sam2-core-repair-v15-report.json",
+      "review": "sam2-core-repair-v15-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 10,
+      "additionalSourceExclusions": 1,
+      "promptStrategy": "two_hand_ten_nail_full_axis_rebuild_with_bow_decoration_unification_and_edge_crop_exclusion"
     }
   ],
   "errors": []
