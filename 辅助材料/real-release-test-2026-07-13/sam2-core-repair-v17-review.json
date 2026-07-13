@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-multipoint-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_004.jpg"
+  ],
+  "acceptedMaskCount": 5,
+  "reworkFiles": [],
+  "excludeFiles": [],
+  "reviewNotes": {
+    "real_release_20260713_004.jpg": "five_single_masks_cover_all_fully_visible_dark_nails_and_the_tightly_rebuilt_thumb_no_longer_absorbs_lower_skin"
+  }
+}

@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "source": "human-reviewed-keep-drop-add-repair",
+  "decision": "sam_repair_candidate_only_not_test_truth",
+  "sourcePromptFile": "sam2-core-repair-v6-prompts.json",
+  "sourcePromptSha256": "048940f8eb77c09ff06edcd766d2486d22a34b927498d5b010001c4bc892fdc1",
+  "repairManifestFile": "sam2-core-repair-v17-manifest.json",
+  "repairManifestSha256": "bf39af05d05d426a4c91786eec869b7f6b33145355843506769039b5abf3c93a",
+  "imageCount": 1,
+  "promptCount": 5,
+  "images": [
+    {
+      "fileName": "real_release_20260713_004.jpg",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "boxes": [
+        [
+          0.4772222222222222,
+          0.39813888888888893,
+          0.5922222222222222,
+          0.48588888888888887
+        ],
+        [
+          0.4991481481481482,
+          0.49469444444444444,
+          0.6221481481481481,
+          0.5816944444444444
+        ],
+        [
+          0.5325555555555556,
+          0.5820000000000001,
+          0.6535555555555556,
+          0.6555
+        ],
+        [
+          0.42496296296296293,
+          0.2961666666666667,
+          0.525962962962963,
+          0.3809166666666667
+        ],
+        [
+          0.27,
+          0.34,
+          0.4,
+          0.395
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box-center"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.285,
+            0.375
+          ],
+          [
+            0.33,
+            0.36
+          ],
+          [
+            0.385,
+            0.345
+          ]
+        ]
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.26,
+            0.335
+          ],
+          [
+            0.41,
+            0.335
+          ],
+          [
+            0.26,
+            0.405
+          ],
+          [
+            0.41,
+            0.405
+          ],
+          [
+            0.35,
+            0.4
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          3
+        ],
+        "addedNegativePointCounts": [
+          5
+        ],
+        "reviewReason": "keep_four_complete_finger_nails_and_tightly_rebuild_the_thumb_without_lower_skin_contamination"
+      }
+    }
+  ]
+}
