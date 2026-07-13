@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-seventh-pass",
+  "decision": "human_reviewed_repair_candidates_not_test_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_051.jpg",
+    "real_release_20260713_054.jpg",
+    "real_release_20260713_077.jpg"
+  ],
+  "reworkFiles": [
+    "real_release_20260713_052.jpg",
+    "real_release_20260713_083.jpg",
+    "real_release_20260713_091.jpg"
+  ],
+  "excludeFiles": [],
+  "reworkReasons": {
+    "real_release_20260713_052.jpg": "decorated_middle_nail_still_has_duplicate_overlapping_masks",
+    "real_release_20260713_083.jpg": "left_nude_thumb_prompt_absorbs_a_large_white_sleeve_region",
+    "real_release_20260713_091.jpg": "left_thumb_mask_only_covers_the_decorated_region_not_the_full_nail"
+  }
+}

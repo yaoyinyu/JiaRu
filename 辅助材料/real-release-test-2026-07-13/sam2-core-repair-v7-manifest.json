@@ -6,6 +6,7 @@
   "reviewPolicy": {
     "requireEveryVisibleNail": true,
     "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
     "rejectSkinOrBackgroundContamination": true,
     "rejectDuplicateOrOverlappingMasks": true,
     "candidateOnlyUntilSecondPassOverlayReview": true
