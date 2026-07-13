@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-multipoint-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_065.jpg",
+      "keepPromptIndices": [],
+      "addBoxes": [
+        [0.08, 0.25, 0.17, 0.34],
+        [0.31, 0.23, 0.44, 0.345],
+        [0.51, 0.25, 0.635, 0.35],
+        [0.62, 0.38, 0.755, 0.47],
+        [0.5, 0.705, 0.66, 0.79]
+      ],
+      "addPromptModes": ["box-center", "box-center", "box-center", "box-center", "box-center"],
+      "addPositivePoints": [
+        [[0.16, 0.255], [0.13, 0.29], [0.095, 0.325]],
+        [[0.425, 0.235], [0.385, 0.28], [0.335, 0.33]],
+        [[0.62, 0.26], [0.58, 0.295], [0.53, 0.34]],
+        [[0.74, 0.39], [0.7, 0.42], [0.65, 0.455]],
+        [[0.64, 0.715], [0.59, 0.745], [0.52, 0.775]]
+      ],
+      "addNegativePoints": [
+        [[0.075, 0.28], [0.175, 0.29], [0.11, 0.35]],
+        [[0.305, 0.27], [0.445, 0.28], [0.36, 0.355]],
+        [[0.505, 0.28], [0.64, 0.29], [0.56, 0.36]],
+        [[0.615, 0.415], [0.76, 0.42], [0.68, 0.48]],
+        [[0.495, 0.73], [0.665, 0.75], [0.55, 0.795], [0.62, 0.8], [0.505, 0.79]]
+      ],
+      "reviewReason": "rebuild_five_low_contrast_decorated_nails_and_restore_missing_thumb_with_full_axis_points"
+    },
+    {
+      "fileName": "real_release_20260713_071.jpg",
+      "keepPromptIndices": [],
+      "addBoxes": [
+        [0.155, 0.335, 0.3, 0.405],
+        [0.31, 0.42, 0.41, 0.505],
+        [0.39, 0.36, 0.58, 0.505],
+        [0.485, 0.435, 0.62, 0.58],
+        [0.605, 0.595, 0.7, 0.775]
+      ],
+      "addPromptModes": ["box-center", "box-center", "box-center", "box-center", "box-center"],
+      "addPositivePoints": [
+        [[0.17, 0.35], [0.23, 0.37], [0.285, 0.39]],
+        [[0.395, 0.43], [0.36, 0.46], [0.325, 0.495]],
+        [[0.56, 0.375], [0.49, 0.43], [0.415, 0.49]],
+        [[0.605, 0.45], [0.56, 0.5], [0.515, 0.56]],
+        [[0.65, 0.61], [0.655, 0.68], [0.65, 0.755]]
+      ],
+      "addNegativePoints": [
+        [[0.15, 0.38], [0.23, 0.325], [0.305, 0.36], [0.285, 0.415]],
+        [[0.305, 0.45], [0.415, 0.46], [0.35, 0.515]],
+        [[0.38, 0.4], [0.59, 0.42], [0.44, 0.515], [0.5, 0.515]],
+        [[0.475, 0.47], [0.63, 0.49], [0.5, 0.59], [0.55, 0.59]],
+        [[0.6, 0.64], [0.705, 0.66], [0.65, 0.785]]
+      ],
+      "reviewReason": "restore_missing_side_thumb_and_rebuild_four_low_contrast_nude_nails_with_directed_skin_negatives"
+    }
+  ]
+}
