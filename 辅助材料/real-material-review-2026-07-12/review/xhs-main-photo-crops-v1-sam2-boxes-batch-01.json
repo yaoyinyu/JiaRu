@@ -1,0 +1,55 @@
+{
+  "version": "nail-texture-vision-prompts/v1",
+  "decision": "vision_supplied_tight_boxes_require_overlay_review",
+  "images": [
+    {
+      "fileName": "14b762d1b5be-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-14b762d1b5be",
+      "boxes": [
+        [0.056, 0.177, 0.225, 0.353],
+        [0.274, 0.190, 0.410, 0.475],
+        [0.364, 0.340, 0.533, 0.589],
+        [0.479, 0.459, 0.670, 0.682],
+        [0.537, 0.698, 0.793, 0.823]
+      ]
+    },
+    {
+      "fileName": "2526e587c486-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-2526e587c486",
+      "boxes": [
+        [0.330, 0.028, 0.467, 0.179],
+        [0.644, 0.120, 0.793, 0.317],
+        [0.656, 0.429, 0.825, 0.599]
+      ]
+    },
+    {
+      "fileName": "32a451fadbf7-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-32a451fadbf7",
+      "boxes": [
+        [0.213, 0.104, 0.399, 0.302],
+        [0.034, 0.286, 0.413, 0.482],
+        [0.022, 0.767, 0.393, 0.947]
+      ]
+    },
+    {
+      "fileName": "e191a73ac390-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-e191a73ac390",
+      "boxes": [
+        [0.225, 0.229, 0.405, 0.466],
+        [0.267, 0.378, 0.450, 0.629],
+        [0.289, 0.671, 0.503, 0.875]
+      ]
+    },
+    {
+      "fileName": "fdc2d2ee537f-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-fdc2d2ee537f",
+      "boxes": [
+        [0.407, 0.197, 0.540, 0.406],
+        [0.465, 0.250, 0.674, 0.503],
+        [0.152, 0.474, 0.456, 0.662],
+        [0.511, 0.468, 0.711, 0.709],
+        [0.630, 0.585, 0.830, 0.785]
+      ]
+    }
+  ]
+}

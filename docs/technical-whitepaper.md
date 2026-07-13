@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.20
+> 文档版本：v1.1.22
 >
 > 基线日期：2026-07-12
 >
@@ -504,6 +504,8 @@ disposeAllTextures(bitmaps): void
 
 同日对28张返修源图生成四页新联系表，确认其中18张为“真实照片+界面文字/重复圆图或双图排版”的截图素材。新增受审计区域提取器，以父文件名、归一化框和区域ID生成确定性派生PNG，并记录父子SHA-256、像素框、尺寸和按父图稳定的`sourceGroup`。首批9张小红书截图各提取1个主照片区域，9/9成功且联系表确认已移除页面UI与重复圆图；v6在派生图上以1024/conf=0.10生成92个候选，但重复框和少量误检使其继续保持`candidate_only_not_training_truth`。原截图仍为返修，正式集仍是402图/2101 mask，下一步对9张派生图执行逐甲SAM2和原分辨率审核。
 
+随后以1024/conf=0.30复跑v6，候选由92个收敛至64个，但仍存在漏甲、重复框和装饰误检，继续仅作紧框定位。对9张派生图逐甲执行SAM2并查看原分辨率叠加图：7张/41个mask通过，2张因花朵装饰分离或装饰/玩偶边缘误分继续返修；3个触及裁剪边界的不完整甲面明确排除。`sam-assisted-nail-annotation.py`现允许每张图覆盖`sourceGroup`，机器审计会核对派生图SHA-256、尺寸、父图稳定分组、标注数量、多边形边界与面积；本轮审计9/9有决策、0错误。通过项尚未安全导入正式集，因此正式集仍为402图/2101 mask，原截图审核状态和发布HOLD不变。
+
 同日登记 `E:\AI Project\Codex\JiaRu_image\claude\2026_7_13` 的1001张新增生成素材：1001/1001可解码且均为1024×1024 PNG，批内无精确/近重复，与导入前400张正式集无精确SHA-256或同dHash重复。11页视觉联系表显示其主体清楚但具有明显合成模板分布，只登记为合成训练候选池；在本批商业训练/长期回归授权和逐图标注审核完成前，不导入正式集，也不得用于真实test或发布门禁。
 
 这代表数据结构门当前通过，不代表模型质量已经达标。
@@ -532,6 +534,7 @@ disposeAllTextures(bitmaps): void
 | 数据准备 | `convert-annotations.ts`、`split-dataset.ts`、`materialize-training-dataset.ts` |
 | 辅助标注 | `sam-assisted-nail-annotation.py` |
 | 审核区域提取 | `extract-reviewed-image-regions.py` |
+| 派生区域标注审计 | `verify-reviewed-region-annotations.ts` |
 | 训练 | `train-yolo-seg.py` |
 | 评估 | `evaluate.py`、`assess-model-metrics.py` |
 | 导出/量化 | `export-onnx.py`、`quantize-onnx-int8.py` |
@@ -673,6 +676,8 @@ npm.cmd run build
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-07-13 | v1.1.22 | 完成9张截图派生照片逐甲审核：v6高置信候选64个仅作定位，SAM2原分辨率审核7张/41 mask通过、2张返修；SAM提示支持逐图sourceGroup，新增派生图SHA-256/尺寸/父图稳定分组/多边形机器审计并通过。通过项尚未导入，正式402图/2101 mask与发布HOLD不变 | 辅助标注、派生数据治理、来源隔离、质量审计 |
+| 2026-07-13 | v1.1.21 | 复核 Windows 反复弹出“选择应用打开 npm”的现象：当前命令仍优先解析到 `C:\Windows\System32\npm`（0 字节、无扩展名），正式 `C:\Program Files\nodejs\npm.cmd` 可正常返回 npm 11.13.0，Node.js v24.16.0 亦正常。继续统一使用 `npm.cmd`；本轮仅做只读复核，未删除系统文件，无接口、模块状态或发布门禁变化 | 本地开发环境、命令执行约定 |
 | 2026-07-13 | v1.1.20 | 新增截图/拼图审核区域提取器与父子来源报告，9张小红书截图主照片区域9/9提取成功，记录父子SHA-256、坐标、尺寸和父图稳定分组；修复Windows GBK控制台打印Unicode文件名失败。v6生成92个候选但保持review-only，可重建候选多边形目录由Git忽略；正式集与发布HOLD不变 | 辅助标注、派生数据治理、来源隔离、Windows兼容、仓库治理 |
 | 2026-07-13 | v1.1.19 | 对3张Deerplanet返修图执行25个紧框及三轮低对比定点复跑，原分辨率审核0张提升、28张继续返修；增强SAM2/FastSAM失败报告，精确定位提示序号、模式和polygon转换阶段，专项测试通过。纠正readiness快照split为294/45/63；数据集readiness通过，总体发布HOLD不变 | 辅助标注、错误诊断、数据治理、文档一致性 |
 | 2026-07-13 | v1.1.18 | 诊断本机PowerShell反复弹出“选择应用打开npm”：`C:\Windows\System32\npm`为0字节无扩展名文件并在PATH解析中遮蔽正式`C:\Program Files\nodejs\npm.cmd`。项目后续Windows命令统一显式调用`npm.cmd`；本轮未删除系统文件，未改变运行时接口、模块状态或发布门禁 | 本地开发环境、命令执行约定 |

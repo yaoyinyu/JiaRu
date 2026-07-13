@@ -70,6 +70,12 @@ def main() -> None:
         file_name = item["fileName"]
         if file_name in excluded_files:
             continue
+        source_group = item.get("sourceGroup", document.get("sourceGroup"))
+        if not isinstance(source_group, str) or not source_group.strip():
+            raise ValueError(
+                f"{file_name} sourceGroup must be a non-empty string on the image or prompt document"
+            )
+        source_group = source_group.strip()
         image_path = image_dir / file_name
         with Image.open(image_path) as source:
             image = source.convert("RGB")
@@ -208,7 +214,7 @@ def main() -> None:
                     "fileName": file_name,
                     "width": width,
                     "height": height,
-                    "sourceGroup": document["sourceGroup"],
+                    "sourceGroup": source_group,
                     "negative": False,
                 },
                 "annotations": annotations,
@@ -224,6 +230,7 @@ def main() -> None:
                     "annotationPath": str(annotation_path),
                     "overlayPath": str(overlay_path),
                     "polygonCount": len(annotations),
+                    "sourceGroup": source_group,
                 }
             )
         except Exception as error:  # Preserve the rest of the batch for review.

@@ -1,0 +1,20 @@
+{
+  "version": "nail-texture-vision-prompts/v1",
+  "decision": "vision_supplied_tight_boxes_require_overlay_review",
+  "images": [
+    {
+      "fileName": "8756ef65a6c0-main-hands.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-8756ef65a6c0",
+      "boxes": [
+        [0.185, 0.211, 0.291, 0.428],
+        [0.374, 0.121, 0.460, 0.338],
+        [0.529, 0.245, 0.624, 0.466],
+        [0.561, 0.485, 0.627, 0.642],
+        [0.674, 0.490, 0.750, 0.675],
+        [0.697, 0.284, 0.768, 0.472],
+        [0.722, 0.126, 0.804, 0.343],
+        [0.872, 0.188, 0.948, 0.376]
+      ]
+    }
+  ]
+}

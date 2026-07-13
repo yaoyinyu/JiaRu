@@ -25,6 +25,9 @@ test("SAM assisted annotation requires vision prompts and emits reviewed polygon
   assert.match(source, /center-negative-corners/);
   assert.match(source, /box-center/);
   assert.match(source, /Tight reviewed boxes should normally use box mode/);
+  assert.match(source, /item\.get\("sourceGroup", document\.get\("sourceGroup"\)\)/);
+  assert.match(source, /sourceGroup must be a non-empty string on the image or prompt document/);
+  assert.match(source, /"sourceGroup": source_group/);
   assert.match(source, /vision-guided-unprompted-mask-pool-plus-per-box-fastsam/);
   assert.match(source, /model\.predictor\.prompt\(base_results, bboxes=\[box\]\)/);
   assert.match(source, /zip\([\s\S]*boxes, points, positive_points, labels, prompt_modes, strict=True/);
