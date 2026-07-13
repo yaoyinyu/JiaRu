@@ -75,6 +75,7 @@ npm.cmd run build
 | `M2-T3-REAL-DATA` | 导入授权真实图片并建立来源隔离测试集 | 🟠 PARTIAL | 新增113张已获商业训练与长期回归授权；80张/516 mask正式导入，5张因甲面截断或失焦排除，28张继续返修。真实发布测试样本仍未达到100–200张代表性要求 |
 | `M2-T3-VISION-ANNOTATION` | 识图提示 + SAM2/YOLO 辅助重建真实甲面多边形 | 🟡 IN PROGRESS | 第二批现为80通过、5排除、28返修；本轮对3张清晰返修图执行25个紧框及三轮低对比定点复跑，因皮肤外溢、轮廓缺口或空mask而0张提升，未降低原分辨率视觉门 |
 | `M2-T3-PROMPT-DIAGNOSTICS` | 辅助标注单甲失败精确定位 | ✅ PASS | FastSAM/SAM2空mask错误包含提示序号和模式，polygon转换错误包含提示序号；专项测试通过，实跑准确定位`prompt 6 (box)`及`prompt 9 (box-center)` |
+| `M2-T3-REGION-EXTRACTION` | 从截图/拼图中提取受审计单照片区域 | ✅ PASS | 9张小红书截图主区域9/9提取成功；报告包含父子SHA-256、归一化/像素框、尺寸、reviewRequired和父图稳定sourceGroup；Windows Unicode控制台兼容及非法框/路径守卫测试通过 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
 | `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |

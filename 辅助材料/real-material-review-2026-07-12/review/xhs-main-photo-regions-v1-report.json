@@ -1,0 +1,273 @@
+{
+  "ok": true,
+  "version": "nail-texture-region-extraction/v1",
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\xhs-main-photo-regions-v1.json",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\images",
+  "outputDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1",
+  "requestedCount": 9,
+  "completedCount": 9,
+  "errors": [],
+  "outputs": [
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._10_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "ca5f40c84861618237252b9dd0b38925563549e93f1f5a714f021e0ada84632e",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hand",
+      "normalizedBox": [
+        0.14,
+        0.25,
+        0.6,
+        0.63
+      ],
+      "pixelBox": [
+        151,
+        405,
+        648,
+        1021
+      ],
+      "outputFileName": "2526e587c486-main-hand.png",
+      "outputSha256": "11fcdd580203b19694ef7098f780f468c6ad7131f506435c6a9e842fcb682a25",
+      "outputSize": {
+        "width": 497,
+        "height": 616
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-2526e587c486",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._2_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "ea4c45593733be600da50dc343c8227f55b5faf247d6b8407b4fdd4800efdb89",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hands",
+      "normalizedBox": [
+        0.0,
+        0.15,
+        0.74,
+        0.65
+      ],
+      "pixelBox": [
+        0,
+        243,
+        799,
+        1053
+      ],
+      "outputFileName": "332ca3451619-main-hands.png",
+      "outputSha256": "5e803b3c9cea9ff30fe6fd1a9f71a750c50984f40bb1687f9530f474c85084c3",
+      "outputSize": {
+        "width": 799,
+        "height": 810
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-332ca3451619",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._3_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "ba7d4b65b82d0f8a0d45658b942cde83effb327834ccf6ce03f17a6528262667",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hands",
+      "normalizedBox": [
+        0.1,
+        0.28,
+        0.72,
+        0.62
+      ],
+      "pixelBox": [
+        108,
+        454,
+        778,
+        1004
+      ],
+      "outputFileName": "ab7f3e8a00c9-main-hands.png",
+      "outputSha256": "8129e336092d77288de9f0a94622306745fd99e8396d7e40a45dea3789023251",
+      "outputSize": {
+        "width": 670,
+        "height": 550
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-ab7f3e8a00c9",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._4_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "8bebada08da0cdfe94c420a6dd310f13acc3473896586e71032c58e3f12c4aaf",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hands",
+      "normalizedBox": [
+        0.02,
+        0.18,
+        0.73,
+        0.52
+      ],
+      "pixelBox": [
+        22,
+        292,
+        788,
+        842
+      ],
+      "outputFileName": "e73df1f51425-main-hands.png",
+      "outputSha256": "6dec47844b334f81afef7163e6e19297bf20f2a9198bfe7bf4909cb17ca23a47",
+      "outputSize": {
+        "width": 766,
+        "height": 550
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-e73df1f51425",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._5_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "bd4c4d9c80af77a8257cae7392cb07fc8f75dd89b268a64e529e5a64415502aa",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hand",
+      "normalizedBox": [
+        0.1,
+        0.3,
+        0.59,
+        0.61
+      ],
+      "pixelBox": [
+        108,
+        486,
+        637,
+        988
+      ],
+      "outputFileName": "e191a73ac390-main-hand.png",
+      "outputSha256": "4114463cbb885d4385dd4771957595100528c6054b02db405427ca00268ff202",
+      "outputSize": {
+        "width": 529,
+        "height": 502
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-e191a73ac390",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._6_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "f05eba0385408bb69d15d8b14234d1dff5731ad3bab572603aaf67352eb411b0",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hand",
+      "normalizedBox": [
+        0.14,
+        0.3,
+        0.56,
+        0.51
+      ],
+      "pixelBox": [
+        151,
+        486,
+        605,
+        826
+      ],
+      "outputFileName": "fdc2d2ee537f-main-hand.png",
+      "outputSha256": "97b6f329025a91c25da153885b40fe61f19d29e3709264d492da92068d51db5f",
+      "outputSize": {
+        "width": 454,
+        "height": 340
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-fdc2d2ee537f",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "076af38e62dcfbb8760ad479932284e14fc6f4758dbc95dd445ad9d3a0c92c16",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hands",
+      "normalizedBox": [
+        0.12,
+        0.33,
+        0.64,
+        0.57
+      ],
+      "pixelBox": [
+        130,
+        535,
+        691,
+        923
+      ],
+      "outputFileName": "8756ef65a6c0-main-hands.png",
+      "outputSha256": "b88cb166ff0d830d85510b80694b8dbe7b4a4dbb2874796068162a3c446ae04e",
+      "outputSize": {
+        "width": 561,
+        "height": 388
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-8756ef65a6c0",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._8_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "9ff011f422bd1be332896cf0a192f899ccf0cdd9ad1c9d80babc7fb1bb20e3c6",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hand",
+      "normalizedBox": [
+        0.16,
+        0.3,
+        0.49,
+        0.58
+      ],
+      "pixelBox": [
+        173,
+        486,
+        529,
+        940
+      ],
+      "outputFileName": "32a451fadbf7-main-hand.png",
+      "outputSha256": "b6d761643cfbd25b7d0e507c88bcd798dad185312854f6b795b9ab2820ce5aaa",
+      "outputSize": {
+        "width": 356,
+        "height": 454
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-32a451fadbf7",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._9_鱿鱼大王是也_来自小红书网页版.jpg",
+      "parentSha256": "d49f22175b9b417093baa753b021fe90de8f87c666c25539eb56e61adfdb1afa",
+      "parentSize": {
+        "width": 1080,
+        "height": 1620
+      },
+      "regionId": "main-hand",
+      "normalizedBox": [
+        0.16,
+        0.28,
+        0.62,
+        0.56
+      ],
+      "pixelBox": [
+        173,
+        454,
+        670,
+        907
+      ],
+      "outputFileName": "14b762d1b5be-main-hand.png",
+      "outputSha256": "2c6628dcdcd7b380737127d635a8d1a80e74a98534b570a6c4aa25765cb8f134",
+      "outputSize": {
+        "width": 497,
+        "height": 453
+      },
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-14b762d1b5be",
+      "reviewRequired": true
+    }
+  ]
+}

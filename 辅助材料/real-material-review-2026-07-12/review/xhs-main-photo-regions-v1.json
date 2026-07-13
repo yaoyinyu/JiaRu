@@ -1,0 +1,52 @@
+{
+  "version": "nail-texture-region-extraction/v1",
+  "sourceGroupPrefix": "real-reference-2026-07-12-xhs-crops-v1",
+  "decision": "crop_single_photo_region_before_annotation_to_remove_ui_text_and_duplicate_insets",
+  "regions": [
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._10_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hand",
+      "box": [0.14, 0.25, 0.60, 0.63]
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._2_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hands",
+      "box": [0.00, 0.15, 0.74, 0.65]
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._3_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hands",
+      "box": [0.10, 0.28, 0.72, 0.62]
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._4_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hands",
+      "box": [0.02, 0.18, 0.73, 0.52]
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._5_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hand",
+      "box": [0.10, 0.30, 0.59, 0.61]
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._6_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hand",
+      "box": [0.14, 0.30, 0.56, 0.51]
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hands",
+      "box": [0.12, 0.33, 0.64, 0.57]
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._8_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hand",
+      "box": [0.16, 0.30, 0.49, 0.58]
+    },
+    {
+      "parentFileName": "⋆˚波点美甲🐾⸝⸝꙳˙⋆._9_鱿鱼大王是也_来自小红书网页版.jpg",
+      "regionId": "main-hand",
+      "box": [0.16, 0.28, 0.62, 0.56]
+    }
+  ]
+}
