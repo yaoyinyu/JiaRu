@@ -99,6 +99,7 @@ const firstRunBuild = await runJsonScript("scripts/build-real-model-first-run-re
 const firstRunRecord = JSON.parse(await readFile(recordPath, "utf8")) as {
   decision: { status: "pass" | "needs_adjustment" | "blocked"; summary: string; nextActions: string[] };
   readiness: { ok: boolean; warnings: string[] };
+  outputs: Record<string, string | null>;
 };
 const failureSummaryArgs = [
   "--first-run-record",
@@ -134,6 +135,7 @@ const summary = {
   textureQualityGate,
   decision: firstRunRecord.decision,
   readiness: firstRunRecord.readiness,
+  firstRunOutputs: firstRunRecord.outputs,
   nextSteps:
     firstRunRecord.decision.status === "pass"
       ? [

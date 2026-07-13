@@ -24,6 +24,10 @@ export type {
 } from "./debug.ts";
 export {
   buildNailDebugArtifactPaths,
+  buildNailRecognitionMaskOverlay,
+} from "./debug-artifacts.ts";
+export type {
+  NailRecognitionMaskOverlayResult,
 } from "./debug-artifacts.ts";
 export {
   validateRealModelFirstRunRecord,

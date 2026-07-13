@@ -1,7 +1,7 @@
 # Nail texture recognition MVP readiness audit
 
-Version: v1.3  
-Date: 2026-07-04
+Version: v1.4
+Date: 2026-07-08
 
 This gate maps to the MVP acceptance checklist in `docs/nail-texture-recognition-model-plan.md` section 14. It does not replace training, browser testing, or manual review. Its job is to make the current MVP gaps explicit and repeatable.
 
@@ -10,6 +10,14 @@ This gate maps to the MVP acceptance checklist in `docs/nail-texture-recognition
 ```bash
 npm.cmd run audit:mvp-readiness
 ```
+
+When real training data or the real ONNX model are intentionally deferred, validate the remaining code/toolchain gates with:
+
+```bash
+npm.cmd run audit:mvp-readiness:deferred
+```
+
+This mode is explicit: it only converts failed `phase1_dataset`, `training_source_authorization`, and `browser_model_asset` checks into `deferred: true`. All other checks must still pass. The JSON summary includes `deferred` so the report cannot be mistaken for a full real-asset MVP pass.
 
 To refresh all authoritative dataset evidence first and persist both the MVP report and an orchestration report, run:
 
@@ -35,7 +43,7 @@ node --no-warnings --experimental-strip-types scripts/audit-nail-texture-mvp-rea
 
 ## Checks
 
-The script writes a JSON report with ten checks:
+The script writes a JSON report with twelve checks:
 
 - `phase1_dataset`: reads `metadata/phase1-readiness.json` and requires at least 200 images, 800 valid nail masks, a passing label audit, a test split, negative samples, and complex-background test samples.
 - `training_source_authorization`: reads `metadata/training-dataset-readiness-release.json` and requires release-mode source authorization to pass. This prevents a dataset from passing MVP readiness with enough masks but unclear training rights.
@@ -48,7 +56,9 @@ The script writes a JSON report with ten checks:
 - `feedback_loop_toolchain`: verifies that user correction/debug sample export support, debug-sample import, active-learning prioritization, active-learning trace handoff, reviewed-batch import, and reviewed-batch release handoff scripts/docs are present. This is a non-training completeness check; it does not import real user images or create real training data.
 - `quality_performance_gates`: verifies that Phase 3/4 browser integration, recognition performance, texture quality, real-model readiness, and model-output fixture verification scripts/docs are present. This is a non-training completeness check; it does not require real model metrics or release-test-split evidence to pass.
 - `release_governance_toolchain`: verifies that Phase 5 release governance, rollback, trace/history, A/B comparison, and failure-taxonomy scripts/docs are present. This is a non-training completeness check; it does not require real model metrics or real release data.
-- `validation_commands`: verifies that `package.json` defines `test`, `lint`, `build`, `audit:encoding`, `audit:mvp-readiness`, and `audit:mvp-readiness:refresh`, and declares the browser runtime dependency `onnxruntime-web`.
+- `release_history_evidence_ledger`: verifies that release history preserves performance, quality, failure-taxonomy, active-learning, and first-run visual evidence across versions.
+- `release_visual_evidence_governance`: verifies that recognition-mask/first-run visual evidence risk flows from A/B comparison through release decision and manual-review promotion paths.
+- `validation_commands`: verifies that `package.json` defines `test`, `lint`, `build`, `audit:encoding`, `audit:mvp-readiness`, `audit:mvp-readiness:deferred`, and `audit:mvp-readiness:refresh`, and declares the browser runtime dependency `onnxruntime-web`.
 
 ## Baseline fixture and fallback overlay completeness
 
@@ -63,11 +73,11 @@ The `baseline_fixture_toolchain` check maps to the plan's early “green-circle 
 This check proves the baseline fixture workflow exists. It does not claim that new web images are authorized, reviewed, or ready for training.
 ## Expected state before real data and model assets exist
 
-Before the authorized dataset and real ONNX model are available, this audit should return `ok: false`. That is intentional: it prevents us from treating engineering scaffolding as a completed MVP.
+Before the authorized dataset and real ONNX model are available, the strict audit should return `ok: false`. That is intentional: it prevents us from treating engineering scaffolding as a completed MVP. Use `audit:mvp-readiness:deferred` only for the current non-real-training milestone, where the goal is to prove every code/toolchain gate except real dataset authorization and real model assets.
 
 The current expected remaining failures are:
 
-- Real Phase 1 dataset evidence is missing: the project still needs 200 images, 800 valid masks, and covered test split evidence.
+- Real Phase 1 dataset evidence may still be missing or intentionally deferred: strict MVP completion requires 200 images, 800 valid masks, and covered test split evidence.
 - Release-mode source authorization evidence is missing: run `model/training/verify-training-dataset-readiness.ts` after `sources.csv` is populated and fix authorization issues before release training.
 - Real browser model asset is missing or not credible: `public/models/nail-texture-seg/manifest.json` exists, but the referenced ONNX file has not been generated yet. If a tiny placeholder file is present, the gate reports `sizeTier: "placeholder"` and remains failed.
 

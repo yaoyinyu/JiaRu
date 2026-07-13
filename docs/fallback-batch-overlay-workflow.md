@@ -1,6 +1,6 @@
 # 首批 50 张参考图 fallback overlay 工作流
 
-版本：v1.0  
+版本：v1.0
 日期：2026-07-01
 
 这一步对应 `docs/nail-texture-recognition-model-plan.md` 里的第一批任务建议第 4 步：先选一批参考图，用当前 fallback 自动生成候选 overlay，再进入人工修正。
@@ -77,3 +77,5 @@ C:/path/to/nail-batch-001-debug/seed-batch-001-batch-verify-report.json
 ## 6. 结论
 
 `scripts/batch-verify-nail-detection.ts` 的作用不是替代标注，而是把“首批 50 张先跑一遍候选 overlay”这件事变成一个可复用的批处理步骤，让后面的种子集筛选和标注更顺。
+
+Note: each per-image report also carries recognitionMaskOutput, the path to the model/fallback recognition mask overlay artifact.

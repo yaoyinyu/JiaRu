@@ -23,6 +23,7 @@ interface ReleaseTraceIndexLike {
   } | null;
   release?: {
     trainingReleasePipelineReportPath?: string | null;
+    firstRunOutputs?: Record<string, string | null> | null;
     finalAuditStatus?: string | null;
     derivedAnnotationFailures?: number;
     postprocessFailures?: number;
@@ -173,6 +174,7 @@ const entries = indexes
       trace.promotion?.currentVersion ?? trace.registry?.currentVersion ?? trace.currentRegistryVersion ?? null,
     sourceGroupToCandidateVersion: trace.links?.sourceGroupToCandidateVersion ?? null,
     trainingReleasePipelineReportPath: trace.release?.trainingReleasePipelineReportPath ?? null,
+    firstRunOutputs: trace.release?.firstRunOutputs ?? null,
     activeLearningImportedSampleCount: trace.activeLearning?.importedSampleCount ?? 0,
     activeLearningImportedByPriority: trace.activeLearning?.importedByPriority ?? null,
     activeLearningWarningBreakdown:
@@ -303,6 +305,10 @@ const averageDirectlyUsableRate = directlyUsableRates.length
 const averageContaminationRate = contaminationRates.length
   ? Number((contaminationRates.reduce((sum, value) => sum + value, 0) / contaminationRates.length).toFixed(4))
   : null;
+const visualEvidenceTraceIndexes = entries.filter((entry) => entry.firstRunOutputs).length;
+const recognitionMaskEvidenceTraceIndexes = entries.filter(
+  (entry) => typeof entry.firstRunOutputs?.recognitionMaskPath === "string" && entry.firstRunOutputs.recognitionMaskPath.length > 0
+).length;
 
 const summary = {
   ok: true,
@@ -326,6 +332,8 @@ const summary = {
     performanceSlowClientOverheadSamples,
     performanceMissingWorkerTimingSamples,
     qualityTraceIndexes,
+    visualEvidenceTraceIndexes,
+    recognitionMaskEvidenceTraceIndexes,
     failedPhase2ExtractionTraceIndexes,
     failedTextureQualityTraceIndexes,
     averageDirectlyUsableRate,

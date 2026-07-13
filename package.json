@@ -10,6 +10,7 @@
     "test": "node --no-warnings --experimental-strip-types --test tests/*.test.ts",
     "audit:encoding": "node --no-warnings --experimental-strip-types scripts/audit-text-encoding.ts",
     "audit:mvp-readiness": "node --no-warnings --experimental-strip-types scripts/audit-nail-texture-mvp-readiness.ts",
+    "audit:mvp-readiness:deferred": "node --no-warnings --experimental-strip-types scripts/audit-nail-texture-mvp-readiness.ts --defer-real-assets",
     "audit:mvp-readiness:refresh": "node --no-warnings --experimental-strip-types scripts/refresh-nail-texture-mvp-readiness.ts",
     "audit:nail-texture-completion": "node --no-warnings --experimental-strip-types scripts/audit-nail-texture-local-inference-completion.ts --output model/reports/nail-texture-local-inference-completion-audit.json",
     "build:nail-texture-device-acceptance": "node --no-warnings --experimental-strip-types scripts/build-nail-texture-device-acceptance.ts",

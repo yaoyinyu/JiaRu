@@ -230,3 +230,43 @@ This keeps the version-history ledger aligned with the planning document's quali
 - `entries[].failureSummaryTotals`
 
 This keeps Phase 5 release history useful even before real model training is resumed: every candidate can still explain what failed and which failure class is trending across versions.
+
+
+## First-run visual evidence in release trace
+
+`build-release-trace-index.ts` now preserves `release.firstRunOutputs` from the final audit report. This includes `recognitionMaskPath` when available, so a formal release trace can link a candidate version directly to the debug JSON, rectangle overlay, fallback masks, recognition mask overlay, model-output dump, and fixture evidence produced during the real-model first run.
+
+
+## First-run visual evidence in release history
+
+`build-release-history-manifest.ts` now keeps `entries[*].firstRunOutputs` and aggregate counters for visual evidence. `totals.visualEvidenceTraceIndexes` counts traces with first-run output evidence, while `totals.recognitionMaskEvidenceTraceIndexes` counts traces that include a non-empty `recognitionMaskPath`. This makes the version history useful for checking whether each candidate preserved mask-overlay evidence without opening every trace manually.
+
+
+## Visual evidence in release comparison
+
+`compare-training-releases.ts` now consumes the same `release.firstRunOutputs` evidence preserved by release trace and release history. During baseline/candidate comparison it reports visual-evidence snapshots for each side and warns if the candidate loses `recognitionMaskPath`. This makes the release governance chain continuous: first-run record -> final audit -> trace index -> history manifest -> A/B comparison.
+
+
+## Visual evidence manual_review
+
+Release governance now inherits visual-evidence deltas from the compare summary through `build-release-decision-report.ts`. If a candidate loses first-run output evidence or recognition-mask overlay evidence, the decision becomes `manual_review`; the governance pipeline will not auto-promote it unless `--allow-manual-review true` is used after explicit human review.
+
+
+## Visual evidence manual_review acceptance
+
+The governance pipeline now has explicit regression coverage for visual-evidence manual reviews:
+
+- without `--allow-manual-review true`, a candidate with negative `deltas.firstRunVisualEvidence` or `deltas.recognitionMaskEvidence` keeps building the decision and trace index but skips promotion, trace registration, and rollback audit;
+- with `--allow-manual-review true`, the same candidate can be promoted, while promotion, trace index, and release history still preserve `decisionStatus: "manual_review"`.
+
+This proves the visual evidence risk follows the same explicit human-release path as active-learning warning reviews.
+
+
+## MVP readiness visual-evidence governance audit
+
+`audit-nail-texture-mvp-readiness.ts` now includes `release_visual_evidence_governance`. This check verifies that the visual-evidence risk path is present across compare, release decision, governance pipeline tests, training-release pipeline tests, and documentation. It prevents the MVP audit from passing with only generic release-governance files present while the first-run/recognition-mask manual-review path is missing.
+
+
+## MVP readiness release-history evidence ledger audit
+
+`audit-nail-texture-mvp-readiness.ts` also includes `release_history_evidence_ledger`. This check verifies that release history keeps the cross-version evidence ledger for performance, quality, failure taxonomy, active-learning imports, and first-run visual evidence. It prevents the readiness audit from passing if history only records version names while dropping the review signals needed to compare candidates safely before real training is resumed.

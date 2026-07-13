@@ -58,7 +58,13 @@ test("build-release-trace-index links batch release decision promotion and regis
         },
         artifacts: {
           manifest: { version: "nail-texture-seg-v2", modelFile: "nail-texture-seg-v2.onnx" },
-          finalAudit: { decision: { status: "pass", summary: "ok" } },
+          finalAudit: {
+            decision: { status: "pass", summary: "ok" },
+            firstRunOutputs: {
+              debugJsonPath: "C:/tmp/model/exports/nail-texture-seg-v2/real-model-final-audit/real-model-5188-detection-debug.json",
+              recognitionMaskPath: "C:/tmp/model/exports/nail-texture-seg-v2/real-model-final-audit/real-model-5188-recognition-mask-overlay.png",
+            },
+          },
           finalAuditFailureSummary: {
             totals: {
               csvRows: 3,
@@ -208,6 +214,10 @@ test("build-release-trace-index links batch release decision promotion and regis
   assert.equal(summary.batch?.importedFileCount, 2);
   assert.equal(summary.release.finalAuditStatus, "pass");
   assert.equal(summary.release.derivedAnnotationFailures, 2);
+  assert.equal(
+    summary.release.firstRunOutputs?.recognitionMaskPath,
+    "C:/tmp/model/exports/nail-texture-seg-v2/real-model-final-audit/real-model-5188-recognition-mask-overlay.png"
+  );
   assert.deepEqual(summary.release.failureCategoryCounts, {
     postprocess: 2,
     inferred_record: 1,
@@ -276,7 +286,13 @@ test("build-release-trace-index can upgrade an initial draft into a formal trace
         },
         artifacts: {
           manifest: { version: "nail-texture-seg-v3", modelFile: "nail-texture-seg-v3.onnx" },
-          finalAudit: { decision: { status: "pass", summary: "ok" } },
+          finalAudit: {
+            decision: { status: "pass", summary: "ok" },
+            firstRunOutputs: {
+              debugJsonPath: "C:/tmp/model/exports/nail-texture-seg-v2/real-model-final-audit/real-model-5188-detection-debug.json",
+              recognitionMaskPath: "C:/tmp/model/exports/nail-texture-seg-v2/real-model-final-audit/real-model-5188-recognition-mask-overlay.png",
+            },
+          },
           finalAuditFailureSummary: {
             totals: { derivedAnnotationFailures: 0 },
             categoryCounts: { postprocess: 0 },
@@ -395,7 +411,13 @@ test("build-release-trace-index preserves active learning trace details from rel
         },
         artifacts: {
           manifest: { version: "nail-texture-seg-v4", modelFile: "nail-texture-seg-v4.onnx" },
-          finalAudit: { decision: { status: "pass", summary: "ok" } },
+          finalAudit: {
+            decision: { status: "pass", summary: "ok" },
+            firstRunOutputs: {
+              debugJsonPath: "C:/tmp/model/exports/nail-texture-seg-v2/real-model-final-audit/real-model-5188-detection-debug.json",
+              recognitionMaskPath: "C:/tmp/model/exports/nail-texture-seg-v2/real-model-final-audit/real-model-5188-recognition-mask-overlay.png",
+            },
+          },
           finalAuditFailureSummary: {
             totals: { derivedAnnotationFailures: 0 },
             categoryCounts: { postprocess: 0 },

@@ -89,6 +89,7 @@ interface TrainingReleasePipelineReportLike {
     manifest?: { version?: string; modelFile?: string } | null;
     finalAudit?: {
       decision?: { status?: string; summary?: string };
+      firstRunOutputs?: Record<string, string | null> | null;
     } | null;
     finalAuditFailureSummary?: {
       totals?: {
@@ -384,6 +385,8 @@ const summary = {
     finalAuditReportPath: finalAuditStep?.stdout?.finalReportPath ?? null,
     finalAuditFailureSummaryPath: finalAuditStep?.stdout?.failureSummaryPath ?? null,
     firstRunRecordPath: finalAuditStep?.stdout?.recordPath ?? null,
+    firstRunOutputs:
+      trainingReleasePipelineReport.artifacts?.finalAudit?.firstRunOutputs ?? null,
     finalAuditStatus:
       trainingReleasePipelineReport.artifacts?.finalAudit?.decision?.status ?? null,
     derivedAnnotationFailures:

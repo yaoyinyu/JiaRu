@@ -113,3 +113,6 @@ node --no-warnings --experimental-strip-types scripts/verify-real-model-readines
 
 - 如果 fixture 验证都过不了，说明是后处理假设有问题
 - 如果 fixture 能过，但浏览器还是走 fallback，说明更可能是模型加载/runtime/worker 问题
+## Recognition mask overlay artifact
+
+`verify-nail-detection.ts` now writes `*-recognition-mask-overlay.png` next to the rectangle overlay, fallback candidate mask, skin mask, and debug JSON. The overlay is built from `recognition.candidates[*].mask` when model masks are present, and remains a transparent/empty overlay for fallback-only runs. The debug JSON records `recognitionMaskOutput` plus `recognitionMaskOverlay.maskCandidateCount` and `recognitionMaskOverlay.coveredPixels` so real-model smoke tests can prove whether mask postprocess produced visual evidence.

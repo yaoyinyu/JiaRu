@@ -469,6 +469,267 @@ test("run-release-governance-pipeline keeps active-learning warning reviews out 
   );
 });
 
+
+test("run-release-governance-pipeline keeps visual evidence reviews out of automatic promotion", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-visual-evidence-review-"));
+  const reportsDir = path.join(root, "reports");
+  const modelDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(reportsDir, { recursive: true });
+  await mkdir(modelDir, { recursive: true });
+
+  const manifestPath = await createManifest(modelDir, "nail-texture-seg-v6");
+  const trainingReleasePipelineReportPath = path.join(
+    reportsDir,
+    "training-release-pipeline-report.json"
+  );
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        reportPath: trainingReleasePipelineReportPath,
+        paths: {
+          manifestPath,
+          metricsPath: path.join(reportsDir, "metrics.json"),
+          trainOutputDir: path.join(root, "model", "exports", "nail-texture-seg-v6"),
+        },
+        artifacts: {
+          manifest: { version: "nail-texture-seg-v6", modelFile: "nail-texture-seg-v6.onnx" },
+          metrics: { seg_map50: 0.85, box_map50: 0.94 },
+          finalAudit: {
+            ok: true,
+            decision: { status: "pass", summary: "audit ok", nextActions: [] },
+          },
+          finalAuditFailureSummary: {
+            totals: { derivedAnnotationFailures: 0, inferredRecordFailure: 0, csvRows: 0 },
+            categoryCounts: {},
+          },
+          finalAuditTextureQualityGate: {
+            ok: true,
+            rates: { directlyUsableRate: 0.91, contaminationRate: 0.02, roughRectangleRate: 0.03 },
+            evidence: {
+              ok: true,
+              scope: "release-test-split",
+              representativeTestSplit: true,
+              documentsOk: true,
+              candidatesWithDebugOk: true,
+              candidatesWithPolygonOk: true,
+            },
+          },
+        },
+        steps: [],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const compareSummaryPath = path.join(reportsDir, "compare-summary.json");
+  await writeFile(
+    compareSummaryPath,
+    JSON.stringify(
+      {
+        ok: true,
+        regressions: [],
+        improvements: ["seg_map50 improved by 0.01"],
+        warnings: ["candidate recognition mask visual evidence is missing"],
+        deltas: {
+          firstRunVisualEvidence: 0,
+          recognitionMaskEvidence: -1,
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  await assert.rejects(
+    execFileAsync(
+      process.execPath,
+      [
+        "--no-warnings",
+        "--experimental-strip-types",
+        "scripts/run-release-governance-pipeline.ts",
+        "--training-release-pipeline-report",
+        trainingReleasePipelineReportPath,
+        "--compare-summary",
+        compareSummaryPath,
+      ],
+      { cwd: path.resolve(".") }
+    ),
+    (error: unknown) => {
+      const execError = error as Error & { stdout?: string };
+      const report = JSON.parse(execError.stdout ?? "{}") as {
+        ok: boolean;
+        steps: Array<{ name: string; ok: boolean; stdout?: { skipped?: boolean; reason?: string } }>;
+        artifacts: {
+          releaseDecision: {
+            decision: { status: string; reasons: string[]; nextActions: string[] };
+            inputs: {
+              firstRunVisualEvidenceDelta: number | null;
+              recognitionMaskEvidenceDelta: number | null;
+            };
+          };
+          promotion: { skipped?: boolean; reason?: string } | null;
+          traceIndex: { decision: { status: string } | null };
+          traceRegistration: { skipped?: boolean } | null;
+          rollbackAudit: { skipped?: boolean } | null;
+        };
+      };
+      assert.equal(report.ok, false);
+      assert.equal(report.artifacts.releaseDecision.decision.status, "manual_review");
+      assert.equal(report.artifacts.releaseDecision.inputs.firstRunVisualEvidenceDelta, 0);
+      assert.equal(report.artifacts.releaseDecision.inputs.recognitionMaskEvidenceDelta, -1);
+      assert.ok(
+        report.artifacts.releaseDecision.decision.reasons.some((item) =>
+          item.includes("candidate visual evidence decreased")
+        )
+      );
+      assert.equal(report.steps.find((step) => step.name === "promote-approved-release")?.stdout?.skipped, true);
+      assert.equal(report.artifacts.promotion?.skipped, true);
+      assert.ok(report.artifacts.promotion?.reason?.includes("release decision did not allow automatic promotion"));
+      assert.equal(report.artifacts.traceIndex.decision?.status, "manual_review");
+      assert.equal(report.artifacts.traceRegistration?.skipped, true);
+      assert.equal(report.artifacts.rollbackAudit?.skipped, true);
+      return true;
+    }
+  );
+});
+
+test("run-release-governance-pipeline can promote visual evidence reviews when explicitly allowed", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-visual-evidence-allowed-"));
+  const reportsDir = path.join(root, "reports");
+  const modelDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(reportsDir, { recursive: true });
+  await mkdir(modelDir, { recursive: true });
+
+  const manifestPath = await createManifest(modelDir, "nail-texture-seg-v6");
+  const trainingReleasePipelineReportPath = path.join(
+    reportsDir,
+    "training-release-pipeline-report.json"
+  );
+  await writeFile(
+    trainingReleasePipelineReportPath,
+    JSON.stringify(
+      {
+        ok: true,
+        reportPath: trainingReleasePipelineReportPath,
+        paths: {
+          manifestPath,
+          metricsPath: path.join(reportsDir, "metrics.json"),
+          trainOutputDir: path.join(root, "model", "exports", "nail-texture-seg-v6"),
+        },
+        artifacts: {
+          manifest: { version: "nail-texture-seg-v6", modelFile: "nail-texture-seg-v6.onnx" },
+          metrics: { seg_map50: 0.85, box_map50: 0.94 },
+          finalAudit: {
+            ok: true,
+            decision: { status: "pass", summary: "audit ok", nextActions: [] },
+          },
+          finalAuditFailureSummary: {
+            totals: { derivedAnnotationFailures: 0, inferredRecordFailure: 0, csvRows: 0 },
+            categoryCounts: {},
+          },
+          finalAuditTextureQualityGate: {
+            ok: true,
+            rates: { directlyUsableRate: 0.91, contaminationRate: 0.02, roughRectangleRate: 0.03 },
+            evidence: {
+              ok: true,
+              scope: "release-test-split",
+              representativeTestSplit: true,
+              documentsOk: true,
+              candidatesWithDebugOk: true,
+              candidatesWithPolygonOk: true,
+            },
+          },
+        },
+        steps: [],
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const compareSummaryPath = path.join(reportsDir, "compare-summary.json");
+  await writeFile(
+    compareSummaryPath,
+    JSON.stringify(
+      {
+        ok: true,
+        regressions: [],
+        improvements: ["seg_map50 improved by 0.01"],
+        warnings: ["candidate recognition mask visual evidence is missing"],
+        deltas: {
+          firstRunVisualEvidence: 0,
+          recognitionMaskEvidence: -1,
+        },
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  const registryPath = path.join(modelDir, "release-registry.json");
+  await registerRelease(await createManifest(modelDir, "nail-texture-seg-v5"), registryPath);
+  await createManifest(modelDir, "nail-texture-seg-v6");
+  const historyManifestPath = path.join(reportsDir, "release-history-manifest.json");
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-release-governance-pipeline.ts",
+      "--training-release-pipeline-report",
+      trainingReleasePipelineReportPath,
+      "--compare-summary",
+      compareSummaryPath,
+      "--registry",
+      registryPath,
+      "--history-manifest",
+      historyManifestPath,
+      "--allow-manual-review",
+      "true",
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    artifacts: {
+      releaseDecision: {
+        decision: { status: string };
+        inputs: {
+          firstRunVisualEvidenceDelta: number | null;
+          recognitionMaskEvidenceDelta: number | null;
+        };
+      };
+      promotion: { decisionStatus: string; registerSummary: { registeredVersion: string } };
+      traceIndex: { decision: { status: string } | null };
+      traceRegistration: { ok: boolean };
+      rollbackAudit: { ok: boolean; rollbackCandidates: string[] };
+      historyManifest: { totals: { traceIndexes: number }; entries: Array<{ decisionStatus: string | null }> };
+    };
+  };
+
+  assert.equal(report.ok, true);
+  assert.equal(report.artifacts.releaseDecision.decision.status, "manual_review");
+  assert.equal(report.artifacts.releaseDecision.inputs.firstRunVisualEvidenceDelta, 0);
+  assert.equal(report.artifacts.releaseDecision.inputs.recognitionMaskEvidenceDelta, -1);
+  assert.equal(report.artifacts.promotion.decisionStatus, "manual_review");
+  assert.equal(report.artifacts.promotion.registerSummary.registeredVersion, "nail-texture-seg-v6");
+  assert.equal(report.artifacts.traceIndex.decision?.status, "manual_review");
+  assert.equal(report.artifacts.traceRegistration.ok, true);
+  assert.equal(report.artifacts.rollbackAudit.ok, true);
+  assert.deepEqual(report.artifacts.rollbackAudit.rollbackCandidates, ["nail-texture-seg-v5"]);
+  assert.equal(report.artifacts.historyManifest.totals.traceIndexes, 1);
+  assert.equal(report.artifacts.historyManifest.entries[0]?.decisionStatus, "manual_review");
+});
+
 test("run-release-governance-pipeline can promote active-learning warning reviews when explicitly allowed", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-governance-active-learning-allowed-"));
   const reportsDir = path.join(root, "reports");

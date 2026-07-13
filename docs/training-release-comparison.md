@@ -96,3 +96,13 @@ node --no-warnings --experimental-strip-types scripts/compare-training-releases.
 - `deltas.highlightHotspotFailures`
 
 Positive category deltas are emitted as warnings, while negative deltas are emitted as improvements. This keeps Phase 5 A/B comparison aligned with the release history ledger: reviewers can see whether a candidate shifted failures toward data, model, postprocess, UI, or inferred-record problems before approving promotion.
+## First-run visual evidence deltas
+
+`compare-training-releases.ts` also compares first-run visual evidence when both releases provide `release-trace-index.json`. The output now includes:
+
+- `baseline.visualEvidence`
+- `candidate.visualEvidence`
+- `deltas.firstRunVisualEvidence`
+- `deltas.recognitionMaskEvidence`
+
+If a baseline trace has a non-empty `release.firstRunOutputs.recognitionMaskPath` and the candidate trace drops it, the compare summary emits `candidate recognition mask visual evidence is missing` in `warnings`. This keeps A/B review from approving a candidate that still has acceptable mAP but lost the visual proof needed to inspect nail-mask output quality.

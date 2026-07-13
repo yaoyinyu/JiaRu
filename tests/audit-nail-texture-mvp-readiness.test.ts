@@ -82,6 +82,7 @@ test("audit-nail-texture-mvp-readiness passes when all MVP evidence is present",
       build: "next build",
       "audit:encoding": "node scripts/audit-text-encoding.ts",
       "audit:mvp-readiness": "node scripts/audit-nail-texture-mvp-readiness.ts",
+      "audit:mvp-readiness:deferred": "node scripts/audit-nail-texture-mvp-readiness.ts --defer-real-assets",
       "audit:mvp-readiness:refresh": "node scripts/refresh-nail-texture-mvp-readiness.ts",
     },
     dependencies: {
@@ -130,6 +131,12 @@ test("audit-nail-texture-mvp-readiness passes when all MVP evidence is present",
   assert.ok(
     report.checks.some((check) => check.name === "release_governance_toolchain" && check.ok)
   );
+  assert.ok(
+    report.checks.some((check) => check.name === "release_visual_evidence_governance" && check.ok)
+  );
+  assert.ok(
+    report.checks.some((check) => check.name === "release_history_evidence_ledger" && check.ok)
+  );
   assert.deepEqual(report.nextCommands, []);
   const persisted = JSON.parse(await readFile(outputPath, "utf8")) as { ok: boolean };
   assert.equal(persisted.ok, true);
@@ -150,6 +157,7 @@ test("audit-nail-texture-mvp-readiness rejects placeholder-sized browser model a
       build: "next build",
       "audit:encoding": "node scripts/audit-text-encoding.ts",
       "audit:mvp-readiness": "node scripts/audit-nail-texture-mvp-readiness.ts",
+      "audit:mvp-readiness:deferred": "node scripts/audit-nail-texture-mvp-readiness.ts --defer-real-assets",
       "audit:mvp-readiness:refresh": "node scripts/refresh-nail-texture-mvp-readiness.ts",
     },
     dependencies: { "onnxruntime-web": "^1.27.0" },
@@ -184,6 +192,72 @@ test("audit-nail-texture-mvp-readiness rejects placeholder-sized browser model a
       return true;
     }
   );
+});
+
+test("audit-nail-texture-mvp-readiness can defer real dataset and model asset gates", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-mvp-ready-deferred-"));
+  const datasetRoot = path.join(root, "model", "datasets", "nail-texture-v1");
+  await writeJson(path.join(datasetRoot, "metadata", "phase1-readiness.json"), {
+    ok: false,
+    totals: { images: 0, validMasks: 0 },
+    splitCounts: { train: 0, val: 0, test: 0 },
+    gates: {
+      imageCount: { ok: false, actual: 0, required: 200 },
+      validMaskCount: { ok: false, actual: 0, required: 800 },
+      labelAuditPass: { ok: true, actual: 0, required: 0 },
+      testSplitHasNegative: { ok: false, actual: 0, required: 1 },
+      testSplitHasComplexBackground: { ok: false, actual: 0, required: 1 },
+    },
+  });
+  const modelDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(modelDir, { recursive: true });
+  const manifestPath = path.join(modelDir, "manifest.json");
+  await writeJson(manifestPath, {
+    version: "nail-texture-seg-v1",
+    inputSize: 640,
+    task: "segment",
+    backendPreferences: ["webgpu", "wasm"],
+    modelFile: "missing.onnx",
+    labels: ["nail_texture"],
+  });
+
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/audit-nail-texture-mvp-readiness.ts",
+      "--dataset-root",
+      datasetRoot,
+      "--manifest",
+      manifestPath,
+      "--defer-real-assets",
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    summary: { failed: number; deferred: number };
+    checks: Array<{ name: string; ok: boolean; deferred?: boolean; evidence: Record<string, unknown> }>;
+    nextSteps: string[];
+    nextCommands: string[];
+  };
+  const deferredChecks = report.checks.filter((check) => check.deferred).map((check) => check.name);
+
+  assert.equal(report.ok, true);
+  assert.equal(report.summary.failed, 0);
+  assert.equal(report.summary.deferred, 3);
+  assert.deepEqual(deferredChecks, [
+    "phase1_dataset",
+    "training_source_authorization",
+    "browser_model_asset",
+  ]);
+  assert.ok(
+    report.checks.every((check) => !check.deferred || check.evidence.deferredBy === "--defer-real-assets")
+  );
+  assert.deepEqual(report.nextSteps, []);
+  assert.deepEqual(report.nextCommands, []);
 });
 test("audit-nail-texture-mvp-readiness reports real dataset and model gaps", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-mvp-ready-fail-"));
@@ -251,6 +325,8 @@ test("audit-nail-texture-mvp-readiness reports real dataset and model gaps", asy
   assert.equal(report.checks.find((check) => check.name === "feedback_loop_toolchain")?.ok, true);
   assert.equal(report.checks.find((check) => check.name === "quality_performance_gates")?.ok, true);
   assert.equal(report.checks.find((check) => check.name === "release_governance_toolchain")?.ok, true);
+  assert.equal(report.checks.find((check) => check.name === "release_visual_evidence_governance")?.ok, true);
+  assert.equal(report.checks.find((check) => check.name === "release_history_evidence_ledger")?.ok, true);
   assert.match(report.nextSteps.join("\n"), /Train\/export a real ONNX segmentation model/);
   assert.match(report.nextSteps.join("\n"), /200 images and 800 valid nail masks/);
   assert.match(report.nextSteps.join("\n"), /source authorization errors/);

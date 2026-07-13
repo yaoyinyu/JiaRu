@@ -25,6 +25,7 @@
     "debugOverlayPath": null,
     "candidateMaskPath": null,
     "skinMaskPath": null,
+    "recognitionMaskPath": null,
     "modelOutputDumpPath": null,
     "fixturePath": null
   },

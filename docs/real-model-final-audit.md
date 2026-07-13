@@ -65,3 +65,7 @@ node --no-warnings --experimental-strip-types scripts/run-real-model-final-audit
 - `model`
 - `postprocess`
 - `ui`
+## First-run output evidence in final audit
+
+`real-model-final-audit-report.json` now includes `firstRunOutputs`, including `recognitionMaskPath`. This keeps debug JSON, rectangle overlay, fallback masks, recognition mask overlay, model-output dump, and fixture paths visible from the final audit report without opening the nested first-run record first.
+Release traces consume this block through `build-release-trace-index.ts`, so `recognitionMaskPath` remains visible after release governance and history registration.
