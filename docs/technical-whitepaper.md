@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.14
+> 文档版本：v1.1.15
 >
 > 基线日期：2026-07-12
 >
@@ -404,7 +404,7 @@ NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL=/models/nail-texture-seg/manifest.js
 NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL=/models/nail-texture-seg-smoke/manifest.json
 ```
 
-重要：当前 `.env.local.example` 的实际值就是 smoke manifest。直接复制该文件会启用烟雾模型，而不是正式模型。正式环境必须删除该覆盖项以使用代码默认路径，或显式改为正式 manifest；在正式 ONNX 缺失期间，两种方式都不能产生正式模型能力。
+`.env.local.example` 默认不再启用 manifest 覆盖；直接复制时由代码使用 `/models/nail-texture-seg/manifest.json`。只有受控 smoke 验证才应临时取消示例注释并指向 smoke manifest。回归测试会拒绝示例文件中任何启用状态的 `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL`，避免测试模型成为共享默认值。在正式 ONNX 缺失期间，默认正式路径仍会进入 fallback，不代表正式模型已经可用。
 
 烟雾/合成模型只验证工程链路，不得用于宣称真实美甲识别质量。结果顶层 `backend: "model"` 只表示走了模型路径；实际执行提供程序 `webgpu`/`wasm` 位于 `modelInfo.backend`。
 
@@ -490,7 +490,7 @@ disposeAllTextures(bitmaps): void
 | 图片 | 401 |
 | mask | 2093 |
 | 有效 mask | 2093 |
-| train / val / test | 293 / 45 / 62 |
+| train / val / test | 293 / 45 / 63 |
 | 错误文件 | 0 |
 | warning 文件 | 2 |
 
@@ -628,7 +628,6 @@ npm.cmd run build
 1. v6 正式候选已产出并通过当前精度/资产/桌面性能门，但生产 manifest 尚未切换；13 张独立真实 test 不足以替代 100–200 张代表性测试集，正式模型审计继续 blocked；
 2. AI 生图依赖外部模型与密钥，尚未完成生产环境可用性、成本和内容安全验证；
 3. AR 摄像头和朝向识别仍需要更多手机、浏览器、光线和肤色组合的真机验收；纹理识别桌面内存基线已建立，但 Android/iPhone/iPad 峰值内存仍未测量。
-4. `.env.local.example` 当前默认指向 smoke manifest，复制后容易误把测试模型当成正式模型。
 
 ### 11.2 未完成或占位能力
 
@@ -668,6 +667,7 @@ npm.cmd run build
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-07-13 | v1.1.15 | 移除`.env.local.example`中启用状态的smoke manifest覆盖，默认恢复到正式manifest路径；新增配置回归测试防止smoke URL再次成为共享默认值，并纠正readiness表残留的test=62为当前293/45/63。正式ONNX与移动/Beta门禁不变 | 模型配置、发布安全、文档一致性 |
 | 2026-07-13 | v1.1.14 | 以24个视觉紧框+SAM2复核6张返修图，仅提升1张/1 mask；另排除1张源画面裁断图，审核队列更新为79通过、5排除、29返修，正式集为401图/2093 mask、split=293/45/63。新增1001张Claude生成图完成解码、尺寸、批内及跨正式集去重和11页视觉总览，登记为待授权/待标注的合成候选池 | 辅助标注、数据治理、合成素材审计、训练授权 |
 | 2026-07-13 | v1.1.13 | 对35张返修图执行3×3重叠分块推理，生成19图/88候选但视觉门0提升；再以33个视觉紧框+SAM2复核4张，确认3张甲面被画面截断、1张背景甲面失焦，均属源图不可恢复并排除。审核队列更新为78通过、4排除、31返修，正式数据集不变 | 辅助标注、源图质量门、数据治理 |
 | 2026-07-13 | v1.1.12 | 新增跨分辨率共识筛选工具，对37张返修图生成34图/209个稳定候选并完成五页与原分辨率审核，仅提升2张/9 mask；正式集更新为400图/2092 mask、split=293/45/62，35张继续返修。v8 在冻结13张真实 test 上 box/mask mAP50=0.8487/0.8472，因 box 未达0.85且未超过v6被拒绝 | 辅助标注、数据治理、训练评估、发布门禁 |
