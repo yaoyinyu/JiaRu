@@ -5,15 +5,17 @@
   "ok": true,
   "counts": {
     "parents": 92,
-    "pass": 14,
-    "rework": 77,
+    "pass": 16,
+    "rework": 75,
     "excluded": 1,
-    "acceptedMasks": 89,
+    "acceptedMasks": 98,
     "acceptedSourceGroups": 7,
     "upstreamExcluded": 9
   },
   "passParentFiles": [
+    "real_release_20260713_002.jpg",
     "real_release_20260713_003.jpg",
+    "real_release_20260713_027.jpg",
     "real_release_20260713_028.jpg",
     "real_release_20260713_029.jpg",
     "real_release_20260713_030.jpg",
@@ -30,7 +32,6 @@
   ],
   "reworkParentFiles": [
     "real_release_20260713_001.jpg",
-    "real_release_20260713_002.jpg",
     "real_release_20260713_004.jpg",
     "real_release_20260713_005.jpg",
     "real_release_20260713_006.jpg",
@@ -45,7 +46,6 @@
     "real_release_20260713_024.jpg",
     "real_release_20260713_025.jpg",
     "real_release_20260713_026.jpg",
-    "real_release_20260713_027.jpg",
     "real_release_20260713_031.jpg",
     "real_release_20260713_033.jpg",
     "real_release_20260713_034.jpg",
