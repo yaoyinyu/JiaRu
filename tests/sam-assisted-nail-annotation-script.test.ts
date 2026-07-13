@@ -16,6 +16,8 @@ test("SAM assisted annotation requires vision prompts and emits reviewed polygon
   assert.match(source, /positivePoints count must match boxes count/);
   assert.match(source, /promptModes count must match boxes count/);
   assert.match(source, /has invalid promptModes/);
+  assert.match(source, /prompt \{prompt_index\} \(\{prompt_mode\}\)/);
+  assert.match(source, /prompt \{index\} polygon conversion failed/);
   assert.match(source, /prompt_modes, strict=True/);
   assert.match(source, /occludedIndices must contain 1-based box indices/);
   assert.match(source, /"occluded": index in occluded_indices/);

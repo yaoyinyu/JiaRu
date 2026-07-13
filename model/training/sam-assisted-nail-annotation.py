@@ -124,16 +124,18 @@ def main() -> None:
                 base_results = model(
                     str(image_path), retina_masks=True, conf=0.1, iou=0.5, verbose=False
                 )
-                for box in boxes:
+                for prompt_index, box in enumerate(boxes, start=1):
                     result = model.predictor.prompt(base_results, bboxes=[box])[0]
                     if result.masks is None or len(result.masks.data) != 1:
                         raise RuntimeError(
-                            f"FastSAM box prompt returned {0 if result.masks is None else len(result.masks.data)} masks instead of one"
+                            f"prompt {prompt_index} (box) FastSAM returned "
+                            f"{0 if result.masks is None else len(result.masks.data)} masks instead of one"
                         )
                     mask_outputs.append(result.masks.data[0].cpu().numpy())
             else:
-                for box, point_set, positive_set, label_set, prompt_mode in zip(
-                    boxes, points, positive_points, labels, prompt_modes, strict=True
+                for prompt_index, (box, point_set, positive_set, label_set, prompt_mode) in enumerate(
+                    zip(boxes, points, positive_points, labels, prompt_modes, strict=True),
+                    start=1,
                 ):
                     prompt_arguments = {"bboxes": [box]}
                     if prompt_mode == "center":
@@ -160,7 +162,8 @@ def main() -> None:
                         fallback_prompt_count += 1
                     if result.masks is None or len(result.masks.data) != 1:
                         raise RuntimeError(
-                            f"isolated prompt and box-only fallback returned {0 if result.masks is None else len(result.masks.data)} masks instead of one"
+                            f"prompt {prompt_index} ({prompt_mode}) isolated prompt and box-only fallback returned "
+                            f"{0 if result.masks is None else len(result.masks.data)} masks instead of one"
                         )
                     mask_outputs.append(result.masks.data[0].cpu().numpy())
             masks = np.stack(mask_outputs)
@@ -172,7 +175,12 @@ def main() -> None:
                 draw.text((box[0], box[1]), f"B{prompt_index}", fill=(255, 40, 40, 255))
             for index, (box, mask) in enumerate(zip(boxes, masks, strict=True), start=1):
                 center = (int((box[0] + box[2]) / 2), int((box[1] + box[3]) / 2))
-                polygon = polygon_from_mask(mask, center)
+                try:
+                    polygon = polygon_from_mask(mask, center)
+                except Exception as error:
+                    raise RuntimeError(
+                        f"prompt {index} polygon conversion failed: {error}"
+                    ) from error
                 annotations.append(
                     {
                         "id": f"n{index}",
