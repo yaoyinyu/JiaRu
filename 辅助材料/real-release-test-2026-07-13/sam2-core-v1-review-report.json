@@ -6,27 +6,30 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 8,
-    "rework": 48,
+    "pass": 12,
+    "rework": 44,
     "excluded": 1,
-    "acceptedMasks": 59,
-    "acceptedSourceGroups": 4,
+    "acceptedMasks": 79,
+    "acceptedSourceGroups": 6,
     "stressPending": 35
   },
   "passFiles": [
+    "real_release_20260713_003.jpg",
     "real_release_20260713_028.jpg",
     "real_release_20260713_029.jpg",
     "real_release_20260713_030.jpg",
     "real_release_20260713_032.jpg",
+    "real_release_20260713_046.jpg",
     "real_release_20260713_068.jpg",
     "real_release_20260713_074.jpg",
+    "real_release_20260713_086.jpg",
+    "real_release_20260713_087.jpg",
     "real_release_20260713_089.jpg",
     "real_release_20260713_092.jpg"
   ],
   "reworkFiles": [
     "real_release_20260713_001.jpg",
     "real_release_20260713_002.jpg",
-    "real_release_20260713_003.jpg",
     "real_release_20260713_004.jpg",
     "real_release_20260713_022.jpg",
     "real_release_20260713_023.jpg",
@@ -40,7 +43,6 @@
     "real_release_20260713_043.jpg",
     "real_release_20260713_044.jpg",
     "real_release_20260713_045.jpg",
-    "real_release_20260713_046.jpg",
     "real_release_20260713_047.jpg",
     "real_release_20260713_048.jpg",
     "real_release_20260713_049.jpg",
@@ -67,8 +69,6 @@
     "real_release_20260713_083.jpg",
     "real_release_20260713_084.jpg",
     "real_release_20260713_085.jpg",
-    "real_release_20260713_086.jpg",
-    "real_release_20260713_087.jpg",
     "real_release_20260713_088.jpg",
     "real_release_20260713_090.jpg",
     "real_release_20260713_091.jpg"
@@ -86,5 +86,20 @@
     "rejectCroppedNailAtImageEdge": true,
     "candidateOnlyUntilHumanReview": true
   },
+  "candidateReportPaths": [
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-v1-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v2-report.json"
+  ],
+  "repairBatches": [
+    {
+      "id": "sam2-core-repair-v2",
+      "manifest": "sam2-core-repair-v2-manifest.json",
+      "prompts": "sam2-core-repair-v2-prompts.json",
+      "candidateReport": "sam2-core-repair-v2-report.json",
+      "review": "sam2-core-repair-v2-review.json",
+      "passCount": 4,
+      "acceptedMaskCount": 20
+    }
+  ],
   "errors": []
 }

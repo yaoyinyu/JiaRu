@@ -83,6 +83,7 @@ model/exports/
 /.playwright-cli/
 
 # local review media; keep compact manifests/reports in Git, but exclude reproducible candidate polygons
+辅助材料/material-name-unification-*/
 辅助材料/**/images/
 辅助材料/**/overlays/
 辅助材料/**/debug/

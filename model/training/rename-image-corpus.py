@@ -44,12 +44,12 @@ def source_metadata(stem: str) -> dict[str, str | int | None]:
     }
 
 
-def build_manifest(root: Path, prefix: str) -> dict[str, object]:
+def build_manifest(root: Path, prefix: str, min_width: int = 3) -> dict[str, object]:
     files = sorted(
         path for path in root.iterdir()
         if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
     )
-    width = max(3, len(str(len(files))))
+    width = max(min_width, len(str(len(files))))
     entries: list[dict[str, object]] = []
     for index, path in enumerate(files, start=1):
         renamed = f"{prefix}_{index:0{width}d}{path.suffix.lower()}"
@@ -66,6 +66,7 @@ def build_manifest(root: Path, prefix: str) -> dict[str, object]:
         "schemaVersion": 1,
         "root": str(root),
         "prefix": prefix,
+        "sequenceWidth": width,
         "count": len(entries),
         "entries": entries,
     }
@@ -111,6 +112,12 @@ def main() -> None:
     parser.add_argument("--root", required=True)
     parser.add_argument("--prefix", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--min-width",
+        type=int,
+        default=3,
+        help="Minimum zero-padded sequence width (default: 3).",
+    )
     parser.add_argument("--apply", action="store_true")
     args = parser.parse_args()
 
@@ -120,8 +127,10 @@ def main() -> None:
         raise FileNotFoundError(f"image corpus directory not found: {root}")
     if not re.fullmatch(r"[a-z0-9][a-z0-9_-]*", args.prefix):
         raise ValueError("prefix must contain only lowercase ASCII letters, numbers, underscores or hyphens")
+    if args.min_width < 1:
+        raise ValueError("min-width must be at least 1")
 
-    manifest = build_manifest(root, args.prefix)
+    manifest = build_manifest(root, args.prefix, args.min_width)
     if not manifest["entries"]:
         raise RuntimeError(f"no supported images found in {root}")
     if args.apply:
