@@ -6,10 +6,10 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 34,
-    "rework": 15,
-    "excluded": 8,
-    "acceptedMasks": 195,
+    "pass": 35,
+    "rework": 13,
+    "excluded": 9,
+    "acceptedMasks": 200,
     "acceptedSourceGroups": 11,
     "stressPending": 35
   },
@@ -42,6 +42,7 @@
     "real_release_20260713_075.jpg",
     "real_release_20260713_077.jpg",
     "real_release_20260713_079.jpg",
+    "real_release_20260713_080.jpg",
     "real_release_20260713_082.jpg",
     "real_release_20260713_086.jpg",
     "real_release_20260713_087.jpg",
@@ -61,10 +62,8 @@
     "real_release_20260713_072.jpg",
     "real_release_20260713_076.jpg",
     "real_release_20260713_078.jpg",
-    "real_release_20260713_080.jpg",
     "real_release_20260713_081.jpg",
-    "real_release_20260713_083.jpg",
-    "real_release_20260713_091.jpg"
+    "real_release_20260713_083.jpg"
   ],
   "excludeFiles": [
     "real_release_20260713_023.jpg",
@@ -74,7 +73,8 @@
     "real_release_20260713_070.jpg",
     "real_release_20260713_084.jpg",
     "real_release_20260713_085.jpg",
-    "real_release_20260713_088.jpg"
+    "real_release_20260713_088.jpg",
+    "real_release_20260713_091.jpg"
   ],
   "excludeReasons": {
     "real_release_20260713_023.jpg": "background_hand_contains_required_nails_cropped_by_the_top_and_right_image_edges",
@@ -84,7 +84,8 @@
     "real_release_20260713_070.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge",
     "real_release_20260713_084.jpg": "overlapping_hands_leave_a_required_nail_partially_occluded",
     "real_release_20260713_085.jpg": "satin_prop_occludes_required_nail_surfaces",
-    "real_release_20260713_088.jpg": "cup_and_overlapping_hands_occlude_required_nail_surfaces"
+    "real_release_20260713_088.jpg": "cup_and_overlapping_hands_occlude_required_nail_surfaces",
+    "real_release_20260713_091.jpg": "source_image_has_a_pinky_nail_cropped_at_the_right_image_edge"
   },
   "reviewPolicy": {
     "requireEveryVisibleNail": true,
@@ -106,7 +107,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v10-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v11-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v12-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v13-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v13-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v14-report.json"
   ],
   "repairBatches": [
     {
@@ -225,6 +227,17 @@
       "acceptedMaskCount": 5,
       "reworkCount": 1,
       "promptStrategy": "restore_missing_thumbs_and_apply_strict_original_resolution_denim_skin_rejection"
+    },
+    {
+      "id": "sam2-core-repair-v14",
+      "manifest": "sam2-core-repair-v14-manifest.json",
+      "prompts": "sam2-core-repair-v14-prompts.json",
+      "candidateReport": "sam2-core-repair-v14-report.json",
+      "review": "sam2-core-repair-v14-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "excludedInCandidateBatch": 1,
+      "promptStrategy": "tightened_thumb_axis_multipoint_rebuild_with_strict_source_edge_crop_exclusion"
     }
   ],
   "errors": []
