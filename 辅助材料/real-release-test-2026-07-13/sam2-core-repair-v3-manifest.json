@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-third-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_001.jpg",
+      "keepPromptIndices": [1, 2, 3],
+      "addBoxes": [
+        [0.273, 0.328, 0.383, 0.389],
+        [0.715, 0.414, 0.818, 0.478]
+      ],
+      "reviewReason": "add_missing_black_nail_and_replace_skin_contaminated_right_nail_prompt"
+    },
+    {
+      "fileName": "real_release_20260713_002.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "reviewReason": "retain_five_visible_nails_and_remove_duplicate_skin_contaminated_sixth_prompt"
+    },
+    {
+      "fileName": "real_release_20260713_027.jpg",
+      "keepPromptIndices": [1, 2],
+      "addBoxes": [
+        [0.165, 0.705, 0.37, 0.82],
+        [0.3, 0.842, 0.49, 0.94]
+      ],
+      "reviewReason": "add_two_missing_low_contrast_nude_nails"
+    },
+    {
+      "fileName": "real_release_20260713_051.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "reviewReason": "retain_five_visible_nails_and_remove_duplicate_decoration_fragment_prompt"
+    },
+    {
+      "fileName": "real_release_20260713_052.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [
+        [0.135, 0.66, 0.345, 0.785]
+      ],
+      "reviewReason": "remove_two_duplicate_prompts_and_add_missing_nude_thumb_nail"
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [
+        [0.835, 0.575, 0.985, 0.72]
+      ],
+      "reviewReason": "add_missing_right_pinky_nail"
+    }
+  ]
+}
