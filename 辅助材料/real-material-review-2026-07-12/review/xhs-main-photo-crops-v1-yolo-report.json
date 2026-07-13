@@ -1,0 +1,102 @@
+{
+  "version": "nail-texture-yolo-prelabel/v1",
+  "ok": true,
+  "decision": "candidate_only_not_training_truth",
+  "model": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\nail-texture-seg-real-candidate-v6\\weights\\best.pt",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1",
+  "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1-candidate-only",
+  "settings": {
+    "conf": 0.1,
+    "iou": 0.5,
+    "imgsz": 1024,
+    "maxDet": 20
+  },
+  "imageCount": 9,
+  "imagesWithCandidates": 9,
+  "imagesWithoutCandidates": 0,
+  "totalCandidates": 92,
+  "candidateCountHistogram": {
+    "3": 1,
+    "5": 1,
+    "6": 1,
+    "8": 2,
+    "13": 1,
+    "14": 1,
+    "15": 1,
+    "20": 1
+  },
+  "items": [
+    {
+      "fileName": "14b762d1b5be-main-hand.png",
+      "candidateCount": 8,
+      "meanConfidence": 0.500183,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\14b762d1b5be-main-hand.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\14b762d1b5be-main-hand-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "2526e587c486-main-hand.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.734342,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\2526e587c486-main-hand.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\2526e587c486-main-hand-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "32a451fadbf7-main-hand.png",
+      "candidateCount": 3,
+      "meanConfidence": 0.473902,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\32a451fadbf7-main-hand.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\32a451fadbf7-main-hand-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "332ca3451619-main-hands.png",
+      "candidateCount": 14,
+      "meanConfidence": 0.411701,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\332ca3451619-main-hands.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\332ca3451619-main-hands-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "8756ef65a6c0-main-hands.png",
+      "candidateCount": 15,
+      "meanConfidence": 0.503869,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\8756ef65a6c0-main-hands.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\8756ef65a6c0-main-hands-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "ab7f3e8a00c9-main-hands.png",
+      "candidateCount": 20,
+      "meanConfidence": 0.39359,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\ab7f3e8a00c9-main-hands.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\ab7f3e8a00c9-main-hands-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "e191a73ac390-main-hand.png",
+      "candidateCount": 6,
+      "meanConfidence": 0.408048,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\e191a73ac390-main-hand.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\e191a73ac390-main-hand-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "e73df1f51425-main-hands.png",
+      "candidateCount": 13,
+      "meanConfidence": 0.671369,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\e73df1f51425-main-hands.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\e73df1f51425-main-hands-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "fdc2d2ee537f-main-hand.png",
+      "candidateCount": 8,
+      "meanConfidence": 0.46952,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-json\\fdc2d2ee537f-main-hand.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\selected\\xhs-main-photo-crops-v1-yolo-overlays\\fdc2d2ee537f-main-hand-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    }
+  ]
+}

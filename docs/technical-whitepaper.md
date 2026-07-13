@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.19
+> 文档版本：v1.1.20
 >
 > 基线日期：2026-07-12
 >
@@ -502,6 +502,8 @@ disposeAllTextures(bitmaps): void
 
 同日对余下3张清晰Deerplanet返修图执行25个逐甲紧框，并针对低对比甲面追加9个收紧框、两轮各9个box-center定点复跑。2张虽生成多边形但仍有皮肤外溢或局部轮廓缺口，1张低对比图在第6/9提示上返回空mask，原分辨率审核0张提升，队列仍为80通过、5排除、28返修。辅助标注脚本已补充FastSAM/SAM2提示序号、提示模式和polygon转换阶段错误定位；复跑报告可直接指出`prompt 6 (box)`与`prompt 9 (box-center)`，避免把单甲失败误报为不可定位的整图失败。数据集未变化，来源与训练readiness仍通过；总体MVP readiness继续因生产ONNX缺失而按预期失败。
 
+同日对28张返修源图生成四页新联系表，确认其中18张为“真实照片+界面文字/重复圆图或双图排版”的截图素材。新增受审计区域提取器，以父文件名、归一化框和区域ID生成确定性派生PNG，并记录父子SHA-256、像素框、尺寸和按父图稳定的`sourceGroup`。首批9张小红书截图各提取1个主照片区域，9/9成功且联系表确认已移除页面UI与重复圆图；v6在派生图上以1024/conf=0.10生成92个候选，但重复框和少量误检使其继续保持`candidate_only_not_training_truth`。原截图仍为返修，正式集仍是402图/2101 mask，下一步对9张派生图执行逐甲SAM2和原分辨率审核。
+
 同日登记 `E:\AI Project\Codex\JiaRu_image\claude\2026_7_13` 的1001张新增生成素材：1001/1001可解码且均为1024×1024 PNG，批内无精确/近重复，与导入前400张正式集无精确SHA-256或同dHash重复。11页视觉联系表显示其主体清楚但具有明显合成模板分布，只登记为合成训练候选池；在本批商业训练/长期回归授权和逐图标注审核完成前，不导入正式集，也不得用于真实test或发布门禁。
 
 这代表数据结构门当前通过，不代表模型质量已经达标。
@@ -529,6 +531,7 @@ disposeAllTextures(bitmaps): void
 | 数据盘点 | `audit-image-corpus.py`、`audit-labels.ts`、`audit-phase1-readiness.ts` |
 | 数据准备 | `convert-annotations.ts`、`split-dataset.ts`、`materialize-training-dataset.ts` |
 | 辅助标注 | `sam-assisted-nail-annotation.py` |
+| 审核区域提取 | `extract-reviewed-image-regions.py` |
 | 训练 | `train-yolo-seg.py` |
 | 评估 | `evaluate.py`、`assess-model-metrics.py` |
 | 导出/量化 | `export-onnx.py`、`quantize-onnx-int8.py` |
@@ -670,6 +673,7 @@ npm.cmd run build
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-07-13 | v1.1.20 | 新增截图/拼图审核区域提取器与父子来源报告，9张小红书截图主照片区域9/9提取成功，记录父子SHA-256、坐标、尺寸和父图稳定分组；修复Windows GBK控制台打印Unicode文件名失败。v6生成92个候选但保持review-only，可重建候选多边形目录由Git忽略；正式集与发布HOLD不变 | 辅助标注、派生数据治理、来源隔离、Windows兼容、仓库治理 |
 | 2026-07-13 | v1.1.19 | 对3张Deerplanet返修图执行25个紧框及三轮低对比定点复跑，原分辨率审核0张提升、28张继续返修；增强SAM2/FastSAM失败报告，精确定位提示序号、模式和polygon转换阶段，专项测试通过。纠正readiness快照split为294/45/63；数据集readiness通过，总体发布HOLD不变 | 辅助标注、错误诊断、数据治理、文档一致性 |
 | 2026-07-13 | v1.1.18 | 诊断本机PowerShell反复弹出“选择应用打开npm”：`C:\Windows\System32\npm`为0字节无扩展名文件并在PATH解析中遮蔽正式`C:\Program Files\nodejs\npm.cmd`。项目后续Windows命令统一显式调用`npm.cmd`；本轮未删除系统文件，未改变运行时接口、模块状态或发布门禁 | 本地开发环境、命令执行约定 |
 | 2026-07-13 | v1.1.17 | 对3张Deerplanet返修图执行27个SAM2逐甲紧框并对2张以19个收紧框复跑；原分辨率审核仅提升1张/8 mask，2张继续返修。正式集更新为402图/2101 mask、split=294/45/63，审核队列为80通过、5排除、28返修，来源审计与release readiness通过；发布HOLD不变 | 辅助标注、数据治理、训练授权、发布门禁 |
