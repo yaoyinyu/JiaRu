@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-multipoint-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_078.jpg"
+  ],
+  "acceptedMaskCount": 10,
+  "reworkFiles": [],
+  "excludeFiles": [
+    "real_release_20260713_069.jpg"
+  ],
+  "reviewNotes": {
+    "real_release_20260713_078.jpg": "ten_single_masks_cover_all_fully_visible_nails_on_both_hands_including_both_bow_decorated_nails_and_the_previously_missing_lower_thumb_without_duplicate_split_masks",
+    "real_release_20260713_069.jpg": "leftmost_long_nail_tip_is_cropped_by_the_left_image_edge_so_the_source_is_excluded_instead_of_repaired"
+  }
+}
