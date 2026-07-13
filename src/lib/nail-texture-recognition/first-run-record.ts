@@ -25,6 +25,7 @@ export interface RealModelFirstRunRecord {
     debugOverlayPath: string | null;
     candidateMaskPath: string | null;
     skinMaskPath: string | null;
+    recognitionMaskPath: string | null;
     modelOutputDumpPath: string | null;
     fixturePath: string | null;
   };
@@ -166,6 +167,7 @@ export function validateRealModelFirstRunRecord(
       "debugOverlayPath",
       "candidateMaskPath",
       "skinMaskPath",
+      "recognitionMaskPath",
       "modelOutputDumpPath",
       "fixturePath",
     ] as const) {

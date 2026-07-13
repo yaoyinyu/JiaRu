@@ -64,3 +64,6 @@ model/fixtures/real-model-first-run-record.template.json
 - `verify-real-model-readiness.ts` 的摘要
 - `verify-nail-detection.ts` 生成的 debug JSON 路径
 - `verify-model-output-fixture.ts` 的候选数量、输出维度和 failures
+## Recognition mask evidence
+
+`outputs.recognitionMaskPath` records the `*-recognition-mask-overlay.png` artifact produced by `verify-nail-detection.ts`. Keep this path with the first-run record so reviewers can inspect whether model mask postprocess produced visible mask evidence, or whether a fallback-only run intentionally produced an empty overlay.

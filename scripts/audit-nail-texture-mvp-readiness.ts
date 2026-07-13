@@ -7,6 +7,7 @@ interface CliOptions {
   manifestPath: string;
   packageJsonPath: string;
   outputPath?: string;
+  deferRealAssets: boolean;
 }
 
 interface CheckResult {
@@ -16,6 +17,7 @@ interface CheckResult {
   evidence: Record<string, unknown>;
   nextSteps: string[];
   commands: string[];
+  deferred?: boolean;
 }
 
 interface Phase1ReadinessReport {
@@ -67,7 +69,7 @@ interface ModelManifest {
 
 function usage(): never {
   throw new Error(
-    "Usage: node --experimental-strip-types scripts/audit-nail-texture-mvp-readiness.ts [--dataset-root <dir>] [--manifest <manifest.json>] [--package-json <package.json>] [--output <report.json>]"
+    "Usage: node --experimental-strip-types scripts/audit-nail-texture-mvp-readiness.ts [--dataset-root <dir>] [--manifest <manifest.json>] [--package-json <package.json>] [--output <report.json>] [--defer-real-assets]"
   );
 }
 
@@ -76,6 +78,7 @@ function parseArgs(argv: string[]): CliOptions {
   let manifestPath = path.resolve("public/models/nail-texture-seg/manifest.json");
   let packageJsonPath = path.resolve("package.json");
   let outputPath: string | undefined;
+  let deferRealAssets = false;
 
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index];
@@ -83,10 +86,11 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--manifest") manifestPath = path.resolve(argv[++index] ?? usage());
     else if (arg === "--package-json") packageJsonPath = path.resolve(argv[++index] ?? usage());
     else if (arg === "--output") outputPath = path.resolve(argv[++index] ?? usage());
+    else if (arg === "--defer-real-assets") deferRealAssets = true;
     else usage();
   }
 
-  return { datasetRoot, manifestPath, packageJsonPath, outputPath };
+  return { datasetRoot, manifestPath, packageJsonPath, outputPath, deferRealAssets };
 }
 
 function quoteCommandPath(filePath: string): string {
@@ -548,6 +552,143 @@ async function checkBrowserIntegration(): Promise<CheckResult> {
   };
 }
 
+async function checkReleaseHistoryEvidenceLedger(): Promise<CheckResult> {
+  const markerFiles = [
+    {
+      filePath: "scripts/build-release-history-manifest.ts",
+      markers: [
+        "performanceTraceIndexes",
+        "qualityTraceIndexes",
+        "failureSummary",
+        "activeLearningImportedSamples",
+        "recognitionMaskEvidenceTraceIndexes",
+      ],
+    },
+    {
+      filePath: "tests/build-release-history-manifest.test.ts",
+      markers: [
+        "visualEvidenceTraceIndexes",
+        "failureTraceIndexes",
+        "failureCategoryTotal",
+        "activeLearningImportedSamples",
+        "recognitionMaskEvidenceTraceIndexes",
+      ],
+    },
+    {
+      filePath: "docs/release-governance-pipeline.md",
+      markers: [
+        "release-history performance summary",
+        "release-history quality summary",
+        "release-history failure summary",
+        "First-run visual evidence in release history",
+      ],
+    },
+  ];
+  const fileResults = await Promise.all(
+    markerFiles.map(async ({ filePath, markers }) => {
+      const absolutePath = path.resolve(filePath);
+      const text = await readFile(absolutePath, "utf8").catch(() => "");
+      return {
+        filePath,
+        exists: await exists(absolutePath),
+        markers: markers.map((marker) => ({ marker, found: text.includes(marker) })),
+      };
+    })
+  );
+  const missing = fileResults.flatMap((result) =>
+    result.markers
+      .filter((marker) => !marker.found)
+      .map((marker) => `${result.filePath}: ${marker.marker}`)
+  );
+  const ok = fileResults.every((result) => result.exists) && missing.length === 0;
+
+  return {
+    name: "release_history_evidence_ledger",
+    ok,
+    summary: ok
+      ? "Release history preserves performance, quality, failure, active-learning, and visual-evidence summaries across versions."
+      : "Release history evidence ledger coverage is incomplete.",
+    evidence: {
+      files: fileResults,
+      requiredMarkerCount: markerFiles.reduce((total, item) => total + item.markers.length, 0),
+      missing,
+    },
+    nextSteps: missing.map((item) => `Restore release history evidence ledger marker: ${item}.`),
+    commands: ok
+      ? []
+      : [
+          "node --no-warnings --experimental-strip-types --test tests/build-release-history-manifest.test.ts",
+        ],
+  };
+}
+
+async function checkReleaseVisualEvidenceGovernance(): Promise<CheckResult> {
+  const markerFiles = [
+    {
+      filePath: "scripts/compare-training-releases.ts",
+      markers: ["buildVisualEvidenceSnapshot", "recognitionMaskEvidence"],
+    },
+    {
+      filePath: "scripts/build-release-decision-report.ts",
+      markers: ["candidate visual evidence decreased", "recognitionMaskEvidenceDelta"],
+    },
+    {
+      filePath: "tests/run-release-governance-pipeline.test.ts",
+      markers: [
+        "keeps visual evidence reviews out of automatic promotion",
+        "can promote visual evidence reviews when explicitly allowed",
+      ],
+    },
+    {
+      filePath: "tests/run-training-release-pipeline.test.ts",
+      markers: ["can promote visual evidence manual reviews when explicitly allowed"],
+    },
+    {
+      filePath: "docs/release-governance-pipeline.md",
+      markers: ["Visual evidence manual_review", "Visual evidence manual_review acceptance"],
+    },
+    {
+      filePath: "docs/training-release-pipeline.md",
+      markers: ["Visual evidence manual review pass-through"],
+    },
+  ];
+  const fileResults = await Promise.all(
+    markerFiles.map(async ({ filePath, markers }) => {
+      const absolutePath = path.resolve(filePath);
+      const text = await readFile(absolutePath, "utf8").catch(() => "");
+      return {
+        filePath,
+        exists: await exists(absolutePath),
+        markers: markers.map((marker) => ({ marker, found: text.includes(marker) })),
+      };
+    })
+  );
+  const missing = fileResults.flatMap((result) =>
+    result.markers
+      .filter((marker) => !marker.found)
+      .map((marker) => `${result.filePath}: ${marker.marker}`)
+  );
+  const ok = fileResults.every((result) => result.exists) && missing.length === 0;
+
+  return {
+    name: "release_visual_evidence_governance",
+    ok,
+    summary: ok
+      ? "Release governance preserves first-run visual evidence risk from A/B comparison through manual-review promotion paths."
+      : "Release governance visual-evidence manual-review coverage is incomplete.",
+    evidence: {
+      files: fileResults,
+      requiredMarkerCount: markerFiles.reduce((total, item) => total + item.markers.length, 0),
+      missing,
+    },
+    nextSteps: missing.map((item) => `Restore release visual-evidence governance marker: ${item}.`),
+    commands: ok
+      ? []
+      : [
+          "node --no-warnings --experimental-strip-types --test tests/run-release-governance-pipeline.test.ts tests/run-training-release-pipeline.test.ts",
+        ],
+  };
+}
 async function checkPackageValidation(packageJsonPath: string): Promise<CheckResult> {
   const pkg = await readJsonIfExists<{
     scripts?: Record<string, string>;
@@ -560,6 +701,7 @@ async function checkPackageValidation(packageJsonPath: string): Promise<CheckRes
     "build",
     "audit:encoding",
     "audit:mvp-readiness",
+    "audit:mvp-readiness:deferred",
     "audit:mvp-readiness:refresh",
   ];
   const missingScripts = requiredScripts.filter((scriptName) => !pkg?.scripts?.[scriptName]);
@@ -590,9 +732,37 @@ async function checkPackageValidation(packageJsonPath: string): Promise<CheckRes
   };
 }
 
+const DEFERRABLE_REAL_ASSET_CHECKS = new Set([
+  "phase1_dataset",
+  "training_source_authorization",
+  "browser_model_asset",
+]);
+
+function applyRealAssetDeferral(checks: CheckResult[], enabled: boolean): CheckResult[] {
+  if (!enabled) return checks;
+
+  return checks.map((check) => {
+    if (check.ok || !DEFERRABLE_REAL_ASSET_CHECKS.has(check.name)) return check;
+
+    return {
+      ...check,
+      ok: true,
+      deferred: true,
+      summary: `${check.summary} Deferred by --defer-real-assets because real training data/model assets are intentionally out of scope for this validation run.`,
+      evidence: {
+        ...check.evidence,
+        deferredBy: "--defer-real-assets",
+        originalOk: false,
+      },
+      nextSteps: [],
+      commands: [],
+    };
+  });
+}
+
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const checks = [
+  const rawChecks = [
     await checkPhase1Dataset(options.datasetRoot),
     await checkTrainingSourceAuthorization(options.datasetRoot),
     await checkTrainingToolchain(),
@@ -602,8 +772,11 @@ async function main() {
     await checkFeedbackLoopToolchain(),
     await checkQualityPerformanceGates(),
     await checkReleaseGovernanceToolchain(),
+    await checkReleaseHistoryEvidenceLedger(),
+    await checkReleaseVisualEvidenceGovernance(),
     await checkPackageValidation(options.packageJsonPath),
   ];
+  const checks = applyRealAssetDeferral(rawChecks, options.deferRealAssets);
   const ok = checks.every((check) => check.ok);
   const report = {
     ok,
@@ -614,6 +787,7 @@ async function main() {
       total: checks.length,
       passed: checks.filter((check) => check.ok).length,
       failed: checks.filter((check) => !check.ok).length,
+      deferred: checks.filter((check) => check.deferred).length,
     },
     checks,
     nextSteps: checks.flatMap((check) => check.nextSteps),

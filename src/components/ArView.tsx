@@ -691,6 +691,22 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   const [userStarted, setUserStarted] = useState(false);
   const startBtnRef = useRef<HTMLButtonElement>(null);
 
+  const handleStartCamera = () => {
+    console.log("[AR] Start button clicked");
+    setStatus("loading");
+    setStatusMsg("正在准备摄像头...");
+    setDiag([]);
+    setUserStarted(true);
+  };
+
+  const resetCameraStart = () => {
+    setStatus("init");
+    setStatusMsg("请点击按钮启动摄像头");
+    setHandCnt(-1);
+    setDiag([]);
+    setUserStarted(false);
+  };
+
   // 用原生 DOM 事件启动，绕过 React 合成事件在移动端可能的延迟/不触发问题
   useEffect(() => {
     const btn = startBtnRef.current;
@@ -767,56 +783,30 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           log("❌ navigator.mediaDevices 不可用");
           return;
         }
-
-        // ── 步骤1: 加载 CDN 脚本（带超时）──
-        setStatus("loading");
-        setStatusMsg("加载 MediaPipe 脚本...");
-        log("1/7 加载 hands.js...");
-
-        const scriptTimeout = 15000;
-        function loadScript(src: string, name: string): Promise<void> {
-          return new Promise((resolve, reject) => {
-            const s = document.createElement("script");
-            s.src = src;
-            s.crossOrigin = "anonymous";
-            const timer = setTimeout(() => {
-              reject(new Error(name + " 加载超时（15s），请检查网络"));
-            }, scriptTimeout);
-            s.onload = () => {
-              clearTimeout(timer);
-              log("  " + name + " 加载完成 ✅");
-              resolve();
-            };
-            s.onerror = () => {
-              clearTimeout(timer);
-              reject(new Error(name + " 加载失败，可能是网络问题"));
-            };
-            document.head.appendChild(s);
-          });
-        }
-
-        await loadScript(
-          "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js",
-          "hands.js"
-        );
-        if (dead) return;
-
-        // camera_utils.js 不再需要（改用原生 getUserMedia + RAF）
-
-        // ── 步骤2: 验证全局对象 ──
-        log("2/7 验证全局对象...");
-        const H = window.Hands;
-        if (!H) {
+        if (!window.isSecureContext) {
           setStatus("error");
-          setStatusMsg("Hands 模块未加载");
-          log("❌ Hands 未注册到 window");
+          setStatusMsg("摄像头需要 localhost 或 HTTPS 环境，请使用 http://localhost:3000/ar-tryon 打开");
+          log("❌ 当前页面不是安全上下文");
           return;
         }
-        log("  Hands ✅");
+        try {
+          const permission = await navigator.permissions?.query?.({ name: "camera" as PermissionName });
+          if (permission?.state === "denied") {
+            setStatus("error");
+            setStatusMsg("摄像头权限已被浏览器拒绝。请点击地址栏左侧权限图标，将摄像头改为允许后刷新。");
+            log("❌ 浏览器摄像头权限状态为 denied");
+            return;
+          }
+        } catch {
+          // Safari/部分浏览器不支持 camera permission query，继续走 getUserMedia。
+        }
 
-        // ── 步骤3: 直接用 getUserMedia 获取摄像头（不用 Camera Utils）──
+        setStatus("loading");
+
+        // ── 步骤1: 先请求摄像头权限 ──
+        // 必须先于 MediaPipe CDN 加载请求，否则网络慢时会表现为“点了按钮但摄像头没反应”。
         setStatusMsg("请求摄像头权限...");
-        log("3/7 请求摄像头权限...");
+        log("1/7 请求摄像头权限...");
 
         const video = vref.current;
         if (!video) {
@@ -914,9 +904,56 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         log("  视频播放中 readyState=" + video.readyState + " ✅");
         if (dead) return;
 
-        // ── 步骤4: 创建 Hands 实例 ──
+        // camera_utils.js 不再需要（改用原生 getUserMedia + RAF）
+        // ── 步骤4: 摄像头成功后再加载 MediaPipe ──
+        setStatusMsg("摄像头已启动，正在加载手部识别...");
+        log("4/7 摄像头已启动，加载 hands.js...");
+
+        const scriptTimeout = 15000;
+        function loadScript(src: string, name: string): Promise<void> {
+          return new Promise((resolve, reject) => {
+            const script = document.createElement("script");
+            script.src = src;
+            script.crossOrigin = "anonymous";
+            const timer = setTimeout(() => {
+              reject(new Error(name + " 加载超时（15s），请检查网络"));
+            }, scriptTimeout);
+            script.onload = () => {
+              clearTimeout(timer);
+              log("  " + name + " 加载完成 ✅");
+              resolve();
+            };
+            script.onerror = () => {
+              clearTimeout(timer);
+              reject(new Error(name + " 加载失败，可能是网络问题"));
+            };
+            document.head.appendChild(script);
+          });
+        }
+
+        if (!window.Hands) {
+          await loadScript(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js",
+            "hands.js"
+          );
+        } else {
+          log("  hands.js 已加载，跳过重复加载 ✅");
+        }
+        if (dead) return;
+
+        log("5/7 验证 Hands 全局对象...");
+        const H = window.Hands;
+        if (!H) {
+          setStatus("error");
+          setStatusMsg("摄像头已启动，但手部识别模块未加载。请检查网络后重试。");
+          log("❌ Hands 未注册到 window");
+          return;
+        }
+        log("  Hands ✅");
+
+        // ── 步骤6: 创建 Hands 实例 ──
         setStatusMsg("初始化手部识别...");
-        log("4/7 创建 Hands 实例...");
+        log("6/7 创建 Hands 实例...");
 
         handsInst = new H({
           locateFile: (f: string) =>
@@ -930,7 +967,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         });
 
         // ── 步骤5: 注册 onResults ──
-        log("5/7 注册 onResults...");
+        log("7/8 注册 onResults...");
         handsInst.onResults((res: HandResults) => {
           const cvs = cref.current;
           if (!cvs) return;
@@ -1038,7 +1075,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         });
 
         // ── 步骤6: 用 requestAnimationFrame 驱动推理（替代 Camera Utils）──
-        log("6/7 启动推理循环...");
+        log("8/8 启动推理循环...");
         let sending = false;
         let lastInferenceAt = Number.NEGATIVE_INFINITY;
         async function loop(timestamp: number) {
@@ -1065,7 +1102,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         // ── 步骤7: 就绪 ──
         setStatus("ready");
         setStatusMsg("就绪");
-        log("7/7 系统就绪 ✅");
+        log("系统就绪 ✅");
       } catch (err) {
         const m = err instanceof Error ? err.message : String(err);
         log("❌ " + m);
@@ -1118,6 +1155,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
           <button
             ref={startBtnRef}
             type="button"
+            onClick={handleStartCamera}
             className="px-8 py-4 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full text-lg font-bold shadow-lg active:scale-95 transition-transform"
             style={{ touchAction: "manipulation", minHeight: "60px" }}
           >
@@ -1163,6 +1201,20 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/70 text-white">
           <span className="text-4xl mb-3">&#9203;</span>
           <p className="text-sm px-6 text-center">{statusMsg}</p>
+          {status === "error" && (
+            <div className="mt-4 flex flex-col items-center gap-2 px-6 text-center">
+              <p className="max-w-xs text-xs leading-5 text-white/70">
+                如果浏览器已经拒绝摄像头，请点击地址栏左侧的网站权限图标，把摄像头改为“允许”，然后刷新页面或点下面按钮重试。
+              </p>
+              <button
+                type="button"
+                onClick={resetCameraStart}
+                className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#d4749d] shadow-sm active:scale-95"
+              >
+                我已允许，重新尝试
+              </button>
+            </div>
+          )}
           <div className="mt-4 w-32 h-1 bg-white/20 rounded-full overflow-hidden">
             <div className="h-full w-3/5 bg-[#E8A0BF] rounded-full animate-pulse" />
           </div>

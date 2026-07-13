@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
 import path from "node:path";
 import test from "node:test";
-import { buildNailDebugArtifactPaths } from "../src/lib/nail-texture-recognition/index.ts";
+import {
+  buildNailDebugArtifactPaths,
+} from "../src/lib/nail-texture-recognition/index.ts";
 
 test("buildNailDebugArtifactPaths keeps default output directory and names", () => {
   const paths = buildNailDebugArtifactPaths({
@@ -11,6 +13,7 @@ test("buildNailDebugArtifactPaths keeps default output directory and names", () 
   assert.match(paths.output, /nail-5188\.jpg_wh860-detection-debug\.png$/);
   assert.match(paths.debugJsonOutput, /nail-5188\.jpg_wh860-detection-debug\.json$/);
   assert.match(paths.modelOutputDumpPath, /nail-5188\.jpg_wh860-model-output-dump\.json$/);
+  assert.match(paths.recognitionMaskOutput, /nail-5188\.jpg_wh860-recognition-mask-overlay\.png$/);
 });
 
 test("buildNailDebugArtifactPaths supports custom output directory and prefix", () => {

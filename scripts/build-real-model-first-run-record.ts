@@ -169,6 +169,7 @@ const record: RealModelFirstRunRecord = {
     debugOverlayPath: artifactPaths.output,
     candidateMaskPath: artifactPaths.candidateMaskOutput,
     skinMaskPath: artifactPaths.skinMaskOutput,
+    recognitionMaskPath: artifactPaths.recognitionMaskOutput,
     modelOutputDumpPath: artifactPaths.modelOutputDumpPath,
     fixturePath:
       typeof readiness.fixturePath === "string" ? readiness.fixturePath : options.fixtureOutPath ?? null,

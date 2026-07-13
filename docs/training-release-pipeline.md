@@ -179,3 +179,14 @@ model/exports/<version>/training-release-pipeline-report.json
 当 `--run-governance` 开启且候选模型被 promotion 成功后，`run-release-governance-pipeline.ts` 会自动追加回滚审计。训练发布总报告中的 `artifacts.releaseGovernance` 会包含 `artifacts.rollbackAudit`，用于确认新版本发布后仍然可以切回旧版本。
 
 因此，真实发布前需要保证 `--governance-registry` 指向的是已经通过 `register-model-release.ts` 登记过至少一个旧版本的 registry；只有手写 `{ version }` 的 registry 不足以通过回滚审计。
+## Visual evidence manual review pass-through
+
+`run-training-release-pipeline.ts` passes visual-evidence manual-review decisions through the release governance layer. When the compare summary contains negative `deltas.firstRunVisualEvidence` or `deltas.recognitionMaskEvidence`, the nested release decision remains `manual_review`.
+
+To promote that candidate from the one-command training release entrypoint, pass:
+
+```bash
+--governance-allow-manual-review true
+```
+
+The promotion report, trace index, and history manifest still preserve `decisionStatus: "manual_review"`, so an explicitly reviewed visual-evidence risk is not confused with an automatic clean approval.
