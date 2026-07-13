@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-multipoint-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_025.jpg"
+  ],
+  "acceptedMaskCount": 5,
+  "reworkFiles": [
+    "real_release_20260713_026.jpg"
+  ],
+  "excludeFiles": [],
+  "reviewNotes": {
+    "real_release_20260713_025.jpg": "five_single_masks_cover_all_fully_visible_long_nails_including_the_full_nude_thumb_surface_and_three_dimensional_decoration_without_skin_or_bedding_contamination",
+    "real_release_20260713_026.jpg": "thumb_candidate_still_absorbs_a_rectangular_skin_region_despite_geometry_pass_and_remains_rework"
+  }
+}
