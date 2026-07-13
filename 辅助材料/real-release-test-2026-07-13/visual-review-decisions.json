@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "batchId": "real-release-test-2026-07-13-v1",
+  "authorizationDate": "2026-07-13",
+  "authorizedUses": [
+    "independent-release-test",
+    "long-term-regression"
+  ],
+  "reviewPolicy": "Core contains clear single-photo inputs. Stress contains screenshots, collages, duplicated panels, UI or heavy text overlays. Exact repeats from prior source batches are excluded. No accepted image may be used for training or validation.",
+  "rules": [
+    {
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "ranges": [[1, 4], [22, 34], [43, 54], [64, 65], [67, 92]]
+    },
+    {
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "ranges": [[5, 12], [35, 42], [55, 63], [66, 66], [93, 101]]
+    },
+    {
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "ranges": [[13, 21]]
+    }
+  ]
+}

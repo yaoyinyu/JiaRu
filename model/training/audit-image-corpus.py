@@ -36,7 +36,83 @@ def hamming_distance(left: str, right: str) -> int:
     return (int(left, 16) ^ int(right, 16)).bit_count()
 
 
-def audit_corpus(root: Path, near_duplicate_distance: int) -> dict[str, object]:
+def print_json(payload: object) -> None:
+    print(json.dumps(payload, ensure_ascii=True, indent=2))
+
+
+def audit_comparisons(
+    candidates: list[dict[str, object]],
+    compare_roots: list[Path],
+    near_duplicate_distance: int,
+) -> dict[str, object]:
+    reference_records: list[dict[str, object]] = []
+    invalid_references: list[dict[str, str]] = []
+    by_root: Counter[str] = Counter()
+
+    for root in compare_roots:
+        for path in sorted(
+            item for item in root.rglob("*")
+            if item.is_file() and item.suffix.lower() in IMAGE_SUFFIXES
+        ):
+            relative = path.relative_to(root).as_posix()
+            try:
+                digest = sha256_file(path)
+                with Image.open(path) as image:
+                    image.load()
+                    perceptual_hash = difference_hash(image)
+                reference_records.append(
+                    {
+                        "root": str(root),
+                        "path": relative,
+                        "sha256": digest,
+                        "dhash": perceptual_hash,
+                    }
+                )
+                by_root[str(root)] += 1
+            except (OSError, ValueError, UnidentifiedImageError) as error:
+                invalid_references.append(
+                    {"root": str(root), "path": relative, "error": str(error)}
+                )
+
+    exact_matches: list[dict[str, object]] = []
+    near_matches: list[dict[str, object]] = []
+    for candidate in candidates:
+        for reference in reference_records:
+            if candidate["sha256"] == reference["sha256"]:
+                exact_matches.append(
+                    {
+                        "candidate": candidate["path"],
+                        "referenceRoot": reference["root"],
+                        "reference": reference["path"],
+                    }
+                )
+                continue
+            distance = hamming_distance(str(candidate["dhash"]), str(reference["dhash"]))
+            if distance <= near_duplicate_distance:
+                near_matches.append(
+                    {
+                        "candidate": candidate["path"],
+                        "referenceRoot": reference["root"],
+                        "reference": reference["path"],
+                        "distance": distance,
+                    }
+                )
+
+    return {
+        "roots": [str(root) for root in compare_roots],
+        "referenceImages": len(reference_records),
+        "referenceImagesByRoot": dict(sorted(by_root.items())),
+        "invalidReferences": invalid_references,
+        "exactMatches": exact_matches,
+        "nearMatches": near_matches,
+    }
+
+
+def audit_corpus(
+    root: Path,
+    near_duplicate_distance: int,
+    compare_roots: list[Path] | None = None,
+) -> dict[str, object]:
     files = sorted(
         path for path in root.rglob("*") if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
     )
@@ -83,7 +159,7 @@ def audit_corpus(root: Path, near_duplicate_distance: int) -> dict[str, object]:
 
     by_top_level = Counter(str(record["topLevelDirectory"]) for record in records)
     resolutions = Counter(f'{record["width"]}x{record["height"]}' for record in records)
-    return {
+    report: dict[str, object] = {
         "ok": not invalid,
         "root": str(root),
         "totals": {
@@ -104,6 +180,11 @@ def audit_corpus(root: Path, near_duplicate_distance: int) -> dict[str, object]:
         "nearDuplicatePairs": near_duplicates,
         "images": records,
     }
+    if compare_roots:
+        report["comparisons"] = audit_comparisons(
+            records, compare_roots, near_duplicate_distance
+        )
+    return report
 
 
 def main() -> None:
@@ -111,6 +192,12 @@ def main() -> None:
     parser.add_argument("--root", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument("--near-duplicate-distance", type=int, default=2)
+    parser.add_argument(
+        "--compare-root",
+        action="append",
+        default=[],
+        help="Reference image root used for exact and near-duplicate leakage checks. Repeatable.",
+    )
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
@@ -119,11 +206,17 @@ def main() -> None:
         raise FileNotFoundError(f"image corpus directory not found: {root}")
     if args.near_duplicate_distance < 0 or args.near_duplicate_distance > 16:
         raise ValueError("near-duplicate-distance must be between 0 and 16")
+    compare_roots = [Path(value).resolve() for value in args.compare_root]
+    missing_compare_roots = [str(path) for path in compare_roots if not path.is_dir()]
+    if missing_compare_roots:
+        raise FileNotFoundError(
+            "compare image corpus directory not found: " + ", ".join(missing_compare_roots)
+        )
 
-    report = audit_corpus(root, args.near_duplicate_distance)
+    report = audit_corpus(root, args.near_duplicate_distance, compare_roots)
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print(json.dumps({key: report[key] for key in ("ok", "root", "totals", "byTopLevelDirectory")}, ensure_ascii=False, indent=2))
+    print_json({key: report[key] for key in ("ok", "root", "totals", "byTopLevelDirectory")})
     if not report["ok"]:
         raise SystemExit(1)
 

@@ -1,0 +1,1847 @@
+{
+  "schemaVersion": 1,
+  "batchId": "real-release-test-2026-07-13-v1",
+  "ok": true,
+  "authorization": {
+    "authorizedUses": [
+      "independent-release-test",
+      "long-term-regression"
+    ],
+    "trainingUse": "prohibited",
+    "confirmedBy": "user",
+    "confirmedOn": "2026-07-13"
+  },
+  "root": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_13",
+  "counts": {
+    "total": 101,
+    "core": 57,
+    "stress": 35,
+    "excluded": 9,
+    "accepted": 92,
+    "acceptedSourceGroups": 19,
+    "crossCorpusExactDuplicates": 9,
+    "annotationPending": 92
+  },
+  "status": "intake_pass_annotation_pending",
+  "errors": [],
+  "entries": [
+    {
+      "index": 1,
+      "fileName": "real_release_20260713_001.jpg",
+      "sha256": "e0651de3fde9a44bc4be1ba6af30d58e4165a91db53ec36957b7e3326994cbe1",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "sourceTitle": null,
+      "sourceAuthor": "To图图.",
+      "sourceSequence": 1,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 2,
+      "fileName": "real_release_20260713_002.jpg",
+      "sha256": "d8dc936645f2f55e7258dd2627af5d144ef974172c87612c23e01508f27f05da",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "sourceTitle": null,
+      "sourceAuthor": "To图图.",
+      "sourceSequence": 2,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 3,
+      "fileName": "real_release_20260713_003.jpg",
+      "sha256": "7941041ab49631fb07d83e09dd9abf29abb5cee25a836befbc86914f597427e6",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "sourceTitle": null,
+      "sourceAuthor": "To图图.",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 4,
+      "fileName": "real_release_20260713_004.jpg",
+      "sha256": "0c57b6b50d597cf56fb5b660060552298214b0ab0dd2f5369729feb7b1cb6d94",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "sourceTitle": null,
+      "sourceAuthor": "To图图.",
+      "sourceSequence": 4,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 5,
+      "fileName": "real_release_20260713_005.jpg",
+      "sha256": "b94fd9504ee5004aab4d812da36c382429eab84dbb05864978d42d341598413e",
+      "sourceGroup": "xhs-1339d33fcbd5",
+      "sourceTitle": "mark一些美女感很浓的夏季美甲",
+      "sourceAuthor": "一只鹿仔",
+      "sourceSequence": 10,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 6,
+      "fileName": "real_release_20260713_006.jpg",
+      "sha256": "d941590a4048eaa2e3572f6118242d513d6012ff2261aeb2dd2ca2c3e281faae",
+      "sourceGroup": "xhs-1339d33fcbd5",
+      "sourceTitle": "mark一些美女感很浓的夏季美甲",
+      "sourceAuthor": "一只鹿仔",
+      "sourceSequence": 2,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 7,
+      "fileName": "real_release_20260713_007.jpg",
+      "sha256": "f97b9ab9333dddb6b7291f538d62a84b3490368b86279a7a4ca5deacff23a890",
+      "sourceGroup": "xhs-1339d33fcbd5",
+      "sourceTitle": "mark一些美女感很浓的夏季美甲",
+      "sourceAuthor": "一只鹿仔",
+      "sourceSequence": 3,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 8,
+      "fileName": "real_release_20260713_008.jpg",
+      "sha256": "6f9960639bc309a1a4c86d212e1453d56364facc5d7c6e8c6c1707c51aadd8b8",
+      "sourceGroup": "xhs-1339d33fcbd5",
+      "sourceTitle": "mark一些美女感很浓的夏季美甲",
+      "sourceAuthor": "一只鹿仔",
+      "sourceSequence": 4,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 9,
+      "fileName": "real_release_20260713_009.jpg",
+      "sha256": "cf48236a6f4146d18e2094f3fd3b3a50c4a0442fd720b5d52ab1a5236a181b9d",
+      "sourceGroup": "xhs-1339d33fcbd5",
+      "sourceTitle": "mark一些美女感很浓的夏季美甲",
+      "sourceAuthor": "一只鹿仔",
+      "sourceSequence": 5,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 10,
+      "fileName": "real_release_20260713_010.jpg",
+      "sha256": "46097167e74363840805fdf25863de3bba55c14ecb824e356ce066dcb2514c04",
+      "sourceGroup": "xhs-1339d33fcbd5",
+      "sourceTitle": "mark一些美女感很浓的夏季美甲",
+      "sourceAuthor": "一只鹿仔",
+      "sourceSequence": 6,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 11,
+      "fileName": "real_release_20260713_011.jpg",
+      "sha256": "0b68a7de1b33f0ecbad269f93138f3c583bea59072d7d4fb334c73a57abe9daa",
+      "sourceGroup": "xhs-1339d33fcbd5",
+      "sourceTitle": "mark一些美女感很浓的夏季美甲",
+      "sourceAuthor": "一只鹿仔",
+      "sourceSequence": 7,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 12,
+      "fileName": "real_release_20260713_012.jpg",
+      "sha256": "d7c9a35038f399264efab17f73a9be5133fade5c577da53a3af96725fc2dc67f",
+      "sourceGroup": "xhs-1339d33fcbd5",
+      "sourceTitle": "mark一些美女感很浓的夏季美甲",
+      "sourceAuthor": "一只鹿仔",
+      "sourceSequence": 8,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 13,
+      "fileName": "real_release_20260713_013.jpg",
+      "sha256": "b78f216b3cac4201f0157f5eae3ce5fa9be97b7adf8aaf1f782fde5a083c423b",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 10,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 14,
+      "fileName": "real_release_20260713_014.jpg",
+      "sha256": "fda7f0ad5153183b609af39d2f6970c998858e3ea1d160ee413489e82570facd",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 2,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 15,
+      "fileName": "real_release_20260713_015.jpg",
+      "sha256": "cfe11ac347f2ba569d18cc9c59b94d9f224a9386714424d88c897acbcbd21c0d",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 3,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 16,
+      "fileName": "real_release_20260713_016.jpg",
+      "sha256": "5ad0c2f6b34f1f1af497e4f77b906320c6dca1685faeccb71c55ed328487b75c",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 4,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 17,
+      "fileName": "real_release_20260713_017.jpg",
+      "sha256": "3aaac10ed3317e2a8bb748fdbd19fd812862b3aa012b53c645b4746a8423b510",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 5,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 18,
+      "fileName": "real_release_20260713_018.jpg",
+      "sha256": "49ec8789a22ebeaaf5105d276c715d609ce84c890d80488d310b2490799e175f",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 6,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 19,
+      "fileName": "real_release_20260713_019.jpg",
+      "sha256": "ca43543b4c456578c6386211c88986fef07099f0ca5f802dcef0f3e5b16a2e91",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 7,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 20,
+      "fileName": "real_release_20260713_020.jpg",
+      "sha256": "78d38463e35cb09f530241ffeaf7c19aaa8aeea9740aaa35a62b8c57430efbd8",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 8,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 21,
+      "fileName": "real_release_20260713_021.jpg",
+      "sha256": "8af3f6e48cec9998ac8627141487d7779aa131ab8fb3f371219b1a9cf571ff59",
+      "sourceGroup": "xhs-2a3408c8f0f2",
+      "sourceTitle": "✨Mark｜自存一些超漂亮的短款美甲",
+      "sourceAuthor": "炸弹小猫",
+      "sourceSequence": 9,
+      "decision": "exclude",
+      "reason": "exact_duplicate_of_2026_7_12_source_batch",
+      "crossCorpusExactDuplicate": true,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 22,
+      "fileName": "real_release_20260713_022.jpg",
+      "sha256": "0fa11ce301a20b55b1393d8e27373ec494afcfc8fbc1c1c6005281cac30a03ed",
+      "sourceGroup": "xhs-aaa458e163a2",
+      "sourceTitle": "我给美甲师的vs美甲师给我的",
+      "sourceAuthor": "栗子",
+      "sourceSequence": 1,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 23,
+      "fileName": "real_release_20260713_023.jpg",
+      "sha256": "cb96b5bddcc2dbe75728d615895cc8ba3fe71bbde412a1a9a28d6c7c93a10ba1",
+      "sourceGroup": "xhs-9fc073d64429",
+      "sourceTitle": "我给美甲师的vs美甲师给我的",
+      "sourceAuthor": "梦梦梦啥时醒",
+      "sourceSequence": 1,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 24,
+      "fileName": "real_release_20260713_024.jpg",
+      "sha256": "1c49d430fe0060015d271ef5c7e4f5f76dadcc4627923f86d81d00e41d43c6b3",
+      "sourceGroup": "xhs-719a2d46baca",
+      "sourceTitle": "新年美甲不做红！这个蓝才是我的本命色",
+      "sourceAuthor": "Lien_bin",
+      "sourceSequence": 1,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 25,
+      "fileName": "real_release_20260713_025.jpg",
+      "sha256": "61e0a8bbcb0b364f2f45f2d71998ec2ffd35fc94835ddc89f1c0f17480bfd599",
+      "sourceGroup": "xhs-719a2d46baca",
+      "sourceTitle": "新年美甲不做红！这个蓝才是我的本命色",
+      "sourceAuthor": "Lien_bin",
+      "sourceSequence": 2,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 26,
+      "fileName": "real_release_20260713_026.jpg",
+      "sha256": "a3ef4da3ebec740b76f4a54bb8f906cf8b9ac1bfe2b51bd7b7e5855fcb5c34d9",
+      "sourceGroup": "xhs-719a2d46baca",
+      "sourceTitle": "新年美甲不做红！这个蓝才是我的本命色",
+      "sourceAuthor": "Lien_bin",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 27,
+      "fileName": "real_release_20260713_027.jpg",
+      "sha256": "0254c5a3e3f7befdb8f1c99b13fdc1108ed562ddc95e0b7f9718b06160181b29",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceTitle": "明天去做美甲   听劝   极限N选一",
+      "sourceAuthor": "暮雪",
+      "sourceSequence": 10,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 28,
+      "fileName": "real_release_20260713_028.jpg",
+      "sha256": "154941123e8c3547add29d882b99e6a8ec6fbee3f406e808b593d25fdf19f5e7",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceTitle": "明天去做美甲   听劝   极限N选一",
+      "sourceAuthor": "暮雪",
+      "sourceSequence": 11,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 29,
+      "fileName": "real_release_20260713_029.jpg",
+      "sha256": "821811178631507bec56ec16ccffc5011673dd366bc1089d0e623aae5a17801a",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceTitle": "明天去做美甲   听劝   极限N选一",
+      "sourceAuthor": "暮雪",
+      "sourceSequence": 12,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 30,
+      "fileName": "real_release_20260713_030.jpg",
+      "sha256": "fdcee085f11e5c12f858010b0f06e7b381f728cfcbaca09b1798b104817031e7",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceTitle": "明天去做美甲   听劝   极限N选一",
+      "sourceAuthor": "暮雪",
+      "sourceSequence": 13,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 31,
+      "fileName": "real_release_20260713_031.jpg",
+      "sha256": "e5062271f5d1dc141de1df46f7066e17e3d09416f6c0a8510af82d062c26aafe",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceTitle": "明天去做美甲   听劝   极限N选一",
+      "sourceAuthor": "暮雪",
+      "sourceSequence": 15,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 32,
+      "fileName": "real_release_20260713_032.jpg",
+      "sha256": "5fd0455d54939391e7a80f1af58783f81377f6019b4c43b7f2cbdb0925b54111",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceTitle": "明天去做美甲   听劝   极限N选一",
+      "sourceAuthor": "暮雪",
+      "sourceSequence": 17,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 33,
+      "fileName": "real_release_20260713_033.jpg",
+      "sha256": "8b9b868a05930eab7fb9ac04b3997d9041615ec02571b346f13c66b9ce9afdb6",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceTitle": "明天去做美甲   听劝   极限N选一",
+      "sourceAuthor": "暮雪",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 34,
+      "fileName": "real_release_20260713_034.jpg",
+      "sha256": "84e3cf50eae0546a9684e63987696b588bcbeba895239b210daedd81e1d2b984",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceTitle": "明天去做美甲   听劝   极限N选一",
+      "sourceAuthor": "暮雪",
+      "sourceSequence": 9,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 35,
+      "fileName": "real_release_20260713_035.jpg",
+      "sha256": "c41413ccf8cdeaf9a76d005f8183e1a87f6591231743e4b21363965aa53ab65b",
+      "sourceGroup": "xhs-9d8ae5da0285",
+      "sourceTitle": "显高级感杏仁猫眼美甲分享🍎",
+      "sourceAuthor": "小菜菜",
+      "sourceSequence": 2,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 36,
+      "fileName": "real_release_20260713_036.jpg",
+      "sha256": "4450e0e4f9846702d1ccf8a764d9afead1ef8685676a6eaa8d69b0acd4fa6e65",
+      "sourceGroup": "xhs-9d8ae5da0285",
+      "sourceTitle": "显高级感杏仁猫眼美甲分享🍎",
+      "sourceAuthor": "小菜菜",
+      "sourceSequence": 3,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 37,
+      "fileName": "real_release_20260713_037.jpg",
+      "sha256": "7bad3a874a047325157554c6dfa76737fda318a5c93f106488c880175e2856a8",
+      "sourceGroup": "xhs-9d8ae5da0285",
+      "sourceTitle": "显高级感杏仁猫眼美甲分享🍎",
+      "sourceAuthor": "小菜菜",
+      "sourceSequence": 4,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 38,
+      "fileName": "real_release_20260713_038.jpg",
+      "sha256": "995d81f4117f0f7af3a5f83476583433f9badb1504384cd0e6f9dc1c9f11f19d",
+      "sourceGroup": "xhs-9d8ae5da0285",
+      "sourceTitle": "显高级感杏仁猫眼美甲分享🍎",
+      "sourceAuthor": "小菜菜",
+      "sourceSequence": 5,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 39,
+      "fileName": "real_release_20260713_039.jpg",
+      "sha256": "ac7d8dba01ff3546cba9fd7226659aade3a40ea8d086f8ed733f49cbbaa43eaf",
+      "sourceGroup": "xhs-1286e7d24573",
+      "sourceTitle": "淡人高级气质美甲～～～🎀",
+      "sourceAuthor": "美丽的海边",
+      "sourceSequence": 2,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 40,
+      "fileName": "real_release_20260713_040.jpg",
+      "sha256": "a76d313c7b2b8e952f13029a5bedc8a5ceadbd4d6619062a6803562802382479",
+      "sourceGroup": "xhs-1286e7d24573",
+      "sourceTitle": "淡人高级气质美甲～～～🎀",
+      "sourceAuthor": "美丽的海边",
+      "sourceSequence": 3,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 41,
+      "fileName": "real_release_20260713_041.jpg",
+      "sha256": "e17c3df61182e256b7771dfe74f449ddc10eb5fc5ac6c8964399db5cf8c2b6c3",
+      "sourceGroup": "xhs-1286e7d24573",
+      "sourceTitle": "淡人高级气质美甲～～～🎀",
+      "sourceAuthor": "美丽的海边",
+      "sourceSequence": 4,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 42,
+      "fileName": "real_release_20260713_042.jpg",
+      "sha256": "f9b797a74740c4e7a1c2bad1bebf1274cad0da6a52aa560d24e8d5a20a9d512d",
+      "sourceGroup": "xhs-1286e7d24573",
+      "sourceTitle": "淡人高级气质美甲～～～🎀",
+      "sourceAuthor": "美丽的海边",
+      "sourceSequence": 5,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 43,
+      "fileName": "real_release_20260713_043.jpg",
+      "sha256": "8ae298bdd753a94e8acbdafafb959bf4452937b6c20450d7900d94987579a39e",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "sourceTitle": "温柔到发光的雪花美甲❄️ 氛围感直接拉满",
+      "sourceAuthor": "甲片小馆",
+      "sourceSequence": 1,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 44,
+      "fileName": "real_release_20260713_044.jpg",
+      "sha256": "62b49059d213939c2149ac81a12d8f0e1a73552727a68317ccc53ffe700e9b33",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "sourceTitle": "温柔到发光的雪花美甲❄️ 氛围感直接拉满",
+      "sourceAuthor": "甲片小馆",
+      "sourceSequence": 2,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 45,
+      "fileName": "real_release_20260713_045.jpg",
+      "sha256": "6123a2d99eded26168ccb563a16260eabfcccfac5da3161134fe49e0e269b2de",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "sourceTitle": "温柔到发光的雪花美甲❄️ 氛围感直接拉满",
+      "sourceAuthor": "甲片小馆",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 46,
+      "fileName": "real_release_20260713_046.jpg",
+      "sha256": "d0eef07559bfe9341f2e6811a48e59377e5562b7cdda9d3b4a3b6fc2e2d8f728",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "sourceTitle": "温柔到发光的雪花美甲❄️ 氛围感直接拉满",
+      "sourceAuthor": "甲片小馆",
+      "sourceSequence": 4,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 47,
+      "fileName": "real_release_20260713_047.jpg",
+      "sha256": "3cd48ea2c2d204af45b825d7a7527ed35978daf80c2d8e586f96658fb2d3faf7",
+      "sourceGroup": "xhs-83cdca812139",
+      "sourceTitle": "真的超美，显得我手好白",
+      "sourceAuthor": "阳光沙滩海浪仙人",
+      "sourceSequence": 2,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 48,
+      "fileName": "real_release_20260713_048.jpg",
+      "sha256": "9b6b2594031f216663cc3efa853bc1b46c9baa1b40ffbe5a1d13d7afe151efda",
+      "sourceGroup": "xhs-83cdca812139",
+      "sourceTitle": "真的超美，显得我手好白",
+      "sourceAuthor": "阳光沙滩海浪仙人",
+      "sourceSequence": 5,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 49,
+      "fileName": "real_release_20260713_049.jpg",
+      "sha256": "a87bef16dd29cb3d1761f5126a2921170c4e56602e294444b8b4fffe57655eed",
+      "sourceGroup": "xhs-83cdca812139",
+      "sourceTitle": "真的超美，显得我手好白",
+      "sourceAuthor": "阳光沙滩海浪仙人",
+      "sourceSequence": 6,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 50,
+      "fileName": "real_release_20260713_050.jpg",
+      "sha256": "f6926fa58b9435e43fbb44df1d556f841c9a7f429569034bcb4581417ae91a08",
+      "sourceGroup": "xhs-83cdca812139",
+      "sourceTitle": "真的超美，显得我手好白",
+      "sourceAuthor": "阳光沙滩海浪仙人",
+      "sourceSequence": 9,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 51,
+      "fileName": "real_release_20260713_051.jpg",
+      "sha256": "793e147cfb34d242189f189b56c4d8a77f1e7aaf9f52f39235f185143cd2f2e6",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "sourceTitle": "终于找到了我的梦中情甲！",
+      "sourceAuthor": "小鹿的生活实验室",
+      "sourceSequence": 2,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 52,
+      "fileName": "real_release_20260713_052.jpg",
+      "sha256": "187726ef413cd6dec54102eb300b944b607231f6f44e7e094fde64c7559daff1",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "sourceTitle": "终于找到了我的梦中情甲！",
+      "sourceAuthor": "小鹿的生活实验室",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 53,
+      "fileName": "real_release_20260713_053.jpg",
+      "sha256": "bb1eedaddaf31728f4efcaa5ea1505d6afcbd0825c345bb7ae2d58f4c3e7a0c1",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "sourceTitle": "终于找到了我的梦中情甲！",
+      "sourceAuthor": "小鹿的生活实验室",
+      "sourceSequence": 5,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 54,
+      "fileName": "real_release_20260713_054.jpg",
+      "sha256": "c0068c858eed17ec4d46129cf5b11fa0f8158b5ee8ddae1938b7079b940525e2",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "sourceTitle": "终于找到了我的梦中情甲！",
+      "sourceAuthor": "小鹿的生活实验室",
+      "sourceSequence": 6,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 55,
+      "fileName": "real_release_20260713_055.jpg",
+      "sha256": "f888d018cbf91e3195924c14749361b06799e0fab57739159f619d71ebfe21ce",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 10,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 56,
+      "fileName": "real_release_20260713_056.jpg",
+      "sha256": "399dac976838540285fed13fb269fef0af97125965742297602d288b2080e890",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 2,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 57,
+      "fileName": "real_release_20260713_057.jpg",
+      "sha256": "2dc40742e836ca3351c60bc0b2355627cc2d81b8b705162ca6682eeded3e0d38",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 3,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 58,
+      "fileName": "real_release_20260713_058.jpg",
+      "sha256": "00449d90018ef4e00c41eea9767d69bd7b07c35364d9d478914341dc0636bf84",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 4,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 59,
+      "fileName": "real_release_20260713_059.jpg",
+      "sha256": "54dd07de7e0e7b9e0300a58350f425ba9e08e00d43fb406ec3a6ba899623d39f",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 5,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 60,
+      "fileName": "real_release_20260713_060.jpg",
+      "sha256": "316582e63fa9b101ae63ed65d6b41c3b488cd9608c4d92b231b924dc3cb4a539",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 6,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 61,
+      "fileName": "real_release_20260713_061.jpg",
+      "sha256": "c63df1022d2c97c3f5cc4a50e6f16d433250de5b7df7dd95237e7662ceb1016c",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 7,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 62,
+      "fileName": "real_release_20260713_062.jpg",
+      "sha256": "8e52282d68057dc0faae7008ea2cdcdf5222a157c4faf301a66cc99783573d5c",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 8,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 63,
+      "fileName": "real_release_20260713_063.jpg",
+      "sha256": "5415625204d604e41da522fce85d3902a9969a36a15851d11c99f162f4724a64",
+      "sourceGroup": "xhs-a0df4ea7bcca",
+      "sourceTitle": "美甲推荐💅🏻",
+      "sourceAuthor": "🍑",
+      "sourceSequence": 9,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 64,
+      "fileName": "real_release_20260713_064.jpg",
+      "sha256": "302b98dcf93e1b2676fcef40321957b724a0ba91232c9bf8bf8d293b164d1538",
+      "sourceGroup": "xhs-c2b81592e213",
+      "sourceTitle": "美甲极限五选一",
+      "sourceAuthor": "吃一口就好",
+      "sourceSequence": 1,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 65,
+      "fileName": "real_release_20260713_065.jpg",
+      "sha256": "09f7fe80e0b064d9198976cda4e9790e126bf09d7e1c1d3ab72776fd676f8d5d",
+      "sourceGroup": "xhs-055d7f3c88fc",
+      "sourceTitle": "美甲极限五选一",
+      "sourceAuthor": "我只是脸圆ö",
+      "sourceSequence": 2,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 66,
+      "fileName": "real_release_20260713_066.jpg",
+      "sha256": "a2f5befa16750855f17ffdc0f2c0b9656c4fd6ab562a0597de22efff4863d336",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "sourceTitle": "美甲的尽头是裸色…",
+      "sourceAuthor": "一只xixi",
+      "sourceSequence": 11,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 67,
+      "fileName": "real_release_20260713_067.jpg",
+      "sha256": "a6337f3eb5cb47f6e8e518cb1ee084a264f8484a72133f27509052e874401561",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "sourceTitle": "美甲的尽头是裸色…",
+      "sourceAuthor": "一只xixi",
+      "sourceSequence": 2,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 68,
+      "fileName": "real_release_20260713_068.jpg",
+      "sha256": "907dd59a022e5ebde36cf2fdadf7bf686fbc0a8931f2886e359a4788dd0a9fa6",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "sourceTitle": "美甲的尽头是裸色…",
+      "sourceAuthor": "一只xixi",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 69,
+      "fileName": "real_release_20260713_069.jpg",
+      "sha256": "ee5a7df223f8777bbdd0b4318e9106ec0147c9f494e9a02275d72a240931e469",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "sourceTitle": "美甲的尽头是裸色…",
+      "sourceAuthor": "一只xixi",
+      "sourceSequence": 4,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 70,
+      "fileName": "real_release_20260713_070.jpg",
+      "sha256": "02bf34a22b007769da741524ea2ef3361b3bd80b938844349c00db320fd89afc",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "sourceTitle": "美甲的尽头是裸色…",
+      "sourceAuthor": "一只xixi",
+      "sourceSequence": 5,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 71,
+      "fileName": "real_release_20260713_071.jpg",
+      "sha256": "5f35879984f93de1f414f4b7166670342d08e78936a965b257c0fb771f15502d",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "sourceTitle": "美甲的尽头是裸色…",
+      "sourceAuthor": "一只xixi",
+      "sourceSequence": 6,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 72,
+      "fileName": "real_release_20260713_072.jpg",
+      "sha256": "7eab16797ae5d11110e7c5dc3085bc42b050e5d6e5b926812baa68036c3cf3d1",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "sourceTitle": "美甲的尽头是裸色…",
+      "sourceAuthor": "一只xixi",
+      "sourceSequence": 7,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 73,
+      "fileName": "real_release_20260713_073.jpg",
+      "sha256": "9a8225cd5258aab839215e77b7c09950aa6eaac7caaeb71efe3ecf3a52c29a32",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "sourceTitle": "美甲的尽头是裸色…",
+      "sourceAuthor": "一只xixi",
+      "sourceSequence": 9,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 74,
+      "fileName": "real_release_20260713_074.jpg",
+      "sha256": "36f58d493a95dd036e5c8c65b9b20e9edbf9b6a28bb0bcf6b7ac98013f8aaf5e",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "sourceTitle": "近期超爱的韩系美甲合集",
+      "sourceAuthor": "小诺曹",
+      "sourceSequence": 10,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 75,
+      "fileName": "real_release_20260713_075.jpg",
+      "sha256": "98be79b84c3ad1d7ca437d27b443af392be6d4d723b3f996246a96b75cf87451",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "sourceTitle": "近期超爱的韩系美甲合集",
+      "sourceAuthor": "小诺曹",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 76,
+      "fileName": "real_release_20260713_076.jpg",
+      "sha256": "e197010f27f1af5456dc8ffd4614231b56f0caf19d06167604a0cc90686ea2af",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "sourceTitle": "近期超爱的韩系美甲合集",
+      "sourceAuthor": "小诺曹",
+      "sourceSequence": 4,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 77,
+      "fileName": "real_release_20260713_077.jpg",
+      "sha256": "32c07e4991fb01b56536ece1e884599e8ca7aa32d6e86e55a5b535d2318a58f4",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "sourceTitle": "近期超爱的韩系美甲合集",
+      "sourceAuthor": "小诺曹",
+      "sourceSequence": 6,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 78,
+      "fileName": "real_release_20260713_078.jpg",
+      "sha256": "95ef426e0aa5a7ba8436a7f27ade5f394788db903e2a09a25c95b803040e55fd",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "sourceTitle": "近期超爱的韩系美甲合集",
+      "sourceAuthor": "小诺曹",
+      "sourceSequence": 9,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 79,
+      "fileName": "real_release_20260713_079.jpg",
+      "sha256": "c14e4594277c686cbf3c44235a7928c106348d7976af5956837911daac6a9485",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "sourceTitle": "这么仙的美甲谁不爱！🤍",
+      "sourceAuthor": "噶噶",
+      "sourceSequence": 1,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 80,
+      "fileName": "real_release_20260713_080.jpg",
+      "sha256": "ecec52ccb3acf4d7c55b0405f21aacd0832e4848b1f6790de0dd19acd1d6467e",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "sourceTitle": "这么仙的美甲谁不爱！🤍",
+      "sourceAuthor": "噶噶",
+      "sourceSequence": 2,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 81,
+      "fileName": "real_release_20260713_081.jpg",
+      "sha256": "4ba7821ba5e33c4df49a8f1616c387839cd61246420c467b24efabd8690f219b",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "sourceTitle": "这么仙的美甲谁不爱！🤍",
+      "sourceAuthor": "噶噶",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 82,
+      "fileName": "real_release_20260713_082.jpg",
+      "sha256": "bacac20af19af69da635084f51ab8510bab77a5f8d776b6ed6abdd5ee0386e2a",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "sourceTitle": "这么仙的美甲谁不爱！🤍",
+      "sourceAuthor": "噶噶",
+      "sourceSequence": 4,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 83,
+      "fileName": "real_release_20260713_083.jpg",
+      "sha256": "e973097e8a32ad8adc0a79c18647a4a91021fcf30e4b340aa0d29c07e2f0b84e",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "sourceTitle": "这么仙的美甲谁不爱！🤍",
+      "sourceAuthor": "噶噶",
+      "sourceSequence": 5,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 84,
+      "fileName": "real_release_20260713_084.jpg",
+      "sha256": "0c2d863165fbaf07bca3ac8c1ed1fea54d54f1035a50cbcd69cd879cc9151ab6",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 10,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 85,
+      "fileName": "real_release_20260713_085.jpg",
+      "sha256": "32b9bca68c612443e8d680f0ef61156c577575bdb00234f44c5c07bbf0c725ac",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 15,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 86,
+      "fileName": "real_release_20260713_086.jpg",
+      "sha256": "26b1ca01767572d5745349c9b7963f1b503e058c439b11e8f259d698b7be42f8",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 18,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 87,
+      "fileName": "real_release_20260713_087.jpg",
+      "sha256": "dd3f1d4037d0b36c207ca69ffc0e7fc1e63323c51a4a12344aa2f72407cf64b5",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 3,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 88,
+      "fileName": "real_release_20260713_088.jpg",
+      "sha256": "e5d2239490e6b337f222bad60a7c9ecac25d8babed2287831dd3f5a01f12a420",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 4,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 89,
+      "fileName": "real_release_20260713_089.jpg",
+      "sha256": "45554919f3e90ddec9011b4ab99922961bddb787a87a0d24a6ec3bda3ecf8380",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 5,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 90,
+      "fileName": "real_release_20260713_090.jpg",
+      "sha256": "a4c885bdcf9973f124bb95ce8fbd073e1b94d38549fa2c93883579bb36a739ca",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 7,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 91,
+      "fileName": "real_release_20260713_091.jpg",
+      "sha256": "a2d934d391933355bc65093a14729b4a29a7fe90742461befbf2d7255eb96f64",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 8,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 92,
+      "fileName": "real_release_20260713_092.jpg",
+      "sha256": "368a29956e7cb2108daa14b8161be0faa894122e53f2550ce18d396cfa6b2f7a",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "sourceTitle": "💅🏻春日淡颜系美甲",
+      "sourceAuthor": "晏晏时禧",
+      "sourceSequence": 9,
+      "decision": "core",
+      "reason": "clear_single_photo_with_reviewable_nail_surfaces",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 93,
+      "fileName": "real_release_20260713_093.jpg",
+      "sha256": "2bd4ddbec830f4b8d3b75204a75771ae6d3234303626dbb8adb8182db7b8f59a",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 10,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 94,
+      "fileName": "real_release_20260713_094.jpg",
+      "sha256": "5ebbce43dc4a845f00ad8c5196045d72777e972044fb251234cc7ef33fdcf7a2",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 2,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 95,
+      "fileName": "real_release_20260713_095.jpg",
+      "sha256": "d47b6f4beda74c80138ac8f87582aa3303de9d3d20f790892d504e26138755d6",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 3,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 96,
+      "fileName": "real_release_20260713_096.jpg",
+      "sha256": "0d505e8fc7e7ced2639ac823a198699b91b077390c2b528a3535a77eb4afd161",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 4,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 97,
+      "fileName": "real_release_20260713_097.jpg",
+      "sha256": "83aaf1d9c3955abed2568a2bf50bfac98767470bd6e1da8d870d5a32890a9f0b",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 5,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 98,
+      "fileName": "real_release_20260713_098.jpg",
+      "sha256": "06833643eb4ce1e9a8daaf7800d3aecf4a42e2fe978a8ec2209313bedb4308af",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 6,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 99,
+      "fileName": "real_release_20260713_099.jpg",
+      "sha256": "67a02f31222bedb8c2bca702491fa2695c8925840e2412da9b19f2884e6d3851",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 7,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 100,
+      "fileName": "real_release_20260713_100.jpg",
+      "sha256": "5b28d1fd3ea8155fe7142c9e2fab0690808ae493241187ac17e709472a75cf6f",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 8,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "index": 101,
+      "fileName": "real_release_20260713_101.jpg",
+      "sha256": "c509c80fc83d8672309a82f71acf61e10f523c60f5a0e9611912697dd1ccf70a",
+      "sourceGroup": "xhs-42247ccaa6be",
+      "sourceTitle": "💞自存一些韩女味很浓的漂亮美甲_",
+      "sourceAuthor": "恰一口馥芮白",
+      "sourceSequence": 9,
+      "decision": "stress",
+      "reason": "screenshot_collage_repeated_panel_or_ui_overlay",
+      "crossCorpusExactDuplicate": false,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    }
+  ]
+}

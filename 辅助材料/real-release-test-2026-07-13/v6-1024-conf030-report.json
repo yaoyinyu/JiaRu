@@ -1,0 +1,846 @@
+{
+  "version": "nail-texture-yolo-prelabel/v1",
+  "ok": true,
+  "decision": "candidate_only_not_training_truth",
+  "model": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\nail-texture-seg-real-candidate-v6\\weights\\best.pt",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_13",
+  "sourceGroup": "real-release-test-2026-07-13",
+  "settings": {
+    "conf": 0.3,
+    "iou": 0.5,
+    "imgsz": 1024,
+    "maxDet": 20
+  },
+  "imageCount": 101,
+  "imagesWithCandidates": 101,
+  "imagesWithoutCandidates": 0,
+  "totalCandidates": 852,
+  "candidateCountHistogram": {
+    "2": 3,
+    "3": 1,
+    "4": 10,
+    "5": 18,
+    "6": 8,
+    "7": 7,
+    "8": 11,
+    "9": 9,
+    "10": 9,
+    "11": 6,
+    "12": 7,
+    "13": 2,
+    "14": 1,
+    "17": 4,
+    "19": 1,
+    "20": 4
+  },
+  "items": [
+    {
+      "fileName": "real_release_20260713_001.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.736403,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_001.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_001-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_002.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.689414,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_002.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_002-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_003.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.752584,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_003.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_003-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_004.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.705061,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_004.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_004-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_005.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.773761,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_005.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_005-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_006.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.770232,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_006.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_006-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_007.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.798573,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_007.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_007-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_008.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.668769,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_008.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_008-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_009.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.590955,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_009.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_009-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_010.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.719242,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_010.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_010-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_011.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.587353,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_011.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_011-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_012.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.547618,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_012.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_012-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_013.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.723127,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_013.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_013-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_014.jpg",
+      "candidateCount": 12,
+      "meanConfidence": 0.560491,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_014.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_014-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_015.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.746031,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_015.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_015-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_016.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.653305,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_016.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_016-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_017.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.684547,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_017.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_017-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_018.jpg",
+      "candidateCount": 13,
+      "meanConfidence": 0.681759,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_018.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_018-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_019.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.639525,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_019.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_019-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_020.jpg",
+      "candidateCount": 12,
+      "meanConfidence": 0.706543,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_020.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_020-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_021.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.710056,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_021.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_021-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_022.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.762452,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_022.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_022-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_023.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.706681,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_023.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_023-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_024.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.452219,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_024.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_024-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_025.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.399041,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_025.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_025-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_026.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.510665,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_026.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_026-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_027.jpg",
+      "candidateCount": 2,
+      "meanConfidence": 0.52491,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_027.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_027-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_028.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.78273,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_028.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_028-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_029.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.853938,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_029.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_029-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.7885,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_030.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_030-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_031.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.717666,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_031.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_031-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_032.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.851782,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_032.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_032-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_033.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.594093,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_033.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_033-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_034.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.617774,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_034.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_034-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_035.jpg",
+      "candidateCount": 17,
+      "meanConfidence": 0.662543,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_035.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_035-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_036.jpg",
+      "candidateCount": 20,
+      "meanConfidence": 0.735012,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_036.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_036-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_037.jpg",
+      "candidateCount": 17,
+      "meanConfidence": 0.658461,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_037.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_037-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_038.jpg",
+      "candidateCount": 17,
+      "meanConfidence": 0.673885,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_038.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_038-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_039.jpg",
+      "candidateCount": 20,
+      "meanConfidence": 0.733838,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_039.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_039-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_040.jpg",
+      "candidateCount": 17,
+      "meanConfidence": 0.611542,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_040.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_040-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_041.jpg",
+      "candidateCount": 13,
+      "meanConfidence": 0.653826,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_041.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_041-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_042.jpg",
+      "candidateCount": 20,
+      "meanConfidence": 0.645399,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_042.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_042-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_043.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.704264,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_043.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_043-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_044.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.716343,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_044.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_044-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_045.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.579437,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_045.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_045-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_046.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.791843,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_046.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_046-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_047.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.731887,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_047.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_047-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_048.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.510222,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_048.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_048-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_049.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.698311,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_049.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_049-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_050.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.569284,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_050.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_050-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_051.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.611459,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_051.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_051-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_052.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.545672,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_052.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_052-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_053.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.601518,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_053.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_053-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_054.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.490961,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_054.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_054-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_055.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.593884,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_055.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_055-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_056.jpg",
+      "candidateCount": 14,
+      "meanConfidence": 0.524255,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_056.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_056-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_057.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.616448,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_057.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_057-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_058.jpg",
+      "candidateCount": 12,
+      "meanConfidence": 0.501852,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_058.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_058-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_059.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.491445,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_059.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_059-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_060.jpg",
+      "candidateCount": 12,
+      "meanConfidence": 0.474674,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_060.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_060-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_061.jpg",
+      "candidateCount": 12,
+      "meanConfidence": 0.551289,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_061.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_061-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_062.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.549611,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_062.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_062-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_063.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.628429,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_063.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_063-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_064.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.621213,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_064.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_064-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_065.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.656509,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_065.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_065-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_066.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.627275,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_066.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_066-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_067.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.622792,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_067.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_067-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_068.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.662046,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_068.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_068-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_069.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.645584,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_069.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_069-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_070.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.531311,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_070.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_070-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_071.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.657115,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_071.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_071-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_072.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.727548,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_072.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_072-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_073.jpg",
+      "candidateCount": 9,
+      "meanConfidence": 0.681443,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_073.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_073-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_074.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.853526,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_074.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_074-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_075.jpg",
+      "candidateCount": 3,
+      "meanConfidence": 0.534535,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_075.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_075-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_076.jpg",
+      "candidateCount": 12,
+      "meanConfidence": 0.66266,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_076.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_076-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_077.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.671649,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_077.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_077-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_078.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.725506,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_078.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_078-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_079.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.698128,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_079.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_079-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.712245,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_080.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_080-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_081.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.593703,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_081.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_081-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_082.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.715771,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_082.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_082-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_083.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.632758,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_083.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_083-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_084.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.766312,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_084.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_084-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_085.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.81076,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_085.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_085-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_086.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.789436,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_086.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_086-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_087.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.789795,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_087.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_087-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_088.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.708757,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_088.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_088-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_089.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.806076,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_089.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_089-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_090.jpg",
+      "candidateCount": 6,
+      "meanConfidence": 0.760451,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_090.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_090-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_091.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.865888,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_091.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_091-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_092.jpg",
+      "candidateCount": 5,
+      "meanConfidence": 0.882622,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_092.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_092-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_093.jpg",
+      "candidateCount": 12,
+      "meanConfidence": 0.521121,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_093.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_093-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_094.jpg",
+      "candidateCount": 11,
+      "meanConfidence": 0.713065,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_094.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_094-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_095.jpg",
+      "candidateCount": 8,
+      "meanConfidence": 0.800767,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_095.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_095-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_096.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.465395,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_096.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_096-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_097.jpg",
+      "candidateCount": 19,
+      "meanConfidence": 0.713138,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_097.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_097-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_098.jpg",
+      "candidateCount": 10,
+      "meanConfidence": 0.678746,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_098.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_098-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_099.jpg",
+      "candidateCount": 20,
+      "meanConfidence": 0.559205,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_099.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_099-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_100.jpg",
+      "candidateCount": 4,
+      "meanConfidence": 0.503105,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_100.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_100-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "real_release_20260713_101.jpg",
+      "candidateCount": 7,
+      "meanConfidence": 0.552287,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-1024-conf030-json\\real_release_20260713_101.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-1024-conf030\\real_release_20260713_101-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    }
+  ]
+}
