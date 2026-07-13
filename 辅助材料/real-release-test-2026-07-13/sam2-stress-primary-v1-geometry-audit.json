@@ -1,0 +1,3474 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "sam2": {
+      "pass": 183,
+      "suspect": 18,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5726,
+      "boundsContainment": 0.988,
+      "centerInside": true,
+      "bounds": [
+        258.0,
+        205.0,
+        345.0,
+        302.0
+      ],
+      "maximumPeerBoundsIou": 0.0104
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6626,
+      "boundsContainment": 0.9878,
+      "centerInside": true,
+      "bounds": [
+        182.0,
+        150.0,
+        253.0,
+        248.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6203,
+      "boundsContainment": 0.947,
+      "centerInside": true,
+      "bounds": [
+        336.0,
+        282.0,
+        429.0,
+        379.0
+      ],
+      "maximumPeerBoundsIou": 0.0104
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5724,
+      "boundsContainment": 0.9955,
+      "centerInside": true,
+      "bounds": [
+        472.0,
+        367.0,
+        534.0,
+        438.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2349,
+      "boundsContainment": 0.9763,
+      "centerInside": true,
+      "bounds": [
+        382.0,
+        155.0,
+        456.0,
+        248.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "a4a440e7e2fc-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5975,
+      "boundsContainment": 0.8731,
+      "centerInside": true,
+      "bounds": [
+        226.0,
+        144.0,
+        317.0,
+        224.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "a4a440e7e2fc-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6243,
+      "boundsContainment": 0.9307,
+      "centerInside": true,
+      "bounds": [
+        421.0,
+        209.0,
+        507.0,
+        278.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "a4a440e7e2fc-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5667,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        142.0,
+        326.0,
+        209.0,
+        395.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "a4a440e7e2fc-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.473,
+      "boundsContainment": 0.8008,
+      "centerInside": true,
+      "bounds": [
+        372.0,
+        0.0,
+        448.0,
+        64.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6529,
+      "boundsContainment": 0.9038,
+      "centerInside": true,
+      "bounds": [
+        336.0,
+        81.0,
+        412.0,
+        166.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.591,
+      "boundsContainment": 0.9679,
+      "centerInside": true,
+      "bounds": [
+        363.0,
+        199.0,
+        431.0,
+        273.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.683,
+      "boundsContainment": 0.9648,
+      "centerInside": true,
+      "bounds": [
+        373.0,
+        405.0,
+        457.0,
+        453.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5031,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        252.0,
+        206.0,
+        325.0,
+        264.0
+      ],
+      "maximumPeerBoundsIou": 0.1733
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6977,
+      "boundsContainment": 0.977,
+      "centerInside": true,
+      "bounds": [
+        0.0,
+        51.0,
+        33.0,
+        116.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6662,
+      "boundsContainment": 0.9306,
+      "centerInside": true,
+      "bounds": [
+        357.0,
+        302.0,
+        451.0,
+        381.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6802,
+      "boundsContainment": 0.9158,
+      "centerInside": true,
+      "bounds": [
+        203.0,
+        187.0,
+        278.0,
+        262.0
+      ],
+      "maximumPeerBoundsIou": 0.1733
+    },
+    {
+      "fileName": "6d835166ab9e-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6091,
+      "boundsContainment": 0.9733,
+      "centerInside": true,
+      "bounds": [
+        201.0,
+        185.0,
+        246.0,
+        247.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "6d835166ab9e-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5541,
+      "boundsContainment": 0.9788,
+      "centerInside": true,
+      "bounds": [
+        293.0,
+        272.0,
+        355.0,
+        323.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "6d835166ab9e-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4599,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        360.0,
+        318.0,
+        435.0,
+        357.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b548e28934d4-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3773,
+      "boundsContainment": 0.9576,
+      "centerInside": true,
+      "bounds": [
+        212.0,
+        431.0,
+        276.0,
+        482.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b548e28934d4-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5633,
+      "boundsContainment": 0.9256,
+      "centerInside": true,
+      "bounds": [
+        281.0,
+        315.0,
+        369.0,
+        399.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "6be466dc2f6d-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6278,
+      "boundsContainment": 0.9029,
+      "centerInside": true,
+      "bounds": [
+        186.0,
+        0.0,
+        254.0,
+        64.0
+      ],
+      "maximumPeerBoundsIou": 0.0056
+    },
+    {
+      "fileName": "6be466dc2f6d-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6236,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        284.0,
+        0.0,
+        355.0,
+        65.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "6be466dc2f6d-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6125,
+      "boundsContainment": 0.8957,
+      "centerInside": true,
+      "bounds": [
+        144.0,
+        61.0,
+        204.0,
+        149.0
+      ],
+      "maximumPeerBoundsIou": 0.0056
+    },
+    {
+      "fileName": "6be466dc2f6d-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3436,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        345.0,
+        266.0,
+        378.0,
+        303.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "6be466dc2f6d-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5311,
+      "boundsContainment": 0.98,
+      "centerInside": true,
+      "bounds": [
+        422.0,
+        40.0,
+        474.0,
+        111.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f8c543cdd6ff-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5538,
+      "boundsContainment": 0.9451,
+      "centerInside": true,
+      "bounds": [
+        364.0,
+        290.0,
+        432.0,
+        376.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f8c543cdd6ff-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2969,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        103.0,
+        108.0,
+        146.0,
+        162.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f8c543cdd6ff-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5855,
+      "boundsContainment": 0.9525,
+      "centerInside": true,
+      "bounds": [
+        162.0,
+        293.0,
+        227.0,
+        352.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5872,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        142.0,
+        313.0,
+        205.0,
+        364.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6158,
+      "boundsContainment": 0.8843,
+      "centerInside": true,
+      "bounds": [
+        265.0,
+        165.0,
+        341.0,
+        243.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5545,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        289.0,
+        343.0,
+        359.0,
+        416.0
+      ],
+      "maximumPeerBoundsIou": 0.0384
+    },
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6792,
+      "boundsContainment": 0.9117,
+      "centerInside": true,
+      "bounds": [
+        237.0,
+        6.0,
+        334.0,
+        62.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6117,
+      "boundsContainment": 0.9258,
+      "centerInside": true,
+      "bounds": [
+        332.0,
+        285.0,
+        421.0,
+        359.0
+      ],
+      "maximumPeerBoundsIou": 0.0384
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3991,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        359.0,
+        410.0,
+        432.0,
+        495.0
+      ],
+      "maximumPeerBoundsIou": 0.1745
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5305,
+      "boundsContainment": 0.7975,
+      "centerInside": true,
+      "bounds": [
+        62.0,
+        314.0,
+        161.0,
+        411.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6531,
+      "boundsContainment": 0.9763,
+      "centerInside": true,
+      "bounds": [
+        257.0,
+        328.0,
+        310.0,
+        443.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6521,
+      "boundsContainment": 0.9518,
+      "centerInside": true,
+      "bounds": [
+        324.0,
+        388.0,
+        381.0,
+        500.0
+      ],
+      "maximumPeerBoundsIou": 0.1745
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6695,
+      "boundsContainment": 0.8902,
+      "centerInside": true,
+      "bounds": [
+        172.0,
+        385.0,
+        240.0,
+        508.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c6edb7fea814-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6424,
+      "boundsContainment": 0.9955,
+      "centerInside": true,
+      "bounds": [
+        329.0,
+        442.0,
+        440.0,
+        530.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c6edb7fea814-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6425,
+      "boundsContainment": 0.9984,
+      "centerInside": true,
+      "bounds": [
+        34.0,
+        574.0,
+        132.0,
+        645.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c6edb7fea814-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6465,
+      "boundsContainment": 0.9437,
+      "centerInside": true,
+      "bounds": [
+        185.0,
+        287.0,
+        282.0,
+        408.0
+      ],
+      "maximumPeerBoundsIou": 0.0117
+    },
+    {
+      "fileName": "c6edb7fea814-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5917,
+      "boundsContainment": 0.9895,
+      "centerInside": true,
+      "bounds": [
+        318.0,
+        180.0,
+        398.0,
+        294.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c6edb7fea814-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5286,
+      "boundsContainment": 0.9987,
+      "centerInside": true,
+      "bounds": [
+        103.0,
+        401.0,
+        226.0,
+        507.0
+      ],
+      "maximumPeerBoundsIou": 0.0117
+    },
+    {
+      "fileName": "86ac688f2753-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5356,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        320.0,
+        362.0,
+        378.0,
+        449.0
+      ],
+      "maximumPeerBoundsIou": 0.091
+    },
+    {
+      "fileName": "86ac688f2753-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5991,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        244.0,
+        311.0,
+        301.0,
+        403.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "86ac688f2753-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7016,
+      "boundsContainment": 0.9,
+      "centerInside": true,
+      "bounds": [
+        152.0,
+        366.0,
+        224.0,
+        459.0
+      ],
+      "maximumPeerBoundsIou": 0.002
+    },
+    {
+      "fileName": "86ac688f2753-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4105,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        366.0,
+        364.0,
+        440.0,
+        461.0
+      ],
+      "maximumPeerBoundsIou": 0.091
+    },
+    {
+      "fileName": "86ac688f2753-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4083,
+      "boundsContainment": 0.9858,
+      "centerInside": true,
+      "bounds": [
+        57.0,
+        295.0,
+        153.0,
+        400.0
+      ],
+      "maximumPeerBoundsIou": 0.002
+    },
+    {
+      "fileName": "b8f91eb08fc3-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4442,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        287.0,
+        418.0,
+        385.0,
+        502.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b8f91eb08fc3-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6425,
+      "boundsContainment": 0.9841,
+      "centerInside": true,
+      "bounds": [
+        273.0,
+        302.0,
+        333.0,
+        415.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b8f91eb08fc3-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3996,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        186.0,
+        273.0,
+        234.0,
+        367.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b8f91eb08fc3-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4295,
+      "boundsContainment": 0.9929,
+      "centerInside": true,
+      "bounds": [
+        391.0,
+        442.0,
+        489.0,
+        515.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b8f91eb08fc3-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5964,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        61.0,
+        419.0,
+        164.0,
+        486.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.565,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        229.0,
+        311.0,
+        311.0,
+        408.0
+      ],
+      "maximumPeerBoundsIou": 0.0338
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6046,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        153.0,
+        267.0,
+        213.0,
+        366.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5418,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        293.0,
+        380.0,
+        381.0,
+        465.0
+      ],
+      "maximumPeerBoundsIou": 0.0338
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.432,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        374.0,
+        443.0,
+        458.0,
+        513.0
+      ],
+      "maximumPeerBoundsIou": 0.0117
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5075,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        127.0,
+        481.0,
+        186.0,
+        525.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5363,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        333.0,
+        408.0,
+        427.0,
+        476.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4831,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        250.0,
+        261.0,
+        348.0,
+        327.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c0e03d680edc-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.638,
+      "boundsContainment": 0.9626,
+      "centerInside": true,
+      "bounds": [
+        245.0,
+        338.0,
+        297.0,
+        416.0
+      ],
+      "maximumPeerBoundsIou": 0.0541
+    },
+    {
+      "fileName": "c0e03d680edc-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.506,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        379.0,
+        464.0,
+        454.0,
+        521.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c0e03d680edc-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5104,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        284.0,
+        405.0,
+        356.0,
+        471.0
+      ],
+      "maximumPeerBoundsIou": 0.0165
+    },
+    {
+      "fileName": "c0e03d680edc-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6025,
+      "boundsContainment": 0.9949,
+      "centerInside": true,
+      "bounds": [
+        191.0,
+        282.0,
+        261.0,
+        371.0
+      ],
+      "maximumPeerBoundsIou": 0.0541
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5097,
+      "boundsContainment": 0.9529,
+      "centerInside": true,
+      "bounds": [
+        339.0,
+        176.0,
+        435.0,
+        281.0
+      ],
+      "maximumPeerBoundsIou": 0.0276
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4824,
+      "boundsContainment": 0.8211,
+      "centerInside": true,
+      "bounds": [
+        229.0,
+        301.0,
+        335.0,
+        409.0
+      ],
+      "maximumPeerBoundsIou": 0.0026
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4041,
+      "boundsContainment": 0.9561,
+      "centerInside": true,
+      "bounds": [
+        267.0,
+        446.0,
+        338.0,
+        560.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4941,
+      "boundsContainment": 0.9455,
+      "centerInside": true,
+      "bounds": [
+        156.0,
+        400.0,
+        235.0,
+        519.0
+      ],
+      "maximumPeerBoundsIou": 0.0856
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4589,
+      "boundsContainment": 0.9266,
+      "centerInside": true,
+      "bounds": [
+        95.0,
+        296.0,
+        187.0,
+        416.0
+      ],
+      "maximumPeerBoundsIou": 0.0249
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5326,
+      "boundsContainment": 0.8678,
+      "centerInside": true,
+      "bounds": [
+        178.0,
+        497.0,
+        233.0,
+        605.0
+      ],
+      "maximumPeerBoundsIou": 0.0856
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4576,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        429.0,
+        188.0,
+        539.0,
+        285.0
+      ],
+      "maximumPeerBoundsIou": 0.0276
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "nailIndex": 8,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.3423,
+      "boundsContainment": 1.0,
+      "centerInside": false,
+      "bounds": [
+        3.0,
+        269.0,
+        101.0,
+        377.0
+      ],
+      "maximumPeerBoundsIou": 0.023
+    },
+    {
+      "fileName": "6df0c9c91f81-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3744,
+      "boundsContainment": 0.9346,
+      "centerInside": true,
+      "bounds": [
+        348.0,
+        325.0,
+        493.0,
+        482.0
+      ],
+      "maximumPeerBoundsIou": 0.0808
+    },
+    {
+      "fileName": "6df0c9c91f81-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4051,
+      "boundsContainment": 0.9146,
+      "centerInside": true,
+      "bounds": [
+        369.0,
+        487.0,
+        512.0,
+        643.0
+      ],
+      "maximumPeerBoundsIou": 0.0639
+    },
+    {
+      "fileName": "6df0c9c91f81-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6269,
+      "boundsContainment": 0.9389,
+      "centerInside": true,
+      "bounds": [
+        294.0,
+        224.0,
+        386.0,
+        402.0
+      ],
+      "maximumPeerBoundsIou": 0.0808
+    },
+    {
+      "fileName": "6df0c9c91f81-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3118,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        483.0,
+        427.0,
+        597.0,
+        566.0
+      ],
+      "maximumPeerBoundsIou": 0.0639
+    },
+    {
+      "fileName": "6df0c9c91f81-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5331,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        443.0,
+        243.0,
+        561.0,
+        367.0
+      ],
+      "maximumPeerBoundsIou": 0.0595
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4323,
+      "boundsContainment": 0.9619,
+      "centerInside": true,
+      "bounds": [
+        242.0,
+        183.0,
+        386.0,
+        351.0
+      ],
+      "maximumPeerBoundsIou": 0.1541
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4883,
+      "boundsContainment": 0.9932,
+      "centerInside": true,
+      "bounds": [
+        476.0,
+        575.0,
+        597.0,
+        652.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5274,
+      "boundsContainment": 0.963,
+      "centerInside": true,
+      "bounds": [
+        111.0,
+        318.0,
+        238.0,
+        477.0
+      ],
+      "maximumPeerBoundsIou": 0.0034
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4134,
+      "boundsContainment": 0.9744,
+      "centerInside": true,
+      "bounds": [
+        237.0,
+        323.0,
+        384.0,
+        458.0
+      ],
+      "maximumPeerBoundsIou": 0.0992
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5215,
+      "boundsContainment": 0.9997,
+      "centerInside": true,
+      "bounds": [
+        304.0,
+        91.0,
+        432.0,
+        257.0
+      ],
+      "maximumPeerBoundsIou": 0.1541
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3587,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        162.0,
+        507.0,
+        317.0,
+        593.0
+      ],
+      "maximumPeerBoundsIou": 0.2624
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.507,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        333.0,
+        448.0,
+        474.0,
+        558.0
+      ],
+      "maximumPeerBoundsIou": 0.1131
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "nailIndex": 8,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5251,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        245.0,
+        490.0,
+        373.0,
+        578.0
+      ],
+      "maximumPeerBoundsIou": 0.2624
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5957,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        370.0,
+        392.0,
+        475.0,
+        486.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5926,
+      "boundsContainment": 0.9248,
+      "centerInside": true,
+      "bounds": [
+        273.0,
+        130.0,
+        370.0,
+        297.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.8535,
+      "boundsContainment": 0.9015,
+      "centerInside": true,
+      "bounds": [
+        706.0,
+        659.0,
+        828.0,
+        719.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5046,
+      "boundsContainment": 0.9873,
+      "centerInside": true,
+      "bounds": [
+        373.0,
+        208.0,
+        504.0,
+        347.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4457,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        44.0,
+        247.0,
+        183.0,
+        369.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3538,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        356.0,
+        258.0,
+        490.0,
+        402.0
+      ],
+      "maximumPeerBoundsIou": 0.1978
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3894,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        302.0,
+        149.0,
+        391.0,
+        257.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4966,
+      "boundsContainment": 0.9506,
+      "centerInside": true,
+      "bounds": [
+        65.0,
+        273.0,
+        239.0,
+        431.0
+      ],
+      "maximumPeerBoundsIou": 0.2975
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3556,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        301.0,
+        442.0,
+        459.0,
+        574.0
+      ],
+      "maximumPeerBoundsIou": 0.0023
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4393,
+      "boundsContainment": 0.9171,
+      "centerInside": true,
+      "bounds": [
+        139.0,
+        313.0,
+        314.0,
+        450.0
+      ],
+      "maximumPeerBoundsIou": 0.2975
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4087,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        401.0,
+        176.0,
+        548.0,
+        338.0
+      ],
+      "maximumPeerBoundsIou": 0.1978
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5179,
+      "boundsContainment": 0.9902,
+      "centerInside": true,
+      "bounds": [
+        304.0,
+        333.0,
+        365.0,
+        435.0
+      ],
+      "maximumPeerBoundsIou": 0.0343
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3701,
+      "boundsContainment": 0.9774,
+      "centerInside": true,
+      "bounds": [
+        356.0,
+        311.0,
+        503.0,
+        457.0
+      ],
+      "maximumPeerBoundsIou": 0.131
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4655,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        434.0,
+        254.0,
+        564.0,
+        373.0
+      ],
+      "maximumPeerBoundsIou": 0.131
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.45,
+      "boundsContainment": 0.8582,
+      "centerInside": true,
+      "bounds": [
+        410.0,
+        410.0,
+        551.0,
+        526.0
+      ],
+      "maximumPeerBoundsIou": 0.2941
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4324,
+      "boundsContainment": 0.9432,
+      "centerInside": true,
+      "bounds": [
+        342.0,
+        446.0,
+        512.0,
+        561.0
+      ],
+      "maximumPeerBoundsIou": 0.2941
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5254,
+      "boundsContainment": 0.9609,
+      "centerInside": true,
+      "bounds": [
+        331.0,
+        183.0,
+        422.0,
+        338.0
+      ],
+      "maximumPeerBoundsIou": 0.0527
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4124,
+      "boundsContainment": 0.9483,
+      "centerInside": true,
+      "bounds": [
+        419.0,
+        256.0,
+        558.0,
+        384.0
+      ],
+      "maximumPeerBoundsIou": 0.2652
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3959,
+      "boundsContainment": 0.9879,
+      "centerInside": true,
+      "bounds": [
+        245.0,
+        235.0,
+        400.0,
+        403.0
+      ],
+      "maximumPeerBoundsIou": 0.0394
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5118,
+      "boundsContainment": 0.9343,
+      "centerInside": true,
+      "bounds": [
+        407.0,
+        105.0,
+        524.0,
+        283.0
+      ],
+      "maximumPeerBoundsIou": 0.3327
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4836,
+      "boundsContainment": 0.9935,
+      "centerInside": true,
+      "bounds": [
+        454.0,
+        402.0,
+        608.0,
+        499.0
+      ],
+      "maximumPeerBoundsIou": 0.1862
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4577,
+      "boundsContainment": 0.9252,
+      "centerInside": true,
+      "bounds": [
+        456.0,
+        192.0,
+        660.0,
+        364.0
+      ],
+      "maximumPeerBoundsIou": 0.2631
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3707,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        357.0,
+        431.0,
+        536.0,
+        546.0
+      ],
+      "maximumPeerBoundsIou": 0.1862
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4627,
+      "boundsContainment": 0.9556,
+      "centerInside": true,
+      "bounds": [
+        385.0,
+        172.0,
+        502.0,
+        355.0
+      ],
+      "maximumPeerBoundsIou": 0.3327
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2819,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        365.0,
+        264.0,
+        495.0,
+        396.0
+      ],
+      "maximumPeerBoundsIou": 0.194
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.2748,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        315.0,
+        189.0,
+        373.0,
+        346.0
+      ],
+      "maximumPeerBoundsIou": 0.5601
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.475,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        581.0,
+        536.0,
+        713.0,
+        624.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5347,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        355.0,
+        115.0,
+        461.0,
+        246.0
+      ],
+      "maximumPeerBoundsIou": 0.0535
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6023,
+      "boundsContainment": 0.8645,
+      "centerInside": true,
+      "bounds": [
+        336.0,
+        71.0,
+        375.0,
+        159.0
+      ],
+      "maximumPeerBoundsIou": 0.0535
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4135,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        428.0,
+        222.0,
+        585.0,
+        357.0
+      ],
+      "maximumPeerBoundsIou": 0.194
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.4125,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        92.0,
+        208.0,
+        231.0,
+        373.0
+      ],
+      "maximumPeerBoundsIou": 0.3692
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 8,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.4347,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        141.0,
+        232.0,
+        289.0,
+        395.0
+      ],
+      "maximumPeerBoundsIou": 0.3692
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 9,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.486,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        316.0,
+        244.0,
+        366.0,
+        346.0
+      ],
+      "maximumPeerBoundsIou": 0.5601
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 10,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4423,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        410.0,
+        409.0,
+        531.0,
+        494.0
+      ],
+      "maximumPeerBoundsIou": 0.0188
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "nailIndex": 11,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5173,
+      "boundsContainment": 0.9943,
+      "centerInside": true,
+      "bounds": [
+        389.0,
+        415.0,
+        415.0,
+        457.0
+      ],
+      "maximumPeerBoundsIou": 0.0188
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4451,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        272.0,
+        164.0,
+        376.0,
+        339.0
+      ],
+      "maximumPeerBoundsIou": 0.1041
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.4133,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        140.0,
+        354.0,
+        279.0,
+        479.0
+      ],
+      "maximumPeerBoundsIou": 0.37
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3901,
+      "boundsContainment": 0.9422,
+      "centerInside": true,
+      "bounds": [
+        309.0,
+        285.0,
+        453.0,
+        425.0
+      ],
+      "maximumPeerBoundsIou": 0.2199
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6132,
+      "boundsContainment": 0.9895,
+      "centerInside": true,
+      "bounds": [
+        44.0,
+        272.0,
+        147.0,
+        398.0
+      ],
+      "maximumPeerBoundsIou": 0.014
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.4207,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        141.0,
+        353.0,
+        226.0,
+        430.0
+      ],
+      "maximumPeerBoundsIou": 0.37
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.364,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        363.0,
+        228.0,
+        527.0,
+        373.0
+      ],
+      "maximumPeerBoundsIou": 0.2199
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5704,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        733.0,
+        557.0,
+        797.0,
+        604.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 8,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4595,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        312.0,
+        424.0,
+        491.0,
+        534.0
+      ],
+      "maximumPeerBoundsIou": 0.0036
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2937,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        301.0,
+        498.0,
+        409.0,
+        584.0
+      ],
+      "maximumPeerBoundsIou": 0.0677
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.521,
+      "boundsContainment": 0.986,
+      "centerInside": true,
+      "bounds": [
+        318.0,
+        180.0,
+        427.0,
+        354.0
+      ],
+      "maximumPeerBoundsIou": 0.228
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.513,
+      "boundsContainment": 0.9831,
+      "centerInside": true,
+      "bounds": [
+        371.0,
+        434.0,
+        541.0,
+        545.0
+      ],
+      "maximumPeerBoundsIou": 0.0677
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.3391,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        333.0,
+        296.0,
+        483.0,
+        442.0
+      ],
+      "maximumPeerBoundsIou": 0.3814
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon",
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.3939,
+      "boundsContainment": 0.8778,
+      "centerInside": false,
+      "bounds": [
+        372.0,
+        256.0,
+        557.0,
+        431.0
+      ],
+      "maximumPeerBoundsIou": 0.3814
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3977,
+      "boundsContainment": 0.9591,
+      "centerInside": true,
+      "bounds": [
+        281.0,
+        251.0,
+        385.0,
+        426.0
+      ],
+      "maximumPeerBoundsIou": 0.228
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6093,
+      "boundsContainment": 0.885,
+      "centerInside": true,
+      "bounds": [
+        76.0,
+        166.0,
+        271.0,
+        244.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e0ee33ff3706-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3405,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        889.0,
+        688.0,
+        1038.0,
+        875.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e0ee33ff3706-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4286,
+      "boundsContainment": 0.9782,
+      "centerInside": true,
+      "bounds": [
+        453.0,
+        559.0,
+        608.0,
+        789.0
+      ],
+      "maximumPeerBoundsIou": 0.0922
+    },
+    {
+      "fileName": "e0ee33ff3706-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3116,
+      "boundsContainment": 0.9829,
+      "centerInside": true,
+      "bounds": [
+        605.0,
+        539.0,
+        768.0,
+        777.0
+      ],
+      "maximumPeerBoundsIou": 0.0089
+    },
+    {
+      "fileName": "e0ee33ff3706-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4231,
+      "boundsContainment": 0.9704,
+      "centerInside": true,
+      "bounds": [
+        386.0,
+        719.0,
+        536.0,
+        940.0
+      ],
+      "maximumPeerBoundsIou": 0.0922
+    },
+    {
+      "fileName": "e0ee33ff3706-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.4682,
+      "boundsContainment": 0.8802,
+      "centerInside": true,
+      "bounds": [
+        433.0,
+        1327.0,
+        542.0,
+        1484.0
+      ],
+      "maximumPeerBoundsIou": 0.4293
+    },
+    {
+      "fileName": "e0ee33ff3706-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.3421,
+      "boundsContainment": 0.8803,
+      "centerInside": true,
+      "bounds": [
+        390.0,
+        1227.0,
+        539.0,
+        1484.0
+      ],
+      "maximumPeerBoundsIou": 0.4293
+    },
+    {
+      "fileName": "cf0c5a421a71-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5567,
+      "boundsContainment": 0.924,
+      "centerInside": true,
+      "bounds": [
+        52.0,
+        204.0,
+        132.0,
+        267.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cf0c5a421a71-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5933,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        241.0,
+        65.0,
+        276.0,
+        138.0
+      ],
+      "maximumPeerBoundsIou": 0.0103
+    },
+    {
+      "fileName": "cf0c5a421a71-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4857,
+      "boundsContainment": 0.9517,
+      "centerInside": true,
+      "bounds": [
+        377.0,
+        252.0,
+        467.0,
+        334.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cf0c5a421a71-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.1205,
+      "boundsContainment": 0.753,
+      "centerInside": false,
+      "bounds": [
+        347.0,
+        118.0,
+        370.0,
+        166.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "cf0c5a421a71-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5347,
+      "boundsContainment": 0.983,
+      "centerInside": true,
+      "bounds": [
+        252.0,
+        134.0,
+        327.0,
+        226.0
+      ],
+      "maximumPeerBoundsIou": 0.0103
+    },
+    {
+      "fileName": "cf0c5a421a71-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.1543,
+      "boundsContainment": 0.9747,
+      "centerInside": false,
+      "bounds": [
+        424.0,
+        185.0,
+        475.0,
+        245.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "956d94380abf-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5345,
+      "boundsContainment": 0.9832,
+      "centerInside": true,
+      "bounds": [
+        355.0,
+        318.0,
+        486.0,
+        387.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "956d94380abf-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5215,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        402.0,
+        167.0,
+        546.0,
+        271.0
+      ],
+      "maximumPeerBoundsIou": 0.09
+    },
+    {
+      "fileName": "956d94380abf-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5204,
+      "boundsContainment": 0.9182,
+      "centerInside": true,
+      "bounds": [
+        635.0,
+        5.0,
+        760.0,
+        140.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "956d94380abf-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4747,
+      "boundsContainment": 0.9888,
+      "centerInside": true,
+      "bounds": [
+        469.0,
+        66.0,
+        599.0,
+        202.0
+      ],
+      "maximumPeerBoundsIou": 0.09
+    },
+    {
+      "fileName": "b1184e010679-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6348,
+      "boundsContainment": 0.9412,
+      "centerInside": true,
+      "bounds": [
+        297.0,
+        47.0,
+        367.0,
+        151.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5435,
+      "boundsContainment": 0.9875,
+      "centerInside": true,
+      "bounds": [
+        429.0,
+        24.0,
+        498.0,
+        120.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.6379,
+      "boundsContainment": 0.9556,
+      "centerInside": true,
+      "bounds": [
+        522.0,
+        97.0,
+        586.0,
+        207.0
+      ],
+      "maximumPeerBoundsIou": 0.3701
+    },
+    {
+      "fileName": "b1184e010679-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5858,
+      "boundsContainment": 0.8816,
+      "centerInside": true,
+      "bounds": [
+        153.0,
+        139.0,
+        220.0,
+        263.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.6586,
+      "boundsContainment": 0.9957,
+      "centerInside": true,
+      "bounds": [
+        540.0,
+        69.0,
+        586.0,
+        164.0
+      ],
+      "maximumPeerBoundsIou": 0.3701
+    },
+    {
+      "fileName": "b1184e010679-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4567,
+      "boundsContainment": 0.9321,
+      "centerInside": true,
+      "bounds": [
+        273.0,
+        396.0,
+        319.0,
+        493.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "bc6b23d6a1ce-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5075,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        190.0,
+        380.0,
+        258.0,
+        456.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "bc6b23d6a1ce-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5561,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        351.0,
+        271.0,
+        433.0,
+        360.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "bc6b23d6a1ce-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.618,
+      "boundsContainment": 0.9083,
+      "centerInside": true,
+      "bounds": [
+        236.0,
+        277.0,
+        319.0,
+        378.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "bc6b23d6a1ce-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2328,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        326.0,
+        414.0,
+        379.0,
+        502.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "bc6b23d6a1ce-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4006,
+      "boundsContainment": 0.994,
+      "centerInside": true,
+      "bounds": [
+        126.0,
+        151.0,
+        166.0,
+        200.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5685,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        406.0,
+        315.0,
+        467.0,
+        410.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.5934,
+      "boundsContainment": 0.8906,
+      "centerInside": true,
+      "bounds": [
+        244.0,
+        203.0,
+        294.0,
+        320.0
+      ],
+      "maximumPeerBoundsIou": 0.6612
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5172,
+      "boundsContainment": 0.9944,
+      "centerInside": true,
+      "bounds": [
+        177.0,
+        262.0,
+        220.0,
+        326.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6097,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        445.0,
+        154.0,
+        527.0,
+        229.0
+      ],
+      "maximumPeerBoundsIou": 0.0306
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4482,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        195.0,
+        5.0,
+        283.0,
+        71.0
+      ],
+      "maximumPeerBoundsIou": 0.2398
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4911,
+      "boundsContainment": 0.9846,
+      "centerInside": true,
+      "bounds": [
+        309.0,
+        229.0,
+        366.0,
+        315.0
+      ],
+      "maximumPeerBoundsIou": 0.311
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4383,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        403.0,
+        54.0,
+        463.0,
+        142.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 8,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5108,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        347.0,
+        65.0,
+        397.0,
+        133.0
+      ],
+      "maximumPeerBoundsIou": 0.0666
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 9,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4584,
+      "boundsContainment": 0.9969,
+      "centerInside": true,
+      "bounds": [
+        304.0,
+        268.0,
+        375.0,
+        358.0
+      ],
+      "maximumPeerBoundsIou": 0.311
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 10,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5253,
+      "boundsContainment": 0.9574,
+      "centerInside": true,
+      "bounds": [
+        292.0,
+        78.0,
+        354.0,
+        172.0
+      ],
+      "maximumPeerBoundsIou": 0.0435
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 11,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4688,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        205.0,
+        111.0,
+        257.0,
+        201.0
+      ],
+      "maximumPeerBoundsIou": 0.2584
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 12,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5937,
+      "boundsContainment": 0.9176,
+      "centerInside": true,
+      "bounds": [
+        337.0,
+        13.0,
+        388.0,
+        75.0
+      ],
+      "maximumPeerBoundsIou": 0.0666
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 13,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5545,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        247.0,
+        7.0,
+        333.0,
+        65.0
+      ],
+      "maximumPeerBoundsIou": 0.2398
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 14,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "candidate_overlaps_peer"
+      ],
+      "areaRatio": 0.6831,
+      "boundsContainment": 0.8915,
+      "centerInside": true,
+      "bounds": [
+        251.0,
+        202.0,
+        292.0,
+        298.0
+      ],
+      "maximumPeerBoundsIou": 0.6612
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 15,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.738,
+      "boundsContainment": 0.904,
+      "centerInside": true,
+      "bounds": [
+        389.0,
+        167.0,
+        451.0,
+        270.0
+      ],
+      "maximumPeerBoundsIou": 0.0306
+    },
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "nailIndex": 16,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3556,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        197.0,
+        78.0,
+        251.0,
+        149.0
+      ],
+      "maximumPeerBoundsIou": 0.2584
+    },
+    {
+      "fileName": "c541feb05c54-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.8203,
+      "boundsContainment": 0.936,
+      "centerInside": true,
+      "bounds": [
+        0.0,
+        0.0,
+        30.0,
+        76.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c541feb05c54-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4377,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        462.0,
+        427.0,
+        548.0,
+        512.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6371,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        229.0,
+        99.0,
+        277.0,
+        158.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5197,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        292.0,
+        361.0,
+        348.0,
+        416.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5664,
+      "boundsContainment": 0.9597,
+      "centerInside": true,
+      "bounds": [
+        195.0,
+        235.0,
+        252.0,
+        298.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5885,
+      "boundsContainment": 0.9892,
+      "centerInside": true,
+      "bounds": [
+        48.0,
+        363.0,
+        111.0,
+        431.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6918,
+      "boundsContainment": 0.8949,
+      "centerInside": true,
+      "bounds": [
+        127.0,
+        279.0,
+        170.0,
+        343.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6937,
+      "boundsContainment": 0.9215,
+      "centerInside": true,
+      "bounds": [
+        125.0,
+        95.0,
+        175.0,
+        174.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 7,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5699,
+      "boundsContainment": 0.94,
+      "centerInside": true,
+      "bounds": [
+        4.0,
+        0.0,
+        38.0,
+        10.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 8,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5339,
+      "boundsContainment": 0.9413,
+      "centerInside": true,
+      "bounds": [
+        154.0,
+        353.0,
+        198.0,
+        420.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 9,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.488,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        228.0,
+        317.0,
+        291.0,
+        388.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "nailIndex": 10,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4272,
+      "boundsContainment": 0.9749,
+      "centerInside": true,
+      "bounds": [
+        364.0,
+        375.0,
+        426.0,
+        431.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "424a9b7d8798-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3713,
+      "boundsContainment": 0.8956,
+      "centerInside": true,
+      "bounds": [
+        353.0,
+        248.0,
+        429.0,
+        334.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "424a9b7d8798-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4602,
+      "boundsContainment": 0.9344,
+      "centerInside": true,
+      "bounds": [
+        93.0,
+        101.0,
+        165.0,
+        190.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "424a9b7d8798-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.3292,
+      "boundsContainment": 1.0,
+      "centerInside": false,
+      "bounds": [
+        143.0,
+        40.0,
+        205.0,
+        101.0
+      ],
+      "maximumPeerBoundsIou": 0.0035
+    },
+    {
+      "fileName": "424a9b7d8798-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3096,
+      "boundsContainment": 0.979,
+      "centerInside": true,
+      "bounds": [
+        351.0,
+        33.0,
+        426.0,
+        113.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "424a9b7d8798-primary.png",
+      "nailIndex": 5,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3809,
+      "boundsContainment": 0.9748,
+      "centerInside": true,
+      "bounds": [
+        204.0,
+        0.0,
+        296.0,
+        78.0
+      ],
+      "maximumPeerBoundsIou": 0.0035
+    },
+    {
+      "fileName": "424a9b7d8798-primary.png",
+      "nailIndex": 6,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4985,
+      "boundsContainment": 0.9236,
+      "centerInside": true,
+      "bounds": [
+        141.0,
+        367.0,
+        240.0,
+        445.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-primary.png",
+      "nailIndex": 1,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5124,
+      "boundsContainment": 0.96,
+      "centerInside": true,
+      "bounds": [
+        400.0,
+        140.0,
+        451.0,
+        226.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-primary.png",
+      "nailIndex": 2,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5536,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        286.0,
+        163.0,
+        329.0,
+        247.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-primary.png",
+      "nailIndex": 3,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6211,
+      "boundsContainment": 0.9233,
+      "centerInside": true,
+      "bounds": [
+        232.0,
+        141.0,
+        268.0,
+        222.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-primary.png",
+      "nailIndex": 4,
+      "source": "sam2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.481,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        379.0,
+        228.0,
+        409.0,
+        275.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    }
+  ]
+}

@@ -1,0 +1,312 @@
+{
+  "version": "nail-texture-yolo-prelabel/v1",
+  "ok": true,
+  "decision": "candidate_only_not_training_truth",
+  "model": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\nail-texture-seg-real-candidate-v6\\weights\\best.pt",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\stress-primary-regions-v1",
+  "sourceGroup": "real-release-test-2026-07-13-stress-derived-v1",
+  "settings": {
+    "conf": 0.3,
+    "iou": 0.5,
+    "imgsz": 1024,
+    "maxDet": 20
+  },
+  "imageCount": 35,
+  "imagesWithCandidates": 35,
+  "imagesWithoutCandidates": 0,
+  "totalCandidates": 201,
+  "candidateCountHistogram": {
+    "2": 2,
+    "3": 3,
+    "4": 5,
+    "5": 10,
+    "6": 6,
+    "7": 3,
+    "8": 3,
+    "10": 1,
+    "11": 1,
+    "16": 1
+  },
+  "items": [
+    {
+      "fileName": "02f011058d1f-primary.png",
+      "candidateCount": 16,
+      "meanConfidence": 0.584603,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\02f011058d1f-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\02f011058d1f-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.689566,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\066207e1c3ef-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\066207e1c3ef-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "0c2bd7cc24b7-primary.png",
+      "candidateCount": 10,
+      "meanConfidence": 0.583368,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\0c2bd7cc24b7-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\0c2bd7cc24b7-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "223683d91dc4-primary.png",
+      "candidateCount": 7,
+      "meanConfidence": 0.474899,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\223683d91dc4-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\223683d91dc4-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "2c793788bdec-primary.png",
+      "candidateCount": 11,
+      "meanConfidence": 0.519879,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\2c793788bdec-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\2c793788bdec-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "candidateCount": 4,
+      "meanConfidence": 0.908071,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\3e9b2b906fda-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\3e9b2b906fda-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "406bc158c41d-primary.png",
+      "candidateCount": 8,
+      "meanConfidence": 0.536721,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\406bc158c41d-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\406bc158c41d-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "424a9b7d8798-primary.png",
+      "candidateCount": 6,
+      "meanConfidence": 0.574279,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\424a9b7d8798-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\424a9b7d8798-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.816046,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\51a2eded5eda-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\51a2eded5eda-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "6be466dc2f6d-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.700195,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\6be466dc2f6d-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\6be466dc2f6d-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "6d835166ab9e-primary.png",
+      "candidateCount": 3,
+      "meanConfidence": 0.439247,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\6d835166ab9e-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\6d835166ab9e-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "candidateCount": 8,
+      "meanConfidence": 0.519287,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\6d9a192d4168-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\6d9a192d4168-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "6df0c9c91f81-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.578224,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\6df0c9c91f81-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\6df0c9c91f81-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "7a92b2c08d0f-primary.png",
+      "candidateCount": 7,
+      "meanConfidence": 0.709918,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\7a92b2c08d0f-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\7a92b2c08d0f-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "86ac688f2753-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.500016,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\86ac688f2753-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\86ac688f2753-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "956d94380abf-primary.png",
+      "candidateCount": 4,
+      "meanConfidence": 0.770428,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\956d94380abf-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\956d94380abf-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "9da2611ded25-primary.png",
+      "candidateCount": 8,
+      "meanConfidence": 0.740188,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\9da2611ded25-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\9da2611ded25-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "a4a440e7e2fc-primary.png",
+      "candidateCount": 4,
+      "meanConfidence": 0.488163,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\a4a440e7e2fc-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\a4a440e7e2fc-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "b1184e010679-primary.png",
+      "candidateCount": 6,
+      "meanConfidence": 0.666073,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\b1184e010679-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\b1184e010679-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "b548e28934d4-primary.png",
+      "candidateCount": 2,
+      "meanConfidence": 0.426953,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\b548e28934d4-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\b548e28934d4-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "b8f91eb08fc3-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.670404,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\b8f91eb08fc3-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\b8f91eb08fc3-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "bc6b23d6a1ce-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.610203,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\bc6b23d6a1ce-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\bc6b23d6a1ce-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "c0e03d680edc-primary.png",
+      "candidateCount": 4,
+      "meanConfidence": 0.694673,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\c0e03d680edc-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\c0e03d680edc-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "c541feb05c54-primary.png",
+      "candidateCount": 2,
+      "meanConfidence": 0.361955,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\c541feb05c54-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\c541feb05c54-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "c6edb7fea814-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.861632,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\c6edb7fea814-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\c6edb7fea814-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "cf0c5a421a71-primary.png",
+      "candidateCount": 6,
+      "meanConfidence": 0.533945,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\cf0c5a421a71-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\cf0c5a421a71-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.530418,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\d17ab88ac58a-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\d17ab88ac58a-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "candidateCount": 6,
+      "meanConfidence": 0.473939,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\d9518b2dc889-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\d9518b2dc889-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "candidateCount": 6,
+      "meanConfidence": 0.534373,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\d970653d6111-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\d970653d6111-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "e0ee33ff3706-primary.png",
+      "candidateCount": 6,
+      "meanConfidence": 0.657351,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\e0ee33ff3706-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\e0ee33ff3706-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "candidateCount": 3,
+      "meanConfidence": 0.722328,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\e826babe1b3a-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\e826babe1b3a-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "eac9a2f87f4c-primary.png",
+      "candidateCount": 4,
+      "meanConfidence": 0.530099,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\eac9a2f87f4c-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\eac9a2f87f4c-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "candidateCount": 5,
+      "meanConfidence": 0.583569,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\f0752db2009c-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\f0752db2009c-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "f8a25604ea58-primary.png",
+      "candidateCount": 7,
+      "meanConfidence": 0.554049,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\f8a25604ea58-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\f8a25604ea58-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    },
+    {
+      "fileName": "f8c543cdd6ff-primary.png",
+      "candidateCount": 3,
+      "meanConfidence": 0.508162,
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\v6-stress-primary-v1-json\\f8c543cdd6ff-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\v6-stress-primary-v1\\f8c543cdd6ff-primary-yolo-prelabel-overlay.jpg",
+      "decision": "candidate_only_not_training_truth"
+    }
+  ]
+}
