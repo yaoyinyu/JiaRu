@@ -1,0 +1,44 @@
+{
+  "version": "nail-texture-candidate-review/v1",
+  "date": "2026-07-13",
+  "candidate": "nail-texture-seg-real-candidate-v8",
+  "decision": "reject",
+  "dataset": {
+    "images": 99,
+    "masks": 681,
+    "trainValTest": [70, 16, 13],
+    "testImages": 13,
+    "testMasks": 102,
+    "sourceIsolation": {
+      "deerplanetOnlyTest": true,
+      "moreOnlyValidation": true
+    }
+  },
+  "training": {
+    "baseWeights": "nail-texture-seg-real-candidate-v6",
+    "inputSize": 640,
+    "maximumEpochs": 60,
+    "completedEpochs": 16,
+    "bestEpoch": 1,
+    "earlyStopped": true
+  },
+  "frozenTestAt512": {
+    "boxMap50": 0.8487284865124238,
+    "maskMap50": 0.8471930346193804,
+    "boxMap50To95": 0.5903809672740008,
+    "maskMap50To95": 0.544991157050883
+  },
+  "gate": {
+    "minimumBoxMap50": 0.85,
+    "minimumMaskMap50": 0.75,
+    "boxPassed": false,
+    "maskPassed": true,
+    "betterThanV6": false
+  },
+  "actions": {
+    "exportOnnx": false,
+    "register": false,
+    "promote": false,
+    "retainV6AsBestCandidate": true
+  }
+}

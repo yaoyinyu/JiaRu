@@ -3,22 +3,22 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
   "totals": {
-    "images": 398,
-    "masks": 2083,
-    "validMasks": 2083,
+    "images": 400,
+    "masks": 2092,
+    "validMasks": 2092,
     "filesWithErrors": 0,
     "filesWithWarnings": 2
   },
   "splitCounts": {
-    "train": 292,
+    "train": 293,
     "val": 45,
-    "test": 61
+    "test": 62
   },
   "splitRatios": {
-    "train": 0.7336683417085427,
-    "val": 0.11306532663316583,
-    "test": 0.15326633165829145,
-    "maxDeviation": 0.03693467336683416,
+    "train": 0.7325,
+    "val": 0.1125,
+    "test": 0.155,
+    "maxDeviation": 0.03749999999999999,
     "allowedDeviation": 0.05
   },
   "splitIntegrity": {
@@ -30,26 +30,26 @@
     "negatives": 2,
     "complexBackground": 2,
     "sampleKinds": {
-      "reference": 14,
+      "reference": 15,
       "negative": 2,
       "other": 44,
       "complex_background": 1
     },
     "backgrounds": {
       "dark": 2,
-      "light": 14,
+      "light": 15,
       "unspecified": 45
     }
   },
   "gates": {
     "imageCount": {
       "ok": true,
-      "actual": 398,
+      "actual": 400,
       "required": 200
     },
     "validMaskCount": {
       "ok": true,
-      "actual": 2083,
+      "actual": 2092,
       "required": 800
     },
     "labelAuditPass": {
@@ -64,7 +64,7 @@
     },
     "splitRatioPass": {
       "ok": true,
-      "actual": 0.03693467336683416,
+      "actual": 0.03749999999999999,
       "required": 0.05
     },
     "testSplitHasNegative": {
@@ -98,6 +98,13 @@
     },
     {
       "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
       "ok": true,
       "polygonCount": 5,
       "errorCount": 0,
@@ -1309,6 +1316,13 @@
     },
     {
       "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+      "ok": true,
+      "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
       "ok": true,
       "polygonCount": 4,
       "errorCount": 0,

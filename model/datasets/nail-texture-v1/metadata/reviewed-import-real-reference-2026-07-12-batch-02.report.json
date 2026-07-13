@@ -6,13 +6,14 @@
   "reviewCsv": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\prelabel-v2-visual-review.csv",
   "filteredImport": true,
   "manifestItemCount": 113,
-  "importedItemCount": 76,
+  "importedItemCount": 78,
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\reviewed-import-real-reference-2026-07-12-batch-02.report.json",
   "copiedImages": [
     "-_1400308954697837b667255.jpg",
     "-2022-01-16-17.31.27_136220716561e40a52d395e.jpg",
     "-2022-01-16-17.32.24_14865833961e3f33f15e4e.jpg",
     "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+    "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
     "-2022-01-16-22.23.01_86396604061e42c5663eec.png",
     "-2023-08-06-14.42.37_40712667864cf412ac5c04-991x1024.jpg",
     "-2023-08-06-14.42.50_135764628264cf41332bfaa-1016x1024.jpg",
@@ -64,6 +65,7 @@
     "more_-2021-07-28-4.13.16_1647649788610112a3bcc84.jpg",
     "more_-2021-07-28-4.13.29_1179122534610112ae7200d.jpg",
     "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+    "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
     "more_-2021-07-28-4.20.43_848623705610114038884a.jpg",
     "more_-2021-07-28-4.42.39_163325967361011922b9577.jpg",
     "more_-2021-07-28-4.49.42_205237935261011a56521d7.jpg",
@@ -91,6 +93,7 @@
     "-2022-01-16-17.31.27_136220716561e40a52d395e.json",
     "-2022-01-16-17.32.24_14865833961e3f33f15e4e.json",
     "-2022-01-16-17.33.16_16788849361e4261e11255.json",
+    "-2022-01-16-19.13.13_130717900561e3feb6dea97.json",
     "-2022-01-16-22.23.01_86396604061e42c5663eec.json",
     "-2023-08-06-14.42.37_40712667864cf412ac5c04-991x1024.json",
     "-2023-08-06-14.42.50_135764628264cf41332bfaa-1016x1024.json",
@@ -142,6 +145,7 @@
     "more_-2021-07-28-4.13.16_1647649788610112a3bcc84.json",
     "more_-2021-07-28-4.13.29_1179122534610112ae7200d.json",
     "more_-2021-07-28-4.20.28_2060593474610113e89beef.json",
+    "more_-2021-07-28-4.20.38_1655999097610113f093c6a.json",
     "more_-2021-07-28-4.20.43_848623705610114038884a.json",
     "more_-2021-07-28-4.42.39_163325967361011922b9577.json",
     "more_-2021-07-28-4.49.42_205237935261011a56521d7.json",
@@ -187,6 +191,12 @@
       "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
       "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\annotations\\raw-json\\-2022-01-16-17.33.16_16788849361e4261e11255.json",
       "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\images\\raw\\-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+      "polygonCount": 5
+    },
+    {
+      "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\annotations\\raw-json\\-2022-01-16-19.13.13_130717900561e3feb6dea97.json",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\images\\raw\\-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
       "polygonCount": 5
     },
     {
@@ -496,6 +506,12 @@
       "polygonCount": 4
     },
     {
+      "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\annotations\\raw-json\\more_-2021-07-28-4.20.38_1655999097610113f093c6a.json",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\images\\raw\\more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
+      "polygonCount": 4
+    },
+    {
       "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.jpg",
       "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\annotations\\raw-json\\more_-2021-07-28-4.20.43_848623705610114038884a.json",
       "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\images\\raw\\more_-2021-07-28-4.20.43_848623705610114038884a.jpg",
@@ -629,8 +645,8 @@
       "stdout": {
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
-        "synced": 398,
-        "records": 398
+        "synced": 400,
+        "records": 400
       }
     },
     {
@@ -640,7 +656,7 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-        "recordCount": 398,
+        "recordCount": 400,
         "ok": true,
         "issues": [
           {
@@ -660,9 +676,9 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "splitPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\split.json",
         "counts": {
-          "train": 292,
+          "train": 293,
           "val": 45,
-          "test": 61
+          "test": 62
         }
       }
     },
@@ -671,7 +687,7 @@
       "ok": true,
       "stdout": {
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
-        "files": 398,
+        "files": 400,
         "auditCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\label-audit.csv",
         "errorCount": 0,
         "warningCount": 2
@@ -682,7 +698,7 @@
       "ok": true,
       "stdout": {
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
-        "converted": 398,
+        "converted": 400,
         "outputRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\labels-yolo-seg"
       }
     },
@@ -694,22 +710,22 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
         "totals": {
-          "images": 398,
-          "masks": 2083,
-          "validMasks": 2083,
+          "images": 400,
+          "masks": 2092,
+          "validMasks": 2092,
           "filesWithErrors": 0,
           "filesWithWarnings": 2
         },
         "splitCounts": {
-          "train": 292,
+          "train": 293,
           "val": 45,
-          "test": 61
+          "test": 62
         },
         "splitRatios": {
-          "train": 0.7336683417085427,
-          "val": 0.11306532663316583,
-          "test": 0.15326633165829145,
-          "maxDeviation": 0.03693467336683416,
+          "train": 0.7325,
+          "val": 0.1125,
+          "test": 0.155,
+          "maxDeviation": 0.03749999999999999,
           "allowedDeviation": 0.05
         },
         "splitIntegrity": {
@@ -721,26 +737,26 @@
           "negatives": 2,
           "complexBackground": 2,
           "sampleKinds": {
-            "reference": 14,
+            "reference": 15,
             "negative": 2,
             "other": 44,
             "complex_background": 1
           },
           "backgrounds": {
             "dark": 2,
-            "light": 14,
+            "light": 15,
             "unspecified": 45
           }
         },
         "gates": {
           "imageCount": {
             "ok": true,
-            "actual": 398,
+            "actual": 400,
             "required": 200
           },
           "validMaskCount": {
             "ok": true,
-            "actual": 2083,
+            "actual": 2092,
             "required": 800
           },
           "labelAuditPass": {
@@ -755,7 +771,7 @@
           },
           "splitRatioPass": {
             "ok": true,
-            "actual": 0.03693467336683416,
+            "actual": 0.03749999999999999,
             "required": 0.05
           },
           "testSplitHasNegative": {
@@ -789,6 +805,13 @@
           },
           {
             "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
             "ok": true,
             "polygonCount": 5,
             "errorCount": 0,
@@ -2000,6 +2023,13 @@
           },
           {
             "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+            "ok": true,
+            "polygonCount": 4,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
             "ok": true,
             "polygonCount": 4,
             "errorCount": 0,
@@ -3583,7 +3613,7 @@
               "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
               "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
               "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-              "recordCount": 398,
+              "recordCount": 400,
               "ok": true,
               "issues": [
                 {
@@ -3610,16 +3640,16 @@
               "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
               "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
               "mode": "release",
-              "recordCount": 398,
+              "recordCount": 400,
               "counts": {
                 "byOriginType": {
-                  "reference": 76,
+                  "reference": 78,
                   "user": 21,
                   "other": 300,
                   "negative": 1
                 },
                 "byLicense": {
-                  "user-authorized-commercial-training-and-long-term-regression": 76,
+                  "user-authorized-commercial-training-and-long-term-regression": 78,
                   "owner-authorized-commercial-training-and-regression": 21,
                   "ai-generated-internal-training-candidate": 301
                 }
@@ -3646,22 +3676,22 @@
               "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
               "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
               "totals": {
-                "images": 398,
-                "masks": 2083,
-                "validMasks": 2083,
+                "images": 400,
+                "masks": 2092,
+                "validMasks": 2092,
                 "filesWithErrors": 0,
                 "filesWithWarnings": 2
               },
               "splitCounts": {
-                "train": 292,
+                "train": 293,
                 "val": 45,
-                "test": 61
+                "test": 62
               },
               "splitRatios": {
-                "train": 0.7336683417085427,
-                "val": 0.11306532663316583,
-                "test": 0.15326633165829145,
-                "maxDeviation": 0.03693467336683416,
+                "train": 0.7325,
+                "val": 0.1125,
+                "test": 0.155,
+                "maxDeviation": 0.03749999999999999,
                 "allowedDeviation": 0.05
               },
               "splitIntegrity": {
@@ -3673,26 +3703,26 @@
                 "negatives": 2,
                 "complexBackground": 2,
                 "sampleKinds": {
-                  "reference": 14,
+                  "reference": 15,
                   "negative": 2,
                   "other": 44,
                   "complex_background": 1
                 },
                 "backgrounds": {
                   "dark": 2,
-                  "light": 14,
+                  "light": 15,
                   "unspecified": 45
                 }
               },
               "gates": {
                 "imageCount": {
                   "ok": true,
-                  "actual": 398,
+                  "actual": 400,
                   "required": 200
                 },
                 "validMaskCount": {
                   "ok": true,
-                  "actual": 2083,
+                  "actual": 2092,
                   "required": 800
                 },
                 "labelAuditPass": {
@@ -3707,7 +3737,7 @@
                 },
                 "splitRatioPass": {
                   "ok": true,
-                  "actual": 0.03693467336683416,
+                  "actual": 0.03749999999999999,
                   "required": 0.05
                 },
                 "testSplitHasNegative": {
@@ -3741,6 +3771,13 @@
                 },
                 {
                   "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+                  "ok": true,
+                  "polygonCount": 5,
+                  "errorCount": 0,
+                  "warningCount": 0
+                },
+                {
+                  "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
                   "ok": true,
                   "polygonCount": 5,
                   "errorCount": 0,
@@ -4952,6 +4989,13 @@
                 },
                 {
                   "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+                  "ok": true,
+                  "polygonCount": 4,
+                  "errorCount": 0,
+                  "warningCount": 0
+                },
+                {
+                  "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
                   "ok": true,
                   "polygonCount": 4,
                   "errorCount": 0,
@@ -6526,7 +6570,7 @@
             "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
             "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
             "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-            "recordCount": 398,
+            "recordCount": 400,
             "ok": true,
             "issues": [
               {
@@ -6543,16 +6587,16 @@
             "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
             "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
             "mode": "release",
-            "recordCount": 398,
+            "recordCount": 400,
             "counts": {
               "byOriginType": {
-                "reference": 76,
+                "reference": 78,
                 "user": 21,
                 "other": 300,
                 "negative": 1
               },
               "byLicense": {
-                "user-authorized-commercial-training-and-long-term-regression": 76,
+                "user-authorized-commercial-training-and-long-term-regression": 78,
                 "owner-authorized-commercial-training-and-regression": 21,
                 "ai-generated-internal-training-candidate": 301
               }
@@ -6565,22 +6609,22 @@
             "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
             "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
             "totals": {
-              "images": 398,
-              "masks": 2083,
-              "validMasks": 2083,
+              "images": 400,
+              "masks": 2092,
+              "validMasks": 2092,
               "filesWithErrors": 0,
               "filesWithWarnings": 2
             },
             "splitCounts": {
-              "train": 292,
+              "train": 293,
               "val": 45,
-              "test": 61
+              "test": 62
             },
             "splitRatios": {
-              "train": 0.7336683417085427,
-              "val": 0.11306532663316583,
-              "test": 0.15326633165829145,
-              "maxDeviation": 0.03693467336683416,
+              "train": 0.7325,
+              "val": 0.1125,
+              "test": 0.155,
+              "maxDeviation": 0.03749999999999999,
               "allowedDeviation": 0.05
             },
             "splitIntegrity": {
@@ -6592,26 +6636,26 @@
               "negatives": 2,
               "complexBackground": 2,
               "sampleKinds": {
-                "reference": 14,
+                "reference": 15,
                 "negative": 2,
                 "other": 44,
                 "complex_background": 1
               },
               "backgrounds": {
                 "dark": 2,
-                "light": 14,
+                "light": 15,
                 "unspecified": 45
               }
             },
             "gates": {
               "imageCount": {
                 "ok": true,
-                "actual": 398,
+                "actual": 400,
                 "required": 200
               },
               "validMaskCount": {
                 "ok": true,
-                "actual": 2083,
+                "actual": 2092,
                 "required": 800
               },
               "labelAuditPass": {
@@ -6626,7 +6670,7 @@
               },
               "splitRatioPass": {
                 "ok": true,
-                "actual": 0.03693467336683416,
+                "actual": 0.03749999999999999,
                 "required": 0.05
               },
               "testSplitHasNegative": {
@@ -6660,6 +6704,13 @@
               },
               {
                 "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+                "ok": true,
+                "polygonCount": 5,
+                "errorCount": 0,
+                "warningCount": 0
+              },
+              {
+                "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
                 "ok": true,
                 "polygonCount": 5,
                 "errorCount": 0,
@@ -7871,6 +7922,13 @@
               },
               {
                 "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+                "ok": true,
+                "polygonCount": 4,
+                "errorCount": 0,
+                "warningCount": 0
+              },
+              {
+                "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
                 "ok": true,
                 "polygonCount": 4,
                 "errorCount": 0,
@@ -9441,22 +9499,22 @@
     "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
     "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
     "totals": {
-      "images": 398,
-      "masks": 2083,
-      "validMasks": 2083,
+      "images": 400,
+      "masks": 2092,
+      "validMasks": 2092,
       "filesWithErrors": 0,
       "filesWithWarnings": 2
     },
     "splitCounts": {
-      "train": 292,
+      "train": 293,
       "val": 45,
-      "test": 61
+      "test": 62
     },
     "splitRatios": {
-      "train": 0.7336683417085427,
-      "val": 0.11306532663316583,
-      "test": 0.15326633165829145,
-      "maxDeviation": 0.03693467336683416,
+      "train": 0.7325,
+      "val": 0.1125,
+      "test": 0.155,
+      "maxDeviation": 0.03749999999999999,
       "allowedDeviation": 0.05
     },
     "splitIntegrity": {
@@ -9468,26 +9526,26 @@
       "negatives": 2,
       "complexBackground": 2,
       "sampleKinds": {
-        "reference": 14,
+        "reference": 15,
         "negative": 2,
         "other": 44,
         "complex_background": 1
       },
       "backgrounds": {
         "dark": 2,
-        "light": 14,
+        "light": 15,
         "unspecified": 45
       }
     },
     "gates": {
       "imageCount": {
         "ok": true,
-        "actual": 398,
+        "actual": 400,
         "required": 200
       },
       "validMaskCount": {
         "ok": true,
-        "actual": 2083,
+        "actual": 2092,
         "required": 800
       },
       "labelAuditPass": {
@@ -9502,7 +9560,7 @@
       },
       "splitRatioPass": {
         "ok": true,
-        "actual": 0.03693467336683416,
+        "actual": 0.03749999999999999,
         "required": 0.05
       },
       "testSplitHasNegative": {
@@ -9536,6 +9594,13 @@
       },
       {
         "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+        "ok": true,
+        "polygonCount": 5,
+        "errorCount": 0,
+        "warningCount": 0
+      },
+      {
+        "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
         "ok": true,
         "polygonCount": 5,
         "errorCount": 0,
@@ -10747,6 +10812,13 @@
       },
       {
         "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+        "ok": true,
+        "polygonCount": 4,
+        "errorCount": 0,
+        "warningCount": 0
+      },
+      {
+        "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
         "ok": true,
         "polygonCount": 4,
         "errorCount": 0,
@@ -12326,7 +12398,7 @@
           "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
           "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
           "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-          "recordCount": 398,
+          "recordCount": 400,
           "ok": true,
           "issues": [
             {
@@ -12353,16 +12425,16 @@
           "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
           "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
           "mode": "release",
-          "recordCount": 398,
+          "recordCount": 400,
           "counts": {
             "byOriginType": {
-              "reference": 76,
+              "reference": 78,
               "user": 21,
               "other": 300,
               "negative": 1
             },
             "byLicense": {
-              "user-authorized-commercial-training-and-long-term-regression": 76,
+              "user-authorized-commercial-training-and-long-term-regression": 78,
               "owner-authorized-commercial-training-and-regression": 21,
               "ai-generated-internal-training-candidate": 301
             }
@@ -12389,22 +12461,22 @@
           "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
           "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
           "totals": {
-            "images": 398,
-            "masks": 2083,
-            "validMasks": 2083,
+            "images": 400,
+            "masks": 2092,
+            "validMasks": 2092,
             "filesWithErrors": 0,
             "filesWithWarnings": 2
           },
           "splitCounts": {
-            "train": 292,
+            "train": 293,
             "val": 45,
-            "test": 61
+            "test": 62
           },
           "splitRatios": {
-            "train": 0.7336683417085427,
-            "val": 0.11306532663316583,
-            "test": 0.15326633165829145,
-            "maxDeviation": 0.03693467336683416,
+            "train": 0.7325,
+            "val": 0.1125,
+            "test": 0.155,
+            "maxDeviation": 0.03749999999999999,
             "allowedDeviation": 0.05
           },
           "splitIntegrity": {
@@ -12416,26 +12488,26 @@
             "negatives": 2,
             "complexBackground": 2,
             "sampleKinds": {
-              "reference": 14,
+              "reference": 15,
               "negative": 2,
               "other": 44,
               "complex_background": 1
             },
             "backgrounds": {
               "dark": 2,
-              "light": 14,
+              "light": 15,
               "unspecified": 45
             }
           },
           "gates": {
             "imageCount": {
               "ok": true,
-              "actual": 398,
+              "actual": 400,
               "required": 200
             },
             "validMaskCount": {
               "ok": true,
-              "actual": 2083,
+              "actual": 2092,
               "required": 800
             },
             "labelAuditPass": {
@@ -12450,7 +12522,7 @@
             },
             "splitRatioPass": {
               "ok": true,
-              "actual": 0.03693467336683416,
+              "actual": 0.03749999999999999,
               "required": 0.05
             },
             "testSplitHasNegative": {
@@ -12484,6 +12556,13 @@
             },
             {
               "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+              "ok": true,
+              "polygonCount": 5,
+              "errorCount": 0,
+              "warningCount": 0
+            },
+            {
+              "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
               "ok": true,
               "polygonCount": 5,
               "errorCount": 0,
@@ -13695,6 +13774,13 @@
             },
             {
               "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+              "ok": true,
+              "polygonCount": 4,
+              "errorCount": 0,
+              "warningCount": 0
+            },
+            {
+              "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
               "ok": true,
               "polygonCount": 4,
               "errorCount": 0,
@@ -15269,7 +15355,7 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-        "recordCount": 398,
+        "recordCount": 400,
         "ok": true,
         "issues": [
           {
@@ -15286,16 +15372,16 @@
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
         "mode": "release",
-        "recordCount": 398,
+        "recordCount": 400,
         "counts": {
           "byOriginType": {
-            "reference": 76,
+            "reference": 78,
             "user": 21,
             "other": 300,
             "negative": 1
           },
           "byLicense": {
-            "user-authorized-commercial-training-and-long-term-regression": 76,
+            "user-authorized-commercial-training-and-long-term-regression": 78,
             "owner-authorized-commercial-training-and-regression": 21,
             "ai-generated-internal-training-candidate": 301
           }
@@ -15308,22 +15394,22 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
         "totals": {
-          "images": 398,
-          "masks": 2083,
-          "validMasks": 2083,
+          "images": 400,
+          "masks": 2092,
+          "validMasks": 2092,
           "filesWithErrors": 0,
           "filesWithWarnings": 2
         },
         "splitCounts": {
-          "train": 292,
+          "train": 293,
           "val": 45,
-          "test": 61
+          "test": 62
         },
         "splitRatios": {
-          "train": 0.7336683417085427,
-          "val": 0.11306532663316583,
-          "test": 0.15326633165829145,
-          "maxDeviation": 0.03693467336683416,
+          "train": 0.7325,
+          "val": 0.1125,
+          "test": 0.155,
+          "maxDeviation": 0.03749999999999999,
           "allowedDeviation": 0.05
         },
         "splitIntegrity": {
@@ -15335,26 +15421,26 @@
           "negatives": 2,
           "complexBackground": 2,
           "sampleKinds": {
-            "reference": 14,
+            "reference": 15,
             "negative": 2,
             "other": 44,
             "complex_background": 1
           },
           "backgrounds": {
             "dark": 2,
-            "light": 14,
+            "light": 15,
             "unspecified": 45
           }
         },
         "gates": {
           "imageCount": {
             "ok": true,
-            "actual": 398,
+            "actual": 400,
             "required": 200
           },
           "validMaskCount": {
             "ok": true,
-            "actual": 2083,
+            "actual": 2092,
             "required": 800
           },
           "labelAuditPass": {
@@ -15369,7 +15455,7 @@
           },
           "splitRatioPass": {
             "ok": true,
-            "actual": 0.03693467336683416,
+            "actual": 0.03749999999999999,
             "required": 0.05
           },
           "testSplitHasNegative": {
@@ -15403,6 +15489,13 @@
           },
           {
             "fileName": "-2022-01-16-17.33.16_16788849361e4261e11255.jpg",
+            "ok": true,
+            "polygonCount": 5,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
             "ok": true,
             "polygonCount": 5,
             "errorCount": 0,
@@ -16614,6 +16707,13 @@
           },
           {
             "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+            "ok": true,
+            "polygonCount": 4,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
             "ok": true,
             "polygonCount": 4,
             "errorCount": 0,
