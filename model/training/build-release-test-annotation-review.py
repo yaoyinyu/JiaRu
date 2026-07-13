@@ -10,7 +10,12 @@ def build_parser() -> argparse.ArgumentParser:
         description="Build a machine-checkable human review report for release-test annotation candidates."
     )
     parser.add_argument("--intake", required=True)
-    parser.add_argument("--candidate-report", required=True)
+    parser.add_argument(
+        "--candidate-report",
+        required=True,
+        action="append",
+        help="Candidate report; repeat to layer reviewed repair runs over the original batch.",
+    )
     parser.add_argument("--review", required=True)
     parser.add_argument("--annotations", required=True)
     parser.add_argument("--output", required=True)
@@ -24,7 +29,6 @@ def load_json(path: Path) -> dict[str, object]:
 def main() -> None:
     args = build_parser().parse_args()
     intake = load_json(Path(args.intake))
-    candidate_report = load_json(Path(args.candidate_report))
     review = load_json(Path(args.review))
     annotation_dir = Path(args.annotations).resolve()
 
@@ -33,9 +37,14 @@ def main() -> None:
         for entry in intake["entries"]
         if entry["decision"] == "core"
     }
-    candidate_outputs = {
-        item["fileName"]: item for item in candidate_report["outputs"]
-    }
+    candidate_outputs = {}
+    candidate_report_paths = []
+    for candidate_report_arg in args.candidate_report:
+        candidate_report_path = Path(candidate_report_arg).resolve()
+        candidate_report_paths.append(str(candidate_report_path))
+        candidate_report = load_json(candidate_report_path)
+        for item in candidate_report["outputs"]:
+            candidate_outputs[item["fileName"]] = item
     pass_files = set(review["passFiles"])
     exclude_files = set(review["excludeFiles"])
     decided_files = pass_files | exclude_files
@@ -72,6 +81,17 @@ def main() -> None:
             if len(points) < 3:
                 errors.append(f"accepted annotation has invalid polygon: {file_name}")
                 break
+        candidate_output = candidate_outputs[file_name]
+        if candidate_output.get("polygonCount") != len(polygons):
+            errors.append(
+                f"accepted annotation count does not match latest candidate report: {file_name}"
+            )
+        if candidate_output.get("sourceGroup") != core_entries[file_name]["sourceGroup"]:
+            errors.append(
+                f"accepted candidate sourceGroup does not match intake: {file_name}"
+            )
+        if annotation["image"].get("sourceGroup") != core_entries[file_name]["sourceGroup"]:
+            errors.append(f"accepted annotation sourceGroup does not match intake: {file_name}")
         accepted_masks += len(polygons)
         accepted_source_groups.add(core_entries[file_name]["sourceGroup"])
 
@@ -100,6 +120,8 @@ def main() -> None:
         "excludeFiles": sorted(exclude_files),
         "excludeReasons": reasons,
         "reviewPolicy": review["reviewPolicy"],
+        "candidateReportPaths": candidate_report_paths,
+        "repairBatches": review.get("repairBatches", []),
         "errors": errors,
     }
     output = Path(args.output)
