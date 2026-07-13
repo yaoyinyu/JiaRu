@@ -1,3 +1,4 @@
+# 本文档应使用中文编辑
 <!-- BEGIN:nextjs-agent-rules -->
 # This is NOT the Next.js you know
 

@@ -38,11 +38,13 @@
   ],
   "excludeFiles": [
     "real_release_20260713_034.jpg",
+    "real_release_20260713_049.jpg",
     "real_release_20260713_053.jpg",
     "real_release_20260713_070.jpg"
   ],
   "excludeReasons": {
     "real_release_20260713_034.jpg": "source_image_has_a_nail_cropped_at_the_top_image_edge",
+    "real_release_20260713_049.jpg": "source_image_has_a_nail_cropped_at_the_bottom_image_edge",
     "real_release_20260713_053.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge",
     "real_release_20260713_070.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge"
   },
