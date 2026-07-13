@@ -1,6 +1,6 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-07-12
+更新日期：2026-07-13
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
 ## 标记规则
@@ -96,7 +96,7 @@ npm.cmd run build
 | `M3-T1-GATES` | 性能、纹理质量、发布测试集代表性与发布决策门禁 | ✅ PASS | 性能、客户端开销、直接可用率、污染率、形状保真、样本量和 release-test-split 硬门禁均有自动测试；发布决策会阻止不合格候选 |
 | `M3-T2-DESKTOP-SMOKE` | 桌面浏览器工程性能冒烟 | ✅ PASS | Chromium Worker + WebGPU 连续 20 次已预热实测：端到端 P50=63ms、P95=72ms、max=79ms；Worker P95=57ms；客户端开销 P95=17ms；20/20 均返回 4 个候选。仅证明合成基线工程性能，不代表正式模型质量 |
 | `M3-T3-DEVICE` | Windows、Android 与 iPhone 真机矩阵 | 🟠 PARTIAL | Windows Chromium WebGPU 已完成29次热性能和20次内存稳定性基准：P95=133.7ms，JS heap 峰值19.86MiB、首末增长1.69MiB，浏览器私有内存首末增长121.81MiB；Android/iPhone/iPad 真机仍等待执行 |
-| `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | ⏭ USER INPUT | 等待 `USER-DATA-01` 与 `USER-REVIEW-01`；发布门禁拒绝用单张 debug 图代替代表性测试集 |
+| `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | ⏭ USER INPUT | `USER-DATA-01`与`USER-REVIEW-01`已完成基础素材确认；当前等待`USER-TESTSET-01`、`USER-FAILURE-01`和Beta逐图质量审核，发布门禁拒绝用单张debug图代替代表性测试集 |
 | `M3-T5-BETA` | Beta 发布决策 | 🔴 HOLD | v6 已通过正式候选工程门，但仍缺代表性真实测试集、真机矩阵和人工质量验收，禁止提前 promotion |
 
 ## 正式发布与回滚
@@ -105,6 +105,7 @@ npm.cmd run build
 | --- | --- | --- | --- |
 | `REL-T1-TOOLCHAIN` | 模型登记、A/B 比较、发布决策、promotion、trace、历史与回滚 | ✅ PASS | 全量测试覆盖注册完整性、回滚候选、失败阻断、主动学习告警和 trace 证据传递 |
 | `REL-T1-CONFIG-GUARD` | 生产与 smoke manifest 配置隔离 | ✅ PASS | `.env.local.example`不再启用smoke覆盖，复制后使用正式manifest默认路径；自动测试拒绝任何启用状态的示例覆盖，防止smoke模型成为共享默认值 |
+| `REL-T1-COMPLETION-AUDIT` | 实施规范最终完成度机器审计 | ✅ PASS（HOLD生效） | 总门逐项读取规范清单、进度标记、数据授权、v6精度、代表性test、桌面/移动设备、失败案例、Beta质量和生产资产；当前3/10门通过并正确输出4类外部证据阻断，未错误promotion |
 | `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD | v6 已通过候选精度、资产、协议和桌面性能门；独立真实 test 仅 13 张，仍缺 100–200 张代表性测试集、移动真机矩阵和 Beta 人工质量门，暂不切换生产 manifest |
 
 ## 当前总体验收
