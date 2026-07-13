@@ -1,0 +1,48 @@
+{
+  "version": "nail-texture-consensus-review/v1",
+  "date": "2026-07-13",
+  "decision": "two_images_accepted_after_visual_review",
+  "inputs": {
+    "reviewImages": 37,
+    "primary": "v6/imgsz640/conf0.20",
+    "secondary": "v6/imgsz1024/conf0.10"
+  },
+  "thresholds": {
+    "minimumPolygonIou": 0.55,
+    "minimumPrimaryConfidence": 0.35,
+    "maximumImageAreaRatio": 0.15
+  },
+  "consensus": {
+    "imagesWithCandidates": 34,
+    "imagesWithoutCandidates": 3,
+    "candidateCount": 209
+  },
+  "visualReview": {
+    "acceptedImages": 2,
+    "acceptedMasks": 9,
+    "remainingReworkImages": 35,
+    "rejectionReasons": [
+      "missing_visible_nails",
+      "collage_duplicate_region",
+      "skin_or_background_contamination",
+      "partial_nail_mask"
+    ],
+    "accepted": [
+      {
+        "fileName": "-2022-01-16-19.13.13_130717900561e3feb6dea97.jpg",
+        "primaryCount": 7,
+        "secondaryCount": 6,
+        "matchedCount": 5,
+        "acceptedMaskCount": 5
+      },
+      {
+        "fileName": "more_-2021-07-28-4.20.38_1655999097610113f093c6a.jpg",
+        "primaryCount": 4,
+        "secondaryCount": 4,
+        "matchedCount": 4,
+        "acceptedMaskCount": 4
+      }
+    ]
+  },
+  "guardrail": "automatic consensus remains candidate-only until original-resolution visual review passes"
+}

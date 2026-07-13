@@ -93,6 +93,10 @@ model/exports/
 辅助材料/**/*.gif
 辅助材料/**/annotations/yolo-*-candidate-json/
 辅助材料/**/annotations/v*-rework-*-json/
+辅助材料/**/annotations/first-batch-*-json/
+辅助材料/**/annotations/v*-cross-resolution-consensus/
+辅助材料/**/annotations/vision-reviewed-plus-consensus-*-json/
+辅助材料/**/*cross-resolution-consensus-report.json
 
 # python cache
 __pycache__/
