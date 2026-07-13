@@ -5,14 +5,15 @@
   "ok": true,
   "counts": {
     "parents": 92,
-    "pass": 38,
-    "rework": 44,
-    "excluded": 10,
-    "acceptedMasks": 220,
+    "pass": 39,
+    "rework": 41,
+    "excluded": 12,
+    "acceptedMasks": 225,
     "acceptedSourceGroups": 12,
     "upstreamExcluded": 9
   },
   "passParentFiles": [
+    "real_release_20260713_001.jpg",
     "real_release_20260713_002.jpg",
     "real_release_20260713_003.jpg",
     "real_release_20260713_024.jpg",
@@ -53,7 +54,6 @@
     "real_release_20260713_092.jpg"
   ],
   "reworkParentFiles": [
-    "real_release_20260713_001.jpg",
     "real_release_20260713_004.jpg",
     "real_release_20260713_005.jpg",
     "real_release_20260713_006.jpg",
@@ -86,8 +86,6 @@
     "real_release_20260713_066.jpg",
     "real_release_20260713_072.jpg",
     "real_release_20260713_076.jpg",
-    "real_release_20260713_081.jpg",
-    "real_release_20260713_083.jpg",
     "real_release_20260713_093.jpg",
     "real_release_20260713_094.jpg",
     "real_release_20260713_095.jpg",
@@ -105,6 +103,8 @@
     "real_release_20260713_053.jpg",
     "real_release_20260713_069.jpg",
     "real_release_20260713_070.jpg",
+    "real_release_20260713_081.jpg",
+    "real_release_20260713_083.jpg",
     "real_release_20260713_084.jpg",
     "real_release_20260713_085.jpg",
     "real_release_20260713_088.jpg",
