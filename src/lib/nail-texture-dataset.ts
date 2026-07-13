@@ -158,6 +158,7 @@ export interface SourceAuditResult {
 
 export interface NailTextureIntakeBatchItem {
   fileName: string;
+  sourceGroup?: string;
   originRef?: string;
   notes?: string;
 }
@@ -181,7 +182,8 @@ export interface IntakeBatchValidationIssue {
     | "missing_default_origin_ref"
     | "empty_items"
     | "missing_file_name"
-    | "duplicate_file_name";
+    | "duplicate_file_name"
+    | "invalid_item_source_group";
   severity: "error" | "warning";
   message: string;
   fileName?: string;
@@ -543,6 +545,14 @@ export function validateIntakeBatchManifest(
       });
     }
     seen.add(item.fileName);
+    if (item.sourceGroup !== undefined && !item.sourceGroup.trim()) {
+      issues.push({
+        code: "invalid_item_source_group",
+        severity: "error",
+        message: `item sourceGroup must be non-empty when provided: ${item.fileName}`,
+        fileName: item.fileName,
+      });
+    }
   }
 
   return {

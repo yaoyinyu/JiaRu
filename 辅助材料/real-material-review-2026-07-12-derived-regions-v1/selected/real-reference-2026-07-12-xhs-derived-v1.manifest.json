@@ -1,0 +1,52 @@
+{
+  "version": "nail-texture-intake-batch/v1",
+  "sourceGroup": "real-reference-2026-07-12-xhs-derived-v1",
+  "originType": "reference",
+  "license": "user-authorized-commercial-training-and-long-term-regression",
+  "defaultOriginRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12",
+  "copyImagesToDataset": true,
+  "items": [
+    {
+      "fileName": "14b762d1b5be-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-14b762d1b5be",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12; derived parent=⋆˚波点美甲🐾⸝⸝꙳˙⋆._9_鱿鱼大王是也_来自小红书网页版.jpg; parentSha256=d49f22175b9b417093baa753b021fe90de8f87c666c25539eb56e61adfdb1afa; region=main-hand; normalizedBox=0.16,0.28,0.62,0.56",
+      "notes": "derived-region; review=all_eligible_complete_nails_pass_original_resolution_overlay_review; acceptedMasks=5; authorizationInheritedFrom=real-reference-2026-07-12-batch-02.manifest.json"
+    },
+    {
+      "fileName": "32a451fadbf7-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-32a451fadbf7",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12; derived parent=⋆˚波点美甲🐾⸝⸝꙳˙⋆._8_鱿鱼大王是也_来自小红书网页版.jpg; parentSha256=9ff011f422bd1be332896cf0a192f899ccf0cdd9ad1c9d80babc7fb1bb20e3c6; region=main-hand; normalizedBox=0.16,0.3,0.49,0.58",
+      "notes": "derived-region; review=all_eligible_complete_nails_pass_original_resolution_overlay_review; acceptedMasks=3; authorizationInheritedFrom=real-reference-2026-07-12-batch-02.manifest.json"
+    },
+    {
+      "fileName": "332ca3451619-main-hands.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-332ca3451619",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12; derived parent=⋆˚波点美甲🐾⸝⸝꙳˙⋆._2_鱿鱼大王是也_来自小红书网页版.jpg; parentSha256=ea4c45593733be600da50dc343c8227f55b5faf247d6b8407b4fdd4800efdb89; region=main-hands; normalizedBox=0,0.15,0.74,0.65",
+      "notes": "derived-region; review=all_eligible_complete_nails_pass_original_resolution_overlay_review; acceptedMasks=8; authorizationInheritedFrom=real-reference-2026-07-12-batch-02.manifest.json"
+    },
+    {
+      "fileName": "8756ef65a6c0-main-hands.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-8756ef65a6c0",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12; derived parent=⋆˚波点美甲🐾⸝⸝꙳˙⋆._7_鱿鱼大王是也_来自小红书网页版.jpg; parentSha256=076af38e62dcfbb8760ad479932284e14fc6f4758dbc95dd445ad9d3a0c92c16; region=main-hands; normalizedBox=0.12,0.33,0.64,0.57",
+      "notes": "derived-region; review=all_eligible_complete_nails_pass_original_resolution_overlay_review; acceptedMasks=8; authorizationInheritedFrom=real-reference-2026-07-12-batch-02.manifest.json"
+    },
+    {
+      "fileName": "e191a73ac390-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-e191a73ac390",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12; derived parent=⋆˚波点美甲🐾⸝⸝꙳˙⋆._5_鱿鱼大王是也_来自小红书网页版.jpg; parentSha256=bd4c4d9c80af77a8257cae7392cb07fc8f75dd89b268a64e529e5a64415502aa; region=main-hand; normalizedBox=0.1,0.3,0.59,0.61",
+      "notes": "derived-region; review=all_eligible_complete_nails_pass_original_resolution_overlay_review; acceptedMasks=3; authorizationInheritedFrom=real-reference-2026-07-12-batch-02.manifest.json"
+    },
+    {
+      "fileName": "e73df1f51425-main-hands.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-e73df1f51425",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12; derived parent=⋆˚波点美甲🐾⸝⸝꙳˙⋆._4_鱿鱼大王是也_来自小红书网页版.jpg; parentSha256=8bebada08da0cdfe94c420a6dd310f13acc3473896586e71032c58e3f12c4aaf; region=main-hands; normalizedBox=0.02,0.18,0.73,0.52",
+      "notes": "derived-region; review=all_eligible_complete_nails_pass_original_resolution_overlay_review; acceptedMasks=9; authorizationInheritedFrom=real-reference-2026-07-12-batch-02.manifest.json"
+    },
+    {
+      "fileName": "fdc2d2ee537f-main-hand.png",
+      "sourceGroup": "real-reference-2026-07-12-xhs-crops-v1:parent-fdc2d2ee537f",
+      "originRef": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_12; derived parent=⋆˚波点美甲🐾⸝⸝꙳˙⋆._6_鱿鱼大王是也_来自小红书网页版.jpg; parentSha256=f05eba0385408bb69d15d8b14234d1dff5731ad3bab572603aaf67352eb411b0; region=main-hand; normalizedBox=0.14,0.3,0.56,0.51",
+      "notes": "derived-region; review=all_eligible_complete_nails_pass_original_resolution_overlay_review; acceptedMasks=5; authorizationInheritedFrom=real-reference-2026-07-12-batch-02.manifest.json"
+    }
+  ]
+}

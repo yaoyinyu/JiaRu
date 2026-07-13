@@ -3,22 +3,22 @@
   "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
   "totals": {
-    "images": 402,
-    "masks": 2101,
-    "validMasks": 2101,
+    "images": 409,
+    "masks": 2142,
+    "validMasks": 2142,
     "filesWithErrors": 0,
     "filesWithWarnings": 2
   },
   "splitCounts": {
-    "train": 294,
-    "val": 45,
+    "train": 300,
+    "val": 46,
     "test": 63
   },
   "splitRatios": {
-    "train": 0.7313432835820896,
-    "val": 0.11194029850746269,
-    "test": 0.15671641791044777,
-    "maxDeviation": 0.038059701492537304,
+    "train": 0.7334963325183375,
+    "val": 0.11246943765281174,
+    "test": 0.15403422982885084,
+    "maxDeviation": 0.037530562347188254,
     "allowedDeviation": 0.05
   },
   "splitIntegrity": {
@@ -45,12 +45,12 @@
   "gates": {
     "imageCount": {
       "ok": true,
-      "actual": 402,
+      "actual": 409,
       "required": 200
     },
     "validMaskCount": {
       "ok": true,
-      "actual": 2101,
+      "actual": 2142,
       "required": 800
     },
     "labelAuditPass": {
@@ -65,7 +65,7 @@
     },
     "splitRatioPass": {
       "ok": true,
-      "actual": 0.038059701492537304,
+      "actual": 0.037530562347188254,
       "required": 0.05
     },
     "testSplitHasNegative": {
@@ -308,6 +308,13 @@
       "warningCount": 0
     },
     {
+      "fileName": "14b762d1b5be-main-hand.png",
+      "ok": true,
+      "polygonCount": 5,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
       "fileName": "19e1ff892bc03296309118564517395c.jpg",
       "ok": true,
       "polygonCount": 9,
@@ -318,6 +325,20 @@
       "fileName": "2021-01-29-3.37.23_16034556916013bb8382be0_166587987661e431aac3c38.jpg",
       "ok": true,
       "polygonCount": 4,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "32a451fadbf7-main-hand.png",
+      "ok": true,
+      "polygonCount": 3,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "332ca3451619-main-hands.png",
+      "ok": true,
+      "polygonCount": 8,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -360,6 +381,13 @@
       "fileName": "586430bda51171eda6acac9b78044e86.jpg",
       "ok": true,
       "polygonCount": 10,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "8756ef65a6c0-main-hands.png",
+      "ok": true,
+      "polygonCount": 8,
       "errorCount": 0,
       "warningCount": 0
     },
@@ -1232,6 +1260,20 @@
       "warningCount": 0
     },
     {
+      "fileName": "e191a73ac390-main-hand.png",
+      "ok": true,
+      "polygonCount": 3,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "e73df1f51425-main-hands.png",
+      "ok": true,
+      "polygonCount": 9,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
       "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
       "ok": true,
       "polygonCount": 10,
@@ -1256,6 +1298,13 @@
       "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
       "ok": true,
       "polygonCount": 8,
+      "errorCount": 0,
+      "warningCount": 0
+    },
+    {
+      "fileName": "fdc2d2ee537f-main-hand.png",
+      "ok": true,
+      "polygonCount": 5,
       "errorCount": 0,
       "warningCount": 0
     },

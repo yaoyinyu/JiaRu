@@ -97,8 +97,10 @@ async function readAcceptedFileNames(reviewCsv?: string): Promise<Set<string> | 
 function resolveSourceGroup(
   batchSourceGroup: string,
   fileName: string,
-  splitReviewedCollections: boolean
+  splitReviewedCollections: boolean,
+  itemSourceGroup?: string
 ): string {
+  if (itemSourceGroup?.trim()) return itemSourceGroup.trim();
   if (!splitReviewedCollections) return batchSourceGroup;
   const normalized = fileName.toLowerCase();
   if (normalized.startsWith("deerplanet.tw_")) {
@@ -229,7 +231,8 @@ async function main() {
     const sourceGroup = resolveSourceGroup(
       manifest.sourceGroup,
       fileName,
-      acceptedFileNames !== null
+      acceptedFileNames !== null,
+      item.sourceGroup
     );
     document.image.sourceGroup = sourceGroup;
     await writeFile(targetAnnotationPath, JSON.stringify(document, null, 2) + "\n", "utf8");
