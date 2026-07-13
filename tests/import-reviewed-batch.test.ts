@@ -190,7 +190,10 @@ test("import-reviewed-batch can filter manifest items by pass rows and use an an
       license: "user-authorized-commercial-training-and-long-term-regression",
       defaultOriginRef: "user supplied",
       copyImagesToDataset: true,
-      items: [{ fileName: "pass.jpg" }, { fileName: "rework.jpg" }],
+      items: [
+        { fileName: "pass.jpg", sourceGroup: "parent-stable:pass" },
+        { fileName: "rework.jpg", sourceGroup: "parent-stable:rework" },
+      ],
     }),
     "utf8"
   );
@@ -228,5 +231,6 @@ test("import-reviewed-batch can filter manifest items by pass rows and use an an
   await access(path.join(datasetRoot, "annotations", "raw-json", "pass.json"));
   await assert.rejects(access(path.join(datasetRoot, "annotations", "raw-json", "rework.json")));
   const sourcesCsv = await readFile(path.join(datasetRoot, "metadata", "sources.csv"), "utf8");
-  assert.match(sourcesCsv, /filter-batch:other/);
+  assert.match(sourcesCsv, /parent-stable:pass/);
+  assert.doesNotMatch(sourcesCsv, /parent-stable:rework/);
 });

@@ -51,6 +51,20 @@ test("validateIntakeBatchManifest rejects duplicate and missing file names", () 
   assert.ok(result.issues.some((issue) => issue.code === "duplicate_file_name"));
 });
 
+test("validateIntakeBatchManifest accepts per-item groups and rejects blank overrides", () => {
+  assert.equal(
+    validateIntakeBatchManifest(
+      sampleManifest({ items: [{ fileName: "derived.png", sourceGroup: "parent-stable:one" }] })
+    ).ok,
+    true
+  );
+  const rejected = validateIntakeBatchManifest(
+    sampleManifest({ items: [{ fileName: "derived.png", sourceGroup: "  " }] })
+  );
+  assert.equal(rejected.ok, false);
+  assert.ok(rejected.issues.some((issue) => issue.code === "invalid_item_source_group"));
+});
+
 test("validate-intake-batch script reports missing and unlisted files", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-intake-batch-"));
   const imageDir = path.join(root, "images");

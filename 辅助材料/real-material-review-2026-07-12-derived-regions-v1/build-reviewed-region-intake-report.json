@@ -1,0 +1,40 @@
+{
+  "ok": true,
+  "version": "nail-texture-reviewed-region-intake-build/v1",
+  "reviewManifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\xhs-main-photo-crops-v1-annotation-review.json",
+  "sourceManifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\real-reference-2026-07-12-batch-02.manifest.json",
+  "regionReportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\xhs-main-photo-regions-v1-report.json",
+  "outputRoot": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12-derived-regions-v1",
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12-derived-regions-v1\\selected\\real-reference-2026-07-12-xhs-derived-v1.manifest.json",
+  "reviewCsvPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12-derived-regions-v1\\review.csv",
+  "inheritedLicense": "user-authorized-commercial-training-and-long-term-regression",
+  "acceptedCount": 7,
+  "acceptedMaskCount": 41,
+  "copiedImages": [
+    "14b762d1b5be-main-hand.png",
+    "32a451fadbf7-main-hand.png",
+    "332ca3451619-main-hands.png",
+    "8756ef65a6c0-main-hands.png",
+    "e191a73ac390-main-hand.png",
+    "e73df1f51425-main-hands.png",
+    "fdc2d2ee537f-main-hand.png"
+  ],
+  "copiedAnnotations": [
+    "14b762d1b5be-main-hand.json",
+    "32a451fadbf7-main-hand.json",
+    "332ca3451619-main-hands.json",
+    "8756ef65a6c0-main-hands.json",
+    "e191a73ac390-main-hand.json",
+    "e73df1f51425-main-hands.json",
+    "fdc2d2ee537f-main-hand.json"
+  ],
+  "sourceGroups": [
+    "real-reference-2026-07-12-xhs-crops-v1:parent-14b762d1b5be",
+    "real-reference-2026-07-12-xhs-crops-v1:parent-32a451fadbf7",
+    "real-reference-2026-07-12-xhs-crops-v1:parent-332ca3451619",
+    "real-reference-2026-07-12-xhs-crops-v1:parent-8756ef65a6c0",
+    "real-reference-2026-07-12-xhs-crops-v1:parent-e191a73ac390",
+    "real-reference-2026-07-12-xhs-crops-v1:parent-e73df1f51425",
+    "real-reference-2026-07-12-xhs-crops-v1:parent-fdc2d2ee537f"
+  ]
+}

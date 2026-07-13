@@ -1,0 +1,72 @@
+{
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12-derived-regions-v1\\selected\\real-reference-2026-07-12-xhs-derived-v1.manifest.json",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12-derived-regions-v1\\selected\\images",
+  "reportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12-derived-regions-v1\\selected\\real-reference-2026-07-12-xhs-derived-v1.manifest.report.json",
+  "ok": true,
+  "sourceGroup": "real-reference-2026-07-12-xhs-derived-v1",
+  "originType": "reference",
+  "itemCount": 7,
+  "missingFiles": [],
+  "unsafeFiles": [],
+  "unlistedFiles": [],
+  "invalidImageFiles": [],
+  "imageChecks": [
+    {
+      "fileName": "14b762d1b5be-main-hand.png",
+      "ok": true,
+      "width": 497,
+      "height": 453,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "32a451fadbf7-main-hand.png",
+      "ok": true,
+      "width": 356,
+      "height": 454,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "332ca3451619-main-hands.png",
+      "ok": true,
+      "width": 799,
+      "height": 810,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "8756ef65a6c0-main-hands.png",
+      "ok": true,
+      "width": 561,
+      "height": 388,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "e191a73ac390-main-hand.png",
+      "ok": true,
+      "width": 529,
+      "height": 502,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "e73df1f51425-main-hands.png",
+      "ok": true,
+      "width": 766,
+      "height": 550,
+      "format": "png",
+      "channels": 3
+    },
+    {
+      "fileName": "fdc2d2ee537f-main-hand.png",
+      "ok": true,
+      "width": 454,
+      "height": 340,
+      "format": "png",
+      "channels": 3
+    }
+  ],
+  "issues": []
+}

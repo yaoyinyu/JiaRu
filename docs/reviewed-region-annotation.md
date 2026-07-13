@@ -14,4 +14,18 @@ node --no-warnings --experimental-strip-types model/training/verify-reviewed-reg
 
 审计器要求区域提取报告中的每个派生图都有唯一决定，并校验派生图SHA-256、尺寸、父图稳定`sourceGroup`、标注数量、标签、多边形边界和最小面积。只有`pass`项允许进入后续导入流程；`rework`和`drop`项的`acceptedMaskCount`必须为0。
 
-2026-07-13首批结果：9张全部完成审核，7张/41个mask通过，2张返修，审计0错误。通过项尚未导入正式数据集。
+2026-07-13首批结果：9张全部完成审核，7张/41个mask通过，2张返修，审计0错误。通过项已由`build-reviewed-region-intake-batch.ts`构建独立intake批次，逐图继承父图稳定`sourceGroup`和原批次授权；正式集更新为409图/2142 mask、split=300/46/63，来源、标签、物化和训练readiness均通过。
+
+构建与导入命令：
+
+```powershell
+node --no-warnings --experimental-strip-types model/training/build-reviewed-region-intake-batch.ts `
+  --review-manifest 辅助材料/real-material-review-2026-07-12/review/xhs-main-photo-crops-v1-annotation-review.json `
+  --source-manifest 辅助材料/real-material-review-2026-07-12/real-reference-2026-07-12-batch-02.manifest.json `
+  --output-root 辅助材料/real-material-review-2026-07-12-derived-regions-v1 `
+  --batch-source-group real-reference-2026-07-12-xhs-derived-v1
+
+node --no-warnings --experimental-strip-types model/training/import-reviewed-batch.ts `
+  --root-dir 辅助材料/real-material-review-2026-07-12-derived-regions-v1 `
+  --review-csv 辅助材料/real-material-review-2026-07-12-derived-regions-v1/review.csv
+```
