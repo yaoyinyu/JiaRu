@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-multipoint-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_024.jpg",
+    "real_release_20260713_075.jpg"
+  ],
+  "acceptedMaskCount": 10,
+  "reworkFiles": [],
+  "excludeFiles": [],
+  "reviewNotes": {
+    "real_release_20260713_024.jpg": "five_single_masks_cover_all_fully_visible_long_nails_and_three_dimensional_decorations_without_skin_or_background_contamination",
+    "real_release_20260713_075.jpg": "five_single_masks_cover_all_fully_visible_low_contrast_nude_nails_after_directed_cuticle_skin_and_tissue_negatives"
+  }
+}
