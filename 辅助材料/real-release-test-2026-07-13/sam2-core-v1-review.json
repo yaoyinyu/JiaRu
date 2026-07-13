@@ -41,7 +41,8 @@
     "real_release_20260713_077.jpg",
     "real_release_20260713_024.jpg",
     "real_release_20260713_075.jpg",
-    "real_release_20260713_073.jpg"
+    "real_release_20260713_073.jpg",
+    "real_release_20260713_025.jpg"
   ],
   "excludeFiles": [
     "real_release_20260713_023.jpg",
@@ -158,6 +159,17 @@
       "passCount": 1,
       "acceptedMaskCount": 9,
       "promptStrategy": "two_hand_full_axis_positive_points_with_directed_adjacent_skin_negatives"
+    },
+    {
+      "id": "sam2-core-repair-v12",
+      "manifest": "sam2-core-repair-v12-manifest.json",
+      "prompts": "sam2-core-repair-v12-prompts.json",
+      "candidateReport": "sam2-core-repair-v12-report.json",
+      "review": "sam2-core-repair-v12-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "reworkCount": 1,
+      "promptStrategy": "full_axis_multipoint_rebuild_with_strict_original_resolution_thumb_skin_rejection"
     }
   ]
 }
