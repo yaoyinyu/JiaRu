@@ -27,7 +27,6 @@ export default function ArTryonPage() {
     null, null, null, null, null,
   ]);
   const [activeFinger, setActiveFinger] = useState(0);
-  const [isStarted, setIsStarted] = useState(false);
   const [mode, setMode] = useState<"color" | "texture">("color");
   const [showCropper, setShowCropper] = useState(false);
   const [showNailPicker, setShowNailPicker] = useState(false);
@@ -198,26 +197,7 @@ export default function ArTryonPage() {
     >
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
         <section className="overflow-hidden rounded-[30px] border border-white/80 bg-white/55 p-3 shadow-[0_26px_80px_rgba(71,49,60,.12)] backdrop-blur-2xl sm:p-5">
-        {!isStarted && (
-          <div className="mx-auto flex w-full max-w-md flex-col items-center gap-4 py-8">
-            <div className="flex h-40 w-40 items-center justify-center rounded-full bg-gradient-to-br from-pink-100 to-purple-100 shadow-inner">
-              <span className="text-6xl">💅</span>
-            </div>
-            <button
-              onClick={() => setIsStarted(true)}
-              className="h-14 w-full rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#D4749D] text-base font-medium text-white shadow-md transition-all hover:shadow-lg active:scale-[0.98]"
-            >
-              📷 开启摄像头
-            </button>
-            <p className="text-center text-xs text-gray-300">
-              需要摄像头权限 · 仅在本地处理，不录制也不会上传。
-            </p>
-          </div>
-        )}
-
-        {isStarted && (
           <ArView nailColors={nailColors} nailTextures={nailTextures} mode={mode} />
-        )}
         </section>
         <aside className="rounded-[28px] border border-white/80 bg-white/68 p-5 shadow-[0_22px_65px_rgba(91,59,74,.09)] backdrop-blur-2xl xl:sticky xl:top-24">
           <div className="mb-5">
