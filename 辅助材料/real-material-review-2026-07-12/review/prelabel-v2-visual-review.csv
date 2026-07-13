@@ -39,7 +39,7 @@
 "38","deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024.jpg","pass","positive","9","candidate count matches all visible nails; high-resolution overlay visually reviewed"
 "39","deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg","pass","positive","7","candidate count matches all visible nails; high-resolution overlay visually reviewed"
 "40","deerplanet.tw_145086907_2510572082582724_2097671085045523348_n_141663314260de933ec1057.jpg","rework","pending","7","manual polygon completion or correction required"
-"41","deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg","rework","pending","11","manual polygon completion or correction required"
+"41","deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg","pass","positive","8","eight complete nail masks passed original-resolution SAM2 overlay review; cropped edge nails excluded"
 "42","deerplanet.tw_175700750_1444053485937863_2401750176912024858_n_34742466160de9338f2c94.jpg","rework","pending","11","manual polygon completion or correction required"
 "43","deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.jpg","pass","positive","6","candidate count matches all visible nails; high-resolution overlay visually reviewed"
 "44","deerplanet.tw_189738136_817755759122324_6566260232266868061_n_196209916560de93328e40c.jpg","rework","pending","7","manual polygon completion or correction required"

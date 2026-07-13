@@ -6,7 +6,7 @@
   "reviewCsv": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\prelabel-v2-visual-review.csv",
   "filteredImport": true,
   "manifestItemCount": 113,
-  "importedItemCount": 79,
+  "importedItemCount": 80,
   "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\reviewed-import-real-reference-2026-07-12-batch-02.report.json",
   "copiedImages": [
     "-_1400308954697837b667255.jpg",
@@ -44,6 +44,7 @@
     "348727405_619879160089485_4861463540350829565_n_23718304664c225fec9a52-819x1024.jpg",
     "deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024.jpg",
     "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
+    "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
     "deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.jpg",
     "deerplanet.tw_193141622_4041042375983974_8169574045117868081_n_83576624060de933404296.jpg",
     "deerplanet.tw_67534239_509480953151105_1912938229533455502_n_12200508160de934620f58.jpg",
@@ -125,6 +126,7 @@
     "348727405_619879160089485_4861463540350829565_n_23718304664c225fec9a52-819x1024.json",
     "deerplanet.tw_120516149_3861436280551785_3364750311768836175_n_100294165160decbac6b4fa-1024x1024.json",
     "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.json",
+    "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.json",
     "deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.json",
     "deerplanet.tw_193141622_4041042375983974_8169574045117868081_n_83576624060de933404296.json",
     "deerplanet.tw_67534239_509480953151105_1912938229533455502_n_12200508160de934620f58.json",
@@ -380,6 +382,12 @@
       "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\annotations\\raw-json\\deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.json",
       "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\images\\raw\\deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
       "polygonCount": 7
+    },
+    {
+      "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\annotations\\raw-json\\deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.json",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\images\\raw\\deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+      "polygonCount": 8
     },
     {
       "fileName": "deerplanet.tw_188633747_249473336958765_5048620885585747592_n_148810791860de93366d616.jpg",
@@ -653,8 +661,8 @@
       "stdout": {
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
-        "synced": 401,
-        "records": 401
+        "synced": 402,
+        "records": 402
       }
     },
     {
@@ -664,7 +672,7 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-        "recordCount": 401,
+        "recordCount": 402,
         "ok": true,
         "issues": [
           {
@@ -684,7 +692,7 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "splitPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\split.json",
         "counts": {
-          "train": 293,
+          "train": 294,
           "val": 45,
           "test": 63
         }
@@ -695,7 +703,7 @@
       "ok": true,
       "stdout": {
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
-        "files": 401,
+        "files": 402,
         "auditCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\label-audit.csv",
         "errorCount": 0,
         "warningCount": 2
@@ -706,7 +714,7 @@
       "ok": true,
       "stdout": {
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
-        "converted": 401,
+        "converted": 402,
         "outputRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\labels-yolo-seg"
       }
     },
@@ -718,22 +726,22 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
         "totals": {
-          "images": 401,
-          "masks": 2093,
-          "validMasks": 2093,
+          "images": 402,
+          "masks": 2101,
+          "validMasks": 2101,
           "filesWithErrors": 0,
           "filesWithWarnings": 2
         },
         "splitCounts": {
-          "train": 293,
+          "train": 294,
           "val": 45,
           "test": 63
         },
         "splitRatios": {
-          "train": 0.7306733167082294,
-          "val": 0.11221945137157108,
-          "test": 0.1571072319201995,
-          "maxDeviation": 0.03778054862842892,
+          "train": 0.7313432835820896,
+          "val": 0.11194029850746269,
+          "test": 0.15671641791044777,
+          "maxDeviation": 0.038059701492537304,
           "allowedDeviation": 0.05
         },
         "splitIntegrity": {
@@ -760,12 +768,12 @@
         "gates": {
           "imageCount": {
             "ok": true,
-            "actual": 401,
+            "actual": 402,
             "required": 200
           },
           "validMaskCount": {
             "ok": true,
-            "actual": 2093,
+            "actual": 2101,
             "required": 800
           },
           "labelAuditPass": {
@@ -780,7 +788,7 @@
           },
           "splitRatioPass": {
             "ok": true,
-            "actual": 0.03778054862842892,
+            "actual": 0.038059701492537304,
             "required": 0.05
           },
           "testSplitHasNegative": {
@@ -1845,6 +1853,13 @@
             "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
             "ok": true,
             "polygonCount": 7,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+            "ok": true,
+            "polygonCount": 8,
             "errorCount": 0,
             "warningCount": 0
           },
@@ -3629,7 +3644,7 @@
               "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
               "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
               "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-              "recordCount": 401,
+              "recordCount": 402,
               "ok": true,
               "issues": [
                 {
@@ -3656,16 +3671,16 @@
               "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
               "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
               "mode": "release",
-              "recordCount": 401,
+              "recordCount": 402,
               "counts": {
                 "byOriginType": {
-                  "reference": 79,
+                  "reference": 80,
                   "user": 21,
                   "other": 300,
                   "negative": 1
                 },
                 "byLicense": {
-                  "user-authorized-commercial-training-and-long-term-regression": 79,
+                  "user-authorized-commercial-training-and-long-term-regression": 80,
                   "owner-authorized-commercial-training-and-regression": 21,
                   "ai-generated-internal-training-candidate": 301
                 }
@@ -3692,22 +3707,22 @@
               "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
               "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
               "totals": {
-                "images": 401,
-                "masks": 2093,
-                "validMasks": 2093,
+                "images": 402,
+                "masks": 2101,
+                "validMasks": 2101,
                 "filesWithErrors": 0,
                 "filesWithWarnings": 2
               },
               "splitCounts": {
-                "train": 293,
+                "train": 294,
                 "val": 45,
                 "test": 63
               },
               "splitRatios": {
-                "train": 0.7306733167082294,
-                "val": 0.11221945137157108,
-                "test": 0.1571072319201995,
-                "maxDeviation": 0.03778054862842892,
+                "train": 0.7313432835820896,
+                "val": 0.11194029850746269,
+                "test": 0.15671641791044777,
+                "maxDeviation": 0.038059701492537304,
                 "allowedDeviation": 0.05
               },
               "splitIntegrity": {
@@ -3734,12 +3749,12 @@
               "gates": {
                 "imageCount": {
                   "ok": true,
-                  "actual": 401,
+                  "actual": 402,
                   "required": 200
                 },
                 "validMaskCount": {
                   "ok": true,
-                  "actual": 2093,
+                  "actual": 2101,
                   "required": 800
                 },
                 "labelAuditPass": {
@@ -3754,7 +3769,7 @@
                 },
                 "splitRatioPass": {
                   "ok": true,
-                  "actual": 0.03778054862842892,
+                  "actual": 0.038059701492537304,
                   "required": 0.05
                 },
                 "testSplitHasNegative": {
@@ -4819,6 +4834,13 @@
                   "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
                   "ok": true,
                   "polygonCount": 7,
+                  "errorCount": 0,
+                  "warningCount": 0
+                },
+                {
+                  "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+                  "ok": true,
+                  "polygonCount": 8,
                   "errorCount": 0,
                   "warningCount": 0
                 },
@@ -6594,7 +6616,7 @@
             "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
             "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
             "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-            "recordCount": 401,
+            "recordCount": 402,
             "ok": true,
             "issues": [
               {
@@ -6611,16 +6633,16 @@
             "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
             "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
             "mode": "release",
-            "recordCount": 401,
+            "recordCount": 402,
             "counts": {
               "byOriginType": {
-                "reference": 79,
+                "reference": 80,
                 "user": 21,
                 "other": 300,
                 "negative": 1
               },
               "byLicense": {
-                "user-authorized-commercial-training-and-long-term-regression": 79,
+                "user-authorized-commercial-training-and-long-term-regression": 80,
                 "owner-authorized-commercial-training-and-regression": 21,
                 "ai-generated-internal-training-candidate": 301
               }
@@ -6633,22 +6655,22 @@
             "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
             "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
             "totals": {
-              "images": 401,
-              "masks": 2093,
-              "validMasks": 2093,
+              "images": 402,
+              "masks": 2101,
+              "validMasks": 2101,
               "filesWithErrors": 0,
               "filesWithWarnings": 2
             },
             "splitCounts": {
-              "train": 293,
+              "train": 294,
               "val": 45,
               "test": 63
             },
             "splitRatios": {
-              "train": 0.7306733167082294,
-              "val": 0.11221945137157108,
-              "test": 0.1571072319201995,
-              "maxDeviation": 0.03778054862842892,
+              "train": 0.7313432835820896,
+              "val": 0.11194029850746269,
+              "test": 0.15671641791044777,
+              "maxDeviation": 0.038059701492537304,
               "allowedDeviation": 0.05
             },
             "splitIntegrity": {
@@ -6675,12 +6697,12 @@
             "gates": {
               "imageCount": {
                 "ok": true,
-                "actual": 401,
+                "actual": 402,
                 "required": 200
               },
               "validMaskCount": {
                 "ok": true,
-                "actual": 2093,
+                "actual": 2101,
                 "required": 800
               },
               "labelAuditPass": {
@@ -6695,7 +6717,7 @@
               },
               "splitRatioPass": {
                 "ok": true,
-                "actual": 0.03778054862842892,
+                "actual": 0.038059701492537304,
                 "required": 0.05
               },
               "testSplitHasNegative": {
@@ -7760,6 +7782,13 @@
                 "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
                 "ok": true,
                 "polygonCount": 7,
+                "errorCount": 0,
+                "warningCount": 0
+              },
+              {
+                "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+                "ok": true,
+                "polygonCount": 8,
                 "errorCount": 0,
                 "warningCount": 0
               },
@@ -9531,22 +9560,22 @@
     "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
     "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
     "totals": {
-      "images": 401,
-      "masks": 2093,
-      "validMasks": 2093,
+      "images": 402,
+      "masks": 2101,
+      "validMasks": 2101,
       "filesWithErrors": 0,
       "filesWithWarnings": 2
     },
     "splitCounts": {
-      "train": 293,
+      "train": 294,
       "val": 45,
       "test": 63
     },
     "splitRatios": {
-      "train": 0.7306733167082294,
-      "val": 0.11221945137157108,
-      "test": 0.1571072319201995,
-      "maxDeviation": 0.03778054862842892,
+      "train": 0.7313432835820896,
+      "val": 0.11194029850746269,
+      "test": 0.15671641791044777,
+      "maxDeviation": 0.038059701492537304,
       "allowedDeviation": 0.05
     },
     "splitIntegrity": {
@@ -9573,12 +9602,12 @@
     "gates": {
       "imageCount": {
         "ok": true,
-        "actual": 401,
+        "actual": 402,
         "required": 200
       },
       "validMaskCount": {
         "ok": true,
-        "actual": 2093,
+        "actual": 2101,
         "required": 800
       },
       "labelAuditPass": {
@@ -9593,7 +9622,7 @@
       },
       "splitRatioPass": {
         "ok": true,
-        "actual": 0.03778054862842892,
+        "actual": 0.038059701492537304,
         "required": 0.05
       },
       "testSplitHasNegative": {
@@ -10658,6 +10687,13 @@
         "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
         "ok": true,
         "polygonCount": 7,
+        "errorCount": 0,
+        "warningCount": 0
+      },
+      {
+        "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+        "ok": true,
+        "polygonCount": 8,
         "errorCount": 0,
         "warningCount": 0
       },
@@ -12438,7 +12474,7 @@
           "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
           "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
           "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-          "recordCount": 401,
+          "recordCount": 402,
           "ok": true,
           "issues": [
             {
@@ -12465,16 +12501,16 @@
           "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
           "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
           "mode": "release",
-          "recordCount": 401,
+          "recordCount": 402,
           "counts": {
             "byOriginType": {
-              "reference": 79,
+              "reference": 80,
               "user": 21,
               "other": 300,
               "negative": 1
             },
             "byLicense": {
-              "user-authorized-commercial-training-and-long-term-regression": 79,
+              "user-authorized-commercial-training-and-long-term-regression": 80,
               "owner-authorized-commercial-training-and-regression": 21,
               "ai-generated-internal-training-candidate": 301
             }
@@ -12501,22 +12537,22 @@
           "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
           "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
           "totals": {
-            "images": 401,
-            "masks": 2093,
-            "validMasks": 2093,
+            "images": 402,
+            "masks": 2101,
+            "validMasks": 2101,
             "filesWithErrors": 0,
             "filesWithWarnings": 2
           },
           "splitCounts": {
-            "train": 293,
+            "train": 294,
             "val": 45,
             "test": 63
           },
           "splitRatios": {
-            "train": 0.7306733167082294,
-            "val": 0.11221945137157108,
-            "test": 0.1571072319201995,
-            "maxDeviation": 0.03778054862842892,
+            "train": 0.7313432835820896,
+            "val": 0.11194029850746269,
+            "test": 0.15671641791044777,
+            "maxDeviation": 0.038059701492537304,
             "allowedDeviation": 0.05
           },
           "splitIntegrity": {
@@ -12543,12 +12579,12 @@
           "gates": {
             "imageCount": {
               "ok": true,
-              "actual": 401,
+              "actual": 402,
               "required": 200
             },
             "validMaskCount": {
               "ok": true,
-              "actual": 2093,
+              "actual": 2101,
               "required": 800
             },
             "labelAuditPass": {
@@ -12563,7 +12599,7 @@
             },
             "splitRatioPass": {
               "ok": true,
-              "actual": 0.03778054862842892,
+              "actual": 0.038059701492537304,
               "required": 0.05
             },
             "testSplitHasNegative": {
@@ -13628,6 +13664,13 @@
               "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
               "ok": true,
               "polygonCount": 7,
+              "errorCount": 0,
+              "warningCount": 0
+            },
+            {
+              "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+              "ok": true,
+              "polygonCount": 8,
               "errorCount": 0,
               "warningCount": 0
             },
@@ -15403,7 +15446,7 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources-audit.json",
-        "recordCount": 401,
+        "recordCount": 402,
         "ok": true,
         "issues": [
           {
@@ -15420,16 +15463,16 @@
         "sourcesCsvPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-source-authorization-release.json",
         "mode": "release",
-        "recordCount": 401,
+        "recordCount": 402,
         "counts": {
           "byOriginType": {
-            "reference": 79,
+            "reference": 80,
             "user": 21,
             "other": 300,
             "negative": 1
           },
           "byLicense": {
-            "user-authorized-commercial-training-and-long-term-regression": 79,
+            "user-authorized-commercial-training-and-long-term-regression": 80,
             "owner-authorized-commercial-training-and-regression": 21,
             "ai-generated-internal-training-candidate": 301
           }
@@ -15442,22 +15485,22 @@
         "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
         "reportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\phase1-readiness.json",
         "totals": {
-          "images": 401,
-          "masks": 2093,
-          "validMasks": 2093,
+          "images": 402,
+          "masks": 2101,
+          "validMasks": 2101,
           "filesWithErrors": 0,
           "filesWithWarnings": 2
         },
         "splitCounts": {
-          "train": 293,
+          "train": 294,
           "val": 45,
           "test": 63
         },
         "splitRatios": {
-          "train": 0.7306733167082294,
-          "val": 0.11221945137157108,
-          "test": 0.1571072319201995,
-          "maxDeviation": 0.03778054862842892,
+          "train": 0.7313432835820896,
+          "val": 0.11194029850746269,
+          "test": 0.15671641791044777,
+          "maxDeviation": 0.038059701492537304,
           "allowedDeviation": 0.05
         },
         "splitIntegrity": {
@@ -15484,12 +15527,12 @@
         "gates": {
           "imageCount": {
             "ok": true,
-            "actual": 401,
+            "actual": 402,
             "required": 200
           },
           "validMaskCount": {
             "ok": true,
-            "actual": 2093,
+            "actual": 2101,
             "required": 800
           },
           "labelAuditPass": {
@@ -15504,7 +15547,7 @@
           },
           "splitRatioPass": {
             "ok": true,
-            "actual": 0.03778054862842892,
+            "actual": 0.038059701492537304,
             "required": 0.05
           },
           "testSplitHasNegative": {
@@ -16569,6 +16612,13 @@
             "fileName": "deerplanet.tw_121264425_837994320073719_5475674184564050761_n_126648212060de9344a9b80.jpg",
             "ok": true,
             "polygonCount": 7,
+            "errorCount": 0,
+            "warningCount": 0
+          },
+          {
+            "fileName": "deerplanet.tw_155353151_122258159900330_1666666284421481962_n_116766677460de933c27167.jpg",
+            "ok": true,
+            "polygonCount": 8,
             "errorCount": 0,
             "warningCount": 0
           },
