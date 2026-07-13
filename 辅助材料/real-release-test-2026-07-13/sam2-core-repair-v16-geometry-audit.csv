@@ -1,0 +1,15 @@
+﻿fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+real_release_20260713_047.jpg,1,sam2-core-repair-v16,pass,,0.6494,0.9,True,"[135.0, 652.0, 243.0, 735.0]",0.0
+real_release_20260713_047.jpg,2,sam2-core-repair-v16,pass,,0.5514,1.0,True,"[337.0, 537.0, 456.0, 656.0]",0.0526
+real_release_20260713_047.jpg,3,sam2-core-repair-v16,pass,,0.4942,1.0,True,"[437.0, 582.0, 537.0, 722.0]",0.0526
+real_release_20260713_047.jpg,4,sam2-core-repair-v16,pass,,0.5902,0.9937,True,"[507.0, 689.0, 602.0, 829.0]",0.0376
+real_release_20260713_047.jpg,5,sam2-core-repair-v16,pass,,0.3885,0.9298,True,"[552.0, 826.0, 617.0, 996.0]",0.1213
+real_release_20260713_047.jpg,6,sam2-core-repair-v16,pass,,0.4178,1.0,True,"[760.0, 491.0, 875.0, 600.0]",0.0
+real_release_20260713_047.jpg,7,sam2-core-repair-v16,pass,,0.4309,1.0,True,"[639.0, 608.0, 772.0, 737.0]",0.0401
+real_release_20260713_047.jpg,8,sam2-core-repair-v16,pass,,0.4622,1.0,True,"[603.0, 722.0, 729.0, 864.0]",0.0401
+real_release_20260713_047.jpg,9,sam2-core-repair-v16,pass,,0.4147,0.9667,True,"[592.0, 866.0, 692.0, 1056.0]",0.1213
+real_release_20260713_001.jpg,1,sam2-core-repair-v16,pass,,0.3158,1.0,True,"[285.0, 470.0, 412.0, 541.0]",0.0
+real_release_20260713_001.jpg,2,sam2-core-repair-v16,pass,,0.5069,1.0,True,"[434.0, 414.0, 508.0, 508.0]",0.0
+real_release_20260713_001.jpg,3,sam2-core-repair-v16,pass,,0.586,1.0,True,"[396.0, 762.0, 494.0, 891.0]",0.0
+real_release_20260713_001.jpg,4,sam2-core-repair-v16,pass,,0.609,1.0,True,"[552.0, 694.0, 666.0, 825.0]",0.0
+real_release_20260713_001.jpg,5,sam2-core-repair-v16,pass,,0.4993,0.9935,True,"[782.0, 626.0, 856.0, 688.0]",0.0
