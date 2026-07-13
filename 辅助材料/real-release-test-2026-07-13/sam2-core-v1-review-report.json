@@ -6,10 +6,10 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 22,
-    "rework": 34,
-    "excluded": 1,
-    "acceptedMasks": 127,
+    "pass": 25,
+    "rework": 29,
+    "excluded": 3,
+    "acceptedMasks": 145,
     "acceptedSourceGroups": 9,
     "stressPending": 35
   },
@@ -22,9 +22,12 @@
     "real_release_20260713_030.jpg",
     "real_release_20260713_031.jpg",
     "real_release_20260713_032.jpg",
+    "real_release_20260713_033.jpg",
     "real_release_20260713_043.jpg",
     "real_release_20260713_044.jpg",
+    "real_release_20260713_045.jpg",
     "real_release_20260713_046.jpg",
+    "real_release_20260713_048.jpg",
     "real_release_20260713_050.jpg",
     "real_release_20260713_064.jpg",
     "real_release_20260713_068.jpg",
@@ -45,11 +48,7 @@
     "real_release_20260713_024.jpg",
     "real_release_20260713_025.jpg",
     "real_release_20260713_026.jpg",
-    "real_release_20260713_033.jpg",
-    "real_release_20260713_034.jpg",
-    "real_release_20260713_045.jpg",
     "real_release_20260713_047.jpg",
-    "real_release_20260713_048.jpg",
     "real_release_20260713_049.jpg",
     "real_release_20260713_051.jpg",
     "real_release_20260713_052.jpg",
@@ -57,7 +56,6 @@
     "real_release_20260713_065.jpg",
     "real_release_20260713_067.jpg",
     "real_release_20260713_069.jpg",
-    "real_release_20260713_070.jpg",
     "real_release_20260713_071.jpg",
     "real_release_20260713_072.jpg",
     "real_release_20260713_073.jpg",
@@ -74,10 +72,14 @@
     "real_release_20260713_091.jpg"
   ],
   "excludeFiles": [
-    "real_release_20260713_053.jpg"
+    "real_release_20260713_034.jpg",
+    "real_release_20260713_053.jpg",
+    "real_release_20260713_070.jpg"
   ],
   "excludeReasons": {
-    "real_release_20260713_053.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge"
+    "real_release_20260713_034.jpg": "source_image_has_a_nail_cropped_at_the_top_image_edge",
+    "real_release_20260713_053.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge",
+    "real_release_20260713_070.jpg": "source_image_has_a_nail_cropped_at_the_left_image_edge"
   },
   "reviewPolicy": {
     "requireEveryVisibleNail": true,
@@ -91,7 +93,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v2-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v3-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v4-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v5-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v5-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v6-report.json"
   ],
   "repairBatches": [
     {
@@ -129,6 +132,15 @@
       "review": "sam2-core-repair-v5-review.json",
       "passCount": 3,
       "acceptedMaskCount": 15
+    },
+    {
+      "id": "sam2-core-repair-v6",
+      "manifest": "sam2-core-repair-v6-manifest.json",
+      "prompts": "sam2-core-repair-v6-prompts.json",
+      "candidateReport": "sam2-core-repair-v6-report.json",
+      "review": "sam2-core-repair-v6-review.json",
+      "passCount": 3,
+      "acceptedMaskCount": 18
     }
   ],
   "errors": []

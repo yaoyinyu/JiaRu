@@ -1,0 +1,421 @@
+{
+  "schemaVersion": 1,
+  "source": "human-reviewed-keep-drop-add-repair",
+  "decision": "sam_repair_candidate_only_not_test_truth",
+  "sourcePromptFile": "sam2-core-v1-prompts.json",
+  "sourcePromptSha256": "5f4b697a20ef9e11bbaa773cae192d1fdb91e5fbdde797b0933e8f52757b86b1",
+  "repairManifestFile": "sam2-core-repair-v6-manifest.json",
+  "repairManifestSha256": "1bbb231d361a8eacb4b71511b92d554010906b2360b20444ed481efc20acabec",
+  "imageCount": 7,
+  "promptCount": 37,
+  "images": [
+    {
+      "fileName": "real_release_20260713_004.jpg",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "boxes": [
+        [
+          0.4772222222222222,
+          0.39813888888888893,
+          0.5922222222222222,
+          0.48588888888888887
+        ],
+        [
+          0.4991481481481482,
+          0.49469444444444444,
+          0.6221481481481481,
+          0.5816944444444444
+        ],
+        [
+          0.5325555555555556,
+          0.5820000000000001,
+          0.6535555555555556,
+          0.6555
+        ],
+        [
+          0.42496296296296293,
+          0.2961666666666667,
+          0.525962962962963,
+          0.3809166666666667
+        ],
+        [
+          0.27,
+          0.34,
+          0.405,
+          0.43
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "center-negative-corners"
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "center-negative-corners"
+        ],
+        "reviewReason": "retry_left_thumb_with_negative_corners_to_suppress_skin_fragment"
+      }
+    },
+    {
+      "fileName": "real_release_20260713_022.jpg",
+      "sourceGroup": "xhs-aaa458e163a2",
+      "boxes": [
+        [
+          0.39396296296296296,
+          0.34929178470254957,
+          0.4819629629629629,
+          0.498441926345609
+        ],
+        [
+          0.14762962962962964,
+          0.43586402266288954,
+          0.23662962962962963,
+          0.5613031161473088
+        ],
+        [
+          0.26966666666666667,
+          0.37552407932011334,
+          0.36366666666666664,
+          0.5239093484419264
+        ],
+        [
+          0.40362962962962967,
+          0.5988951841359773,
+          0.5806296296296297,
+          0.6822662889518414
+        ],
+        [
+          0.555,
+          0.355,
+          0.655,
+          0.5
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "center-negative-corners"
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "center-negative-corners"
+        ],
+        "reviewReason": "retry_upper_right_nail_with_full_surface_box_and_negative_corners"
+      }
+    },
+    {
+      "fileName": "real_release_20260713_033.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "boxes": [
+        [
+          0.4000740740740741,
+          0.4973888888888889,
+          0.523074074074074,
+          0.6428888888888888
+        ],
+        [
+          0.6275185185185186,
+          0.41525,
+          0.7845185185185185,
+          0.491
+        ],
+        [
+          0.4957037037037037,
+          0.28358333333333335,
+          0.6617037037037037,
+          0.3705833333333333
+        ],
+        [
+          0.1942222222222222,
+          0.7998333333333333,
+          0.27522222222222226,
+          0.9168333333333334
+        ],
+        [
+          0.6022962962962963,
+          0.5423611111111111,
+          0.7152962962962963,
+          0.6548611111111111
+        ],
+        [
+          0.27959259259259256,
+          0.6069166666666667,
+          0.3805925925925926,
+          0.7389166666666667
+        ],
+        [
+          0.5371111111111111,
+          0.16305555555555556,
+          0.6851111111111111,
+          0.24180555555555555
+        ],
+        [
+          0.665,
+          0.02,
+          0.97,
+          0.11
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "center-negative-corners"
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          8
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "center-negative-corners"
+        ],
+        "reviewReason": "remove_long_finger_skin_false_positive_and_add_missing_top_brown_nail"
+      }
+    },
+    {
+      "fileName": "real_release_20260713_045.jpg",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "boxes": [
+        [
+          0.6248148148148148,
+          0.3920555555555555,
+          0.7548148148148148,
+          0.5503055555555556
+        ],
+        [
+          0.1265185185185185,
+          0.6441388888888888,
+          0.33551851851851855,
+          0.764888888888889
+        ],
+        [
+          0.7742222222222221,
+          0.3998888888888889,
+          0.9702222222222221,
+          0.49663888888888885
+        ],
+        [
+          0.5157037037037038,
+          0.5498611111111111,
+          0.7167037037037036,
+          0.7223611111111111
+        ],
+        [
+          0.395,
+          0.635,
+          0.58,
+          0.795
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "center-negative-corners"
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          5
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "center-negative-corners"
+        ],
+        "reviewReason": "replace_fragmented_lower_middle_decorated_nail"
+      }
+    },
+    {
+      "fileName": "real_release_20260713_048.jpg",
+      "sourceGroup": "xhs-83cdca812139",
+      "boxes": [
+        [
+          0.39966666666666667,
+          0.39109278350515464,
+          0.5586666666666666,
+          0.5480824742268041
+        ],
+        [
+          0.3875185185185185,
+          0.792618556701031,
+          0.5495185185185185,
+          0.9362474226804124
+        ],
+        [
+          0.575,
+          0.285,
+          0.715,
+          0.53
+        ],
+        [
+          0.62,
+          0.535,
+          0.82,
+          0.69
+        ],
+        [
+          0.37,
+          0.595,
+          0.58,
+          0.79
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "center-negative-corners",
+        "center-negative-corners",
+        "center-negative-corners"
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          4
+        ],
+        "addedBoxCount": 3,
+        "addedPromptModes": [
+          "center-negative-corners",
+          "center-negative-corners",
+          "center-negative-corners"
+        ],
+        "reviewReason": "replace_three_duplicate_overlapping_nail_prompt_pairs_with_single_full_surface_prompts"
+      }
+    },
+    {
+      "fileName": "real_release_20260713_071.jpg",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "boxes": [
+        [
+          0.6098148148148148,
+          0.5992222222222222,
+          0.6948148148148148,
+          0.7702222222222221
+        ],
+        [
+          0.4838148148148148,
+          0.4374166666666667,
+          0.6208148148148148,
+          0.5896666666666667
+        ],
+        [
+          0.38729629629629625,
+          0.3635555555555555,
+          0.5802962962962963,
+          0.5225555555555556
+        ],
+        [
+          0.15,
+          0.3,
+          0.415,
+          0.5
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "center-negative-corners"
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "center-negative-corners"
+        ],
+        "reviewReason": "replace_partial_left_pink_nail_prompt_with_full_surface_prompt"
+      }
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "boxes": [
+        [
+          0.5994444444444444,
+          0.34709229701596117,
+          0.7644444444444445,
+          0.5127272727272727
+        ],
+        [
+          0.4295555555555556,
+          0.22417765440666204,
+          0.6315555555555556,
+          0.35458709229701596
+        ],
+        [
+          0.6313333333333334,
+          0.6074392782789729,
+          0.7353333333333333,
+          0.7700763358778626
+        ],
+        [
+          0.6454814814814814,
+          0.13140874392782792,
+          0.8174814814814815,
+          0.29329632199861205
+        ],
+        [
+          0.17,
+          0.225,
+          0.35,
+          0.39
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "center-negative-corners"
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "center-negative-corners"
+        ],
+        "reviewReason": "retry_left_thumb_with_negative_corners_to_suppress_white_sleeve"
+      }
+    }
+  ]
+}
