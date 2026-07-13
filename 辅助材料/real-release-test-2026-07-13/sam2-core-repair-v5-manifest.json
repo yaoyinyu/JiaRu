@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-fifth-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_004.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.275, 0.345, 0.405, 0.425]],
+      "addPromptModes": ["box-center"],
+      "reviewReason": "replace_left_thumb_prompt_that_included_skin_and_background_fragment"
+    },
+    {
+      "fileName": "real_release_20260713_022.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.56, 0.375, 0.64, 0.47]],
+      "addPromptModes": ["box-center"],
+      "reviewReason": "replace_fragmented_upper_right_nail_prompt"
+    },
+    {
+      "fileName": "real_release_20260713_043.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "addPromptModes": [],
+      "reviewReason": "remove_large_upper_left_finger_skin_false_positive"
+    },
+    {
+      "fileName": "real_release_20260713_044.jpg",
+      "keepPromptIndices": [1, 2, 4, 5],
+      "addBoxes": [[0.35, 0.595, 0.495, 0.735]],
+      "addPromptModes": ["box-center"],
+      "reviewReason": "replace_fragmented_lower_middle_nail_prompt"
+    },
+    {
+      "fileName": "real_release_20260713_064.jpg",
+      "keepPromptIndices": [2, 4, 5],
+      "addBoxes": [[0.315, 0.21, 0.515, 0.37], [0.57, 0.61, 0.76, 0.8]],
+      "addPromptModes": ["box-center", "box-center"],
+      "reviewReason": "merge_duplicate_top_left_nail_prompts_and_add_missing_bottom_right_nail"
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "addPromptModes": [],
+      "reviewReason": "remove_thin_non_nail_false_positive_near_chain"
+    }
+  ]
+}
