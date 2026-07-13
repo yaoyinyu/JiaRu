@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-13T05:59:26.013Z",
+  "generatedAt": "2026-07-13T06:24:10.243Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -38,8 +38,8 @@
     "gateCount": 10,
     "passedGates": 3,
     "failedGates": 7,
-    "progressMarkerCount": 45,
-    "passMarkerCount": 34,
+    "progressMarkerCount": 46,
+    "passMarkerCount": 35,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -221,6 +221,10 @@
         {
           "checked": true,
           "text": "建立实施规范最终完成度机器审计，逐项核验规范勾选、进度标记、数据/精度、代表性test、桌面与四类移动设备、失败案例、Beta质量及生产资产；缺证据时必须输出HOLD和明确责任方。"
+        },
+        {
+          "checked": true,
+          "text": "建立真机、Beta和用户失败案例证据构建器与CSV模板；机器校验原始报告PASS、样本量、用户审核、图片存在、SHA-256、来源组、枚举值和直接可用率，用户无需手写内部JSON。"
         }
       ]
     },

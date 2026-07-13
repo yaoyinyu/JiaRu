@@ -106,6 +106,7 @@ npm.cmd run build
 | `REL-T1-TOOLCHAIN` | 模型登记、A/B 比较、发布决策、promotion、trace、历史与回滚 | ✅ PASS | 全量测试覆盖注册完整性、回滚候选、失败阻断、主动学习告警和 trace 证据传递 |
 | `REL-T1-CONFIG-GUARD` | 生产与 smoke manifest 配置隔离 | ✅ PASS | `.env.local.example`不再启用smoke覆盖，复制后使用正式manifest默认路径；自动测试拒绝任何启用状态的示例覆盖，防止smoke模型成为共享默认值 |
 | `REL-T1-COMPLETION-AUDIT` | 实施规范最终完成度机器审计 | ✅ PASS（HOLD生效） | 总门逐项读取规范清单、进度标记、数据授权、v6精度、代表性test、桌面/移动设备、失败案例、Beta质量和生产资产；当前3/10门通过并正确输出4类外部证据阻断，未错误promotion |
+| `REL-T1-ACCEPTANCE-EVIDENCE` | 真机、Beta与失败案例外部证据构建器 | ✅ PASS | 真机聚合器拒绝未通过或少于20次的性能/内存报告；Beta CSV强制100张、用户审核、SHA-256和85%直接可用率；失败案例CSV校验图片、来源组、类别、严重度和哈希；成功/拒绝专项6/6通过 |
 | `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD | v6 已通过候选精度、资产、协议和桌面性能门；独立真实 test 仅 13 张，仍缺 100–200 张代表性测试集、移动真机矩阵和 Beta 人工质量门，暂不切换生产 manifest |
 
 ## 当前总体验收
