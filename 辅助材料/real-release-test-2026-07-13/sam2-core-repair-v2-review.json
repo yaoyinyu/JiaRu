@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-second-pass",
+  "decision": "human_reviewed_repair_candidates_not_test_truth",
+  "passFiles": [
+    "real_release_20260713_003.jpg",
+    "real_release_20260713_046.jpg",
+    "real_release_20260713_086.jpg",
+    "real_release_20260713_087.jpg"
+  ],
+  "reworkFiles": [
+    "real_release_20260713_090.jpg"
+  ],
+  "excludeFiles": [],
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilReleaseTestFreeze": true
+  },
+  "reworkReasons": {
+    "real_release_20260713_090.jpg": "one_nail_boundary_remains_jagged_and_incomplete_near_occluding_fabric"
+  }
+}

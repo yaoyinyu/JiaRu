@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "batchId": "real-release-test-2026-07-13-v1",
+  "decision": "human_reviewed_candidates_not_frozen_test_truth",
+  "ok": true,
+  "counts": {
+    "parents": 92,
+    "pass": 14,
+    "rework": 77,
+    "excluded": 1,
+    "acceptedMasks": 89,
+    "acceptedSourceGroups": 7,
+    "upstreamExcluded": 9
+  },
+  "passParentFiles": [
+    "real_release_20260713_003.jpg",
+    "real_release_20260713_028.jpg",
+    "real_release_20260713_029.jpg",
+    "real_release_20260713_030.jpg",
+    "real_release_20260713_032.jpg",
+    "real_release_20260713_036.jpg",
+    "real_release_20260713_038.jpg",
+    "real_release_20260713_046.jpg",
+    "real_release_20260713_068.jpg",
+    "real_release_20260713_074.jpg",
+    "real_release_20260713_086.jpg",
+    "real_release_20260713_087.jpg",
+    "real_release_20260713_089.jpg",
+    "real_release_20260713_092.jpg"
+  ],
+  "reworkParentFiles": [
+    "real_release_20260713_001.jpg",
+    "real_release_20260713_002.jpg",
+    "real_release_20260713_004.jpg",
+    "real_release_20260713_005.jpg",
+    "real_release_20260713_006.jpg",
+    "real_release_20260713_007.jpg",
+    "real_release_20260713_008.jpg",
+    "real_release_20260713_009.jpg",
+    "real_release_20260713_010.jpg",
+    "real_release_20260713_011.jpg",
+    "real_release_20260713_012.jpg",
+    "real_release_20260713_022.jpg",
+    "real_release_20260713_023.jpg",
+    "real_release_20260713_024.jpg",
+    "real_release_20260713_025.jpg",
+    "real_release_20260713_026.jpg",
+    "real_release_20260713_027.jpg",
+    "real_release_20260713_031.jpg",
+    "real_release_20260713_033.jpg",
+    "real_release_20260713_034.jpg",
+    "real_release_20260713_035.jpg",
+    "real_release_20260713_037.jpg",
+    "real_release_20260713_039.jpg",
+    "real_release_20260713_040.jpg",
+    "real_release_20260713_041.jpg",
+    "real_release_20260713_042.jpg",
+    "real_release_20260713_043.jpg",
+    "real_release_20260713_044.jpg",
+    "real_release_20260713_045.jpg",
+    "real_release_20260713_047.jpg",
+    "real_release_20260713_048.jpg",
+    "real_release_20260713_049.jpg",
+    "real_release_20260713_050.jpg",
+    "real_release_20260713_051.jpg",
+    "real_release_20260713_052.jpg",
+    "real_release_20260713_054.jpg",
+    "real_release_20260713_055.jpg",
+    "real_release_20260713_056.jpg",
+    "real_release_20260713_057.jpg",
+    "real_release_20260713_058.jpg",
+    "real_release_20260713_059.jpg",
+    "real_release_20260713_060.jpg",
+    "real_release_20260713_061.jpg",
+    "real_release_20260713_062.jpg",
+    "real_release_20260713_063.jpg",
+    "real_release_20260713_064.jpg",
+    "real_release_20260713_065.jpg",
+    "real_release_20260713_066.jpg",
+    "real_release_20260713_067.jpg",
+    "real_release_20260713_069.jpg",
+    "real_release_20260713_070.jpg",
+    "real_release_20260713_071.jpg",
+    "real_release_20260713_072.jpg",
+    "real_release_20260713_073.jpg",
+    "real_release_20260713_075.jpg",
+    "real_release_20260713_076.jpg",
+    "real_release_20260713_077.jpg",
+    "real_release_20260713_078.jpg",
+    "real_release_20260713_079.jpg",
+    "real_release_20260713_080.jpg",
+    "real_release_20260713_081.jpg",
+    "real_release_20260713_082.jpg",
+    "real_release_20260713_083.jpg",
+    "real_release_20260713_084.jpg",
+    "real_release_20260713_085.jpg",
+    "real_release_20260713_088.jpg",
+    "real_release_20260713_090.jpg",
+    "real_release_20260713_091.jpg",
+    "real_release_20260713_093.jpg",
+    "real_release_20260713_094.jpg",
+    "real_release_20260713_095.jpg",
+    "real_release_20260713_096.jpg",
+    "real_release_20260713_097.jpg",
+    "real_release_20260713_098.jpg",
+    "real_release_20260713_099.jpg",
+    "real_release_20260713_100.jpg",
+    "real_release_20260713_101.jpg"
+  ],
+  "excludeParentFiles": [
+    "real_release_20260713_053.jpg"
+  ],
+  "upstreamExcludeFiles": [
+    "real_release_20260713_013.jpg",
+    "real_release_20260713_014.jpg",
+    "real_release_20260713_015.jpg",
+    "real_release_20260713_016.jpg",
+    "real_release_20260713_017.jpg",
+    "real_release_20260713_018.jpg",
+    "real_release_20260713_019.jpg",
+    "real_release_20260713_020.jpg",
+    "real_release_20260713_021.jpg"
+  ],
+  "stressDerivedTrace": [
+    {
+      "parentFileName": "real_release_20260713_005.jpg",
+      "derivedFileName": "51a2eded5eda-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-51a2eded5eda"
+    },
+    {
+      "parentFileName": "real_release_20260713_006.jpg",
+      "derivedFileName": "a4a440e7e2fc-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-a4a440e7e2fc"
+    },
+    {
+      "parentFileName": "real_release_20260713_007.jpg",
+      "derivedFileName": "7a92b2c08d0f-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-7a92b2c08d0f"
+    },
+    {
+      "parentFileName": "real_release_20260713_008.jpg",
+      "derivedFileName": "6d835166ab9e-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6d835166ab9e"
+    },
+    {
+      "parentFileName": "real_release_20260713_009.jpg",
+      "derivedFileName": "b548e28934d4-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b548e28934d4"
+    },
+    {
+      "parentFileName": "real_release_20260713_010.jpg",
+      "derivedFileName": "6be466dc2f6d-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6be466dc2f6d"
+    },
+    {
+      "parentFileName": "real_release_20260713_011.jpg",
+      "derivedFileName": "f8c543cdd6ff-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f8c543cdd6ff"
+    },
+    {
+      "parentFileName": "real_release_20260713_012.jpg",
+      "derivedFileName": "066207e1c3ef-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-066207e1c3ef"
+    },
+    {
+      "parentFileName": "real_release_20260713_035.jpg",
+      "derivedFileName": "d17ab88ac58a-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d17ab88ac58a"
+    },
+    {
+      "parentFileName": "real_release_20260713_036.jpg",
+      "derivedFileName": "c6edb7fea814-primary.png",
+      "decision": "pass",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c6edb7fea814"
+    },
+    {
+      "parentFileName": "real_release_20260713_037.jpg",
+      "derivedFileName": "86ac688f2753-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-86ac688f2753"
+    },
+    {
+      "parentFileName": "real_release_20260713_038.jpg",
+      "derivedFileName": "b8f91eb08fc3-primary.png",
+      "decision": "pass",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b8f91eb08fc3"
+    },
+    {
+      "parentFileName": "real_release_20260713_039.jpg",
+      "derivedFileName": "3e9b2b906fda-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-3e9b2b906fda"
+    },
+    {
+      "parentFileName": "real_release_20260713_040.jpg",
+      "derivedFileName": "e826babe1b3a-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e826babe1b3a"
+    },
+    {
+      "parentFileName": "real_release_20260713_041.jpg",
+      "derivedFileName": "c0e03d680edc-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c0e03d680edc"
+    },
+    {
+      "parentFileName": "real_release_20260713_042.jpg",
+      "derivedFileName": "9da2611ded25-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-9da2611ded25"
+    },
+    {
+      "parentFileName": "real_release_20260713_055.jpg",
+      "derivedFileName": "6df0c9c91f81-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6df0c9c91f81"
+    },
+    {
+      "parentFileName": "real_release_20260713_056.jpg",
+      "derivedFileName": "406bc158c41d-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-406bc158c41d"
+    },
+    {
+      "parentFileName": "real_release_20260713_057.jpg",
+      "derivedFileName": "f0752db2009c-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f0752db2009c"
+    },
+    {
+      "parentFileName": "real_release_20260713_058.jpg",
+      "derivedFileName": "d970653d6111-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d970653d6111"
+    },
+    {
+      "parentFileName": "real_release_20260713_059.jpg",
+      "derivedFileName": "d9518b2dc889-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d9518b2dc889"
+    },
+    {
+      "parentFileName": "real_release_20260713_060.jpg",
+      "derivedFileName": "223683d91dc4-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-223683d91dc4"
+    },
+    {
+      "parentFileName": "real_release_20260713_061.jpg",
+      "derivedFileName": "2c793788bdec-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-2c793788bdec"
+    },
+    {
+      "parentFileName": "real_release_20260713_062.jpg",
+      "derivedFileName": "6d9a192d4168-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6d9a192d4168"
+    },
+    {
+      "parentFileName": "real_release_20260713_063.jpg",
+      "derivedFileName": "f8a25604ea58-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f8a25604ea58"
+    },
+    {
+      "parentFileName": "real_release_20260713_066.jpg",
+      "derivedFileName": "e0ee33ff3706-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e0ee33ff3706"
+    },
+    {
+      "parentFileName": "real_release_20260713_093.jpg",
+      "derivedFileName": "cf0c5a421a71-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-cf0c5a421a71"
+    },
+    {
+      "parentFileName": "real_release_20260713_094.jpg",
+      "derivedFileName": "956d94380abf-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-956d94380abf"
+    },
+    {
+      "parentFileName": "real_release_20260713_095.jpg",
+      "derivedFileName": "b1184e010679-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b1184e010679"
+    },
+    {
+      "parentFileName": "real_release_20260713_096.jpg",
+      "derivedFileName": "bc6b23d6a1ce-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-bc6b23d6a1ce"
+    },
+    {
+      "parentFileName": "real_release_20260713_097.jpg",
+      "derivedFileName": "02f011058d1f-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-02f011058d1f"
+    },
+    {
+      "parentFileName": "real_release_20260713_098.jpg",
+      "derivedFileName": "c541feb05c54-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c541feb05c54"
+    },
+    {
+      "parentFileName": "real_release_20260713_099.jpg",
+      "derivedFileName": "0c2bd7cc24b7-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-0c2bd7cc24b7"
+    },
+    {
+      "parentFileName": "real_release_20260713_100.jpg",
+      "derivedFileName": "424a9b7d8798-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-424a9b7d8798"
+    },
+    {
+      "parentFileName": "real_release_20260713_101.jpg",
+      "derivedFileName": "eac9a2f87f4c-primary.png",
+      "decision": "rework",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c"
+    }
+  ],
+  "authorization": {
+    "authorizedUses": [
+      "independent-release-test",
+      "long-term-regression"
+    ],
+    "trainingUse": "prohibited"
+  }
+}
