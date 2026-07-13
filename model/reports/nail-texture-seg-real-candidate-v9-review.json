@@ -1,0 +1,56 @@
+{
+  "version": "nail-texture-candidate-review/v1",
+  "date": "2026-07-13",
+  "candidate": "nail-texture-seg-real-candidate-v9",
+  "decision": "reject",
+  "dataset": {
+    "images": 106,
+    "masks": 722,
+    "trainValTest": [76, 17, 13],
+    "testImages": 13,
+    "testMasks": 102,
+    "frozenTestSha256": "7af1a82c8b20608b486ed7e744366a842a722f86519e49ba0b34cf922984059e",
+    "addedReviewedDerivatives": {
+      "images": 7,
+      "masks": 41,
+      "trainValTest": [6, 1, 0]
+    },
+    "sourceIsolation": {
+      "testHashUnchanged": true,
+      "additionsExcludedFromTest": true,
+      "sourceGroupsSingleSplit": true,
+      "noFilenameCollisions": true
+    }
+  },
+  "training": {
+    "baseWeights": "nail-texture-seg-real-candidate-v6",
+    "inputSize": 640,
+    "maximumEpochs": 60,
+    "completedEpochs": 16,
+    "bestEpoch": 1,
+    "earlyStopped": true
+  },
+  "frozenTestAt512": {
+    "boxMap50": 0.8411119261188786,
+    "maskMap50": 0.8393022096181535,
+    "boxMap50To95": 0.5621769203434017,
+    "maskMap50To95": 0.5123096959658688
+  },
+  "deltaFromV6": {
+    "boxMap50": -0.01164224,
+    "maskMap50": -0.00835683
+  },
+  "gate": {
+    "minimumBoxMap50": 0.85,
+    "minimumMaskMap50": 0.75,
+    "boxPassed": false,
+    "maskPassed": true,
+    "noRegressionFromV6": false
+  },
+  "actions": {
+    "exportOnnx": false,
+    "register": false,
+    "promote": false,
+    "retainV6AsBestCandidate": true
+  }
+}
