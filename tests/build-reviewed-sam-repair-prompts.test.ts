@@ -37,6 +37,7 @@ function fixture() {
           fileName: "sample.jpg",
           keepPromptIndices: [2],
           addBoxes: [[0.5, 0.5, 0.6, 0.6]],
+          addPromptModes: ["box-center"],
           reviewReason: "drop false positive and add missed nail",
         },
       ],
@@ -64,8 +65,34 @@ test("reviewed SAM repair prompts preserve provenance and apply keep/drop/add de
     [0.3, 0.3, 0.4, 0.4],
     [0.5, 0.5, 0.6, 0.6],
   ]);
+  assert.deepEqual(document.images[0].promptModes, ["box", "box-center"]);
+  assert.deepEqual(document.images[0].repairProvenance.addedPromptModes, ["box-center"]);
   assert.equal(document.images[0].sourceGroup, "source-group-1");
   assert.match(document.sourcePromptSha256, /^[a-f0-9]{64}$/);
+});
+
+test("reviewed SAM repair prompts reject mismatched or unsupported add prompt modes", () => {
+  const item = fixture();
+  const manifest = JSON.parse(readFileSync(item.manifest, "utf8"));
+  manifest.images[0].addPromptModes = ["box-center", "box"];
+  writeFileSync(item.manifest, JSON.stringify(manifest));
+  let result = spawnSync(
+    "python",
+    [script, "--source-prompts", item.source, "--repair-manifest", item.manifest, "--output", item.output],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(JSON.parse(readFileSync(item.output, "utf8")).errors.join("\n"), /count must match/);
+
+  manifest.images[0].addPromptModes = ["unsupported"];
+  writeFileSync(item.manifest, JSON.stringify(manifest));
+  result = spawnSync(
+    "python",
+    [script, "--source-prompts", item.source, "--repair-manifest", item.manifest, "--output", item.output],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(result.status, 0);
+  assert.match(JSON.parse(readFileSync(item.output, "utf8")).errors.join("\n"), /invalid addPromptModes/);
 });
 
 test("reviewed SAM repair prompts reject an out-of-range source index", () => {

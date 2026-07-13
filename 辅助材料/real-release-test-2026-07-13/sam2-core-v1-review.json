@@ -23,7 +23,12 @@
     "real_release_20260713_086.jpg",
     "real_release_20260713_087.jpg",
     "real_release_20260713_002.jpg",
-    "real_release_20260713_027.jpg"
+    "real_release_20260713_027.jpg",
+    "real_release_20260713_031.jpg",
+    "real_release_20260713_050.jpg",
+    "real_release_20260713_079.jpg",
+    "real_release_20260713_082.jpg",
+    "real_release_20260713_090.jpg"
   ],
   "excludeFiles": [
     "real_release_20260713_053.jpg"
@@ -49,6 +54,15 @@
       "review": "sam2-core-repair-v3-review.json",
       "passCount": 2,
       "acceptedMaskCount": 9
+    },
+    {
+      "id": "sam2-core-repair-v4",
+      "manifest": "sam2-core-repair-v4-manifest.json",
+      "prompts": "sam2-core-repair-v4-prompts.json",
+      "candidateReport": "sam2-core-repair-v4-report.json",
+      "review": "sam2-core-repair-v4-review.json",
+      "passCount": 5,
+      "acceptedMaskCount": 24
     }
   ]
 }

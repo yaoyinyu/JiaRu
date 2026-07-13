@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-fourth-pass",
+  "decision": "human_reviewed_repair_candidates_not_test_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_031.jpg",
+    "real_release_20260713_050.jpg",
+    "real_release_20260713_079.jpg",
+    "real_release_20260713_082.jpg",
+    "real_release_20260713_090.jpg"
+  ],
+  "reworkFiles": [],
+  "excludeFiles": [],
+  "reworkReasons": {}
+}

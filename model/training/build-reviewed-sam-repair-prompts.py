@@ -74,12 +74,29 @@ def build_document(source_path: Path, manifest_path: Path) -> dict:
         if invalid_indices:
             raise ValueError(f"{file_name} keepPromptIndices out of range: {invalid_indices}")
 
+        source_modes = source_item.get("promptModes", ["box"] * len(source_boxes))
+        if not isinstance(source_modes, list) or len(source_modes) != len(source_boxes):
+            raise ValueError(f"{file_name} source promptModes count must match source boxes")
+        allowed_prompt_modes = {"box", "center", "box-center", "center-negative-corners"}
+        invalid_source_modes = [mode for mode in source_modes if mode not in allowed_prompt_modes]
+        if invalid_source_modes:
+            raise ValueError(f"{file_name} has invalid source promptModes: {invalid_source_modes}")
+
         boxes = [
             validate_box(source_boxes[index - 1], f"{file_name} source box {index}")
             for index in keep_indices
         ]
-        for add_index, box in enumerate(repair.get("addBoxes", []), start=1):
+        prompt_modes = [source_modes[index - 1] for index in keep_indices]
+        add_boxes = repair.get("addBoxes", [])
+        add_prompt_modes = repair.get("addPromptModes", ["box"] * len(add_boxes))
+        if not isinstance(add_prompt_modes, list) or len(add_prompt_modes) != len(add_boxes):
+            raise ValueError(f"{file_name} addPromptModes count must match addBoxes")
+        invalid_add_modes = [mode for mode in add_prompt_modes if mode not in allowed_prompt_modes]
+        if invalid_add_modes:
+            raise ValueError(f"{file_name} has invalid addPromptModes: {invalid_add_modes}")
+        for add_index, box in enumerate(add_boxes, start=1):
             boxes.append(validate_box(box, f"{file_name} add box {add_index}"))
+        prompt_modes.extend(add_prompt_modes)
         if not boxes:
             raise ValueError(f"{file_name} repair produces no prompts")
         if len({tuple(box) for box in boxes}) != len(boxes):
@@ -93,10 +110,11 @@ def build_document(source_path: Path, manifest_path: Path) -> dict:
                 "fileName": file_name,
                 "sourceGroup": source_group.strip(),
                 "boxes": boxes,
-                "promptModes": ["box"] * len(boxes),
+                "promptModes": prompt_modes,
                 "repairProvenance": {
                     "keptSourcePromptIndices": keep_indices,
-                    "addedBoxCount": len(repair.get("addBoxes", [])),
+                    "addedBoxCount": len(add_boxes),
+                    "addedPromptModes": add_prompt_modes,
                     "reviewReason": repair.get("reviewReason", "manual_original_resolution_review"),
                 },
             }
