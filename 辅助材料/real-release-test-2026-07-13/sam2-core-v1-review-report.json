@@ -6,10 +6,10 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 32,
-    "rework": 17,
+    "pass": 33,
+    "rework": 16,
     "excluded": 8,
-    "acceptedMasks": 185,
+    "acceptedMasks": 190,
     "acceptedSourceGroups": 11,
     "stressPending": 35
   },
@@ -17,6 +17,7 @@
     "real_release_20260713_002.jpg",
     "real_release_20260713_003.jpg",
     "real_release_20260713_024.jpg",
+    "real_release_20260713_025.jpg",
     "real_release_20260713_027.jpg",
     "real_release_20260713_028.jpg",
     "real_release_20260713_029.jpg",
@@ -51,7 +52,6 @@
     "real_release_20260713_001.jpg",
     "real_release_20260713_004.jpg",
     "real_release_20260713_022.jpg",
-    "real_release_20260713_025.jpg",
     "real_release_20260713_026.jpg",
     "real_release_20260713_047.jpg",
     "real_release_20260713_052.jpg",
@@ -104,7 +104,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v8-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v9-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v10-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v11-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v11-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v12-report.json"
   ],
   "repairBatches": [
     {
@@ -201,6 +202,17 @@
       "passCount": 1,
       "acceptedMaskCount": 9,
       "promptStrategy": "two_hand_full_axis_positive_points_with_directed_adjacent_skin_negatives"
+    },
+    {
+      "id": "sam2-core-repair-v12",
+      "manifest": "sam2-core-repair-v12-manifest.json",
+      "prompts": "sam2-core-repair-v12-prompts.json",
+      "candidateReport": "sam2-core-repair-v12-report.json",
+      "review": "sam2-core-repair-v12-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "reworkCount": 1,
+      "promptStrategy": "full_axis_multipoint_rebuild_with_strict_original_resolution_thumb_skin_rejection"
     }
   ],
   "errors": []
