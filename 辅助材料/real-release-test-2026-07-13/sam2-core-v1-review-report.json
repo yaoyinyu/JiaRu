@@ -6,16 +6,17 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 29,
-    "rework": 20,
+    "pass": 31,
+    "rework": 18,
     "excluded": 8,
-    "acceptedMasks": 166,
-    "acceptedSourceGroups": 10,
+    "acceptedMasks": 176,
+    "acceptedSourceGroups": 11,
     "stressPending": 35
   },
   "passFiles": [
     "real_release_20260713_002.jpg",
     "real_release_20260713_003.jpg",
+    "real_release_20260713_024.jpg",
     "real_release_20260713_027.jpg",
     "real_release_20260713_028.jpg",
     "real_release_20260713_029.jpg",
@@ -35,6 +36,7 @@
     "real_release_20260713_067.jpg",
     "real_release_20260713_068.jpg",
     "real_release_20260713_074.jpg",
+    "real_release_20260713_075.jpg",
     "real_release_20260713_077.jpg",
     "real_release_20260713_079.jpg",
     "real_release_20260713_082.jpg",
@@ -48,7 +50,6 @@
     "real_release_20260713_001.jpg",
     "real_release_20260713_004.jpg",
     "real_release_20260713_022.jpg",
-    "real_release_20260713_024.jpg",
     "real_release_20260713_025.jpg",
     "real_release_20260713_026.jpg",
     "real_release_20260713_047.jpg",
@@ -58,7 +59,6 @@
     "real_release_20260713_071.jpg",
     "real_release_20260713_072.jpg",
     "real_release_20260713_073.jpg",
-    "real_release_20260713_075.jpg",
     "real_release_20260713_076.jpg",
     "real_release_20260713_078.jpg",
     "real_release_20260713_080.jpg",
@@ -102,7 +102,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v6-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v7-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v8-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v9-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v9-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v10-report.json"
   ],
   "repairBatches": [
     {
@@ -179,6 +180,16 @@
       "passCount": 1,
       "acceptedMaskCount": 5,
       "promptStrategy": "per_nail_multiple_positive_and_negative_points"
+    },
+    {
+      "id": "sam2-core-repair-v10",
+      "manifest": "sam2-core-repair-v10-manifest.json",
+      "prompts": "sam2-core-repair-v10-prompts.json",
+      "candidateReport": "sam2-core-repair-v10-report.json",
+      "review": "sam2-core-repair-v10-review.json",
+      "passCount": 2,
+      "acceptedMaskCount": 10,
+      "promptStrategy": "full_axis_positive_points_with_directed_cuticle_skin_and_background_negatives"
     }
   ],
   "errors": []
