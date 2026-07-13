@@ -5,7 +5,7 @@ import test from "node:test";
 test("SAM assisted annotation requires vision prompts and emits reviewed polygons", async () => {
   const source = await readFile("model/training/sam-assisted-nail-annotation.py", "utf8");
   assert.match(source, /vision-guided-box-center-positive-corner-negative-prompts-plus-sam2/);
-  assert.match(source, /labels\.append\(\[1, 0, 0, 0, 0\]\)/);
+  assert.match(source, /labels\.append\(\(\[1\] \* len\(positive_set\)\) \+ \(\[0\] \* len\(negative_set\)\)\)/);
   assert.match(source, /annotationMethod.*vision-guided-\{args\.engine\}/);
   assert.match(source, /pointPolygonTest/);
   assert.match(source, /sam-reviewed-overlay/);
@@ -14,6 +14,8 @@ test("SAM assisted annotation requires vision prompts and emits reviewed polygon
   assert.match(source, /data-exclusions\.json/);
   assert.match(source, /excludedFiles/);
   assert.match(source, /positivePoints count must match boxes count/);
+  assert.match(source, /negativePoints count must match boxes count/);
+  assert.match(source, /normalized_points_to_pixels/);
   assert.match(source, /promptModes count must match boxes count/);
   assert.match(source, /has invalid promptModes/);
   assert.match(source, /prompt \{prompt_index\} \(\{prompt_mode\}\)/);
