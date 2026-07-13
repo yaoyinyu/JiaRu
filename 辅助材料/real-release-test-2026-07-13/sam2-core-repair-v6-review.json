@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-sixth-pass",
+  "decision": "human_reviewed_repair_candidates_not_test_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_033.jpg",
+    "real_release_20260713_045.jpg",
+    "real_release_20260713_048.jpg"
+  ],
+  "reworkFiles": [
+    "real_release_20260713_004.jpg",
+    "real_release_20260713_022.jpg",
+    "real_release_20260713_071.jpg",
+    "real_release_20260713_080.jpg"
+  ],
+  "excludeFiles": [],
+  "reworkReasons": {
+    "real_release_20260713_004.jpg": "left_thumb_mask_still_absorbs_skin_below_the_nail",
+    "real_release_20260713_022.jpg": "upper_right_mask_still_misses_the_translucent_nail_extension",
+    "real_release_20260713_071.jpg": "left_pink_nail_prompt_expands_into_the_entire_finger",
+    "real_release_20260713_080.jpg": "left_thumb_mask_still_absorbs_skin_and_white_sleeve"
+  }
+}
