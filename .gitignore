@@ -96,7 +96,10 @@ model/exports/
 辅助材料/**/annotations/first-batch-*-json/
 辅助材料/**/annotations/v*-cross-resolution-consensus/
 辅助材料/**/annotations/vision-reviewed-plus-consensus-*-json/
+辅助材料/**/annotations/sam2-*-json/
 辅助材料/**/*cross-resolution-consensus-report.json
+辅助材料/**/*tiled-report.json
+辅助材料/**/*sam2-*-report.json
 
 # python cache
 __pycache__/

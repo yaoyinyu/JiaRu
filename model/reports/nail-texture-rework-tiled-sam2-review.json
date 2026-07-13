@@ -1,0 +1,53 @@
+{
+  "version": "nail-texture-rework-review/v1",
+  "date": "2026-07-13",
+  "decision": "four_sources_excluded_no_training_import",
+  "tiledInference": {
+    "inputImages": 35,
+    "settings": {
+      "model": "nail-texture-seg-real-candidate-v6",
+      "grid": "3x3",
+      "tileFraction": 0.62,
+      "confidence": 0.2,
+      "maskIouDedupe": 0.45
+    },
+    "imagesWithCandidates": 19,
+    "imagesWithoutCandidates": 16,
+    "candidateCount": 88,
+    "tileEdgeFragmentsRejected": 32,
+    "imagesAcceptedAfterVisualReview": 0,
+    "failureReasons": [
+      "decorative_dot_false_positives",
+      "missing_visible_nails",
+      "collage_regions_not_isolated"
+    ]
+  },
+  "sam2TightBoxAudit": {
+    "inputImages": 4,
+    "promptCount": 33,
+    "completedImages": 3,
+    "failedImages": 1,
+    "imagesAcceptedAfterVisualReview": 0,
+    "conclusion": "segmentation cannot reconstruct cropped or visibly defocused nail pixels"
+  },
+  "sourceExclusions": {
+    "count": 4,
+    "reasons": {
+      "partial_nail_out_of_frame": 3,
+      "blurred_secondary_nails": 1
+    },
+    "files": [
+      "-_224832368697836db93ea3-819x1024.jpg",
+      "-_725197325697837365af0b.jpg",
+      "349480885_1649524872217500_7189329909082553793_n_68025889064c1fedab6f13-819x1024.jpg",
+      "check-french.394801100dmo_191651365069783312aaa3d.jpg"
+    ]
+  },
+  "reviewQueue": {
+    "passed": 78,
+    "excluded": 4,
+    "remainingRework": 31,
+    "total": 113
+  },
+  "datasetChanged": false
+}
