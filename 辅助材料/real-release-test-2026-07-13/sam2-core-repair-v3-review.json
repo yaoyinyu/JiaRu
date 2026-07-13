@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-third-pass",
+  "decision": "human_reviewed_repair_candidates_not_test_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_002.jpg",
+    "real_release_20260713_027.jpg"
+  ],
+  "reworkFiles": [
+    "real_release_20260713_001.jpg",
+    "real_release_20260713_051.jpg",
+    "real_release_20260713_052.jpg",
+    "real_release_20260713_091.jpg"
+  ],
+  "excludeFiles": [],
+  "reworkReasons": {
+    "real_release_20260713_001.jpg": "right_nail_mask_still_contains_large_skin_region",
+    "real_release_20260713_051.jpg": "middle_nail_mask_still_contains_skin_and_overlapping_finger_region",
+    "real_release_20260713_052.jpg": "added_nude_thumb_mask_contains_large_skin_region",
+    "real_release_20260713_091.jpg": "added_right_pinky_mask_contains_large_skin_region_and_reaches_image_edge"
+  }
+}
