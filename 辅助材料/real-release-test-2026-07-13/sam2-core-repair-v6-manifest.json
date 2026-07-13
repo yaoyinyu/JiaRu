@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-13",
+  "reviewer": "codex-original-resolution-sixth-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_004.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.27, 0.34, 0.405, 0.43]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "retry_left_thumb_with_negative_corners_to_suppress_skin_fragment"
+    },
+    {
+      "fileName": "real_release_20260713_022.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.555, 0.355, 0.655, 0.5]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "retry_upper_right_nail_with_full_surface_box_and_negative_corners"
+    },
+    {
+      "fileName": "real_release_20260713_033.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 6, 8],
+      "addBoxes": [[0.665, 0.02, 0.97, 0.11]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "remove_long_finger_skin_false_positive_and_add_missing_top_brown_nail"
+    },
+    {
+      "fileName": "real_release_20260713_045.jpg",
+      "keepPromptIndices": [1, 2, 3, 5],
+      "addBoxes": [[0.395, 0.635, 0.58, 0.795]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "replace_fragmented_lower_middle_decorated_nail"
+    },
+    {
+      "fileName": "real_release_20260713_048.jpg",
+      "keepPromptIndices": [1, 4],
+      "addBoxes": [[0.575, 0.285, 0.715, 0.53], [0.62, 0.535, 0.82, 0.69], [0.37, 0.595, 0.58, 0.79]],
+      "addPromptModes": ["center-negative-corners", "center-negative-corners", "center-negative-corners"],
+      "reviewReason": "replace_three_duplicate_overlapping_nail_prompt_pairs_with_single_full_surface_prompts"
+    },
+    {
+      "fileName": "real_release_20260713_071.jpg",
+      "keepPromptIndices": [1, 2, 3],
+      "addBoxes": [[0.15, 0.3, 0.415, 0.5]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "replace_partial_left_pink_nail_prompt_with_full_surface_prompt"
+    },
+    {
+      "fileName": "real_release_20260713_080.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.17, 0.225, 0.35, 0.39]],
+      "addPromptModes": ["center-negative-corners"],
+      "reviewReason": "retry_left_thumb_with_negative_corners_to_suppress_white_sleeve"
+    }
+  ]
+}
