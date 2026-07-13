@@ -1,0 +1,83 @@
+{
+  "version": "nail-texture-region-annotation-review/v1",
+  "regionReport": "xhs-main-photo-regions-v1-report.json",
+  "reviewer": "codex-vision-original-resolution",
+  "reviewPolicy": {
+    "allEligibleCompleteNailsRequired": true,
+    "partialOrCropBoundaryNailsExcluded": true,
+    "skinOrBackgroundLeakageAllowed": false,
+    "samInferenceSuccessIsNotReviewPass": true
+  },
+  "items": [
+    {
+      "fileName": "14b762d1b5be-main-hand.png",
+      "status": "pass",
+      "annotationPath": "../selected/xhs-main-photo-crops-v1-sam2-batch-01-json/14b762d1b5be-main-hand.json",
+      "acceptedMaskCount": 5,
+      "excludedPartialNailCount": 0,
+      "reason": "all_eligible_complete_nails_pass_original_resolution_overlay_review"
+    },
+    {
+      "fileName": "2526e587c486-main-hand.png",
+      "status": "rework",
+      "acceptedMaskCount": 0,
+      "excludedPartialNailCount": 1,
+      "reason": "flower_decoration_split_from_nail_after_tight_box_and_positive_point_retry"
+    },
+    {
+      "fileName": "32a451fadbf7-main-hand.png",
+      "status": "pass",
+      "annotationPath": "../selected/xhs-main-photo-crops-v1-sam2-batch-01-json/32a451fadbf7-main-hand.json",
+      "acceptedMaskCount": 3,
+      "excludedPartialNailCount": 1,
+      "reason": "all_eligible_complete_nails_pass_original_resolution_overlay_review"
+    },
+    {
+      "fileName": "332ca3451619-main-hands.png",
+      "status": "pass",
+      "annotationPath": "../selected/xhs-main-photo-crops-v1-sam2-batch-02-json/332ca3451619-main-hands.json",
+      "acceptedMaskCount": 8,
+      "excludedPartialNailCount": 0,
+      "reason": "all_eligible_complete_nails_pass_original_resolution_overlay_review"
+    },
+    {
+      "fileName": "8756ef65a6c0-main-hands.png",
+      "status": "pass",
+      "annotationPath": "../selected/xhs-main-photo-crops-v1-sam2-batch-03-json/8756ef65a6c0-main-hands.json",
+      "acceptedMaskCount": 8,
+      "excludedPartialNailCount": 0,
+      "reason": "all_eligible_complete_nails_pass_original_resolution_overlay_review"
+    },
+    {
+      "fileName": "ab7f3e8a00c9-main-hands.png",
+      "status": "rework",
+      "acceptedMaskCount": 0,
+      "excludedPartialNailCount": 0,
+      "reason": "multiple_masks_follow_nail_decoration_or_toy_edges_instead_of_complete_nail_boundaries"
+    },
+    {
+      "fileName": "e191a73ac390-main-hand.png",
+      "status": "pass",
+      "annotationPath": "../selected/xhs-main-photo-crops-v1-sam2-batch-01-json/e191a73ac390-main-hand.json",
+      "acceptedMaskCount": 3,
+      "excludedPartialNailCount": 1,
+      "reason": "all_eligible_complete_nails_pass_original_resolution_overlay_review"
+    },
+    {
+      "fileName": "e73df1f51425-main-hands.png",
+      "status": "pass",
+      "annotationPath": "../selected/xhs-main-photo-crops-v1-sam2-batch-02-json/e73df1f51425-main-hands.json",
+      "acceptedMaskCount": 9,
+      "excludedPartialNailCount": 1,
+      "reason": "all_eligible_complete_nails_pass_original_resolution_overlay_review"
+    },
+    {
+      "fileName": "fdc2d2ee537f-main-hand.png",
+      "status": "pass",
+      "annotationPath": "../selected/xhs-main-photo-crops-v1-sam2-batch-01-json/fdc2d2ee537f-main-hand.json",
+      "acceptedMaskCount": 5,
+      "excludedPartialNailCount": 0,
+      "reason": "all_eligible_complete_nails_pass_original_resolution_overlay_review"
+    }
+  ]
+}

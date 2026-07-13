@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "version": "nail-texture-region-annotation-audit/v1",
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\xhs-main-photo-crops-v1-annotation-review.json",
+  "regionReportPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-review-2026-07-12\\review\\xhs-main-photo-regions-v1-report.json",
+  "totals": {
+    "regions": 9,
+    "reviewed": 9,
+    "pass": 7,
+    "rework": 2,
+    "drop": 0,
+    "acceptedMasks": 41
+  },
+  "errors": []
+}
