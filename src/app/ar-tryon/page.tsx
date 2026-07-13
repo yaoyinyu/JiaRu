@@ -7,6 +7,7 @@ import { ArView } from "@/components/ArView";
 import { PRESET_COLORS } from "@/lib/utils";
 import { disposeAllTextures } from "@/lib/texture";
 import type { NailAssignment } from "@/components/NailArtPicker";
+import { validateImageUpload } from "@/lib/image-upload-validation";
 
 const TextureCropper = dynamic(() => import("@/components/TextureCropper"), {
   ssr: false,
@@ -65,18 +66,6 @@ export default function ArTryonPage() {
     setNailColors(Array(5).fill(nailColors[activeFinger]));
   };
 
-  const validateImageFile = (file: File): boolean => {
-    if (!["image/png", "image/jpeg", "image/webp"].includes(file.type)) {
-      alert("仅支持 PNG、JPG、WebP 格式的图片");
-      return false;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      alert("图片大小不能超过 10MB");
-      return false;
-    }
-    return true;
-  };
-
   const prepareUploadUrl = (file: File) => {
     if (uploadedPhotoUrl) {
       URL.revokeObjectURL(uploadedPhotoUrl);
@@ -85,27 +74,35 @@ export default function ArTryonPage() {
   };
 
   // 单纹理快捷裁剪上传。
-  const handleTextureUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleTextureUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!validateImageFile(file)) return;
+    e.target.value = "";
+    const validation = await validateImageUpload(file);
+    if (!validation.ok) {
+      alert(validation.message);
+      return;
+    }
 
     const url = prepareUploadUrl(file);
     setUploadedPhotoUrl(url);
     setShowCropper(true);
-    e.target.value = "";
   };
 
   // 多纹理参考图上传。
-  const handlePatternUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePatternUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (!validateImageFile(file)) return;
+    e.target.value = "";
+    const validation = await validateImageUpload(file);
+    if (!validation.ok) {
+      alert(validation.message);
+      return;
+    }
 
     const url = prepareUploadUrl(file);
     setUploadedPhotoUrl(url);
     setShowNailPicker(true);
-    e.target.value = "";
   };
 
   const handleCropConfirm = useCallback(
