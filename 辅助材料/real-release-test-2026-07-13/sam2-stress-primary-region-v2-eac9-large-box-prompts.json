@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "source": "original-resolution-eac9-sam2.1-large-box-comparison",
+  "decision": "sam_candidate_only_not_test_truth",
+  "imageCount": 1,
+  "promptCount": 9,
+  "images": [
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c",
+      "boxes": [
+        [0.693, 0.202, 0.844, 0.331],
+        [0.55, 0.3, 0.79, 0.54],
+        [0.362, 0.463, 0.714, 0.612],
+        [0.67, 0.456, 0.97, 0.632],
+        [0.085, 0.575, 0.27, 0.73],
+        [0.29, 0.61, 0.42, 0.82],
+        [0.4, 0.65, 0.56, 0.87],
+        [0.53, 0.67, 0.66, 0.89],
+        [0.65, 0.63, 0.78, 0.82]
+      ],
+      "promptModes": ["box", "box", "box", "box", "box", "box", "box", "box", "box"]
+    }
+  ]
+}

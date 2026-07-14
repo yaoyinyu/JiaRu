@@ -1,0 +1,490 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "stress-primary-main-v2-point-only": {
+      "pass": 22,
+      "suspect": 5,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "f8c543cdd6ff-main-v2.png",
+      "nailIndex": 1,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4239,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        53.0,
+        497.0,
+        110.0,
+        575.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f8c543cdd6ff-main-v2.png",
+      "nailIndex": 2,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5463,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        195.0,
+        382.0,
+        271.0,
+        473.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f8c543cdd6ff-main-v2.png",
+      "nailIndex": 3,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3948,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        319.0,
+        370.0,
+        381.0,
+        461.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f8c543cdd6ff-main-v2.png",
+      "nailIndex": 4,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5188,
+      "boundsContainment": 0.9747,
+      "centerInside": true,
+      "bounds": [
+        399.0,
+        446.0,
+        444.0,
+        536.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "f8c543cdd6ff-main-v2.png",
+      "nailIndex": 5,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3668,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        430.0,
+        757.0,
+        490.0,
+        864.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "nailIndex": 1,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2676,
+      "boundsContainment": 0.8336,
+      "centerInside": true,
+      "bounds": [
+        77.0,
+        344.0,
+        172.0,
+        491.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "nailIndex": 2,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.261,
+      "boundsContainment": 0.9723,
+      "centerInside": true,
+      "bounds": [
+        215.0,
+        287.0,
+        329.0,
+        475.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "nailIndex": 3,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2278,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        339.0,
+        288.0,
+        447.0,
+        445.0
+      ],
+      "maximumPeerBoundsIou": 0.0656
+    },
+    {
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "nailIndex": 4,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.2635,
+      "boundsContainment": 0.8766,
+      "centerInside": false,
+      "bounds": [
+        410.0,
+        388.0,
+        515.0,
+        553.0
+      ],
+      "maximumPeerBoundsIou": 0.0656
+    },
+    {
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "nailIndex": 5,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2097,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        360.0,
+        716.0,
+        475.0,
+        875.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "nailIndex": 1,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4145,
+      "boundsContainment": 0.8785,
+      "centerInside": true,
+      "bounds": [
+        79.0,
+        172.0,
+        196.0,
+        308.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "nailIndex": 2,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5413,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        220.0,
+        249.0,
+        307.0,
+        403.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "nailIndex": 3,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5095,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        348.0,
+        251.0,
+        438.0,
+        421.0
+      ],
+      "maximumPeerBoundsIou": 0.0017
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "nailIndex": 4,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5537,
+      "boundsContainment": 0.9872,
+      "centerInside": true,
+      "bounds": [
+        507.0,
+        221.0,
+        592.0,
+        381.0
+      ],
+      "maximumPeerBoundsIou": 0.0011
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "nailIndex": 5,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5315,
+      "boundsContainment": 0.9605,
+      "centerInside": true,
+      "bounds": [
+        435.0,
+        400.0,
+        569.0,
+        556.0
+      ],
+      "maximumPeerBoundsIou": 0.0017
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "nailIndex": 6,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4737,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        588.0,
+        372.0,
+        710.0,
+        520.0
+      ],
+      "maximumPeerBoundsIou": 0.0011
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "nailIndex": 7,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4648,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        345.0,
+        567.0,
+        460.0,
+        730.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "nailIndex": 8,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4494,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        298.0,
+        770.0,
+        380.0,
+        923.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 1,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2266,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        398.0,
+        170.0,
+        468.0,
+        256.0
+      ],
+      "maximumPeerBoundsIou": 0.0502
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 2,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "suspect",
+      "reasons": [
+        "bounds_containment_below_minimum"
+      ],
+      "areaRatio": 0.9331,
+      "boundsContainment": 0.5283,
+      "centerInside": true,
+      "bounds": [
+        276.0,
+        216.0,
+        465.0,
+        481.0
+      ],
+      "maximumPeerBoundsIou": 0.1942
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 3,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2773,
+      "boundsContainment": 0.9671,
+      "centerInside": true,
+      "bounds": [
+        225.0,
+        399.0,
+        408.0,
+        489.0
+      ],
+      "maximumPeerBoundsIou": 0.1942
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 4,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3463,
+      "boundsContainment": 0.9639,
+      "centerInside": true,
+      "bounds": [
+        384.0,
+        367.0,
+        532.0,
+        508.0
+      ],
+      "maximumPeerBoundsIou": 0.1496
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 5,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.179,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        57.0,
+        488.0,
+        115.0,
+        589.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 6,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.4682,
+      "boundsContainment": 0.8293,
+      "centerInside": false,
+      "bounds": [
+        172.0,
+        494.0,
+        246.0,
+        674.0
+      ],
+      "maximumPeerBoundsIou": 0.1754
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 7,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.287,
+      "boundsContainment": 0.8507,
+      "centerInside": true,
+      "bounds": [
+        220.0,
+        514.0,
+        300.0,
+        696.0
+      ],
+      "maximumPeerBoundsIou": 0.1754
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 8,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "suspect",
+      "reasons": [
+        "bounds_containment_below_minimum"
+      ],
+      "areaRatio": 0.4285,
+      "boundsContainment": 0.6447,
+      "centerInside": true,
+      "bounds": [
+        278.0,
+        527.0,
+        351.0,
+        714.0
+      ],
+      "maximumPeerBoundsIou": 0.1518
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 9,
+      "source": "stress-primary-main-v2-point-only",
+      "status": "suspect",
+      "reasons": [
+        "area_ratio_above_maximum",
+        "bounds_containment_below_minimum"
+      ],
+      "areaRatio": 5.4982,
+      "boundsContainment": 0.124,
+      "centerInside": true,
+      "bounds": [
+        204.0,
+        447.0,
+        456.0,
+        810.0
+      ],
+      "maximumPeerBoundsIou": 0.1592
+    }
+  ]
+}
