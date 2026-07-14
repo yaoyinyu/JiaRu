@@ -1,0 +1,275 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "sam2-stress-primary-repair-v2": {
+      "pass": 15,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 1,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.565,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        229.0,
+        311.0,
+        311.0,
+        408.0
+      ],
+      "maximumPeerBoundsIou": 0.0338
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 2,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6046,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        153.0,
+        267.0,
+        213.0,
+        366.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 3,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5418,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        293.0,
+        380.0,
+        381.0,
+        465.0
+      ],
+      "maximumPeerBoundsIou": 0.0338
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 4,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.432,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        374.0,
+        443.0,
+        458.0,
+        513.0
+      ],
+      "maximumPeerBoundsIou": 0.0117
+    },
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "nailIndex": 5,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.638,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        39.0,
+        398.0,
+        173.0,
+        466.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 1,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5726,
+      "boundsContainment": 0.988,
+      "centerInside": true,
+      "bounds": [
+        258.0,
+        205.0,
+        345.0,
+        302.0
+      ],
+      "maximumPeerBoundsIou": 0.0104
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 2,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6626,
+      "boundsContainment": 0.9878,
+      "centerInside": true,
+      "bounds": [
+        182.0,
+        150.0,
+        253.0,
+        248.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 3,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6203,
+      "boundsContainment": 0.947,
+      "centerInside": true,
+      "bounds": [
+        336.0,
+        282.0,
+        429.0,
+        379.0
+      ],
+      "maximumPeerBoundsIou": 0.0104
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 4,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5724,
+      "boundsContainment": 0.9955,
+      "centerInside": true,
+      "bounds": [
+        472.0,
+        367.0,
+        534.0,
+        438.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "nailIndex": 5,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6003,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        167.0,
+        321.0,
+        277.0,
+        418.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "nailIndex": 1,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5075,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        127.0,
+        481.0,
+        186.0,
+        525.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "nailIndex": 2,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5363,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        333.0,
+        408.0,
+        427.0,
+        476.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "nailIndex": 3,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4831,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        250.0,
+        261.0,
+        348.0,
+        327.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "nailIndex": 4,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3992,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        190.0,
+        103.0,
+        298.0,
+        149.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "nailIndex": 5,
+      "source": "sam2-stress-primary-repair-v2",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5271,
+      "boundsContainment": 0.9741,
+      "centerInside": true,
+      "bounds": [
+        294.0,
+        486.0,
+        410.0,
+        543.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    }
+  ]
+}

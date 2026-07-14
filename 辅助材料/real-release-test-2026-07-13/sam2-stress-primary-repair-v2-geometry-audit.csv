@@ -1,0 +1,16 @@
+﻿fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+3e9b2b906fda-primary.png,1,sam2-stress-primary-repair-v2,pass,,0.565,1.0,True,"[229.0, 311.0, 311.0, 408.0]",0.0338
+3e9b2b906fda-primary.png,2,sam2-stress-primary-repair-v2,pass,,0.6046,1.0,True,"[153.0, 267.0, 213.0, 366.0]",0.0
+3e9b2b906fda-primary.png,3,sam2-stress-primary-repair-v2,pass,,0.5418,1.0,True,"[293.0, 380.0, 381.0, 465.0]",0.0338
+3e9b2b906fda-primary.png,4,sam2-stress-primary-repair-v2,pass,,0.432,1.0,True,"[374.0, 443.0, 458.0, 513.0]",0.0117
+3e9b2b906fda-primary.png,5,sam2-stress-primary-repair-v2,pass,,0.638,1.0,True,"[39.0, 398.0, 173.0, 466.0]",0.0
+51a2eded5eda-primary.png,1,sam2-stress-primary-repair-v2,pass,,0.5726,0.988,True,"[258.0, 205.0, 345.0, 302.0]",0.0104
+51a2eded5eda-primary.png,2,sam2-stress-primary-repair-v2,pass,,0.6626,0.9878,True,"[182.0, 150.0, 253.0, 248.0]",0.0
+51a2eded5eda-primary.png,3,sam2-stress-primary-repair-v2,pass,,0.6203,0.947,True,"[336.0, 282.0, 429.0, 379.0]",0.0104
+51a2eded5eda-primary.png,4,sam2-stress-primary-repair-v2,pass,,0.5724,0.9955,True,"[472.0, 367.0, 534.0, 438.0]",0.0
+51a2eded5eda-primary.png,5,sam2-stress-primary-repair-v2,pass,,0.6003,1.0,True,"[167.0, 321.0, 277.0, 418.0]",0.0
+e826babe1b3a-primary.png,1,sam2-stress-primary-repair-v2,pass,,0.5075,1.0,True,"[127.0, 481.0, 186.0, 525.0]",0.0
+e826babe1b3a-primary.png,2,sam2-stress-primary-repair-v2,pass,,0.5363,1.0,True,"[333.0, 408.0, 427.0, 476.0]",0.0
+e826babe1b3a-primary.png,3,sam2-stress-primary-repair-v2,pass,,0.4831,1.0,True,"[250.0, 261.0, 348.0, 327.0]",0.0
+e826babe1b3a-primary.png,4,sam2-stress-primary-repair-v2,pass,,0.3992,1.0,True,"[190.0, 103.0, 298.0, 149.0]",0.0
+e826babe1b3a-primary.png,5,sam2-stress-primary-repair-v2,pass,,0.5271,0.9741,True,"[294.0, 486.0, 410.0, 543.0]",0.0

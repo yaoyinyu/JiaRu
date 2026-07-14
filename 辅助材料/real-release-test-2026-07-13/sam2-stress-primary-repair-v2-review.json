@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-stress-single-photo-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "3e9b2b906fda-primary.png",
+    "51a2eded5eda-primary.png",
+    "e826babe1b3a-primary.png"
+  ],
+  "acceptedMaskCount": 15,
+  "reworkFiles": [],
+  "excludeFiles": [],
+  "reviewNotes": {
+    "3e9b2b906fda-primary.png": "five_single_complete_masks_cover_all_fully_visible_nails_and_the_restored_thumb_has_no_skin_or_satin_contamination",
+    "51a2eded5eda-primary.png": "five_single_complete_masks_cover_all_fully_visible_nails_the_black_thumb_is_restored_and_the_black_background_false_positive_is_removed",
+    "e826babe1b3a-primary.png": "five_single_complete_masks_cover_all_fully_visible_nails_the_upper_side_nail_and_lower_nude_nail_are_restored_without_denim_skin_or_cloth_contamination"
+  }
+}
