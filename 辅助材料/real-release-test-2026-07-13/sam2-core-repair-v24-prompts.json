@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "source": "human-reviewed-keep-drop-add-repair",
+  "decision": "sam_repair_candidate_only_not_test_truth",
+  "sourcePromptFile": "sam2-core-v1-prompts.json",
+  "sourcePromptSha256": "5f4b697a20ef9e11bbaa773cae192d1fdb91e5fbdde797b0933e8f52757b86b1",
+  "repairManifestFile": "sam2-core-repair-v24-manifest.json",
+  "repairManifestSha256": "46d69ceaf906427868e1eaa99f84dfeca901e85cdc526f4e730624b1a50db068",
+  "imageCount": 1,
+  "promptCount": 10,
+  "images": [
+    {
+      "fileName": "real_release_20260713_076.jpg",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "boxes": [
+        [
+          0.5810000000000001,
+          0.4976190476190476,
+          0.6689999999999999,
+          0.6375350140056022
+        ],
+        [
+          0.49803703703703706,
+          0.3700840336134454,
+          0.6260370370370371,
+          0.47445378151260503
+        ],
+        [
+          0.38699999999999996,
+          0.5530252100840336,
+          0.463,
+          0.6906722689075631
+        ],
+        [
+          0.4052962962962963,
+          0.3138655462184874,
+          0.5372962962962963,
+          0.44243697478991595
+        ],
+        [
+          0.3017037037037037,
+          0.5775910364145658,
+          0.3807037037037037,
+          0.6948179271708684
+        ],
+        [
+          0.3836296296296296,
+          0.23126050420168068,
+          0.47562962962962957,
+          0.3590756302521008
+        ],
+        [
+          0.48111111111111116,
+          0.5370028011204482,
+          0.5661111111111111,
+          0.6912885154061624
+        ],
+        [
+          0.7524444444444445,
+          0.4554341736694678,
+          0.8364444444444444,
+          0.5998879551820728
+        ],
+        [
+          0.6526666666666666,
+          0.33873949579831936,
+          0.8056666666666666,
+          0.4196638655462185
+        ],
+        [
+          0.27,
+          0.232,
+          0.39,
+          0.288
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box-center"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.282,
+            0.263
+          ],
+          [
+            0.31,
+            0.256
+          ],
+          [
+            0.338,
+            0.256
+          ],
+          [
+            0.365,
+            0.266
+          ]
+        ]
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.275,
+            0.235
+          ],
+          [
+            0.32,
+            0.23
+          ],
+          [
+            0.38,
+            0.238
+          ],
+          [
+            0.265,
+            0.282
+          ],
+          [
+            0.3,
+            0.292
+          ],
+          [
+            0.35,
+            0.293
+          ],
+          [
+            0.395,
+            0.282
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          10,
+          12
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          4
+        ],
+        "addedNegativePointCounts": [
+          7
+        ],
+        "reviewReason": "retain_nine_complete_nails_drop_one_palm_and_two_watch_false_positives_then_rebuild_the_upper_hand_thumb_as_one_complete_mask"
+      }
+    }
+  ]
+}

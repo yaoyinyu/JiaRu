@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-two-hand-thumb-repair",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_076.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 6, 7, 10, 12],
+      "addBoxes": [
+        [0.270, 0.232, 0.390, 0.288]
+      ],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [
+        [[0.282, 0.263], [0.310, 0.256], [0.338, 0.256], [0.365, 0.266]]
+      ],
+      "addNegativePoints": [
+        [[0.275, 0.235], [0.320, 0.230], [0.380, 0.238], [0.265, 0.282], [0.300, 0.292], [0.350, 0.293], [0.395, 0.282]]
+      ],
+      "reviewReason": "retain_nine_complete_nails_drop_one_palm_and_two_watch_false_positives_then_rebuild_the_upper_hand_thumb_as_one_complete_mask"
+    }
+  ]
+}
