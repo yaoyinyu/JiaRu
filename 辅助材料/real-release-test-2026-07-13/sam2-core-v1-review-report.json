@@ -6,10 +6,10 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 43,
-    "rework": 2,
+    "pass": 44,
+    "rework": 1,
     "excluded": 12,
-    "acceptedMasks": 250,
+    "acceptedMasks": 259,
     "acceptedSourceGroups": 13,
     "stressPending": 35
   },
@@ -33,6 +33,7 @@
     "real_release_20260713_044.jpg",
     "real_release_20260713_045.jpg",
     "real_release_20260713_046.jpg",
+    "real_release_20260713_047.jpg",
     "real_release_20260713_048.jpg",
     "real_release_20260713_050.jpg",
     "real_release_20260713_051.jpg",
@@ -59,7 +60,6 @@
     "real_release_20260713_092.jpg"
   ],
   "reworkFiles": [
-    "real_release_20260713_047.jpg",
     "real_release_20260713_076.jpg"
   ],
   "excludeFiles": [
@@ -119,7 +119,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v19-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v20-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v21-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v22-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v22-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v23-report.json"
   ],
   "repairBatches": [
     {
@@ -332,6 +333,16 @@
       "passCount": 1,
       "acceptedMaskCount": 10,
       "promptStrategy": "retain_seven_complete_nails_separate_two_crossing_center_nails_and_tighten_the_foreground_butterfly_thumb_without_skin_contamination"
+    },
+    {
+      "id": "sam2-core-repair-v23",
+      "manifest": "sam2-core-repair-v23-manifest.json",
+      "prompts": "sam2-core-repair-v23-prompts.json",
+      "candidateReport": "sam2-core-repair-v23-report.json",
+      "review": "sam2-core-repair-v23-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 9,
+      "promptStrategy": "retain_eight_complete_nails_and_tightly_rebuild_the_leftmost_low_contrast_purple_nail_without_adjacent_white_prop_contamination"
     }
   ],
   "errors": []

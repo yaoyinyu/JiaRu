@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-low-contrast-prop-repair",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_047.jpg",
+      "keepPromptIndices": [2, 3, 4, 5, 6, 7, 8, 9],
+      "addBoxes": [
+        [0.135, 0.478, 0.220, 0.545]
+      ],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [
+        [[0.152, 0.493], [0.174, 0.507], [0.195, 0.519], [0.212, 0.532]]
+      ],
+      "addNegativePoints": [
+        [[0.128, 0.475], [0.150, 0.468], [0.180, 0.467], [0.225, 0.480], [0.128, 0.535], [0.145, 0.550], [0.225, 0.550]]
+      ],
+      "reviewReason": "retain_eight_complete_nails_and_rebuild_the_leftmost_low_contrast_purple_nail_without_absorbing_the_adjacent_white_prop"
+    }
+  ]
+}
