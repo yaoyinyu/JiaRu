@@ -6,10 +6,10 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 39,
-    "rework": 6,
+    "pass": 40,
+    "rework": 5,
     "excluded": 12,
-    "acceptedMasks": 225,
+    "acceptedMasks": 230,
     "acceptedSourceGroups": 12,
     "stressPending": 35
   },
@@ -21,6 +21,7 @@
     "real_release_20260713_022.jpg",
     "real_release_20260713_024.jpg",
     "real_release_20260713_025.jpg",
+    "real_release_20260713_026.jpg",
     "real_release_20260713_027.jpg",
     "real_release_20260713_028.jpg",
     "real_release_20260713_029.jpg",
@@ -55,7 +56,6 @@
     "real_release_20260713_092.jpg"
   ],
   "reworkFiles": [
-    "real_release_20260713_026.jpg",
     "real_release_20260713_047.jpg",
     "real_release_20260713_052.jpg",
     "real_release_20260713_065.jpg",
@@ -115,7 +115,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v15-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v16-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v17-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v18-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v18-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v19-report.json"
   ],
   "repairBatches": [
     {
@@ -288,6 +289,16 @@
       "passCount": 1,
       "acceptedMaskCount": 5,
       "promptStrategy": "retain_four_complete_nails_and_tightly_rebuild_the_long_nail_without_root_skin_contamination"
+    },
+    {
+      "id": "sam2-core-repair-v19",
+      "manifest": "sam2-core-repair-v19-manifest.json",
+      "prompts": "sam2-core-repair-v19-prompts.json",
+      "candidateReport": "sam2-core-repair-v19-report.json",
+      "review": "sam2-core-repair-v19-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "promptStrategy": "retain_four_complete_nails_and_rebuild_the_thumb_with_full_axis_points_and_dense_skin_negatives"
     }
   ],
   "errors": []

@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-thumb-skin-exclusion-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_026.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [
+        [0.525, 0.71, 0.665, 0.805]
+      ],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [
+        [[0.645, 0.725], [0.62, 0.75], [0.59, 0.775], [0.555, 0.795]]
+      ],
+      "addNegativePoints": [
+        [[0.52, 0.745], [0.525, 0.78], [0.55, 0.812], [0.605, 0.815], [0.67, 0.76], [0.645, 0.795]]
+      ],
+      "reviewReason": "keep_four_complete_finger_masks_and_rebuild_thumb_with_full_axis_points_and_dense_skin_negatives"
+    }
+  ]
+}
