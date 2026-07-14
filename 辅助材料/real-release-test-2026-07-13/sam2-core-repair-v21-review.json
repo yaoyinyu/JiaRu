@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-missing-thumb-and-duplicate-bow-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_052.jpg"
+  ],
+  "acceptedMaskCount": 5,
+  "reworkFiles": [],
+  "excludeFiles": [],
+  "reviewNotes": {
+    "real_release_20260713_052.jpg": "five_single_masks_cover_all_fully_visible_nails_the_black_bow_nail_has_one_complete_nonduplicate_mask_and_the_restored_thumb_spans_cuticle_to_black_french_tip_without_skin_or_sweater"
+  }
+}
