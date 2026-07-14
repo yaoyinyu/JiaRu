@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-overlap-and-thumb-skin-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_072.jpg"
+  ],
+  "acceptedMaskCount": 10,
+  "reworkFiles": [],
+  "excludeFiles": [],
+  "reviewNotes": {
+    "real_release_20260713_072.jpg": "ten_single_complete_masks_cover_all_fully_visible_nails_the_two_crossing_center_nails_no_longer_overlap_and_the_foreground_butterfly_thumb_has_no_skin_contamination"
+  }
+}
