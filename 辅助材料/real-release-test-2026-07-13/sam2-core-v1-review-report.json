@@ -6,11 +6,11 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 40,
-    "rework": 5,
+    "pass": 41,
+    "rework": 4,
     "excluded": 12,
-    "acceptedMasks": 230,
-    "acceptedSourceGroups": 12,
+    "acceptedMasks": 235,
+    "acceptedSourceGroups": 13,
     "stressPending": 35
   },
   "passFiles": [
@@ -38,6 +38,7 @@
     "real_release_20260713_051.jpg",
     "real_release_20260713_054.jpg",
     "real_release_20260713_064.jpg",
+    "real_release_20260713_065.jpg",
     "real_release_20260713_067.jpg",
     "real_release_20260713_068.jpg",
     "real_release_20260713_071.jpg",
@@ -58,7 +59,6 @@
   "reworkFiles": [
     "real_release_20260713_047.jpg",
     "real_release_20260713_052.jpg",
-    "real_release_20260713_065.jpg",
     "real_release_20260713_072.jpg",
     "real_release_20260713_076.jpg"
   ],
@@ -116,7 +116,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v16-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v17-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v18-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v19-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v19-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v20-report.json"
   ],
   "repairBatches": [
     {
@@ -299,6 +300,16 @@
       "passCount": 1,
       "acceptedMaskCount": 5,
       "promptStrategy": "retain_four_complete_nails_and_rebuild_the_thumb_with_full_axis_points_and_dense_skin_negatives"
+    },
+    {
+      "id": "sam2-core-repair-v20",
+      "manifest": "sam2-core-repair-v20-manifest.json",
+      "prompts": "sam2-core-repair-v20-prompts.json",
+      "candidateReport": "sam2-core-repair-v20-report.json",
+      "review": "sam2-core-repair-v20-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "promptStrategy": "retain_four_complete_nails_and_rebuild_the_transparent_thumb_with_full_axis_points_and_dense_denim_skin_negatives"
     }
   ],
   "errors": []
