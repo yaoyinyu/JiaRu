@@ -27,3 +27,5 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Exclude a source image instead of repeatedly repairing it when any required nail is cropped by an image edge or is not fully visible. Prompt modes such as `box-center` and `center-negative-corners` remain candidate-generation aids; accept their output only after the same original-resolution review gate.
 - `build-reviewed-sam-repair-prompts.py` 的 `keepPromptIndices` 使用从 1 开始的提示序号；编写返修清单时不得按数组的 0 起始索引填写。
 - Windows 下运行项目 npm 脚本必须显式使用 `npm.cmd`，禁止调用无扩展名的裸 `npm`；本机 `C:\Windows\System32\npm` 可能优先于 Node.js 安装目录并触发“选择应用打开”弹窗。
+- 未经用户在当前任务中明确要求，不执行 `git commit` 或 `git push`；完成修改与验证后仅保留本地工作区差异。
+- 父截图可用但派生区域选错时，应按父文件 SHA-256 和稳定 `sourceGroup` 替换旧区域，并保持一父图一派生区域；禁止把新旧区域重复计数，也不得因此误排除父图。

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { AppShell } from "@/components/AppShell";
-import { AI_STYLES } from "@/lib/utils";
+import { AI_STYLE_PROMPTS } from "@/lib/ai-style-prompts";
 
 type Status = "idle" | "loading" | "success" | "error";
 
@@ -11,6 +11,18 @@ export default function AiGeneratePage() {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Track which prompt index to show next for each style label.
+  const styleIndices = useRef<Record<string, number>>({});
+
+  const handleStyleClick = useCallback((label: string) => {
+    const group = AI_STYLE_PROMPTS.find((g) => g.label === label);
+    if (!group) return;
+    const currentIdx = styleIndices.current[label] ?? 0;
+    const nextIdx = (currentIdx + 1) % group.prompts.length;
+    styleIndices.current[label] = nextIdx;
+    setPrompt(group.prompts[currentIdx]);
+  }, []);
 
   const handleGenerate = async () => {
     if (!prompt.trim() || status === "loading") return;
@@ -57,7 +69,7 @@ export default function AiGeneratePage() {
           <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节……" maxLength={500} className="mt-4 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-white/75 p-4 text-sm leading-7 text-[#544C50] outline-none transition placeholder:text-[#BEB4B9] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
           <p className="mt-5 text-xs font-medium text-[#7F767B]">从一个风格开始</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {AI_STYLES.map((style) => <button key={style} onClick={() => setPrompt(style)} className="rounded-full border border-pink-100 bg-pink-50/65 px-3 py-2 text-xs text-[#B96A8C] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm">{style}</button>)}
+            {AI_STYLE_PROMPTS.map((group) => <button key={group.label} onClick={() => handleStyleClick(group.label)} className="rounded-full border border-pink-100 bg-pink-50/65 px-3 py-2 text-xs text-[#B96A8C] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm">{group.label}</button>)}
           </div>
           <button onClick={handleGenerate} disabled={status === "loading" || !prompt.trim()} className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#C96591] text-sm font-semibold text-white shadow-[0_12px_28px_rgba(207,111,153,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(207,111,153,.32)] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40">
             {status === "loading" ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />正在生成设计</> : <>生成我的美甲设计 <span aria-hidden="true">✦</span></>}
