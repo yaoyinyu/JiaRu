@@ -25,3 +25,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Prioritize fully visible nails during annotation review. Every fully exposed nail must have exactly one complete mask covering the whole visible nail surface; a mask that captures only the color, decoration, tip, or another partial region is a rework failure even when its geometry audit passes.
 - 返修透明、低对比或延长甲时，优先用多个正点分别覆盖有色甲面与透明甲尖，并把定向负点放在邻近皮肤、衣物或背景污染区；禁止把正点放入污染区。多点提示仍只是候选生成手段，必须通过原分辨率视觉审核。
 - Exclude a source image instead of repeatedly repairing it when any required nail is cropped by an image edge or is not fully visible. Prompt modes such as `box-center` and `center-negative-corners` remain candidate-generation aids; accept their output only after the same original-resolution review gate.
+- `build-reviewed-sam-repair-prompts.py` 的 `keepPromptIndices` 使用从 1 开始的提示序号；编写返修清单时不得按数组的 0 起始索引填写。
