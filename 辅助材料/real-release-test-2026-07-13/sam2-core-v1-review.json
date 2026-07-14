@@ -52,7 +52,8 @@
     "real_release_20260713_026.jpg",
     "real_release_20260713_065.jpg",
     "real_release_20260713_052.jpg",
-    "real_release_20260713_072.jpg"
+    "real_release_20260713_072.jpg",
+    "real_release_20260713_047.jpg"
   ],
   "excludeFiles": [
     "real_release_20260713_023.jpg",
@@ -293,6 +294,16 @@
       "passCount": 1,
       "acceptedMaskCount": 10,
       "promptStrategy": "retain_seven_complete_nails_separate_two_crossing_center_nails_and_tighten_the_foreground_butterfly_thumb_without_skin_contamination"
+    },
+    {
+      "id": "sam2-core-repair-v23",
+      "manifest": "sam2-core-repair-v23-manifest.json",
+      "prompts": "sam2-core-repair-v23-prompts.json",
+      "candidateReport": "sam2-core-repair-v23-report.json",
+      "review": "sam2-core-repair-v23-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 9,
+      "promptStrategy": "retain_eight_complete_nails_and_tightly_rebuild_the_leftmost_low_contrast_purple_nail_without_adjacent_white_prop_contamination"
     }
   ]
 }

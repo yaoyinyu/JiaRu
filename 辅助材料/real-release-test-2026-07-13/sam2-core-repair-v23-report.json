@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "method": "vision-guided-box-center-positive-corner-negative-prompts-plus-sam2",
+  "engine": "sam2",
+  "promptMode": "center-negative-corners",
+  "model": "E:\\AI Project\\Codex\\JiaRu\\sam2.1_t.pt",
+  "promptCount": 9,
+  "imageCount": 1,
+  "excludedFiles": [],
+  "completedCount": 1,
+  "boxOnlyFallbackPromptCount": 0,
+  "errors": [],
+  "outputs": [
+    {
+      "fileName": "real_release_20260713_047.jpg",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-core-repair-v23-json\\real_release_20260713_047.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-core-repair-v23\\real_release_20260713_047-sam-reviewed-overlay.png",
+      "polygonCount": 9,
+      "sourceGroup": "xhs-83cdca812139"
+    }
+  ]
+}
