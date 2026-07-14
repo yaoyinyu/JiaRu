@@ -1,0 +1,262 @@
+{
+  "schemaVersion": 1,
+  "source": "human-reviewed-keep-drop-add-repair",
+  "decision": "sam_repair_candidate_only_not_test_truth",
+  "sourcePromptFile": "sam2-stress-primary-v1-prompts.json",
+  "sourcePromptSha256": "8b92ce6cb967c9a03ebc7360acf66061d49327b5f599ff27baa7103083e5fa71",
+  "repairManifestFile": "sam2-stress-primary-repair-v3-manifest.json",
+  "repairManifestSha256": "430daf678066a5a39a42964983901f218b36895c9849a923c088213b9220e562",
+  "imageCount": 2,
+  "promptCount": 10,
+  "images": [
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-066207e1c3ef",
+      "boxes": [
+        [
+          0.2762977867203219,
+          0.6565052631578947,
+          0.4218913480885312,
+          0.7792842105263158
+        ],
+        [
+          0.5435814889336017,
+          0.35578947368421054,
+          0.6978672032193158,
+          0.5263157894736842
+        ],
+        [
+          0.48804828973843056,
+          0.016505263157894738,
+          0.6749295774647888,
+          0.1392842105263158
+        ],
+        [
+          0.57,
+          0.7,
+          0.8,
+          0.895
+        ],
+        [
+          0.65,
+          0.59,
+          0.84,
+          0.76
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box-center",
+        "box-center"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        [
+          [
+            0.59,
+            0.73
+          ],
+          [
+            0.64,
+            0.755
+          ],
+          [
+            0.7,
+            0.79
+          ],
+          [
+            0.765,
+            0.84
+          ]
+        ],
+        [
+          [
+            0.675,
+            0.615
+          ],
+          [
+            0.715,
+            0.645
+          ],
+          [
+            0.755,
+            0.68
+          ],
+          [
+            0.8,
+            0.72
+          ]
+        ]
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        [
+          [
+            0.565,
+            0.7
+          ],
+          [
+            0.675,
+            0.685
+          ],
+          [
+            0.805,
+            0.71
+          ],
+          [
+            0.805,
+            0.79
+          ],
+          [
+            0.805,
+            0.89
+          ],
+          [
+            0.68,
+            0.91
+          ],
+          [
+            0.565,
+            0.89
+          ]
+        ],
+        [
+          [
+            0.645,
+            0.59
+          ],
+          [
+            0.745,
+            0.57
+          ],
+          [
+            0.84,
+            0.585
+          ],
+          [
+            0.845,
+            0.65
+          ],
+          [
+            0.845,
+            0.705
+          ],
+          [
+            0.84,
+            0.745
+          ],
+          [
+            0.82,
+            0.765
+          ],
+          [
+            0.73,
+            0.78
+          ],
+          [
+            0.645,
+            0.755
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          4
+        ],
+        "addedBoxCount": 2,
+        "addedPromptModes": [
+          "box-center",
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          4,
+          4
+        ],
+        "addedNegativePointCounts": [
+          7,
+          9
+        ],
+        "reviewReason": "retain_three_complete_nails_and_rebuild_the_two_right_nails_without_gray_sleeve_skin_or_cross_nail_overlap"
+      }
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d17ab88ac58a",
+      "boxes": [
+        [
+          0.6458518518518518,
+          0.5617777777777778,
+          0.8078518518518518,
+          0.6937777777777777
+        ],
+        [
+          0.10081481481481482,
+          0.4507222222222222,
+          0.2788148148148148,
+          0.5812222222222222
+        ],
+        [
+          0.46414814814814814,
+          0.451,
+          0.5821481481481482,
+          0.6114999999999999
+        ],
+        [
+          0.6014814814814815,
+          0.5345555555555556,
+          0.7114814814814815,
+          0.6890555555555555
+        ],
+        [
+          0.312,
+          0.53,
+          0.438,
+          0.695
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        null,
+        null
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "addedBoxCount": 0,
+        "addedPromptModes": [],
+        "addedPositivePointCounts": [],
+        "addedNegativePointCounts": [],
+        "reviewReason": "second_original_resolution_review_confirms_five_complete_non_contaminated_masks_despite_overlapping_prompt_boxes"
+      }
+    }
+  ]
+}
