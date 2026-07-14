@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-missing-thumb-and-duplicate-bow-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_052.jpg",
+      "keepPromptIndices": [1, 2, 3],
+      "addBoxes": [
+        [0.535, 0.525, 0.715, 0.745],
+        [0.115, 0.665, 0.405, 0.79]
+      ],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [
+        [[0.62, 0.545], [0.615, 0.605], [0.605, 0.67], [0.595, 0.72]],
+        [[0.15, 0.725], [0.23, 0.735], [0.31, 0.735], [0.385, 0.72]]
+      ],
+      "addNegativePoints": [
+        [[0.525, 0.56], [0.725, 0.58], [0.53, 0.68], [0.72, 0.7], [0.61, 0.755]],
+        [[0.13, 0.65], [0.25, 0.65], [0.4, 0.68], [0.13, 0.8], [0.27, 0.8], [0.41, 0.76]]
+      ],
+      "reviewReason": "keep_three_complete_nails_replace_duplicate_bow_nail_masks_with_one_full_mask_and_restore_the_missing_thumb"
+    }
+  ]
+}

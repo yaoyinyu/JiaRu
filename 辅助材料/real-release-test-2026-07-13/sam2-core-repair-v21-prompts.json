@@ -1,0 +1,171 @@
+{
+  "schemaVersion": 1,
+  "source": "human-reviewed-keep-drop-add-repair",
+  "decision": "sam_repair_candidate_only_not_test_truth",
+  "sourcePromptFile": "sam2-core-repair-v7-prompts.json",
+  "sourcePromptSha256": "0a8cdf1e5eb1524f26ee7444c9b9b81138904e0be575b207ef89fa1caed4faf6",
+  "repairManifestFile": "sam2-core-repair-v21-manifest.json",
+  "repairManifestSha256": "caf8448e5803da693f59ea5734dd8d5e551534a3c0d0b8847b226d70576347b9",
+  "imageCount": 1,
+  "promptCount": 5,
+  "images": [
+    {
+      "fileName": "real_release_20260713_052.jpg",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "boxes": [
+        [
+          0.41888888888888887,
+          0.4827333333333333,
+          0.5388888888888889,
+          0.6564333333333333
+        ],
+        [
+          0.7527555555555556,
+          0.48186666666666667,
+          0.9183555555555555,
+          0.5664666666666667
+        ],
+        [
+          0.23422222222222225,
+          0.48106666666666664,
+          0.3602222222222222,
+          0.6547666666666667
+        ],
+        [
+          0.535,
+          0.525,
+          0.715,
+          0.745
+        ],
+        [
+          0.115,
+          0.665,
+          0.405,
+          0.79
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box-center",
+        "box-center"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        [
+          [
+            0.62,
+            0.545
+          ],
+          [
+            0.615,
+            0.605
+          ],
+          [
+            0.605,
+            0.67
+          ],
+          [
+            0.595,
+            0.72
+          ]
+        ],
+        [
+          [
+            0.15,
+            0.725
+          ],
+          [
+            0.23,
+            0.735
+          ],
+          [
+            0.31,
+            0.735
+          ],
+          [
+            0.385,
+            0.72
+          ]
+        ]
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        [
+          [
+            0.525,
+            0.56
+          ],
+          [
+            0.725,
+            0.58
+          ],
+          [
+            0.53,
+            0.68
+          ],
+          [
+            0.72,
+            0.7
+          ],
+          [
+            0.61,
+            0.755
+          ]
+        ],
+        [
+          [
+            0.13,
+            0.65
+          ],
+          [
+            0.25,
+            0.65
+          ],
+          [
+            0.4,
+            0.68
+          ],
+          [
+            0.13,
+            0.8
+          ],
+          [
+            0.27,
+            0.8
+          ],
+          [
+            0.41,
+            0.76
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3
+        ],
+        "addedBoxCount": 2,
+        "addedPromptModes": [
+          "box-center",
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          4,
+          4
+        ],
+        "addedNegativePointCounts": [
+          5,
+          6
+        ],
+        "reviewReason": "keep_three_complete_nails_replace_duplicate_bow_nail_masks_with_one_full_mask_and_restore_the_missing_thumb"
+      }
+    }
+  ]
+}
