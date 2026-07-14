@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-two-hand-ten-nail-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_076.jpg"
+  ],
+  "acceptedMaskCount": 10,
+  "reworkFiles": [],
+  "excludeFiles": [],
+  "reviewNotes": {
+    "real_release_20260713_076.jpg": "ten_single_complete_masks_cover_all_fully_visible_nails_the_upper_hand_thumb_is_restored_and_the_palm_and_watch_false_positives_are_removed_the_single_geometry_suspect_is_a_complete_slanted_lower_thumb_with_prompt_center_outside_its_narrow_polygon"
+  }
+}
