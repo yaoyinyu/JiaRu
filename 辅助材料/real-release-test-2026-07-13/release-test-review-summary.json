@@ -5,11 +5,11 @@
   "ok": true,
   "counts": {
     "parents": 92,
-    "pass": 52,
-    "rework": 26,
+    "pass": 55,
+    "rework": 23,
     "excluded": 14,
-    "acceptedMasks": 304,
-    "acceptedSourceGroups": 16,
+    "acceptedMasks": 322,
+    "acceptedSourceGroups": 17,
     "upstreamExcluded": 9
   },
   "passParentFiles": [
@@ -18,6 +18,7 @@
     "real_release_20260713_003.jpg",
     "real_release_20260713_004.jpg",
     "real_release_20260713_005.jpg",
+    "real_release_20260713_011.jpg",
     "real_release_20260713_012.jpg",
     "real_release_20260713_022.jpg",
     "real_release_20260713_024.jpg",
@@ -64,14 +65,15 @@
     "real_release_20260713_087.jpg",
     "real_release_20260713_089.jpg",
     "real_release_20260713_090.jpg",
-    "real_release_20260713_092.jpg"
+    "real_release_20260713_092.jpg",
+    "real_release_20260713_096.jpg",
+    "real_release_20260713_098.jpg"
   ],
   "reworkParentFiles": [
     "real_release_20260713_006.jpg",
     "real_release_20260713_007.jpg",
     "real_release_20260713_008.jpg",
     "real_release_20260713_009.jpg",
-    "real_release_20260713_011.jpg",
     "real_release_20260713_037.jpg",
     "real_release_20260713_041.jpg",
     "real_release_20260713_042.jpg",
@@ -88,9 +90,7 @@
     "real_release_20260713_093.jpg",
     "real_release_20260713_094.jpg",
     "real_release_20260713_095.jpg",
-    "real_release_20260713_096.jpg",
     "real_release_20260713_097.jpg",
-    "real_release_20260713_098.jpg",
     "real_release_20260713_100.jpg",
     "real_release_20260713_101.jpg"
   ],
@@ -160,8 +160,8 @@
     },
     {
       "parentFileName": "real_release_20260713_011.jpg",
-      "derivedFileName": "f8c543cdd6ff-primary.png",
-      "decision": "rework",
+      "derivedFileName": "f8c543cdd6ff-main-v2.png",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f8c543cdd6ff"
     },
     {
@@ -298,8 +298,8 @@
     },
     {
       "parentFileName": "real_release_20260713_096.jpg",
-      "derivedFileName": "bc6b23d6a1ce-primary.png",
-      "decision": "rework",
+      "derivedFileName": "bc6b23d6a1ce-main-v2.png",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-bc6b23d6a1ce"
     },
     {
@@ -310,8 +310,8 @@
     },
     {
       "parentFileName": "real_release_20260713_098.jpg",
-      "derivedFileName": "c541feb05c54-primary.png",
-      "decision": "rework",
+      "derivedFileName": "c541feb05c54-main-v2.png",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c541feb05c54"
     },
     {
@@ -328,7 +328,7 @@
     },
     {
       "parentFileName": "real_release_20260713_101.jpg",
-      "derivedFileName": "eac9a2f87f4c-primary.png",
+      "derivedFileName": "eac9a2f87f4c-main-v2.png",
       "decision": "rework",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c"
     }

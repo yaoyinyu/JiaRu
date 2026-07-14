@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-stress-region-reextraction-v2",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "f8c543cdd6ff-main-v2.png",
+    "bc6b23d6a1ce-main-v2.png",
+    "c541feb05c54-main-v2.png"
+  ],
+  "acceptedMaskCount": 18,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [
+    "eac9a2f87f4c-main-v2.png"
+  ],
+  "reviewNotes": {
+    "f8c543cdd6ff-main-v2.png": "five_fully_visible_nails_have_one_complete_mask_each_after_removing_the_adjacent_inset_from_the_crop_and_tightening_the_low_contrast_nude_nail",
+    "bc6b23d6a1ce-main-v2.png": "five_long_nails_have_one_complete_mask_each_without_skin_or_background_contamination; prompt_four_geometry_suspect_is_an_angled_nail_center_relation_only",
+    "c541feb05c54-main-v2.png": "eight_fully_visible_nails_across_the_two_hands_have_separate_complete_masks_after_tightening_prompt_two; the_lower_right_inset_edge_contains_no_visible_nail",
+    "eac9a2f87f4c-main-v2.png": "rework_required_because_multiple_adjacent_transparent_long_nails_merge_into_skin_or_peer_fingers_even_after_box_center_and_point_only_retries"
+  }
+}
