@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-overlap-and-thumb-skin-repair",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_072.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 6, 7, 9],
+      "addBoxes": [
+        [0.388, 0.365, 0.482, 0.515],
+        [0.292, 0.407, 0.402, 0.565],
+        [0.448, 0.642, 0.686, 0.755]
+      ],
+      "addPromptModes": ["box-center", "box-center", "box-center"],
+      "addPositivePoints": [
+        [[0.452, 0.387], [0.444, 0.425], [0.434, 0.466], [0.421, 0.501]],
+        [[0.363, 0.428], [0.349, 0.468], [0.329, 0.514], [0.310, 0.548]],
+        [[0.480, 0.665], [0.535, 0.684], [0.592, 0.699], [0.648, 0.711]]
+      ],
+      "addNegativePoints": [
+        [[0.390, 0.438], [0.397, 0.482], [0.490, 0.425], [0.493, 0.475], [0.428, 0.525]],
+        [[0.278, 0.455], [0.278, 0.525], [0.407, 0.438], [0.414, 0.492], [0.326, 0.575]],
+        [[0.462, 0.635], [0.545, 0.632], [0.674, 0.646], [0.474, 0.744], [0.530, 0.750], [0.585, 0.754], [0.635, 0.748], [0.679, 0.730]]
+      ],
+      "reviewReason": "keep_seven_complete_nails_rebuild_two_crossing_center_nails_without_mask_overlap_and_tighten_the_foreground_butterfly_thumb_without_skin"
+    }
+  ]
+}

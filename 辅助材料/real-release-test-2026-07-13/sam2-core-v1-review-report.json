@@ -6,10 +6,10 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 57,
-    "pass": 42,
-    "rework": 3,
+    "pass": 43,
+    "rework": 2,
     "excluded": 12,
-    "acceptedMasks": 240,
+    "acceptedMasks": 250,
     "acceptedSourceGroups": 13,
     "stressPending": 35
   },
@@ -43,6 +43,7 @@
     "real_release_20260713_067.jpg",
     "real_release_20260713_068.jpg",
     "real_release_20260713_071.jpg",
+    "real_release_20260713_072.jpg",
     "real_release_20260713_073.jpg",
     "real_release_20260713_074.jpg",
     "real_release_20260713_075.jpg",
@@ -59,7 +60,6 @@
   ],
   "reworkFiles": [
     "real_release_20260713_047.jpg",
-    "real_release_20260713_072.jpg",
     "real_release_20260713_076.jpg"
   ],
   "excludeFiles": [
@@ -118,7 +118,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v18-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v19-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v20-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v21-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v21-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v22-report.json"
   ],
   "repairBatches": [
     {
@@ -321,6 +322,16 @@
       "passCount": 1,
       "acceptedMaskCount": 5,
       "promptStrategy": "retain_three_complete_nails_replace_duplicate_bow_nail_masks_with_one_full_mask_and_restore_the_missing_thumb"
+    },
+    {
+      "id": "sam2-core-repair-v22",
+      "manifest": "sam2-core-repair-v22-manifest.json",
+      "prompts": "sam2-core-repair-v22-prompts.json",
+      "candidateReport": "sam2-core-repair-v22-report.json",
+      "review": "sam2-core-repair-v22-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 10,
+      "promptStrategy": "retain_seven_complete_nails_separate_two_crossing_center_nails_and_tighten_the_foreground_butterfly_thumb_without_skin_contamination"
     }
   ],
   "errors": []
