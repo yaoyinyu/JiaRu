@@ -5,11 +5,11 @@
   "ok": true,
   "counts": {
     "parents": 92,
-    "pass": 47,
-    "rework": 33,
+    "pass": 50,
+    "rework": 30,
     "excluded": 12,
-    "acceptedMasks": 279,
-    "acceptedSourceGroups": 14,
+    "acceptedMasks": 294,
+    "acceptedSourceGroups": 16,
     "upstreamExcluded": 9
   },
   "passParentFiles": [
@@ -17,6 +17,7 @@
     "real_release_20260713_002.jpg",
     "real_release_20260713_003.jpg",
     "real_release_20260713_004.jpg",
+    "real_release_20260713_005.jpg",
     "real_release_20260713_022.jpg",
     "real_release_20260713_024.jpg",
     "real_release_20260713_025.jpg",
@@ -30,6 +31,8 @@
     "real_release_20260713_033.jpg",
     "real_release_20260713_036.jpg",
     "real_release_20260713_038.jpg",
+    "real_release_20260713_039.jpg",
+    "real_release_20260713_040.jpg",
     "real_release_20260713_043.jpg",
     "real_release_20260713_044.jpg",
     "real_release_20260713_045.jpg",
@@ -62,7 +65,6 @@
     "real_release_20260713_092.jpg"
   ],
   "reworkParentFiles": [
-    "real_release_20260713_005.jpg",
     "real_release_20260713_006.jpg",
     "real_release_20260713_007.jpg",
     "real_release_20260713_008.jpg",
@@ -72,8 +74,6 @@
     "real_release_20260713_012.jpg",
     "real_release_20260713_035.jpg",
     "real_release_20260713_037.jpg",
-    "real_release_20260713_039.jpg",
-    "real_release_20260713_040.jpg",
     "real_release_20260713_041.jpg",
     "real_release_20260713_042.jpg",
     "real_release_20260713_055.jpg",
@@ -125,7 +125,7 @@
     {
       "parentFileName": "real_release_20260713_005.jpg",
       "derivedFileName": "51a2eded5eda-primary.png",
-      "decision": "rework",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-51a2eded5eda"
     },
     {
@@ -197,13 +197,13 @@
     {
       "parentFileName": "real_release_20260713_039.jpg",
       "derivedFileName": "3e9b2b906fda-primary.png",
-      "decision": "rework",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-3e9b2b906fda"
     },
     {
       "parentFileName": "real_release_20260713_040.jpg",
       "derivedFileName": "e826babe1b3a-primary.png",
-      "decision": "rework",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e826babe1b3a"
     },
     {

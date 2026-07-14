@@ -1,0 +1,443 @@
+{
+  "schemaVersion": 1,
+  "source": "human-reviewed-keep-drop-add-repair",
+  "decision": "sam_repair_candidate_only_not_test_truth",
+  "sourcePromptFile": "sam2-stress-primary-v1-prompts.json",
+  "sourcePromptSha256": "8b92ce6cb967c9a03ebc7360acf66061d49327b5f599ff27baa7103083e5fa71",
+  "repairManifestFile": "sam2-stress-primary-repair-v2-manifest.json",
+  "repairManifestSha256": "6bd904eec40e3c8cfbfe23c935bfcc197bbb1b1c018e903bc01f1baeb026bfc7",
+  "imageCount": 3,
+  "promptCount": 15,
+  "images": [
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-3e9b2b906fda",
+      "boxes": [
+        [
+          0.41807407407407404,
+          0.42783333333333334,
+          0.5800740740740741,
+          0.5763333333333333
+        ],
+        [
+          0.2747407407407408,
+          0.36933333333333335,
+          0.40674074074074074,
+          0.5223333333333333
+        ],
+        [
+          0.5342222222222223,
+          0.523,
+          0.7102222222222222,
+          0.652
+        ],
+        [
+          0.6823703703703704,
+          0.5738888888888889,
+          0.8583703703703703,
+          0.7163888888888889
+        ],
+        [
+          0.055,
+          0.55,
+          0.335,
+          0.655
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box-center"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.085,
+            0.59
+          ],
+          [
+            0.155,
+            0.59
+          ],
+          [
+            0.235,
+            0.595
+          ],
+          [
+            0.305,
+            0.61
+          ]
+        ]
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.045,
+            0.555
+          ],
+          [
+            0.15,
+            0.535
+          ],
+          [
+            0.325,
+            0.555
+          ],
+          [
+            0.045,
+            0.6
+          ],
+          [
+            0.05,
+            0.645
+          ],
+          [
+            0.15,
+            0.665
+          ],
+          [
+            0.26,
+            0.665
+          ],
+          [
+            0.34,
+            0.64
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          4
+        ],
+        "addedNegativePointCounts": [
+          8
+        ],
+        "reviewReason": "retain_four_complete_nails_and_restore_the_missing_left_thumb_without_satin_or_skin_contamination"
+      }
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-51a2eded5eda",
+      "boxes": [
+        [
+          0.4131168831168831,
+          0.4215950920245399,
+          0.5674025974025974,
+          0.6336196319018405
+        ],
+        [
+          0.2924025974025974,
+          0.30920245398773005,
+          0.41863636363636364,
+          0.5190184049079755
+        ],
+        [
+          0.5514285714285715,
+          0.5712883435582823,
+          0.696948051948052,
+          0.7722699386503067
+        ],
+        [
+          0.7604545454545455,
+          0.7470756646216768,
+          0.8726623376623376,
+          0.8950511247443763
+        ],
+        [
+          0.245,
+          0.65,
+          0.465,
+          0.86
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box-center"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.285,
+            0.715
+          ],
+          [
+            0.345,
+            0.725
+          ],
+          [
+            0.405,
+            0.755
+          ],
+          [
+            0.44,
+            0.81
+          ]
+        ]
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        null,
+        [
+          [
+            0.245,
+            0.645
+          ],
+          [
+            0.35,
+            0.63
+          ],
+          [
+            0.47,
+            0.67
+          ],
+          [
+            0.225,
+            0.78
+          ],
+          [
+            0.25,
+            0.865
+          ],
+          [
+            0.38,
+            0.885
+          ],
+          [
+            0.48,
+            0.84
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          4
+        ],
+        "addedNegativePointCounts": [
+          7
+        ],
+        "reviewReason": "retain_four_complete_nails_drop_the_black_background_false_positive_and_restore_the_black_thumb_without_sleeve_or_skin_contamination"
+      }
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e826babe1b3a",
+      "boxes": [
+        [
+          0.22874074074074074,
+          0.6623888888888889,
+          0.35274074074074074,
+          0.740388888888889
+        ],
+        [
+          0.6097037037037037,
+          0.5599444444444445,
+          0.7977037037037037,
+          0.6664444444444444
+        ],
+        [
+          0.4517777777777778,
+          0.34405555555555556,
+          0.6537777777777778,
+          0.4670555555555555
+        ],
+        [
+          0.345,
+          0.135,
+          0.565,
+          0.215
+        ],
+        [
+          0.55,
+          0.665,
+          0.77,
+          0.765
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box-center",
+        "box-center"
+      ],
+      "positivePoints": [
+        null,
+        null,
+        null,
+        [
+          [
+            0.37,
+            0.15
+          ],
+          [
+            0.415,
+            0.16
+          ],
+          [
+            0.46,
+            0.175
+          ],
+          [
+            0.505,
+            0.19
+          ],
+          [
+            0.54,
+            0.202
+          ]
+        ],
+        [
+          [
+            0.58,
+            0.7
+          ],
+          [
+            0.64,
+            0.705
+          ],
+          [
+            0.7,
+            0.72
+          ],
+          [
+            0.76,
+            0.742
+          ]
+        ]
+      ],
+      "negativePoints": [
+        null,
+        null,
+        null,
+        [
+          [
+            0.345,
+            0.13
+          ],
+          [
+            0.445,
+            0.12
+          ],
+          [
+            0.565,
+            0.15
+          ],
+          [
+            0.35,
+            0.21
+          ],
+          [
+            0.4,
+            0.22
+          ],
+          [
+            0.455,
+            0.225
+          ],
+          [
+            0.51,
+            0.23
+          ],
+          [
+            0.565,
+            0.22
+          ]
+        ],
+        [
+          [
+            0.545,
+            0.66
+          ],
+          [
+            0.68,
+            0.65
+          ],
+          [
+            0.775,
+            0.68
+          ],
+          [
+            0.775,
+            0.715
+          ],
+          [
+            0.775,
+            0.75
+          ],
+          [
+            0.765,
+            0.77
+          ],
+          [
+            0.67,
+            0.78
+          ],
+          [
+            0.55,
+            0.77
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3
+        ],
+        "addedBoxCount": 2,
+        "addedPromptModes": [
+          "box-center",
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          5,
+          4
+        ],
+        "addedNegativePointCounts": [
+          8,
+          8
+        ],
+        "reviewReason": "retain_three_complete_nails_and_restore_the_missing_upper_side_nail_and_lower_nude_nail_without_denim_skin_or_cloth_contamination"
+      }
+    }
+  ]
+}

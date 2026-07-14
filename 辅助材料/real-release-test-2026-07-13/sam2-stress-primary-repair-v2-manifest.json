@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-stress-single-photo-repair",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "3e9b2b906fda-primary.png",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.055, 0.550, 0.335, 0.655]],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [[[0.085, 0.590], [0.155, 0.590], [0.235, 0.595], [0.305, 0.610]]],
+      "addNegativePoints": [[[0.045, 0.555], [0.150, 0.535], [0.325, 0.555], [0.045, 0.600], [0.050, 0.645], [0.150, 0.665], [0.260, 0.665], [0.340, 0.640]]],
+      "reviewReason": "retain_four_complete_nails_and_restore_the_missing_left_thumb_without_satin_or_skin_contamination"
+    },
+    {
+      "fileName": "51a2eded5eda-primary.png",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.245, 0.650, 0.465, 0.860]],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [[[0.285, 0.715], [0.345, 0.725], [0.405, 0.755], [0.440, 0.810]]],
+      "addNegativePoints": [[[0.245, 0.645], [0.350, 0.630], [0.470, 0.670], [0.225, 0.780], [0.250, 0.865], [0.380, 0.885], [0.480, 0.840]]],
+      "reviewReason": "retain_four_complete_nails_drop_the_black_background_false_positive_and_restore_the_black_thumb_without_sleeve_or_skin_contamination"
+    },
+    {
+      "fileName": "e826babe1b3a-primary.png",
+      "keepPromptIndices": [1, 2, 3],
+      "addBoxes": [[0.345, 0.135, 0.565, 0.215], [0.550, 0.665, 0.770, 0.765]],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [[[0.370, 0.150], [0.415, 0.160], [0.460, 0.175], [0.505, 0.190], [0.540, 0.202]], [[0.580, 0.700], [0.640, 0.705], [0.700, 0.720], [0.760, 0.742]]],
+      "addNegativePoints": [[[0.345, 0.130], [0.445, 0.120], [0.565, 0.150], [0.350, 0.210], [0.400, 0.220], [0.455, 0.225], [0.510, 0.230], [0.565, 0.220]], [[0.545, 0.660], [0.680, 0.650], [0.775, 0.680], [0.775, 0.715], [0.775, 0.750], [0.765, 0.770], [0.670, 0.780], [0.550, 0.770]]],
+      "reviewReason": "retain_three_complete_nails_and_restore_the_missing_upper_side_nail_and_lower_nude_nail_without_denim_skin_or_cloth_contamination"
+    }
+  ]
+}

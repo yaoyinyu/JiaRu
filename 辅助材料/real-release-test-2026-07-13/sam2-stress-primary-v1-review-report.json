@@ -6,16 +6,19 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 35,
-    "pass": 2,
-    "rework": 33,
+    "pass": 5,
+    "rework": 30,
     "excluded": 0,
-    "acceptedMasks": 10,
-    "acceptedSourceGroups": 2,
+    "acceptedMasks": 25,
+    "acceptedSourceGroups": 5,
     "stressPending": 0
   },
   "passFiles": [
+    "3e9b2b906fda-primary.png",
+    "51a2eded5eda-primary.png",
     "b8f91eb08fc3-primary.png",
-    "c6edb7fea814-primary.png"
+    "c6edb7fea814-primary.png",
+    "e826babe1b3a-primary.png"
   ],
   "reworkFiles": [
     "02f011058d1f-primary.png",
@@ -23,10 +26,8 @@
     "0c2bd7cc24b7-primary.png",
     "223683d91dc4-primary.png",
     "2c793788bdec-primary.png",
-    "3e9b2b906fda-primary.png",
     "406bc158c41d-primary.png",
     "424a9b7d8798-primary.png",
-    "51a2eded5eda-primary.png",
     "6be466dc2f6d-primary.png",
     "6d835166ab9e-primary.png",
     "6d9a192d4168-primary.png",
@@ -46,7 +47,6 @@
     "d9518b2dc889-primary.png",
     "d970653d6111-primary.png",
     "e0ee33ff3706-primary.png",
-    "e826babe1b3a-primary.png",
     "eac9a2f87f4c-primary.png",
     "f0752db2009c-primary.png",
     "f8a25604ea58-primary.png",
@@ -62,5 +62,21 @@
     "rejectCroppedNailAtRegionEdge": true,
     "candidateOnlyUntilHumanReview": true
   },
+  "candidateReportPaths": [
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-v1-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-repair-v2-report.json"
+  ],
+  "repairBatches": [
+    {
+      "id": "sam2-stress-primary-repair-v2",
+      "manifest": "sam2-stress-primary-repair-v2-manifest.json",
+      "prompts": "sam2-stress-primary-repair-v2-prompts.json",
+      "candidateReport": "sam2-stress-primary-repair-v2-report.json",
+      "review": "sam2-stress-primary-repair-v2-review.json",
+      "passCount": 3,
+      "acceptedMaskCount": 15,
+      "promptStrategy": "retain_complete_masks_restore_missing_thumbs_and_nude_nails_remove_background_false_positive_and_tighten_skin_satin_denim_and_cloth_boundaries"
+    }
+  ],
   "errors": []
 }
