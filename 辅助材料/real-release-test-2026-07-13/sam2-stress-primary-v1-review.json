@@ -15,10 +15,18 @@
     "c6edb7fea814-primary.png",
     "3e9b2b906fda-primary.png",
     "51a2eded5eda-primary.png",
-    "e826babe1b3a-primary.png"
+    "e826babe1b3a-primary.png",
+    "066207e1c3ef-primary.png",
+    "d17ab88ac58a-primary.png"
   ],
-  "excludeFiles": [],
-  "excludeReasons": {},
+  "excludeFiles": [
+    "0c2bd7cc24b7-primary.png",
+    "6be466dc2f6d-primary.png"
+  ],
+  "excludeReasons": {
+    "0c2bd7cc24b7-primary.png": "parent_main_photo_crops_required_nails_at_left_and_lower_image_edges",
+    "6be466dc2f6d-primary.png": "parent_main_photo_crops_required_nails_at_top_and_right_image_edges"
+  },
   "repairBatches": [
     {
       "id": "sam2-stress-primary-repair-v2",
@@ -29,6 +37,18 @@
       "passCount": 3,
       "acceptedMaskCount": 15,
       "promptStrategy": "retain_complete_masks_restore_missing_thumbs_and_nude_nails_remove_background_false_positive_and_tighten_skin_satin_denim_and_cloth_boundaries"
+    },
+    {
+      "id": "sam2-stress-primary-repair-v3",
+      "manifest": "sam2-stress-primary-repair-v3-manifest.json",
+      "prompts": "sam2-stress-primary-repair-v3-prompts.json",
+      "candidateReport": "sam2-stress-primary-repair-v3-report.json",
+      "geometryAudit": "sam2-stress-primary-repair-v3-geometry-audit.json",
+      "review": "sam2-stress-primary-repair-v3-review.json",
+      "passCount": 2,
+      "acceptedMaskCount": 10,
+      "excludeCount": 2,
+      "promptStrategy": "retain_complete_masks_rebuild_two_sleeve_adjacent_nails_confirm_zero_adjacent_polygon_overlap_and_exclude_parent_photos_with_required_nails_cropped_by_image_edges"
     }
   ]
 }

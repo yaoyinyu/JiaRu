@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-stress-repair-v3-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "066207e1c3ef-primary.png",
+    "d17ab88ac58a-primary.png"
+  ],
+  "acceptedMaskCount": 10,
+  "excludeFiles": [
+    "0c2bd7cc24b7-primary.png",
+    "6be466dc2f6d-primary.png"
+  ],
+  "excludeReasons": {
+    "0c2bd7cc24b7-primary.png": "parent_main_photo_crops_required_nails_at_left_and_lower_image_edges",
+    "6be466dc2f6d-primary.png": "parent_main_photo_crops_required_nails_at_top_and_right_image_edges"
+  },
+  "reworkFiles": [],
+  "reviewNotes": {
+    "066207e1c3ef-primary.png": "five_single_complete_masks_cover_all_fully_visible_nails_after_tightening_the_two_right_nails_away_from_gray_sleeve_and_skin",
+    "d17ab88ac58a-primary.png": "five_single_complete_masks_cover_all_fully_visible_nails_and_polygon_intersection_audit_confirms_zero_overlap_between_adjacent_nails"
+  }
+}

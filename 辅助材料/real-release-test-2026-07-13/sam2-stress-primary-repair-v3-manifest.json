@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-stress-repair-v3",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "excludeParentWhenRequiredNailIsCropped": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "keepPromptIndices": [1, 2, 4],
+      "addBoxes": [[0.570, 0.700, 0.800, 0.895], [0.650, 0.590, 0.840, 0.760]],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [[[0.590, 0.730], [0.640, 0.755], [0.700, 0.790], [0.765, 0.840]], [[0.675, 0.615], [0.715, 0.645], [0.755, 0.680], [0.800, 0.720]]],
+      "addNegativePoints": [[[0.565, 0.700], [0.675, 0.685], [0.805, 0.710], [0.805, 0.790], [0.805, 0.890], [0.680, 0.910], [0.565, 0.890]], [[0.645, 0.590], [0.745, 0.570], [0.840, 0.585], [0.845, 0.650], [0.845, 0.705], [0.840, 0.745], [0.820, 0.765], [0.730, 0.780], [0.645, 0.755]]],
+      "reviewReason": "retain_three_complete_nails_and_rebuild_the_two_right_nails_without_gray_sleeve_skin_or_cross_nail_overlap"
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "addPromptModes": [],
+      "addPositivePoints": [],
+      "addNegativePoints": [],
+      "reviewReason": "second_original_resolution_review_confirms_five_complete_non_contaminated_masks_despite_overlapping_prompt_boxes"
+    }
+  ]
+}

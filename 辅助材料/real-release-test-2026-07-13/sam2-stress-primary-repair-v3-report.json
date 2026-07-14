@@ -1,0 +1,29 @@
+{
+  "ok": true,
+  "method": "vision-guided-box-center-positive-corner-negative-prompts-plus-sam2",
+  "engine": "sam2",
+  "promptMode": "center-negative-corners",
+  "model": "sam2.1_t.pt",
+  "promptCount": 10,
+  "imageCount": 2,
+  "excludedFiles": [],
+  "completedCount": 2,
+  "boxOnlyFallbackPromptCount": 0,
+  "errors": [],
+  "outputs": [
+    {
+      "fileName": "066207e1c3ef-primary.png",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-stress-primary-repair-v3-json\\066207e1c3ef-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-stress-primary-repair-v3\\066207e1c3ef-primary-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-066207e1c3ef"
+    },
+    {
+      "fileName": "d17ab88ac58a-primary.png",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\sam2-stress-primary-repair-v3-json\\d17ab88ac58a-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\sam2-stress-primary-repair-v3\\d17ab88ac58a-primary-sam-reviewed-overlay.png",
+      "polygonCount": 5,
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d17ab88ac58a"
+    }
+  ]
+}
