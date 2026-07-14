@@ -17,7 +17,10 @@
     "51a2eded5eda-primary.png",
     "e826babe1b3a-primary.png",
     "066207e1c3ef-primary.png",
-    "d17ab88ac58a-primary.png"
+    "d17ab88ac58a-primary.png",
+    "f8c543cdd6ff-main-v2.png",
+    "bc6b23d6a1ce-main-v2.png",
+    "c541feb05c54-main-v2.png"
   ],
   "excludeFiles": [
     "0c2bd7cc24b7-primary.png",
@@ -49,6 +52,20 @@
       "acceptedMaskCount": 10,
       "excludeCount": 2,
       "promptStrategy": "retain_complete_masks_rebuild_two_sleeve_adjacent_nails_confirm_zero_adjacent_polygon_overlap_and_exclude_parent_photos_with_required_nails_cropped_by_image_edges"
+    },
+    {
+      "id": "sam2-stress-primary-region-replacement-v2",
+      "regionManifest": "stress-primary-regions-v2.json",
+      "regionReport": "stress-primary-regions-v2-report.json",
+      "aggregateRegionReport": "stress-primary-regions-v2-aggregate-report.json",
+      "prompts": "sam2-stress-primary-region-v2-prompts.json",
+      "candidateReport": "sam2-stress-primary-region-v2-report.json",
+      "geometryAudit": "sam2-stress-primary-region-v2-geometry-audit.json",
+      "review": "sam2-stress-primary-region-v2-review.json",
+      "passCount": 3,
+      "acceptedMaskCount": 18,
+      "reworkCount": 1,
+      "promptStrategy": "replace_four_wrong_inset_crops_by_parent_stable_main_photo_regions_then_use_tight_boxes_and_directional_points_with_original_resolution_review"
     }
   ]
 }

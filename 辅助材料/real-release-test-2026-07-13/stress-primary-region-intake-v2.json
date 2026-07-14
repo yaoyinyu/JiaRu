@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "batchId": "real-release-test-2026-07-13-v1-stress-primary-regions-v1",
+  "ok": false,
+  "authorization": {
+    "authorizedUses": [
+      "independent-release-test",
+      "long-term-regression"
+    ],
+    "trainingUse": "prohibited",
+    "inheritedFrom": "real-release-test-2026-07-13-v1"
+  },
+  "root": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\stress-primary-regions-v2",
+  "counts": {
+    "parentStress": 35,
+    "derivedRegions": 4,
+    "annotationPending": 4
+  },
+  "status": "invalid",
+  "errors": [
+    "expected 35 stress regions, built 4"
+  ],
+  "entries": [
+    {
+      "fileName": "f8c543cdd6ff-main-v2.png",
+      "sha256": "ca6f4f886fec6e24749116ae09c53052306abe2862017037cd36e17c660d2bd3",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f8c543cdd6ff",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_011.jpg",
+      "parentSha256": "0b68a7de1b33f0ecbad269f93138f3c583bea59072d7d4fb334c73a57abe9daa",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "parentDecision": "stress",
+      "regionId": "main-v2",
+      "normalizedBox": [
+        0.0,
+        0.08,
+        0.5,
+        0.8
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "sha256": "5b92ee4930c52ec35b08b2ee1c7f7a5bc1042934b1ea9026fe498f49ecc00471",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-bc6b23d6a1ce",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_096.jpg",
+      "parentSha256": "0d505e8fc7e7ced2639ac823a198699b91b077390c2b528a3535a77eb4afd161",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "main-v2",
+      "normalizedBox": [
+        0.058,
+        0.125,
+        0.6,
+        0.77
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "c541feb05c54-main-v2.png",
+      "sha256": "3cf18e6a3b716536bcf5353e8a96a3a60fd365c8f7518767196abdd5502d5a3a",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c541feb05c54",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_098.jpg",
+      "parentSha256": "06833643eb4ce1e9a8daaf7800d3aecf4a42e2fe978a8ec2209313bedb4308af",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "main-v2",
+      "normalizedBox": [
+        0.035,
+        0.126,
+        0.725,
+        0.805
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "sha256": "dc79914c1ab1a39c980542817aba84bf14d17c489ec1bde3665d2cfd413bfd32",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c",
+      "decision": "core",
+      "reason": "reviewed_primary_photo_region_from_stress_parent",
+      "parentFileName": "real_release_20260713_101.jpg",
+      "parentSha256": "c509c80fc83d8672309a82f71acf61e10f523c60f5a0e9611912697dd1ccf70a",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "parentDecision": "stress",
+      "regionId": "main-v2",
+      "normalizedBox": [
+        0.039,
+        0.114,
+        0.56,
+        0.68
+      ],
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "annotationStatus": "pending"
+    }
+  ]
+}
