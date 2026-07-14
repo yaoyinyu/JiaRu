@@ -1,0 +1,235 @@
+{
+  "schemaVersion": 1,
+  "source": "human-reviewed-keep-drop-add-repair",
+  "decision": "sam_repair_candidate_only_not_test_truth",
+  "sourcePromptFile": "sam2-core-repair-v13-prompts.json",
+  "sourcePromptSha256": "b1a1b4b82bbed5804d91a2f043e79cf8b3f0c109a5e3a8b0a694d52ca4462115",
+  "repairManifestFile": "sam2-core-repair-v20-manifest.json",
+  "repairManifestSha256": "b384c1c8a71c4bf5520647a2026f309aba15dd4cef4618e9c36e23bc47195f73",
+  "imageCount": 1,
+  "promptCount": 5,
+  "images": [
+    {
+      "fileName": "real_release_20260713_065.jpg",
+      "sourceGroup": "xhs-055d7f3c88fc",
+      "boxes": [
+        [
+          0.08,
+          0.25,
+          0.17,
+          0.34
+        ],
+        [
+          0.31,
+          0.23,
+          0.44,
+          0.345
+        ],
+        [
+          0.51,
+          0.25,
+          0.635,
+          0.35
+        ],
+        [
+          0.62,
+          0.38,
+          0.755,
+          0.47
+        ],
+        [
+          0.505,
+          0.7,
+          0.67,
+          0.805
+        ]
+      ],
+      "promptModes": [
+        "box-center",
+        "box-center",
+        "box-center",
+        "box-center",
+        "box-center"
+      ],
+      "positivePoints": [
+        [
+          [
+            0.16,
+            0.255
+          ],
+          [
+            0.13,
+            0.29
+          ],
+          [
+            0.095,
+            0.325
+          ]
+        ],
+        [
+          [
+            0.425,
+            0.235
+          ],
+          [
+            0.385,
+            0.28
+          ],
+          [
+            0.335,
+            0.33
+          ]
+        ],
+        [
+          [
+            0.62,
+            0.26
+          ],
+          [
+            0.58,
+            0.295
+          ],
+          [
+            0.53,
+            0.34
+          ]
+        ],
+        [
+          [
+            0.74,
+            0.39
+          ],
+          [
+            0.7,
+            0.42
+          ],
+          [
+            0.65,
+            0.455
+          ]
+        ],
+        [
+          [
+            0.655,
+            0.71
+          ],
+          [
+            0.625,
+            0.735
+          ],
+          [
+            0.59,
+            0.755
+          ],
+          [
+            0.55,
+            0.78
+          ]
+        ]
+      ],
+      "negativePoints": [
+        [
+          [
+            0.075,
+            0.28
+          ],
+          [
+            0.175,
+            0.29
+          ],
+          [
+            0.11,
+            0.35
+          ]
+        ],
+        [
+          [
+            0.305,
+            0.27
+          ],
+          [
+            0.445,
+            0.28
+          ],
+          [
+            0.36,
+            0.355
+          ]
+        ],
+        [
+          [
+            0.505,
+            0.28
+          ],
+          [
+            0.64,
+            0.29
+          ],
+          [
+            0.56,
+            0.36
+          ]
+        ],
+        [
+          [
+            0.615,
+            0.415
+          ],
+          [
+            0.76,
+            0.42
+          ],
+          [
+            0.68,
+            0.48
+          ]
+        ],
+        [
+          [
+            0.5,
+            0.72
+          ],
+          [
+            0.5,
+            0.765
+          ],
+          [
+            0.52,
+            0.805
+          ],
+          [
+            0.59,
+            0.81
+          ],
+          [
+            0.675,
+            0.745
+          ],
+          [
+            0.655,
+            0.79
+          ]
+        ]
+      ],
+      "repairProvenance": {
+        "keptSourcePromptIndices": [
+          1,
+          2,
+          3,
+          4
+        ],
+        "addedBoxCount": 1,
+        "addedPromptModes": [
+          "box-center"
+        ],
+        "addedPositivePointCounts": [
+          4
+        ],
+        "addedNegativePointCounts": [
+          6
+        ],
+        "reviewReason": "keep_four_complete_finger_masks_and_rebuild_thumb_with_full_axis_points_and_dense_denim_skin_negatives"
+      }
+    }
+  ]
+}

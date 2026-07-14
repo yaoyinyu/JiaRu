@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-thumb-denim-exclusion-pass",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtImageEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_065.jpg"
+  ],
+  "acceptedMaskCount": 5,
+  "reworkFiles": [],
+  "excludeFiles": [],
+  "reviewNotes": {
+    "real_release_20260713_065.jpg": "five_single_masks_cover_all_fully_visible_nails_and_the_rebuilt_thumb_includes_the_colored_surface_and_transparent_extension_from_cuticle_to_tip_without_denim_or_skin_contamination"
+  }
+}

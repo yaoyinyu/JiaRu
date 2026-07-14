@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-14",
+  "reviewer": "codex-original-resolution-thumb-denim-exclusion-pass",
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "candidateOnlyUntilSecondPassOverlayReview": true
+  },
+  "images": [
+    {
+      "fileName": "real_release_20260713_065.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [
+        [0.505, 0.7, 0.67, 0.805]
+      ],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [
+        [[0.655, 0.71], [0.625, 0.735], [0.59, 0.755], [0.55, 0.78]]
+      ],
+      "addNegativePoints": [
+        [[0.5, 0.72], [0.5, 0.765], [0.52, 0.805], [0.59, 0.81], [0.675, 0.745], [0.655, 0.79]]
+      ],
+      "reviewReason": "keep_four_complete_finger_masks_and_rebuild_thumb_with_full_axis_points_and_dense_denim_skin_negatives"
+    }
+  ]
+}

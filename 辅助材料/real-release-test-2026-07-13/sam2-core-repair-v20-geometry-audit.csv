@@ -1,0 +1,6 @@
+﻿fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+real_release_20260713_065.jpg,1,sam2-core-repair-v20,pass,,0.396,1.0,True,"[99.0, 367.0, 176.0, 481.0]",0.0
+real_release_20260713_065.jpg,2,sam2-core-repair-v20,pass,,0.4556,1.0,True,"[338.0, 336.0, 467.0, 487.0]",0.0
+real_release_20260713_065.jpg,3,sam2-core-repair-v20,pass,,0.4203,1.0,True,"[560.0, 367.0, 673.0, 493.0]",0.0
+real_release_20260713_065.jpg,4,sam2-core-repair-v20,pass,,0.3763,1.0,True,"[682.0, 554.0, 803.0, 669.0]",0.0
+real_release_20260713_065.jpg,5,sam2-core-repair-v20,pass,,0.4268,0.957,True,"[570.0, 1005.0, 709.0, 1163.0]",0.0
