@@ -6,15 +6,16 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 35,
-    "pass": 15,
-    "rework": 7,
+    "pass": 16,
+    "rework": 6,
     "excluded": 13,
-    "acceptedMasks": 78,
-    "acceptedSourceGroups": 15,
+    "acceptedMasks": 83,
+    "acceptedSourceGroups": 16,
     "stressPending": 0
   },
   "passFiles": [
     "066207e1c3ef-primary.png",
+    "223683d91dc4-primary.png",
     "2c793788bdec-primary.png",
     "3e9b2b906fda-primary.png",
     "51a2eded5eda-primary.png",
@@ -31,7 +32,6 @@
     "f8c543cdd6ff-main-v2.png"
   ],
   "reworkFiles": [
-    "223683d91dc4-primary.png",
     "6d9a192d4168-primary.png",
     "b1184e010679-main-v3.png",
     "d9518b2dc889-primary.png",
@@ -94,7 +94,13 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v14-large-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v15-large-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v16-large-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v17-large-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v17-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v18-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v19-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v20-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v21-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v22-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v23-large-report.json"
   ],
   "repairBatches": [
     {
@@ -251,6 +257,38 @@
       "acceptedMaskCount": 5,
       "reworkCount": 0,
       "promptStrategy": "replace_eleven_duplicate_partial_masks_with_five_axis_guided_complete_masks_preserving_visible_butterfly_and_metallic_design_regions_without_skin_or_clothing_contamination"
+    },
+    {
+      "id": "sam2-stress-primary-region-v18-v23-large-repair",
+      "prompts": [
+        "sam2-stress-primary-region-v18-prompts.json",
+        "sam2-stress-primary-region-v19-prompts.json",
+        "sam2-stress-primary-region-v20-prompts.json",
+        "sam2-stress-primary-region-v21-prompts.json",
+        "sam2-stress-primary-region-v22-prompts.json",
+        "sam2-stress-primary-region-v23-prompts.json"
+      ],
+      "candidateReports": [
+        "sam2-stress-primary-region-v18-large-report.json",
+        "sam2-stress-primary-region-v19-large-report.json",
+        "sam2-stress-primary-region-v20-large-report.json",
+        "sam2-stress-primary-region-v21-large-report.json",
+        "sam2-stress-primary-region-v22-large-report.json",
+        "sam2-stress-primary-region-v23-large-report.json"
+      ],
+      "geometryAudits": [
+        "sam2-stress-primary-region-v18-large-geometry-audit.json",
+        "sam2-stress-primary-region-v19-large-geometry-audit.json",
+        "sam2-stress-primary-region-v20-large-geometry-audit.json",
+        "sam2-stress-primary-region-v21-large-geometry-audit.json",
+        "sam2-stress-primary-region-v22-large-geometry-audit.json",
+        "sam2-stress-primary-region-v23-large-geometry-audit.json"
+      ],
+      "review": "sam2-stress-primary-region-v23-large-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "reworkCount": 0,
+      "promptStrategy": "replace_eight_duplicates_with_five_masks_then_iteratively_remove_ring_pinky_overlap_and_recover_the_low_contrast_crystal_adjacent_thumb_cuticle_without_skin_absorption"
     }
   ],
   "errors": []
