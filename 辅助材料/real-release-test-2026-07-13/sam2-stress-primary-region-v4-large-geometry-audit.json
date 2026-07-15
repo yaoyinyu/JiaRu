@@ -1,0 +1,260 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "stress-primary-region-v4-large": {
+      "pass": 13,
+      "suspect": 1,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "86ac688f2753-main-v3.png",
+      "nailIndex": 1,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2698,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        51.0,
+        90.0,
+        133.0,
+        233.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "86ac688f2753-main-v3.png",
+      "nailIndex": 2,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4008,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        55.0,
+        365.0,
+        168.0,
+        510.0
+      ],
+      "maximumPeerBoundsIou": 0.0395
+    },
+    {
+      "fileName": "86ac688f2753-main-v3.png",
+      "nailIndex": 3,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3992,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        156.0,
+        407.0,
+        282.0,
+        535.0
+      ],
+      "maximumPeerBoundsIou": 0.1022
+    },
+    {
+      "fileName": "86ac688f2753-main-v3.png",
+      "nailIndex": 4,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3932,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        217.0,
+        490.0,
+        350.0,
+        606.0
+      ],
+      "maximumPeerBoundsIou": 0.1022
+    },
+    {
+      "fileName": "86ac688f2753-main-v3.png",
+      "nailIndex": 5,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3871,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        190.0,
+        587.0,
+        357.0,
+        677.0
+      ],
+      "maximumPeerBoundsIou": 0.0905
+    },
+    {
+      "fileName": "956d94380abf-main-v3.png",
+      "nailIndex": 1,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3996,
+      "boundsContainment": 0.9914,
+      "centerInside": true,
+      "bounds": [
+        75.0,
+        489.0,
+        169.0,
+        576.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "956d94380abf-main-v3.png",
+      "nailIndex": 2,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4898,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        104.0,
+        339.0,
+        199.0,
+        469.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "956d94380abf-main-v3.png",
+      "nailIndex": 3,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4692,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        223.0,
+        309.0,
+        297.0,
+        464.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "956d94380abf-main-v3.png",
+      "nailIndex": 4,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.452,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        345.0,
+        416.0,
+        401.0,
+        543.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "956d94380abf-main-v3.png",
+      "nailIndex": 5,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4902,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        300.0,
+        588.0,
+        445.0,
+        674.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-main-v3.png",
+      "nailIndex": 1,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.364,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        85.0,
+        475.0,
+        153.0,
+        578.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-main-v3.png",
+      "nailIndex": 2,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7086,
+      "boundsContainment": 0.7851,
+      "centerInside": true,
+      "bounds": [
+        175.0,
+        393.0,
+        259.0,
+        534.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-main-v3.png",
+      "nailIndex": 3,
+      "source": "stress-primary-region-v4-large",
+      "status": "suspect",
+      "reasons": [
+        "bounds_containment_below_minimum"
+      ],
+      "areaRatio": 0.7521,
+      "boundsContainment": 0.6567,
+      "centerInside": true,
+      "bounds": [
+        262.0,
+        370.0,
+        348.0,
+        532.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-main-v3.png",
+      "nailIndex": 4,
+      "source": "stress-primary-region-v4-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4856,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        350.0,
+        415.0,
+        410.0,
+        530.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    }
+  ]
+}

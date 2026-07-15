@@ -5,10 +5,10 @@
   "ok": true,
   "counts": {
     "parents": 92,
-    "pass": 56,
-    "rework": 22,
-    "excluded": 14,
-    "acceptedMasks": 327,
+    "pass": 58,
+    "rework": 16,
+    "excluded": 18,
+    "acceptedMasks": 337,
     "acceptedSourceGroups": 17,
     "upstreamExcluded": 9
   },
@@ -34,6 +34,7 @@
     "real_release_20260713_033.jpg",
     "real_release_20260713_035.jpg",
     "real_release_20260713_036.jpg",
+    "real_release_20260713_037.jpg",
     "real_release_20260713_038.jpg",
     "real_release_20260713_039.jpg",
     "real_release_20260713_040.jpg",
@@ -67,6 +68,7 @@
     "real_release_20260713_089.jpg",
     "real_release_20260713_090.jpg",
     "real_release_20260713_092.jpg",
+    "real_release_20260713_094.jpg",
     "real_release_20260713_096.jpg",
     "real_release_20260713_098.jpg"
   ],
@@ -74,11 +76,7 @@
     "real_release_20260713_006.jpg",
     "real_release_20260713_008.jpg",
     "real_release_20260713_009.jpg",
-    "real_release_20260713_037.jpg",
-    "real_release_20260713_041.jpg",
-    "real_release_20260713_042.jpg",
     "real_release_20260713_055.jpg",
-    "real_release_20260713_056.jpg",
     "real_release_20260713_057.jpg",
     "real_release_20260713_058.jpg",
     "real_release_20260713_059.jpg",
@@ -86,9 +84,7 @@
     "real_release_20260713_061.jpg",
     "real_release_20260713_062.jpg",
     "real_release_20260713_063.jpg",
-    "real_release_20260713_066.jpg",
     "real_release_20260713_093.jpg",
-    "real_release_20260713_094.jpg",
     "real_release_20260713_095.jpg",
     "real_release_20260713_097.jpg",
     "real_release_20260713_100.jpg",
@@ -98,8 +94,12 @@
     "real_release_20260713_010.jpg",
     "real_release_20260713_023.jpg",
     "real_release_20260713_034.jpg",
+    "real_release_20260713_041.jpg",
+    "real_release_20260713_042.jpg",
     "real_release_20260713_049.jpg",
     "real_release_20260713_053.jpg",
+    "real_release_20260713_056.jpg",
+    "real_release_20260713_066.jpg",
     "real_release_20260713_069.jpg",
     "real_release_20260713_070.jpg",
     "real_release_20260713_081.jpg",
@@ -185,7 +185,7 @@
     {
       "parentFileName": "real_release_20260713_037.jpg",
       "derivedFileName": "86ac688f2753-main-v3.png",
-      "decision": "rework",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-86ac688f2753"
     },
     {
@@ -209,13 +209,13 @@
     {
       "parentFileName": "real_release_20260713_041.jpg",
       "derivedFileName": "c0e03d680edc-primary.png",
-      "decision": "rework",
+      "decision": "exclude",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c0e03d680edc"
     },
     {
       "parentFileName": "real_release_20260713_042.jpg",
       "derivedFileName": "9da2611ded25-primary.png",
-      "decision": "rework",
+      "decision": "exclude",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-9da2611ded25"
     },
     {
@@ -227,7 +227,7 @@
     {
       "parentFileName": "real_release_20260713_056.jpg",
       "derivedFileName": "406bc158c41d-primary.png",
-      "decision": "rework",
+      "decision": "exclude",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-406bc158c41d"
     },
     {
@@ -275,7 +275,7 @@
     {
       "parentFileName": "real_release_20260713_066.jpg",
       "derivedFileName": "e0ee33ff3706-primary.png",
-      "decision": "rework",
+      "decision": "exclude",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e0ee33ff3706"
     },
     {
@@ -287,7 +287,7 @@
     {
       "parentFileName": "real_release_20260713_094.jpg",
       "derivedFileName": "956d94380abf-main-v3.png",
-      "decision": "rework",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-956d94380abf"
     },
     {

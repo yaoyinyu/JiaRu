@@ -21,15 +21,25 @@
     "f8c543cdd6ff-main-v2.png",
     "bc6b23d6a1ce-main-v2.png",
     "c541feb05c54-main-v2.png",
-    "7a92b2c08d0f-main-v3.png"
+    "7a92b2c08d0f-main-v3.png",
+    "86ac688f2753-main-v3.png",
+    "956d94380abf-main-v3.png"
   ],
   "excludeFiles": [
     "0c2bd7cc24b7-primary.png",
-    "6be466dc2f6d-primary.png"
+    "6be466dc2f6d-primary.png",
+    "406bc158c41d-primary.png",
+    "9da2611ded25-primary.png",
+    "c0e03d680edc-primary.png",
+    "e0ee33ff3706-primary.png"
   ],
   "excludeReasons": {
     "0c2bd7cc24b7-primary.png": "parent_main_photo_crops_required_nails_at_left_and_lower_image_edges",
-    "6be466dc2f6d-primary.png": "parent_main_photo_crops_required_nails_at_top_and_right_image_edges"
+    "6be466dc2f6d-primary.png": "parent_main_photo_crops_required_nails_at_top_and_right_image_edges",
+    "406bc158c41d-primary.png": "leftmost_required_nail_surface_is_cropped_by_the_left_image_edge",
+    "9da2611ded25-primary.png": "leftmost_star_nail_surface_is_cropped_by_the_left_image_edge",
+    "c0e03d680edc-primary.png": "leftmost_required_nail_surface_is_cropped_by_the_left_image_edge",
+    "e0ee33ff3706-primary.png": "rightmost_required_nail_surface_reaches_the_right_image_edge_and_is_not_fully_visible"
   },
   "repairBatches": [
     {
@@ -81,6 +91,40 @@
       "acceptedMaskCount": 5,
       "reworkCount": 3,
       "promptStrategy": "replace_four_cropped_or_wrong_inset_regions_with_complete_parent_main_photos_then_rebuild_every_fully_visible_nail_with_directional_points"
+    },
+    {
+      "id": "sam2-stress-primary-region-v4-large-repair",
+      "prompts": "sam2-stress-primary-region-v4-prompts.json",
+      "candidateReport": "sam2-stress-primary-region-v4-large-report.json",
+      "geometryAudit": "sam2-stress-primary-region-v4-large-geometry-audit.json",
+      "review": "sam2-stress-primary-region-v4-large-review.json",
+      "fallbackDiagnostics": [
+        "sam2-stress-primary-region-v5-large-report.json",
+        "sam2-stress-primary-region-v6-large-report.json"
+      ],
+      "passCount": 2,
+      "acceptedMaskCount": 10,
+      "reworkCount": 1,
+      "promptStrategy": "use_sam2_1_large_tight_boxes_axis_positive_points_and_dense_cuticle_skin_negative_points_then_keep_failed_fallback_cases_in_rework"
+    },
+    {
+      "id": "sam2-stress-primary-region-v7-v8-large-exclusion-audit",
+      "prompts": [
+        "sam2-stress-primary-region-v7-prompts.json",
+        "sam2-stress-primary-region-v8-prompts.json"
+      ],
+      "candidateReports": [
+        "sam2-stress-primary-region-v7-large-report.json",
+        "sam2-stress-primary-region-v8-large-report.json"
+      ],
+      "geometryAudits": [
+        "sam2-stress-primary-region-v7-large-geometry-audit.json",
+        "sam2-stress-primary-region-v8-large-geometry-audit.json"
+      ],
+      "passCount": 0,
+      "acceptedMaskCount": 0,
+      "excludeCount": 4,
+      "promptStrategy": "original_resolution_review_overrides_geometry_pass_and_excludes_any_parent_region_with_a_required_nail_cropped_by_an_image_edge"
     }
   ]
 }

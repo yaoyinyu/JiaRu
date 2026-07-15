@@ -1,0 +1,105 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "stress-primary-region-v11-large": {
+      "pass": 5,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 1,
+      "source": "stress-primary-region-v11-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3532,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        68.0,
+        275.0,
+        315.0,
+        451.0
+      ],
+      "maximumPeerBoundsIou": 0.0195
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 2,
+      "source": "stress-primary-region-v11-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5615,
+      "boundsContainment": 0.9415,
+      "centerInside": true,
+      "bounds": [
+        306.0,
+        154.0,
+        390.0,
+        414.0
+      ],
+      "maximumPeerBoundsIou": 0.1299
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 3,
+      "source": "stress-primary-region-v11-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3415,
+      "boundsContainment": 0.9747,
+      "centerInside": true,
+      "bounds": [
+        357.0,
+        177.0,
+        547.0,
+        402.0
+      ],
+      "maximumPeerBoundsIou": 0.1299
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 4,
+      "source": "stress-primary-region-v11-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3533,
+      "boundsContainment": 0.9563,
+      "centerInside": true,
+      "bounds": [
+        302.0,
+        400.0,
+        517.0,
+        574.0
+      ],
+      "maximumPeerBoundsIou": 0.0925
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 5,
+      "source": "stress-primary-region-v11-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5274,
+      "boundsContainment": 0.998,
+      "centerInside": true,
+      "bounds": [
+        462.0,
+        464.0,
+        762.0,
+        571.0
+      ],
+      "maximumPeerBoundsIou": 0.0925
+    }
+  ]
+}

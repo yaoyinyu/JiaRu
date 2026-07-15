@@ -64,6 +64,75 @@ def normalized_points_to_pixels(
     return pixels
 
 
+def select_prompt_mask(
+    mask_data: object,
+    positive_points: list[list[float]],
+    negative_points: list[list[float]],
+    box: list[float],
+    width: int,
+    height: int,
+) -> tuple[np.ndarray | None, dict[str, object] | None]:
+    """Select one SAM multimask candidate without discarding reviewed point prompts."""
+    candidates = mask_data.cpu().numpy()
+    if len(candidates) == 0:
+        return None, None
+    if len(candidates) == 1:
+        return candidates[0], None
+
+    scored = []
+    for candidate_index, candidate in enumerate(candidates, start=1):
+        mask = candidate > 0.5
+        mask_height, mask_width = mask.shape[-2:]
+
+        def contains(point: list[float]) -> bool:
+            source_width_span = max(1, width - 1)
+            source_height_span = max(1, height - 1)
+            x = min(
+                mask_width - 1,
+                max(0, round(point[0] / source_width_span * (mask_width - 1))),
+            )
+            y = min(
+                mask_height - 1,
+                max(0, round(point[1] / source_height_span * (mask_height - 1))),
+            )
+            return bool(mask[y, x])
+
+        positive_hits = sum(contains(point) for point in positive_points)
+        negative_hits = sum(contains(point) for point in negative_points)
+        x1 = min(mask_width, max(0, int(box[0] / width * mask_width)))
+        y1 = min(mask_height, max(0, int(box[1] / height * mask_height)))
+        x2 = min(mask_width, max(x1 + 1, int(np.ceil(box[2] / width * mask_width))))
+        y2 = min(mask_height, max(y1 + 1, int(np.ceil(box[3] / height * mask_height))))
+        area = int(mask.sum())
+        inside_box = int(mask[y1:y2, x1:x2].sum())
+        containment = inside_box / area if area else 0.0
+        score = (positive_hits, -negative_hits, containment, -area)
+        scored.append(
+            {
+                "candidateIndex": candidate_index,
+                "mask": candidate,
+                "score": score,
+                "positiveHits": positive_hits,
+                "positiveCount": len(positive_points),
+                "negativeHits": negative_hits,
+                "negativeCount": len(negative_points),
+                "boxContainment": round(containment, 6),
+                "foregroundPixels": area,
+            }
+        )
+
+    selected = max(scored, key=lambda item: item["score"])
+    if selected["positiveHits"] == 0:
+        return None, None
+    diagnostics = {
+        key: value
+        for key, value in selected.items()
+        if key not in {"mask", "score"}
+    }
+    diagnostics["candidateCount"] = len(scored)
+    return selected["mask"], diagnostics
+
+
 def main() -> None:
     args = build_parser().parse_args()
     prompts_path = Path(args.prompts).resolve()
@@ -83,6 +152,8 @@ def main() -> None:
     outputs = []
     errors = []
     fallback_prompt_count = 0
+    box_only_fallback_prompts = []
+    multi_mask_selections = []
 
     for item in document["images"]:
         file_name = item["fileName"]
@@ -190,19 +261,51 @@ def main() -> None:
                             labels=[label_set],
                         )
                     result = model(str(image_path), verbose=False, **prompt_arguments)[0]
-                    if result.masks is None or len(result.masks.data) != 1:
+                    negative_set = point_set[len(positive_set) :]
+                    selected_mask = None
+                    selection_diagnostics = None
+                    if result.masks is not None:
+                        selected_mask, selection_diagnostics = select_prompt_mask(
+                            result.masks.data,
+                            positive_set,
+                            negative_set,
+                            box,
+                            width,
+                            height,
+                        )
+                    if selection_diagnostics is not None:
+                        multi_mask_selections.append(
+                            {
+                                "fileName": file_name,
+                                "promptIndex": prompt_index,
+                                "promptMode": prompt_mode,
+                                **selection_diagnostics,
+                            }
+                        )
+                    if selected_mask is None:
+                        initial_mask_count = 0 if result.masks is None else len(result.masks.data)
                         result = model(
                             str(image_path),
                             bboxes=[box],
                             verbose=False,
                         )[0]
                         fallback_prompt_count += 1
-                    if result.masks is None or len(result.masks.data) != 1:
+                        box_only_fallback_prompts.append(
+                            {
+                                "fileName": file_name,
+                                "promptIndex": prompt_index,
+                                "promptMode": prompt_mode,
+                                "initialMaskCount": initial_mask_count,
+                            }
+                        )
+                        if result.masks is not None and len(result.masks.data) == 1:
+                            selected_mask = result.masks.data[0].cpu().numpy()
+                    if selected_mask is None:
                         raise RuntimeError(
                             f"prompt {prompt_index} ({prompt_mode}) isolated prompt and box-only fallback returned "
                             f"{0 if result.masks is None else len(result.masks.data)} masks instead of one"
                         )
-                    mask_outputs.append(result.masks.data[0].cpu().numpy())
+                    mask_outputs.append(selected_mask)
             masks = np.stack(mask_outputs)
             annotations = []
             overlay = image.copy()
@@ -285,6 +388,8 @@ def main() -> None:
         "excludedFiles": sorted(excluded_files),
         "completedCount": len(outputs),
         "boxOnlyFallbackPromptCount": fallback_prompt_count,
+        "boxOnlyFallbackPrompts": box_only_fallback_prompts,
+        "multiMaskSelections": multi_mask_selections,
         "errors": errors,
         "outputs": outputs,
     }

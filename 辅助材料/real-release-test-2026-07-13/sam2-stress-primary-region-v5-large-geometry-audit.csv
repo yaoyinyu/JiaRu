@@ -1,0 +1,5 @@
+fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+b1184e010679-main-v3.png,1,stress-primary-region-v5-large,pass,,0.4585,1.0,True,"[90.0, 466.0, 150.0, 564.0]",0.0
+b1184e010679-main-v3.png,2,stress-primary-region-v5-large,pass,,0.4383,0.8159,True,"[195.0, 393.0, 253.0, 488.0]",0.0
+b1184e010679-main-v3.png,3,stress-primary-region-v5-large,suspect,bounds_containment_below_minimum,0.9975,0.5531,True,"[263.0, 367.0, 350.0, 538.0]",0.0
+b1184e010679-main-v3.png,4,stress-primary-region-v5-large,pass,,0.4856,1.0,True,"[350.0, 415.0, 410.0, 530.0]",0.0
