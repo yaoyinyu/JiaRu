@@ -133,7 +133,9 @@ def audit_corpus(
             records.append(
                 {
                     "path": relative,
-                    "topLevelDirectory": relative.split("/", 1)[0],
+                    # A flat corpus should be summarized as one root bucket rather
+                    # than creating one pseudo-directory bucket per filename.
+                    "topLevelDirectory": relative.split("/", 1)[0] if "/" in relative else ".",
                     "bytes": path.stat().st_size,
                     "width": width,
                     "height": height,

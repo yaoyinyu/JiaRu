@@ -1,0 +1,128 @@
+{
+  "ok": true,
+  "version": "nail-texture-region-extraction/v1",
+  "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\stress-primary-regions-v3.json",
+  "imageDir": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\2026_7_13",
+  "outputDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\stress-primary-regions-v3",
+  "requestedCount": 4,
+  "completedCount": 4,
+  "errors": [],
+  "outputs": [
+    {
+      "parentFileName": "real_release_20260713_007.jpg",
+      "parentSha256": "f97b9ab9333dddb6b7291f538d62a84b3490368b86279a7a4ca5deacff23a890",
+      "parentSize": {
+        "width": 1080,
+        "height": 1440
+      },
+      "regionId": "main-v3",
+      "normalizedBox": [
+        0.0,
+        0.08,
+        0.59,
+        0.8
+      ],
+      "pixelBox": [
+        0,
+        115,
+        637,
+        1152
+      ],
+      "outputFileName": "7a92b2c08d0f-main-v3.png",
+      "outputSha256": "389bf3a9390f63db299d3efdc766eb61f16a79ea406ba25eb91914fcf682ade4",
+      "outputSize": {
+        "width": 637,
+        "height": 1037
+      },
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-7a92b2c08d0f",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "real_release_20260713_037.jpg",
+      "parentSha256": "7bad3a874a047325157554c6dfa76737fda318a5c93f106488c880175e2856a8",
+      "parentSize": {
+        "width": 1080,
+        "height": 1440
+      },
+      "regionId": "main-v3",
+      "normalizedBox": [
+        0.0,
+        0.5,
+        0.5,
+        1.0
+      ],
+      "pixelBox": [
+        0,
+        720,
+        540,
+        1440
+      ],
+      "outputFileName": "86ac688f2753-main-v3.png",
+      "outputSha256": "b7aa694a6ba6ff53fbecd7253819b968eb780502c0fd96e0e8390f6d548371fd",
+      "outputSize": {
+        "width": 540,
+        "height": 720
+      },
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-86ac688f2753",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "real_release_20260713_094.jpg",
+      "parentSha256": "5ebbce43dc4a845f00ad8c5196045d72777e972044fb251234cc7ef33fdcf7a2",
+      "parentSize": {
+        "width": 1080,
+        "height": 1441
+      },
+      "regionId": "main-v3",
+      "normalizedBox": [
+        0.052,
+        0.118,
+        0.715,
+        0.65
+      ],
+      "pixelBox": [
+        56,
+        170,
+        772,
+        937
+      ],
+      "outputFileName": "956d94380abf-main-v3.png",
+      "outputSha256": "30b7044a0903ada8f02e83d35bb07542473f088d352a127011d62012d84e86ce",
+      "outputSize": {
+        "width": 716,
+        "height": 767
+      },
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-956d94380abf",
+      "reviewRequired": true
+    },
+    {
+      "parentFileName": "real_release_20260713_095.jpg",
+      "parentSha256": "d47b6f4beda74c80138ac8f87582aa3303de9d3d20f790892d504e26138755d6",
+      "parentSize": {
+        "width": 1080,
+        "height": 1441
+      },
+      "regionId": "main-v3",
+      "normalizedBox": [
+        0.058,
+        0.109,
+        0.49,
+        0.78
+      ],
+      "pixelBox": [
+        63,
+        157,
+        529,
+        1124
+      ],
+      "outputFileName": "b1184e010679-main-v3.png",
+      "outputSha256": "59a1cc5ee9de3808ffa529cc4ea7a99bc51702b4d3e17dc267b261a21ed9cbeb",
+      "outputSize": {
+        "width": 466,
+        "height": 967
+      },
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b1184e010679",
+      "reviewRequired": true
+    }
+  ]
+}

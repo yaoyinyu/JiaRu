@@ -1,0 +1,26 @@
+{
+  "version": "nail-texture-region-extraction/v1",
+  "sourceGroupPrefix": "real-release-test-2026-07-13-stress-v1",
+  "regions": [
+    {
+      "parentFileName": "real_release_20260713_007.jpg",
+      "regionId": "main-v3",
+      "box": [0.0, 0.08, 0.59, 0.8]
+    },
+    {
+      "parentFileName": "real_release_20260713_037.jpg",
+      "regionId": "main-v3",
+      "box": [0.0, 0.5, 0.5, 1.0]
+    },
+    {
+      "parentFileName": "real_release_20260713_094.jpg",
+      "regionId": "main-v3",
+      "box": [0.052, 0.118, 0.715, 0.65]
+    },
+    {
+      "parentFileName": "real_release_20260713_095.jpg",
+      "regionId": "main-v3",
+      "box": [0.058, 0.109, 0.49, 0.78]
+    }
+  ]
+}

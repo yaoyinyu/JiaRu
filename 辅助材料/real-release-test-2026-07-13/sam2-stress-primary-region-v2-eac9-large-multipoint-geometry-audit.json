@@ -1,0 +1,175 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "stress-eac9-sam2.1-large-multipoint": {
+      "pass": 8,
+      "suspect": 1,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 1,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2205,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        397.0,
+        170.0,
+        467.0,
+        254.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 2,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6346,
+      "boundsContainment": 0.9871,
+      "centerInside": true,
+      "bounds": [
+        308.0,
+        256.0,
+        436.0,
+        438.0
+      ],
+      "maximumPeerBoundsIou": 0.1263
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 3,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2789,
+      "boundsContainment": 0.9671,
+      "centerInside": true,
+      "bounds": [
+        225.0,
+        398.0,
+        408.0,
+        489.0
+      ],
+      "maximumPeerBoundsIou": 0.1113
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 4,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5865,
+      "boundsContainment": 0.8628,
+      "centerInside": true,
+      "bounds": [
+        366.0,
+        361.0,
+        538.0,
+        505.0
+      ],
+      "maximumPeerBoundsIou": 0.1263
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 5,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3031,
+      "boundsContainment": 0.997,
+      "centerInside": true,
+      "bounds": [
+        57.0,
+        488.0,
+        143.0,
+        596.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 6,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5987,
+      "boundsContainment": 0.9234,
+      "centerInside": true,
+      "bounds": [
+        160.0,
+        495.0,
+        238.0,
+        668.0
+      ],
+      "maximumPeerBoundsIou": 0.0704
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 7,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3473,
+      "boundsContainment": 0.9778,
+      "centerInside": true,
+      "bounds": [
+        225.0,
+        527.0,
+        309.0,
+        698.0
+      ],
+      "maximumPeerBoundsIou": 0.0704
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 8,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.21,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        320.0,
+        602.0,
+        355.0,
+        715.0
+      ],
+      "maximumPeerBoundsIou": 0.0164
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 9,
+      "source": "stress-eac9-sam2.1-large-multipoint",
+      "status": "suspect",
+      "reasons": [
+        "prompt_center_outside_polygon"
+      ],
+      "areaRatio": 0.4779,
+      "boundsContainment": 0.8058,
+      "centerInside": false,
+      "bounds": [
+        351.0,
+        518.0,
+        428.0,
+        663.0
+      ],
+      "maximumPeerBoundsIou": 0.0164
+    }
+  ]
+}
