@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-16",
+  "reviewer": "codex-original-resolution-sam2-large-stress-repair",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "b1184e010679-main-v3.png"
+  ],
+  "acceptedMaskCount": 4,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [],
+  "reviewNotes": {
+    "b1184e010679-main-v3.png": "four_fully_visible_nails_each_have_exactly_one_complete_mask_after_replacing_the_black_nail_fallback_with_a_sparse_tight_cuticle_repair"
+  }
+}

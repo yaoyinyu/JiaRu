@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "method": "codex-original-resolution-manual-polygon-after-sam2-large-skin-merging-failure",
+  "engine": "manual-vision-review",
+  "promptMode": "original-resolution-polygon",
+  "model": null,
+  "promptCount": 9,
+  "imageCount": 1,
+  "excludedFiles": [],
+  "completedCount": 1,
+  "boxOnlyFallbackPromptCount": 0,
+  "boxOnlyFallbackPrompts": [],
+  "multiMaskSelections": [],
+  "errors": [],
+  "outputs": [
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\manual-stress-primary-region-v26-json\\eac9a2f87f4c-main-v2.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v26\\eac9a2f87f4c-main-v2-manual-reviewed-overlay.png",
+      "polygonCount": 9,
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c"
+    }
+  ]
+}

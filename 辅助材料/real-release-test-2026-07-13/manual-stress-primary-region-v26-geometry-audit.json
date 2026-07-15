@@ -1,0 +1,173 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "manual-stress-primary-region-v26": {
+      "pass": 9,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 1,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1658,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        400.0,
+        171.0,
+        465.0,
+        255.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 2,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2573,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        390.0,
+        274.0,
+        468.0,
+        376.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 3,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.226,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        229.0,
+        404.0,
+        405.0,
+        488.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 4,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2118,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        405.0,
+        382.0,
+        545.0,
+        492.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 5,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.1775,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        58.0,
+        489.0,
+        154.0,
+        598.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 6,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2081,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        178.0,
+        512.0,
+        242.0,
+        676.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 7,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.2906,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        249.0,
+        542.0,
+        300.0,
+        712.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 8,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4591,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        320.0,
+        550.0,
+        353.0,
+        728.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "nailIndex": 9,
+      "source": "manual-stress-primary-region-v26",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3105,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        363.0,
+        515.0,
+        419.0,
+        676.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    }
+  ]
+}

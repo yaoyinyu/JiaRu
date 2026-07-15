@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-16",
+  "reviewer": "codex-original-resolution-manual-polygon-review",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "eac9a2f87f4c-main-v2.png"
+  ],
+  "acceptedMaskCount": 9,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [],
+  "reviewNotes": {
+    "eac9a2f87f4c-main-v2.png": "nine_fully_visible_transparent_nails_have_manual_original_resolution_polygons_after_sam_skin_merging_failure_with_zero_pairwise_overlap_and_no_skin_neighbor_or_background_contamination"
+  }
+}

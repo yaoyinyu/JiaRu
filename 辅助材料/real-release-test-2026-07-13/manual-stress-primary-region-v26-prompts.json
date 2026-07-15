@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "source": "original-resolution-manual-polygon-audit-after-sam2-large-failure",
+  "decision": "human_drawn_candidate_only_not_test_truth",
+  "imageCount": 1,
+  "promptCount": 9,
+  "images": [
+    {
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c",
+      "boxes": [
+        [0.702, 0.203, 0.835, 0.319],
+        [0.684, 0.331, 0.844, 0.466],
+        [0.400, 0.490, 0.728, 0.603],
+        [0.710, 0.463, 0.977, 0.608],
+        [0.098, 0.594, 0.281, 0.738],
+        [0.311, 0.623, 0.435, 0.833],
+        [0.435, 0.659, 0.542, 0.877],
+        [0.561, 0.669, 0.634, 0.897],
+        [0.638, 0.625, 0.751, 0.833]
+      ],
+      "promptModes": ["box", "box", "box", "box", "box", "box", "box", "box", "box"],
+      "reviewReason": "audit_nine_original_resolution_manual_polygons_against_their_true_tight_bounds_after_sam_skin_merging_failure"
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+{
+  "version": "nail-texture-dataset/v1",
+  "image": {
+    "id": "eac9a2f87f4c-main-v2",
+    "fileName": "eac9a2f87f4c-main-v2.png",
+    "width": 563,
+    "height": 816,
+    "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c",
+    "negative": false
+  },
+  "annotations": [
+    {
+      "id": "n1",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 400, "y": 171}, {"x": 407, "y": 173}, {"x": 418, "y": 185},
+        {"x": 430, "y": 200}, {"x": 442, "y": 217}, {"x": 454, "y": 235},
+        {"x": 464, "y": 249}, {"x": 465, "y": 255}, {"x": 459, "y": 253},
+        {"x": 448, "y": 244}, {"x": 435, "y": 230}, {"x": 422, "y": 214},
+        {"x": 410, "y": 196}, {"x": 402, "y": 181}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    },
+    {
+      "id": "n2",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 397, "y": 274}, {"x": 408, "y": 276}, {"x": 421, "y": 286},
+        {"x": 432, "y": 300}, {"x": 442, "y": 315}, {"x": 451, "y": 334},
+        {"x": 459, "y": 351}, {"x": 468, "y": 367}, {"x": 467, "y": 376},
+        {"x": 459, "y": 374}, {"x": 448, "y": 366}, {"x": 436, "y": 351},
+        {"x": 425, "y": 335}, {"x": 414, "y": 319}, {"x": 404, "y": 305},
+        {"x": 394, "y": 292}, {"x": 390, "y": 282}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    },
+    {
+      "id": "n3",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 229, "y": 407}, {"x": 241, "y": 404}, {"x": 258, "y": 408},
+        {"x": 282, "y": 418}, {"x": 309, "y": 430}, {"x": 337, "y": 443},
+        {"x": 365, "y": 456}, {"x": 392, "y": 470}, {"x": 405, "y": 478},
+        {"x": 405, "y": 484}, {"x": 397, "y": 488}, {"x": 383, "y": 486},
+        {"x": 360, "y": 477}, {"x": 334, "y": 466}, {"x": 307, "y": 454},
+        {"x": 280, "y": 442}, {"x": 255, "y": 431}, {"x": 237, "y": 421}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    },
+    {
+      "id": "n4",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 414, "y": 382}, {"x": 425, "y": 385}, {"x": 441, "y": 395},
+        {"x": 459, "y": 409}, {"x": 479, "y": 425}, {"x": 501, "y": 443},
+        {"x": 522, "y": 461}, {"x": 539, "y": 477}, {"x": 545, "y": 485},
+        {"x": 542, "y": 492}, {"x": 533, "y": 492}, {"x": 518, "y": 484},
+        {"x": 499, "y": 471}, {"x": 478, "y": 455}, {"x": 458, "y": 439},
+        {"x": 439, "y": 425}, {"x": 423, "y": 414}, {"x": 410, "y": 405},
+        {"x": 405, "y": 393}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    },
+    {
+      "id": "n5",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 58, "y": 489}, {"x": 65, "y": 491}, {"x": 75, "y": 503},
+        {"x": 88, "y": 518}, {"x": 102, "y": 535}, {"x": 116, "y": 552},
+        {"x": 132, "y": 568}, {"x": 146, "y": 579}, {"x": 154, "y": 586},
+        {"x": 153, "y": 593}, {"x": 148, "y": 598}, {"x": 138, "y": 596},
+        {"x": 125, "y": 586}, {"x": 111, "y": 572}, {"x": 96, "y": 555},
+        {"x": 82, "y": 536}, {"x": 69, "y": 516}, {"x": 60, "y": 500}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    },
+    {
+      "id": "n6",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 183, "y": 512}, {"x": 194, "y": 514}, {"x": 202, "y": 523},
+        {"x": 209, "y": 538}, {"x": 215, "y": 558}, {"x": 220, "y": 580},
+        {"x": 226, "y": 606}, {"x": 232, "y": 633}, {"x": 239, "y": 659},
+        {"x": 242, "y": 670}, {"x": 238, "y": 676}, {"x": 231, "y": 675},
+        {"x": 225, "y": 665}, {"x": 219, "y": 644}, {"x": 214, "y": 620},
+        {"x": 209, "y": 595}, {"x": 203, "y": 570}, {"x": 197, "y": 548},
+        {"x": 189, "y": 530}, {"x": 178, "y": 519}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    },
+    {
+      "id": "n7",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 258, "y": 542}, {"x": 269, "y": 543}, {"x": 277, "y": 551},
+        {"x": 282, "y": 565}, {"x": 285, "y": 586}, {"x": 288, "y": 611},
+        {"x": 291, "y": 637}, {"x": 295, "y": 665}, {"x": 300, "y": 690},
+        {"x": 299, "y": 706}, {"x": 295, "y": 712}, {"x": 288, "y": 711},
+        {"x": 283, "y": 703}, {"x": 279, "y": 685}, {"x": 276, "y": 661},
+        {"x": 273, "y": 636}, {"x": 270, "y": 611}, {"x": 267, "y": 586},
+        {"x": 263, "y": 566}, {"x": 254, "y": 551}, {"x": 249, "y": 546}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    },
+    {
+      "id": "n8",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 327, "y": 550}, {"x": 337, "y": 551}, {"x": 344, "y": 558},
+        {"x": 348, "y": 572}, {"x": 350, "y": 594}, {"x": 350, "y": 620},
+        {"x": 350, "y": 649}, {"x": 351, "y": 678}, {"x": 353, "y": 704},
+        {"x": 351, "y": 720}, {"x": 346, "y": 728}, {"x": 340, "y": 728},
+        {"x": 335, "y": 721}, {"x": 333, "y": 708}, {"x": 332, "y": 682},
+        {"x": 331, "y": 654}, {"x": 331, "y": 627}, {"x": 329, "y": 600},
+        {"x": 326, "y": 579}, {"x": 321, "y": 562}, {"x": 320, "y": 554}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    },
+    {
+      "id": "n9",
+      "label": "nail_texture",
+      "polygon": [
+        {"x": 396, "y": 515}, {"x": 407, "y": 517}, {"x": 414, "y": 525},
+        {"x": 419, "y": 538}, {"x": 418, "y": 553}, {"x": 413, "y": 571},
+        {"x": 406, "y": 591}, {"x": 399, "y": 613}, {"x": 391, "y": 635},
+        {"x": 382, "y": 657}, {"x": 374, "y": 674}, {"x": 368, "y": 676},
+        {"x": 363, "y": 671}, {"x": 363, "y": 664}, {"x": 369, "y": 648},
+        {"x": 376, "y": 628}, {"x": 383, "y": 607}, {"x": 388, "y": 586},
+        {"x": 390, "y": 566}, {"x": 389, "y": 548}, {"x": 385, "y": 534},
+        {"x": 386, "y": 522}
+      ],
+      "attributes": {"fingerHint": "unknown", "shape": "unknown", "quality": 4, "occluded": false, "artificialTip": true, "annotationMethod": "codex-original-resolution-manual"}
+    }
+  ]
+}

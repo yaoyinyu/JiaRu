@@ -1,0 +1,360 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "manual-stress-primary-region-v27": {
+      "pass": 20,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 1,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4069,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        47.0,
+        248.0,
+        305.0,
+        430.0
+      ],
+      "maximumPeerBoundsIou": 0.0634
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 2,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5803,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        271.0,
+        130.0,
+        371.0,
+        373.0
+      ],
+      "maximumPeerBoundsIou": 0.1083
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 3,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5406,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        337.0,
+        210.0,
+        505.0,
+        403.0
+      ],
+      "maximumPeerBoundsIou": 0.1083
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 4,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4426,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        259.0,
+        392.0,
+        475.0,
+        547.0
+      ],
+      "maximumPeerBoundsIou": 0.0262
+    },
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "nailIndex": 5,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7369,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        456.0,
+        470.0,
+        700.0,
+        537.0
+      ],
+      "maximumPeerBoundsIou": 0.0262
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 1,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4591,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        68.0,
+        275.0,
+        315.0,
+        451.0
+      ],
+      "maximumPeerBoundsIou": 0.0195
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 2,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6117,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        306.0,
+        154.0,
+        390.0,
+        414.0
+      ],
+      "maximumPeerBoundsIou": 0.1299
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 3,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3857,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        357.0,
+        177.0,
+        547.0,
+        402.0
+      ],
+      "maximumPeerBoundsIou": 0.1299
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 4,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4406,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        302.0,
+        400.0,
+        517.0,
+        574.0
+      ],
+      "maximumPeerBoundsIou": 0.07
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "nailIndex": 5,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7612,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        464.0,
+        486.0,
+        690.0,
+        550.0
+      ],
+      "maximumPeerBoundsIou": 0.07
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 1,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4496,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        28.0,
+        249.0,
+        315.0,
+        498.0
+      ],
+      "maximumPeerBoundsIou": 0.015
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 2,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5286,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        307.0,
+        183.0,
+        420.0,
+        433.0
+      ],
+      "maximumPeerBoundsIou": 0.2044
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 3,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4257,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        358.0,
+        226.0,
+        564.0,
+        456.0
+      ],
+      "maximumPeerBoundsIou": 0.2044
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 4,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.408,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        342.0,
+        409.0,
+        551.0,
+        561.0
+      ],
+      "maximumPeerBoundsIou": 0.1294
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "nailIndex": 5,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.7556,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        458.0,
+        559.0,
+        715.0,
+        633.0
+      ],
+      "maximumPeerBoundsIou": 0.0037
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 1,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4231,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        46.0,
+        273.0,
+        283.0,
+        477.0
+      ],
+      "maximumPeerBoundsIou": 0.0517
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 2,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5724,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        257.0,
+        164.0,
+        375.0,
+        422.0
+      ],
+      "maximumPeerBoundsIou": 0.2283
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 3,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4949,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        309.0,
+        226.0,
+        500.0,
+        431.0
+      ],
+      "maximumPeerBoundsIou": 0.2283
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 4,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.499,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        301.0,
+        414.0,
+        495.0,
+        548.0
+      ],
+      "maximumPeerBoundsIou": 0.051
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "nailIndex": 5,
+      "source": "manual-stress-primary-region-v27",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.5934,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        447.0,
+        503.0,
+        710.0,
+        603.0
+      ],
+      "maximumPeerBoundsIou": 0.0431
+    }
+  ]
+}

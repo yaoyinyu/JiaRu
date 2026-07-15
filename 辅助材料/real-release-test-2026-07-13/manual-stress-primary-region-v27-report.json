@@ -1,0 +1,275 @@
+{
+  "ok": true,
+  "method": "reviewed-hybrid-original-resolution-manual-polygon-repair",
+  "decision": "candidate_only_not_training_or_test_truth",
+  "imageCount": 4,
+  "completedCount": 4,
+  "polygonCount": 20,
+  "retainedPolygonCount": 10,
+  "manualPolygonCount": 10,
+  "pairwiseOverlapCount": 0,
+  "geometryPromptsPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\manual-stress-primary-region-v27-prompts.json",
+  "outputs": [
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f0752db2009c",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\manual-stress-primary-region-v27-json\\f0752db2009c-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27\\f0752db2009c-primary-manual-reviewed-overlay.png",
+      "polygonCount": 5,
+      "retainedPolygonCount": 3,
+      "manualPolygonCount": 2,
+      "validPolygonCount": 5,
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-manual-reviewed-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-manual-reviewed-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-manual-reviewed-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-manual-reviewed-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\f0752db2009c-primary-manual-reviewed-overlay-n5-2x.png"
+        }
+      ],
+      "geometryBoxes": [
+        [
+          0.043519,
+          0.344444,
+          0.282407,
+          0.597222
+        ],
+        [
+          0.250926,
+          0.180556,
+          0.343519,
+          0.518056
+        ],
+        [
+          0.312037,
+          0.291667,
+          0.467593,
+          0.559722
+        ],
+        [
+          0.239815,
+          0.544444,
+          0.439815,
+          0.759722
+        ],
+        [
+          0.422222,
+          0.652778,
+          0.648148,
+          0.745833
+        ]
+      ]
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d970653d6111",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\manual-stress-primary-region-v27-json\\d970653d6111-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27\\d970653d6111-primary-manual-reviewed-overlay.png",
+      "polygonCount": 5,
+      "retainedPolygonCount": 4,
+      "manualPolygonCount": 1,
+      "validPolygonCount": 5,
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-manual-reviewed-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-manual-reviewed-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-manual-reviewed-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-manual-reviewed-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d970653d6111-primary-manual-reviewed-overlay-n5-2x.png"
+        }
+      ],
+      "geometryBoxes": [
+        [
+          0.062963,
+          0.381944,
+          0.291667,
+          0.626389
+        ],
+        [
+          0.283333,
+          0.213889,
+          0.361111,
+          0.575
+        ],
+        [
+          0.330556,
+          0.245833,
+          0.506481,
+          0.558333
+        ],
+        [
+          0.27963,
+          0.555556,
+          0.478704,
+          0.797222
+        ],
+        [
+          0.42963,
+          0.675,
+          0.638889,
+          0.763889
+        ]
+      ]
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d9518b2dc889",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\manual-stress-primary-region-v27-json\\d9518b2dc889-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27\\d9518b2dc889-primary-manual-reviewed-overlay.png",
+      "polygonCount": 5,
+      "retainedPolygonCount": 2,
+      "manualPolygonCount": 3,
+      "validPolygonCount": 5,
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-manual-reviewed-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-manual-reviewed-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-manual-reviewed-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-manual-reviewed-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\d9518b2dc889-primary-manual-reviewed-overlay-n5-2x.png"
+        }
+      ],
+      "geometryBoxes": [
+        [
+          0.025926,
+          0.345833,
+          0.291667,
+          0.691667
+        ],
+        [
+          0.284259,
+          0.254167,
+          0.388889,
+          0.601389
+        ],
+        [
+          0.331481,
+          0.313889,
+          0.522222,
+          0.633333
+        ],
+        [
+          0.316667,
+          0.568056,
+          0.510185,
+          0.779167
+        ],
+        [
+          0.424074,
+          0.776389,
+          0.662037,
+          0.879167
+        ]
+      ]
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6d9a192d4168",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\manual-stress-primary-region-v27-json\\6d9a192d4168-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27\\6d9a192d4168-primary-manual-reviewed-overlay.png",
+      "polygonCount": 5,
+      "retainedPolygonCount": 1,
+      "manualPolygonCount": 4,
+      "validPolygonCount": 5,
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-manual-reviewed-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-manual-reviewed-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-manual-reviewed-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-manual-reviewed-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-stress-primary-region-v27-zooms\\6d9a192d4168-primary-manual-reviewed-overlay-n5-2x.png"
+        }
+      ],
+      "geometryBoxes": [
+        [
+          0.042593,
+          0.379167,
+          0.262037,
+          0.6625
+        ],
+        [
+          0.237963,
+          0.227778,
+          0.347222,
+          0.586111
+        ],
+        [
+          0.286111,
+          0.313889,
+          0.462963,
+          0.598611
+        ],
+        [
+          0.278704,
+          0.575,
+          0.458333,
+          0.761111
+        ],
+        [
+          0.413889,
+          0.698611,
+          0.657407,
+          0.8375
+        ]
+      ]
+    }
+  ],
+  "errors": []
+}

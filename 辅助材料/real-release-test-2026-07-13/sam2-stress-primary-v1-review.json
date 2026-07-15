@@ -26,7 +26,9 @@
     "956d94380abf-main-v3.png",
     "f8a25604ea58-primary.png",
     "2c793788bdec-primary.png",
-    "223683d91dc4-primary.png"
+    "223683d91dc4-primary.png",
+    "b1184e010679-main-v3.png",
+    "eac9a2f87f4c-main-v2.png"
   ],
   "excludeFiles": [
     "0c2bd7cc24b7-primary.png",
@@ -245,6 +247,31 @@
       "acceptedMaskCount": 5,
       "reworkCount": 0,
       "promptStrategy": "replace_eight_duplicates_with_five_masks_then_iteratively_remove_ring_pinky_overlap_and_recover_the_low_contrast_crystal_adjacent_thumb_cuticle_without_skin_absorption"
+    },
+    {
+      "id": "sam2-stress-primary-region-v24-large-single-nail-repair",
+      "prompts": "sam2-stress-primary-region-v24-prompts.json",
+      "candidateReport": "sam2-stress-primary-region-v24-large-report.json",
+      "geometryAudit": "sam2-stress-primary-region-v24-large-geometry-audit.json",
+      "review": "sam2-stress-primary-region-v24-large-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 4,
+      "reworkCount": 0,
+      "promptStrategy": "keep_three_complete_box_masks_and_replace_the_black_nail_box_only_fallback_with_sparse_axis_points_and_cuticle_skin_negatives"
+    },
+    {
+      "id": "eac9-sam2-v25-failure-to-manual-v26-repair",
+      "samPrompts": "sam2-stress-primary-region-v25-prompts.json",
+      "samCandidateReport": "sam2-stress-primary-region-v25-large-report.json",
+      "samGeometryAudit": "sam2-stress-primary-region-v25-large-geometry-audit.json",
+      "manualPrompts": "manual-stress-primary-region-v26-prompts.json",
+      "manualCandidateReport": "manual-stress-primary-region-v26-report.json",
+      "manualGeometryAudit": "manual-stress-primary-region-v26-geometry-audit.json",
+      "review": "manual-stress-primary-region-v26-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 9,
+      "reworkCount": 0,
+      "promptStrategy": "retain_the_nine_of_nine_sam_geometry_pass_as_rejected_skin_merging_diagnostics_then_draw_and_audit_nine_original_resolution_manual_polygons_with_zero_overlap"
     }
   ]
 }

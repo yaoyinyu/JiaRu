@@ -1,0 +1,604 @@
+{
+  "version": "nail-texture-dataset/v1",
+  "image": {
+    "id": "6d9a192d4168-primary",
+    "fileName": "6d9a192d4168-primary.png",
+    "width": 1080,
+    "height": 720,
+    "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6d9a192d4168",
+    "negative": false
+  },
+  "annotations": [
+    {
+      "id": "n1",
+      "label": "nail_texture",
+      "polygon": [
+        {
+          "x": 47,
+          "y": 301
+        },
+        {
+          "x": 46,
+          "y": 323
+        },
+        {
+          "x": 52,
+          "y": 336
+        },
+        {
+          "x": 71,
+          "y": 356
+        },
+        {
+          "x": 141,
+          "y": 408
+        },
+        {
+          "x": 166,
+          "y": 431
+        },
+        {
+          "x": 173,
+          "y": 433
+        },
+        {
+          "x": 218,
+          "y": 465
+        },
+        {
+          "x": 245,
+          "y": 477
+        },
+        {
+          "x": 267,
+          "y": 477
+        },
+        {
+          "x": 283,
+          "y": 463
+        },
+        {
+          "x": 282,
+          "y": 454
+        },
+        {
+          "x": 268,
+          "y": 431
+        },
+        {
+          "x": 227,
+          "y": 388
+        },
+        {
+          "x": 224,
+          "y": 369
+        },
+        {
+          "x": 210,
+          "y": 355
+        },
+        {
+          "x": 194,
+          "y": 353
+        },
+        {
+          "x": 158,
+          "y": 314
+        },
+        {
+          "x": 124,
+          "y": 283
+        },
+        {
+          "x": 99,
+          "y": 273
+        },
+        {
+          "x": 80,
+          "y": 273
+        },
+        {
+          "x": 62,
+          "y": 282
+        }
+      ],
+      "attributes": {
+        "fingerHint": "unknown",
+        "shape": "unknown",
+        "quality": 4,
+        "occluded": false,
+        "artificialTip": true,
+        "annotationMethod": "vision-guided-sam2",
+        "repairDisposition": "retained-reviewed-source-polygon"
+      }
+    },
+    {
+      "label": "nail_texture",
+      "polygon": [
+        {
+          "x": 319,
+          "y": 166
+        },
+        {
+          "x": 344,
+          "y": 164
+        },
+        {
+          "x": 365,
+          "y": 174
+        },
+        {
+          "x": 375,
+          "y": 190
+        },
+        {
+          "x": 374,
+          "y": 220
+        },
+        {
+          "x": 367,
+          "y": 250
+        },
+        {
+          "x": 363,
+          "y": 269
+        },
+        {
+          "x": 349,
+          "y": 278
+        },
+        {
+          "x": 366,
+          "y": 291
+        },
+        {
+          "x": 347,
+          "y": 298
+        },
+        {
+          "x": 342,
+          "y": 315
+        },
+        {
+          "x": 337,
+          "y": 315
+        },
+        {
+          "x": 329,
+          "y": 350
+        },
+        {
+          "x": 319,
+          "y": 384
+        },
+        {
+          "x": 307,
+          "y": 410
+        },
+        {
+          "x": 292,
+          "y": 422
+        },
+        {
+          "x": 275,
+          "y": 420
+        },
+        {
+          "x": 262,
+          "y": 409
+        },
+        {
+          "x": 257,
+          "y": 393
+        },
+        {
+          "x": 262,
+          "y": 357
+        },
+        {
+          "x": 270,
+          "y": 322
+        },
+        {
+          "x": 260,
+          "y": 315
+        },
+        {
+          "x": 271,
+          "y": 299
+        },
+        {
+          "x": 258,
+          "y": 288
+        },
+        {
+          "x": 278,
+          "y": 280
+        },
+        {
+          "x": 275,
+          "y": 267
+        },
+        {
+          "x": 295,
+          "y": 271
+        },
+        {
+          "x": 294,
+          "y": 240
+        },
+        {
+          "x": 297,
+          "y": 205
+        },
+        {
+          "x": 305,
+          "y": 177
+        }
+      ],
+      "attributes": {
+        "fingerHint": "unknown",
+        "shape": "unknown",
+        "quality": 4,
+        "occluded": false,
+        "artificialTip": true,
+        "annotationMethod": "codex-original-resolution-manual",
+        "repairDisposition": "manual-replacement-after-sam-failure"
+      },
+      "id": "n2"
+    },
+    {
+      "label": "nail_texture",
+      "polygon": [
+        {
+          "x": 456,
+          "y": 226
+        },
+        {
+          "x": 472,
+          "y": 228
+        },
+        {
+          "x": 486,
+          "y": 235
+        },
+        {
+          "x": 496,
+          "y": 247
+        },
+        {
+          "x": 500,
+          "y": 263
+        },
+        {
+          "x": 497,
+          "y": 284
+        },
+        {
+          "x": 488,
+          "y": 306
+        },
+        {
+          "x": 475,
+          "y": 328
+        },
+        {
+          "x": 459,
+          "y": 350
+        },
+        {
+          "x": 441,
+          "y": 370
+        },
+        {
+          "x": 421,
+          "y": 389
+        },
+        {
+          "x": 399,
+          "y": 405
+        },
+        {
+          "x": 379,
+          "y": 417
+        },
+        {
+          "x": 360,
+          "y": 426
+        },
+        {
+          "x": 342,
+          "y": 431
+        },
+        {
+          "x": 327,
+          "y": 430
+        },
+        {
+          "x": 315,
+          "y": 424
+        },
+        {
+          "x": 309,
+          "y": 414
+        },
+        {
+          "x": 326,
+          "y": 406
+        },
+        {
+          "x": 329,
+          "y": 386
+        },
+        {
+          "x": 337,
+          "y": 364
+        },
+        {
+          "x": 350,
+          "y": 339
+        },
+        {
+          "x": 366,
+          "y": 318
+        },
+        {
+          "x": 380,
+          "y": 297
+        },
+        {
+          "x": 387,
+          "y": 277
+        },
+        {
+          "x": 403,
+          "y": 258
+        },
+        {
+          "x": 420,
+          "y": 242
+        },
+        {
+          "x": 438,
+          "y": 230
+        }
+      ],
+      "attributes": {
+        "fingerHint": "unknown",
+        "shape": "unknown",
+        "quality": 4,
+        "occluded": false,
+        "artificialTip": true,
+        "annotationMethod": "codex-original-resolution-manual",
+        "repairDisposition": "manual-replacement-after-sam-failure"
+      },
+      "id": "n3"
+    },
+    {
+      "label": "nail_texture",
+      "polygon": [
+        {
+          "x": 474,
+          "y": 414
+        },
+        {
+          "x": 486,
+          "y": 421
+        },
+        {
+          "x": 494,
+          "y": 434
+        },
+        {
+          "x": 495,
+          "y": 451
+        },
+        {
+          "x": 491,
+          "y": 467
+        },
+        {
+          "x": 477,
+          "y": 482
+        },
+        {
+          "x": 459,
+          "y": 496
+        },
+        {
+          "x": 438,
+          "y": 508
+        },
+        {
+          "x": 415,
+          "y": 519
+        },
+        {
+          "x": 390,
+          "y": 529
+        },
+        {
+          "x": 365,
+          "y": 537
+        },
+        {
+          "x": 342,
+          "y": 543
+        },
+        {
+          "x": 320,
+          "y": 548
+        },
+        {
+          "x": 306,
+          "y": 545
+        },
+        {
+          "x": 301,
+          "y": 536
+        },
+        {
+          "x": 303,
+          "y": 523
+        },
+        {
+          "x": 313,
+          "y": 510
+        },
+        {
+          "x": 329,
+          "y": 498
+        },
+        {
+          "x": 347,
+          "y": 486
+        },
+        {
+          "x": 365,
+          "y": 473
+        },
+        {
+          "x": 382,
+          "y": 457
+        },
+        {
+          "x": 399,
+          "y": 441
+        },
+        {
+          "x": 418,
+          "y": 428
+        },
+        {
+          "x": 438,
+          "y": 419
+        },
+        {
+          "x": 456,
+          "y": 414
+        }
+      ],
+      "attributes": {
+        "fingerHint": "unknown",
+        "shape": "unknown",
+        "quality": 4,
+        "occluded": false,
+        "artificialTip": true,
+        "annotationMethod": "codex-original-resolution-manual",
+        "repairDisposition": "manual-replacement-after-sam-failure"
+      },
+      "id": "n4"
+    },
+    {
+      "label": "nail_texture",
+      "polygon": [
+        {
+          "x": 447,
+          "y": 520
+        },
+        {
+          "x": 460,
+          "y": 510
+        },
+        {
+          "x": 485,
+          "y": 504
+        },
+        {
+          "x": 515,
+          "y": 503
+        },
+        {
+          "x": 546,
+          "y": 506
+        },
+        {
+          "x": 575,
+          "y": 511
+        },
+        {
+          "x": 605,
+          "y": 516
+        },
+        {
+          "x": 635,
+          "y": 522
+        },
+        {
+          "x": 663,
+          "y": 530
+        },
+        {
+          "x": 688,
+          "y": 539
+        },
+        {
+          "x": 704,
+          "y": 551
+        },
+        {
+          "x": 710,
+          "y": 566
+        },
+        {
+          "x": 707,
+          "y": 581
+        },
+        {
+          "x": 697,
+          "y": 592
+        },
+        {
+          "x": 682,
+          "y": 600
+        },
+        {
+          "x": 660,
+          "y": 603
+        },
+        {
+          "x": 632,
+          "y": 600
+        },
+        {
+          "x": 603,
+          "y": 594
+        },
+        {
+          "x": 573,
+          "y": 585
+        },
+        {
+          "x": 545,
+          "y": 574
+        },
+        {
+          "x": 519,
+          "y": 561
+        },
+        {
+          "x": 496,
+          "y": 548
+        },
+        {
+          "x": 474,
+          "y": 537
+        },
+        {
+          "x": 455,
+          "y": 530
+        }
+      ],
+      "attributes": {
+        "fingerHint": "unknown",
+        "shape": "unknown",
+        "quality": 4,
+        "occluded": false,
+        "artificialTip": true,
+        "annotationMethod": "codex-original-resolution-manual",
+        "repairDisposition": "manual-replacement-after-sam-failure"
+      },
+      "id": "n5"
+    }
+  ]
+}

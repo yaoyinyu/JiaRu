@@ -1,0 +1,88 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "sam2-stress-primary-region-v24-large": {
+      "pass": 4,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "b1184e010679-main-v3.png",
+      "nailIndex": 1,
+      "source": "sam2-stress-primary-region-v24-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3286,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        98.0,
+        476.0,
+        149.0,
+        565.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-main-v3.png",
+      "nailIndex": 2,
+      "source": "sam2-stress-primary-region-v24-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4383,
+      "boundsContainment": 0.8159,
+      "centerInside": true,
+      "bounds": [
+        195.0,
+        393.0,
+        253.0,
+        488.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-main-v3.png",
+      "nailIndex": 3,
+      "source": "sam2-stress-primary-region-v24-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.4194,
+      "boundsContainment": 0.8992,
+      "centerInside": true,
+      "bounds": [
+        283.0,
+        367.0,
+        344.0,
+        467.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "b1184e010679-main-v3.png",
+      "nailIndex": 4,
+      "source": "sam2-stress-primary-region-v24-large",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.3923,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        354.0,
+        429.0,
+        407.0,
+        526.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    }
+  ]
+}
