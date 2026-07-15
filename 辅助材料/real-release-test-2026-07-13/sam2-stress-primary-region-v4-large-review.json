@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-16",
+  "reviewer": "codex-original-resolution-sam2-large-stress-repair",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "86ac688f2753-main-v3.png",
+    "956d94380abf-main-v3.png"
+  ],
+  "acceptedMaskCount": 10,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [
+    "b1184e010679-main-v3.png"
+  ],
+  "reviewNotes": {
+    "86ac688f2753-main-v3.png": "five_fully_visible_nails_each_have_one_complete_mask_after_large_model_tight_box_and_directional_point_repair",
+    "956d94380abf-main-v3.png": "five_fully_visible_nails_each_have_one_complete_mask_without_finger_palm_face_or_background_contamination",
+    "b1184e010679-main-v3.png": "large_model_v4_still_absorbs_cuticle_skin_on_the_first_three_nails_and_v5_v6_point_repairs_fall_back_on_prompts_two_and_three_so_the_image_remains_rework"
+  }
+}

@@ -1,0 +1,15 @@
+fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+86ac688f2753-main-v3.png,1,stress-primary-region-v4-large,pass,,0.2698,1.0,True,"[51.0, 90.0, 133.0, 233.0]",0.0
+86ac688f2753-main-v3.png,2,stress-primary-region-v4-large,pass,,0.4008,1.0,True,"[55.0, 365.0, 168.0, 510.0]",0.0395
+86ac688f2753-main-v3.png,3,stress-primary-region-v4-large,pass,,0.3992,1.0,True,"[156.0, 407.0, 282.0, 535.0]",0.1022
+86ac688f2753-main-v3.png,4,stress-primary-region-v4-large,pass,,0.3932,1.0,True,"[217.0, 490.0, 350.0, 606.0]",0.1022
+86ac688f2753-main-v3.png,5,stress-primary-region-v4-large,pass,,0.3871,1.0,True,"[190.0, 587.0, 357.0, 677.0]",0.0905
+956d94380abf-main-v3.png,1,stress-primary-region-v4-large,pass,,0.3996,0.9914,True,"[75.0, 489.0, 169.0, 576.0]",0.0
+956d94380abf-main-v3.png,2,stress-primary-region-v4-large,pass,,0.4898,1.0,True,"[104.0, 339.0, 199.0, 469.0]",0.0
+956d94380abf-main-v3.png,3,stress-primary-region-v4-large,pass,,0.4692,1.0,True,"[223.0, 309.0, 297.0, 464.0]",0.0
+956d94380abf-main-v3.png,4,stress-primary-region-v4-large,pass,,0.452,1.0,True,"[345.0, 416.0, 401.0, 543.0]",0.0
+956d94380abf-main-v3.png,5,stress-primary-region-v4-large,pass,,0.4902,1.0,True,"[300.0, 588.0, 445.0, 674.0]",0.0
+b1184e010679-main-v3.png,1,stress-primary-region-v4-large,pass,,0.364,1.0,True,"[85.0, 475.0, 153.0, 578.0]",0.0
+b1184e010679-main-v3.png,2,stress-primary-region-v4-large,pass,,0.7086,0.7851,True,"[175.0, 393.0, 259.0, 534.0]",0.0
+b1184e010679-main-v3.png,3,stress-primary-region-v4-large,suspect,bounds_containment_below_minimum,0.7521,0.6567,True,"[262.0, 370.0, 348.0, 532.0]",0.0
+b1184e010679-main-v3.png,4,stress-primary-region-v4-large,pass,,0.4856,1.0,True,"[350.0, 415.0, 410.0, 530.0]",0.0

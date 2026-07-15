@@ -1,0 +1,6 @@
+fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+e0ee33ff3706-primary.png,1,stress-primary-region-v7-large,pass,,0.2546,1.0,True,"[389.0, 1226.0, 541.0, 1487.0]",0.0
+e0ee33ff3706-primary.png,2,stress-primary-region-v7-large,pass,,0.3613,0.9848,True,"[381.0, 707.0, 539.0, 945.0]",0.1096
+e0ee33ff3706-primary.png,3,stress-primary-region-v7-large,pass,,0.3512,0.9171,True,"[445.0, 533.0, 609.0, 791.0]",0.1096
+e0ee33ff3706-primary.png,4,stress-primary-region-v7-large,pass,,0.3569,0.9908,True,"[589.0, 528.0, 768.0, 815.0]",0.0583
+e0ee33ff3706-primary.png,5,stress-primary-region-v7-large,pass,,0.4597,0.763,True,"[859.0, 650.0, 1075.0, 950.0]",0.0
