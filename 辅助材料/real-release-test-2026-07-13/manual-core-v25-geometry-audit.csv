@@ -1,0 +1,9 @@
+fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+real_release_20260713_030.jpg,1,manual-core-v25,pass,,0.6826,1.0,True,"[378.0, 961.0, 505.0, 1114.0]",0.0
+real_release_20260713_030.jpg,2,manual-core-v25,pass,,0.649,1.0,True,"[600.0, 1004.0, 722.0, 1169.0]",0.0
+real_release_20260713_030.jpg,3,manual-core-v25,pass,,0.6805,1.0,True,"[451.0, 676.0, 597.0, 806.0]",0.0
+real_release_20260713_030.jpg,4,manual-core-v25,pass,,0.6382,1.0,True,"[227.0, 529.0, 374.0, 660.0]",0.0
+real_release_20260713_030.jpg,5,manual-core-v25,pass,,0.6511,1.0,True,"[178.0, 356.0, 312.0, 483.0]",0.0
+real_release_20260713_030.jpg,6,manual-core-v25,pass,,0.6558,1.0,True,"[91.0, 898.0, 198.0, 1018.0]",0.0
+real_release_20260713_030.jpg,7,manual-core-v25,pass,,0.6293,1.0,True,"[724.0, 850.0, 833.0, 1009.0]",0.1381
+real_release_20260713_030.jpg,8,manual-core-v25,pass,,0.675,1.0,True,"[793.0, 830.0, 897.0, 936.0]",0.1381

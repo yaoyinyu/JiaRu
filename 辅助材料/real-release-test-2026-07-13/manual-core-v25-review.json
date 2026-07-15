@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-16",
+  "reviewer": "codex-original-resolution-core-freeze-repair",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectNonNailFalsePositives": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "real_release_20260713_030.jpg"
+  ],
+  "acceptedMaskCount": 8,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [],
+  "reviewNotes": {
+    "real_release_20260713_030.jpg": "eight_visible_nails_each_have_one_complete_mask_after_removing_the_knuckle_false_positive_and_separating_the_foreground_occlusion_boundary_between_nails_seven_and_eight"
+  }
+}

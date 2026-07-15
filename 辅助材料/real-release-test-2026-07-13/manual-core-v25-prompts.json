@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "source": "reviewed-hybrid-original-resolution-manual-polygon-bounds",
+  "decision": "candidate_only_not_training_or_test_truth",
+  "imageCount": 1,
+  "promptCount": 8,
+  "images": [
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "boxes": [
+        [
+          0.35,
+          0.741512,
+          0.467593,
+          0.859568
+        ],
+        [
+          0.555556,
+          0.774691,
+          0.668519,
+          0.902006
+        ],
+        [
+          0.417593,
+          0.521605,
+          0.552778,
+          0.621914
+        ],
+        [
+          0.210185,
+          0.408179,
+          0.346296,
+          0.509259
+        ],
+        [
+          0.164815,
+          0.274691,
+          0.288889,
+          0.372685
+        ],
+        [
+          0.084259,
+          0.692901,
+          0.183333,
+          0.785494
+        ],
+        [
+          0.67037,
+          0.655864,
+          0.771296,
+          0.778549
+        ],
+        [
+          0.734259,
+          0.640432,
+          0.830556,
+          0.722222
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box",
+        "box"
+      ],
+      "reviewReason": "audit_reviewed_polygons_against_their_true_original_resolution_bounds"
+    }
+  ]
+}

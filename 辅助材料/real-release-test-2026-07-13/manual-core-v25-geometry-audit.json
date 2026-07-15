@@ -1,0 +1,156 @@
+{
+  "version": "nail-texture-assisted-annotation-audit/v1",
+  "decision": "candidate_only_not_training_truth",
+  "thresholds": {
+    "minimumBoundsContainment": 0.72,
+    "minimumAreaRatio": 0.12,
+    "maximumAreaRatio": 1.35,
+    "promptCenterMustBeInside": true,
+    "maximumPeerBoundsIou": 0.35
+  },
+  "summary": {
+    "manual-core-v25": {
+      "pass": 8,
+      "suspect": 0,
+      "missing": 0
+    }
+  },
+  "rows": [
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "nailIndex": 1,
+      "source": "manual-core-v25",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6826,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        378.0,
+        961.0,
+        505.0,
+        1114.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "nailIndex": 2,
+      "source": "manual-core-v25",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.649,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        600.0,
+        1004.0,
+        722.0,
+        1169.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "nailIndex": 3,
+      "source": "manual-core-v25",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6805,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        451.0,
+        676.0,
+        597.0,
+        806.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "nailIndex": 4,
+      "source": "manual-core-v25",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6382,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        227.0,
+        529.0,
+        374.0,
+        660.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "nailIndex": 5,
+      "source": "manual-core-v25",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6511,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        178.0,
+        356.0,
+        312.0,
+        483.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "nailIndex": 6,
+      "source": "manual-core-v25",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6558,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        91.0,
+        898.0,
+        198.0,
+        1018.0
+      ],
+      "maximumPeerBoundsIou": 0.0
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "nailIndex": 7,
+      "source": "manual-core-v25",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.6293,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        724.0,
+        850.0,
+        833.0,
+        1009.0
+      ],
+      "maximumPeerBoundsIou": 0.1381
+    },
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "nailIndex": 8,
+      "source": "manual-core-v25",
+      "status": "pass",
+      "reasons": [],
+      "areaRatio": 0.675,
+      "boundsContainment": 1.0,
+      "centerInside": true,
+      "bounds": [
+        793.0,
+        830.0,
+        897.0,
+        936.0
+      ],
+      "maximumPeerBoundsIou": 0.1381
+    }
+  ]
+}

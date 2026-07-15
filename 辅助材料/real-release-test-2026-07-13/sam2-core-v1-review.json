@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "reviewedOn": "2026-07-13",
+  "reviewedOn": "2026-07-16",
   "reviewer": "codex-visual-review",
   "reviewPolicy": {
     "requireEveryVisibleNail": true,
@@ -316,6 +316,19 @@
       "acceptedMaskCount": 10,
       "geometrySuspectCount": 1,
       "promptStrategy": "retain_nine_complete_nails_remove_palm_and_watch_false_positives_and_restore_the_upper_hand_thumb_as_one_complete_mask"
+    },
+    {
+      "id": "manual-core-v25-freeze-repair",
+      "manifest": "manual-core-v25-repair-manifest.json",
+      "prompts": "manual-core-v25-prompts.json",
+      "candidateReport": "manual-core-v25-report.json",
+      "geometryAudit": "manual-core-v25-geometry-audit.json",
+      "review": "manual-core-v25-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 8,
+      "removedFalsePositiveCount": 1,
+      "pairwiseOverlapCount": 0,
+      "promptStrategy": "retain_seven_reviewed_nail_polygons_remove_the_knuckle_false_positive_and_manually_separate_the_occlusion_boundary_between_nails_seven_and_eight"
     }
   ]
 }

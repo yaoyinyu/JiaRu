@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "source": "original-resolution-core-030-false-positive-and-overlap-correction",
+  "decision": "candidate_only_not_training_or_test_truth",
+  "images": [
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "sourceAnnotationPath": "annotations/sam2-core-v1-json/real_release_20260713_030.json",
+      "nails": [
+        { "sourceIndex": 1 },
+        { "sourceIndex": 2 },
+        { "sourceIndex": 3 },
+        { "sourceIndex": 4 },
+        { "sourceIndex": 5 },
+        { "sourceIndex": 6 },
+        {
+          "polygon": [
+            { "x": 743.0, "y": 859.0 },
+            { "x": 728.0, "y": 873.0 },
+            { "x": 724.0, "y": 887.0 },
+            { "x": 724.0, "y": 918.0 },
+            { "x": 729.0, "y": 929.0 },
+            { "x": 728.0, "y": 934.0 },
+            { "x": 732.0, "y": 946.0 },
+            { "x": 757.0, "y": 992.0 },
+            { "x": 772.0, "y": 1007.0 },
+            { "x": 788.0, "y": 1009.0 },
+            { "x": 802.0, "y": 1005.0 },
+            { "x": 821.0, "y": 994.0 },
+            { "x": 830.0, "y": 985.0 },
+            { "x": 833.0, "y": 979.0 },
+            { "x": 833.0, "y": 973.0 },
+            { "x": 827.0, "y": 955.0 },
+            { "x": 828.0, "y": 948.0 },
+            { "x": 825.0, "y": 942.0 },
+            { "x": 815.89, "y": 933.85 },
+            { "x": 812.64, "y": 932.67 },
+            { "x": 808.44, "y": 929.52 },
+            { "x": 797.33, "y": 912.35 },
+            { "x": 793.26, "y": 902.18 },
+            { "x": 792.71, "y": 896.68 },
+            { "x": 792.0, "y": 894.0 },
+            { "x": 786.0, "y": 889.0 },
+            { "x": 782.0, "y": 857.0 },
+            { "x": 774.0, "y": 850.0 },
+            { "x": 762.0, "y": 850.0 }
+          ],
+          "attributes": {
+            "annotationMethod": "codex-original-resolution-manual-occlusion-boundary",
+            "repairDisposition": "remove-overlap-with-foreground-adjacent-nail",
+            "artificialTip": true
+          }
+        },
+        { "sourceIndex": 8 }
+      ],
+      "reviewReason": "retain_six_independent_complete_nails_and_the_foreground_eighth_nail_remove_the_knuckle_false_positive_and_carve_the_seventh_nail_boundary_at_the_foreground_occlusion_without_losing_visible_nail_surface"
+    }
+  ]
+}
