@@ -30,3 +30,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - 未经用户在当前任务中明确要求，不执行 `git commit` 或 `git push`；完成修改与验证后仅保留本地工作区差异。
 - 父截图可用但派生区域选错时，应按父文件 SHA-256 和稳定 `sourceGroup` 替换旧区域，并保持一父图一派生区域；禁止把新旧区域重复计数，也不得因此误排除父图。
 - 当透明、低对比或相邻长甲在多轮 SAM 紧框/多点提示后仍持续合并皮肤或邻指时，可以切换为原分辨率人工多边形；人工多边形必须逐甲覆盖完整可见甲面，并继续通过多边形合法性、两两零交叠、提示/外接框几何审计和原图局部放大视觉复核，禁止把“人工绘制”本身视为通过依据。
+- `build-reviewed-manual-polygon-repair.py` 清单中的 `nails[].sourceIndex` 使用从 1 开始的原标注序号；混合返修只允许保留已完成原分辨率视觉审核的polygon，脚本产物始终是候选，不能因合法性、零交叠或几何通过而自动晋升训练或test真值。

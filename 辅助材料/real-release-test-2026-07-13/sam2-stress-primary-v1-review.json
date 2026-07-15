@@ -28,7 +28,11 @@
     "2c793788bdec-primary.png",
     "223683d91dc4-primary.png",
     "b1184e010679-main-v3.png",
-    "eac9a2f87f4c-main-v2.png"
+    "eac9a2f87f4c-main-v2.png",
+    "f0752db2009c-primary.png",
+    "d970653d6111-primary.png",
+    "d9518b2dc889-primary.png",
+    "6d9a192d4168-primary.png"
   ],
   "excludeFiles": [
     "0c2bd7cc24b7-primary.png",
@@ -272,6 +276,20 @@
       "acceptedMaskCount": 9,
       "reworkCount": 0,
       "promptStrategy": "retain_the_nine_of_nine_sam_geometry_pass_as_rejected_skin_merging_diagnostics_then_draw_and_audit_nine_original_resolution_manual_polygons_with_zero_overlap"
+    },
+    {
+      "id": "remaining-four-stress-hybrid-manual-v27-repair",
+      "manifest": "manual-stress-primary-region-v27-repair-manifest.json",
+      "candidateReport": "manual-stress-primary-region-v27-report.json",
+      "geometryPrompts": "manual-stress-primary-region-v27-prompts.json",
+      "geometryAudit": "manual-stress-primary-region-v27-geometry-audit.json",
+      "review": "manual-stress-primary-region-v27-review.json",
+      "passCount": 4,
+      "acceptedMaskCount": 20,
+      "reworkCount": 0,
+      "retainedPolygonCount": 10,
+      "manualPolygonCount": 10,
+      "promptStrategy": "retain_ten_original_resolution_reviewed_polygons_replace_ten_partial_invalid_or_skin_contaminated_polygons_then_require_validity_zero_overlap_geometry_and_full_plus_per_nail_2x_review"
     }
   ]
 }

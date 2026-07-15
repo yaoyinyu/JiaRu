@@ -1,0 +1,110 @@
+{
+  "ok": true,
+  "method": "reviewed-hybrid-original-resolution-manual-polygon-repair",
+  "decision": "candidate_only_not_training_or_test_truth",
+  "imageCount": 1,
+  "completedCount": 1,
+  "polygonCount": 8,
+  "retainedPolygonCount": 7,
+  "manualPolygonCount": 1,
+  "pairwiseOverlapCount": 0,
+  "geometryPromptsPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\manual-core-v25-prompts.json",
+  "outputs": [
+    {
+      "fileName": "real_release_20260713_030.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\manual-core-v25-json\\real_release_20260713_030.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25\\real_release_20260713_030-manual-reviewed-overlay.png",
+      "polygonCount": 8,
+      "retainedPolygonCount": 7,
+      "manualPolygonCount": 1,
+      "validPolygonCount": 8,
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-manual-reviewed-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-manual-reviewed-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-manual-reviewed-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-manual-reviewed-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-manual-reviewed-overlay-n5-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-source-n6-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-manual-reviewed-overlay-n6-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-source-n7-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-manual-reviewed-overlay-n7-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-source-n8-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\manual-core-v25-zooms\\real_release_20260713_030-manual-reviewed-overlay-n8-2x.png"
+        }
+      ],
+      "geometryBoxes": [
+        [
+          0.35,
+          0.741512,
+          0.467593,
+          0.859568
+        ],
+        [
+          0.555556,
+          0.774691,
+          0.668519,
+          0.902006
+        ],
+        [
+          0.417593,
+          0.521605,
+          0.552778,
+          0.621914
+        ],
+        [
+          0.210185,
+          0.408179,
+          0.346296,
+          0.509259
+        ],
+        [
+          0.164815,
+          0.274691,
+          0.288889,
+          0.372685
+        ],
+        [
+          0.084259,
+          0.692901,
+          0.183333,
+          0.785494
+        ],
+        [
+          0.67037,
+          0.655864,
+          0.771296,
+          0.778549
+        ],
+        [
+          0.734259,
+          0.640432,
+          0.830556,
+          0.722222
+        ]
+      ]
+    }
+  ],
+  "errors": []
+}

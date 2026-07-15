@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-16",
+  "reviewer": "codex-original-resolution-hybrid-manual-polygon-review",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "f0752db2009c-primary.png",
+    "d970653d6111-primary.png",
+    "d9518b2dc889-primary.png",
+    "6d9a192d4168-primary.png"
+  ],
+  "acceptedMaskCount": 20,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [],
+  "reviewNotes": {
+    "f0752db2009c-primary.png": "five_fully_visible_nails_pass_full_image_and_per_nail_2x_review_after_replacing_the_partial_diagonal_and_skin_merged_horizontal_nails",
+    "d970653d6111-primary.png": "five_fully_visible_nails_pass_full_image_and_per_nail_2x_review_after_replacing_the_horizontal_blue_and_pink_nail_with_its_complete_root_and_tip",
+    "d9518b2dc889-primary.png": "five_fully_visible_nails_pass_full_image_and_per_nail_2x_review_after_restoring_the_complete_bear_thumb_transparent_body_diagonal_nail_and_horizontal_pinky",
+    "6d9a192d4168-primary.png": "five_fully_visible_nails_pass_full_image_and_per_nail_2x_review_after_restoring_the_star_nail_transparent_tip_smoothing_the_skin_contaminated_diagonal_nail_and_rebuilding_the_white_pink_pinky"
+  },
+  "auditEvidence": {
+    "validPolygonCount": 20,
+    "geometryPassCount": 20,
+    "geometrySuspectCount": 0,
+    "missingPolygonCount": 0,
+    "pairwiseOverlapCount": 0,
+    "fullImageOverlayCount": 4,
+    "sourceZoomCount": 20,
+    "overlayZoomCount": 20
+  }
+}

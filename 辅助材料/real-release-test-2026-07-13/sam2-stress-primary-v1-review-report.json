@@ -3,14 +3,14 @@
   "batchId": "real-release-test-2026-07-13-v1-stress-primary-regions-v1",
   "decision": "human_reviewed_candidate_annotations_not_training_truth",
   "ok": true,
-  "status": "core_review_partial_pass_rework_required",
+  "status": "core_review_complete",
   "counts": {
     "core": 35,
-    "pass": 18,
-    "rework": 4,
+    "pass": 22,
+    "rework": 0,
     "excluded": 13,
-    "acceptedMasks": 96,
-    "acceptedSourceGroups": 18,
+    "acceptedMasks": 116,
+    "acceptedSourceGroups": 22,
     "stressPending": 0
   },
   "passFiles": [
@@ -19,6 +19,7 @@
     "2c793788bdec-primary.png",
     "3e9b2b906fda-primary.png",
     "51a2eded5eda-primary.png",
+    "6d9a192d4168-primary.png",
     "7a92b2c08d0f-main-v3.png",
     "86ac688f2753-main-v3.png",
     "956d94380abf-main-v3.png",
@@ -28,17 +29,15 @@
     "c541feb05c54-main-v2.png",
     "c6edb7fea814-primary.png",
     "d17ab88ac58a-primary.png",
+    "d9518b2dc889-primary.png",
+    "d970653d6111-primary.png",
     "e826babe1b3a-primary.png",
     "eac9a2f87f4c-main-v2.png",
+    "f0752db2009c-primary.png",
     "f8a25604ea58-primary.png",
     "f8c543cdd6ff-main-v2.png"
   ],
-  "reworkFiles": [
-    "6d9a192d4168-primary.png",
-    "d9518b2dc889-primary.png",
-    "d970653d6111-primary.png",
-    "f0752db2009c-primary.png"
-  ],
+  "reworkFiles": [],
   "excludeFiles": [
     "02f011058d1f-primary.png",
     "0c2bd7cc24b7-primary.png",
@@ -103,7 +102,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v23-large-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v24-large-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v25-large-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\manual-stress-primary-region-v26-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\manual-stress-primary-region-v26-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\manual-stress-primary-region-v27-report.json"
   ],
   "repairBatches": [
     {
@@ -317,6 +317,20 @@
       "acceptedMaskCount": 9,
       "reworkCount": 0,
       "promptStrategy": "retain_the_nine_of_nine_sam_geometry_pass_as_rejected_skin_merging_diagnostics_then_draw_and_audit_nine_original_resolution_manual_polygons_with_zero_overlap"
+    },
+    {
+      "id": "remaining-four-stress-hybrid-manual-v27-repair",
+      "manifest": "manual-stress-primary-region-v27-repair-manifest.json",
+      "candidateReport": "manual-stress-primary-region-v27-report.json",
+      "geometryPrompts": "manual-stress-primary-region-v27-prompts.json",
+      "geometryAudit": "manual-stress-primary-region-v27-geometry-audit.json",
+      "review": "manual-stress-primary-region-v27-review.json",
+      "passCount": 4,
+      "acceptedMaskCount": 20,
+      "reworkCount": 0,
+      "retainedPolygonCount": 10,
+      "manualPolygonCount": 10,
+      "promptStrategy": "retain_ten_original_resolution_reviewed_polygons_replace_ten_partial_invalid_or_skin_contaminated_polygons_then_require_validity_zero_overlap_geometry_and_full_plus_per_nail_2x_review"
     }
   ],
   "errors": []
