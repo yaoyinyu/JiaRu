@@ -27,9 +27,11 @@ test("audit-image-corpus reports valid images and exact duplicates", async () =>
   const report = JSON.parse(await readFile(output, "utf8")) as {
     ok: boolean;
     totals: { validImages: number; exactDuplicateGroups: number; exactDuplicateFiles: number };
+    byTopLevelDirectory: Record<string, number>;
   };
   assert.equal(report.ok, true);
   assert.equal(report.totals.validImages, 2);
   assert.equal(report.totals.exactDuplicateGroups, 1);
   assert.equal(report.totals.exactDuplicateFiles, 1);
+  assert.deepEqual(report.byTopLevelDirectory, { ".": 2 });
 });

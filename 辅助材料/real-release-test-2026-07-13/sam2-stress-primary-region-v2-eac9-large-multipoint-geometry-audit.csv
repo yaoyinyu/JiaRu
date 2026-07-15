@@ -1,0 +1,10 @@
+fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+eac9a2f87f4c-main-v2.png,1,stress-eac9-sam2.1-large-multipoint,pass,,0.2205,1.0,True,"[397.0, 170.0, 467.0, 254.0]",0.0
+eac9a2f87f4c-main-v2.png,2,stress-eac9-sam2.1-large-multipoint,pass,,0.6346,0.9871,True,"[308.0, 256.0, 436.0, 438.0]",0.1263
+eac9a2f87f4c-main-v2.png,3,stress-eac9-sam2.1-large-multipoint,pass,,0.2789,0.9671,True,"[225.0, 398.0, 408.0, 489.0]",0.1113
+eac9a2f87f4c-main-v2.png,4,stress-eac9-sam2.1-large-multipoint,pass,,0.5865,0.8628,True,"[366.0, 361.0, 538.0, 505.0]",0.1263
+eac9a2f87f4c-main-v2.png,5,stress-eac9-sam2.1-large-multipoint,pass,,0.3031,0.997,True,"[57.0, 488.0, 143.0, 596.0]",0.0
+eac9a2f87f4c-main-v2.png,6,stress-eac9-sam2.1-large-multipoint,pass,,0.5987,0.9234,True,"[160.0, 495.0, 238.0, 668.0]",0.0704
+eac9a2f87f4c-main-v2.png,7,stress-eac9-sam2.1-large-multipoint,pass,,0.3473,0.9778,True,"[225.0, 527.0, 309.0, 698.0]",0.0704
+eac9a2f87f4c-main-v2.png,8,stress-eac9-sam2.1-large-multipoint,pass,,0.21,1.0,True,"[320.0, 602.0, 355.0, 715.0]",0.0164
+eac9a2f87f4c-main-v2.png,9,stress-eac9-sam2.1-large-multipoint,suspect,prompt_center_outside_polygon,0.4779,0.8058,False,"[351.0, 518.0, 428.0, 663.0]",0.0164

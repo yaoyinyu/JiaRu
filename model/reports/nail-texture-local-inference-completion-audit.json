@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-14T08:59:01.879Z",
+  "generatedAt": "2026-07-15T16:39:47.546Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -38,8 +38,8 @@
     "gateCount": 10,
     "passedGates": 3,
     "failedGates": 7,
-    "progressMarkerCount": 78,
-    "passMarkerCount": 66,
+    "progressMarkerCount": 81,
+    "passMarkerCount": 68,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -94,6 +94,12 @@
         "task": "确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试",
         "status": "⏸️ USER INPUT",
         "evidence": "机器审计与11页视觉总览已完成；当前仅登记为合成候选池，未导入正式集。需明确授权后再进入逐图筛选和标注流程"
+      },
+      {
+        "id": "USER-AUTH-05",
+        "task": "确认 `真实素材/2026_7_14` 的1277张素材用途",
+        "status": "⏸️ USER INPUT",
+        "evidence": "技术候选入库审计已通过，但当前authorizedUses为空、训练用途禁止；需用户明确选择仅发布测试/长期回归、允许商业训练，或仅存档不用模型后，才能继续逐组去重和逐图审核"
       },
       {
         "id": "USER-FAILURE-01",
@@ -183,6 +189,10 @@
         {
           "checked": true,
           "text": "训练 FP32 基线并评估输入尺寸。"
+        },
+        {
+          "checked": false,
+          "text": "完成2026_7_14新增1277张实拍候选的用途授权、近重复归并和逐图原分辨率完整甲面审核。（技术候选入库已完成：1277/1277可解码、196个来源组、批内0精确重复/70对近重复、跨1053张参照0精确重复/86对近重复；授权确认前`trainingUse=prohibited`，不计入训练或代表性test）"
         },
         {
           "checked": true,

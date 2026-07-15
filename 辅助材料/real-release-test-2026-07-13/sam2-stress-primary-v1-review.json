@@ -20,7 +20,8 @@
     "d17ab88ac58a-primary.png",
     "f8c543cdd6ff-main-v2.png",
     "bc6b23d6a1ce-main-v2.png",
-    "c541feb05c54-main-v2.png"
+    "c541feb05c54-main-v2.png",
+    "7a92b2c08d0f-main-v3.png"
   ],
   "excludeFiles": [
     "0c2bd7cc24b7-primary.png",
@@ -66,6 +67,20 @@
       "acceptedMaskCount": 18,
       "reworkCount": 1,
       "promptStrategy": "replace_four_wrong_inset_crops_by_parent_stable_main_photo_regions_then_use_tight_boxes_and_directional_points_with_original_resolution_review"
+    },
+    {
+      "id": "sam2-stress-primary-region-replacement-v3",
+      "regionManifest": "stress-primary-regions-v3.json",
+      "regionReport": "stress-primary-regions-v3-report.json",
+      "aggregateRegionReport": "stress-primary-regions-v3-aggregate-report.json",
+      "prompts": "sam2-stress-primary-region-v3-prompts.json",
+      "candidateReport": "sam2-stress-primary-region-v3-report.json",
+      "geometryAudit": "sam2-stress-primary-region-v3-geometry-audit.json",
+      "review": "sam2-stress-primary-region-v3-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "reworkCount": 3,
+      "promptStrategy": "replace_four_cropped_or_wrong_inset_regions_with_complete_parent_main_photos_then_rebuild_every_fully_visible_nail_with_directional_points"
     }
   ]
 }

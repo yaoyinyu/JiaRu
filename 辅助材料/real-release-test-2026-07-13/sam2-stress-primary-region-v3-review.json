@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-16",
+  "reviewer": "codex-original-resolution-stress-region-reextraction-v3",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "7a92b2c08d0f-main-v3.png"
+  ],
+  "acceptedMaskCount": 5,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [
+    "86ac688f2753-main-v3.png",
+    "956d94380abf-main-v3.png",
+    "b1184e010679-main-v3.png"
+  ],
+  "reviewNotes": {
+    "7a92b2c08d0f-main-v3.png": "five_fully_visible_nails_have_one_complete_mask_each_after_replacing_the_wrong_lower_inset_with_the_large_parent_main_photo",
+    "86ac688f2753-main-v3.png": "correct_parent_photo_is_now_used_but_prompts_two_to_five_still_absorb_finger_skin_and_require_tighter_repair",
+    "956d94380abf-main-v3.png": "correct_upper_main_photo_is_now_used_but_multiple_masks_still_absorb_finger_and_palm_skin",
+    "b1184e010679-main-v3.png": "correct_left_main_photo_is_now_used_but_all_four_masks_still_extend_into_finger_skin"
+  }
+}
