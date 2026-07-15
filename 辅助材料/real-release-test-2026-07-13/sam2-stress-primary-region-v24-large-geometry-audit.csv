@@ -1,0 +1,5 @@
+fileName,nailIndex,source,status,reasons,areaRatio,boundsContainment,centerInside,bounds,maximumPeerBoundsIou
+b1184e010679-main-v3.png,1,sam2-stress-primary-region-v24-large,pass,,0.3286,1.0,True,"[98.0, 476.0, 149.0, 565.0]",0.0
+b1184e010679-main-v3.png,2,sam2-stress-primary-region-v24-large,pass,,0.4383,0.8159,True,"[195.0, 393.0, 253.0, 488.0]",0.0
+b1184e010679-main-v3.png,3,sam2-stress-primary-region-v24-large,pass,,0.4194,0.8992,True,"[283.0, 367.0, 344.0, 467.0]",0.0
+b1184e010679-main-v3.png,4,sam2-stress-primary-region-v24-large,pass,,0.3923,1.0,True,"[354.0, 429.0, 407.0, 526.0]",0.0

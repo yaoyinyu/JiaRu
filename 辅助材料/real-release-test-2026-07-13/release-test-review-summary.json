@@ -5,10 +5,10 @@
   "ok": true,
   "counts": {
     "parents": 92,
-    "pass": 61,
-    "rework": 6,
+    "pass": 63,
+    "rework": 4,
     "excluded": 25,
-    "acceptedMasks": 352,
+    "acceptedMasks": 365,
     "acceptedSourceGroups": 18,
     "upstreamExcluded": 9
   },
@@ -72,16 +72,16 @@
     "real_release_20260713_090.jpg",
     "real_release_20260713_092.jpg",
     "real_release_20260713_094.jpg",
+    "real_release_20260713_095.jpg",
     "real_release_20260713_096.jpg",
-    "real_release_20260713_098.jpg"
+    "real_release_20260713_098.jpg",
+    "real_release_20260713_101.jpg"
   ],
   "reworkParentFiles": [
     "real_release_20260713_057.jpg",
     "real_release_20260713_058.jpg",
     "real_release_20260713_059.jpg",
-    "real_release_20260713_062.jpg",
-    "real_release_20260713_095.jpg",
-    "real_release_20260713_101.jpg"
+    "real_release_20260713_062.jpg"
   ],
   "excludeParentFiles": [
     "real_release_20260713_006.jpg",
@@ -293,7 +293,7 @@
     {
       "parentFileName": "real_release_20260713_095.jpg",
       "derivedFileName": "b1184e010679-main-v3.png",
-      "decision": "rework",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b1184e010679"
     },
     {
@@ -329,7 +329,7 @@
     {
       "parentFileName": "real_release_20260713_101.jpg",
       "derivedFileName": "eac9a2f87f4c-main-v2.png",
-      "decision": "rework",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c"
     }
   ],

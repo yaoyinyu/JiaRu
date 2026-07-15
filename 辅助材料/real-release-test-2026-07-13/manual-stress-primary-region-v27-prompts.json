@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "source": "reviewed-hybrid-original-resolution-manual-polygon-bounds",
+  "decision": "candidate_only_not_training_or_test_truth",
+  "imageCount": 4,
+  "promptCount": 20,
+  "images": [
+    {
+      "fileName": "f0752db2009c-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f0752db2009c",
+      "boxes": [
+        [
+          0.043519,
+          0.344444,
+          0.282407,
+          0.597222
+        ],
+        [
+          0.250926,
+          0.180556,
+          0.343519,
+          0.518056
+        ],
+        [
+          0.312037,
+          0.291667,
+          0.467593,
+          0.559722
+        ],
+        [
+          0.239815,
+          0.544444,
+          0.439815,
+          0.759722
+        ],
+        [
+          0.422222,
+          0.652778,
+          0.648148,
+          0.745833
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box"
+      ],
+      "reviewReason": "audit_reviewed_polygons_against_their_true_original_resolution_bounds"
+    },
+    {
+      "fileName": "d970653d6111-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d970653d6111",
+      "boxes": [
+        [
+          0.062963,
+          0.381944,
+          0.291667,
+          0.626389
+        ],
+        [
+          0.283333,
+          0.213889,
+          0.361111,
+          0.575
+        ],
+        [
+          0.330556,
+          0.245833,
+          0.506481,
+          0.558333
+        ],
+        [
+          0.27963,
+          0.555556,
+          0.478704,
+          0.797222
+        ],
+        [
+          0.42963,
+          0.675,
+          0.638889,
+          0.763889
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box"
+      ],
+      "reviewReason": "audit_reviewed_polygons_against_their_true_original_resolution_bounds"
+    },
+    {
+      "fileName": "d9518b2dc889-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d9518b2dc889",
+      "boxes": [
+        [
+          0.025926,
+          0.345833,
+          0.291667,
+          0.691667
+        ],
+        [
+          0.284259,
+          0.254167,
+          0.388889,
+          0.601389
+        ],
+        [
+          0.331481,
+          0.313889,
+          0.522222,
+          0.633333
+        ],
+        [
+          0.316667,
+          0.568056,
+          0.510185,
+          0.779167
+        ],
+        [
+          0.424074,
+          0.776389,
+          0.662037,
+          0.879167
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box"
+      ],
+      "reviewReason": "audit_reviewed_polygons_against_their_true_original_resolution_bounds"
+    },
+    {
+      "fileName": "6d9a192d4168-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6d9a192d4168",
+      "boxes": [
+        [
+          0.042593,
+          0.379167,
+          0.262037,
+          0.6625
+        ],
+        [
+          0.237963,
+          0.227778,
+          0.347222,
+          0.586111
+        ],
+        [
+          0.286111,
+          0.313889,
+          0.462963,
+          0.598611
+        ],
+        [
+          0.278704,
+          0.575,
+          0.458333,
+          0.761111
+        ],
+        [
+          0.413889,
+          0.698611,
+          0.657407,
+          0.8375
+        ]
+      ],
+      "promptModes": [
+        "box",
+        "box",
+        "box",
+        "box",
+        "box"
+      ],
+      "reviewReason": "audit_reviewed_polygons_against_their_true_original_resolution_bounds"
+    }
+  ]
+}
