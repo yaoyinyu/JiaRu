@@ -5,10 +5,10 @@
   "ok": true,
   "counts": {
     "parents": 92,
-    "pass": 60,
-    "rework": 7,
+    "pass": 61,
+    "rework": 6,
     "excluded": 25,
-    "acceptedMasks": 347,
+    "acceptedMasks": 352,
     "acceptedSourceGroups": 18,
     "upstreamExcluded": 9
   },
@@ -48,6 +48,7 @@
     "real_release_20260713_051.jpg",
     "real_release_20260713_052.jpg",
     "real_release_20260713_054.jpg",
+    "real_release_20260713_060.jpg",
     "real_release_20260713_061.jpg",
     "real_release_20260713_063.jpg",
     "real_release_20260713_064.jpg",
@@ -78,7 +79,6 @@
     "real_release_20260713_057.jpg",
     "real_release_20260713_058.jpg",
     "real_release_20260713_059.jpg",
-    "real_release_20260713_060.jpg",
     "real_release_20260713_062.jpg",
     "real_release_20260713_095.jpg",
     "real_release_20260713_101.jpg"
@@ -251,7 +251,7 @@
     {
       "parentFileName": "real_release_20260713_060.jpg",
       "derivedFileName": "223683d91dc4-primary.png",
-      "decision": "rework",
+      "decision": "pass",
       "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-223683d91dc4"
     },
     {

@@ -25,7 +25,8 @@
     "86ac688f2753-main-v3.png",
     "956d94380abf-main-v3.png",
     "f8a25604ea58-primary.png",
-    "2c793788bdec-primary.png"
+    "2c793788bdec-primary.png",
+    "223683d91dc4-primary.png"
   ],
   "excludeFiles": [
     "0c2bd7cc24b7-primary.png",
@@ -212,6 +213,38 @@
       "acceptedMaskCount": 5,
       "reworkCount": 0,
       "promptStrategy": "replace_eleven_duplicate_partial_masks_with_five_axis_guided_complete_masks_preserving_visible_butterfly_and_metallic_design_regions_without_skin_or_clothing_contamination"
+    },
+    {
+      "id": "sam2-stress-primary-region-v18-v23-large-repair",
+      "prompts": [
+        "sam2-stress-primary-region-v18-prompts.json",
+        "sam2-stress-primary-region-v19-prompts.json",
+        "sam2-stress-primary-region-v20-prompts.json",
+        "sam2-stress-primary-region-v21-prompts.json",
+        "sam2-stress-primary-region-v22-prompts.json",
+        "sam2-stress-primary-region-v23-prompts.json"
+      ],
+      "candidateReports": [
+        "sam2-stress-primary-region-v18-large-report.json",
+        "sam2-stress-primary-region-v19-large-report.json",
+        "sam2-stress-primary-region-v20-large-report.json",
+        "sam2-stress-primary-region-v21-large-report.json",
+        "sam2-stress-primary-region-v22-large-report.json",
+        "sam2-stress-primary-region-v23-large-report.json"
+      ],
+      "geometryAudits": [
+        "sam2-stress-primary-region-v18-large-geometry-audit.json",
+        "sam2-stress-primary-region-v19-large-geometry-audit.json",
+        "sam2-stress-primary-region-v20-large-geometry-audit.json",
+        "sam2-stress-primary-region-v21-large-geometry-audit.json",
+        "sam2-stress-primary-region-v22-large-geometry-audit.json",
+        "sam2-stress-primary-region-v23-large-geometry-audit.json"
+      ],
+      "review": "sam2-stress-primary-region-v23-large-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "reworkCount": 0,
+      "promptStrategy": "replace_eight_duplicates_with_five_masks_then_iteratively_remove_ring_pinky_overlap_and_recover_the_low_contrast_crystal_adjacent_thumb_cuticle_without_skin_absorption"
     }
   ]
 }

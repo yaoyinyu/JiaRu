@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-16",
+  "reviewer": "codex-original-resolution-sam2-large-stress-repair",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "223683d91dc4-primary.png"
+  ],
+  "acceptedMaskCount": 5,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [],
+  "reviewNotes": {
+    "223683d91dc4-primary.png": "five_fully_visible_crystal_and_cross_decorated_nails_each_have_exactly_one_complete_mask_after_thumb_cuticle_recovery_and_ring_pinky_overlap_removal"
+  }
+}
