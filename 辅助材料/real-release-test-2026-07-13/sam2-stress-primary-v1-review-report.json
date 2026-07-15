@@ -6,15 +6,16 @@
   "status": "core_review_partial_pass_rework_required",
   "counts": {
     "core": 35,
-    "pass": 13,
-    "rework": 16,
-    "excluded": 6,
-    "acceptedMasks": 68,
-    "acceptedSourceGroups": 13,
+    "pass": 15,
+    "rework": 7,
+    "excluded": 13,
+    "acceptedMasks": 78,
+    "acceptedSourceGroups": 15,
     "stressPending": 0
   },
   "passFiles": [
     "066207e1c3ef-primary.png",
+    "2c793788bdec-primary.png",
     "3e9b2b906fda-primary.png",
     "51a2eded5eda-primary.png",
     "7a92b2c08d0f-main-v3.png",
@@ -26,32 +27,31 @@
     "c6edb7fea814-primary.png",
     "d17ab88ac58a-primary.png",
     "e826babe1b3a-primary.png",
+    "f8a25604ea58-primary.png",
     "f8c543cdd6ff-main-v2.png"
   ],
   "reworkFiles": [
-    "02f011058d1f-primary.png",
     "223683d91dc4-primary.png",
-    "2c793788bdec-primary.png",
-    "424a9b7d8798-primary.png",
-    "6d835166ab9e-primary.png",
     "6d9a192d4168-primary.png",
-    "6df0c9c91f81-primary.png",
-    "a4a440e7e2fc-primary.png",
     "b1184e010679-main-v3.png",
-    "b548e28934d4-primary.png",
-    "cf0c5a421a71-primary.png",
     "d9518b2dc889-primary.png",
     "d970653d6111-primary.png",
     "eac9a2f87f4c-main-v2.png",
-    "f0752db2009c-primary.png",
-    "f8a25604ea58-primary.png"
+    "f0752db2009c-primary.png"
   ],
   "excludeFiles": [
+    "02f011058d1f-primary.png",
     "0c2bd7cc24b7-primary.png",
     "406bc158c41d-primary.png",
+    "424a9b7d8798-primary.png",
     "6be466dc2f6d-primary.png",
+    "6d835166ab9e-primary.png",
+    "6df0c9c91f81-primary.png",
     "9da2611ded25-primary.png",
+    "a4a440e7e2fc-primary.png",
+    "b548e28934d4-primary.png",
     "c0e03d680edc-primary.png",
+    "cf0c5a421a71-primary.png",
     "e0ee33ff3706-primary.png"
   ],
   "excludeReasons": {
@@ -60,7 +60,14 @@
     "406bc158c41d-primary.png": "leftmost_required_nail_surface_is_cropped_by_the_left_image_edge",
     "9da2611ded25-primary.png": "leftmost_star_nail_surface_is_cropped_by_the_left_image_edge",
     "c0e03d680edc-primary.png": "leftmost_required_nail_surface_is_cropped_by_the_left_image_edge",
-    "e0ee33ff3706-primary.png": "rightmost_required_nail_surface_reaches_the_right_image_edge_and_is_not_fully_visible"
+    "e0ee33ff3706-primary.png": "rightmost_required_nail_surface_reaches_the_right_image_edge_and_is_not_fully_visible",
+    "424a9b7d8798-primary.png": "multiple_required_nail_surfaces_in_the_top_collage_strip_are_cropped_by_the_top_image_edge",
+    "6df0c9c91f81-primary.png": "left_entering_required_nail_is_missing_its_root_at_the_left_image_edge",
+    "a4a440e7e2fc-primary.png": "background_hand_required_nail_surface_is_cropped_by_the_top_image_edge",
+    "b548e28934d4-primary.png": "rightmost_blue_required_nail_surface_is_cropped_by_the_right_image_edge",
+    "cf0c5a421a71-primary.png": "leftmost_required_nail_surface_is_cropped_by_the_left_image_edge",
+    "02f011058d1f-primary.png": "upper_hand_required_nail_surface_is_cropped_by_the_top_image_edge",
+    "6d835166ab9e-primary.png": "rightmost_required_nail_root_is_cropped_by_the_right_image_edge"
   },
   "reviewPolicy": {
     "requireEveryVisibleNail": true,
@@ -78,7 +85,16 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v3-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v4-large-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v7-large-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v8-large-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v8-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v9-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v10-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v11-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v12-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v13-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v14-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v15-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v16-large-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-stress-primary-region-v17-large-report.json"
   ],
   "repairBatches": [
     {
@@ -164,6 +180,77 @@
       "acceptedMaskCount": 0,
       "excludeCount": 4,
       "promptStrategy": "original_resolution_review_overrides_geometry_pass_and_excludes_any_parent_region_with_a_required_nail_cropped_by_an_image_edge"
+    },
+    {
+      "id": "sam2-stress-primary-region-v9-v13-large-review",
+      "prompts": [
+        "sam2-stress-primary-region-v9-prompts.json",
+        "sam2-stress-primary-region-v10-prompts.json",
+        "sam2-stress-primary-region-v11-prompts.json",
+        "sam2-stress-primary-region-v12-prompts.json",
+        "sam2-stress-primary-region-v13-prompts.json"
+      ],
+      "candidateReports": [
+        "sam2-stress-primary-region-v9-large-report.json",
+        "sam2-stress-primary-region-v10-large-report.json",
+        "sam2-stress-primary-region-v11-large-report.json",
+        "sam2-stress-primary-region-v12-large-report.json",
+        "sam2-stress-primary-region-v13-large-report.json"
+      ],
+      "geometryAudits": [
+        "sam2-stress-primary-region-v9-large-geometry-audit.json",
+        "sam2-stress-primary-region-v10-large-geometry-audit.json",
+        "sam2-stress-primary-region-v11-large-geometry-audit.json",
+        "sam2-stress-primary-region-v12-large-geometry-audit.json",
+        "sam2-stress-primary-region-v13-large-geometry-audit.json"
+      ],
+      "passCount": 0,
+      "acceptedMaskCount": 0,
+      "excludeCount": 5,
+      "reworkCount": 2,
+      "promptStrategy": "reject_partial_nail_or_finger_skin_masks_after_large_model_retries_and_remove_additional_edge_cropped_sources"
+    },
+    {
+      "id": "sam2-stress-primary-region-v14-v15-large-review",
+      "prompts": [
+        "sam2-stress-primary-region-v14-prompts.json",
+        "sam2-stress-primary-region-v15-prompts.json"
+      ],
+      "candidateReports": [
+        "sam2-stress-primary-region-v14-large-report.json",
+        "sam2-stress-primary-region-v15-large-report.json"
+      ],
+      "geometryAudits": [
+        "sam2-stress-primary-region-v14-large-geometry-audit.json",
+        "sam2-stress-primary-region-v15-large-geometry-audit.json"
+      ],
+      "passCount": 0,
+      "acceptedMaskCount": 0,
+      "excludeCount": 2,
+      "reworkCount": 2,
+      "promptStrategy": "retain_zero_overlap_geometry_diagnostics_but_reject_partial_nail_and_skin_masks_then_remove_two_more_edge_cropped_sources"
+    },
+    {
+      "id": "sam2-stress-primary-region-v16-large-repair",
+      "prompts": "sam2-stress-primary-region-v16-prompts.json",
+      "candidateReport": "sam2-stress-primary-region-v16-large-report.json",
+      "geometryAudit": "sam2-stress-primary-region-v16-large-geometry-audit.json",
+      "review": "sam2-stress-primary-region-v16-large-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "reworkCount": 0,
+      "promptStrategy": "replace_seven_duplicate_partial_masks_with_five_axis_guided_complete_masks_covering_transparent_tips_colored_roots_and_the_previously_missing_horizontal_pinky"
+    },
+    {
+      "id": "sam2-stress-primary-region-v17-large-repair",
+      "prompts": "sam2-stress-primary-region-v17-prompts.json",
+      "candidateReport": "sam2-stress-primary-region-v17-large-report.json",
+      "geometryAudit": "sam2-stress-primary-region-v17-large-geometry-audit.json",
+      "review": "sam2-stress-primary-region-v17-large-review.json",
+      "passCount": 1,
+      "acceptedMaskCount": 5,
+      "reworkCount": 0,
+      "promptStrategy": "replace_eleven_duplicate_partial_masks_with_five_axis_guided_complete_masks_preserving_visible_butterfly_and_metallic_design_regions_without_skin_or_clothing_contamination"
     }
   ],
   "errors": []

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedOn": "2026-07-16",
+  "reviewer": "codex-original-resolution-sam2-large-stress-repair",
+  "decision": "human_reviewed_candidate_annotations_not_training_truth",
+  "reviewPolicy": {
+    "requireEveryVisibleNail": true,
+    "requireFullNailSurface": true,
+    "prioritizeFullyVisibleNails": true,
+    "rejectSkinOrBackgroundContamination": true,
+    "rejectDuplicateOrOverlappingMasks": true,
+    "rejectCroppedNailAtRegionEdge": true,
+    "candidateOnlyUntilHumanReview": true
+  },
+  "passFiles": [
+    "2c793788bdec-primary.png"
+  ],
+  "acceptedMaskCount": 5,
+  "excludeFiles": [],
+  "excludeReasons": {},
+  "reworkFiles": [],
+  "reviewNotes": {
+    "2c793788bdec-primary.png": "five_fully_visible_decorated_nails_each_have_exactly_one_complete_mask_with_zero_pairwise_polygon_overlap_and_no_skin_clothing_or_background_contamination"
+  }
+}
