@@ -313,3 +313,5 @@ copy .env.local.example .env.local
 | 3D | Three.js | 0.184.0（已安装，未使用） |
 | AI 生图 | OpenAI DALL·E 3 | 服务端 API |
 | 部署 | Vercel | 待配置 |
+R e f r e s h   c a c h e   0 7 / 1 6 / 2 0 2 6   0 2 : 3 3 : 4 2  
+ 
