@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "sheetsReportSha256": "03619e01b8e9b7e714ab33fc4ab7c52e95cdfc682fe3ef3c0ca3587e8619f32d",
+  "reviewer": "Codex视觉审核",
+  "reviewedAt": "2026-07-16",
+  "method": "复验审核页报告绑定的quality-review-026.csv路径、SHA-256、21条空白审核条目、2个来源组和6页审核页哈希；联系表仅用于预筛，随后逐文件查看全部21张原分辨率素材。所有条目均为四宫格、九宫格或其他多宫格拼接的多个不同手部场景，不是原始单场景照片，统一按拼图排除，不拆格生成派生训练素材。",
+  "reviewedPageHashes": {
+    "quality-shard-026-page-001.jpg": "c26f317ad8f493ef400ff783af2a8118441b8867ecac0297cbd89f58a80c1c28",
+    "quality-shard-026-page-002.jpg": "07a20672455e1c89db64035da69fc9cbbeb3749eeb4595b5e87e2e6f2eee03d0",
+    "quality-shard-026-page-003.jpg": "60d5ef60c02c5abd22dd176b05b79ec26d1886965093e2e942a7cc512bd86c1c",
+    "quality-shard-026-page-004.jpg": "2d65d935e8175b23e2ecf2d46c359f713f31d2e2172c14536043c50ec33ab8b5",
+    "quality-shard-026-page-005.jpg": "a0c9aa688327a37f1e16aef5c8a802f690bfc45cd76a91a1686b535c48f708d4",
+    "quality-shard-026-page-006.jpg": "14e065fadc650054423e5a485ff411a64609d4d905d31e51d37ee8beda587f61"
+  },
+  "items": [
+    { "fileName": "nail_00507_68dcf1230000000007000ab6_0.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00508_68dcf1230000000007000ab6_1.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00509_68dcf1230000000007000ab6_2.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00510_68dcf1230000000007000ab6_3.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00511_68dcf1230000000007000ab6_4.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00512_68dcf1230000000007000ab6_5.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00513_68dcf1230000000007000ab6_6.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00514_68dcf1230000000007000ab6_7.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00515_68dcf1230000000007000ab6_8.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00516_68dcf1230000000007000ab6_9.jpg", "decision": "exclude-collage", "note": "多宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00517_68dcf1230000000007000ab6_10.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00518_68dcf1230000000007000ab6_11.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00519_68dcf1230000000007000ab6_12.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00358_69e07844000000001b0010a9_0.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00359_69e07844000000001b0010a9_1.jpg", "decision": "exclude-collage", "note": "九宫格拼接多个不同手部场景并带文字排版，不是原始单场景" },
+    { "fileName": "nail_00360_69e07844000000001b0010a9_2.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00361_69e07844000000001b0010a9_3.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00362_69e07844000000001b0010a9_4.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00363_69e07844000000001b0010a9_5.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00364_69e07844000000001b0010a9_6.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" },
+    { "fileName": "nail_00365_69e07844000000001b0010a9_7.jpg", "decision": "exclude-collage", "note": "四宫格拼接多个不同手部场景，不是原始单场景" }
+  ]
+}

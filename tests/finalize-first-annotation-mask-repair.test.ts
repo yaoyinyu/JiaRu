@@ -1,0 +1,64 @@
+import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import test from "node:test";
+
+const script = path.resolve("model/training/finalize-first-annotation-mask-repair.py");
+const hash = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
+
+test("mask repair finalizer binds visual evidence and never grants training truth", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "final-mask-repair-"));
+  const initial = path.join(root, "initial.json");
+  writeFileSync(initial, JSON.stringify({ ok: true, decision: "mask_review_shard_complete_final_truth_audit_still_required", items: [{ fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", expectedFullyVisibleNails: 1, reviewStatus: "rework" }] }));
+  const prompts = path.join(root, "prompts.json");
+  writeFileSync(prompts, JSON.stringify({ decision: "sam_repair_candidate_only_not_test_truth", images: [{ fileName: "a.jpg", sourceGroup: "g1", boxes: [[0.1, 0.1, 0.2, 0.2]] }] }));
+  const annotation = path.join(root, "a.json");
+  writeFileSync(annotation, JSON.stringify({ decision: "candidate_only_not_training_truth", trainingUse: "prohibited", image: { fileName: "a.jpg", sourceGroup: "g1" }, annotations: [{ polygon: [{ x: 1, y: 1 }, { x: 2, y: 1 }, { x: 2, y: 2 }] }] }));
+  const overlay = path.join(root, "overlay.png"); writeFileSync(overlay, "reviewed-overlay");
+  const sam = path.join(root, "sam.json");
+  writeFileSync(sam, JSON.stringify({ ok: true, decision: "sam_candidate_only_not_training_truth", outputs: [{ fileName: "a.jpg", annotationPath: annotation, overlayPath: overlay }] }));
+  const geometry = path.join(root, "geometry.json");
+  writeFileSync(geometry, JSON.stringify({ rows: [{ fileName: "a.jpg", status: "pass" }] }));
+  const decision = path.join(root, "decision.json");
+  writeFileSync(decision, JSON.stringify({ schemaVersion: 1, fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", initialShardFinalSha256: hash(initial), repairPromptsSha256: hash(prompts), samReportSha256: hash(sam), geometryAuditSha256: hash(geometry), annotationSha256: hash(annotation), reviewedOverlaySha256: hash(overlay), reviewStatus: "pass", finalCompleteMaskCount: 1, issueCodes: [] }));
+  const output = path.join(root, "output.json");
+  const args = [script, "--initial-shard-final", initial, "--file-name", "a.jpg", "--repair-prompts", prompts, "--sam-report", sam, "--geometry-audit", geometry, "--decision", decision, "--output", output];
+  const run = spawnSync("python", args, { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+  const report = JSON.parse(readFileSync(output, "utf8"));
+  assert.equal(report.item.reviewStatus, "pass");
+  assert.equal(report.item.trainingUse, "prohibited");
+  assert.equal(report.item.annotationTruthStatus, "reviewed-repair-candidate-not-final-truth");
+  const drifted = JSON.parse(readFileSync(decision, "utf8")); drifted.reviewedOverlaySha256 = "bad"; writeFileSync(decision, JSON.stringify(drifted));
+  const rejected = spawnSync("python", args, { encoding: "utf8" });
+  assert.notEqual(rejected.status, 0);
+});
+
+test("mask repair finalizer accepts hash-bound reviewed manual polygons without granting truth", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "final-manual-mask-repair-"));
+  const initial = path.join(root, "initial.json");
+  writeFileSync(initial, JSON.stringify({ ok: true, decision: "mask_review_shard_complete_final_truth_audit_still_required", items: [{ fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", expectedFullyVisibleNails: 1, reviewStatus: "rework" }] }));
+  const prompts = path.join(root, "prompts.json");
+  writeFileSync(prompts, JSON.stringify({ decision: "candidate_only_not_training_or_test_truth", images: [{ fileName: "a.jpg", sourceGroup: "g1", boxes: [[0.1, 0.1, 0.2, 0.2]] }] }));
+  const annotation = path.join(root, "a.json");
+  writeFileSync(annotation, JSON.stringify({ decision: "candidate_only_not_training_or_test_truth", trainingUse: "prohibited", image: { fileName: "a.jpg", sourceGroup: "g1" }, annotations: [{ polygon: [{ x: 1, y: 1 }, { x: 2, y: 1 }, { x: 2, y: 2 }] }] }));
+  const overlay = path.join(root, "overlay.png"); writeFileSync(overlay, "reviewed-overlay");
+  const manual = path.join(root, "manual.json");
+  writeFileSync(manual, JSON.stringify({ ok: true, method: "reviewed-hybrid-original-resolution-manual-polygon-repair", decision: "candidate_only_not_training_or_test_truth", pairwiseOverlapCount: 0, outputs: [{ fileName: "a.jpg", annotationPath: annotation, overlayPath: overlay, polygonCount: 1, validPolygonCount: 1, pairwiseOverlapCount: 0 }] }));
+  const geometry = path.join(root, "geometry.json");
+  writeFileSync(geometry, JSON.stringify({ rows: [{ fileName: "a.jpg", status: "pass" }] }));
+  const decision = path.join(root, "decision.json");
+  writeFileSync(decision, JSON.stringify({ schemaVersion: 1, fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", initialShardFinalSha256: hash(initial), repairPromptsSha256: hash(prompts), manualReportSha256: hash(manual), geometryAuditSha256: hash(geometry), annotationSha256: hash(annotation), reviewedOverlaySha256: hash(overlay), reviewStatus: "pass", finalCompleteMaskCount: 1, issueCodes: [] }));
+  const output = path.join(root, "output.json");
+  const args = [script, "--initial-shard-final", initial, "--file-name", "a.jpg", "--repair-prompts", prompts, "--manual-report", manual, "--geometry-audit", geometry, "--decision", decision, "--output", output];
+  const run = spawnSync("python", args, { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+  const report = JSON.parse(readFileSync(output, "utf8"));
+  assert.equal(report.item.reviewStatus, "pass");
+  assert.equal(report.item.repairEvidenceType, "manual-polygon");
+  assert.equal(report.item.trainingUse, "prohibited");
+  assert.equal(report.inputs.manualReportSha256, hash(manual));
+});

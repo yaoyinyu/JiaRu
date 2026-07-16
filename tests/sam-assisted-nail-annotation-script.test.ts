@@ -45,6 +45,10 @@ test("SAM assisted annotation requires vision prompts and emits reviewed polygon
   assert.match(source, /vision-guided-unprompted-mask-pool-plus-per-box-fastsam/);
   assert.match(source, /model\.predictor\.prompt\(base_results, bboxes=\[box\]\)/);
   assert.match(source, /zip\([\s\S]*boxes, points, positive_points, labels, prompt_modes, strict=True/);
+  assert.match(source, /if mask_outputs[\s\S]*np\.empty\(\(0, height, width\), dtype=np\.float32\)/);
+  assert.match(source, /candidate_only_not_training_truth/);
+  assert.match(source, /sam_candidate_only_not_training_truth/);
+  assert.match(source, /originalResolutionReviewRequired/);
 });
 
 test("SAM multimask selection prefers positive coverage without negative leakage", () => {

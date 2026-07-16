@@ -1,6 +1,6 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-07-13
+更新日期：2026-07-16
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
 ## 标记规则
@@ -160,6 +160,42 @@ npm.cmd run build
 | `M2-T3-REAL-MATERIAL-SOURCE-SCREENING-SHARD-022` | 质量分片022甲片/产品页、拼图、低清与残缺甲面源图硬门 | ✅ PASS | 13页覆盖50张/7来源组并逐文件回看原分辨率；22张甲片展示、产品宣传页、多图拼贴或社交平台海报、3张明显像素化/失焦视频帧和9张边缘裁断/遮挡/仅局部甲面图排除，16张清晰完整单场景图仅进入待标注候选，共99个完整可见甲面。分片001—022累计1009张、487张待标注、522张排除，另157张待审；保留项继续`trainingUse=prohibited`、`annotationTruthStatus=not-started` |
 | `M2-T3-REAL-MATERIAL-SOURCE-SCREENING-SHARD-023` | 质量分片023拼图/教程模板、独立甲片、低清与截甲源图硬门 | ✅ PASS | 12页覆盖48张/9来源组并逐文件回看原分辨率；19张拼图/教程模板/独立甲片展示、6张明显像素化/失焦/压缩视频帧和2张边缘截甲图排除，21张清晰完整单场景图仅进入待标注候选，共119个完整可见甲面。分片001—023累计1057张、508张待标注、549张排除，另109张待审；保留项继续`trainingUse=prohibited`、`annotationTruthStatus=not-started` |
 | `M2-T3-REAL-MATERIAL-SOURCE-SCREENING-SHARD-024` | 质量分片024教程标注页、拼贴及低清视频帧源图硬门 | ✅ PASS | 12页覆盖45张/8来源组并逐文件回看原分辨率；5张手写教程标注页、1张十二宫格拼贴和4张明显像素化/失焦/拖影视频帧排除，35张清晰完整单场景图仅进入待标注候选，共217个完整可见甲面。分片001—024累计1102张、543张待标注、559张排除，另64张待审；保留项继续`trainingUse=prohibited`、`annotationTruthStatus=not-started` |
+| `M2-T3-REAL-MATERIAL-SOURCE-SCREENING-SHARD-025` | 质量分片025非照片页面、低清及残缺甲面源图硬门 | ✅ PASS | 11页覆盖43张/12来源组并逐文件回看原分辨率；9张拼图/甲型模板/设计稿/独立甲片展示和12张低清、裁边、遮挡或仅局部甲面图排除，22张清晰完整单场景图仅进入待标注候选，共149个完整可见甲面。分片001—025累计1145张、565张待标注、580张排除，另21张待审；保留项继续`trainingUse=prohibited`、`annotationTruthStatus=not-started` |
+| `M2-T3-REAL-MATERIAL-SOURCE-SCREENING-SHARD-026` | 最终质量分片多场景拼图源图硬门 | ✅ PASS | 6页覆盖21张/2来源组并逐文件查看原分辨率；21张全部为四宫格、九宫格或其他多场景拼接图，0张保留、21张排除。终结器21/21覆盖，决策清单SHA-256为`72314f1ef0b82b62f6fc8ea57da1b50405298794674e7c348b58840ed063a7ef`，终结报告SHA-256为`66db49f47e12f8af08cd7eb485eb518936d9089969af352eb3734541b05681a7` |
+| `M2-T3-REAL-MATERIAL-SOURCE-SCREENING-COMPLETE` | 26分片源图筛选批次完整性与唯一覆盖终结门 | ✅ PASS | 新增批次终结器并复验26/26分片、1166/1166图片、193/193来源组、队列/分片/审核页/终结报告哈希及逐图身份；565张进入待标注候选、601张排除、0张待审。批次报告SHA-256为`901f52e531b5a93f4be9b010e2e96f585ca850bd733e5d9a4f5f9865a03335c0`；所有待标注项仍禁止训练且mask真值未开始 |
+| `M2-T3-REAL-MATERIAL-FIRST-ANNOTATION-PLAN` | 首批来源组互斥角色分配与标注批次规划 | ✅ PASS | 新增确定性来源组原子规划器；565张候选分配为train 502、val 30、独立发布test 33，首批选择train中的160张/39来源组、预计966个完整甲面。互斥审计复验1271/1271授权条目和原图哈希，0来源泄漏；计划/CSV/审计SHA-256分别为`0dbf3a6cf99c455f3b8a8453223ef9df98eca3b16b919fa783dddd40a05dd912`、`dd11c24ba3bea9e479dd1fc4ee1a7dbbc681b7b7d7aa6ccaf7cc5c752d9e9dc4`、`11f76a240d832f8ca29d875d058146ab72aa0323d585392bdd07db4da769aa62`；mask真值仍未开始，全部继续禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-ANNOTATION-CANDIDATES` | 首批160张YOLO→SAM2候选工作区与几何审计 | ✅ PASS | 外部工作区绑定160张/39来源组、预计966甲面；v6生成881个YOLO候选，SAM2修复空提示边界后160/160完成、881 polygon、0错误、0 fallback。几何审计796 pass、85 suspect、0 missing；报告SHA-256为`91ce4e48461b233f1ebd239f2d1a8704c078a6f0f8272f13cda87539db158160`与`d58872e397e0a78b28aeb8b20ee01fce5e8e087438acfec0480368856ec61399`。该PASS只表示候选生成工程闭环，160张真值审核仍为0，全部禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-WORKSPACE` | 首批160张原分辨率mask审核工作区 | ✅ PASS | 绑定工作区/SAM/几何报告、逐图身份和SHA-256，按39个来源组原子形成10分片/83页，160张/966个预期甲面全覆盖；工作区报告SHA-256为`6c791e7992e61788f8a4815cb7e4d3c0e9edd11bf48d5562d02ebc6a8f7974c4`，导航页不替代原图审核 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-001` | 风险最高mask审核分片001 | ✅ PASS | 14/14张逐图原分辨率审核，1张/10 mask暂通过、13张返修、0排除；4张零候选的SAM2.1 large首轮视觉门0/4通过，未误提升。分片终结仅证明审核覆盖，全部继续禁止训练，暂通过项仍待拓扑与最终真值审计 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-002` | mask审核分片002 | ✅ PASS | 绑定CSV与7页哈希，13/13张逐图原分辨率审核为0直接通过、13返修；帽子文字误检、漏甲、透明延长甲局部覆盖及皮肤外溢均被拦截。累计初审27/160，剩余133张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-003` | mask审核分片003 | ✅ PASS | 绑定CSV SHA-256 `ad49dca0…ed45`与8页哈希，16/16张逐图原分辨率审核为0直接通过、13返修、3排除；三张边缘裁甲源图按硬门排除，漏甲、皮肤/手指/饰品/背景误标及重复候选均被拦截。累计初审43/160，剩余117张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-004` | mask审核分片004 | ✅ PASS | 绑定CSV SHA-256 `47c8c012…1903`与10页哈希，19/19张逐图原分辨率审核为0直接通过、19返修、0排除；漏甲、局部甲面、候选重复/交叠及手指、皮肤、饰品、衣物和背景污染均被拦截。终结报告SHA-256为`c27d0c1d…8b77`，累计初审62/160，剩余98张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-005` | mask审核分片005 | ✅ PASS | 绑定CSV SHA-256 `b6e8a4b3…6156`与5页哈希，9/9张逐图原分辨率审核为1直接通过、6返修、2排除；两张要求甲面被遮挡且仅局部露出的源图按硬门排除。终结报告SHA-256为`359564c8…ef44`，累计初审71/160，剩余89张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-006` | mask审核分片006 | ✅ PASS | 绑定CSV SHA-256 `66870edb…d36`与8页哈希，15/15张逐图原分辨率审核为4直接通过、11返修、0排除；漏甲、候选重复/交叠及头发、面部、手指和皮肤污染均被拦截，候选数相等的污染项也未误通过。终结报告SHA-256为`fd0bbbb7…0f19`，累计初审86/160，剩余74张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-007` | mask审核分片007 | ✅ PASS | 绑定CSV SHA-256 `0ac2192b…1d5`与10页哈希，20/20张逐图原分辨率审核为1直接通过、19返修、0排除；漏甲、重复/交叠、整段手指及眼睛/头发误检被拦截，4张等计数但甲缘缺口/皮肤污染项继续返修。终结报告SHA-256为`50da6fc3…06c4`，累计初审106/160，剩余54张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-008` | mask审核分片008 | ✅ PASS | 绑定CSV SHA-256 `2697b9df…3ea0`与9页哈希，18/18张逐图原分辨率审核为0直接通过、16返修、2排除；两张拇指甲仅露局部甲尖的源图按遮挡残缺硬门排除，漏甲、重复、首饰/绸布/头发误检及等计数甲缘缺口均被拦截。终结报告SHA-256为`34d88d24…188f`，累计初审124/160，剩余36张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-009` | mask审核分片009 | ✅ PASS | 绑定CSV SHA-256 `81b0a6dd…dd10`与10页哈希，19/19张原图和全分辨率overlay逐图审核为6直接通过、13返修、0排除；漏甲、候选重复/交叠及首饰、布料、眼睛、嘴唇、手指和皮肤误检均被拦截。决定清单SHA-256为`ee291680…1ede`，终结报告SHA-256为`b3d81bd0…2446`；累计初审143/160，剩余17张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REVIEW-SHARD-010` | mask审核分片010 | ✅ PASS | 绑定CSV SHA-256 `473e87b1…7ff2`与9页哈希，17/17张原图和全分辨率overlay逐图审核为2直接通过、15返修、0排除；UI按钮、汽车按键、戒指/手链、衣物和整块指腹误检，以及漏甲与误检抵消成等计数的样本均被拦截。决定清单SHA-256为`84730201…ddee`，终结报告SHA-256为`1937a3a9…4378`；首批160/160初审完成，累计15暂通过、138返修、7排除 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REPAIR-FINALIZER` | 返修视觉证据终结器 | ✅ PASS | 新增哈希绑定终结器，复验初审rework身份、返修提示、SAM报告、几何、annotation、overlay和人工决定；PASS仍固定为候选并禁止训练，漂移拒绝专项通过 |
+| `M2-T3-REAL-MATERIAL-FIRST-MANUAL-REPAIR-FINALIZER` | 人工多边形返修证据终结器 | ✅ PASS | 人工构建器写入候选禁训元数据；返修终结器新增互斥`--manual-report`并绑定报告/提示/几何/annotation/overlay/人工决定哈希，要求全部polygon合法且零交叠；专项确认仍不直接授予训练真值 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-001` | 首个训练真值候选 | ✅ PASS | `nail_01052…_9`删除2个帽子文字误检并以收紧多点提示补齐左右拇指，10/10几何、原分辨率视觉、polygon合法性和同图零交叠通过；批准为1张/10 mask训练真值候选，整批物化与来源隔离审计前仍禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-002` | 第二个训练真值候选 | ✅ PASS | `nail_00491…_2`保留4个逐甲提示并删除覆盖整段手指的第5号误检，SAM2.1 large输出4个polygon；几何4/4、原分辨率视觉、polygon合法性和同图零交叠通过。累计2张/14 mask，整批物化与来源隔离审计前仍禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-003` | 第三个训练真值候选 | ✅ PASS | 最终真值终结器新增哈希绑定的初审直接通过模式；`nail_01250…_9`的10/10完整mask经原分辨率视觉、分片身份、annotation哈希、polygon合法性和同图零交叠复验通过。累计3张/24 mask，整批物化与来源隔离审计前仍禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-004` | 第四个训练真值候选 | ✅ PASS | `nail_01241…_3`保留9个已审polygon并人工替换左侧拇指无效回折轮廓；10/10几何、原分辨率整图/局部视觉、polygon合法性和同图零交叠通过。累计4张/34 mask，整批物化与来源隔离审计前仍禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-005` | 第五个训练真值候选 | ✅ PASS | `nail_00188…_0`的5枚裸粉延长甲逐甲完整覆盖，原分辨率视觉、annotation哈希、polygon合法性和同图零交叠通过；真值报告SHA-256为`9b816ea5…1e31` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-006` | 第六个训练真值候选 | ✅ PASS | `nail_00192…_4`的3枚完整可见甲面逐甲完整覆盖，未把指腹或仅露边缘的甲尖误计；原分辨率视觉、合法性和同图零交叠通过，报告SHA-256为`2d155ad8…e441` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-007` | 第七个训练真值候选 | ✅ PASS | `nail_00201…_10`的5枚透明/立体装饰甲完整覆盖至透明甲尖，原分辨率视觉、合法性和同图零交叠通过；报告SHA-256为`53c8c6cc…374f` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-008` | 第八个训练真值候选 | ✅ PASS | `nail_00201…_13`的5枚裸粉延长甲逐甲覆盖甲根至透明甲尖，原分辨率视觉、合法性和同图零交叠通过；报告SHA-256为`4b98f90a…a7d6`。累计8张/52 mask，最低100张train正样本仍缺92张，整批物化与来源隔离前继续禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-009` | 第九个训练真值候选 | ✅ PASS | `nail_01222…_10`的5枚短方甲逐甲完整覆盖，原分辨率视觉、分片/annotation哈希、polygon合法性和同图零交叠通过；报告SHA-256为`beb3480c…578d`。累计9张/57 mask，最低100张train正样本仍缺91张，整批物化与来源隔离前继续禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-010` | 第十个训练真值候选 | ✅ PASS | `nail_00529…_2`初始5甲候选在最终真值预审中因第3个贝壳装饰甲polygon自交且漏甲根被拒绝；保留4个已审polygon并人工重绘第3甲完整外轮廓，整图与5个逐甲2×视觉、几何5/5、合法性和同图零交叠通过。真值报告SHA-256为`f8d2b8fc…95d1`，累计10张/62 mask，最低100张train正样本仍缺90张 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-011` | 第十一个训练真值候选 | ✅ PASS | `nail_00839…_2`的5枚完整甲面一甲一mask，侧视拇指甲根至可见甲尖连续覆盖；原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过，报告SHA-256为`13b2d442…e9eb` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-012` | 第十二个训练真值候选 | ✅ PASS | `nail_00838…_0`的5枚蓝黄渐变甲完整覆盖，原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过，报告SHA-256为`fb207f9f…0685` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-013` | 第十三个训练真值候选 | ✅ PASS | `nail_00842…_4`的5枚完整甲面一甲一mask，含侧视拇指且无甲缘缺口；原分辨率视觉、合法性和零交叠通过，报告SHA-256为`5b55c06e…8d9b` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-014` | 第十四个训练真值候选 | ✅ PASS | `nail_00843…_5`的5枚完整甲面逐甲覆盖，原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过，报告SHA-256为`6fc28890…d0db` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-015` | 第十五个训练真值候选 | ✅ PASS | `nail_00951…_0`的5枚完整甲面逐甲覆盖，未把装饰、皮肤或背景计入；原分辨率视觉、合法性和零交叠通过，报告SHA-256为`5740553f…fe20` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-016` | 第十六个训练真值候选 | ✅ PASS | `nail_00663…_2`的5枚完整甲面逐甲覆盖，原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过；报告SHA-256为`239835ec…ca3`。累计16张/92 mask，最低100张train正样本仍缺84张，整批物化与来源隔离前继续禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-017` | 第十七个训练真值候选 | ✅ PASS | `nail_00077…_2`的5枚短甲含透明星形拇指逐甲完整覆盖，原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过；报告SHA-256为`d9e64479…c098` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-018` | 第十八个训练真值候选 | ✅ PASS | `nail_00792…_0`的5枚金棕透明方甲含侧视拇指逐甲完整覆盖，原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过；报告SHA-256为`b24e33ce…8ce5`。累计18张/102 mask，最低100张train正样本仍缺82张，整批物化与来源隔离前继续禁止训练 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
 | `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |
@@ -227,6 +263,7 @@ npm.cmd run build
 | `USER-AUTH-03` | 确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试 | ⏸️ USER INPUT | 机器审计与11页视觉总览已完成；当前仅登记为合成候选池，未导入正式集。需明确授权后再进入逐图筛选和标注流程 |
 | `USER-AUTH-04` | 确认 `真实素材/2026_7_13` 的101张素材用途 | ✅ PASS | 用户确认允许用于独立发布测试和长期回归；intake将训练用途固定为prohibited，9张跨批重复排除，92张保留 |
 | `USER-AUTH-05` | 确认 `真实素材/2026_7_14` 当前实存1271张素材用途 | ✅ PASS | 用户于2026-07-16选择A，允许商业模型训练、独立发布测试和长期回归；授权只提供后续资格，近重复排除后剩余1166张仍须逐图完整甲面审核并按完整来源组互斥分配，审核前训练用途继续禁止 |
+| `USER-HARD-NEGATIVE-01` | 补充或确认约100张清晰、来源隔离的hard negative | ⏭ DEFERRED | 2026_7_14源图筛选排除项主要为拼图、低清、裁断、残缺或域外页面，不能冒充合格负样本；先推进160张真实正样本标注，待其他工程项完成后再集中请求或从独立合格语料选择 |
 | `USER-SCOPE-01` | 确认 MVP 产品范围保持为“单张上传图片纹理抠图”，实时视频分割不进入本期 | ✅ PASS | 已确认支持单图、单指和多图提取；实时视频分割不进入本期 |
 | `USER-FAILURE-01` | 提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲 | ⏭ USER INPUT | hard negative 与失败类型优化 |
 | `USER-TESTSET-01` | 最终形成至少 100–200 张来源隔离的独立真实发布测试图 | 🟡 IN PROGRESS | 已冻结并评估67张/384 mask，18个父来源组、trainingUse=prohibited、逐文件与聚合哈希通过，且与正式训练集来源组/图片哈希零重叠；v6部署512质量评估已完成并被拒绝。代表性下限为100张，当前仍缺33张，历史13张仅保留为对照基线而不重复计数 |
