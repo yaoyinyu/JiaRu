@@ -1,0 +1,5414 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "decision": "diagnostic_only_do_not_train_on_frozen_test",
+  "trainingUse": "prohibited",
+  "inputs": {
+    "evaluationManifest": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation\\evaluation-manifest.json",
+    "sourceItemsSha256": "5b4b8d80941cfd7d85bf35859aeb28ccae8e1e1be616f96cebfe5ab6b23b1aa1",
+    "artifactIndex": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-artifacts-512\\evaluation-artifacts.json",
+    "confidenceThreshold": 0.35,
+    "matchIouThreshold": 0.5,
+    "strongIouThreshold": 0.75
+  },
+  "counts": {
+    "images": 67,
+    "truthMasks": 384,
+    "predictionsAtThreshold": 346,
+    "matchedMasks": 289,
+    "strongMatches": 213,
+    "weakShapeMatches": 76,
+    "missedMasks": 95,
+    "falsePositives": 57,
+    "recallAtThreshold": 0.7526041666666666
+  },
+  "byLane": [
+    {
+      "lane": "core",
+      "images": 45,
+      "truthCount": 268,
+      "matchedCount": 208,
+      "recallAtThreshold": 0.7761194029850746,
+      "missedCount": 60,
+      "falsePositiveCount": 42,
+      "weakShapeCount": 48,
+      "severityScore": 312
+    },
+    {
+      "lane": "stress",
+      "images": 22,
+      "truthCount": 116,
+      "matchedCount": 81,
+      "recallAtThreshold": 0.6982758620689655,
+      "missedCount": 35,
+      "falsePositiveCount": 15,
+      "weakShapeCount": 28,
+      "severityScore": 163
+    }
+  ],
+  "byParentSourceGroup": [
+    {
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "images": 7,
+      "truthCount": 35,
+      "matchedCount": 22,
+      "recallAtThreshold": 0.6285714285714286,
+      "missedCount": 13,
+      "falsePositiveCount": 5,
+      "weakShapeCount": 9,
+      "severityScore": 58
+    },
+    {
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "images": 5,
+      "truthCount": 31,
+      "matchedCount": 17,
+      "recallAtThreshold": 0.5483870967741935,
+      "missedCount": 14,
+      "falsePositiveCount": 5,
+      "weakShapeCount": 3,
+      "severityScore": 55
+    },
+    {
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "images": 5,
+      "truthCount": 38,
+      "matchedCount": 30,
+      "recallAtThreshold": 0.7894736842105263,
+      "missedCount": 8,
+      "falsePositiveCount": 6,
+      "weakShapeCount": 9,
+      "severityScore": 45
+    },
+    {
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "images": 5,
+      "truthCount": 35,
+      "matchedCount": 26,
+      "recallAtThreshold": 0.7428571428571429,
+      "missedCount": 9,
+      "falsePositiveCount": 5,
+      "weakShapeCount": 6,
+      "severityScore": 43
+    },
+    {
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "images": 3,
+      "truthCount": 15,
+      "matchedCount": 1,
+      "recallAtThreshold": 0.06666666666666667,
+      "missedCount": 14,
+      "falsePositiveCount": 0,
+      "weakShapeCount": 0,
+      "severityScore": 42
+    },
+    {
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "images": 7,
+      "truthCount": 51,
+      "matchedCount": 45,
+      "recallAtThreshold": 0.8823529411764706,
+      "missedCount": 6,
+      "falsePositiveCount": 6,
+      "weakShapeCount": 7,
+      "severityScore": 37
+    },
+    {
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "images": 4,
+      "truthCount": 20,
+      "matchedCount": 14,
+      "recallAtThreshold": 0.7,
+      "missedCount": 6,
+      "falsePositiveCount": 7,
+      "weakShapeCount": 2,
+      "severityScore": 34
+    },
+    {
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "images": 3,
+      "truthCount": 16,
+      "matchedCount": 10,
+      "recallAtThreshold": 0.625,
+      "missedCount": 6,
+      "falsePositiveCount": 4,
+      "weakShapeCount": 5,
+      "severityScore": 31
+    },
+    {
+      "parentSourceGroup": "xhs-83cdca812139",
+      "images": 3,
+      "truthCount": 19,
+      "matchedCount": 15,
+      "recallAtThreshold": 0.7894736842105263,
+      "missedCount": 4,
+      "falsePositiveCount": 1,
+      "weakShapeCount": 6,
+      "severityScore": 20
+    },
+    {
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "images": 4,
+      "truthCount": 20,
+      "matchedCount": 17,
+      "recallAtThreshold": 0.85,
+      "missedCount": 3,
+      "falsePositiveCount": 2,
+      "weakShapeCount": 6,
+      "severityScore": 19
+    },
+    {
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "images": 5,
+      "truthCount": 25,
+      "matchedCount": 24,
+      "recallAtThreshold": 0.96,
+      "missedCount": 1,
+      "falsePositiveCount": 5,
+      "weakShapeCount": 6,
+      "severityScore": 19
+    },
+    {
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "images": 4,
+      "truthCount": 20,
+      "matchedCount": 19,
+      "recallAtThreshold": 0.95,
+      "missedCount": 1,
+      "falsePositiveCount": 3,
+      "weakShapeCount": 8,
+      "severityScore": 17
+    },
+    {
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "images": 2,
+      "truthCount": 10,
+      "matchedCount": 6,
+      "recallAtThreshold": 0.6,
+      "missedCount": 4,
+      "falsePositiveCount": 0,
+      "weakShapeCount": 2,
+      "severityScore": 14
+    },
+    {
+      "parentSourceGroup": "xhs-055d7f3c88fc",
+      "images": 1,
+      "truthCount": 5,
+      "matchedCount": 3,
+      "recallAtThreshold": 0.6,
+      "missedCount": 2,
+      "falsePositiveCount": 2,
+      "weakShapeCount": 0,
+      "severityScore": 10
+    },
+    {
+      "parentSourceGroup": "xhs-aaa458e163a2",
+      "images": 1,
+      "truthCount": 5,
+      "matchedCount": 4,
+      "recallAtThreshold": 0.8,
+      "missedCount": 1,
+      "falsePositiveCount": 3,
+      "weakShapeCount": 1,
+      "severityScore": 10
+    },
+    {
+      "parentSourceGroup": "xhs-c2b81592e213",
+      "images": 1,
+      "truthCount": 5,
+      "matchedCount": 3,
+      "recallAtThreshold": 0.6,
+      "missedCount": 2,
+      "falsePositiveCount": 0,
+      "weakShapeCount": 2,
+      "severityScore": 8
+    },
+    {
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "images": 4,
+      "truthCount": 20,
+      "matchedCount": 20,
+      "recallAtThreshold": 1.0,
+      "missedCount": 0,
+      "falsePositiveCount": 2,
+      "weakShapeCount": 3,
+      "severityScore": 7
+    },
+    {
+      "parentSourceGroup": "xhs-d6a8bff8e3e8",
+      "images": 3,
+      "truthCount": 14,
+      "matchedCount": 13,
+      "recallAtThreshold": 0.9285714285714286,
+      "missedCount": 1,
+      "falsePositiveCount": 1,
+      "weakShapeCount": 1,
+      "severityScore": 6
+    }
+  ],
+  "topFailureImages": [
+    {
+      "lane": "stress",
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "truthCount": 9,
+      "predictionCount": 3,
+      "matchedCount": 0,
+      "strongMatchCount": 0,
+      "weakShapeCount": 0,
+      "missedCount": 9,
+      "falsePositiveCount": 3,
+      "meanMatchedIou": 0.0,
+      "severityScore": 33,
+      "matches": [],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.4629402004758678,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.2810770665980746,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 6,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 7,
+          "bestPredictionIou": 0.06758576347339644,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 8,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 9,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 1,
+          "confidence": 0.566024,
+          "bestTruthIou": 0.2810770665980748
+        },
+        {
+          "predictionIndex": 2,
+          "confidence": 0.460625,
+          "bestTruthIou": 0.46294020047586804
+        },
+        {
+          "predictionIndex": 3,
+          "confidence": 0.417982,
+          "bestTruthIou": 0.06758576347339645
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\stress__eac9a2f87f4c-main-v2.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_076.jpg",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "truthCount": 10,
+      "predictionCount": 8,
+      "matchedCount": 5,
+      "strongMatchCount": 3,
+      "weakShapeCount": 2,
+      "missedCount": 5,
+      "falsePositiveCount": 3,
+      "meanMatchedIou": 0.7651107414841676,
+      "severityScore": 23,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.8568365313581459,
+          "confidence": 0.648172,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 5,
+          "iou": 0.8006375042214374,
+          "confidence": 0.561731,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 6,
+          "iou": 0.7503853972786414,
+          "confidence": 0.502014,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7331601735357265,
+          "confidence": 0.709028,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.6845341010268864,
+          "confidence": 0.690544,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 6,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 8,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 9,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 10,
+          "bestPredictionIou": 0.19101666773837359,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.638123,
+          "bestTruthIou": 0.1910166677383736
+        },
+        {
+          "predictionIndex": 7,
+          "confidence": 0.498481,
+          "bestTruthIou": 0.0
+        },
+        {
+          "predictionIndex": 8,
+          "confidence": 0.479244,
+          "bestTruthIou": 0.11674179195260544
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_076.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_004.jpg",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "truthCount": 5,
+      "predictionCount": 6,
+      "matchedCount": 2,
+      "strongMatchCount": 1,
+      "weakShapeCount": 1,
+      "missedCount": 3,
+      "falsePositiveCount": 4,
+      "meanMatchedIou": 0.7674480646598789,
+      "severityScore": 18,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.7922769881726868,
+          "confidence": 0.491246,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 5,
+          "iou": 0.7426191411470711,
+          "confidence": 0.445129,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.24841119409926002,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.32772860971297385,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.1471328180063615,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 1,
+          "confidence": 0.635547,
+          "bestTruthIou": 0.14713281800636147
+        },
+        {
+          "predictionIndex": 2,
+          "confidence": 0.568693,
+          "bestTruthIou": 0.24841119409926002
+        },
+        {
+          "predictionIndex": 3,
+          "confidence": 0.544638,
+          "bestTruthIou": 0.32772860971297385
+        },
+        {
+          "predictionIndex": 6,
+          "confidence": 0.392064,
+          "bestTruthIou": 0.019147349008560147
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_004.jpg"
+    },
+    {
+      "lane": "stress",
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "truthCount": 5,
+      "predictionCount": 1,
+      "matchedCount": 0,
+      "strongMatchCount": 0,
+      "weakShapeCount": 0,
+      "missedCount": 5,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.0,
+      "severityScore": 17,
+      "matches": [],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 1,
+          "confidence": 0.38682,
+          "bestTruthIou": 0.0
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\stress__bc6b23d6a1ce-main-v2.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_024.jpg",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "truthCount": 5,
+      "predictionCount": 0,
+      "matchedCount": 0,
+      "strongMatchCount": 0,
+      "weakShapeCount": 0,
+      "missedCount": 5,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.0,
+      "severityScore": 15,
+      "matches": [],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_024.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_025.jpg",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "truthCount": 5,
+      "predictionCount": 0,
+      "matchedCount": 0,
+      "strongMatchCount": 0,
+      "weakShapeCount": 0,
+      "missedCount": 5,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.0,
+      "severityScore": 15,
+      "matches": [],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_025.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_068.jpg",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "truthCount": 9,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 2,
+      "weakShapeCount": 3,
+      "missedCount": 4,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7401695293021366,
+      "severityScore": 15,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.8905606087205417,
+          "confidence": 0.519503,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 5,
+          "iou": 0.7666773514647924,
+          "confidence": 0.442588,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7372375269161765,
+          "confidence": 0.538557,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.7290819855425141,
+          "confidence": 0.522564,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 8,
+          "predictionIndex": 4,
+          "iou": 0.5772901738666584,
+          "confidence": 0.462602,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 6,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 7,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 9,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_068.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_033.jpg",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "truthCount": 8,
+      "predictionCount": 7,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 3,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.8153855918129675,
+      "severityScore": 14,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 7,
+          "iou": 0.8852969961046857,
+          "confidence": 0.35046,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 2,
+          "iou": 0.8480868500392073,
+          "confidence": 0.612986,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8479061593646084,
+          "confidence": 0.623919,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.7749289320917983,
+          "confidence": 0.551168,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.7207090214645376,
+          "confidence": 0.605958,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0008169026040981465,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 7,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 8,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.437058,
+          "bestTruthIou": 2.4777921713472233e-05
+        },
+        {
+          "predictionIndex": 6,
+          "confidence": 0.363029,
+          "bestTruthIou": 0.0008169026040981469
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_033.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_073.jpg",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "truthCount": 9,
+      "predictionCount": 12,
+      "matchedCount": 8,
+      "strongMatchCount": 5,
+      "weakShapeCount": 3,
+      "missedCount": 1,
+      "falsePositiveCount": 4,
+      "meanMatchedIou": 0.7758667464471085,
+      "severityScore": 14,
+      "matches": [
+        {
+          "truthIndex": 9,
+          "predictionIndex": 2,
+          "iou": 0.86193793691858,
+          "confidence": 0.732304,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 5,
+          "iou": 0.8303561632852412,
+          "confidence": 0.546022,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 8,
+          "predictionIndex": 6,
+          "iou": 0.809560191321571,
+          "confidence": 0.496251,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 10,
+          "iou": 0.7915988701197421,
+          "confidence": 0.396744,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.7520408709066354,
+          "confidence": 0.644234,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.7488551442362359,
+          "confidence": 0.70564,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7377342025371136,
+          "confidence": 0.830691,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 11,
+          "iou": 0.6748505922517488,
+          "confidence": 0.384855,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 7,
+          "confidence": 0.464366,
+          "bestTruthIou": 0.5815463279516758
+        },
+        {
+          "predictionIndex": 8,
+          "confidence": 0.442039,
+          "bestTruthIou": 0.4663833470579661
+        },
+        {
+          "predictionIndex": 9,
+          "confidence": 0.423402,
+          "bestTruthIou": 0.6019438249005529
+        },
+        {
+          "predictionIndex": 12,
+          "confidence": 0.378946,
+          "bestTruthIou": 0.5439716572579569
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_073.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_054.jpg",
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "truthCount": 6,
+      "predictionCount": 6,
+      "matchedCount": 4,
+      "strongMatchCount": 1,
+      "weakShapeCount": 3,
+      "missedCount": 2,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.7269149070688715,
+      "severityScore": 13,
+      "matches": [
+        {
+          "truthIndex": 6,
+          "predictionIndex": 3,
+          "iou": 0.8591040331592888,
+          "confidence": 0.66028,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.6998037947750083,
+          "confidence": 0.795171,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.6889628461559959,
+          "confidence": 0.763542,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.6597889541851931,
+          "confidence": 0.594154,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.002662569127995177,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.564003,
+          "bestTruthIou": 0.67771990001774
+        },
+        {
+          "predictionIndex": 6,
+          "confidence": 0.477133,
+          "bestTruthIou": 0.5294290644026224
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_054.jpg"
+    },
+    {
+      "lane": "stress",
+      "fileName": "6d9a192d4168-primary.png",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "truthCount": 5,
+      "predictionCount": 3,
+      "matchedCount": 2,
+      "strongMatchCount": 0,
+      "weakShapeCount": 2,
+      "missedCount": 3,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.6747612380681398,
+      "severityScore": 13,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.7246438798343171,
+          "confidence": 0.592345,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.6248785963019626,
+          "confidence": 0.745112,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.41524608041313626,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.00124900755478584,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.522965,
+          "bestTruthIou": 0.4152460804131361
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\stress__6d9a192d4168-primary.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_026.jpg",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "truthCount": 5,
+      "predictionCount": 1,
+      "matchedCount": 1,
+      "strongMatchCount": 1,
+      "weakShapeCount": 0,
+      "missedCount": 4,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.763410257534663,
+      "severityScore": 12,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.763410257534663,
+          "confidence": 0.664509,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_026.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_001.jpg",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 3,
+      "strongMatchCount": 2,
+      "weakShapeCount": 1,
+      "missedCount": 2,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.7429014070020837,
+      "severityScore": 11,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8714515577965122,
+          "confidence": 0.661695,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.8435469851239623,
+          "confidence": 0.692681,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.5137056780857764,
+          "confidence": 0.610032,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.3043445810135175,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.477194,
+          "bestTruthIou": 0.3043445810135175
+        },
+        {
+          "predictionIndex": 5,
+          "confidence": 0.368996,
+          "bestTruthIou": 0.22360109266421674
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_001.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_052.jpg",
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "truthCount": 5,
+      "predictionCount": 3,
+      "matchedCount": 2,
+      "strongMatchCount": 2,
+      "weakShapeCount": 0,
+      "missedCount": 3,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.9146544019334031,
+      "severityScore": 11,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.9205749059162649,
+          "confidence": 0.810506,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.9087338979505413,
+          "confidence": 0.867956,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.437376,
+          "bestTruthIou": 0.727187813897556
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_052.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_022.jpg",
+      "parentSourceGroup": "xhs-aaa458e163a2",
+      "truthCount": 5,
+      "predictionCount": 7,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 1,
+      "falsePositiveCount": 3,
+      "meanMatchedIou": 0.7869186124540816,
+      "severityScore": 10,
+      "matches": [
+        {
+          "truthIndex": 5,
+          "predictionIndex": 7,
+          "iou": 0.8633515767279459,
+          "confidence": 0.369924,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.81754364412994,
+          "confidence": 0.588783,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.7972689862215524,
+          "confidence": 0.823234,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.6695102427368881,
+          "confidence": 0.780978,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.714939,
+          "bestTruthIou": 0.46372791585718864
+        },
+        {
+          "predictionIndex": 5,
+          "confidence": 0.547926,
+          "bestTruthIou": 0.5939150394434797
+        },
+        {
+          "predictionIndex": 6,
+          "confidence": 0.499125,
+          "bestTruthIou": 0.3650497342256192
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_022.jpg"
+    }
+  ],
+  "records": [
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_001.jpg",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 3,
+      "strongMatchCount": 2,
+      "weakShapeCount": 1,
+      "missedCount": 2,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.7429014070020837,
+      "severityScore": 11,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8714515577965122,
+          "confidence": 0.661695,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.8435469851239623,
+          "confidence": 0.692681,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.5137056780857764,
+          "confidence": 0.610032,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.3043445810135175,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.477194,
+          "bestTruthIou": 0.3043445810135175
+        },
+        {
+          "predictionIndex": 5,
+          "confidence": 0.368996,
+          "bestTruthIou": 0.22360109266421674
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_001.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_002.jpg",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 4,
+      "strongMatchCount": 4,
+      "weakShapeCount": 0,
+      "missedCount": 1,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.8385667977247921,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 5,
+          "iou": 0.8877898064891646,
+          "confidence": 0.47777,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.838160205958687,
+          "confidence": 0.69774,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.8152470873611967,
+          "confidence": 0.67287,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.8130700910901203,
+          "confidence": 0.607365,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.27449946117700735,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.531176,
+          "bestTruthIou": 0.27449946117700763
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_003.jpg",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 5,
+      "weakShapeCount": 0,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8774016330144756,
+      "severityScore": 0,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.892833888136911,
+          "confidence": 0.647575,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.8814072365603072,
+          "confidence": 0.57833,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8746289003773401,
+          "confidence": 0.780211,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.8736224897321355,
+          "confidence": 0.690968,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.864515650265684,
+          "confidence": 0.577789,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_004.jpg",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "truthCount": 5,
+      "predictionCount": 6,
+      "matchedCount": 2,
+      "strongMatchCount": 1,
+      "weakShapeCount": 1,
+      "missedCount": 3,
+      "falsePositiveCount": 4,
+      "meanMatchedIou": 0.7674480646598789,
+      "severityScore": 18,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.7922769881726868,
+          "confidence": 0.491246,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 5,
+          "iou": 0.7426191411470711,
+          "confidence": 0.445129,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.24841119409926002,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.32772860971297385,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.1471328180063615,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 1,
+          "confidence": 0.635547,
+          "bestTruthIou": 0.14713281800636147
+        },
+        {
+          "predictionIndex": 2,
+          "confidence": 0.568693,
+          "bestTruthIou": 0.24841119409926002
+        },
+        {
+          "predictionIndex": 3,
+          "confidence": 0.544638,
+          "bestTruthIou": 0.32772860971297385
+        },
+        {
+          "predictionIndex": 6,
+          "confidence": 0.392064,
+          "bestTruthIou": 0.019147349008560147
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_004.jpg"
+    },
+    {
+      "lane": "stress",
+      "fileName": "51a2eded5eda-primary.png",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 5,
+      "weakShapeCount": 0,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8609098637219018,
+      "severityScore": 0,
+      "matches": [
+        {
+          "truthIndex": 5,
+          "predictionIndex": 4,
+          "iou": 0.9017305504499721,
+          "confidence": 0.792143,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.8921516506158764,
+          "confidence": 0.79946,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8887142993270096,
+          "confidence": 0.893587,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.8689076973275571,
+          "confidence": 0.845555,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 5,
+          "iou": 0.7530451208890936,
+          "confidence": 0.704751,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "7a92b2c08d0f-main-v3.png",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "truthCount": 5,
+      "predictionCount": 6,
+      "matchedCount": 5,
+      "strongMatchCount": 5,
+      "weakShapeCount": 0,
+      "missedCount": 0,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.8433922800928398,
+      "severityScore": 2,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.8791969282686654,
+          "confidence": 0.84509,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.8434671553791208,
+          "confidence": 0.851207,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.8434045445179725,
+          "confidence": 0.71412,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.8271214843047414,
+          "confidence": 0.847038,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.8237712879936991,
+          "confidence": 0.850389,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 6,
+          "confidence": 0.398044,
+          "bestTruthIou": 0.0
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "f8c543cdd6ff-main-v2.png",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 4,
+      "strongMatchCount": 0,
+      "weakShapeCount": 4,
+      "missedCount": 1,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.6448302651218356,
+      "severityScore": 9,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 5,
+          "iou": 0.7382723785591151,
+          "confidence": 0.445598,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 2,
+          "iou": 0.6923852210813617,
+          "confidence": 0.621438,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.6339782639257466,
+          "confidence": 0.479774,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.5146851969211192,
+          "confidence": 0.652509,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.41436290900747963,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.540728,
+          "bestTruthIou": 0.4143629090074795
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "066207e1c3ef-primary.png",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "truthCount": 5,
+      "predictionCount": 6,
+      "matchedCount": 5,
+      "strongMatchCount": 1,
+      "weakShapeCount": 4,
+      "missedCount": 0,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.7306059812646851,
+      "severityScore": 6,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.8468419768557209,
+          "confidence": 0.582446,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7374895514279685,
+          "confidence": 0.90714,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.7182490825039878,
+          "confidence": 0.426457,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.7133482719249966,
+          "confidence": 0.754382,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.6371010236107518,
+          "confidence": 0.704535,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 6,
+          "confidence": 0.399768,
+          "bestTruthIou": 0.5097691499102285
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_022.jpg",
+      "parentSourceGroup": "xhs-aaa458e163a2",
+      "truthCount": 5,
+      "predictionCount": 7,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 1,
+      "falsePositiveCount": 3,
+      "meanMatchedIou": 0.7869186124540816,
+      "severityScore": 10,
+      "matches": [
+        {
+          "truthIndex": 5,
+          "predictionIndex": 7,
+          "iou": 0.8633515767279459,
+          "confidence": 0.369924,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.81754364412994,
+          "confidence": 0.588783,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.7972689862215524,
+          "confidence": 0.823234,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.6695102427368881,
+          "confidence": 0.780978,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.714939,
+          "bestTruthIou": 0.46372791585718864
+        },
+        {
+          "predictionIndex": 5,
+          "confidence": 0.547926,
+          "bestTruthIou": 0.5939150394434797
+        },
+        {
+          "predictionIndex": 6,
+          "confidence": 0.499125,
+          "bestTruthIou": 0.3650497342256192
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_022.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_024.jpg",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "truthCount": 5,
+      "predictionCount": 0,
+      "matchedCount": 0,
+      "strongMatchCount": 0,
+      "weakShapeCount": 0,
+      "missedCount": 5,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.0,
+      "severityScore": 15,
+      "matches": [],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_024.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_025.jpg",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "truthCount": 5,
+      "predictionCount": 0,
+      "matchedCount": 0,
+      "strongMatchCount": 0,
+      "weakShapeCount": 0,
+      "missedCount": 5,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.0,
+      "severityScore": 15,
+      "matches": [],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_025.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_026.jpg",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "truthCount": 5,
+      "predictionCount": 1,
+      "matchedCount": 1,
+      "strongMatchCount": 1,
+      "weakShapeCount": 0,
+      "missedCount": 4,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.763410257534663,
+      "severityScore": 12,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.763410257534663,
+          "confidence": 0.664509,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_026.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_027.jpg",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "truthCount": 4,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7728240087103846,
+      "severityScore": 1,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8397361912524267,
+          "confidence": 0.671518,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.7748181082760576,
+          "confidence": 0.628402,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.769714544280303,
+          "confidence": 0.457522,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.7070271910327514,
+          "confidence": 0.629668,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_028.jpg",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "truthCount": 8,
+      "predictionCount": 9,
+      "matchedCount": 8,
+      "strongMatchCount": 7,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.7810065448031132,
+      "severityScore": 3,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8475668754238401,
+          "confidence": 0.858697,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 6,
+          "iou": 0.841066022421637,
+          "confidence": 0.661382,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 3,
+          "iou": 0.8183219637276057,
+          "confidence": 0.744315,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 7,
+          "iou": 0.8046614055401187,
+          "confidence": 0.567562,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 4,
+          "iou": 0.7954406728827649,
+          "confidence": 0.707068,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.7861867704521261,
+          "confidence": 0.811831,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 8,
+          "predictionIndex": 9,
+          "iou": 0.7588725614367335,
+          "confidence": 0.42685,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 5,
+          "iou": 0.5959360865400788,
+          "confidence": 0.691229,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 8,
+          "confidence": 0.517049,
+          "bestTruthIou": 0.685696275814178
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_029.jpg",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "truthCount": 8,
+      "predictionCount": 8,
+      "matchedCount": 8,
+      "strongMatchCount": 8,
+      "weakShapeCount": 0,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8152521130140928,
+      "severityScore": 0,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 6,
+          "iou": 0.833478946767766,
+          "confidence": 0.652633,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 7,
+          "iou": 0.8301365200938606,
+          "confidence": 0.628415,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.8287669248145827,
+          "confidence": 0.743679,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 1,
+          "iou": 0.8241473403288471,
+          "confidence": 0.83594,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 8,
+          "predictionIndex": 8,
+          "iou": 0.8233122993426694,
+          "confidence": 0.575721,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 5,
+          "iou": 0.8074383121022051,
+          "confidence": 0.676657,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.7984675799666959,
+          "confidence": 0.790709,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 4,
+          "iou": 0.7762689806961157,
+          "confidence": 0.69933,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_030.jpg",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "truthCount": 8,
+      "predictionCount": 9,
+      "matchedCount": 8,
+      "strongMatchCount": 4,
+      "weakShapeCount": 4,
+      "missedCount": 0,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.7431099374471143,
+      "severityScore": 6,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.8516311323912881,
+          "confidence": 0.852614,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.8450954420752704,
+          "confidence": 0.764616,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.8014374532921003,
+          "confidence": 0.660156,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.7920906627344915,
+          "confidence": 0.80918,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 8,
+          "predictionIndex": 8,
+          "iou": 0.7068571272183837,
+          "confidence": 0.500657,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7056978454676124,
+          "confidence": 0.899293,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 6,
+          "iou": 0.6600561474557698,
+          "confidence": 0.613971,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 7,
+          "iou": 0.5820136889419979,
+          "confidence": 0.561418,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 9,
+          "confidence": 0.367816,
+          "bestTruthIou": 0.7196069783205634
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_031.jpg",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "truthCount": 5,
+      "predictionCount": 6,
+      "matchedCount": 4,
+      "strongMatchCount": 4,
+      "weakShapeCount": 0,
+      "missedCount": 1,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.8963595230205443,
+      "severityScore": 7,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.9074010788576625,
+          "confidence": 0.809142,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.9002293093262934,
+          "confidence": 0.716298,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8936397410905634,
+          "confidence": 0.79224,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 6,
+          "iou": 0.8841679628076582,
+          "confidence": 0.408353,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.19788424878913402,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.45394,
+          "bestTruthIou": 0.1978842487891339
+        },
+        {
+          "predictionIndex": 5,
+          "confidence": 0.424994,
+          "bestTruthIou": 0.5957268423583585
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_032.jpg",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "truthCount": 10,
+      "predictionCount": 8,
+      "matchedCount": 8,
+      "strongMatchCount": 8,
+      "weakShapeCount": 0,
+      "missedCount": 2,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8876124558038339,
+      "severityScore": 6,
+      "matches": [
+        {
+          "truthIndex": 8,
+          "predictionIndex": 8,
+          "iou": 0.9456687388205293,
+          "confidence": 0.462173,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 7,
+          "iou": 0.8972509804468144,
+          "confidence": 0.716256,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.8915108764536772,
+          "confidence": 0.853678,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.8904112064151585,
+          "confidence": 0.897369,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.886927708312726,
+          "confidence": 0.907689,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 4,
+          "iou": 0.8729831702357919,
+          "confidence": 0.820171,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 6,
+          "iou": 0.86425536956923,
+          "confidence": 0.758823,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 5,
+          "iou": 0.8518915961767431,
+          "confidence": 0.811247,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 9,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 10,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_033.jpg",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "truthCount": 8,
+      "predictionCount": 7,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 3,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.8153855918129675,
+      "severityScore": 14,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 7,
+          "iou": 0.8852969961046857,
+          "confidence": 0.35046,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 2,
+          "iou": 0.8480868500392073,
+          "confidence": 0.612986,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8479061593646084,
+          "confidence": 0.623919,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.7749289320917983,
+          "confidence": 0.551168,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.7207090214645376,
+          "confidence": 0.605958,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0008169026040981465,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 7,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 8,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.437058,
+          "bestTruthIou": 2.4777921713472233e-05
+        },
+        {
+          "predictionIndex": 6,
+          "confidence": 0.363029,
+          "bestTruthIou": 0.0008169026040981469
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_033.jpg"
+    },
+    {
+      "lane": "stress",
+      "fileName": "d17ab88ac58a-primary.png",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 1,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8080027586437861,
+      "severityScore": 4,
+      "matches": [
+        {
+          "truthIndex": 5,
+          "predictionIndex": 2,
+          "iou": 0.8914887741690712,
+          "confidence": 0.631885,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8427632466502953,
+          "confidence": 0.779649,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.7839976576524096,
+          "confidence": 0.49117,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.7137613561033681,
+          "confidence": 0.487479,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "c6edb7fea814-primary.png",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "truthCount": 5,
+      "predictionCount": 7,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.8429194203228508,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 5,
+          "predictionIndex": 3,
+          "iou": 0.9387365968365243,
+          "confidence": 0.860283,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.9015598139599366,
+          "confidence": 0.860603,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8963849248051804,
+          "confidence": 0.874927,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 4,
+          "iou": 0.8076941210522365,
+          "confidence": 0.758022,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 6,
+          "iou": 0.6702216449603763,
+          "confidence": 0.526449,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.743778,
+          "bestTruthIou": 0.445810622934672
+        },
+        {
+          "predictionIndex": 7,
+          "confidence": 0.369671,
+          "bestTruthIou": 0.0
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "86ac688f2753-main-v3.png",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 2,
+      "weakShapeCount": 2,
+      "missedCount": 1,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7342571106975327,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.8174434338927256,
+          "confidence": 0.472981,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.8125691509293905,
+          "confidence": 0.86391,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 2,
+          "iou": 0.7227584147615215,
+          "confidence": 0.574436,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.5842574432064935,
+          "confidence": 0.551755,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "b8f91eb08fc3-primary.png",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 2,
+      "weakShapeCount": 2,
+      "missedCount": 1,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7601189485882611,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8457834024172646,
+          "confidence": 0.785095,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.8101904797047214,
+          "confidence": 0.742723,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.7070393639636686,
+          "confidence": 0.746867,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.6774625482673898,
+          "confidence": 0.609073,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "3e9b2b906fda-primary.png",
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 1,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8288183975871487,
+      "severityScore": 4,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8858306564785876,
+          "confidence": 0.805035,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.8460580580590457,
+          "confidence": 0.80172,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8450255870029663,
+          "confidence": 0.823249,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.7383592888079953,
+          "confidence": 0.591651,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "e826babe1b3a-primary.png",
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "truthCount": 5,
+      "predictionCount": 2,
+      "matchedCount": 2,
+      "strongMatchCount": 1,
+      "weakShapeCount": 1,
+      "missedCount": 3,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7417730452196756,
+      "severityScore": 10,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.8291995501000075,
+          "confidence": 0.476975,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 1,
+          "iou": 0.6543465403393436,
+          "confidence": 0.52901,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_043.jpg",
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 5,
+      "weakShapeCount": 0,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8355844210937462,
+      "severityScore": 0,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.9209569804404922,
+          "confidence": 0.866431,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.8647935595615576,
+          "confidence": 0.868026,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8176425951320356,
+          "confidence": 0.873261,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 5,
+          "iou": 0.7874851294554581,
+          "confidence": 0.58657,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 4,
+          "iou": 0.7870438408791874,
+          "confidence": 0.653433,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_044.jpg",
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "truthCount": 5,
+      "predictionCount": 7,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.8023905059897679,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.8615452655277286,
+          "confidence": 0.679026,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8340528581012023,
+          "confidence": 0.841661,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8179904609247514,
+          "confidence": 0.839092,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 6,
+          "iou": 0.7617920503907544,
+          "confidence": 0.506646,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 5,
+          "iou": 0.7365718950044026,
+          "confidence": 0.527068,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.751476,
+          "bestTruthIou": 0.553543693815314
+        },
+        {
+          "predictionIndex": 7,
+          "confidence": 0.358342,
+          "bestTruthIou": 0.666393954462937
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_045.jpg",
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8226754907567326,
+      "severityScore": 1,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.9337123167528479,
+          "confidence": 0.739288,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 2,
+          "iou": 0.8961160054755924,
+          "confidence": 0.804611,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 4,
+          "iou": 0.8465634338280327,
+          "confidence": 0.605471,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.7969352471599522,
+          "confidence": 0.858332,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 5,
+          "iou": 0.6400504505672374,
+          "confidence": 0.383013,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_046.jpg",
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8093026314631719,
+      "severityScore": 1,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.9032805925302215,
+          "confidence": 0.826814,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.8696891285534705,
+          "confidence": 0.799035,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 4,
+          "iou": 0.8350573162444926,
+          "confidence": 0.599447,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.7910846831723877,
+          "confidence": 0.905115,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.6474014368152873,
+          "confidence": 0.450952,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_047.jpg",
+      "parentSourceGroup": "xhs-83cdca812139",
+      "truthCount": 9,
+      "predictionCount": 8,
+      "matchedCount": 7,
+      "strongMatchCount": 5,
+      "weakShapeCount": 2,
+      "missedCount": 2,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.7731790751525832,
+      "severityScore": 10,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.8719131581400065,
+          "confidence": 0.829989,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.8379608216268696,
+          "confidence": 0.715324,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 1,
+          "iou": 0.8227484670104664,
+          "confidence": 0.838822,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 6,
+          "iou": 0.8127375983509546,
+          "confidence": 0.706885,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.7595734152156636,
+          "confidence": 0.775843,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 7,
+          "iou": 0.6751258095062026,
+          "confidence": 0.573693,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 8,
+          "predictionIndex": 3,
+          "iou": 0.6321942562179188,
+          "confidence": 0.807363,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 9,
+          "bestPredictionIou": 0.20732095813224385,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 8,
+          "confidence": 0.544384,
+          "bestTruthIou": 0.20732095813224385
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_048.jpg",
+      "parentSourceGroup": "xhs-83cdca812139",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 2,
+      "weakShapeCount": 2,
+      "missedCount": 1,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.6874578965983922,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8430523247447435,
+          "confidence": 0.746623,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 4,
+          "iou": 0.7739158805640957,
+          "confidence": 0.567089,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.6080238693210309,
+          "confidence": 0.759329,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.5248395117636987,
+          "confidence": 0.6949,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_050.jpg",
+      "parentSourceGroup": "xhs-83cdca812139",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 2,
+      "weakShapeCount": 2,
+      "missedCount": 1,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7363715968303055,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.8682693284689516,
+          "confidence": 0.707904,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.8012759979294022,
+          "confidence": 0.627961,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.7207919692823257,
+          "confidence": 0.69007,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 4,
+          "iou": 0.5551490916405428,
+          "confidence": 0.512919,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_051.jpg",
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 4,
+      "strongMatchCount": 2,
+      "weakShapeCount": 2,
+      "missedCount": 1,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.7466806251008832,
+      "severityScore": 7,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8876956045733083,
+          "confidence": 0.816535,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8825009589690092,
+          "confidence": 0.781806,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 3,
+          "iou": 0.6121652704430782,
+          "confidence": 0.618353,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.6043606664181371,
+          "confidence": 0.470677,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.439762,
+          "bestTruthIou": 0.3015905228911724
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_052.jpg",
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "truthCount": 5,
+      "predictionCount": 3,
+      "matchedCount": 2,
+      "strongMatchCount": 2,
+      "weakShapeCount": 0,
+      "missedCount": 3,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.9146544019334031,
+      "severityScore": 11,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.9205749059162649,
+          "confidence": 0.810506,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.9087338979505413,
+          "confidence": 0.867956,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.437376,
+          "bestTruthIou": 0.727187813897556
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_052.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_054.jpg",
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "truthCount": 6,
+      "predictionCount": 6,
+      "matchedCount": 4,
+      "strongMatchCount": 1,
+      "weakShapeCount": 3,
+      "missedCount": 2,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.7269149070688715,
+      "severityScore": 13,
+      "matches": [
+        {
+          "truthIndex": 6,
+          "predictionIndex": 3,
+          "iou": 0.8591040331592888,
+          "confidence": 0.66028,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.6998037947750083,
+          "confidence": 0.795171,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.6889628461559959,
+          "confidence": 0.763542,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.6597889541851931,
+          "confidence": 0.594154,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.002662569127995177,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.564003,
+          "bestTruthIou": 0.67771990001774
+        },
+        {
+          "predictionIndex": 6,
+          "confidence": 0.477133,
+          "bestTruthIou": 0.5294290644026224
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_054.jpg"
+    },
+    {
+      "lane": "stress",
+      "fileName": "f0752db2009c-primary.png",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "truthCount": 5,
+      "predictionCount": 3,
+      "matchedCount": 3,
+      "strongMatchCount": 0,
+      "weakShapeCount": 3,
+      "missedCount": 2,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.6115949407826861,
+      "severityScore": 9,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7358035290708519,
+          "confidence": 0.609868,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.5929169593176705,
+          "confidence": 0.504323,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.5060643339595358,
+          "confidence": 0.451171,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "d970653d6111-primary.png",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 3,
+      "strongMatchCount": 2,
+      "weakShapeCount": 1,
+      "missedCount": 2,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.7767550516044391,
+      "severityScore": 9,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8989195101787222,
+          "confidence": 0.660135,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8604546218676532,
+          "confidence": 0.715006,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.570891022766942,
+          "confidence": 0.620413,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.355963,
+          "bestTruthIou": 0.24821759414513378
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "d9518b2dc889-primary.png",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 3,
+      "strongMatchCount": 1,
+      "weakShapeCount": 2,
+      "missedCount": 2,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.7047298601617391,
+      "severityScore": 10,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.8065953258263536,
+          "confidence": 0.480708,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.7365169125301142,
+          "confidence": 0.548975,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.5710773421287494,
+          "confidence": 0.615013,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.4400200639426382,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.378948,
+          "bestTruthIou": 0.4400200639426378
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "223683d91dc4-primary.png",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 4,
+      "strongMatchCount": 4,
+      "weakShapeCount": 0,
+      "missedCount": 1,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.8144306087278698,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8548577717821159,
+          "confidence": 0.726527,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.8248475483804588,
+          "confidence": 0.488439,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.8137633891335161,
+          "confidence": 0.576436,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.7642537256153882,
+          "confidence": 0.675637,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.045190884845649655,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.435779,
+          "bestTruthIou": 0.5403405361248435
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "2c793788bdec-primary.png",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 1,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8270402845444026,
+      "severityScore": 4,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8901469960390879,
+          "confidence": 0.765493,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.8743100405363972,
+          "confidence": 0.634441,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.8449831945066213,
+          "confidence": 0.679497,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.6987209070955039,
+          "confidence": 0.461608,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "6d9a192d4168-primary.png",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "truthCount": 5,
+      "predictionCount": 3,
+      "matchedCount": 2,
+      "strongMatchCount": 0,
+      "weakShapeCount": 2,
+      "missedCount": 3,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.6747612380681398,
+      "severityScore": 13,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.7246438798343171,
+          "confidence": 0.592345,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.6248785963019626,
+          "confidence": 0.745112,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.41524608041313626,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.00124900755478584,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.522965,
+          "bestTruthIou": 0.4152460804131361
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\stress__6d9a192d4168-primary.jpg"
+    },
+    {
+      "lane": "stress",
+      "fileName": "f8a25604ea58-primary.png",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "truthCount": 5,
+      "predictionCount": 4,
+      "matchedCount": 3,
+      "strongMatchCount": 3,
+      "weakShapeCount": 0,
+      "missedCount": 2,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.820832198881211,
+      "severityScore": 8,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 4,
+          "iou": 0.8535111936308322,
+          "confidence": 0.370806,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.8416500279985328,
+          "confidence": 0.700094,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.7673353750142679,
+          "confidence": 0.861126,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.00046811116892249194,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.38232,
+          "bestTruthIou": 0.6484106404932751
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_064.jpg",
+      "parentSourceGroup": "xhs-c2b81592e213",
+      "truthCount": 5,
+      "predictionCount": 3,
+      "matchedCount": 3,
+      "strongMatchCount": 1,
+      "weakShapeCount": 2,
+      "missedCount": 2,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.6889345141628972,
+      "severityScore": 8,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8418753498452873,
+          "confidence": 0.754519,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.7022965136612271,
+          "confidence": 0.696532,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.522631678982177,
+          "confidence": 0.576281,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_065.jpg",
+      "parentSourceGroup": "xhs-055d7f3c88fc",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 3,
+      "strongMatchCount": 3,
+      "weakShapeCount": 0,
+      "missedCount": 2,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.8176187697162508,
+      "severityScore": 10,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.8390626462846165,
+          "confidence": 0.651257,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.8256739778105893,
+          "confidence": 0.614378,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.7881196850535469,
+          "confidence": 0.626084,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.31058860453142306,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.369194,
+          "bestTruthIou": 0.3105886045314231
+        },
+        {
+          "predictionIndex": 5,
+          "confidence": 0.353608,
+          "bestTruthIou": 0.607810690451424
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_067.jpg",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "truthCount": 5,
+      "predictionCount": 7,
+      "matchedCount": 5,
+      "strongMatchCount": 3,
+      "weakShapeCount": 2,
+      "missedCount": 0,
+      "falsePositiveCount": 2,
+      "meanMatchedIou": 0.7689674209905641,
+      "severityScore": 6,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8955905253612125,
+          "confidence": 0.609771,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.8426111813607875,
+          "confidence": 0.523032,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 6,
+          "iou": 0.778869785402692,
+          "confidence": 0.4579,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.7408654361795337,
+          "confidence": 0.523178,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 5,
+          "iou": 0.5869001766485948,
+          "confidence": 0.513056,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.523139,
+          "bestTruthIou": 0.41415584183457377
+        },
+        {
+          "predictionIndex": 7,
+          "confidence": 0.419077,
+          "bestTruthIou": 0.468673954077048
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_068.jpg",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "truthCount": 9,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 2,
+      "weakShapeCount": 3,
+      "missedCount": 4,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7401695293021366,
+      "severityScore": 15,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.8905606087205417,
+          "confidence": 0.519503,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 5,
+          "iou": 0.7666773514647924,
+          "confidence": 0.442588,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7372375269161765,
+          "confidence": 0.538557,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.7290819855425141,
+          "confidence": 0.522564,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 8,
+          "predictionIndex": 4,
+          "iou": 0.5772901738666584,
+          "confidence": 0.462602,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 6,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 7,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 9,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_068.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_071.jpg",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "truthCount": 5,
+      "predictionCount": 3,
+      "matchedCount": 3,
+      "strongMatchCount": 3,
+      "weakShapeCount": 0,
+      "missedCount": 2,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8649235562606071,
+      "severityScore": 6,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.9048089585672866,
+          "confidence": 0.771662,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.8604116370904966,
+          "confidence": 0.527251,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 2,
+          "iou": 0.8295500731240384,
+          "confidence": 0.636507,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_072.jpg",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "truthCount": 10,
+      "predictionCount": 9,
+      "matchedCount": 9,
+      "strongMatchCount": 8,
+      "weakShapeCount": 1,
+      "missedCount": 1,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8047746363052365,
+      "severityScore": 4,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.8551798994219578,
+          "confidence": 0.682014,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.8480562457403857,
+          "confidence": 0.840302,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.8362939801167815,
+          "confidence": 0.667031,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 10,
+          "predictionIndex": 5,
+          "iou": 0.8285917072918157,
+          "confidence": 0.634445,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8206574052600342,
+          "confidence": 0.882111,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 9,
+          "predictionIndex": 8,
+          "iou": 0.8165649171818692,
+          "confidence": 0.381894,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 7,
+          "iou": 0.8049543431749083,
+          "confidence": 0.42511,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 6,
+          "iou": 0.7663024869784403,
+          "confidence": 0.433751,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 9,
+          "iou": 0.6663707415809353,
+          "confidence": 0.354214,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 8,
+          "bestPredictionIou": 0.06289546677605051,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_073.jpg",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "truthCount": 9,
+      "predictionCount": 12,
+      "matchedCount": 8,
+      "strongMatchCount": 5,
+      "weakShapeCount": 3,
+      "missedCount": 1,
+      "falsePositiveCount": 4,
+      "meanMatchedIou": 0.7758667464471085,
+      "severityScore": 14,
+      "matches": [
+        {
+          "truthIndex": 9,
+          "predictionIndex": 2,
+          "iou": 0.86193793691858,
+          "confidence": 0.732304,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 5,
+          "iou": 0.8303561632852412,
+          "confidence": 0.546022,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 8,
+          "predictionIndex": 6,
+          "iou": 0.809560191321571,
+          "confidence": 0.496251,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 10,
+          "iou": 0.7915988701197421,
+          "confidence": 0.396744,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.7520408709066354,
+          "confidence": 0.644234,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.7488551442362359,
+          "confidence": 0.70564,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7377342025371136,
+          "confidence": 0.830691,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 11,
+          "iou": 0.6748505922517488,
+          "confidence": 0.384855,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 7,
+          "confidence": 0.464366,
+          "bestTruthIou": 0.5815463279516758
+        },
+        {
+          "predictionIndex": 8,
+          "confidence": 0.442039,
+          "bestTruthIou": 0.4663833470579661
+        },
+        {
+          "predictionIndex": 9,
+          "confidence": 0.423402,
+          "bestTruthIou": 0.6019438249005529
+        },
+        {
+          "predictionIndex": 12,
+          "confidence": 0.378946,
+          "bestTruthIou": 0.5439716572579569
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_073.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_074.jpg",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 3,
+      "weakShapeCount": 2,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7529064057031479,
+      "severityScore": 2,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8250618759507821,
+          "confidence": 0.880985,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.8105545604563633,
+          "confidence": 0.859317,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.7564280640320107,
+          "confidence": 0.485915,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.7196113191723528,
+          "confidence": 0.889618,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.6528762089042306,
+          "confidence": 0.806156,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_075.jpg",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "truthCount": 5,
+      "predictionCount": 3,
+      "matchedCount": 3,
+      "strongMatchCount": 3,
+      "weakShapeCount": 0,
+      "missedCount": 2,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7902803634601713,
+      "severityScore": 6,
+      "matches": [
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.7981789509865866,
+          "confidence": 0.787852,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7946165616166007,
+          "confidence": 0.788596,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.7780455777773264,
+          "confidence": 0.45635,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_076.jpg",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "truthCount": 10,
+      "predictionCount": 8,
+      "matchedCount": 5,
+      "strongMatchCount": 3,
+      "weakShapeCount": 2,
+      "missedCount": 5,
+      "falsePositiveCount": 3,
+      "meanMatchedIou": 0.7651107414841676,
+      "severityScore": 23,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.8568365313581459,
+          "confidence": 0.648172,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 5,
+          "iou": 0.8006375042214374,
+          "confidence": 0.561731,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 6,
+          "iou": 0.7503853972786414,
+          "confidence": 0.502014,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7331601735357265,
+          "confidence": 0.709028,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.6845341010268864,
+          "confidence": 0.690544,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 6,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 8,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 9,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 10,
+          "bestPredictionIou": 0.19101666773837359,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 4,
+          "confidence": 0.638123,
+          "bestTruthIou": 0.1910166677383736
+        },
+        {
+          "predictionIndex": 7,
+          "confidence": 0.498481,
+          "bestTruthIou": 0.0
+        },
+        {
+          "predictionIndex": 8,
+          "confidence": 0.479244,
+          "bestTruthIou": 0.11674179195260544
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\core__real_release_20260713_076.jpg"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_077.jpg",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "truthCount": 5,
+      "predictionCount": 6,
+      "matchedCount": 5,
+      "strongMatchCount": 3,
+      "weakShapeCount": 2,
+      "missedCount": 0,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.787532629795055,
+      "severityScore": 4,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8444584144965303,
+          "confidence": 0.897435,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8092711581529504,
+          "confidence": 0.714566,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 6,
+          "iou": 0.7977102003764592,
+          "confidence": 0.413278,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.7470323424482684,
+          "confidence": 0.582186,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.7391910335010666,
+          "confidence": 0.706152,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.419288,
+          "bestTruthIou": 0.4253553732368978
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_078.jpg",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "truthCount": 10,
+      "predictionCount": 9,
+      "matchedCount": 8,
+      "strongMatchCount": 8,
+      "weakShapeCount": 0,
+      "missedCount": 2,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.8535350922396023,
+      "severityScore": 8,
+      "matches": [
+        {
+          "truthIndex": 8,
+          "predictionIndex": 5,
+          "iou": 0.8953717759828002,
+          "confidence": 0.683346,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 9,
+          "predictionIndex": 3,
+          "iou": 0.8864871016514692,
+          "confidence": 0.74381,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.8859756761601665,
+          "confidence": 0.686606,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.876191842628256,
+          "confidence": 0.843863,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 9,
+          "iou": 0.8514802704307014,
+          "confidence": 0.45426,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 1,
+          "iou": 0.8479650557646902,
+          "confidence": 0.871293,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 6,
+          "iou": 0.8245788015214074,
+          "confidence": 0.636268,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 8,
+          "iou": 0.7602302137773282,
+          "confidence": 0.463538,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.005071997053229901,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 10,
+          "bestPredictionIou": 0.001249905184466864,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 7,
+          "confidence": 0.491509,
+          "bestTruthIou": 0.6652887933317397
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_079.jpg",
+      "parentSourceGroup": "xhs-d6a8bff8e3e8",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 5,
+      "weakShapeCount": 0,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8587870295043325,
+      "severityScore": 0,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.8804336411515619,
+          "confidence": 0.785817,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.8759009674078803,
+          "confidence": 0.483923,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.867084686653759,
+          "confidence": 0.511277,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8595552201351069,
+          "confidence": 0.826625,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 3,
+          "iou": 0.8109606321733545,
+          "confidence": 0.782202,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_080.jpg",
+      "parentSourceGroup": "xhs-d6a8bff8e3e8",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 4,
+      "strongMatchCount": 4,
+      "weakShapeCount": 0,
+      "missedCount": 1,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.822260846587568,
+      "severityScore": 5,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.8616937933792559,
+          "confidence": 0.662305,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8381309026437783,
+          "confidence": 0.803598,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.8006115349699031,
+          "confidence": 0.66251,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.7886071553573348,
+          "confidence": 0.686471,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.4846982558844094,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.363109,
+          "bestTruthIou": 0.4846982558844085
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_082.jpg",
+      "parentSourceGroup": "xhs-d6a8bff8e3e8",
+      "truthCount": 4,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7784967311634595,
+      "severityScore": 1,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.8694687960696312,
+          "confidence": 0.679401,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.7806974827509446,
+          "confidence": 0.833015,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.7524361208647373,
+          "confidence": 0.75118,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.7113845249685249,
+          "confidence": 0.395781,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_086.jpg",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7834459584273479,
+      "severityScore": 1,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.8477731039191663,
+          "confidence": 0.883774,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8275365963010336,
+          "confidence": 0.91928,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.791975383307009,
+          "confidence": 0.820348,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.7528811513218691,
+          "confidence": 0.559883,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.697063557287661,
+          "confidence": 0.627436,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_087.jpg",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "truthCount": 5,
+      "predictionCount": 8,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 3,
+      "meanMatchedIou": 0.8019869616980928,
+      "severityScore": 7,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 2,
+          "iou": 0.8517142288337166,
+          "confidence": 0.829483,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.8444848246319397,
+          "confidence": 0.78033,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8203019731400429,
+          "confidence": 0.863777,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 5,
+          "iou": 0.7544021318295404,
+          "confidence": 0.763421,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 3,
+          "iou": 0.7390316500552242,
+          "confidence": 0.819253,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 6,
+          "confidence": 0.600132,
+          "bestTruthIou": 0.0
+        },
+        {
+          "predictionIndex": 7,
+          "confidence": 0.568561,
+          "bestTruthIou": 0.0
+        },
+        {
+          "predictionIndex": 8,
+          "confidence": 0.534542,
+          "bestTruthIou": 0.0
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_089.jpg",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "truthCount": 5,
+      "predictionCount": 6,
+      "matchedCount": 5,
+      "strongMatchCount": 3,
+      "weakShapeCount": 2,
+      "missedCount": 0,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.8106372783996049,
+      "severityScore": 4,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 1,
+          "iou": 0.8890546865465768,
+          "confidence": 0.824018,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.8816583668901107,
+          "confidence": 0.659921,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 2,
+          "iou": 0.810543602875501,
+          "confidence": 0.773661,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.7440381457526588,
+          "confidence": 0.576727,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 6,
+          "iou": 0.7278915899331769,
+          "confidence": 0.503164,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 5,
+          "confidence": 0.54196,
+          "bestTruthIou": 0.5585338436935806
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_090.jpg",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 1,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.8047804522053082,
+      "severityScore": 6,
+      "matches": [
+        {
+          "truthIndex": 2,
+          "predictionIndex": 2,
+          "iou": 0.8622217171245526,
+          "confidence": 0.806807,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 1,
+          "iou": 0.8553749978782426,
+          "confidence": 0.851378,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.7927856288363646,
+          "confidence": 0.744753,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 5,
+          "iou": 0.7087394649820732,
+          "confidence": 0.684671,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.43537820644762343,
+          "failure": "localization_failure"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 3,
+          "confidence": 0.78393,
+          "bestTruthIou": 0.43537820644762343
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_092.jpg",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "truthCount": 5,
+      "predictionCount": 5,
+      "matchedCount": 5,
+      "strongMatchCount": 4,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.8399943907981635,
+      "severityScore": 1,
+      "matches": [
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.9246998350868513,
+          "confidence": 0.855415,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 3,
+          "iou": 0.8829313044073804,
+          "confidence": 0.790529,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.8731017798169309,
+          "confidence": 0.895471,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 4,
+          "iou": 0.8552405361482436,
+          "confidence": 0.746809,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.6639984985314111,
+          "confidence": 0.486184,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "956d94380abf-main-v3.png",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "truthCount": 5,
+      "predictionCount": 6,
+      "matchedCount": 5,
+      "strongMatchCount": 3,
+      "weakShapeCount": 2,
+      "missedCount": 0,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.7600239818257893,
+      "severityScore": 4,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 3,
+          "iou": 0.854378526517128,
+          "confidence": 0.645942,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 2,
+          "iou": 0.8085336199317582,
+          "confidence": 0.858361,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 5,
+          "iou": 0.761702665026051,
+          "confidence": 0.549208,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 1,
+          "iou": 0.7408113501368485,
+          "confidence": 0.879464,
+          "quality": "weak_shape"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 4,
+          "iou": 0.6346937475171609,
+          "confidence": 0.622043,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": [
+        {
+          "predictionIndex": 6,
+          "confidence": 0.494536,
+          "bestTruthIou": 0.0
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "b1184e010679-main-v3.png",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "truthCount": 4,
+      "predictionCount": 4,
+      "matchedCount": 4,
+      "strongMatchCount": 3,
+      "weakShapeCount": 1,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.7879436303539273,
+      "severityScore": 1,
+      "matches": [
+        {
+          "truthIndex": 4,
+          "predictionIndex": 1,
+          "iou": 0.9030036668374465,
+          "confidence": 0.863871,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 4,
+          "iou": 0.8179165086974264,
+          "confidence": 0.646749,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 2,
+          "iou": 0.7532333297039348,
+          "confidence": 0.786003,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.6776210161769015,
+          "confidence": 0.674203,
+          "quality": "weak_shape"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "truthCount": 5,
+      "predictionCount": 1,
+      "matchedCount": 0,
+      "strongMatchCount": 0,
+      "weakShapeCount": 0,
+      "missedCount": 5,
+      "falsePositiveCount": 1,
+      "meanMatchedIou": 0.0,
+      "severityScore": 17,
+      "matches": [],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 1,
+          "confidence": 0.38682,
+          "bestTruthIou": 0.0
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\stress__bc6b23d6a1ce-main-v2.jpg"
+    },
+    {
+      "lane": "stress",
+      "fileName": "c541feb05c54-main-v2.png",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "truthCount": 8,
+      "predictionCount": 8,
+      "matchedCount": 8,
+      "strongMatchCount": 8,
+      "weakShapeCount": 0,
+      "missedCount": 0,
+      "falsePositiveCount": 0,
+      "meanMatchedIou": 0.9009153519507861,
+      "severityScore": 0,
+      "matches": [
+        {
+          "truthIndex": 8,
+          "predictionIndex": 2,
+          "iou": 0.9292341568910366,
+          "confidence": 0.807226,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 6,
+          "predictionIndex": 4,
+          "iou": 0.9224799235283015,
+          "confidence": 0.702106,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 1,
+          "predictionIndex": 6,
+          "iou": 0.9187171469528604,
+          "confidence": 0.591335,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 5,
+          "predictionIndex": 8,
+          "iou": 0.9183468109521387,
+          "confidence": 0.424963,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 3,
+          "predictionIndex": 5,
+          "iou": 0.9146421966843707,
+          "confidence": 0.6906,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 7,
+          "predictionIndex": 1,
+          "iou": 0.8971619505474351,
+          "confidence": 0.872806,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 4,
+          "predictionIndex": 7,
+          "iou": 0.8950005178384732,
+          "confidence": 0.548827,
+          "quality": "strong"
+        },
+        {
+          "truthIndex": 2,
+          "predictionIndex": 3,
+          "iou": 0.8117401122116727,
+          "confidence": 0.767343,
+          "quality": "strong"
+        }
+      ],
+      "unmatchedTruth": [],
+      "falsePositives": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "truthCount": 9,
+      "predictionCount": 3,
+      "matchedCount": 0,
+      "strongMatchCount": 0,
+      "weakShapeCount": 0,
+      "missedCount": 9,
+      "falsePositiveCount": 3,
+      "meanMatchedIou": 0.0,
+      "severityScore": 33,
+      "matches": [],
+      "unmatchedTruth": [
+        {
+          "truthIndex": 1,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 2,
+          "bestPredictionIou": 0.4629402004758678,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 3,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 4,
+          "bestPredictionIou": 0.2810770665980746,
+          "failure": "localization_failure"
+        },
+        {
+          "truthIndex": 5,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 6,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 7,
+          "bestPredictionIou": 0.06758576347339644,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 8,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        },
+        {
+          "truthIndex": 9,
+          "bestPredictionIou": 0.0,
+          "failure": "missed_detection"
+        }
+      ],
+      "falsePositives": [
+        {
+          "predictionIndex": 1,
+          "confidence": 0.566024,
+          "bestTruthIou": 0.2810770665980748
+        },
+        {
+          "predictionIndex": 2,
+          "confidence": 0.460625,
+          "bestTruthIou": 0.46294020047586804
+        },
+        {
+          "predictionIndex": 3,
+          "confidence": 0.417982,
+          "bestTruthIou": 0.06758576347339645
+        }
+      ],
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\release-test-67-failure-profile-v1\\stress__eac9a2f87f4c-main-v2.jpg"
+    }
+  ],
+  "trainingGuidance": {
+    "allowed": "collect training-authorized examples from new source groups with analogous failure patterns",
+    "prohibited": "copying any frozen test image, label, crop, or parent source group into training"
+  },
+  "overlayLegend": {
+    "green": "matched ground-truth nail",
+    "yellow": "unmatched ground-truth nail",
+    "cyan": "matched prediction",
+    "red": "unmatched prediction"
+  },
+  "thresholdSweep": [
+    {
+      "confidence": 0.2,
+      "predictions": 427,
+      "matched": 315,
+      "missed": 69,
+      "falsePositives": 112,
+      "precisionAtIou50": 0.7377049180327869,
+      "recallAtIou50": 0.8203125,
+      "f1AtIou50": 0.7768187422934648,
+      "coreRecallAtIou50": 0.835820895522388,
+      "stressRecallAtIou50": 0.7844827586206896
+    },
+    {
+      "confidence": 0.25,
+      "predictions": 401,
+      "matched": 311,
+      "missed": 73,
+      "falsePositives": 90,
+      "precisionAtIou50": 0.7755610972568578,
+      "recallAtIou50": 0.8098958333333334,
+      "f1AtIou50": 0.7923566878980891,
+      "coreRecallAtIou50": 0.8208955223880597,
+      "stressRecallAtIou50": 0.7844827586206896
+    },
+    {
+      "confidence": 0.3,
+      "predictions": 375,
+      "matched": 301,
+      "missed": 83,
+      "falsePositives": 74,
+      "precisionAtIou50": 0.8026666666666666,
+      "recallAtIou50": 0.7838541666666666,
+      "f1AtIou50": 0.7931488801054019,
+      "coreRecallAtIou50": 0.8022388059701493,
+      "stressRecallAtIou50": 0.7413793103448276
+    },
+    {
+      "confidence": 0.35,
+      "predictions": 346,
+      "matched": 289,
+      "missed": 95,
+      "falsePositives": 57,
+      "precisionAtIou50": 0.8352601156069365,
+      "recallAtIou50": 0.7526041666666666,
+      "f1AtIou50": 0.7917808219178083,
+      "coreRecallAtIou50": 0.7761194029850746,
+      "stressRecallAtIou50": 0.6982758620689655
+    },
+    {
+      "confidence": 0.4,
+      "predictions": 321,
+      "matched": 281,
+      "missed": 103,
+      "falsePositives": 40,
+      "precisionAtIou50": 0.8753894080996885,
+      "recallAtIou50": 0.7317708333333334,
+      "f1AtIou50": 0.7971631205673759,
+      "coreRecallAtIou50": 0.75,
+      "stressRecallAtIou50": 0.6896551724137931
+    },
+    {
+      "confidence": 0.45,
+      "predictions": 301,
+      "matched": 271,
+      "missed": 113,
+      "falsePositives": 30,
+      "precisionAtIou50": 0.9003322259136213,
+      "recallAtIou50": 0.7057291666666666,
+      "f1AtIou50": 0.7912408759124088,
+      "coreRecallAtIou50": 0.7238805970149254,
+      "stressRecallAtIou50": 0.6637931034482759
+    }
+  ],
+  "thresholdSweepNote": "Diagnostic only. A threshold change requires browser candidate-count, false-positive, and Beta review gates."
+}

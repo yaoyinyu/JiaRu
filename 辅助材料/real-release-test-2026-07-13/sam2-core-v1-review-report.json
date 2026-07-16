@@ -121,7 +121,8 @@
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v22-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v23-report.json",
     "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\sam2-core-repair-v24-report.json",
-    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\manual-core-v25-report.json"
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\manual-core-v25-report.json",
+    "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\reviewed-topology-repair-v1-report.json"
   ],
   "repairBatches": [
     {
@@ -368,6 +369,16 @@
       "removedFalsePositiveCount": 1,
       "pairwiseOverlapCount": 0,
       "promptStrategy": "retain_seven_reviewed_nail_polygons_remove_the_knuckle_false_positive_and_manually_separate_the_occlusion_boundary_between_nails_seven_and_eight"
+    },
+    {
+      "id": "reviewed-topology-repair-v1-core",
+      "manifest": "reviewed-topology-repair-v1-manifest.json",
+      "candidateReport": "reviewed-topology-repair-v1-report.json",
+      "review": "reviewed-topology-repair-v1-review.json",
+      "passCount": 5,
+      "acceptedMaskCount": 40,
+      "pairwiseOverlapCount": 0,
+      "promptStrategy": "normalize_declared_invalid_polygons_and_subtract_only_declared_foreground_occlusion_boundaries_then_require_original_resolution_review"
     }
   ],
   "errors": []

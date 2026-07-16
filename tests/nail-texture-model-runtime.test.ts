@@ -32,6 +32,7 @@ test("model manifest validator rejects unsafe and incompatible manifests", () =>
       task: "segment",
       backendPreferences: ["webgpu", "wasm"],
       modelFile: "nail-texture-seg-v1.onnx",
+      scoreThreshold: 0.25,
       labels: ["nail_texture"],
     }),
     []
@@ -64,12 +65,14 @@ test("model manifest validator rejects unsafe and incompatible manifests", () =>
     normalization: "minus_one_to_one",
     resizeMode: "stretch",
     outputContract: "",
+    scoreThreshold: 1,
   });
   assert.ok(protocolErrors.includes("manifest_input_layout_must_be_nchw"));
   assert.ok(protocolErrors.includes("manifest_color_order_must_be_rgb"));
   assert.ok(protocolErrors.includes("manifest_normalization_must_be_zero_to_one"));
   assert.ok(protocolErrors.includes("manifest_resize_mode_must_be_letterbox"));
   assert.ok(protocolErrors.includes("manifest_output_contract_must_be_non_empty_string"));
+  assert.ok(protocolErrors.includes("manifest_score_threshold_must_be_between_zero_and_one"));
 });
 
 test("recognizeNailTextures falls back when manifest is invalid", async () => {
@@ -234,6 +237,7 @@ test("model runtime initializes inside a browser worker without window", async (
         modelFile: "nail-texture-seg-worker.onnx",
         outputContract: "ultralytics-seg-raw-v1",
         resizeMode: "letterbox",
+        scoreThreshold: 0.25,
         labels: ["nail_texture"],
       }),
     })) as typeof fetch;
@@ -247,6 +251,7 @@ test("model runtime initializes inside a browser worker without window", async (
     assert.equal(runtime.info?.version, "nail-texture-seg-worker");
     assert.equal(runtime.info?.outputContract, "ultralytics-seg-raw-v1");
     assert.equal(runtime.info?.resizeMode, "letterbox");
+    assert.equal(runtime.info?.scoreThreshold, 0.25);
     assert.equal(
       runtime.info?.modelUrl,
       "https://example.com/models/nail-texture-seg/nail-texture-seg-worker.onnx"
@@ -409,7 +414,7 @@ test("recognizeNailTextures reports model elapsed time on successful model infer
             run: async () => ({
               output0: {
                 dims: [1, 1, 6],
-                data: new Float32Array([320, 320, 72, 120, 0.92, 0]),
+                data: new Float32Array([320, 320, 72, 120, 0.3, 0]),
               },
             }),
           }),
@@ -437,6 +442,7 @@ test("recognizeNailTextures reports model elapsed time on successful model infer
       task: "segment",
       backendPreferences: ["wasm"],
       modelFile: "nail-texture-seg-v-success.onnx",
+      scoreThreshold: 0.25,
       labels: ["nail_texture"],
     }),
   })) as typeof fetch;
@@ -458,6 +464,7 @@ test("recognizeNailTextures reports model elapsed time on successful model infer
     assert.equal(result.modelVersion, "nail-texture-seg-v-success");
     assert.equal(result.elapsedMs, 6);
     assert.equal(result.candidates.length, 1);
+    assert.equal(result.modelInfo?.scoreThreshold, 0.25);
   } finally {
     resetNailTextureModelRuntimeCache();
     globalThis.fetch = originalFetch;

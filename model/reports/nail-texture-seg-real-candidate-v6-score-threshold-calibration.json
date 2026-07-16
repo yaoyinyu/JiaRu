@@ -1,0 +1,235 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "decision": "diagnostic_only_validation_truth_requires_repair",
+  "calibrationEligible": false,
+  "manifestScoreThreshold": null,
+  "diagnosticBestThreshold": 0.2,
+  "inputs": {
+    "datasetYaml": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\dataset.yaml",
+    "datasetYamlSha256": "b26fc35ef7861b0d67196271ca7a37f48b24b209b8bc666c31399cfc9c89d217",
+    "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset",
+    "datasetReport": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\source-isolated-report.json",
+    "datasetReportSha256": "1df74b99f6ec375c80d0c1fce5c00c62d6e4920c33f482dd771e279491e81149",
+    "metrics": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\val-calibration-512\\val-metrics.json",
+    "metricsSha256": "dac38e96386d4d3219736aaea42e034df5dd42e977b64073a488d7886246b423",
+    "artifactIndex": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\val-calibration-512\\artifacts\\evaluation-artifacts.json",
+    "artifactIndexSha256": "eecfede777df4cdc6ace9a44d850bc8f41ac9918b13399b3861aa2eb37dc8389",
+    "weights": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\nail-texture-seg-real-candidate-v6\\weights\\best.pt",
+    "weightsSha256": "48f13b2bb12921decd7d158af797b006c5ff98cefd0ab202e30e10e7935fe535",
+    "split": "val",
+    "validationSourceGroups": [
+      "more"
+    ]
+  },
+  "counts": {
+    "validationImages": 13,
+    "truthMasks": 45,
+    "repairedTruthPolygons": 14,
+    "predictionLabelFiles": 13
+  },
+  "repairedTruthRecords": [
+    {
+      "fileName": "more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.txt",
+      "line": 4
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.txt",
+      "line": 2
+    },
+    {
+      "fileName": "more_-2021-07-28-3.55.58_180943230761010ea04553d.txt",
+      "line": 2
+    },
+    {
+      "fileName": "more_-2021-07-28-3.55.58_180943230761010ea04553d.txt",
+      "line": 5
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.txt",
+      "line": 4
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.txt",
+      "line": 5
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.txt",
+      "line": 6
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.txt",
+      "line": 1
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.txt",
+      "line": 2
+    },
+    {
+      "fileName": "more_-2021-07-28-4.49.42_205237935261011a56521d7.txt",
+      "line": 3
+    },
+    {
+      "fileName": "more_-2021-07-28-4.49.42_205237935261011a56521d7.txt",
+      "line": 6
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.07_1174265329610120d2f31a9.txt",
+      "line": 2
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.07_1174265329610120d2f31a9.txt",
+      "line": 3
+    },
+    {
+      "fileName": "more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.txt",
+      "line": 4
+    }
+  ],
+  "thresholds": {
+    "matchIou": 0.5,
+    "strongIou": 0.75,
+    "minimumRecall": 0.75,
+    "maximumFalsePositivesPerImage": 1.0,
+    "maximumCandidatesPerImage": 10,
+    "minimumValidationImages": 30
+  },
+  "selected": {
+    "confidence": 0.2,
+    "predictions": 42,
+    "matched": 40,
+    "missed": 5,
+    "falsePositives": 2,
+    "precisionAtIou50": 0.9523809523809523,
+    "recallAtIou50": 0.8888888888888888,
+    "f1AtIou50": 0.9195402298850575,
+    "falsePositivesPerImage": 0.15384615384615385,
+    "maxPredictionsPerImage": 6,
+    "qualifies": true
+  },
+  "thresholdSweep": [
+    {
+      "confidence": 0.1,
+      "predictions": 49,
+      "matched": 40,
+      "missed": 5,
+      "falsePositives": 9,
+      "precisionAtIou50": 0.8163265306122449,
+      "recallAtIou50": 0.8888888888888888,
+      "f1AtIou50": 0.851063829787234,
+      "falsePositivesPerImage": 0.6923076923076923,
+      "maxPredictionsPerImage": 8,
+      "qualifies": true
+    },
+    {
+      "confidence": 0.15,
+      "predictions": 46,
+      "matched": 40,
+      "missed": 5,
+      "falsePositives": 6,
+      "precisionAtIou50": 0.8695652173913043,
+      "recallAtIou50": 0.8888888888888888,
+      "f1AtIou50": 0.8791208791208792,
+      "falsePositivesPerImage": 0.46153846153846156,
+      "maxPredictionsPerImage": 7,
+      "qualifies": true
+    },
+    {
+      "confidence": 0.2,
+      "predictions": 42,
+      "matched": 40,
+      "missed": 5,
+      "falsePositives": 2,
+      "precisionAtIou50": 0.9523809523809523,
+      "recallAtIou50": 0.8888888888888888,
+      "f1AtIou50": 0.9195402298850575,
+      "falsePositivesPerImage": 0.15384615384615385,
+      "maxPredictionsPerImage": 6,
+      "qualifies": true
+    },
+    {
+      "confidence": 0.25,
+      "predictions": 41,
+      "matched": 39,
+      "missed": 6,
+      "falsePositives": 2,
+      "precisionAtIou50": 0.9512195121951219,
+      "recallAtIou50": 0.8666666666666667,
+      "f1AtIou50": 0.9069767441860465,
+      "falsePositivesPerImage": 0.15384615384615385,
+      "maxPredictionsPerImage": 5,
+      "qualifies": true
+    },
+    {
+      "confidence": 0.3,
+      "predictions": 40,
+      "matched": 39,
+      "missed": 6,
+      "falsePositives": 1,
+      "precisionAtIou50": 0.975,
+      "recallAtIou50": 0.8666666666666667,
+      "f1AtIou50": 0.9176470588235294,
+      "falsePositivesPerImage": 0.07692307692307693,
+      "maxPredictionsPerImage": 5,
+      "qualifies": true
+    },
+    {
+      "confidence": 0.35,
+      "predictions": 39,
+      "matched": 38,
+      "missed": 7,
+      "falsePositives": 1,
+      "precisionAtIou50": 0.9743589743589743,
+      "recallAtIou50": 0.8444444444444444,
+      "f1AtIou50": 0.9047619047619048,
+      "falsePositivesPerImage": 0.07692307692307693,
+      "maxPredictionsPerImage": 5,
+      "qualifies": true
+    },
+    {
+      "confidence": 0.4,
+      "predictions": 39,
+      "matched": 38,
+      "missed": 7,
+      "falsePositives": 1,
+      "precisionAtIou50": 0.9743589743589743,
+      "recallAtIou50": 0.8444444444444444,
+      "f1AtIou50": 0.9047619047619048,
+      "falsePositivesPerImage": 0.07692307692307693,
+      "maxPredictionsPerImage": 5,
+      "qualifies": true
+    },
+    {
+      "confidence": 0.45,
+      "predictions": 39,
+      "matched": 38,
+      "missed": 7,
+      "falsePositives": 1,
+      "precisionAtIou50": 0.9743589743589743,
+      "recallAtIou50": 0.8444444444444444,
+      "f1AtIou50": 0.9047619047619048,
+      "falsePositivesPerImage": 0.07692307692307693,
+      "maxPredictionsPerImage": 5,
+      "qualifies": true
+    },
+    {
+      "confidence": 0.5,
+      "predictions": 38,
+      "matched": 38,
+      "missed": 7,
+      "falsePositives": 0,
+      "precisionAtIou50": 1.0,
+      "recallAtIou50": 0.8444444444444444,
+      "f1AtIou50": 0.9156626506024096,
+      "falsePositivesPerImage": 0.0,
+      "maxPredictionsPerImage": 5,
+      "qualifies": true
+    }
+  ],
+  "releaseTestPolicy": "Calibration accepts validation-only evidence. Frozen test and release-test predictions are prohibited inputs.",
+  "nextSteps": [
+    "Repair and re-audit any invalid validation polygons before calibration can become manifest evidence.",
+    "Expand a source-isolated validation split to the minimum sample count without using frozen release-test sources.",
+    "Rerun calibration before writing any threshold into a candidate manifest."
+  ]
+}

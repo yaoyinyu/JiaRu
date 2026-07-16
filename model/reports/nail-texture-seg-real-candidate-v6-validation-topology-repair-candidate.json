@@ -1,0 +1,412 @@
+{
+  "ok": false,
+  "schemaVersion": 1,
+  "decision": "blocked_undeclared_validation_truth_overlaps",
+  "inputs": {
+    "datasetYaml": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\dataset.yaml",
+    "datasetYamlSha256": "b26fc35ef7861b0d67196271ca7a37f48b24b209b8bc666c31399cfc9c89d217",
+    "sourceIsolationReport": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\source-isolated-report.json",
+    "sourceIsolationReportSha256": "1df74b99f6ec375c80d0c1fce5c00c62d6e4920c33f482dd771e279491e81149",
+    "calibrationReport": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-score-threshold-calibration.json",
+    "calibrationReportSha256": "8f07b8058f7ff7c27c3d34f15070414ed21d4b940dcff5ee34328327d8ba4301",
+    "split": "val"
+  },
+  "counts": {
+    "validationLabels": 13,
+    "affectedImages": 8,
+    "reviewImages": 13,
+    "repairedPolygons": 14
+  },
+  "maximumDiscardedAreaRatio": 0.05,
+  "sourceLabelsUnmodified": true,
+  "overlapBlockers": [
+    {
+      "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.txt",
+      "overlaps": [
+        {
+          "left": 1,
+          "right": 2,
+          "area": 0.0002468849999999982
+        }
+      ]
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.txt",
+      "overlaps": [
+        {
+          "left": 4,
+          "right": 6,
+          "area": 0.007463240322583628
+        }
+      ]
+    }
+  ],
+  "outputs": [
+    {
+      "fileName": "more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.jpg",
+      "sourceLabelSha256": "49acad622c5e786c9a776e93eada2f10e9f2ad2b6361bcaa1c4954d06f31daa8",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.txt",
+      "candidateLabelSha256": "7ff471ffb8ab856f4a37c19827098bd7996293296e5009bbba932f1bb4c8ba65",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024-validation-topology-candidate.png",
+      "polygonCount": 4,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [
+        {
+          "nailIndex": 4,
+          "beforeArea": 0.015488703524499997,
+          "afterArea": 0.015452544830499999,
+          "relativeAreaDelta": 0.0023399831158313995,
+          "discardedAreaRatio": 0.0023345203775644438
+        }
+      ],
+      "zoomPaths": [
+        {
+          "nailIndex": 4,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024-source-n4-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024-candidate-n4-2x.png"
+        }
+      ]
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.35_71375674261010cdb4f881.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-3.40.35_71375674261010cdb4f881.jpg",
+      "sourceLabelSha256": "1d031860660178931eb7de6a130bad8f65a980e58204231dc79fecdafddcee95",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-3.40.35_71375674261010cdb4f881.txt",
+      "candidateLabelSha256": "1d031860660178931eb7de6a130bad8f65a980e58204231dc79fecdafddcee95",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-3.40.35_71375674261010cdb4f881-validation-topology-candidate.png",
+      "polygonCount": 4,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [],
+      "zoomPaths": []
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-3.40.50_29966733461010ce78c55e.jpg",
+      "sourceLabelSha256": "4867d778b2dff6c0b1af129b01bf641208a6700363e6eaf347ebeae57b559335",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-3.40.50_29966733461010ce78c55e.txt",
+      "candidateLabelSha256": "49da018fb7249c722ae00e37b9d229f4e5d5c54c7f09ca810b44158c42d80944",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-3.40.50_29966733461010ce78c55e-validation-topology-candidate.png",
+      "polygonCount": 2,
+      "pairwiseOverlapCount": 1,
+      "pairwiseOverlaps": [
+        {
+          "left": 1,
+          "right": 2,
+          "area": 0.0002468849999999982
+        }
+      ],
+      "repairs": [
+        {
+          "nailIndex": 2,
+          "beforeArea": 0.03059386562499999,
+          "afterArea": 0.03059386562499999,
+          "relativeAreaDelta": 0.0,
+          "discardedAreaRatio": 0.0
+        }
+      ],
+      "zoomPaths": [
+        {
+          "nailIndex": 2,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-3.40.50_29966733461010ce78c55e-source-n2-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-3.40.50_29966733461010ce78c55e-candidate-n2-2x.png"
+        }
+      ]
+    },
+    {
+      "fileName": "more_-2021-07-28-3.55.58_180943230761010ea04553d.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-3.55.58_180943230761010ea04553d.jpg",
+      "sourceLabelSha256": "54aaf77bb3c458fede263d7ec8a4f917cd371306ed7e268eca2790762e4fe90b",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-3.55.58_180943230761010ea04553d.txt",
+      "candidateLabelSha256": "94359a10a7cdf9b468b0ad1446e18ae05b5c645a6708acd828f05e0034cef2d5",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-3.55.58_180943230761010ea04553d-validation-topology-candidate.png",
+      "polygonCount": 5,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [
+        {
+          "nailIndex": 2,
+          "beforeArea": 0.01783214437500002,
+          "afterArea": 0.018385828124999996,
+          "relativeAreaDelta": 0.030114702815431556,
+          "discardedAreaRatio": 0.0
+        },
+        {
+          "nailIndex": 5,
+          "beforeArea": 0.01646008624999999,
+          "afterArea": 0.016140335625,
+          "relativeAreaDelta": 0.01981065526944353,
+          "discardedAreaRatio": 0.019425817103479515
+        }
+      ],
+      "zoomPaths": [
+        {
+          "nailIndex": 2,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-3.55.58_180943230761010ea04553d-source-n2-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-3.55.58_180943230761010ea04553d-candidate-n2-2x.png"
+        },
+        {
+          "nailIndex": 5,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-3.55.58_180943230761010ea04553d-source-n5-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-3.55.58_180943230761010ea04553d-candidate-n5-2x.png"
+        }
+      ]
+    },
+    {
+      "fileName": "more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.jpg",
+      "sourceLabelSha256": "ecd10573305d133dfcad06ed10ea00b8cfbcd6443f2876473a7611c8db2447fc",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.txt",
+      "candidateLabelSha256": "ecd10573305d133dfcad06ed10ea00b8cfbcd6443f2876473a7611c8db2447fc",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024-validation-topology-candidate.png",
+      "polygonCount": 1,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [],
+      "zoomPaths": []
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-4.13.29_1179122534610112ae7200d.jpg",
+      "sourceLabelSha256": "c9c4877b13d05088461af89196e04360b055e2fcc3c579167998f80bb24f4da6",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-4.13.29_1179122534610112ae7200d.txt",
+      "candidateLabelSha256": "bc0f4307451c3a62632bbcc0c1fd05671adba52b1bd0625e850a7120dcb0dcbb",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-4.13.29_1179122534610112ae7200d-validation-topology-candidate.png",
+      "polygonCount": 6,
+      "pairwiseOverlapCount": 1,
+      "pairwiseOverlaps": [
+        {
+          "left": 4,
+          "right": 6,
+          "area": 0.007463240322583628
+        }
+      ],
+      "repairs": [
+        {
+          "nailIndex": 4,
+          "beforeArea": 0.007472433749999997,
+          "afterArea": 0.00748530125,
+          "relativeAreaDelta": 0.0017190356901137342,
+          "discardedAreaRatio": 0.0
+        },
+        {
+          "nailIndex": 5,
+          "beforeArea": 0.012059770625,
+          "afterArea": 0.012059770625,
+          "relativeAreaDelta": 0.0,
+          "discardedAreaRatio": 0.0
+        },
+        {
+          "nailIndex": 6,
+          "beforeArea": 0.018545959375000004,
+          "afterArea": 0.018109370625000003,
+          "relativeAreaDelta": 0.024108444133187603,
+          "discardedAreaRatio": 0.0235409094332711
+        }
+      ],
+      "zoomPaths": [
+        {
+          "nailIndex": 4,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.13.29_1179122534610112ae7200d-source-n4-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.13.29_1179122534610112ae7200d-candidate-n4-2x.png"
+        },
+        {
+          "nailIndex": 5,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.13.29_1179122534610112ae7200d-source-n5-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.13.29_1179122534610112ae7200d-candidate-n5-2x.png"
+        },
+        {
+          "nailIndex": 6,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.13.29_1179122534610112ae7200d-source-n6-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.13.29_1179122534610112ae7200d-candidate-n6-2x.png"
+        }
+      ]
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-4.20.28_2060593474610113e89beef.jpg",
+      "sourceLabelSha256": "8bb77486a43be71e6361041b9fe6175a77daa2b6de342710fb07ae197f18338e",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-4.20.28_2060593474610113e89beef.txt",
+      "candidateLabelSha256": "8bb77486a43be71e6361041b9fe6175a77daa2b6de342710fb07ae197f18338e",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-4.20.28_2060593474610113e89beef-validation-topology-candidate.png",
+      "polygonCount": 4,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [],
+      "zoomPaths": []
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-4.20.43_848623705610114038884a.jpg",
+      "sourceLabelSha256": "781578d111ae6f163a3c1481869139e7bd44bf4ffc268ef9c99b5d29cf5f1043",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-4.20.43_848623705610114038884a.txt",
+      "candidateLabelSha256": "c5a130f00808ad04c252e6d9ffffaa3e2a5c4400b64de3d11edff7e2c9e3f0f8",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-4.20.43_848623705610114038884a-validation-topology-candidate.png",
+      "polygonCount": 2,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [
+        {
+          "nailIndex": 1,
+          "beforeArea": 0.01738703999999999,
+          "afterArea": 0.017387803124999997,
+          "relativeAreaDelta": 4.3888523151639926e-05,
+          "discardedAreaRatio": 0.0
+        },
+        {
+          "nailIndex": 2,
+          "beforeArea": 0.01967882124999998,
+          "afterArea": 0.019544511249999997,
+          "relativeAreaDelta": 0.00687200607280393,
+          "discardedAreaRatio": 0.006825103917237904
+        }
+      ],
+      "zoomPaths": [
+        {
+          "nailIndex": 1,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.20.43_848623705610114038884a-source-n1-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.20.43_848623705610114038884a-candidate-n1-2x.png"
+        },
+        {
+          "nailIndex": 2,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.20.43_848623705610114038884a-source-n2-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.20.43_848623705610114038884a-candidate-n2-2x.png"
+        }
+      ]
+    },
+    {
+      "fileName": "more_-2021-07-28-4.42.39_163325967361011922b9577.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-4.42.39_163325967361011922b9577.jpg",
+      "sourceLabelSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-4.42.39_163325967361011922b9577.txt",
+      "candidateLabelSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-4.42.39_163325967361011922b9577-validation-topology-candidate.png",
+      "polygonCount": 0,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [],
+      "zoomPaths": []
+    },
+    {
+      "fileName": "more_-2021-07-28-4.49.42_205237935261011a56521d7.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-4.49.42_205237935261011a56521d7.jpg",
+      "sourceLabelSha256": "d2e604cba2123751a56f7889aa8b7c492ed1e2a78da489778f5d0ff4d26ece42",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-4.49.42_205237935261011a56521d7.txt",
+      "candidateLabelSha256": "f4cce1c0ffe3d17dfbd00ae557ea40f0bbdaa10e449ced5bcc24968b6e36087a",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-4.49.42_205237935261011a56521d7-validation-topology-candidate.png",
+      "polygonCount": 6,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [
+        {
+          "nailIndex": 3,
+          "beforeArea": 0.014139030624999997,
+          "afterArea": 0.014123358749999997,
+          "relativeAreaDelta": 0.001109642208869022,
+          "discardedAreaRatio": 0.0011084122678318086
+        },
+        {
+          "nailIndex": 6,
+          "beforeArea": 0.025246111874999998,
+          "afterArea": 0.024382357500000004,
+          "relativeAreaDelta": 0.03542538390719577,
+          "discardedAreaRatio": 0.03421336240909771
+        }
+      ],
+      "zoomPaths": [
+        {
+          "nailIndex": 3,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.49.42_205237935261011a56521d7-source-n3-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.49.42_205237935261011a56521d7-candidate-n3-2x.png"
+        },
+        {
+          "nailIndex": 6,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.49.42_205237935261011a56521d7-source-n6-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-4.49.42_205237935261011a56521d7-candidate-n6-2x.png"
+        }
+      ]
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.07_1174265329610120d2f31a9.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9.jpg",
+      "sourceLabelSha256": "59452daa7cd45cf224cf490596b088b949d93d9389775babd8a659beb932c703",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9.txt",
+      "candidateLabelSha256": "8de89751b3a64d5d995fdd9bfd774128ba9a7d83b2b30a8c8ff6abc282ae7a2b",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9-validation-topology-candidate.png",
+      "polygonCount": 3,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [
+        {
+          "nailIndex": 2,
+          "beforeArea": 0.021030900625000005,
+          "afterArea": 0.020422038125,
+          "relativeAreaDelta": 0.02981399291653731,
+          "discardedAreaRatio": 0.0289508524079197
+        },
+        {
+          "nailIndex": 3,
+          "beforeArea": 0.02925282125,
+          "afterArea": 0.03044592125000001,
+          "relativeAreaDelta": 0.03918751514211478,
+          "discardedAreaRatio": 0.00010098855064885948
+        }
+      ],
+      "zoomPaths": [
+        {
+          "nailIndex": 2,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9-source-n2-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9-candidate-n2-2x.png"
+        },
+        {
+          "nailIndex": 3,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9-source-n3-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_-2021-07-28-5.14.07_1174265329610120d2f31a9-candidate-n3-2x.png"
+        }
+      ]
+    },
+    {
+      "fileName": "more_-2021-07-28-5.15.46_904469491610120cb2f987.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_-2021-07-28-5.15.46_904469491610120cb2f987.jpg",
+      "sourceLabelSha256": "0885f341ea660e475604e156fe57b0091279999a150afef27d2c9803349dc26a",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_-2021-07-28-5.15.46_904469491610120cb2f987.txt",
+      "candidateLabelSha256": "0885f341ea660e475604e156fe57b0091279999a150afef27d2c9803349dc26a",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_-2021-07-28-5.15.46_904469491610120cb2f987-validation-topology-candidate.png",
+      "polygonCount": 4,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [],
+      "zoomPaths": []
+    },
+    {
+      "fileName": "more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.txt",
+      "imagePath": "E:\\AI Project\\Codex\\JiaRu\\model\\experiments\\real-source-isolated-v5-dataset\\images\\val\\more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.jpg",
+      "sourceLabelSha256": "7944a8fbafc9c1c46393feab489a623c8da534248376bbe99b42cb3dbd5dbe75",
+      "candidateLabelPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\labels\\val\\more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.txt",
+      "candidateLabelSha256": "c4cb8b263a7a68b3d63e8a57308f74a851fdbd3edb7f729bbf5b2391ec577d61",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\overlays\\more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3-validation-topology-candidate.png",
+      "polygonCount": 4,
+      "pairwiseOverlapCount": 0,
+      "pairwiseOverlaps": [],
+      "repairs": [
+        {
+          "nailIndex": 4,
+          "beforeArea": 0.009261806249999999,
+          "afterArea": 0.009261806249999996,
+          "relativeAreaDelta": 3.745972284783668e-16,
+          "discardedAreaRatio": 0.0
+        }
+      ],
+      "zoomPaths": [
+        {
+          "nailIndex": 4,
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3-source-n4-2x.png",
+          "candidate": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\validation-threshold-calibration-v6\\topology-repair-v1\\crops\\more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3-candidate-n4-2x.png"
+        }
+      ]
+    }
+  ],
+  "reviewRequirement": "Inspect every full-resolution overlay and every repaired-nail source/candidate 2x crop before approval."
+}

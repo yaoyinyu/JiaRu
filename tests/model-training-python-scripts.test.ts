@@ -36,6 +36,8 @@ test("train script dry-run resolves dataset and hyperparameters", async () => {
   assert.equal(result.batch, -1);
   assert.match(String(result.runtime_dataset_yaml), /resolved-dataset\.yaml$/);
   assert.match(String(result.best_weights_path), /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+nail-texture-seg-v1[\\/]+weights[\\/]+best\.pt$/);
+  assert.equal(result.training_intent, "experiment");
+  assert.equal(result.candidate_validation_evidence, null);
   assert.equal(result.dry_run, true);
 });
 
@@ -173,6 +175,7 @@ test("export onnx script dry-run prints manifest target", async () => {
   assert.equal(result.input_size, 640);
   assert.deepEqual(result.backend_preferences, ["webgpu", "wasm"]);
   assert.deepEqual(result.labels, ["nail_texture"]);
+  assert.equal(result.score_threshold, 0.35);
   assert.equal(result.dry_run, true);
   assert.match(String(result.manifest_path), /public[\\/]+models[\\/]+nail-texture-seg[\\/]+manifest\.json$/);
 });
@@ -219,8 +222,10 @@ test("export onnx script writes manifest integrity metadata", async () => {
     modelSizeBytes: number;
     sha256: string;
     modelFile: string;
+    scoreThreshold: number;
   };
   assert.equal(manifest.modelFile, "nail-texture-seg-v1.onnx");
   assert.equal(manifest.modelSizeBytes, 300 * 1024);
   assert.equal(manifest.sha256, "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf");
+  assert.equal(manifest.scoreThreshold, 0.35);
 });

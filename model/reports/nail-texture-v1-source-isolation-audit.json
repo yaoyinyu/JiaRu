@@ -1,0 +1,105 @@
+{
+  "ok": false,
+  "schemaVersion": 1,
+  "decision": "rejected_dataset_source_isolation",
+  "outputDir": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
+  "inputs": {
+    "datasetYaml": "E:\\AI Project\\Codex\\JiaRu\\model\\training\\dataset.yaml",
+    "datasetYamlSha256": "80ebf3c10a4aac1d9d4bd8d3eb3dbc70790c0174f1ca8af996ae4f521edc29f0",
+    "sourcesCsv": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\sources.csv",
+    "sourcesCsvSha256": "008e3f8a5134cdf35f7d696acd05960b8e9ef08e011d82a659f19470b227ab32",
+    "splitJson": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\split.json",
+    "splitJsonSha256": "ac7846422306c2377178855fa5218bb817c687b09e2d2b8e3583dd7a77167cad"
+  },
+  "splitCounts": {
+    "train": 300,
+    "val": 46,
+    "test": 63
+  },
+  "sourceRecordCount": 409,
+  "groupCounts": {
+    "ai-nail-2026-07-04": {
+      "train": 210,
+      "val": 45,
+      "test": 45
+    },
+    "negative-no-nail-2026-07-05": {
+      "train": 0,
+      "val": 0,
+      "test": 1
+    },
+    "real-reference-2026-07-12-batch-02:deerplanet": {
+      "train": 14,
+      "val": 0,
+      "test": 0
+    },
+    "real-reference-2026-07-12-batch-02:more": {
+      "train": 0,
+      "val": 0,
+      "test": 17
+    },
+    "real-reference-2026-07-12-batch-02:other": {
+      "train": 49,
+      "val": 0,
+      "test": 0
+    },
+    "real-reference-2026-07-12-xhs-crops-v1:parent-14b762d1b5be": {
+      "train": 1,
+      "val": 0,
+      "test": 0
+    },
+    "real-reference-2026-07-12-xhs-crops-v1:parent-32a451fadbf7": {
+      "train": 1,
+      "val": 0,
+      "test": 0
+    },
+    "real-reference-2026-07-12-xhs-crops-v1:parent-332ca3451619": {
+      "train": 1,
+      "val": 0,
+      "test": 0
+    },
+    "real-reference-2026-07-12-xhs-crops-v1:parent-8756ef65a6c0": {
+      "train": 1,
+      "val": 0,
+      "test": 0
+    },
+    "real-reference-2026-07-12-xhs-crops-v1:parent-e191a73ac390": {
+      "train": 1,
+      "val": 0,
+      "test": 0
+    },
+    "real-reference-2026-07-12-xhs-crops-v1:parent-e73df1f51425": {
+      "train": 0,
+      "val": 1,
+      "test": 0
+    },
+    "real-reference-2026-07-12-xhs-crops-v1:parent-fdc2d2ee537f": {
+      "train": 1,
+      "val": 0,
+      "test": 0
+    },
+    "real-user-authorized-2026-07-11": {
+      "train": 21,
+      "val": 0,
+      "test": 0
+    }
+  },
+  "leakingGroups": [
+    {
+      "sourceGroup": "ai-nail-2026-07-04",
+      "splits": [
+        "train",
+        "val",
+        "test"
+      ],
+      "counts": {
+        "train": 210,
+        "val": 45,
+        "test": 45
+      }
+    }
+  ],
+  "errors": [
+    "1 source groups cross split boundaries"
+  ]
+}

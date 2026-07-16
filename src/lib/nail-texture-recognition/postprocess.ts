@@ -516,6 +516,7 @@ export function postprocessNailTextureDetections(
       imageHeight: preprocess.originalHeight,
       maxCandidates,
       includeLowConfidenceCandidates: options.includeLowConfidenceCandidates,
+      scoreThreshold,
     }
   );
   const stabilized = stabilizeNailTextureCandidateAngles(

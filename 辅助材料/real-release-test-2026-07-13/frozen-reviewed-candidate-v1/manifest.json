@@ -1,0 +1,1404 @@
+{
+  "schemaVersion": 1,
+  "snapshotId": "real-release-test-2026-07-13-reviewed-candidate-v1",
+  "decision": "frozen_reviewed_candidate_not_release_ready",
+  "trainingUse": "prohibited",
+  "counts": {
+    "images": 67,
+    "masks": 384,
+    "coreImages": 45,
+    "stressImages": 22,
+    "parentSourceGroups": 18
+  },
+  "representativeReleaseGate": {
+    "ok": false,
+    "actual": 67,
+    "required": 100,
+    "shortfall": 33
+  },
+  "itemsSha256": "5b4b8d80941cfd7d85bf35859aeb28ccae8e1e1be616f96cebfe5ab6b23b1aa1",
+  "items": [
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_001.jpg",
+      "parentFileName": "real_release_20260713_001.jpg",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "imageSha256": "e0651de3fde9a44bc4be1ba6af30d58e4165a91db53ec36957b7e3326994cbe1",
+      "annotationSha256": "8433b06b4d340aa1fd73810d534067136617662c69d01e46266ec16a7181af89",
+      "imageAnnotationPairSha256": "7d91f11e6d704f6d68df54c578b85b52e43327f9a0e3ad6f37caecedf4e5b903",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_002.jpg",
+      "parentFileName": "real_release_20260713_002.jpg",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "imageSha256": "d8dc936645f2f55e7258dd2627af5d144ef974172c87612c23e01508f27f05da",
+      "annotationSha256": "7909161b40e71173204134e65f6d567b91d1e769db7acf928df62f17f28e102b",
+      "imageAnnotationPairSha256": "3665898350a08d24b6f105840e451dd68b4388ae13ac61e4a3df462271dca6ec",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_003.jpg",
+      "parentFileName": "real_release_20260713_003.jpg",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "imageSha256": "7941041ab49631fb07d83e09dd9abf29abb5cee25a836befbc86914f597427e6",
+      "annotationSha256": "00a46b7ab0e68a33e7bc045d1cc547006c675d83c55ce3a00ed060c48df71ddc",
+      "imageAnnotationPairSha256": "c7447c82aa4cf0873807ea49af5f3a5a5a8aebf7d981ef5defb1b613a9ae41a0",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_004.jpg",
+      "parentFileName": "real_release_20260713_004.jpg",
+      "sourceGroup": "xhs-9c78df6308ed",
+      "parentSourceGroup": "xhs-9c78df6308ed",
+      "imageSha256": "0c57b6b50d597cf56fb5b660060552298214b0ab0dd2f5369729feb7b1cb6d94",
+      "annotationSha256": "ad626bc514fc440d739f1203c9fa9bad47c791297490bd28ec05ef9f2c09803e",
+      "imageAnnotationPairSha256": "1637bbb43faf688f88b519fb68243d6342956b7c1e0e338cc96df4e8fdfcafe5",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "stress",
+      "fileName": "51a2eded5eda-primary.png",
+      "parentFileName": "real_release_20260713_005.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-51a2eded5eda",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "imageSha256": "d79155f248e545d41620ec397e22c519281fceda55472a902aeb5ae6d657337f",
+      "annotationSha256": "89c99800651219913e81e855f53f1c70c200e22789c3129be743d4ed2de99ff6",
+      "imageAnnotationPairSha256": "703453e3e9d2d0520ab1f56136f78d607505f479d1312e07944e35c91f8f6547",
+      "width": 616,
+      "height": 489,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "b94fd9504ee5004aab4d812da36c382429eab84dbb05864978d42d341598413e",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.4,
+        0.62,
+        0.97,
+        0.96
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "7a92b2c08d0f-main-v3.png",
+      "parentFileName": "real_release_20260713_007.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-7a92b2c08d0f",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "imageSha256": "389bf3a9390f63db299d3efdc766eb61f16a79ea406ba25eb91914fcf682ade4",
+      "annotationSha256": "1b10921d2fe33083c0a7141ae8c194726030e582e0ce876c6b57bb30e8607b88",
+      "imageAnnotationPairSha256": "3917ac8e1f2feb692844bd5cb8fb033072d02abb7fb0d47f46602b98b48f3ba4",
+      "width": 637,
+      "height": 1037,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "f97b9ab9333dddb6b7291f538d62a84b3490368b86279a7a4ca5deacff23a890",
+      "regionId": "main-v3",
+      "normalizedBox": [
+        0.0,
+        0.08,
+        0.59,
+        0.8
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "f8c543cdd6ff-main-v2.png",
+      "parentFileName": "real_release_20260713_011.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f8c543cdd6ff",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "imageSha256": "ca6f4f886fec6e24749116ae09c53052306abe2862017037cd36e17c660d2bd3",
+      "annotationSha256": "2c69659a64658233a3a5d4e239c7b2160e0660198af32d1caa46649be2415a80",
+      "imageAnnotationPairSha256": "567bae03c8f6ccd26f87a4a5060cc2e1c467df728acd20c4a65baea02cf3713e",
+      "width": 540,
+      "height": 1037,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "0b68a7de1b33f0ecbad269f93138f3c583bea59072d7d4fb334c73a57abe9daa",
+      "regionId": "main-v2",
+      "normalizedBox": [
+        0.0,
+        0.08,
+        0.5,
+        0.8
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "066207e1c3ef-primary.png",
+      "parentFileName": "real_release_20260713_012.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-066207e1c3ef",
+      "parentSourceGroup": "xhs-1339d33fcbd5",
+      "imageSha256": "15795b2b338b4f23cbaafc0abe8d006a332a2df287f7c90328132f66eade0060",
+      "annotationSha256": "4e895ead10ae915cbeb82367d1237c81762262a71cf1d3ec3b0898f4b7cab58b",
+      "imageAnnotationPairSha256": "71b0cc3a6903184c184db3c2abcccc309e17e8e267c136fd4e475ec7a38a991e",
+      "width": 497,
+      "height": 475,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "d7c9a35038f399264efab17f73a9be5133fade5c577da53a3af96725fc2dc67f",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.63,
+        0.96,
+        0.96
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_022.jpg",
+      "parentFileName": "real_release_20260713_022.jpg",
+      "sourceGroup": "xhs-aaa458e163a2",
+      "parentSourceGroup": "xhs-aaa458e163a2",
+      "imageSha256": "0fa11ce301a20b55b1393d8e27373ec494afcfc8fbc1c1c6005281cac30a03ed",
+      "annotationSha256": "b897e332641c563ed6e46350d5d35c36152eb4095c86e815a2baeef68cb41bf2",
+      "imageAnnotationPairSha256": "f7f573904941574608c9f4971515db596068f384e7abe22b128d4cf5727d5c38",
+      "width": 1080,
+      "height": 1412,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_024.jpg",
+      "parentFileName": "real_release_20260713_024.jpg",
+      "sourceGroup": "xhs-719a2d46baca",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "imageSha256": "1c49d430fe0060015d271ef5c7e4f5f76dadcc4627923f86d81d00e41d43c6b3",
+      "annotationSha256": "cfed71e28d5456bc3a1777bb1bf38a08cdb98c45cb29cef5a9170227fdd9741c",
+      "imageAnnotationPairSha256": "dfeb320a4ede01c2287b79b7cfc9895840d854a4f67760373c15149ebc6b8855",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_025.jpg",
+      "parentFileName": "real_release_20260713_025.jpg",
+      "sourceGroup": "xhs-719a2d46baca",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "imageSha256": "61e0a8bbcb0b364f2f45f2d71998ec2ffd35fc94835ddc89f1c0f17480bfd599",
+      "annotationSha256": "1cb39fdbf35bd045a6a334fd5fa05053539314bea95207f4940d2892253280c6",
+      "imageAnnotationPairSha256": "8e728a4be989bb59b175b78542e82bf300f83593c9fa8cee3ba60e52f2a503a2",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_026.jpg",
+      "parentFileName": "real_release_20260713_026.jpg",
+      "sourceGroup": "xhs-719a2d46baca",
+      "parentSourceGroup": "xhs-719a2d46baca",
+      "imageSha256": "a3ef4da3ebec740b76f4a54bb8f906cf8b9ac1bfe2b51bd7b7e5855fcb5c34d9",
+      "annotationSha256": "ee6ff698c493e4df3cbaeeb7008a026e110a1c01b897213d0af8ada016b9cfd1",
+      "imageAnnotationPairSha256": "9a5020ab332e2368f04d0e8fe336bb518b549107b7a218af6ac765f9d8972308",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_027.jpg",
+      "parentFileName": "real_release_20260713_027.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "imageSha256": "0254c5a3e3f7befdb8f1c99b13fdc1108ed562ddc95e0b7f9718b06160181b29",
+      "annotationSha256": "f5d822fb26674d326e5cb3c6c95d8d129a148c68a8e8861ddaea4772ee77d5a9",
+      "imageAnnotationPairSha256": "f0e1a88d187415ed75dc4f9af46ceaf942583a2ceea3238ef8a605e063426e06",
+      "width": 800,
+      "height": 800,
+      "maskCount": 4,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_028.jpg",
+      "parentFileName": "real_release_20260713_028.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "imageSha256": "154941123e8c3547add29d882b99e6a8ec6fbee3f406e808b593d25fdf19f5e7",
+      "annotationSha256": "795ed907aaff2c955c1386b36d7bbf06b6be4751823261606fd8b71bed4c3246",
+      "imageAnnotationPairSha256": "27be02bab12d5794c317d247a37acc8fa65e15c93b5a0ab3516cd40f68090ca1",
+      "width": 1080,
+      "height": 1263,
+      "maskCount": 8,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_029.jpg",
+      "parentFileName": "real_release_20260713_029.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "imageSha256": "821811178631507bec56ec16ccffc5011673dd366bc1089d0e623aae5a17801a",
+      "annotationSha256": "e0431a60f6147980dd117cb6c2e42831fe6baddd77ab6827b0eece4dc8af6c3c",
+      "imageAnnotationPairSha256": "b17597bbb5bbc9d024ee75fb68b8f265816286ce712023a0981a64a0eab9ff74",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 8,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_030.jpg",
+      "parentFileName": "real_release_20260713_030.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "imageSha256": "fdcee085f11e5c12f858010b0f06e7b381f728cfcbaca09b1798b104817031e7",
+      "annotationSha256": "47720e59b7e700ec70770a1b4fdd27ba75ec7d7eaf80c69c877b77f66bfe1a07",
+      "imageAnnotationPairSha256": "6dfeac70e137e081a8701af7e7fd8f1305f3b6bca05f1bbf3adbed1490f9973e",
+      "width": 1080,
+      "height": 1296,
+      "maskCount": 8,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_031.jpg",
+      "parentFileName": "real_release_20260713_031.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "imageSha256": "e5062271f5d1dc141de1df46f7066e17e3d09416f6c0a8510af82d062c26aafe",
+      "annotationSha256": "5b79cf085bc038ee217d7a8b43dd0ef978b01eba0516fc3fb2b5378e1911bfd1",
+      "imageAnnotationPairSha256": "43aa768a4929ba20e911ac92cdf9e89761274a286725c10ed4611a88f44ad339",
+      "width": 810,
+      "height": 810,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_032.jpg",
+      "parentFileName": "real_release_20260713_032.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "imageSha256": "5fd0455d54939391e7a80f1af58783f81377f6019b4c43b7f2cbdb0925b54111",
+      "annotationSha256": "2147ccc25bbde5fcf5066d39442ffcebb5b14f0fab48421db115c495ee64f805",
+      "imageAnnotationPairSha256": "955664141458ac16e1cd88bfd450dcd8bf50e3cec2718ba0303c99b6d76ba481",
+      "width": 1080,
+      "height": 1080,
+      "maskCount": 10,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_033.jpg",
+      "parentFileName": "real_release_20260713_033.jpg",
+      "sourceGroup": "xhs-73c8f485071a",
+      "parentSourceGroup": "xhs-73c8f485071a",
+      "imageSha256": "8b9b868a05930eab7fb9ac04b3997d9041615ec02571b346f13c66b9ce9afdb6",
+      "annotationSha256": "61de9bdca110df973a0c1ab78e09f4a645b21e74557f9c8e2a8f9ef8027f4568",
+      "imageAnnotationPairSha256": "84a5f6d05c840851c79e8092c70fcc476ab4ea26c09426ed43e01f38aada3217",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 8,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "stress",
+      "fileName": "d17ab88ac58a-primary.png",
+      "parentFileName": "real_release_20260713_035.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d17ab88ac58a",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "imageSha256": "01657e95ddf33dff31dc95cddfd8613d4795bc9bcc81782bbb5204b2c3fa8bb3",
+      "annotationSha256": "06d479c42a4259d6e84f14547ad72449d165d2a11ed97bca3912e62e0100e87a",
+      "imageAnnotationPairSha256": "a88c6379815e7eccaa96ae8492f2233eb346df83653897113c43deee358391d1",
+      "width": 540,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "c41413ccf8cdeaf9a76d005f8183e1a87f6591231743e4b21363965aa53ab65b",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.5,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "c6edb7fea814-primary.png",
+      "parentFileName": "real_release_20260713_036.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c6edb7fea814",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "imageSha256": "b52547325a461552d4fe55f41fdaa8b60cbc2ea9a3c4d40842a646bb41d0a32e",
+      "annotationSha256": "646bbbc23930fffe121cb15e46a244d6af6031fc59075a3078b6e4231cc4701b",
+      "imageAnnotationPairSha256": "f8f055d652415fcbbb69eb4e04ecfb04ff6622f60ef23a4d875628458c96384e",
+      "width": 540,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "4450e0e4f9846702d1ccf8a764d9afead1ef8685676a6eaa8d69b0acd4fa6e65",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "86ac688f2753-main-v3.png",
+      "parentFileName": "real_release_20260713_037.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-86ac688f2753",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "imageSha256": "b7aa694a6ba6ff53fbecd7253819b968eb780502c0fd96e0e8390f6d548371fd",
+      "annotationSha256": "19c21b6371bababf6127f06cc806a33676ea4a12f8d20792098c22c142e125ac",
+      "imageAnnotationPairSha256": "62b8b7cdb2465e983c31ab396922b4ec2e92cdd152774613f5a2d39ff29c2be6",
+      "width": 540,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "7bad3a874a047325157554c6dfa76737fda318a5c93f106488c880175e2856a8",
+      "regionId": "main-v3",
+      "normalizedBox": [
+        0.0,
+        0.5,
+        0.5,
+        1.0
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "b8f91eb08fc3-primary.png",
+      "parentFileName": "real_release_20260713_038.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b8f91eb08fc3",
+      "parentSourceGroup": "xhs-9d8ae5da0285",
+      "imageSha256": "6adf44f38d9ec1203241d07b7dd73373659beaa44cda5cae9f440b914f2be352",
+      "annotationSha256": "71548ae747187cdf63588363a55f05a01ac423a98f3c33cbf8ff3cf949b17fb8",
+      "imageAnnotationPairSha256": "24e78766f8006d9be3bca9de82f74ef52723b983c2591f74eff59c8baa8f4d1f",
+      "width": 540,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "995d81f4117f0f7af3a5f83476583433f9badb1504384cd0e6f9dc1c9f11f19d",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        0.5,
+        0.5
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "3e9b2b906fda-primary.png",
+      "parentFileName": "real_release_20260713_039.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-3e9b2b906fda",
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "imageSha256": "c2ae18649265a9f7b37eb182854be08f1aa2ec8c1bf6cb6b0f11129c15f31189",
+      "annotationSha256": "d151da8bbf72ee8e9a1cf83bbbcbd4b7bd0bfe1f09ad95276a10ed24f68acef3",
+      "imageAnnotationPairSha256": "8b6d55443cda3e338ff3922e6193a6857e88e204c6e7a1d216588e4efcc5adf1",
+      "width": 540,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "ac7d8dba01ff3546cba9fd7226659aade3a40ea8d086f8ed733f49cbbaa43eaf",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.5,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "e826babe1b3a-primary.png",
+      "parentFileName": "real_release_20260713_040.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e826babe1b3a",
+      "parentSourceGroup": "xhs-1286e7d24573",
+      "imageSha256": "3a02172617f11a16940dda8492b91cf0894e50a1a380394654dcf272f88b3a51",
+      "annotationSha256": "683b4578d836b3f3020d80d16247df1a27ad136c91acf34fe62b80ef0641b10d",
+      "imageAnnotationPairSha256": "abac1c8438f9802d017247eb5122c605cae29bb65811e60f92ef9118f5ddbc4b",
+      "width": 540,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "a76d313c7b2b8e952f13029a5bedc8a5ceadbd4d6619062a6803562802382479",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.5,
+        0.0,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_043.jpg",
+      "parentFileName": "real_release_20260713_043.jpg",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "imageSha256": "8ae298bdd753a94e8acbdafafb959bf4452937b6c20450d7900d94987579a39e",
+      "annotationSha256": "54abda42f1f248eddcb882c536090f6424ac04912c7b719a5be38b3389075c9b",
+      "imageAnnotationPairSha256": "122b5bfd1b74dd78e95fad2af052ed1bd253271a1d918ef1237db6b439bbae16",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_044.jpg",
+      "parentFileName": "real_release_20260713_044.jpg",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "imageSha256": "62b49059d213939c2149ac81a12d8f0e1a73552727a68317ccc53ffe700e9b33",
+      "annotationSha256": "49de9273e4add428ed4be5432c78aed658709ebacb565ce42da83d946424c8ac",
+      "imageAnnotationPairSha256": "ea75e6a299c7c896d2eb87f43429da1351eb406e2a7d72be1f0bf6f4141e5d04",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_045.jpg",
+      "parentFileName": "real_release_20260713_045.jpg",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "imageSha256": "6123a2d99eded26168ccb563a16260eabfcccfac5da3161134fe49e0e269b2de",
+      "annotationSha256": "c1f25093877fa610cff94ee9664fedbd104cd00006c7545d9bf1c6f3e9bae735",
+      "imageAnnotationPairSha256": "c1287773c504bf46e1b5c602cd87dc1704c423122f3cfc2c9e4f8e652fb1b982",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_046.jpg",
+      "parentFileName": "real_release_20260713_046.jpg",
+      "sourceGroup": "xhs-31a8a7089b8a",
+      "parentSourceGroup": "xhs-31a8a7089b8a",
+      "imageSha256": "d0eef07559bfe9341f2e6811a48e59377e5562b7cdda9d3b4a3b6fc2e2d8f728",
+      "annotationSha256": "37dc781c4bd711fc5d8a8b60f051f5e7fa279cff8f014299b6fd84993e3af18c",
+      "imageAnnotationPairSha256": "4328a270616d678bb9319c1969a64b719e30fd1835f05d84251dc1193aee6ea0",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_047.jpg",
+      "parentFileName": "real_release_20260713_047.jpg",
+      "sourceGroup": "xhs-83cdca812139",
+      "parentSourceGroup": "xhs-83cdca812139",
+      "imageSha256": "3cd48ea2c2d204af45b825d7a7527ed35978daf80c2d8e586f96658fb2d3faf7",
+      "annotationSha256": "f09f37f69a437e4c00a9648ee3d6da93dcd787bc918bce0097a5163dd85cd0be",
+      "imageAnnotationPairSha256": "0275ea8f8964215fe1b7c92208fc101dc063a9568255acaf4532d061a63ee7a7",
+      "width": 1080,
+      "height": 1363,
+      "maskCount": 9,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_048.jpg",
+      "parentFileName": "real_release_20260713_048.jpg",
+      "sourceGroup": "xhs-83cdca812139",
+      "parentSourceGroup": "xhs-83cdca812139",
+      "imageSha256": "9b6b2594031f216663cc3efa853bc1b46c9baa1b40ffbe5a1d13d7afe151efda",
+      "annotationSha256": "a658f67647d0861b800a8dedb7001f00a3828711d15eebced5a501536e41a209",
+      "imageAnnotationPairSha256": "27e971849e977e6d10559f3e9a9aac96f5749e01cc153a4a4a3073531c47967e",
+      "width": 1080,
+      "height": 970,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_050.jpg",
+      "parentFileName": "real_release_20260713_050.jpg",
+      "sourceGroup": "xhs-83cdca812139",
+      "parentSourceGroup": "xhs-83cdca812139",
+      "imageSha256": "f6926fa58b9435e43fbb44df1d556f841c9a7f429569034bcb4581417ae91a08",
+      "annotationSha256": "42dfb74c60ea531c9a56caee58eab5c82870bac1ee754fb739764516b1ee5b2e",
+      "imageAnnotationPairSha256": "f059c4d180065479744def0292274b6d875a122efb74b4d0e62a85a14dc166db",
+      "width": 1080,
+      "height": 1337,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_051.jpg",
+      "parentFileName": "real_release_20260713_051.jpg",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "imageSha256": "793e147cfb34d242189f189b56c4d8a77f1e7aaf9f52f39235f185143cd2f2e6",
+      "annotationSha256": "877f47e98ce9c63c11498db63e49b196f3b20a75e116f222a1e851f7285bed68",
+      "imageAnnotationPairSha256": "840feb024a36e15fdbfbb9e9467a548e9f96a49a696aeff184d36493768ca9b6",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_052.jpg",
+      "parentFileName": "real_release_20260713_052.jpg",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "imageSha256": "187726ef413cd6dec54102eb300b944b607231f6f44e7e094fde64c7559daff1",
+      "annotationSha256": "e3ecfaf4e2719f9ab04daba51c6267b7e5e9984a2b6c1f0751a64d13828481be",
+      "imageAnnotationPairSha256": "753cb798dcd37bda480b6b7cecc8fecf37fc4745dc530fad9da6741936a3a4b7",
+      "width": 900,
+      "height": 1200,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_054.jpg",
+      "parentFileName": "real_release_20260713_054.jpg",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "parentSourceGroup": "xhs-54f8135cabeb",
+      "imageSha256": "c0068c858eed17ec4d46129cf5b11fa0f8158b5ee8ddae1938b7079b940525e2",
+      "annotationSha256": "34d73723e007dcf1e1aeef74c550bfcea28017938bde34f4e33fdfc73df26535",
+      "imageAnnotationPairSha256": "11ae34114c276ed143cd263064ddfa20333d74f244f80234c8012ca37f1a8e79",
+      "width": 900,
+      "height": 1200,
+      "maskCount": 6,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "stress",
+      "fileName": "f0752db2009c-primary.png",
+      "parentFileName": "real_release_20260713_057.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f0752db2009c",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "imageSha256": "51a11dd687638c84994fb9aabd432518d0a14c81d45641c5ccf5d1b11413b2f1",
+      "annotationSha256": "d045b6db3aeedfa7590fcc6600182a5d2eda3e2267e24d321be6ce04f22ce332",
+      "imageAnnotationPairSha256": "a6b50988b05b55bd23dffb4f817b03eec344ef8d39fe8982294633339cf1dbb4",
+      "width": 1080,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "2dc40742e836ca3351c60bc0b2355627cc2d81b8b705162ca6682eeded3e0d38",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "d970653d6111-primary.png",
+      "parentFileName": "real_release_20260713_058.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d970653d6111",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "imageSha256": "f87fbebd038e90767d44bbcfa8146900d4a52ac832c2bc55ef6bf77ce0c18b93",
+      "annotationSha256": "9520f0ee29d0694c491eba8c174a7167daba25bffedbf5616bc3494e16b8bb7d",
+      "imageAnnotationPairSha256": "5086946b9d6d0b8ba1bc38236deac1e40d2d335b0a3d6a0ab0f15a896a7b9c1c",
+      "width": 1080,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "00449d90018ef4e00c41eea9767d69bd7b07c35364d9d478914341dc0636bf84",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "d9518b2dc889-primary.png",
+      "parentFileName": "real_release_20260713_059.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d9518b2dc889",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "imageSha256": "d32db7f498643eb89d940a5069a7b50ea7d6f530984fa43cd0f4020a344a0a59",
+      "annotationSha256": "c28ff507dbdba82afd40fbe5420ecb7b3686f4da16ec18339883435478a292a8",
+      "imageAnnotationPairSha256": "da8c349686c9ea45dc0f3e1c02412f0a799c16ccd665d1930d81c4a96251f8f8",
+      "width": 1080,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "54dd07de7e0e7b9e0300a58350f425ba9e08e00d43fb406ec3a6ba899623d39f",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "223683d91dc4-primary.png",
+      "parentFileName": "real_release_20260713_060.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-223683d91dc4",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "imageSha256": "16da94b51ca9f7f4b2749a7ca93c42262accfea3531d922c78b921a1362e1555",
+      "annotationSha256": "f4ed310dd2f50355facd07031f78113c12dd2099c803e043d5b509f77626aef1",
+      "imageAnnotationPairSha256": "1af5469c35db8e3fa36584d98073a681f19ff55069aaa11143d2252678b10c32",
+      "width": 1080,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "316582e63fa9b101ae63ed65d6b41c3b488cd9608c4d92b231b924dc3cb4a539",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "2c793788bdec-primary.png",
+      "parentFileName": "real_release_20260713_061.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-2c793788bdec",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "imageSha256": "982e066579e61dc272a1b82e1e5449e052ea8c060865ab8098de1e2a17482255",
+      "annotationSha256": "65af216820d199a810ead1c458043a1e66390afd14e1ae724c0031b6da62d901",
+      "imageAnnotationPairSha256": "a5185bfe24a64c7e642ab9a4daba0d8e94e41297945fb0e4e6395bcb5e9c4949",
+      "width": 1080,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "c63df1022d2c97c3f5cc4a50e6f16d433250de5b7df7dd95237e7662ceb1016c",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "6d9a192d4168-primary.png",
+      "parentFileName": "real_release_20260713_062.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-6d9a192d4168",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "imageSha256": "baf2b301895f6ee1e2fd2aa8630f655bcae1160f7af5aecbd14b7962278e7099",
+      "annotationSha256": "69774fdee64e32bd2ba3c9f5c67a884aaf6cdbe7f0425c34ec2ffd0b87003f84",
+      "imageAnnotationPairSha256": "bed2b414411aa5b5743afc6a6230db81a6c743c6f76b1cc6288fa02b10250e27",
+      "width": 1080,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "8e52282d68057dc0faae7008ea2cdcdf5222a157c4faf301a66cc99783573d5c",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "f8a25604ea58-primary.png",
+      "parentFileName": "real_release_20260713_063.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-f8a25604ea58",
+      "parentSourceGroup": "xhs-a0df4ea7bcca",
+      "imageSha256": "ef3e9118e73c116a895b1e37b957b1ca771fafaed3a2b50085aaab31f3671637",
+      "annotationSha256": "691dabd3b6a6dec42c975dd84862fdf0a5e12a4b64a66b3aa107d73c5b331879",
+      "imageAnnotationPairSha256": "fe02e021a0313dd1eaf1f4758514c6ef37ba225dfa26b3ff40849b2697970bc3",
+      "width": 1080,
+      "height": 720,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "5415625204d604e41da522fce85d3902a9969a36a15851d11c99f162f4724a64",
+      "regionId": "primary",
+      "normalizedBox": [
+        0.0,
+        0.0,
+        1.0,
+        0.5
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_064.jpg",
+      "parentFileName": "real_release_20260713_064.jpg",
+      "sourceGroup": "xhs-c2b81592e213",
+      "parentSourceGroup": "xhs-c2b81592e213",
+      "imageSha256": "302b98dcf93e1b2676fcef40321957b724a0ba91232c9bf8bf8d293b164d1538",
+      "annotationSha256": "b1c1cfa5aa859f96d7de3e1a98fb62d772970e04a0f57530bc454b17584b4c51",
+      "imageAnnotationPairSha256": "1619dc7ada5488e7834d9ca191f283c173fee0b08d0cc2a9da6fd0244aa028df",
+      "width": 1919,
+      "height": 2560,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_065.jpg",
+      "parentFileName": "real_release_20260713_065.jpg",
+      "sourceGroup": "xhs-055d7f3c88fc",
+      "parentSourceGroup": "xhs-055d7f3c88fc",
+      "imageSha256": "09f7fe80e0b064d9198976cda4e9790e126bf09d7e1c1d3ab72776fd676f8d5d",
+      "annotationSha256": "268a9ab9abfa1b841d12515af4cc51b051f551eba2b2c27bd553277996010c98",
+      "imageAnnotationPairSha256": "b59e34e8cd016bf472fcb15d873da501be24e7149ca08fed9b05c15a5c1c7aea",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_067.jpg",
+      "parentFileName": "real_release_20260713_067.jpg",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "imageSha256": "a6337f3eb5cb47f6e8e518cb1ee084a264f8484a72133f27509052e874401561",
+      "annotationSha256": "11024ca13be36a01268d435a3eb2a824a0d92389ef4a18ce6db2623717bb3a03",
+      "imageAnnotationPairSha256": "0d354e2e0994b9cc083b848ff3634867dde12347bc89459f8301b5a1a7ad8edf",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_068.jpg",
+      "parentFileName": "real_release_20260713_068.jpg",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "imageSha256": "907dd59a022e5ebde36cf2fdadf7bf686fbc0a8931f2886e359a4788dd0a9fa6",
+      "annotationSha256": "859348bdb87dea4cd850b50ffd7cea4172fdd45f3638af92a1d233314ebf8f3d",
+      "imageAnnotationPairSha256": "596255e3d88c1e6b05ed4a023f46b971189e22fc4fc9eb4270d762cec3d543f6",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 9,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_071.jpg",
+      "parentFileName": "real_release_20260713_071.jpg",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "imageSha256": "5f35879984f93de1f414f4b7166670342d08e78936a965b257c0fb771f15502d",
+      "annotationSha256": "07acc98a52544978195af0719148261307f84716b46dc5626520284c80df75fc",
+      "imageAnnotationPairSha256": "9d3069907260a2c969c0ce5d5f8967d11bdb8562c00ed22932a0df9678355a64",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_072.jpg",
+      "parentFileName": "real_release_20260713_072.jpg",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "imageSha256": "7eab16797ae5d11110e7c5dc3085bc42b050e5d6e5b926812baa68036c3cf3d1",
+      "annotationSha256": "7c9e3284c56065688b64c655d4d87ad8fbf9ad06cc80d48f1ce7b35bd49522ce",
+      "imageAnnotationPairSha256": "39708da37f7cbb0f3d5e4d60b3ab131f0ee1da3c68c921eb8f833c2ece97212c",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 10,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_073.jpg",
+      "parentFileName": "real_release_20260713_073.jpg",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "parentSourceGroup": "xhs-7fcda5eb6fd1",
+      "imageSha256": "9a8225cd5258aab839215e77b7c09950aa6eaac7caaeb71efe3ecf3a52c29a32",
+      "annotationSha256": "86a025b3e0529fd60a60e6fad1aefc5501ef25c615b06e148d6d34cd86821ba9",
+      "imageAnnotationPairSha256": "d289e5abdc34a1241de0e9bffcfa84c3fa99d04776ac2e2e368fcd7367f3bfba",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 9,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_074.jpg",
+      "parentFileName": "real_release_20260713_074.jpg",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "imageSha256": "36f58d493a95dd036e5c8c65b9b20e9edbf9b6a28bb0bcf6b7ac98013f8aaf5e",
+      "annotationSha256": "1b29bcab1c1fa9c0fa5a47af21fc0dc5fd829a25fe27136ac4c68a1b873d6be2",
+      "imageAnnotationPairSha256": "5d3b0b0736750254c6d16b51de8a19cf595b2a10b93a14f578ef4a90e3829081",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_075.jpg",
+      "parentFileName": "real_release_20260713_075.jpg",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "imageSha256": "98be79b84c3ad1d7ca437d27b443af392be6d4d723b3f996246a96b75cf87451",
+      "annotationSha256": "432541db3036d503c12f9daf43752520274aaf5c8cd6f45b691bf027f7cdc319",
+      "imageAnnotationPairSha256": "5be804c7ccdced75bee06683b544f373a5ae1e7102a159a64414c59bf3b53ded",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_076.jpg",
+      "parentFileName": "real_release_20260713_076.jpg",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "imageSha256": "e197010f27f1af5456dc8ffd4614231b56f0caf19d06167604a0cc90686ea2af",
+      "annotationSha256": "d707739bd51bd26794a26c6c02f1adc450b9b36c6502740212edc1676dca6921",
+      "imageAnnotationPairSha256": "c47fb21ddaaad3d0805263f4bc3fb0522b83aef32fd9eeb06a935da7d5584cda",
+      "width": 1080,
+      "height": 1428,
+      "maskCount": 10,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_077.jpg",
+      "parentFileName": "real_release_20260713_077.jpg",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "imageSha256": "32c07e4991fb01b56536ece1e884599e8ca7aa32d6e86e55a5b535d2318a58f4",
+      "annotationSha256": "aebb03a3aa773f41397a22e7bf64ba9ff721c1d6fa5381ee6936e9b826762dd4",
+      "imageAnnotationPairSha256": "ce0852b7bd71b99ff6219f9238dcc609d5b35c9e30c1d636d3ae7c62ebf5bd24",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_078.jpg",
+      "parentFileName": "real_release_20260713_078.jpg",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "parentSourceGroup": "xhs-46742c5a7a3a",
+      "imageSha256": "95ef426e0aa5a7ba8436a7f27ade5f394788db903e2a09a25c95b803040e55fd",
+      "annotationSha256": "d4851e4dd0d709688ac80b72f33f92af2c8f0dbf2387ad274fa39004b1e070ee",
+      "imageAnnotationPairSha256": "e08fd34ef87f7a7d66faef23f2bea10260a39bf44e834b1dba1efb4d8623d962",
+      "width": 1080,
+      "height": 1374,
+      "maskCount": 10,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_079.jpg",
+      "parentFileName": "real_release_20260713_079.jpg",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "parentSourceGroup": "xhs-d6a8bff8e3e8",
+      "imageSha256": "c14e4594277c686cbf3c44235a7928c106348d7976af5956837911daac6a9485",
+      "annotationSha256": "4ab1f13ccbb1cc9c883358b6728bff19859112cc882e17e88b7e81d79a9ccbc5",
+      "imageAnnotationPairSha256": "cb3b3bd5328d0f61b8bc84c27aacefa2e0dbd0502c2d2d6b98a243b8d9d499ae",
+      "width": 1080,
+      "height": 1441,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_080.jpg",
+      "parentFileName": "real_release_20260713_080.jpg",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "parentSourceGroup": "xhs-d6a8bff8e3e8",
+      "imageSha256": "ecec52ccb3acf4d7c55b0405f21aacd0832e4848b1f6790de0dd19acd1d6467e",
+      "annotationSha256": "0aedf618dd6a4574abcab6f9cbbce6d6f98ea86773b6a7ac902e296311b3c86e",
+      "imageAnnotationPairSha256": "7b232762748a5a2fadfc599a266c6d8a68e054b47c2a2f27d6325f8b4a1fff87",
+      "width": 1080,
+      "height": 1441,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_082.jpg",
+      "parentFileName": "real_release_20260713_082.jpg",
+      "sourceGroup": "xhs-d6a8bff8e3e8",
+      "parentSourceGroup": "xhs-d6a8bff8e3e8",
+      "imageSha256": "bacac20af19af69da635084f51ab8510bab77a5f8d776b6ed6abdd5ee0386e2a",
+      "annotationSha256": "65c3be0f7150a880562b13437590cebffda1dd350762d286c77c391f346e1e4f",
+      "imageAnnotationPairSha256": "38fc3525a3c1446f9ac92bc871e53ee14fee48bafc464a249b342be729ffa1f2",
+      "width": 1080,
+      "height": 1441,
+      "maskCount": 4,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_086.jpg",
+      "parentFileName": "real_release_20260713_086.jpg",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "imageSha256": "26b1ca01767572d5745349c9b7963f1b503e058c439b11e8f259d698b7be42f8",
+      "annotationSha256": "8085488a4c9dae3f9f93a10fc3ff475ba4dd677e8800a89233cd2cb7a41eb83d",
+      "imageAnnotationPairSha256": "5f9e02a6b919c522d78bb655ea8bfee80575bc6b33608f53631e6eeb0c79015a",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_087.jpg",
+      "parentFileName": "real_release_20260713_087.jpg",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "imageSha256": "dd3f1d4037d0b36c207ca69ffc0e7fc1e63323c51a4a12344aa2f72407cf64b5",
+      "annotationSha256": "658fffa749beddd6b01c2b32e83607a89cf9cbfdda31bc614c75e86c2d4cf228",
+      "imageAnnotationPairSha256": "2a4002c28fed97a7cd500a66e2426c86a202223c8b2b380b992214bd85c28e1f",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_089.jpg",
+      "parentFileName": "real_release_20260713_089.jpg",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "imageSha256": "45554919f3e90ddec9011b4ab99922961bddb787a87a0d24a6ec3bda3ecf8380",
+      "annotationSha256": "69b10be5ec3c37ae7cbb09ba0c4be0bb4c7428f7ca8449d13558fce60328f8a3",
+      "imageAnnotationPairSha256": "333712e2f572c80eb7fdda3f5f3e821f4456835438ce7a7f6fd71d82fd1d7378",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_090.jpg",
+      "parentFileName": "real_release_20260713_090.jpg",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "imageSha256": "a4c885bdcf9973f124bb95ce8fbd073e1b94d38549fa2c93883579bb36a739ca",
+      "annotationSha256": "4f40729cd43ffd9b16284e6497ac710ca70d009b2b11fff9764f7e0f2c69eba5",
+      "imageAnnotationPairSha256": "a104c75d8ab68aaf5e4e3759cf418474fbcbb73e5a5370a39ddcf433940c82eb",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_092.jpg",
+      "parentFileName": "real_release_20260713_092.jpg",
+      "sourceGroup": "xhs-c2d6f9638bf5",
+      "parentSourceGroup": "xhs-c2d6f9638bf5",
+      "imageSha256": "368a29956e7cb2108daa14b8161be0faa894122e53f2550ce18d396cfa6b2f7a",
+      "annotationSha256": "8bec3c1a0f95287efcbbb5a41258a9bd76b4a0c08db36b3ad85092298b29c483",
+      "imageAnnotationPairSha256": "07569599133db83a7be8f62f3821b1532718e3219a89ded0ad747cb563ad1744",
+      "width": 1080,
+      "height": 1440,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited"
+    },
+    {
+      "lane": "stress",
+      "fileName": "956d94380abf-main-v3.png",
+      "parentFileName": "real_release_20260713_094.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-956d94380abf",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "imageSha256": "30b7044a0903ada8f02e83d35bb07542473f088d352a127011d62012d84e86ce",
+      "annotationSha256": "47edb300f4f4867fdc62a60e41f4a6bd2eb4ca94452b4a13db521dc7cab81d41",
+      "imageAnnotationPairSha256": "54232c1fd186511a1b9500d16ae35d10510644142a5a909943deed85e36bf828",
+      "width": 716,
+      "height": 767,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "5ebbce43dc4a845f00ad8c5196045d72777e972044fb251234cc7ef33fdcf7a2",
+      "regionId": "main-v3",
+      "normalizedBox": [
+        0.052,
+        0.118,
+        0.715,
+        0.65
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "b1184e010679-main-v3.png",
+      "parentFileName": "real_release_20260713_095.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b1184e010679",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "imageSha256": "59a1cc5ee9de3808ffa529cc4ea7a99bc51702b4d3e17dc267b261a21ed9cbeb",
+      "annotationSha256": "7b333bc2640318a13e2987372f7845f5fc13f521ef2d45fbeb7aa01a7c15a8be",
+      "imageAnnotationPairSha256": "61c2185de8203d98e9c1e227ebe24b56f3528ef64cf4cd98468795ad29ab326f",
+      "width": 466,
+      "height": 967,
+      "maskCount": 4,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "d47b6f4beda74c80138ac8f87582aa3303de9d3d20f790892d504e26138755d6",
+      "regionId": "main-v3",
+      "normalizedBox": [
+        0.058,
+        0.109,
+        0.49,
+        0.78
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "bc6b23d6a1ce-main-v2.png",
+      "parentFileName": "real_release_20260713_096.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-bc6b23d6a1ce",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "imageSha256": "5b92ee4930c52ec35b08b2ee1c7f7a5bc1042934b1ea9026fe498f49ecc00471",
+      "annotationSha256": "c807db66d2ffd0c4166b28bb2d7a19acff5bfd3754595ff343feb472e4962e21",
+      "imageAnnotationPairSha256": "859cb0dab1547ce69891ac05296f00dc168842b95d48e2cd8735064b4114cc7d",
+      "width": 585,
+      "height": 930,
+      "maskCount": 5,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "0d505e8fc7e7ced2639ac823a198699b91b077390c2b528a3535a77eb4afd161",
+      "regionId": "main-v2",
+      "normalizedBox": [
+        0.058,
+        0.125,
+        0.6,
+        0.77
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "c541feb05c54-main-v2.png",
+      "parentFileName": "real_release_20260713_098.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c541feb05c54",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "imageSha256": "3cf18e6a3b716536bcf5353e8a96a3a60fd365c8f7518767196abdd5502d5a3a",
+      "annotationSha256": "5c39885f4af342b77d21debf19069214212bd838aed32cf0c2f87bcf92b5d0d2",
+      "imageAnnotationPairSha256": "f06839aa619b1b9f4ce80b5b78a5d5ffa701394551edac916d26274079476abc",
+      "width": 745,
+      "height": 978,
+      "maskCount": 8,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "06833643eb4ce1e9a8daaf7800d3aecf4a42e2fe978a8ec2209313bedb4308af",
+      "regionId": "main-v2",
+      "normalizedBox": [
+        0.035,
+        0.126,
+        0.725,
+        0.805
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "eac9a2f87f4c-main-v2.png",
+      "parentFileName": "real_release_20260713_101.jpg",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-eac9a2f87f4c",
+      "parentSourceGroup": "xhs-42247ccaa6be",
+      "imageSha256": "dc79914c1ab1a39c980542817aba84bf14d17c489ec1bde3665d2cfd413bfd32",
+      "annotationSha256": "40f7ce14085400c661d8a1fe448d6741b512cfa1780d0921a47ea19f76489f30",
+      "imageAnnotationPairSha256": "33691e5fefeeb2800c9d0ea61951309efd82d7b33cf0074301b8c296716236f5",
+      "width": 563,
+      "height": 816,
+      "maskCount": 9,
+      "authorizedUses": [
+        "independent-release-test",
+        "long-term-regression"
+      ],
+      "trainingUse": "prohibited",
+      "parentSha256": "c509c80fc83d8672309a82f71acf61e10f523c60f5a0e9611912697dd1ccf70a",
+      "regionId": "main-v2",
+      "normalizedBox": [
+        0.039,
+        0.114,
+        0.56,
+        0.68
+      ]
+    }
+  ]
+}

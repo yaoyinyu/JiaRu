@@ -19,6 +19,7 @@ export interface NailTextureModelInfo {
   outputNames?: string[];
   outputContract?: string;
   resizeMode?: "letterbox";
+  scoreThreshold?: number;
 }
 
 export interface NailTextureTensorSummary {
@@ -117,4 +118,5 @@ export interface NailTextureModelManifest {
   normalization?: "zero_to_one";
   resizeMode?: "letterbox";
   outputContract?: string;
+  scoreThreshold?: number;
 }

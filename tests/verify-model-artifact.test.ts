@@ -18,6 +18,7 @@ async function writeManifest(modelDir: string, overrides: Record<string, unknown
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile: "nail-texture-seg-v1.onnx",
+        scoreThreshold: 0.25,
         modelSizeBytes: 307200,
         sha256: "7818f5542a0404157573be6cffc0e0c8e68ce3c0f5d17d07ccdd9313fb700baf",
         labels: ["nail_texture"],
@@ -56,6 +57,7 @@ test("verify-model-artifact validates manifest and model size", async () => {
     maxModelMb: number;
     errors: string[];
     warnings: string[];
+    scoreThreshold: number;
     nextSteps: string[];
   };
   assert.equal(summary.ok, true);
@@ -67,6 +69,7 @@ test("verify-model-artifact validates manifest and model size", async () => {
   assert.equal(summary.maxModelMb, 15);
   assert.deepEqual(summary.errors, []);
   assert.deepEqual(summary.warnings, []);
+  assert.equal(summary.scoreThreshold, 0.25);
   assert.ok(summary.nextSteps.some((item) => item.includes("passes required MVP")));
 });
 
@@ -79,6 +82,7 @@ test("verify-model-artifact rejects unsafe or incompatible manifest fields", asy
     backendPreferences: ["webgpu", "webnn"],
     modelFile: "nested/model.bin",
     labels: ["background", "nail_texture"],
+    scoreThreshold: 1.2,
   });
 
   await assert.rejects(
@@ -104,6 +108,7 @@ test("verify-model-artifact rejects unsafe or incompatible manifest fields", asy
       assert.ok(summary.errors.some((item) => item.includes("file name in the manifest directory")));
       assert.ok(summary.errors.some((item) => item.includes(".onnx")));
       assert.ok(summary.errors.some((item) => item.includes("labels[0]")));
+      assert.ok(summary.errors.some((item) => item.includes("scoreThreshold")));
       return true;
     }
   );

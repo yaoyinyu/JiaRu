@@ -9,6 +9,7 @@ export interface RankNailTextureCandidatesOptions {
   maxCandidates?: number;
   duplicateOverlapThreshold?: number;
   includeLowConfidenceCandidates?: boolean;
+  scoreThreshold?: number;
   sourceImage?: {
     width: number;
     height: number;
@@ -207,6 +208,7 @@ export function rankNailTextureCandidates(
   const maxCandidates = options.maxCandidates ?? 10;
   const duplicateOverlapThreshold = options.duplicateOverlapThreshold ?? 0.55;
   const includeLowConfidenceCandidates = options.includeLowConfidenceCandidates ?? false;
+  const scoreThreshold = options.scoreThreshold ?? 0.35;
 
   const scored = candidates
     .map((candidate) => {
@@ -222,7 +224,7 @@ export function rankNailTextureCandidates(
       const ratio = areaRatio(candidate, options.imageWidth * options.imageHeight);
       return ratio >= 0.0008 && ratio <= 0.08;
     })
-    .filter((candidate) => includeLowConfidenceCandidates || candidate.score >= 0.35)
+    .filter((candidate) => includeLowConfidenceCandidates || candidate.score >= scoreThreshold)
     .map((candidate) =>
       includeLowConfidenceCandidates ? withLowScoreDebugWarning(candidate) : candidate
     )

@@ -18,6 +18,7 @@
 | --- | --- | --- | --- |
 | `M1-T1-RUNTIME` | Worker 环境识别与 ONNX Runtime 显式加载 | ✅ PASS | Worker 无 `window` 环境测试通过；WebGPU→WASM 重试测试通过；Turbopack 生产构建通过；浏览器集成契约 15/15 通过 |
 | `M1-T2-CONTRACT` | 固定 manifest 输入输出协议并接入真实 ONNX smoke artifact | ✅ PASS | 真实 ONNX、SHA-256、输出 dump 与 fixture 均通过审核；离线后处理得到 2 个带 mask 候选 |
+| `M1-T2-SCORE-THRESHOLD` | 模型级候选置信度阈值契约 | ✅ PASS | manifest可选`scoreThreshold`经0—1开区间严格校验，导出器与制品验证器同步；运行时将有效阈值传入原始候选及质量排序两道过滤，旧manifest继续使用0.35；0.30候选在模型阈值0.25下的浏览器识别路径测试通过 |
 | `M1-T3-BROWSER` | 浏览器内真实 Worker 推理与 UI 后端显示 | ✅ PASS | Chromium 实测 Worker + WebGPU；manifest 与 ONNX 均由本地 URL 加载；2 个候选；控制台 0 错误、0 警告 |
 | `M1-T4-FALLBACK` | WebGPU、WASM、超时、取消和规则回退端到端审核 | ✅ PASS | WebGPU 浏览器实测；WebGPU→WASM、超时→规则回退、取消重置及 Worker 能力不足→主线程均有自动测试 |
 | `M1-T5-UPLOAD-GATE` | 本地图片MIME、大小、分辨率和解码门禁 | ✅ PASS | 编辑器与AR共用JPG/PNG/WebP、10MB、320–4096像素及解码校验；4项边界测试通过，Playwright验证非法文件内联提示、合法1024 PNG进入编辑器且控制台0错误0警告 |
@@ -64,6 +65,15 @@ npm.cmd run build
 
 审核结果：专项测试 30/30 PASS；全量回归测试 289/289 PASS；ESLint PASS；Next.js 生产构建 PASS。
 
+### `M1-T2-SCORE-THRESHOLD` 审核记录
+
+- `NailTextureModelManifest` 与 `NailTextureModelInfo` 增加可选 `scoreThreshold`；manifest缺省时运行时明确落为`0.35`，因此旧制品兼容且调试信息可追溯实际生效值。
+- manifest运行时校验和`verify-model-artifact.ts`均拒绝非有限数、`<=0`或`>=1`；`export-onnx.py --score-threshold`使用相同开区间约束并把校准值写入新manifest。
+- 识别链路把同一有效阈值传给原始输出过滤和质量排序，消除第二道固定`0.35`造成的假配置；`includeLowConfidenceCandidates`仍只作为显式调试开关。
+- 该标记只证明阈值契约真实生效，不证明`0.25`适合生产；v6冻结67张画像在0.25下误检上升，生产manifest与共享默认值均未修改。
+
+审核结果：模型运行时、候选质量、ONNX导出和制品校验专项35/35 PASS；全量364/364、Python编译、ESLint、Next.js生产构建、359文件编码审计通过。完成度审计更新为93标记/80 PASS、2/10门并按预期保持HOLD。
+
 ## 里程碑 2：正确后处理与真实数据试验
 
 | 标记 ID | 任务 | 状态 | 审核证据 |
@@ -81,7 +91,8 @@ npm.cmd run build
 | `M2-T3-RELEASE-TEST-INTAKE` | 新增真实发布测试素材统一命名、去重与用途隔离 | ✅ PASS | 101张统一为`real_release_20260713_001..101.jpg`并保留原名/来源/哈希映射；9张跨旧批次精确重复排除，92张按57核心/35压力图进入独立发布测试与长期回归，19个来源组且训练用途明确禁止 |
 | `M2-T3-MATERIAL-NAMING` | 外部素材全集统一命名与可逆追溯 | ✅ PASS | 其余5批1435张统一为类型/来源/日期/四位序号命名，5份映射保留原名、新名、SHA-256和来源组；1435/1435哈希复核一致。101张已稳定引用的发布测试图保持原命名，外部素材共1536张纳入统一管理 |
 | `M2-T3-RELEASE-TEST-STRESS-REGIONS` | 35张截图/拼图压力图主照片区域提取与来源继承 | ✅ PASS | 35/35区域提取成功，父图/派生SHA-256、裁剪框和父图稳定sourceGroup审计通过；派生intake强制父项为stress、每父图一个主区域并继承发布测试/长期回归授权，训练用途prohibited；专项测试2/2通过 |
-| `M2-T3-RELEASE-TEST-ANNOTATION` | 新增真实发布测试素材逐甲标注与整图复核 | 🟡 IN PROGRESS | 核心首轮8张/59 mask、压力首轮2张/10 mask通过；三十四轮处理累计再提升57张/316 mask，并清退11张边缘裁切图。92张父图累计67张/385 mask暂通过、0张返修、25张源图裁断或遮挡排除；核心57张为45张通过、0返修、12排除，压力35张为22张/116 mask通过、0返修、13排除；审核返修队列清零，但候选不得直接当作test真值 |
+| `M2-T3-RELEASE-TEST-ANNOTATION` | 新增真实发布测试素材逐甲标注与整图复核 | 🟡 IN PROGRESS | 冻结前拓扑门发现030的关节假阳性及13图无效polygon/交叠边界；返修并经原分辨率复核后，92张父图为67张/384 mask通过、0返修、25张源图裁断或遮挡排除。核心57张为45张/268 mask通过、0返修、12排除，压力35张为22张/116 mask通过、0返修、13排除；当前候选已冻结，但仍少33张才达到100张代表性下限 |
+| `M2-T3-RELEASE-TEST-CANDIDATE-FREEZE` | 冻结受审核发布测试候选并校验可复现性 | ✅ PASS | 67张/384 mask按core 45张与stress 22张隔离复制；67个图片哈希、67个标注哈希、图片/标注联合哈希及清单聚合SHA-256独立复算0错误，18个父来源组，trainingUse固定prohibited。冻结只证明候选真值与规模证据，代表性门67/100未通过，v6质量指标仍来自历史13张/102 mask冻结test |
 | `M2-T3-RELEASE-TEST-REPAIR-V2` | 返修提示keep/drop/add与父图级审核聚合 | ✅ PASS | 5张/25提示SAM2完成且几何25 pass/0 suspect；原分辨率4张/20 mask提升、1张返修。修复提示记录双清单SHA-256，审核叠加核对polygon数/来源组，聚合报告覆盖92/92父图并保持trainingUse=prohibited；专项5/5通过 |
 | `M2-T3-RELEASE-TEST-REPAIR-V3` | 第二轮逐甲返修与原分辨率污染复核 | ✅ PASS | 6张/29提示SAM2完成且几何29 pass/0 suspect；原分辨率仅002、027两张/9 mask提升，001、051、052、091因皮肤污染继续返修。父图聚合为16张/98 mask暂通过、75张返修、1张排除，训练用途保持prohibited |
 | `M2-T3-RELEASE-TEST-REPAIR-V4` | 逐新增框提示模式与第三轮高潜力返修 | ✅ PASS | 构建器支持逐框`box-center`并拒绝数量不匹配/非法模式；5张/24提示SAM2完成、0 fallback、几何24 pass/0 suspect，原分辨率5张/24 mask全部提升。父图聚合为21张/122 mask暂通过、70张返修、1张排除、9个来源组，训练用途保持prohibited |
@@ -116,9 +127,12 @@ npm.cmd run build
 | `M2-T3-RELEASE-TEST-STRESS-EDGE-EXCLUSION-V7` | 第三十一轮局部甲面/皮肤污染复核与第三批边缘裁切清退 | ✅ PASS | 6d9a/d951各5个SAM2.1 large提示完成、0 fallback、几何5 pass/0 suspect且polygon无相交；原分辨率分别发现透明/白色甲尖或粉色甲根遗漏，以及拇指皮肤污染和小拇指漏甲，均继续返修。02f顶部甲面和6d83右侧甲根触边裁断转排除，0张/0 mask误提升。压力集为13张/68 mask通过、9返修、13排除；父图为58张/337 mask暂通过、9返修、25排除 |
 | `M2-T3-RELEASE-TEST-STRESS-LARGE-REPAIR-V8` | 第三十二轮重复/局部mask、漏小指与交叠边界返修 | ✅ PASS | f8a/2c79各5提示一次收敛；2236经v18—v23把无名指/小指polygon相交从71.39像素降为0，并通过放大复核补齐水钻相邻透明拇指甲根、拒绝皮肤吸收中间态。最终3张/15提示均0 fallback、几何15 pass/0 suspect且polygon无相交，原分辨率接受3张/15完整mask。压力集为16张/83 mask通过、6返修、13排除；父图为61张/352 mask暂通过、6返修、25排除 |
 | `M2-T3-RELEASE-TEST-STRESS-MANUAL-REPAIR-V9` | 第三十三轮单甲fallback返修与透明相邻长甲人工多边形闭环 | ✅ PASS | b1184仅重建黑甲，4/4完成、0 fallback、几何4 pass/0 suspect且零交叠；eac9的SAM v25虽9/9几何通过但因皮肤/邻指合并被视觉门拒绝，原分辨率人工绘制9甲后通过9 pass/0 suspect、合法性、零交叠和三处放大视觉复核。接受2张/13完整mask。压力集为18张/96 mask通过、4返修、13排除；父图为63张/365 mask暂通过、4返修、25排除 |
-| `M2-T3-RELEASE-TEST-STRESS-MANUAL-REPAIR-V10` | 第三十四轮混合人工polygon返修与压力队列清零 | ✅ PASS | 新增混合返修工具，保留10个已审polygon、替换10个局部/无效/皮肤污染polygon，并生成整图及20组逐甲原图/overlay 2×证据；f075/d970/d951/6d9a共4张/20 mask全部合法、几何20 pass/0 suspect/0 missing、零交叠且通过视觉复核。压力集为22张/116 mask通过、0返修、13排除；92父图为67张/385 mask暂通过、0返修、25排除。审核返修队列清零但尚未冻结test真值 |
+| `M2-T3-RELEASE-TEST-STRESS-MANUAL-REPAIR-V10` | 第三十四轮混合人工polygon返修与压力队列清零 | ✅ PASS | 新增混合返修工具，保留10个已审polygon、替换10个局部/无效/皮肤污染polygon，并生成整图及20组逐甲原图/overlay 2×证据；f075/d970/d951/6d9a共4张/20 mask全部合法、几何20 pass/0 suspect/0 missing、零交叠且通过视觉复核。该轮记录的67张/385 mask是冻结前统计，后续拓扑冻结门移除030的1个关节假阳性，最终冻结量为67张/384 mask |
 | `M2-T3-RELEASE-TEST-STRESS-LARGE-SAM-COMPARE` | eac9透明相邻长甲SAM2.1 large容量对照 | ✅ PASS（拒绝候选） | box与多正负点各完成9提示、0错误，几何均为8 pass/1 suspect；原分辨率仍发现皮肤/邻指合并和局部甲面，未提升审核决定，eac9继续返修，证明大模型容量不能替代视觉真值门 |
 | `M2-T3-REAL-MATERIAL-20260714-INTAKE` | 7月14日新增实拍候选完整性、去重、来源分组与授权隔离 | ✅ PASS | 1277/1277可解码，196个原始笔记来源组，批内0精确重复/70对近重复；跨1053张参照0精确重复/86对近重复。候选清单逐图复核SHA-256/尺寸并固定authorization=pending、trainingUse=prohibited；14页全量联系表仅用于分布抽查，不冒充逐图审核 |
+| `M2-T3-REAL-MATERIAL-AUTHORIZATION-CONTRACT` | 7月14日实拍候选A/B/C授权决策登记与未审核隔离 | ✅ PASS（等待用户选择） | 新增`authorize-real-material-candidate-intake.py`，绑定原候选intake SHA-256、逐图SHA-256、来源组及聚合哈希；A/B/C分别映射商业训练+发布测试+回归、仅发布测试+回归、仅存档。A只登记审核后训练资格，所有未审核条目仍固定`trainingUse=prohibited`，且训练与独立发布测试必须互斥分配；图片漂移时输出invalid并拒绝 |
+| `M2-T3-REAL-MATERIAL-EXCLUSIVE-ASSIGNMENT` | 授权后完整来源组原子分配与训练/发布测试防泄漏 | ✅ PASS（等待授权与逐图审核） | 新增`audit-real-material-exclusive-assignment.py`，复验授权清单、原候选intake与逐图图片哈希；A/B要求pass/exclude最终审核全覆盖，A可分配train/val/独立发布测试，B仅可分配独立发布测试，C无需视觉审核直接归档。同一`sourceGroup`跨角色、rework、漏审、越权角色、图片或清单漂移均拒绝；val仍须通过独立真值门 |
+| `M2-T3-REAL-MATERIAL-REVIEW-WORKSPACE` | 授权实拍候选原分辨率审核工作区与来源组原子分片 | ✅ PASS（等待A/B授权） | 新增`build-real-material-review-workspace.py`，只接受已确认A/B授权，复验授权/原intake/图片哈希后生成逐图全覆盖`review-all.csv`和按完整`sourceGroup`分片的CSV；记录分片、聚合行与文件SHA-256，允许大来源组超过目标分片大小但禁止拆组。审核状态、完整露出甲数、完整mask数、问题码、角色和备注保持空白，空字段不构成通过；不复制图片 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
 | `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |
@@ -126,6 +140,14 @@ npm.cmd run build
 | `M2-T6-V4-CANDIDATE` | 评估 393 图混合续训候选 | ✅ PASS（拒绝候选） | 独立原 test box/mask mAP50=0.429/0.397，未通过质量门，未导出或发布 |
 | `M2-T6-V5-CANDIDATE` | 评估 512 来源隔离真实候选 | ✅ PASS（拒绝候选） | 13 张 deerplanet 独立 test 的 box/mask mAP50=0.848/0.836；box 略低于 0.85，资产门通过但 release gate 拒绝 |
 | `M2-T6-V6-CANDIDATE` | 评估 640 训练/512 部署来源隔离真实候选 | ✅ PASS（候选门） | 13 张独立真实 test、102 mask：box/mask mAP50=0.853/0.848；11.03MB ONNX 完整性、ORT 双输出、7 候选 fixture 和 Chromium WebGPU 29 次热推理 P95=133.7ms 均通过 |
+| `M2-T6-V6-RELEASE-67-EVAL` | 在冻结67张发布测试快照上复评v6部署质量 | ✅ PASS（拒绝候选） | 评估专用物化独立复算67图/384 mask/18父组及逐文件哈希，和409张正式训练图的来源组、图片SHA-256重叠均为0；512全量box/mask mAP50=0.8370/0.8313，核心45张=0.8485/0.8523，压力22张=0.8179/0.7919，压力组相对历史13张基线下降0.0348/0.0557，质量门拒绝v6。640全量诊断=0.8570/0.8549，但不属于部署512口径，不能覆盖失败结论 |
+| `M2-T6-V6-RELEASE-67-FAILURE-PROFILE` | 冻结67张部署阈值逐图实例失败画像 | ✅ PASS（诊断闭环） | 以浏览器默认confidence=0.35、mask IoU=0.50匹配67图/384真值与346个预测：289匹配、95漏检、57误检、76个弱形状匹配，整体召回0.7526；核心召回0.7761，压力召回0.6983。0.20—0.45阈值扫描显示0.25可把压力召回提高到0.7845，但误检由57增至90，未绕过浏览器候选数、误检与Beta门直接改默认值。15张最高风险原分辨率叠加图确认透明相邻长甲、多甲同屏、低对比漏整甲/局部甲面及手指/腕表误检。报告固定禁止将冻结图片、标签、裁剪或父来源组用于训练 |
+| `M2-T6-V6-VAL-THRESHOLD-CALIBRATION` | 来源隔离验证集阈值校准与测试集防泄漏门 | ✅ PASS（拒绝写入manifest） | 校准器仅接受split=val及val-only来源组，绑定数据集/来源报告/指标/预测/权重SHA-256，硬拒绝test和跨split来源；v6部署512在13张/45 mask val上box/mask mAP50=0.9376/0.9420，诊断最优confidence=0.20时匹配40、漏5、误检2、F1=0.9195，但发现14个真值polygon需拓扑修复且13<30图，因此`calibrationEligible=false`、`manifestScoreThreshold=null`，生产阈值不变 |
+| `M2-T6-V6-VAL-TRUTH-AUDIT` | v6旧验证真值隔离返修候选与原分辨率全覆盖审核 | ✅ PASS（拒绝旧val真值） | 候选生成器绑定dataset/source report/calibration哈希，只处理val且不覆盖源标签；14个无效polygon生成隔离候选、13/13整图和14组逐甲2×证据。审核结果3张通过、7张返修、3张排除，并发现2张未声明交叠以及漏甲、背景/雕塑误标、重复mask、皮肤污染和边缘裁断；机器报告输出`rejected_as_calibration_truth`。旧val的0.9376/0.9420与0.20仅保留为不合格真值上的历史诊断，不用于模型选择、阈值或manifest |
+| `M2-T6-VAL-TRUTH-AUDIT-CONTRACT` | 验证真值视觉审核资格接入阈值校准器 | ✅ PASS | 校准器新增`--truth-audit`：正式阈值只接受`approved_as_calibration_truth`，并绑定dataset路径/SHA-256、逐标签哈希和全量pass计数；缺失审核或显式拒绝分别降级为`diagnostic_only_validation_truth_unreviewed/rejected`。v6旧val带拒绝报告复跑仍仅保留0.20诊断点，`calibrationEligible=false`、`manifestScoreThreshold=null` |
+| `M2-T6-NEXT-CANDIDATE-PREFLIGHT` | 下一真实候选的数据与训练可行性预检 | ✅ PASS（等待训练授权） | RTX 4060 Laptop 8GB与v6/v9权重可用，正式409图/2142 mask readiness通过；但正式val 46图/234 mask含5处polygon交叠，且300张AI图的同一`sourceGroup`跨train/val/test，不能作为来源隔离模型选择或阈值真值。现有授权真实数据已进入v7–v9且连续退化；未获`真实素材/2026_7_14`商业训练授权前不启动缺乏数据依据的v10，也不触碰冻结发布测试或未授权素材 |
+| `M2-T6-CANDIDATE-TRAINING-VALIDATION-GATE` | 正式候选训练的来源隔离与视觉真值前置门 | ✅ PASS（当前正式集被拒绝） | 新增通用来源隔离审计和候选训练验证审计，要求val-only来源组、≥30图、`approved_as_calibration_truth`全pass、dataset/来源/审核/逐标签哈希一致、polygon合法且零交叠；`train-yolo-seg.py --candidate-mode`必须绑定通过报告，默认实验摘要固定`training_intent=experiment`。当前409图集报告明确拒绝AI来源组210/45/45跨split、缺视觉审核及5处交叠，v10 dry-run被入口拦截 |
+| `M2-T6-CANDIDATE-PIPELINE-EVIDENCE` | 正式候选验证证据接入训练发布编排器 | ✅ PASS | 编排器新增`--candidate-mode/--candidate-validation-report`，候选模式缺报告在解析阶段失败，报告路径原样下传`train-yolo-seg.py`；流水线报告记录`trainingIntent=candidate`和证据路径。被拒绝证据在train步骤停止，后续评估、导出和治理均不执行；默认运行仍明确为`experiment` |
 | `M2-T6-V7-CANDIDATE` | 将新增 5 张审核图并入来源隔离集后续训复评 | ✅ PASS（拒绝候选） | 97 图/672 mask，train/val/test=69/15/13；冻结 test box/mask mAP50=0.840/0.833，box 低于 0.85 且较 v6 退化，未导出或发布 |
 | `M2-T6-V8-CANDIDATE` | 将跨分辨率共识审核新增2张并入来源隔离集后续训复评 | ✅ PASS（拒绝候选） | 99图/681 mask，train/val/test=70/16/13；冻结 test box/mask mAP50=0.8487/0.8472，box低于0.85且未超过v6，未导出、注册或发布 |
 | `M2-T6-V9-CANDIDATE` | 将7张已审核截图派生图并入v8来源隔离集后续训复评 | ✅ PASS（拒绝候选） | 106图/722 mask，train/val/test=76/17/13；冻结test图片与标签联合SHA-256前后相同，512 test box/mask mAP50=0.8411/0.8393，box低于0.85且两项较v6退化，未导出、注册或发布 |
@@ -137,8 +159,8 @@ npm.cmd run build
 | `M3-T1-GATES` | 性能、纹理质量、发布测试集代表性与发布决策门禁 | ✅ PASS | 性能、客户端开销、直接可用率、污染率、形状保真、样本量和 release-test-split 硬门禁均有自动测试；发布决策会阻止不合格候选 |
 | `M3-T2-DESKTOP-SMOKE` | 桌面浏览器工程性能冒烟 | ✅ PASS | Chromium Worker + WebGPU 连续 20 次已预热实测：端到端 P50=63ms、P95=72ms、max=79ms；Worker P95=57ms；客户端开销 P95=17ms；20/20 均返回 4 个候选。仅证明合成基线工程性能，不代表正式模型质量 |
 | `M3-T3-DEVICE` | Windows、Android 与 iPhone 真机矩阵 | 🟠 PARTIAL | Windows Chromium WebGPU 已完成29次热性能和20次内存稳定性基准：P95=133.7ms，JS heap 峰值19.86MiB、首末增长1.69MiB，浏览器私有内存首末增长121.81MiB；Android/iPhone/iPad 真机仍等待执行 |
-| `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | 🟡 IN PROGRESS | 新增92张来源隔离发布测试父图均完成首轮及三十四轮受审计处理，当前67张/385 mask暂通过、0张返修、25张源图裁断或遮挡排除；核心与压力审核返修队列均已清零。完整露出甲面只在单一完整mask覆盖时通过；候选仍待冻结真值，并等待`USER-FAILURE-01`和完整Beta逐图质量审核 |
-| `M3-T5-BETA` | Beta 发布决策 | 🔴 HOLD | v6 已通过正式候选工程门，但仍缺代表性真实测试集、真机矩阵和人工质量验收，禁止提前 promotion |
+| `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | 🟡 IN PROGRESS | 冻结67张/384 mask已在部署512口径完成v6评估；全量box/mask mAP50=0.8370/0.8313，核心=0.8485/0.8523，压力=0.8179/0.7919，压力组退化触发拒绝。代表性规模仍缺33张，直接可用率、污染率和人工修正成本仍需100张Beta逐图审核 |
+| `M3-T5-BETA` | Beta 发布决策 | 🔴 HOLD | v6 在扩展冻结快照的部署512质量门被拒绝；同时仍缺100张代表性真实测试集、移动真机矩阵、用户失败案例和Beta人工质量验收，禁止 promotion |
 
 ## 正式发布与回滚
 
@@ -146,13 +168,13 @@ npm.cmd run build
 | --- | --- | --- | --- |
 | `REL-T1-TOOLCHAIN` | 模型登记、A/B 比较、发布决策、promotion、trace、历史与回滚 | ✅ PASS | 全量测试覆盖注册完整性、回滚候选、失败阻断、主动学习告警和 trace 证据传递 |
 | `REL-T1-CONFIG-GUARD` | 生产与 smoke manifest 配置隔离 | ✅ PASS | `.env.local.example`不再启用smoke覆盖，复制后使用正式manifest默认路径；自动测试拒绝任何启用状态的示例覆盖，防止smoke模型成为共享默认值 |
-| `REL-T1-COMPLETION-AUDIT` | 实施规范最终完成度机器审计 | ✅ PASS（HOLD生效） | 总门逐项读取规范清单、进度标记、数据授权、v6精度、代表性test、桌面/移动设备、失败案例、Beta质量和生产资产；当前3/10门通过并正确输出4类外部证据阻断，未错误promotion |
+| `REL-T1-COMPLETION-AUDIT` | 实施规范最终完成度机器审计 | ✅ PASS（HOLD生效） | 总门逐项读取规范清单、进度标记、冻结67张质量报告、代表性test、桌面/移动设备、失败案例、Beta质量和生产资产；当前2/10门通过并输出模型质量退化、失败案例、33张新增测试图、四类移动真机及Beta审核5类阻断，未错误promotion |
 | `REL-T1-ACCEPTANCE-EVIDENCE` | 真机、Beta与失败案例外部证据构建器 | ✅ PASS | 真机聚合器拒绝未通过或少于20次的性能/内存报告；Beta CSV强制100张、用户审核、SHA-256和85%直接可用率；失败案例CSV校验图片、来源组、类别、严重度和哈希；成功/拒绝专项6/6通过 |
-| `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD | v6 已通过候选精度、资产、协议和桌面性能门；独立真实 test 仅 13 张，仍缺 100–200 张代表性测试集、移动真机矩阵和 Beta 人工质量门，暂不切换生产 manifest |
+| `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD | v6保留资产、协议和桌面性能证据，但在冻结67张的部署512质量门被拒绝；生产manifest保持不变，需用训练授权且与冻结快照来源隔离的新压力样本改进候选，再重跑同一门禁 |
 
 ## 当前总体验收
 
-`npm.cmd run audit:mvp-readiness:refresh` 的历史权威报告确认数据、来源授权、训练工具链、浏览器接线、反馈闭环、质量/性能门禁、发布治理与验证命令均可运行。当前生产状态仍为 HOLD：v6 候选尚未因 13 张 test、移动真机和 Beta 人工门不足而 promotion，生产 manifest 继续指向未部署的正式 ONNX；不能用 smoke 模型绕过。
+`npm.cmd run audit:mvp-readiness:refresh` 的历史权威报告确认数据、来源授权、训练工具链、浏览器接线、反馈闭环、质量/性能门禁、发布治理与验证命令均可运行。当前生产状态仍为 HOLD：v6在历史13张小测试集上曾通过，但在来源隔离的冻结67张扩展快照上以部署512评估后被质量门拒绝；代表性规模、移动真机、用户失败案例与Beta人工门也未完成，生产 manifest 继续指向未部署的正式 ONNX，不能用640诊断或smoke模型绕过。
 
 ### 合成数据基线审核记录
 
@@ -180,7 +202,7 @@ npm.cmd run build
 | `USER-AUTH-05` | 确认 `真实素材/2026_7_14` 的1277张素材用途 | ⏸️ USER INPUT | 技术候选入库审计已通过，但当前authorizedUses为空、训练用途禁止；需用户明确选择仅发布测试/长期回归、允许商业训练，或仅存档不用模型后，才能继续逐组去重和逐图审核 |
 | `USER-SCOPE-01` | 确认 MVP 产品范围保持为“单张上传图片纹理抠图”，实时视频分割不进入本期 | ✅ PASS | 已确认支持单图、单指和多图提取；实时视频分割不进入本期 |
 | `USER-FAILURE-01` | 提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲 | ⏭ USER INPUT | hard negative 与失败类型优化 |
-| `USER-TESTSET-01` | 最终形成至少 100–200 张来源隔离的独立真实发布测试图 | 🟡 IN PROGRESS | 新增92张来源隔离父图均完成首轮及三十四轮受审计处理；当前67张/385 mask暂通过、返修队列清零，25张源图裁断或遮挡排除，但尚未冻结为发布test真值；未审候选不计入合格规模 |
+| `USER-TESTSET-01` | 最终形成至少 100–200 张来源隔离的独立真实发布测试图 | 🟡 IN PROGRESS | 已冻结并评估67张/384 mask，18个父来源组、trainingUse=prohibited、逐文件与聚合哈希通过，且与正式训练集来源组/图片哈希零重叠；v6部署512质量评估已完成并被拒绝。代表性下限为100张，当前仍缺33张，历史13张仅保留为对照基线而不重复计数 |
 | `USER-THRESHOLD-01` | 根据首轮真实测试冻结甲面缺失率与分组退化门槛 | ⏭ USER INPUT | Beta 后、正式发布前 |
 
 ## 后续里程碑
