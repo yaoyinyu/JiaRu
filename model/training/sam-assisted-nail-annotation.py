@@ -306,7 +306,13 @@ def main() -> None:
                             f"{0 if result.masks is None else len(result.masks.data)} masks instead of one"
                         )
                     mask_outputs.append(selected_mask)
-            masks = np.stack(mask_outputs)
+            # An image with no detector prompts is a valid review candidate: emit an
+            # empty annotation instead of failing the whole batch in np.stack().
+            masks = (
+                np.stack(mask_outputs)
+                if mask_outputs
+                else np.empty((0, height, width), dtype=np.float32)
+            )
             annotations = []
             overlay = image.copy()
             draw = ImageDraw.Draw(overlay, "RGBA")
@@ -343,6 +349,9 @@ def main() -> None:
             annotation_path = annotation_dir / f"{Path(file_name).stem}.json"
             annotation = {
                 "version": "nail-texture-dataset/v1",
+                "decision": "candidate_only_not_training_truth",
+                "trainingUse": "prohibited",
+                "originalResolutionReviewRequired": True,
                 "image": {
                     "id": Path(file_name).stem,
                     "fileName": file_name,
@@ -379,6 +388,9 @@ def main() -> None:
             else "vision-guided-box-center-positive-corner-negative-prompts-plus-sam2"
         ),
         "engine": args.engine,
+        "decision": "sam_candidate_only_not_training_truth",
+        "trainingUse": "prohibited",
+        "originalResolutionReviewRequired": True,
         "promptMode": args.prompt_mode,
         "model": args.model,
         "promptCount": sum(

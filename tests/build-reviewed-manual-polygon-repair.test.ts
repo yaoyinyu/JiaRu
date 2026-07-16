@@ -61,6 +61,10 @@ test("reviewed manual polygon repair retains good masks and validates manual rep
   assert.equal(report.manualPolygonCount, 1);
   assert.equal(report.pairwiseOverlapCount, 0);
   const annotation = JSON.parse(readFileSync(path.join(item.annotationDir, "sample.json"), "utf8"));
+  assert.equal(annotation.decision, "candidate_only_not_training_or_test_truth");
+  assert.equal(annotation.trainingUse, "prohibited");
+  assert.equal(annotation.annotationTruthStatus, "manual-repair-candidate-not-final-truth");
+  assert.equal(annotation.originalResolutionReviewRequired, true);
   assert.equal(annotation.annotations.length, 2);
   assert.equal(annotation.annotations[1].attributes.annotationMethod, "codex-original-resolution-manual");
 });

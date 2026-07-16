@@ -195,6 +195,10 @@ def build_item(
     shapes = validate_polygons(annotations)
     document = {
         "version": "nail-texture-dataset/v1",
+        "decision": "candidate_only_not_training_or_test_truth",
+        "trainingUse": "prohibited",
+        "annotationTruthStatus": "manual-repair-candidate-not-final-truth",
+        "originalResolutionReviewRequired": True,
         "image": {
             "id": Path(file_name).stem,
             "fileName": file_name,
