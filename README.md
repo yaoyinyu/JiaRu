@@ -64,7 +64,7 @@ npm.cmd run start
 ```powershell
 npm.cmd run lint          # ESLint 检查
 npm.cmd run test          # 全量测试（当前 350+ 项）
-npm.cmd run audit:encoding # 文本文件编码审计（当前 344 个文件）
+npm.cmd run audit:encoding # 文本文件编码审计（当前 386 个文件）
 npm.cmd run build          # Next.js 生产构建
 ```
 
@@ -198,8 +198,8 @@ JiaRu/
 - ONNX Runtime Web 推理（WebGPU 优先 → WASM 降级）
 - Web Worker 隔离（15 秒超时 + 自动 fallback）
 - 候选质量排序 + 五指分配 + mask 纹理提取
-- 正式 v6 候选已通过精度门（13 张独立真实 test，box/mask mAP50=0.853/0.848）
-- 生产模型被 92 张发布测试父图的视觉审核门阻塞（当前 55/92 通过）
+- v6 候选的资产、浏览器协议和桌面性能证据有效
+- 冻结 67 张/384 mask 在部署 512 口径的 box/mask mAP50=0.8370/0.8313，未通过正式质量门，生产模型保持阻塞
 
 ---
 
@@ -224,7 +224,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 |------|------|
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.67 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.99 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
@@ -286,8 +286,10 @@ copy .env.local.example .env.local
 ### Phase 4: 纹理识别模型 🚧 训练与审核中
 - [x] 浏览器端 ONNX Runtime Web 推理管线
 - [x] 正式数据集（409 图/2142 mask）
-- [x] v6 候选通过精度/资产/桌面性能门
-- [ ] 92 张发布测试父图视觉审核（当前 55/92）
+- [x] v6 候选通过资产、浏览器协议和桌面性能门
+- [x] 92 张发布测试父图完成视觉审核（67 张/384 mask 冻结，25 张排除）
+- [ ] 改进部署 512 口径模型质量并重新通过冻结测试门
+- [ ] 再补足至少 33 张来源隔离的代表性发布测试图
 - [ ] 移动真机 WebGPU 性能验证
 - [ ] Beta 人工质量审核（100 张）
 
@@ -313,5 +315,3 @@ copy .env.local.example .env.local
 | 3D | Three.js | 0.184.0（已安装，未使用） |
 | AI 生图 | OpenAI DALL·E 3 | 服务端 API |
 | 部署 | Vercel | 待配置 |
-R e f r e s h   c a c h e   0 7 / 1 6 / 2 0 2 6   0 2 : 3 3 : 4 2  
- 
