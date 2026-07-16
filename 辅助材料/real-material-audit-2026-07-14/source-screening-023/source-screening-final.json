@@ -1,0 +1,515 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "source_screening_shard_pass",
+  "inputs": {
+    "sheetsReport": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\quality-review-sheets-023\\quality-review-sheets-report.json",
+    "sheetsReportSha256": "f5343e7d41b5d44e0a05d41da92e8cb6fe3798daeaff408392e604eba5f16d28",
+    "decisions": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-material-audit-2026-07-14\\source-screening-shard-023-A-v2.json",
+    "decisionsSha256": "01ca37d3126952609da08021d7ea76232dc17f6f0ddd0feb02772984306dd3d5"
+  },
+  "review": {
+    "reviewer": "Codex视觉审核",
+    "reviewedAt": "2026-07-16",
+    "method": "复验审核页报告绑定的quality-review-023.csv路径、SHA-256、48条空白审核条目、9个来源组及12页审核页哈希；联系表仅用于预筛，随后逐文件查看全部48张原分辨率素材并复算源文件哈希。多图拼贴、教程模板和独立甲片展示按非原始单场景排除；明显像素化、失焦或视频压缩到甲缘不稳定的图片按质量排除；任一已露出甲面被画面边缘截断时整张排除。仅清晰、单场景且全部已露出甲面完整在框的图片进入待标注候选，trainingUse继续固定为prohibited。"
+  },
+  "policy": {
+    "sourceScreeningDoesNotApproveMasks": true,
+    "sourceScreeningDoesNotGrantTrainingUse": true,
+    "originalResolutionReviewRequiredForKeptImages": true
+  },
+  "counts": {
+    "images": 48,
+    "keptForAnnotation": 21,
+    "excluded": 27,
+    "byDecision": {
+      "keep-for-annotation": 21,
+      "exclude-quality": 6,
+      "exclude-cropped": 2,
+      "exclude-collage": 19
+    }
+  },
+  "items": [
+    {
+      "fileName": "nail_00441_69eb035b000000001f004cec_0.jpg",
+      "sha256": "6021206cbd2e64cab42f1bad17711dac4d7dc174995e626e0be41b2ef7e5fe28",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 3,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00442_69eb035b000000001f004cec_1.jpg",
+      "sha256": "0a1307377096bd9041e4da8ffd6eff87d780e6a6c844e84932700767df737d07",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "exclude-quality",
+      "fullyVisibleNails": null,
+      "note": "视频帧存在明显像素化和块状压缩，透明甲缘不稳定",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00443_69eb035b000000001f004cec_2.jpg",
+      "sha256": "c5f54440676a334e8b390f4cc3e09c1527cb263b2a4f6365b2a8943181dcfc67",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 4,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00444_69eb035b000000001f004cec_3.jpg",
+      "sha256": "8510183b996173ce159f7e2dcffc68f1fc56f7feb6194a112b41e2be91e6b284",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00445_69eb035b000000001f004cec_4.jpg",
+      "sha256": "add9e57936a48db5b4a1b63dfa36559cf53b30bfb89e86c4295a6974f1bde817",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00446_69eb035b000000001f004cec_5.jpg",
+      "sha256": "d113115b6643eec942f346154be69ff458b6b97ddabbc38d73fe154a1a6693aa",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00451_69eb035b000000001f004cec_10.jpg",
+      "sha256": "82b519f9c80eef81f7b77ad0557f53409210e94804018903fe3f1549d1fb38ce",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00451_69eb035b000000001f004cec_6.jpg",
+      "sha256": "9fc949ce0ff324e77ec54a1e9f479928ddacf7492b50ef469e8ecb01fa52c8c8",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00451_69eb035b000000001f004cec_7.jpg",
+      "sha256": "cc63516f41961e71ae3173ebc051740e847cea6e0e5dbcefe6542f584ecd9478",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "exclude-cropped",
+      "fullyVisibleNails": null,
+      "note": "画面左边缘切掉一枚已经露出的甲面",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00451_69eb035b000000001f004cec_8.jpg",
+      "sha256": "abb3f83794510f3feb005cb5c8730e69cf54dc9d97dda5e86ce642e7db661048",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 4,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00451_69eb035b000000001f004cec_9.jpg",
+      "sha256": "58f248213882aa8029b34cfa9913e684ea574517eddb169cb4e140949c8bbb14",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 10,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00452_69eb035b000000001f004cec_11.jpg",
+      "sha256": "569a4ee6b8fc9ea2d2603c7ea1b6040b3ecc1a0b0a16a9a54e49e1b518cdc163",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 4,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00453_69eb035b000000001f004cec_12.jpg",
+      "sha256": "33274fbcdf41bc15ec62fccac693055d93b5792198bfd93f599735b0738f4029",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 4,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00112_69d4da03000000001f0057da_0.jpg",
+      "sha256": "0beec729282922bcb092aaa499683d120e1e27bca2cfb1dfdc7ce6d60a943509",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "四宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00114_69d4da03000000001f0057da_2.jpg",
+      "sha256": "a462da5664080a2fe5da6dbc6d6fa911ab95edc6c29ce26eeb685b040ceb5b63",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "四宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00115_69d4da03000000001f0057da_3.jpg",
+      "sha256": "09e190d36f3f63a021dea3f1608958645c7f9d15894e8d67766a61d506e11ef5",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "四宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00116_69d4da03000000001f0057da_4.jpg",
+      "sha256": "42c7bb8dcdf6d9189abdcd29aa323f4fcba952f98f57dc1f11d252ca3918d0b0",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "四宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00117_69d4da03000000001f0057da_5.jpg",
+      "sha256": "a2b045f8a7d4093b35c2d6df712be1002ebfe0eb3f06672ee80333f8c719d141",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "多宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00118_69d4da03000000001f0057da_6.jpg",
+      "sha256": "c7a6dc58b65dfda579931a91f684d0ab84dd6956040ebab480b6df7adaa992a0",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "四宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00119_69d4da03000000001f0057da_7.jpg",
+      "sha256": "ee8f4f6a48ea658095eea53954b2da009ff19152496fca26abe846cc565ff2c3",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "四宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00120_69d4da03000000001f0057da_8.jpg",
+      "sha256": "47e4c03dc931c585f70ec3193494eff4ecc483b0c1ae0efddd2051815d3c5b20",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "四宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00121_69d4da03000000001f0057da_9.jpg",
+      "sha256": "d78401813012586010749802fa3632973c0dfc88b2e82b6d48ae60e2dc175d8d",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-def00562f4bc1750",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "四宫格拼接多个不同手部场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00071_6a2fcb4a000000001702ea28_0.jpg",
+      "sha256": "92e8619487f1f84f1ac7964e3d221e95a0c67e04e55f33494e37ae2a6ff3f0bc",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e04236c75da04e46",
+      "decision": "exclude-cropped",
+      "fullyVisibleNails": null,
+      "note": "画面顶部切掉两枚已经露出的长甲甲尖",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00072_6a2fcb4a000000001702ea28_1.jpg",
+      "sha256": "6b72fd590baad42d5d95381480861c3bff832077f59ce009c794a64ba4efd259",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e04236c75da04e46",
+      "decision": "exclude-quality",
+      "fullyVisibleNails": null,
+      "note": "视频帧明显失焦和像素化，长甲边界无法稳定确认",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00073_6a2fcb4a000000001702ea28_2.jpg",
+      "sha256": "62e5115f3ef69806bc365cdf42178fa7794ff5b6b44fc80eba7ad68394f07f40",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e04236c75da04e46",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00074_6a2fcb4a000000001702ea28_3.jpg",
+      "sha256": "065a5870e9eb942bfad8899ee17f727ccde983ec47c560ddbfcd9ee05767012e",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e04236c75da04e46",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00376_6a2aa3ce000000001700a594_0.jpg",
+      "sha256": "dd6347440f39194664e32b34582491f65562cd99534c477e14708c1038befe9c",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e042770ac0b44cca",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00377_6a2aa3ce000000001700a594_1.jpg",
+      "sha256": "b45dc5dfa94d270d96cceedd827877f002d2174f329e2e66817a3712cc52ab41",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e042770ac0b44cca",
+      "decision": "exclude-quality",
+      "fullyVisibleNails": null,
+      "note": "视频帧严重像素化和过度平滑，甲缘与饰品边界不稳定",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00378_6a2aa3ce000000001700a594_2.jpg",
+      "sha256": "d9127c986886bd80ef26e024e6807f3be923eb20db3b97c1a611db2b33772b85",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e042770ac0b44cca",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00325_69fedf6800000000350299d3_0.jpg",
+      "sha256": "ee5fe86eec0c4aed361bb5442542675fdc701ad2d70e6c5b3efb518142b4afeb",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e067277bcd4b99cb",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 10,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00326_69fedf6800000000350299d3_1.jpg",
+      "sha256": "621bce5d2d92317fa8b28d7f8c0e0943239ef1f2d3964800b196b51680e3705e",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e067277bcd4b99cb",
+      "decision": "exclude-quality",
+      "fullyVisibleNails": null,
+      "note": "视频帧明显像素化和拖影，多个甲缘细节不足",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00327_69fedf6800000000350299d3_2.jpg",
+      "sha256": "e8d6cfe9fc13ae4bf3d42a1a2e81e15d3af61c3f1335bb207027c893ba4da255",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e067277bcd4b99cb",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 10,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00051_69100476000000000302215e_0.jpg",
+      "sha256": "94b06a799851b06d0e1b6625de6294cf1488a66d268bb50a248a51325ed464e9",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e08cc58709077134",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "上下拼接两张不同手部照片，不是原始单场景",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00051_69100476000000000302215e_1.jpg",
+      "sha256": "7ff6339a619937df596b1f58b0f77b98b87409ec2a9498be6f72c2693ddfa015",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e08cc58709077134",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01189_68f5a3030000000005011c14_0.jpg",
+      "sha256": "42d87c2fffc84010f6b901bef054417a85824ef343e2db700eeefab5aaf71c27",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "手持独立甲片的练习展示，不是佩戴甲面的完整手部",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01189_68f5a3030000000005011c14_1.jpg",
+      "sha256": "467f2165dd3f4dae5f285ad5e0c313cb09f37a82fe9f3ed9358a675260df4df8",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "美甲绘画练习纸与文字页面，不是手部原始实拍",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01192_68f5a3030000000005011c14_2.jpg",
+      "sha256": "fc2b0af6d2d88c4911ec3389eb9c95e99539e04ef74d72ec36b991484615c7b4",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "美甲线条练习模板，不是手部原始实拍",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01193_68f5a3030000000005011c14_3.jpg",
+      "sha256": "a77be8126e9a7f25e75ad9c458df22700f72db78faef5638c9754a8c56fac6ee",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "美甲线条练习模板，不是手部原始实拍",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01194_68f5a3030000000005011c14_4.jpg",
+      "sha256": "98b3b00514b001c9536740e84b97b397176b9878606b5c726778e73bf704ba98",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "美甲卡通与格纹练习模板，不是手部原始实拍",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01194_68f5a3030000000005011c14_5.jpg",
+      "sha256": "492b4b3ed47ae9e8c225a8833990ce0c153d1f8d9dd8364ef0e290d8489a5fff",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "豹纹与法式美甲练习模板，不是手部原始实拍",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01200_68f5a3030000000005011c14_6.jpg",
+      "sha256": "993f190ce4284084ca2a312de19f4195ea2140711f275a26b93eb672bd19211f",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "火焰与款式美甲练习模板，不是手部原始实拍",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01200_68f5a3030000000005011c14_7.jpg",
+      "sha256": "9ef9680891c6a5dd1f2696b35a2fbc86c9a05525f1a79a924a75bd294548eccb",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "花卉美甲练习模板，不是手部原始实拍",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01200_68f5a3030000000005011c14_9.jpg",
+      "sha256": "e638c845bf85bbccb4b9c42aaac57ee54ba3ad90e46b1bcb5c16dd5bdac82ab9",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e18b9271b9dc9d02",
+      "decision": "exclude-collage",
+      "fullyVisibleNails": null,
+      "note": "美甲绘画练习纸，不是手部原始实拍",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01177_69438ba5000000001e001c1d_0.jpg",
+      "sha256": "abcb1dbde1bce8953868da4ce7b7cb8a85f5822826143970b7c89c6011d8b423",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e2ed8b94938ed0ba",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01178_69438ba5000000001e001c1d_1.jpg",
+      "sha256": "83a50c58d635e72bb97025b0e280eb3f2b206fb8227c984ce5055c59e5ac2b4a",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e2ed8b94938ed0ba",
+      "decision": "exclude-quality",
+      "fullyVisibleNails": null,
+      "note": "视频帧明显像素化和拖影，透明长甲甲缘不稳定",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_01179_69438ba5000000001e001c1d_2.jpg",
+      "sha256": "59f515294ebaedafb740fd5da103b9baf3173901cdea96cc9496db58b4ac69c8",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e2ed8b94938ed0ba",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 5,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00846_6a1671840000000035021a23_0.jpg",
+      "sha256": "2851899a38131866ca893a9c5f5f493d937e6b0adf737f042951e24d0ee2ba55",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e3fe954803a06653",
+      "decision": "keep-for-annotation",
+      "fullyVisibleNails": 10,
+      "note": "",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    },
+    {
+      "fileName": "nail_00851_6a1671840000000035021a23_1.jpg",
+      "sha256": "1b36603295c45f5236f98e4dcd9490f8ee0f8db5a820f0d8b8997170d7ab68b0",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e3fe954803a06653",
+      "decision": "exclude-quality",
+      "fullyVisibleNails": null,
+      "note": "整图明显失焦和像素化，十甲边界均不足以形成可靠真值",
+      "trainingUse": "prohibited",
+      "annotationTruthStatus": "not-started"
+    }
+  ],
+  "errors": []
+}
