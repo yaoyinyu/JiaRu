@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-16T16:46:45.515Z",
+  "generatedAt": "2026-07-16T17:08:01.341Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 166,
-    "passMarkerCount": 153,
+    "progressMarkerCount": 169,
+    "passMarkerCount": 156,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -399,6 +399,10 @@
         {
           "checked": true,
           "text": "完成首批mask审核分片010并形成第17至18个训练真值候选；17张原图和全分辨率叠加图逐张审核为2直接通过、15返修、0排除，UI按钮、汽车按键、戒指/手链、衣物、整块指腹误检及漏甲与误检抵消成等计数的样本均被拒绝。2个直接通过项共10个mask进一步通过原图/annotation/分片哈希、polygon合法性和同图零交叠终审。首批160/160初审完成，累计15暂通过、138返修、7排除；训练真值候选18张/102 mask，最低train正样本仍缺82张，val真值0/30和约100张hard negative仍未建立，整批物化与来源隔离前继续禁止训练。"
+        },
+        {
+          "checked": true,
+          "text": "完成首个低风险误检删除返修批次并形成第19至20个训练真值候选；从分片010选择两张甲面候选本身完整、仅混入戒指或方向盘控件/手链流苏的样本，按1起始提示序号保留10个逐甲框并删除3个非甲提示。SAM2.1 large完成2/2张、10/10提示、0 fallback，几何10 pass/0 suspect；原分辨率确认透明长甲尖、立体装饰可见区域和5枚短甲甲缘均完整，非甲误检已清除。两张进一步通过哈希身份、polygon合法性和同图零交叠终审。训练真值候选累计20张/112 mask，最低100张train正样本完成20%、仍缺80张；val真值0/30和约100张hard negative仍未建立，整批物化与来源隔离前继续禁止训练。"
         },
         {
           "checked": true,

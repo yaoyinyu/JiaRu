@@ -196,6 +196,9 @@ npm.cmd run build
 | `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-016` | 第十六个训练真值候选 | ✅ PASS | `nail_00663…_2`的5枚完整甲面逐甲覆盖，原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过；报告SHA-256为`239835ec…ca3`。累计16张/92 mask，最低100张train正样本仍缺84张，整批物化与来源隔离前继续禁止训练 |
 | `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-017` | 第十七个训练真值候选 | ✅ PASS | `nail_00077…_2`的5枚短甲含透明星形拇指逐甲完整覆盖，原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过；报告SHA-256为`d9e64479…c098` |
 | `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-018` | 第十八个训练真值候选 | ✅ PASS | `nail_00792…_0`的5枚金棕透明方甲含侧视拇指逐甲完整覆盖，原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过；报告SHA-256为`b24e33ce…8ce5`。累计18张/102 mask，最低100张train正样本仍缺82张，整批物化与来源隔离前继续禁止训练 |
+| `M2-T3-REAL-MATERIAL-FIRST-LOW-RISK-REPAIR-BATCH-001` | 首个低风险误检删除返修批次 | ✅ PASS | 分片010两张样本保留10个逐甲提示、删除戒指及方向盘控件/手链流苏3个非甲提示；SAM2.1 large完成2/2张、10/10提示、0 fallback，几何10 pass/0 suspect。原分辨率确认透明长甲尖、立体装饰可见区域和短甲甲缘完整，无皮肤/首饰/背景污染；提示、SAM与几何报告SHA-256分别为`b1bfcc5c…2268`、`ff1f98d3…40d7`和`6022a5c7…7392` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-019` | 第十九个训练真值候选 | ✅ PASS | `nail_00004…_7`的5枚透明长甲及附着立体装饰可见区域完整覆盖，戒指误检已删除；原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过，报告SHA-256为`b4ba3dbf…f03f` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-020` | 第二十个训练真值候选 | ✅ PASS | `nail_00078…_3`的5枚短甲完整覆盖，方向盘控件及手链流苏误检已删除；原分辨率视觉、哈希身份、polygon合法性和同图零交叠通过，报告SHA-256为`17173465…60e`。累计20张/112 mask，最低100张train正样本仍缺80张，整批物化与来源隔离前继续禁止训练 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
 | `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |
