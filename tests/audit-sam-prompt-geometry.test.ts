@@ -94,7 +94,12 @@ test("SAM prompt geometry audit accepts aligned, separate polygons", async () =>
 
   const report = JSON.parse(await readFile(paths.jsonOutput, "utf8")) as {
     summary: Record<string, { pass: number; suspect: number; missing: number }>;
-    rows: Array<{ status: string; centerInside: boolean; maximumPeerBoundsIou: number }>;
+    rows: Array<{
+      status: string;
+      centerInside: boolean;
+      maximumPeerBoundsIou: number;
+      maximumPeerPolygonIntersectionArea: number;
+    }>;
   };
   assert.deepEqual(report.summary["unit-test"], {
     pass: 2,
@@ -104,6 +109,10 @@ test("SAM prompt geometry audit accepts aligned, separate polygons", async () =>
   assert.equal(report.rows.every((row) => row.status === "pass"), true);
   assert.equal(report.rows.every((row) => row.centerInside), true);
   assert.equal(report.rows.every((row) => row.maximumPeerBoundsIou === 0), true);
+  assert.equal(
+    report.rows.every((row) => row.maximumPeerPolygonIntersectionArea === 0),
+    true
+  );
   assert.match(await readFile(paths.csvOutput, "utf8"), /sample\.png,2,unit-test,pass/);
 });
 
@@ -132,5 +141,94 @@ test("SAM prompt geometry audit reports a missing polygon and exits nonzero", as
     centerInside: null,
     bounds: null,
     maximumPeerBoundsIou: null,
+    maximumPeerPolygonIntersectionArea: null,
   });
+});
+
+test("SAM prompt geometry audit does not reject separate slanted polygons only because their bounds overlap", async () => {
+  const paths = await fixture();
+  const document = annotationDocument();
+  document.annotations[0].polygon = [
+    { x: 10, y: 10 },
+    { x: 90, y: 10 },
+    { x: 10, y: 90 },
+  ];
+  document.annotations[1].polygon = [
+    { x: 90, y: 90 },
+    { x: 20, y: 90 },
+    { x: 90, y: 20 },
+  ];
+  await writeFile(path.join(paths.annotationDir, "sample.json"), JSON.stringify(document), "utf8");
+  await writeFile(
+    paths.promptsPath,
+    JSON.stringify({
+      images: [
+        {
+          fileName: "sample.png",
+          sourceGroup: "test-group",
+          boxes: [
+            [0.05, 0.05, 0.95, 0.95],
+            [0.15, 0.15, 0.95, 0.95],
+          ],
+        },
+      ],
+    }),
+    "utf8"
+  );
+
+  execFileSync("python", args(paths));
+  const report = JSON.parse(await readFile(paths.jsonOutput, "utf8")) as {
+    rows: Array<{
+      status: string;
+      maximumPeerBoundsIou: number;
+      maximumPeerPolygonIntersectionArea: number;
+    }>;
+  };
+  assert.equal(report.rows.every((row) => row.status === "pass"), true);
+  assert.equal(report.rows.every((row) => row.maximumPeerBoundsIou > 0.35), true);
+  assert.equal(
+    report.rows.every((row) => row.maximumPeerPolygonIntersectionArea === 0),
+    true
+  );
+});
+
+test("SAM prompt geometry audit rejects polygons with real intersection area", async () => {
+  const paths = await fixture();
+  const document = annotationDocument();
+  document.annotations[1].polygon = [
+    { x: 30, y: 30 },
+    { x: 60, y: 30 },
+    { x: 60, y: 60 },
+    { x: 30, y: 60 },
+  ];
+  await writeFile(path.join(paths.annotationDir, "sample.json"), JSON.stringify(document), "utf8");
+  await writeFile(
+    paths.promptsPath,
+    JSON.stringify({
+      images: [
+        {
+          fileName: "sample.png",
+          sourceGroup: "test-group",
+          boxes: [
+            [0.1, 0.1, 0.4, 0.4],
+            [0.25, 0.25, 0.65, 0.65],
+          ],
+        },
+      ],
+    }),
+    "utf8"
+  );
+
+  execFileSync("python", args(paths));
+  const report = JSON.parse(await readFile(paths.jsonOutput, "utf8")) as {
+    rows: Array<{ status: string; reasons: string[]; maximumPeerPolygonIntersectionArea: number }>;
+  };
+  assert.equal(report.rows.every((row) => row.status === "suspect"), true);
+  assert.equal(
+    report.rows.every((row) =>
+      row.reasons.includes("peer_polygon_intersection_area_above_maximum")
+    ),
+    true
+  );
+  assert.equal(report.rows.every((row) => row.maximumPeerPolygonIntersectionArea > 0), true);
 });
