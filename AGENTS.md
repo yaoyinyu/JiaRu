@@ -25,6 +25,8 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Prioritize fully visible nails during annotation review. Every fully exposed nail must have exactly one complete mask covering the whole visible nail surface; a mask that captures only the color, decoration, tip, or another partial region is a rework failure even when its geometry audit passes.
 - 返修透明、低对比或延长甲时，优先用多个正点分别覆盖有色甲面与透明甲尖，并把定向负点放在邻近皮肤、衣物或背景污染区；禁止把正点放入污染区。多点提示仍只是候选生成手段，必须通过原分辨率视觉审核。
 - Exclude a source image instead of repeatedly repairing it when any required nail is cropped by an image edge or is not fully visible. Prompt modes such as `box-center` and `center-negative-corners` remain candidate-generation aids; accept their output only after the same original-resolution review gate.
+- 模糊、失焦、低清到无法确认完整甲面轮廓，或存在应标甲面裁断、残缺、仅局部露出的源图，必须在源图筛选阶段排除；此类图片及其派生物不得进入模型训练。源图筛选通过也只代表待标注候选，完整mask逐甲原分辨率审核通过前`trainingUse`必须保持`prohibited`。
+- 质量分片审核必须以审核页报告中绑定的输入分片路径和SHA-256为唯一清单来源；工作区内即使存在同编号的`review-*.csv`或其他旧分片，也不得按文件名猜测或混用，写决策前必须复验报告绑定路径、哈希和条目数。
 - `build-reviewed-sam-repair-prompts.py` 的 `keepPromptIndices` 使用从 1 开始的提示序号；编写返修清单时不得按数组的 0 起始索引填写。
 - Windows 下运行项目 npm 脚本必须显式使用 `npm.cmd`，禁止调用无扩展名的裸 `npm`；本机 `C:\Windows\System32\npm` 可能优先于 Node.js 安装目录并触发“选择应用打开”弹窗。
 - 未经用户在当前任务中明确要求，不执行 `git commit` 或 `git push`；完成修改与验证后仅保留本地工作区差异。
