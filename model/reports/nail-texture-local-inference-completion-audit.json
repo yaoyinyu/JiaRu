@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-16T17:08:01.341Z",
+  "generatedAt": "2026-07-16T18:12:27.849Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 169,
-    "passMarkerCount": 156,
+    "progressMarkerCount": 190,
+    "passMarkerCount": 177,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -403,6 +403,34 @@
         {
           "checked": true,
           "text": "完成首个低风险误检删除返修批次并形成第19至20个训练真值候选；从分片010选择两张甲面候选本身完整、仅混入戒指或方向盘控件/手链流苏的样本，按1起始提示序号保留10个逐甲框并删除3个非甲提示。SAM2.1 large完成2/2张、10/10提示、0 fallback，几何10 pass/0 suspect；原分辨率确认透明长甲尖、立体装饰可见区域和5枚短甲甲缘均完整，非甲误检已清除。两张进一步通过哈希身份、polygon合法性和同图零交叠终审。训练真值候选累计20张/112 mask，最低100张train正样本完成20%、仍缺80张；val真值0/30和约100张hard negative仍未建立，整批物化与来源隔离前继续禁止训练。"
+        },
+        {
+          "checked": true,
+          "text": "完成第二批低风险返修并形成第21至23个训练真值候选；三张/20个提示由SAM2.1 large零fallback重建，几何20 pass/0 suspect，删除整段手指和方向盘控件，补齐棕色甲与星形拇指甲。全部原图、全分辨率叠加图、哈希身份、polygon合法性和同图零交叠通过，训练真值累计23张/132 mask。"
+        },
+        {
+          "checked": true,
+          "text": "完成三张侧视拇指返修并形成第24至26个训练真值候选；每张保留四枚正面甲，以紧框、双正点和皮肤负点重建完整侧视拇指。SAM2.1 large完成3/3张、15/15提示、0 fallback，几何15 pass/0 suspect；原分辨率视觉及最终真值门通过，训练真值累计26张/147 mask。"
+        },
+        {
+          "checked": true,
+          "text": "将SAM几何审计的同图重复/交叠判据从单纯外接框IoU改为精确polygon交集面积；外接框IoU保留为诊断字段，非法polygon或真实交集仍判suspect。新增“外接框重叠但斜向polygon分离通过”和“polygon真实交叠拒绝”回归，避免误放重复候选，也避免仅因相邻斜甲外接框重叠误拒。"
+        },
+        {
+          "checked": true,
+          "text": "完成分片010清理返修批次004并形成第27至28个训练真值候选；三张/14提示均完成、0 fallback，原分辨率审核和精确polygon交集门输出2通过、1返修。`nail_00628…_2`因相邻甲真实交集10960.0713像素继续返修；另两张0非法polygon、0交叠，累计训练真值28张/156 mask，最低100张train正样本完成28%、仍缺72张；val 0/30和约100张hard negative不变。"
+        },
+        {
+          "checked": true,
+          "text": "完成`nail_00628…_2`相邻甲人工多边形返修并形成第29个训练真值候选；保留4个已审核完整polygon，人工替换原先与相邻甲交叠10960.0713像素的第5甲。构建器对初稿0.0024像素残余交集保持拒绝，边界内收后5个polygon合法、同图零交叠、几何5 pass/0 suspect；整图及第4/5甲2×原分辨率视觉确认两甲完整覆盖各自可见甲面且无袖口污染。累计29张/161 mask，最低100张train正样本完成29%、仍缺71张。"
+        },
+        {
+          "checked": true,
+          "text": "完成`nail_00076…_1`双手十甲复杂返修并形成第30个训练真值候选；保留6个已完整覆盖的甲面提示，以紧框、多正点和邻近皮肤负点重建4个漏甲，删除整段手指与手链误检。SAM2.1 large完成1/1张、10/10提示、0 fallback，几何10 pass/0 suspect；原分辨率整图确认10枚完整露出甲面均由单一完整mask覆盖，最终10个polygon合法且同图零交叠。累计30张/171 mask，最低100张train正样本完成30%、仍缺70张；val 0/30和约100张hard negative不变。"
+        },
+        {
+          "checked": true,
+          "text": "完成分片009低风险返修批次007、侧视拇指重试批次008并形成第31至33个训练真值候选；首轮三张/15提示、0 fallback、几何14 pass/1 suspect，仅删除珍珠链误检图通过，两张侧视拇指图继续收紧。重试2/2张、10/10提示、0 fallback、几何10 pass/0 suspect；原分辨率确认三张共15枚完整露出甲面一甲一mask且无皮肤、首饰或背景污染，最终polygon合法、同图零交叠。累计33张/186 mask，最低100张train正样本完成33%、仍缺67张；val 0/30和约100张hard negative不变。"
         },
         {
           "checked": true,

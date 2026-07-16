@@ -14,6 +14,8 @@ import json
 from pathlib import Path
 from typing import Any
 
+from shapely.geometry import Polygon
+
 
 DEFAULT_THRESHOLDS = {
     "minimumBoundsContainment": 0.72,
@@ -21,6 +23,7 @@ DEFAULT_THRESHOLDS = {
     "maximumAreaRatio": 1.35,
     "promptCenterMustBeInside": True,
     "maximumPeerBoundsIou": 0.35,
+    "maximumPeerPolygonIntersectionArea": 0.0,
 }
 
 
@@ -133,6 +136,23 @@ def annotation_points(annotation: dict[str, Any]) -> list[tuple[float, float]]:
     return points
 
 
+def maximum_peer_polygon_intersection_area(
+    polygons: list[list[tuple[float, float]]], index: int
+) -> float:
+    polygon = Polygon(polygons[index])
+    if not polygon.is_valid:
+        return float("inf")
+    maximum = 0.0
+    for peer_index, peer_points in enumerate(polygons):
+        if peer_index == index:
+            continue
+        peer_polygon = Polygon(peer_points)
+        if not peer_polygon.is_valid:
+            return float("inf")
+        maximum = max(maximum, float(polygon.intersection(peer_polygon).area))
+    return maximum
+
+
 def round_value(value: float) -> float:
     return round(value, 4)
 
@@ -163,6 +183,7 @@ def audit(args: argparse.Namespace) -> dict[str, Any]:
                         "centerInside": None,
                         "bounds": None,
                         "maximumPeerBoundsIou": None,
+                        "maximumPeerPolygonIntersectionArea": None,
                     }
                 )
                 summary[args.source]["missing"] += 1
@@ -190,6 +211,7 @@ def audit(args: argparse.Namespace) -> dict[str, Any]:
                         "centerInside": None,
                         "bounds": None,
                         "maximumPeerBoundsIou": None,
+                        "maximumPeerPolygonIntersectionArea": None,
                     }
                 )
                 summary[args.source]["missing"] += 1
@@ -215,6 +237,9 @@ def audit(args: argparse.Namespace) -> dict[str, Any]:
                 ),
                 default=0.0,
             )
+            peer_polygon_intersection_area = maximum_peer_polygon_intersection_area(
+                polygons, index
+            )
 
             reasons: list[str] = []
             if area_ratio < DEFAULT_THRESHOLDS["minimumAreaRatio"]:
@@ -225,8 +250,13 @@ def audit(args: argparse.Namespace) -> dict[str, Any]:
                 reasons.append("bounds_containment_below_minimum")
             if DEFAULT_THRESHOLDS["promptCenterMustBeInside"] and not center_inside:
                 reasons.append("prompt_center_outside_polygon")
-            if peer_iou > DEFAULT_THRESHOLDS["maximumPeerBoundsIou"]:
-                reasons.append("peer_bounds_iou_above_maximum")
+            if peer_polygon_intersection_area == float("inf"):
+                reasons.append("invalid_polygon_topology")
+            elif (
+                peer_polygon_intersection_area
+                > DEFAULT_THRESHOLDS["maximumPeerPolygonIntersectionArea"]
+            ):
+                reasons.append("peer_polygon_intersection_area_above_maximum")
 
             status = "suspect" if reasons else "pass"
             summary[args.source][status] += 1
@@ -242,6 +272,11 @@ def audit(args: argparse.Namespace) -> dict[str, Any]:
                     "centerInside": center_inside,
                     "bounds": [round(value, 1) for value in bounds],
                     "maximumPeerBoundsIou": round_value(peer_iou),
+                    "maximumPeerPolygonIntersectionArea": (
+                        None
+                        if peer_polygon_intersection_area == float("inf")
+                        else round_value(peer_polygon_intersection_area)
+                    ),
                 }
             )
 
@@ -258,6 +293,7 @@ def audit(args: argparse.Namespace) -> dict[str, Any]:
                     "centerInside": None,
                     "bounds": [round(value, 1) for value in polygon_bounds_list[extra_index]],
                     "maximumPeerBoundsIou": None,
+                    "maximumPeerPolygonIntersectionArea": None,
                 }
             )
             summary[args.source]["suspect"] += 1
@@ -288,6 +324,7 @@ def write_outputs(document: dict[str, Any], json_output: Path, csv_output: Path)
         "centerInside",
         "bounds",
         "maximumPeerBoundsIou",
+        "maximumPeerPolygonIntersectionArea",
     ]
     with csv_output.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=field_names)
