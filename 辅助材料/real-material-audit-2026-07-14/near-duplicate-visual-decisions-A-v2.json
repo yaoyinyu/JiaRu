@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "reviewReportSha256": "0be3b3a4e4e65f400c07856488033e2745acb7f34e25d54463ecb2fd7cfd7ca4",
+  "reviewer": "Codex视觉审核",
+  "reviewedAt": "2026-07-16",
+  "method": "20页联系表逐对视觉审核；重复与非照片模板判定完成，完整甲面质量仍须后续逐图原分辨率审核",
+  "reviewedPageHashes": {
+    "near-duplicate-page-001.jpg": "41919e73d2926ce1715688d52e843ac8cce68607ea77b284b368a2f8c417b754",
+    "near-duplicate-page-002.jpg": "da5d7db2057ea3025364811a46c869a25bbf365563e57ccbaf0f4b6273cc0506",
+    "near-duplicate-page-003.jpg": "38b8fbb8cfd83adb9e9c75ea63f6c3dbed7dff54f50cd9e8aa56157ff91be264",
+    "near-duplicate-page-004.jpg": "5c0c584ae4d291b2bded15aaadfe314addd00bc38cb0ad7691981e7357ce5663",
+    "near-duplicate-page-005.jpg": "e9830948b4b93266e9184aadad072bb5b78ccba19cd015e89208cf2bda61e722",
+    "near-duplicate-page-006.jpg": "c020e486bf243d11b728bb9627313781555a9998548cfe847b91df7a4bd9d523",
+    "near-duplicate-page-007.jpg": "0edbc6ed0fcec3182a7813d01f92111d31e372106f6a76633d8272e8749d0c03",
+    "near-duplicate-page-008.jpg": "a4f57a01f4640ff9d0f4474b6b15ffb66a020a487ce8ca90a67af07f845c7fc1",
+    "near-duplicate-page-009.jpg": "1314ce95d22e8c87c9d2767c5384f683cee3f7b6fd259217b59eb1956b96ebf9",
+    "near-duplicate-page-010.jpg": "316c722b2752324318108e2205c84f7b35b462ab0dd4b14b071898f6e9b131d6",
+    "near-duplicate-page-011.jpg": "dd7e8ef98101469c24d6a3bbc37522a7205d1f9ec2fea4d11f080dfd0329072c",
+    "near-duplicate-page-012.jpg": "22631c033d9b6c888339df20ed63ddb63e9e934e3758e05809ea1832ef188896",
+    "near-duplicate-page-013.jpg": "a48690a9f4892ac79768aa1a0fe70043e6dcbbad363bf0f93bd0aeeb955f75df",
+    "near-duplicate-page-014.jpg": "8893f932d0c698db70a6f741e1043d932606dad25b9aaa9c4f611e35ac91efda",
+    "near-duplicate-page-015.jpg": "99424222d93cfe697a99e042d6f58c55cbc14a0b5508bf7830a56e2ebd50acb4",
+    "near-duplicate-page-016.jpg": "b32ca0050dfeaa1bd2a62b7489ba8206af5ba7c1befd16a15534bab9f07e1045",
+    "near-duplicate-page-017.jpg": "08e8dc2adfd0eb3e05b6aa37a46359bb8c2819b56c43805ce84b41bf1e21e251",
+    "near-duplicate-page-018.jpg": "ee3f0e4bf4c17b331b16d2a72fbf86404e9a32753527d9b9296dd4866bbfdb88",
+    "near-duplicate-page-019.jpg": "fd2ee0d026c14267d0d7841cacd554c77990cd71839c96a8f0cac8fbb075125d",
+    "near-duplicate-page-020.jpg": "2534839413be09a6c255442b71f277047dc8fdb500cc0a027d974a7846bbd693"
+  },
+  "rules": [
+    {
+      "pairIds": "near-0001..near-0086",
+      "decision": "duplicate-existing-exclude-left",
+      "note": "视觉确认与既有训练或发布测试语料为同一画面，保留既有版本并排除本批副本"
+    },
+    {
+      "pairIds": ["near-0087", "near-0088", "near-0089", "near-0090", "near-0091", "near-0097", "near-0098", "near-0099", "near-0100", "near-0102", "near-0103", "near-0125", "near-0126", "near-0155"],
+      "decision": "duplicate-batch-keep-left",
+      "note": "批内视觉重复，确定性保留左侧文件"
+    },
+    {
+      "pairIds": ["near-0092", "near-0093", "near-0094", "near-0095", "near-0096", "near-0104", "near-0124", "near-0127"],
+      "decision": "out-of-domain-exclude-both",
+      "note": "甲型空白模板或设计稿，不属于手部美甲实拍分割输入"
+    },
+    {
+      "pairIds": "near-0105..near-0121",
+      "decision": "out-of-domain-exclude-both",
+      "note": "甲型空白模板，不属于手部美甲实拍分割输入"
+    },
+    {
+      "pairIds": "near-0128..near-0154",
+      "decision": "out-of-domain-exclude-both",
+      "note": "甲型空白模板，不属于手部美甲实拍分割输入"
+    },
+    {
+      "pairIds": ["near-0101", "near-0122", "near-0123", "near-0156"],
+      "decision": "distinct-related-keep-both",
+      "note": "同一手部或场景但甲色/图案不同，作为同来源相关样本保留，不得跨split"
+    }
+  ]
+}
