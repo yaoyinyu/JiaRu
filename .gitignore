@@ -99,6 +99,11 @@ model/exports/
 辅助材料/**/annotations/vision-reviewed-plus-consensus-*-json/
 辅助材料/**/annotations/sam2-*-json/
 辅助材料/**/annotations/v*-json/
+辅助材料/**/annotations/reviewed-topology-repair-*-json/
+辅助材料/**/frozen-reviewed-candidate-*/annotations/
+辅助材料/**/frozen-reviewed-candidate-*-evaluation/labels/
+辅助材料/**/frozen-reviewed-candidate-*-evaluation/**/*.cache
+辅助材料/**/topology-repair-*/labels/
 辅助材料/**/selected/*-yolo*-json/
 辅助材料/**/selected/*-sam2-*-json/
 辅助材料/**/*cross-resolution-consensus-report.json

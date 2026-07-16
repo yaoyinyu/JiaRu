@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import shutil
 from pathlib import Path
 
@@ -15,6 +16,13 @@ def sha256_file(file_path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def probability(value: str) -> float:
+    parsed = float(value)
+    if not math.isfinite(parsed) or parsed <= 0 or parsed >= 1:
+        raise argparse.ArgumentTypeError("must be a finite number between 0 and 1 (exclusive)")
+    return parsed
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -30,6 +38,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--normalization", default="zero_to_one")
     parser.add_argument("--resize-mode", default="letterbox")
     parser.add_argument("--output-contract", default="ultralytics-seg-raw-v1")
+    parser.add_argument("--score-threshold", type=probability, default=0.35)
     parser.add_argument("--task", default="segment")
     parser.add_argument("--backend-preferences", nargs="+", default=["webgpu", "wasm"])
     parser.add_argument("--labels", nargs="+", default=["nail_texture"])
@@ -59,6 +68,7 @@ def main() -> None:
         "normalization": args.normalization,
         "resize_mode": args.resize_mode,
         "output_contract": args.output_contract,
+        "score_threshold": args.score_threshold,
         "task": args.task,
         "backend_preferences": args.backend_preferences,
         "labels": args.labels,
@@ -90,6 +100,7 @@ def main() -> None:
             "backendPreferences": args.backend_preferences,
             "modelFile": onnx_path.name,
             "outputContract": args.output_contract,
+            "scoreThreshold": args.score_threshold,
             "modelSizeBytes": model_size_bytes,
             "sha256": model_sha256,
             "labels": args.labels,

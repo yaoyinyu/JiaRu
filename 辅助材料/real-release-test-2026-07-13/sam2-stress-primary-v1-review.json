@@ -290,6 +290,16 @@
       "retainedPolygonCount": 10,
       "manualPolygonCount": 10,
       "promptStrategy": "retain_ten_original_resolution_reviewed_polygons_replace_ten_partial_invalid_or_skin_contaminated_polygons_then_require_validity_zero_overlap_geometry_and_full_plus_per_nail_2x_review"
+    },
+    {
+      "id": "reviewed-topology-repair-v1-stress",
+      "manifest": "reviewed-topology-repair-v1-manifest.json",
+      "candidateReport": "reviewed-topology-repair-v1-report.json",
+      "review": "reviewed-topology-repair-v1-review.json",
+      "passCount": 8,
+      "acceptedMaskCount": 42,
+      "pairwiseOverlapCount": 0,
+      "promptStrategy": "normalize_declared_invalid_polygons_without_changing_the_reviewed_visible_nail_coverage_then_require_original_resolution_review"
     }
   ]
 }

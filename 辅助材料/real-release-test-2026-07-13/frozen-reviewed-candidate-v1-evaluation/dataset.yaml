@@ -1,0 +1,11 @@
+path: .
+train: images/empty
+val: images/empty
+test: images/test
+
+names:
+  0: nail_texture
+
+task: segment
+class_count: 1
+image_size: 512

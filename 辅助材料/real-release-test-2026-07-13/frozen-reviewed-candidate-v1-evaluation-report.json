@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "decision": "evaluation_only_frozen_reviewed_snapshot",
+  "trainingUse": "prohibited",
+  "snapshotRoot": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1",
+  "outputDir": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation",
+  "datasetYaml": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation\\dataset.yaml",
+  "coreDatasetYaml": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation\\dataset.core.yaml",
+  "stressDatasetYaml": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation\\dataset.stress.yaml",
+  "evaluationManifest": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation\\evaluation-manifest.json",
+  "counts": {
+    "images": 67,
+    "masks": 384,
+    "parentSourceGroups": 18
+  },
+  "sourceIsolation": {
+    "trainingSourceGroups": 13,
+    "trainingImageHashes": 409,
+    "parentSourceGroupOverlap": [],
+    "exactImageHashOverlap": []
+  },
+  "recordsSha256": "135280612b93614e6c794869af7aa0009dc484772bcdf8cc01104096f3822006",
+  "errors": []
+}

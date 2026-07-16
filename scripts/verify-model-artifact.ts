@@ -11,6 +11,7 @@ interface ManifestLike {
   modelFile: string;
   modelSizeBytes?: number;
   sha256?: string;
+  scoreThreshold?: number;
   labels: string[];
 }
 
@@ -113,6 +114,14 @@ if (!Array.isArray(manifest.labels) || manifest.labels.length === 0) {
     errors.push("manifest.labels[0] must be nail_texture for class-index compatibility");
   }
 }
+if (
+  manifest.scoreThreshold != null &&
+  (!Number.isFinite(manifest.scoreThreshold) ||
+    manifest.scoreThreshold <= 0 ||
+    manifest.scoreThreshold >= 1)
+) {
+  errors.push("manifest.scoreThreshold must be a finite number between 0 and 1 (exclusive)");
+}
 
 const modelPath = path.resolve(path.dirname(absoluteManifestPath), manifest.modelFile ?? "");
 let modelSizeBytes = 0;
@@ -193,6 +202,7 @@ const summary = {
   task: manifest.task,
   backendPreferences: manifest.backendPreferences,
   labels: manifest.labels,
+  scoreThreshold: manifest.scoreThreshold ?? 0.35,
   modelExists,
   modelSizeBytes,
   manifestModelSizeBytes,

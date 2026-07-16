@@ -1,0 +1,643 @@
+{
+  "ok": true,
+  "method": "reviewed-explicit-annotation-topology-repair",
+  "decision": "candidate_only_not_training_or_test_truth",
+  "imageCount": 13,
+  "completedCount": 13,
+  "polygonCount": 82,
+  "repairCount": 18,
+  "outputs": [
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_047.jpg",
+      "sourceGroup": "xhs-83cdca812139",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\real_release_20260713_047.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\real_release_20260713_047-topology-reviewed-overlay.png",
+      "polygonCount": 9,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 1,
+          "beforeArea": 10226.5,
+          "afterArea": 10214.0,
+          "discardedComponentArea": 12.5
+        },
+        {
+          "type": "invalid-topology",
+          "nailIndex": 8,
+          "beforeArea": 9402.0,
+          "afterArea": 9402.0,
+          "discardedComponentArea": 0.0
+        },
+        {
+          "type": "foreground-occlusion-boundary",
+          "backgroundIndex": 4,
+          "foregroundIndex": 3,
+          "overlapBefore": 26.391,
+          "areaLossRatio": 0.005637,
+          "discardedComponentArea": 0.0,
+          "marginPixels": 0.25
+        },
+        {
+          "type": "foreground-occlusion-boundary",
+          "backgroundIndex": 4,
+          "foregroundIndex": 8,
+          "overlapBefore": 993.7229,
+          "areaLossRatio": 0.203353,
+          "discardedComponentArea": 4.3034,
+          "marginPixels": 0.75
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n5-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n6-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n6-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n7-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n7-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n8-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n8-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-source-n9-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_047-topology-overlay-n9-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_054.jpg",
+      "sourceGroup": "xhs-54f8135cabeb",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\real_release_20260713_054.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\real_release_20260713_054-topology-reviewed-overlay.png",
+      "polygonCount": 6,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 3,
+          "beforeArea": 12980.5,
+          "afterArea": 12965.5,
+          "discardedComponentArea": 15.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-topology-overlay-n5-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-source-n6-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_054-topology-overlay-n6-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_067.jpg",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\real_release_20260713_067.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\real_release_20260713_067-topology-reviewed-overlay.png",
+      "polygonCount": 5,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 2,
+          "beforeArea": 14779.5,
+          "afterArea": 14780.2941,
+          "discardedComponentArea": 0.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_067-topology-overlay-n5-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_072.jpg",
+      "sourceGroup": "xhs-7fcda5eb6fd1",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\real_release_20260713_072.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\real_release_20260713_072-topology-reviewed-overlay.png",
+      "polygonCount": 10,
+      "repairs": [
+        {
+          "type": "foreground-occlusion-boundary",
+          "backgroundIndex": 5,
+          "foregroundIndex": 8,
+          "overlapBefore": 0.0064,
+          "areaLossRatio": 3e-06,
+          "discardedComponentArea": 0.0,
+          "marginPixels": 0.05
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n5-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n6-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n6-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n7-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n7-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n8-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n8-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n9-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n9-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-source-n10-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_072-topology-overlay-n10-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_078.jpg",
+      "sourceGroup": "xhs-46742c5a7a3a",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\real_release_20260713_078.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\real_release_20260713_078-topology-reviewed-overlay.png",
+      "polygonCount": 10,
+      "repairs": [
+        {
+          "type": "foreground-occlusion-boundary",
+          "backgroundIndex": 6,
+          "foregroundIndex": 10,
+          "overlapBefore": 1195.6186,
+          "areaLossRatio": 0.097871,
+          "discardedComponentArea": 9.1403,
+          "marginPixels": 0.75
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n5-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n6-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n6-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n7-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n7-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n8-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n8-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n9-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n9-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-source-n10-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\real_release_20260713_078-topology-overlay-n10-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "066207e1c3ef-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-066207e1c3ef",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\066207e1c3ef-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\066207e1c3ef-primary-topology-reviewed-overlay.png",
+      "polygonCount": 5,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 5,
+          "beforeArea": 4056.0,
+          "afterArea": 4054.0,
+          "discardedComponentArea": 2.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\066207e1c3ef-primary-topology-overlay-n5-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "3e9b2b906fda-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-3e9b2b906fda",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\3e9b2b906fda-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\3e9b2b906fda-primary-topology-reviewed-overlay.png",
+      "polygonCount": 5,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 3,
+          "beforeArea": 4783.0,
+          "afterArea": 4765.0,
+          "discardedComponentArea": 18.0
+        },
+        {
+          "type": "invalid-topology",
+          "nailIndex": 5,
+          "beforeArea": 7292.5,
+          "afterArea": 7292.5,
+          "discardedComponentArea": 0.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\3e9b2b906fda-primary-topology-overlay-n5-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "51a2eded5eda-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-51a2eded5eda",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\51a2eded5eda-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\51a2eded5eda-primary-topology-reviewed-overlay.png",
+      "polygonCount": 5,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 5,
+          "beforeArea": 8353.5,
+          "afterArea": 8353.5,
+          "discardedComponentArea": 0.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\51a2eded5eda-primary-topology-overlay-n5-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "b1184e010679-main-v3.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-b1184e010679",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\b1184e010679-main-v3.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\b1184e010679-main-v3-topology-reviewed-overlay.png",
+      "polygonCount": 4,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 2,
+          "beforeArea": 3595.0,
+          "afterArea": 3589.0,
+          "discardedComponentArea": 6.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\b1184e010679-main-v3-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\b1184e010679-main-v3-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\b1184e010679-main-v3-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\b1184e010679-main-v3-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\b1184e010679-main-v3-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\b1184e010679-main-v3-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\b1184e010679-main-v3-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\b1184e010679-main-v3-topology-overlay-n4-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "c541feb05c54-main-v2.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c541feb05c54",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\c541feb05c54-main-v2.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\c541feb05c54-main-v2-topology-reviewed-overlay.png",
+      "polygonCount": 8,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 1,
+          "beforeArea": 8767.0,
+          "afterArea": 8676.5,
+          "discardedComponentArea": 90.5
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-topology-overlay-n5-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-source-n6-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-topology-overlay-n6-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-source-n7-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-topology-overlay-n7-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-source-n8-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c541feb05c54-main-v2-topology-overlay-n8-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "c6edb7fea814-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-c6edb7fea814",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\c6edb7fea814-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\c6edb7fea814-primary-topology-reviewed-overlay.png",
+      "polygonCount": 5,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 5,
+          "beforeArea": 7908.5,
+          "afterArea": 7908.5,
+          "discardedComponentArea": 0.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\c6edb7fea814-primary-topology-overlay-n5-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "d17ab88ac58a-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-d17ab88ac58a",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\d17ab88ac58a-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\d17ab88ac58a-primary-topology-reviewed-overlay.png",
+      "polygonCount": 5,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 3,
+          "beforeArea": 4809.0,
+          "afterArea": 4809.0,
+          "discardedComponentArea": 0.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\d17ab88ac58a-primary-topology-overlay-n5-2x.png"
+        }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "e826babe1b3a-primary.png",
+      "sourceGroup": "real-release-test-2026-07-13-stress-v1:parent-e826babe1b3a",
+      "annotationPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\annotations\\reviewed-topology-repair-v1-json\\e826babe1b3a-primary.json",
+      "overlayPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1\\e826babe1b3a-primary-topology-reviewed-overlay.png",
+      "polygonCount": 5,
+      "repairs": [
+        {
+          "type": "invalid-topology",
+          "nailIndex": 4,
+          "beforeArea": 2732.0,
+          "afterArea": 2732.0,
+          "discardedComponentArea": 0.0
+        },
+        {
+          "type": "invalid-topology",
+          "nailIndex": 5,
+          "beforeArea": 4508.5,
+          "afterArea": 4500.5,
+          "discardedComponentArea": 8.0
+        }
+      ],
+      "pairwiseOverlapCount": 0,
+      "zoomPaths": [
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-source-n1-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-topology-overlay-n1-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-source-n2-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-topology-overlay-n2-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-source-n3-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-topology-overlay-n3-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-source-n4-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-topology-overlay-n4-2x.png"
+        },
+        {
+          "source": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-source-n5-2x.png",
+          "overlay": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\overlays\\reviewed-topology-repair-v1-zooms\\e826babe1b3a-primary-topology-overlay-n5-2x.png"
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "source": "freeze-gate-reviewed-annotation-topology-repair",
+  "decision": "candidate_only_not_training_or_test_truth",
+  "images": [
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_047.jpg",
+      "repairTopologyIndices": [1, 8],
+      "overlapRepairs": [
+        { "backgroundIndex": 4, "foregroundIndex": 3, "maximumOverlapPixels": 30, "maximumAreaLossRatio": 0.02, "marginPixels": 0.25 },
+        { "backgroundIndex": 4, "foregroundIndex": 8, "maximumOverlapPixels": 1000, "maximumAreaLossRatio": 0.25, "marginPixels": 0.75 }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_054.jpg",
+      "repairTopologyIndices": [3],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_067.jpg",
+      "repairTopologyIndices": [2],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_072.jpg",
+      "repairTopologyIndices": [],
+      "overlapRepairs": [
+        { "backgroundIndex": 5, "foregroundIndex": 8, "maximumOverlapPixels": 1, "maximumAreaLossRatio": 0.01, "marginPixels": 0.05 }
+      ]
+    },
+    {
+      "lane": "core",
+      "fileName": "real_release_20260713_078.jpg",
+      "repairTopologyIndices": [],
+      "overlapRepairs": [
+        { "backgroundIndex": 6, "foregroundIndex": 10, "maximumOverlapPixels": 1200, "maximumAreaLossRatio": 0.15, "marginPixels": 0.75 }
+      ]
+    },
+    {
+      "lane": "stress",
+      "fileName": "066207e1c3ef-primary.png",
+      "repairTopologyIndices": [5],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "3e9b2b906fda-primary.png",
+      "repairTopologyIndices": [3, 5],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "51a2eded5eda-primary.png",
+      "repairTopologyIndices": [5],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "b1184e010679-main-v3.png",
+      "repairTopologyIndices": [2],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "c541feb05c54-main-v2.png",
+      "repairTopologyIndices": [1],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "c6edb7fea814-primary.png",
+      "repairTopologyIndices": [5],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "d17ab88ac58a-primary.png",
+      "repairTopologyIndices": [3],
+      "overlapRepairs": []
+    },
+    {
+      "lane": "stress",
+      "fileName": "e826babe1b3a-primary.png",
+      "repairTopologyIndices": [4, 5],
+      "overlapRepairs": []
+    }
+  ]
+}

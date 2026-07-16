@@ -1,0 +1,138 @@
+{
+  "ok": true,
+  "schemaVersion": 1,
+  "decision": "rejected_as_calibration_truth",
+  "calibrationTruthEligible": false,
+  "inputs": {
+    "candidateReport": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-validation-topology-repair-candidate.json",
+    "candidateReportSha256": "f54ed9f756dbe70a1058ec285d88bb9d82e5b8d643479d0458f0b18f02a584c4",
+    "reviewManifest": "E:\\AI Project\\Codex\\JiaRu\\model\\reviews\\nail-texture-seg-real-candidate-v6-validation-truth-review.json",
+    "reviewManifestSha256": "d9b7cbf39bef1a022b5435349d5ad0f6da2e1adc8bf07640563e159a614afa59",
+    "split": "val"
+  },
+  "reviewer": "codex-original-resolution-visual-review",
+  "reviewMode": "original-resolution-full-image-and-repaired-crops",
+  "counts": {
+    "expectedImages": 13,
+    "reviewedImages": 13,
+    "pass": 3,
+    "rework": 7,
+    "exclude": 3,
+    "candidateOverlapBlockers": 2
+  },
+  "items": [
+    {
+      "fileName": "more_-2021-07-28-1.45.16_9297783936100f8e1838fb-756x1024.txt",
+      "decision": "pass",
+      "defects": [],
+      "notes": "4 个完整可见甲面均为一甲一 mask；第 4 个拓扑候选未改变可见甲面边界。"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.35_71375674261010cdb4f881.txt",
+      "decision": "exclude",
+      "defects": [
+        "cropped-required-nail"
+      ],
+      "notes": "左侧拇指甲被画面边缘裁断，按完整甲面规则整图排除。"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.40.50_29966733461010ce78c55e.txt",
+      "decision": "rework",
+      "defects": [
+        "invalid-topology",
+        "overlap"
+      ],
+      "notes": "两个真实甲面均可见，但第 1/2 个 polygon 在相邻边界仍有交叠，需显式重画分界。"
+    },
+    {
+      "fileName": "more_-2021-07-28-3.55.58_180943230761010ea04553d.txt",
+      "decision": "pass",
+      "defects": [],
+      "notes": "5 个完整甲面均覆盖完整；第 2/5 个拓扑候选视觉边界可接受。"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.07.07_1465484512610110edbd5e1-752x1024.txt",
+      "decision": "pass",
+      "defects": [],
+      "notes": "主画面唯一完整甲面覆盖完整，无皮肤或杯体背景污染。"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.13.29_1179122534610112ae7200d.txt",
+      "decision": "rework",
+      "defects": [
+        "false-positive",
+        "background-contamination",
+        "duplicate-mask",
+        "skin-contamination",
+        "overlap"
+      ],
+      "notes": "第 3 个 mask 错标雕塑背景；第 4/6 个重复覆盖同一小拇指且第 6 个延伸到皮肤。"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.28_2060593474610113e89beef.txt",
+      "decision": "exclude",
+      "defects": [
+        "cropped-required-nail"
+      ],
+      "notes": "左侧拇指甲被画面边缘裁断，不能作为要求完整甲面的校准真值。"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.20.43_848623705610114038884a.txt",
+      "decision": "rework",
+      "defects": [
+        "false-positive",
+        "background-contamination",
+        "missing-nail",
+        "partial-mask"
+      ],
+      "notes": "第 1 个 polygon 大面积覆盖手指/雕塑邻域而非甲面；其余可见甲面存在漏标或不完整。"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.42.39_163325967361011922b9577.txt",
+      "decision": "exclude",
+      "defects": [
+        "out-of-domain",
+        "empty-positive-label",
+        "missing-nail"
+      ],
+      "notes": "图片是脱离手部的成品甲片且标签为空，不符合当前手部甲面校准域。"
+    },
+    {
+      "fileName": "more_-2021-07-28-4.49.42_205237935261011a56521d7.txt",
+      "decision": "rework",
+      "defects": [
+        "false-positive",
+        "background-contamination"
+      ],
+      "notes": "第 6 个 mask 覆盖左侧布料/背景，不是甲面；其余真实甲面需在删除误标后复核。"
+    },
+    {
+      "fileName": "more_-2021-07-28-5.14.07_1174265329610120d2f31a9.txt",
+      "decision": "rework",
+      "defects": [
+        "false-positive",
+        "background-contamination",
+        "missing-nail"
+      ],
+      "notes": "第 2/3 个 polygon 覆盖手指/雕塑背景，且画面中的其他完整甲面未标注。"
+    },
+    {
+      "fileName": "more_-2021-07-28-5.15.46_904469491610120cb2f987.txt",
+      "decision": "rework",
+      "defects": [
+        "missing-nail"
+      ],
+      "notes": "左侧完整可见拇指甲未标注，其余 4 个甲面虽完整但整图真值不完整。"
+    },
+    {
+      "fileName": "more_more_-2021-07-28-4.34.07_1397983440610117b6aa2a3.txt",
+      "decision": "rework",
+      "defects": [
+        "missing-nail"
+      ],
+      "notes": "右下完整可见粉色小拇指甲未标注，不能作为完整验证真值。"
+    }
+  ],
+  "errors": [],
+  "policy": "A validation truth split is eligible only when every image passes complete original-resolution review and the candidate topology report has no blockers."
+}

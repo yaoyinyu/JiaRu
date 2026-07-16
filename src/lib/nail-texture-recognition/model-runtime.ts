@@ -121,6 +121,15 @@ export function validateNailTextureModelManifest(manifest: unknown): string[] {
   ) {
     errors.push("manifest_output_contract_must_be_non_empty_string");
   }
+  if (
+    manifest.scoreThreshold != null &&
+    (typeof manifest.scoreThreshold !== "number" ||
+      !Number.isFinite(manifest.scoreThreshold) ||
+      manifest.scoreThreshold <= 0 ||
+      manifest.scoreThreshold >= 1)
+  ) {
+    errors.push("manifest_score_threshold_must_be_between_zero_and_one");
+  }
 
   return errors;
 }
@@ -326,6 +335,7 @@ export async function getNailTextureModelRuntime(
               outputNames: ioNames.outputNames,
               outputContract: manifest.outputContract,
               resizeMode: manifest.resizeMode,
+              scoreThreshold: manifest.scoreThreshold ?? 0.35,
             },
             warnings,
           };

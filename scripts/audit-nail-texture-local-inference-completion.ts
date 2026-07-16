@@ -7,6 +7,8 @@ interface Options {
   progressPath: string;
   datasetReadinessPath: string;
   candidateReviewPath: string;
+  releaseTestSnapshotPath: string;
+  releaseTestQualityPath: string;
   bestMetricsPath: string;
   productionManifestPath: string;
   desktopPerformancePath: string;
@@ -33,6 +35,23 @@ interface DatasetReadiness {
 }
 
 interface CandidateReview { dataset?: { testImages?: number } }
+interface ReleaseTestSnapshot {
+  snapshotId?: string;
+  decision?: string;
+  trainingUse?: string;
+  counts?: { images?: number; masks?: number; coreImages?: number; stressImages?: number };
+  representativeReleaseGate?: { ok?: boolean; actual?: number; required?: number; shortfall?: number };
+  itemsSha256?: string;
+  items?: Array<{ fileName?: string; lane?: string; trainingUse?: string }>;
+}
+interface ReleaseTestQuality {
+  ok?: boolean;
+  decision?: string;
+  qualityGatePassed?: boolean;
+  trainingUse?: string;
+  snapshot?: { itemsSha256?: string; counts?: { images?: number; masks?: number } };
+  evaluations?: { full512?: { imgsz?: number; boxMap50?: number; maskMap50?: number; predictionLabels?: number } };
+}
 interface MetricsReport { box_map50?: number; seg_map50?: number }
 interface PerformanceReport { ok?: boolean; totals?: { samples?: number } }
 interface MemoryReport { ok?: boolean; sampleCount?: number }
@@ -52,6 +71,7 @@ function usage(): never {
   throw new Error(
     "Usage: node --experimental-strip-types scripts/audit-nail-texture-local-inference-completion.ts " +
       "[--spec <md>] [--progress <md>] [--dataset-readiness <json>] [--candidate-review <json>] " +
+      "[--release-test-snapshot <json>] [--release-test-quality <json>] " +
       "[--best-metrics <json>] [--production-manifest <json>] [--desktop-performance <json>] " +
       "[--desktop-memory <json>] [--mobile-report <device=json>] [--beta-review <json>] " +
       "[--failure-cases <json>] [--output <json>]"
@@ -64,6 +84,8 @@ function parseArgs(argv: string[]): Options {
     progressPath: path.resolve("docs/nail-texture-local-inference-implementation-progress.md"),
     datasetReadinessPath: path.resolve("model/datasets/nail-texture-v1/metadata/training-dataset-readiness-release.json"),
     candidateReviewPath: path.resolve("model/reports/nail-texture-seg-real-candidate-v9-review.json"),
+    releaseTestSnapshotPath: path.resolve("辅助材料/real-release-test-2026-07-13/frozen-reviewed-candidate-v1/manifest.json"),
+    releaseTestQualityPath: path.resolve("model/reports/nail-texture-seg-real-candidate-v6-release-test-67-quality.json"),
     bestMetricsPath: path.resolve("model/exports/nail-texture-seg-real-candidate-v6/test-metrics.512.json"),
     productionManifestPath: path.resolve("public/models/nail-texture-seg/manifest.json"),
     desktopPerformancePath: path.resolve("model/exports/nail-texture-seg-real-candidate-v6/browser-performance-report.json"),
@@ -86,6 +108,8 @@ function parseArgs(argv: string[]): Options {
     else if (arg === "--progress") options.progressPath = path.resolve(value);
     else if (arg === "--dataset-readiness") options.datasetReadinessPath = path.resolve(value);
     else if (arg === "--candidate-review") options.candidateReviewPath = path.resolve(value);
+    else if (arg === "--release-test-snapshot") options.releaseTestSnapshotPath = path.resolve(value);
+    else if (arg === "--release-test-quality") options.releaseTestQualityPath = path.resolve(value);
     else if (arg === "--best-metrics") options.bestMetricsPath = path.resolve(value);
     else if (arg === "--production-manifest") options.productionManifestPath = path.resolve(value);
     else if (arg === "--desktop-performance") options.desktopPerformancePath = path.resolve(value);
@@ -175,6 +199,8 @@ async function main() {
 
   const datasetReadiness = await readJson<DatasetReadiness>(options.datasetReadinessPath);
   const candidateReview = await readJson<CandidateReview>(options.candidateReviewPath);
+  const releaseTestSnapshot = await readJson<ReleaseTestSnapshot>(options.releaseTestSnapshotPath);
+  const releaseTestQuality = await readJson<ReleaseTestQuality>(options.releaseTestQualityPath);
   const bestMetrics = await readJson<MetricsReport>(options.bestMetricsPath);
   const desktopPerformance = await readJson<PerformanceReport>(options.desktopPerformancePath);
   const desktopMemory = await readJson<MemoryReport>(options.desktopMemoryPath);
@@ -182,14 +208,69 @@ async function main() {
   const failureCases = await readJson<FailureCases>(options.failureCasesPath);
   const production = await productionAsset(options.productionManifestPath);
 
-  const releaseTestImages = Number(candidateReview?.dataset?.testImages ?? 0);
-  const releaseTestGate = { ok: releaseTestImages >= 100, actual: releaseTestImages, required: 100, recommendedMaximum: 200 };
+  const evaluatedReleaseTestImages = Number(candidateReview?.dataset?.testImages ?? 0);
+  const snapshotItems = Array.isArray(releaseTestSnapshot?.items) ? releaseTestSnapshot.items : [];
+  const snapshotImages = Number(releaseTestSnapshot?.counts?.images ?? 0);
+  const frozenSnapshotOk =
+    releaseTestSnapshot?.decision === "frozen_reviewed_candidate_not_release_ready" &&
+    releaseTestSnapshot.trainingUse === "prohibited" &&
+    snapshotImages > 0 &&
+    snapshotItems.length === snapshotImages &&
+    new Set(snapshotItems.map((item) => `${item.lane}:${item.fileName}`)).size === snapshotImages &&
+    snapshotItems.every((item) => item.trainingUse === "prohibited") &&
+    releaseTestSnapshot.representativeReleaseGate?.actual === snapshotImages &&
+    releaseTestSnapshot.representativeReleaseGate?.required === 100 &&
+    typeof releaseTestSnapshot.itemsSha256 === "string" &&
+    /^[a-f0-9]{64}$/i.test(releaseTestSnapshot.itemsSha256);
+  const releaseTestImages = frozenSnapshotOk ? snapshotImages : evaluatedReleaseTestImages;
+  const frozenQuality = releaseTestQuality?.evaluations?.full512;
+  const frozenQualityOk =
+    frozenSnapshotOk &&
+    releaseTestQuality?.ok === true &&
+    releaseTestQuality.trainingUse === "prohibited" &&
+    releaseTestQuality.snapshot?.itemsSha256 === releaseTestSnapshot?.itemsSha256 &&
+    releaseTestQuality.snapshot?.counts?.images === snapshotImages &&
+    frozenQuality?.imgsz === 512 &&
+    frozenQuality.predictionLabels === snapshotImages &&
+    Number.isFinite(Number(frozenQuality.boxMap50)) &&
+    Number.isFinite(Number(frozenQuality.maskMap50));
+  const releaseTestGate = {
+    ok: releaseTestImages >= 100,
+    actual: releaseTestImages,
+    required: 100,
+    recommendedMaximum: 200,
+    evidenceScope: frozenSnapshotOk ? "frozen-reviewed-candidate" : "evaluated-model-test-split",
+    snapshotPath: options.releaseTestSnapshotPath,
+    snapshotOk: frozenSnapshotOk,
+    snapshotMasks: frozenSnapshotOk ? releaseTestSnapshot?.counts?.masks ?? null : null,
+    snapshotSourceHash: frozenSnapshotOk ? releaseTestSnapshot?.itemsSha256 ?? null : null,
+    evaluatedModelTestImages: frozenQualityOk ? snapshotImages : evaluatedReleaseTestImages,
+    historicalEvaluatedModelTestImages: evaluatedReleaseTestImages,
+    note: frozenSnapshotOk && frozenQualityOk
+      ? "The frozen reviewed candidate has deployment-resolution quality evidence, but remains below the 100-image representative-size gate."
+      : frozenSnapshotOk
+        ? "Frozen reviewed candidates count toward dataset-size readiness only; no lineage-checked snapshot quality report was found."
+        : "No valid frozen reviewed candidate snapshot was found; using the evaluated model test split count.",
+  };
+  const selectedBoxMap50 = frozenQualityOk ? Number(frozenQuality?.boxMap50) : Number(bestMetrics?.box_map50 ?? 0);
+  const selectedMaskMap50 = frozenQualityOk ? Number(frozenQuality?.maskMap50) : Number(bestMetrics?.seg_map50 ?? 0);
   const bestMetricsGate = {
-    ok: Number(bestMetrics?.box_map50 ?? 0) >= 0.85 && Number(bestMetrics?.seg_map50 ?? 0) >= 0.75,
-    boxMap50: bestMetrics?.box_map50 ?? null,
-    maskMap50: bestMetrics?.seg_map50 ?? null,
+    ok:
+      selectedBoxMap50 >= 0.85 &&
+      selectedMaskMap50 >= 0.75 &&
+      (!frozenQualityOk || releaseTestQuality?.qualityGatePassed === true),
+    boxMap50: selectedBoxMap50,
+    maskMap50: selectedMaskMap50,
     minimumBoxMap50: 0.85,
     minimumMaskMap50: 0.75,
+    evidenceScope: frozenQualityOk ? "frozen-reviewed-candidate-67-deployment-512" : "historical-evaluated-model-test-split-13",
+    qualityReportPath: options.releaseTestQualityPath,
+    qualityReportOk: frozenQualityOk,
+    qualityDecision: frozenQualityOk ? releaseTestQuality?.decision ?? null : null,
+    historical13: {
+      boxMap50: bestMetrics?.box_map50 ?? null,
+      maskMap50: bestMetrics?.seg_map50 ?? null,
+    },
   };
   const desktopGate = {
     ok: desktopPerformance?.ok === true && desktopMemory?.ok === true,
@@ -281,6 +362,7 @@ async function main() {
 
   const blockingInputs = [
     ...(!failureCaseGate.ok ? [{ code: "USER_FAILURE_CASES", owner: "user", summary: "Provide representative real-world failure images and an approved failure-case report." }] : []),
+    ...(!bestMetricsGate.ok ? [{ code: "MODEL_QUALITY_REGRESSION", owner: "engineering", summary: `Improve the deployment-resolution model: current box/mask mAP50 is ${bestMetricsGate.boxMap50.toFixed(4)}/${bestMetricsGate.maskMap50.toFixed(4)}.` }] : []),
     ...(!releaseTestGate.ok ? [{ code: "REPRESENTATIVE_RELEASE_TESTSET", owner: "user+engineering", summary: `Provide and review at least ${releaseTestGate.required - releaseTestGate.actual} more source-isolated real release-test images.` }] : []),
     ...(!mobileGate.ok ? [{ code: "MOBILE_DEVICE_ACCEPTANCE", owner: "user+engineering", summary: "Run performance and memory acceptance on Android phone/tablet, iPhone, and iPad physical devices." }] : []),
     ...(!betaGate.ok ? [{ code: "USER_BETA_QUALITY_REVIEW", owner: "user", summary: "Complete the directly-usable / needs-fix / unusable Beta review on at least 100 representative images." }] : []),

@@ -1,33 +1,19 @@
 {
-  "ok": false,
-  "decision": "freeze_failed",
+  "ok": true,
+  "decision": "frozen_reviewed_candidate_not_release_ready",
   "outputRoot": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1",
   "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1\\manifest.json",
   "counts": {
-    "images": 54,
-    "masks": 302,
-    "coreImages": 40,
-    "stressImages": 14
+    "images": 67,
+    "masks": 384,
+    "coreImages": 45,
+    "stressImages": 22
   },
   "representativeReleaseGate": {
     "ok": false,
-    "actual": 54,
+    "actual": 67,
     "required": 100,
-    "shortfall": 46
+    "shortfall": 33
   },
-  "errors": [
-    "real_release_20260713_047.jpg: nail 1 polygon is invalid",
-    "real_release_20260713_054.jpg: nail 3 polygon is invalid",
-    "real_release_20260713_067.jpg: nail 2 polygon is invalid",
-    "real_release_20260713_072.jpg: nails 5 and 8 overlap by 0.0064 pixels",
-    "real_release_20260713_078.jpg: nails 6 and 10 overlap by 1195.6186 pixels",
-    "066207e1c3ef-primary.png: nail 5 polygon is invalid",
-    "3e9b2b906fda-primary.png: nail 3 polygon is invalid",
-    "51a2eded5eda-primary.png: nail 5 polygon is invalid",
-    "b1184e010679-main-v3.png: nail 2 polygon is invalid",
-    "c541feb05c54-main-v2.png: nail 1 polygon is invalid",
-    "c6edb7fea814-primary.png: nail 5 polygon is invalid",
-    "d17ab88ac58a-primary.png: nail 3 polygon is invalid",
-    "e826babe1b3a-primary.png: nail 4 polygon is invalid"
-  ]
+  "errors": []
 }

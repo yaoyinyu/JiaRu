@@ -91,6 +91,7 @@ export async function recognizeNailTextures(
       {
         maxCandidates: options.maxCandidates ?? 10,
         includeLowConfidenceCandidates: options.includeLowConfidenceCandidates,
+        scoreThreshold: runtime.info.scoreThreshold,
       }
     );
 

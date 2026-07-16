@@ -1,0 +1,39 @@
+{
+  "ok": false,
+  "schemaVersion": 1,
+  "decision": "rejected_candidate_training_validation",
+  "candidateTrainingEligible": false,
+  "inputs": {
+    "datasetYaml": "E:\\AI Project\\Codex\\JiaRu\\model\\training\\dataset.yaml",
+    "datasetYamlSha256": "80ebf3c10a4aac1d9d4bd8d3eb3dbc70790c0174f1ca8af996ae4f521edc29f0",
+    "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1",
+    "sourceIsolationReport": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-v1-source-isolation-audit.json",
+    "sourceIsolationReportSha256": "10cef476f1e554f79ece3348d99a3d8040d00c4cb96e06234564ba3d46124d05",
+    "truthAudit": null,
+    "truthAuditSha256": null,
+    "split": "val"
+  },
+  "counts": {
+    "validationImages": 46,
+    "validationLabels": 46,
+    "validationMasks": 234,
+    "minimumValidationImages": 30,
+    "validationOnlySourceGroups": 2,
+    "geometryErrors": 5
+  },
+  "validationSourceGroups": [
+    "ai-nail-2026-07-04",
+    "real-reference-2026-07-12-xhs-crops-v1:parent-e73df1f51425"
+  ],
+  "errors": [
+    "source report is not an approved source-isolated dataset",
+    "validation source group leaks into train or test: ai-nail-2026-07-04",
+    "approved original-resolution truth audit is required",
+    "Nail_art_batch_A1__watercolor__2026-07-04T14-54-21.txt:3/4 overlap 0.0001681424",
+    "Nail_art_batch_B3_retry__terra_2026-07-04T14-56-07.txt:2/3 overlap 0.0002275291",
+    "Nail_art_batch_C5__latte_coffe_2026-07-04T14-56-07.txt:1/3 overlap 0.0000050643",
+    "Nail_art_batch_D11__neon_yello_2026-07-04T14-56-54.txt:1/2 overlap 0.0001314231",
+    "Nail_art_batch_D5__pistachio_m_2026-07-04T14-56-54.txt:1/2 overlap 0.0000677499"
+  ],
+  "policy": "Candidate training requires source-isolated validation groups, full approved original-resolution truth review, bound label hashes, valid polygons, and zero pairwise overlap."
+}

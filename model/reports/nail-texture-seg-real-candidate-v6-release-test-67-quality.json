@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "reject_v6_release_at_deployment_resolution",
+  "qualityGatePassed": false,
+  "trainingUse": "prohibited",
+  "snapshot": {
+    "id": "real-release-test-2026-07-13-reviewed-candidate-v1",
+    "itemsSha256": "5b4b8d80941cfd7d85bf35859aeb28ccae8e1e1be616f96cebfe5ab6b23b1aa1",
+    "counts": {
+      "images": 67,
+      "masks": 384,
+      "coreImages": 45,
+      "stressImages": 22
+    },
+    "parentSourceGroups": 18,
+    "sourceIsolationPassed": true
+  },
+  "deploymentContract": {
+    "imgsz": 512,
+    "minimumBoxMap50": 0.85,
+    "minimumMaskMap50": 0.75,
+    "maximumRegression": 0.02
+  },
+  "historicalBaseline": {
+    "path": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\test-metrics.512.json",
+    "images": 13,
+    "boxMap50": 0.8527541703044659,
+    "maskMap50": 0.847659037958229
+  },
+  "evaluations": {
+    "full512": {
+      "path": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-metrics.512.json",
+      "imgsz": 512,
+      "boxMap50": 0.8369770379597032,
+      "maskMap50": 0.8313123822582702,
+      "boxMap50To95": 0.5149759749668285,
+      "maskMap50To95": 0.4686206242508958,
+      "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation",
+      "artifactIndex": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-artifacts-512\\evaluation-artifacts.json",
+      "predictionLabels": 67
+    },
+    "full640Diagnostic": {
+      "path": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-metrics.640.json",
+      "imgsz": 640,
+      "boxMap50": 0.8569617894730707,
+      "maskMap50": 0.8548795176751256,
+      "boxMap50To95": 0.5451240788977747,
+      "maskMap50To95": 0.4864376136087287,
+      "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation",
+      "artifactIndex": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-artifacts-640\\evaluation-artifacts.json",
+      "predictionLabels": 67
+    },
+    "core512": {
+      "path": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-core-metrics.512.json",
+      "imgsz": 512,
+      "boxMap50": 0.8485091962669096,
+      "maskMap50": 0.8522870518292044,
+      "boxMap50To95": 0.5296626438581461,
+      "maskMap50To95": 0.496791875558397,
+      "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation",
+      "artifactIndex": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-core-artifacts-512\\evaluation-artifacts.json",
+      "predictionLabels": 45
+    },
+    "stress512": {
+      "path": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-stress-metrics.512.json",
+      "imgsz": 512,
+      "boxMap50": 0.8179063676818329,
+      "maskMap50": 0.7919444512291467,
+      "boxMap50To95": 0.49275457104549014,
+      "maskMap50To95": 0.42188775074595347,
+      "datasetRoot": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation",
+      "artifactIndex": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-stress-artifacts-512\\evaluation-artifacts.json",
+      "predictionLabels": 22
+    }
+  },
+  "deploymentDeltaFromHistorical13": {
+    "boxMap50": -0.015777132344762634,
+    "maskMap50": -0.016346655699958745
+  },
+  "errors": [
+    "deployment box mAP50 0.836977 is below 0.850000"
+  ],
+  "diagnosticConclusion": {
+    "core": "near_box_threshold_mask_pass",
+    "stress": "primary_generalization_regression",
+    "full640": "absolute_threshold_pass_but_not_the_512_deployment_contract"
+  },
+  "nextActions": [
+    "Keep the production manifest unchanged and do not promote v6.",
+    "Use the frozen snapshot only for evaluation; never add its images or labels to training.",
+    "Prioritize training-authorized stress-domain examples and reevaluate at 512 pixels.",
+    "Expand the frozen source-isolated release test from 67 to at least 100 images."
+  ],
+  "inputs": {
+    "snapshot_manifest": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1\\manifest.json",
+    "materialization_report": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1-evaluation-report.json",
+    "baseline_metrics": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\test-metrics.512.json",
+    "full_512": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-metrics.512.json",
+    "full_640": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-metrics.640.json",
+    "core_512": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-core-metrics.512.json",
+    "stress_512": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-stress-metrics.512.json",
+    "assessment": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\release-test-67-quality-assessment.512.json"
+  }
+}
