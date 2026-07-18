@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-18T11:08:15.721Z",
+  "generatedAt": "2026-07-18T11:48:20.079Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 289,
-    "passMarkerCount": 276,
+    "progressMarkerCount": 293,
+    "passMarkerCount": 280,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -53,7 +53,7 @@
         "id": "M2-T3-VISION-ANNOTATION",
         "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "正式集409图/2142 mask不变；外部首批train审核现有93个批准报告归并为92张唯一图片/481个完整mask、1冗余、0冲突，最低100张train正样本仍缺8张。val 0/30、约100张hard negative及代表性test扩充继续推进"
+        "evidence": "正式集409图/2142 mask不变；外部首批train审核现有96个批准报告归并为95张唯一图片/496个完整mask、1冗余、0冲突，最低100张train正样本仍缺5张。val 0/30、约100张hard negative及代表性test扩充继续推进"
       },
       {
         "id": "M2-T3-RELEASE-TEST-ANNOTATION",
@@ -89,7 +89,7 @@
         "id": "USER-ANNOTATION-01",
         "task": "修正真实图片的甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "外部首批train审核已有93个批准报告归并为92张唯一图片/481个完整mask、1个冗余报告、0冲突；最低100张正样本仍缺8张，val仍为0/30。当前无需用户逐点重画，继续由原分辨率视觉审核与人工polygon返修推进"
+        "evidence": "外部首批train审核已有96个批准报告归并为95张唯一图片/496个完整mask、1个冗余报告、0冲突；最低100张正样本仍缺5张，val仍为0/30。当前无需用户逐点重画，继续由原分辨率视觉审核与人工polygon返修推进"
       },
       {
         "id": "USER-AUTH-03",
@@ -623,6 +623,14 @@
         {
           "checked": true,
           "text": "训练真值唯一索引更新为93个批准报告、2个历史拒绝报告、92张唯一图片/481 mask、1个冗余报告、0冲突，SHA-256为`a9d5936a…2246`；最低100张train正样本完成92%、仍缺8张。val 0/30和约100张hard negative不变，整批物化与来源隔离前继续禁止训练；权威索引仍位于审核工作区根目录。"
+        },
+        {
+          "checked": true,
+          "text": "完成`00293/00711/00292`批次065并形成第94至96个批准真值报告；`00915`两轮SAM仍合并手指/手掌后继续返修，以5甲清晰完整的`00292`替换。终版以6个逐甲审核通过的SAM polygon和9个人工polygon重建3张/15枚完整甲面；第二轮原分辨率视觉门进一步移除`00293`拇指甲根皮肤、补齐`00711`第4甲完整银灰甲尖并清除`00292`拇指衣物轮廓，15/15 polygon合法、同图零交叠、几何15/15。"
+        },
+        {
+          "checked": true,
+          "text": "训练真值唯一索引更新为96个批准报告、2个历史拒绝报告、95张唯一图片/496 mask、1个冗余报告、0冲突，SHA-256为`12e3d613…3510`；最低100张train正样本完成95%、仍缺5张。val 0/30和约100张hard negative不变，整批物化与来源隔离前继续禁止训练；权威索引仍位于审核工作区根目录。"
         },
         {
           "checked": true,
