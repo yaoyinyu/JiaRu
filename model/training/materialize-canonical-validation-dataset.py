@@ -152,7 +152,7 @@ def validate_annotation(
     for left_index, left in enumerate(shapes, start=1):
         for right_index in range(left_index + 1, len(shapes) + 1):
             overlap = left.intersection(shapes[right_index - 1]).area
-            if overlap > 1e-6:
+            if overlap > 0:
                 raise ValueError(
                     f"{file_name}: nails {left_index}/{right_index} overlap "
                     f"{overlap:.8f} pixels"

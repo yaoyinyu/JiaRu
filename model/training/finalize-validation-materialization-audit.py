@@ -5,8 +5,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 from PIL import Image
@@ -38,6 +40,18 @@ def read_json(path: Path, label: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{label} must contain a JSON object: {path}")
     return value
+
+
+def load_role_isolation_auditor() -> ModuleType:
+    script = Path(__file__).with_name("audit-validation-role-isolation.py")
+    spec = importlib.util.spec_from_file_location(
+        "validation_role_isolation_auditor", script
+    )
+    if spec is None or spec.loader is None:
+        raise ValueError(f"role-isolation auditor cannot be loaded: {script}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def require_current_hash(path: Path, expected: Any, label: str) -> str:
@@ -78,11 +92,11 @@ def validate_polygon(
     return shape, coordinates
 
 
-def reject_overlap(shapes: list[Polygon], label: str, tolerance: float) -> None:
+def reject_overlap(shapes: list[Polygon], label: str) -> None:
     for left_index, left in enumerate(shapes, start=1):
         for right_index in range(left_index + 1, len(shapes) + 1):
             overlap = left.intersection(shapes[right_index - 1]).area
-            if overlap > tolerance:
+            if overlap > 0:
                 raise ValueError(
                     f"{label} polygons {left_index}/{right_index} overlap {overlap:.10f}"
                 )
@@ -143,7 +157,7 @@ def annotation_yolo_lines(
             for value in (f"{x / width:.8f}", f"{y / height:.8f}")
         ]
         lines.append(" ".join(["0", *normalized]))
-    reject_overlap(shapes, f"{file_name}: annotation", 1e-6)
+    reject_overlap(shapes, f"{file_name}: annotation")
     return lines
 
 
@@ -178,7 +192,7 @@ def validate_yolo_label(
             (1, 1),
         )
         shapes.append(shape)
-    reject_overlap(shapes, f"{file_name}: YOLO label", 1e-10)
+    reject_overlap(shapes, f"{file_name}: YOLO label")
     return len(shapes)
 
 
@@ -340,6 +354,13 @@ def validate_role_isolation(
         or val_input.get("sha256") != materialization_hash
     ):
         raise ValueError("role-isolation materialization binding drift")
+    required_inputs = {
+        "valMaterializationReport",
+        "trainTruthIndex",
+        "frozenTestManifest",
+    }
+    if not isinstance(inputs, dict) or not required_inputs.issubset(inputs):
+        raise ValueError("role-isolation report is missing required role inputs")
     for label, evidence in inputs.items():
         if not isinstance(evidence, dict):
             raise ValueError(f"role-isolation input {label} is malformed")
@@ -347,6 +368,56 @@ def validate_role_isolation(
         require_current_hash(
             evidence_path, evidence.get("sha256"), f"role-isolation input {label}"
         )
+
+    auditor = load_role_isolation_auditor()
+    val_path = Path(str(inputs["valMaterializationReport"]["path"])).resolve()
+    train_path = Path(str(inputs["trainTruthIndex"]["path"])).resolve()
+    frozen_path = Path(str(inputs["frozenTestManifest"]["path"])).resolve()
+    roles = {
+        "val": auditor.validate_val_materialization(
+            val_path, read_json(val_path, "role-isolation val materialization")
+        ),
+        "train": auditor.validate_train_index(
+            train_path, read_json(train_path, "role-isolation train truth index")
+        ),
+        "frozen-test": auditor.validate_frozen_test(
+            frozen_path, read_json(frozen_path, "role-isolation frozen test")
+        ),
+    }
+    hard_negative_input = inputs.get("hardNegativeManifest")
+    if hard_negative_input is not None:
+        hard_negative_path = Path(str(hard_negative_input["path"])).resolve()
+        roles["hard-negative"] = auditor.validate_hard_negatives(
+            hard_negative_path,
+            read_json(hard_negative_path, "role-isolation hard negatives"),
+        )
+    recomputed_overlaps = auditor.pairwise_overlaps(roles)
+    if any(recomputed_overlaps.values()):
+        raise ValueError(
+            f"role-isolation recomputation found cross-role overlap: {recomputed_overlaps}"
+        )
+    recomputed_roles = {
+        role: {
+            "images": len(records),
+            "imageSha256": len({item["imageSha256"] for item in records}),
+            "sourceGroups": len(
+                {
+                    group
+                    for item in records
+                    for group in item["sourceGroups"]
+                }
+            ),
+            "identitiesSha256": canonical_sha256(records),
+        }
+        for role, records in sorted(roles.items())
+    }
+    if document.get("roles") != recomputed_roles:
+        raise ValueError("role-isolation role summaries differ from recomputed identities")
+    recomputed_all_roles_hash = canonical_sha256(
+        {role: records for role, records in sorted(roles.items())}
+    )
+    if document.get("allRolesSha256") != recomputed_all_roles_hash:
+        raise ValueError("role-isolation allRolesSha256 differs from recomputed identities")
     roles = document.get("roles")
     val_role = roles.get("val") if isinstance(roles, dict) else None
     if not isinstance(val_role, dict) or int(val_role.get("images", -1)) != canonical_count:
@@ -371,10 +442,19 @@ def validate_role_isolation(
 
 
 def build(args: argparse.Namespace) -> dict[str, Any]:
+    output_path = Path(args.output).resolve()
     dataset_path = Path(args.dataset).resolve()
     truth_index_path = Path(args.truth_index).resolve()
     materialization_path = Path(args.materialization_report).resolve()
     isolation_path = Path(args.role_isolation_report).resolve()
+    direct_inputs = {
+        dataset_path,
+        truth_index_path,
+        materialization_path,
+        isolation_path,
+    }
+    if output_path in direct_inputs:
+        raise ValueError("output must not overwrite any direct input")
     for path, label in (
         (dataset_path, "dataset"),
         (truth_index_path, "truth index"),
@@ -390,6 +470,12 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "roleIsolationReport": sha256_file(isolation_path),
     }
     dataset = load_dataset_config(dataset_path)
+    try:
+        output_path.relative_to(dataset.dataset_root)
+    except ValueError:
+        pass
+    else:
+        raise ValueError("output must be outside the materialized dataset root")
     truth_index = read_json(truth_index_path, "truth index")
     materialization = read_json(materialization_path, "materialization report")
     isolation = read_json(isolation_path, "role-isolation report")
@@ -640,6 +726,27 @@ def input_evidence(args: argparse.Namespace) -> dict[str, dict[str, str | None]]
     return result
 
 
+def validate_output_target(args: argparse.Namespace) -> None:
+    output_path = Path(args.output).resolve()
+    direct_inputs = {
+        Path(args.dataset).resolve(),
+        Path(args.truth_index).resolve(),
+        Path(args.materialization_report).resolve(),
+        Path(args.role_isolation_report).resolve(),
+    }
+    if output_path in direct_inputs:
+        raise ValueError("output must not overwrite any direct input")
+    dataset_path = Path(args.dataset).resolve()
+    if dataset_path.is_file():
+        dataset = load_dataset_config(dataset_path)
+        try:
+            output_path.relative_to(dataset.dataset_root)
+        except ValueError:
+            pass
+        else:
+            raise ValueError("output must be outside the materialized dataset root")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Finalize a materialized, source-isolated validation split."
@@ -651,6 +758,25 @@ def main() -> None:
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
     output = Path(args.output).resolve()
+    try:
+        validate_output_target(args)
+    except Exception as error:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "status": "HOLD",
+                    "decision": "rejected_as_calibration_truth",
+                    "calibrationTruthEligible": False,
+                    "errors": [str(error)],
+                    "output": str(output),
+                    "outputWritten": False,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        raise SystemExit(1)
     try:
         report = build(args)
     except Exception as error:
