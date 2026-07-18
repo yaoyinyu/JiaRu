@@ -99,6 +99,10 @@ npm.cmd run build
 | `M2-T3-VAL-TRUTH-014` | 首14张来源隔离验证真值候选唯一索引 | ✅ PASS | 14个批准报告归并为14张唯一图片/64 mask、0冗余、0冲突，索引SHA-256为`8e0a536d…c08cfb`；全部绑定val角色且trainingUse=prohibited，剩余16张清零前整套split仍禁止校准或训练 |
 | `M2-T3-VAL-MASK-REPAIR-BATCH-010` | 清晰短甲与产品手持图完整甲面返修 | ✅ PASS | 源图门拦截`00938/00941/00943`实际仅4枚完整甲面、`01184`拇指甲触边及`00455`被横向拇指遮挡，改用五甲完整的`00383/00351…_3`。SAM 2图/10提示、0 fallback、几何10/10；视觉门保留8个干净polygon，人工重画点纹长甲与侧向拇指甲，逐甲2×首轮发现两枚轮廓偏窄后再次扩大。终版整图、全部逐甲2×、合法性、零交叠和几何10/10通过 |
 | `M2-T3-VAL-TRUTH-016` | 首16张来源隔离验证真值候选唯一索引 | ✅ PASS | 16个批准报告归并为16张唯一图片/74 mask、0冗余、0冲突，索引SHA-256为`a583b884…ef8d`；全部绑定val角色且trainingUse=prohibited，剩余14张清零前整套split仍禁止校准或训练 |
+| `M2-T3-VAL-MASK-REPAIR-BATCH-011-013` | 原val剩余源图复核、三张真值返修与裁断源图排除 | ✅ PASS | `00351…_4`以5个人工polygon清除产品背景/皮肤污染；`00826/00828`保留7个已审polygon并重画3甲，三图15枚甲面均通过整图、全部逐甲2×、合法性、零交叠和几何15/15。`00935`右侧拇指甲根触及画面边缘、实际仅4枚完整甲面，按源图门排除而未虚构mask |
+| `M2-T3-VAL-TRUTH-019` | 首19张来源隔离验证真值候选唯一索引 | ✅ PASS | 第17—19个批准报告归并后为19张唯一图片/89 mask、0冗余、0冲突，索引SHA-256为`924d04f0…faf4`；全部绑定val角色且trainingUse=prohibited，剩余11张由整组替补补齐，30/30前禁止校准或候选训练 |
+| `M2-T3-VAL-REPLACEMENT-ROLE-EXTENSION` | val无效源图的整组替补角色迁移与工作区物化 | ✅ PASS | 新角色扩展器逐组拒绝独立发布test、已有train真值、首批train工作区、部分来源组、授权或图片哈希漂移；11张/7个完整来源组从未物化train候选迁移为val候选，组合角色清单41张/14组/214枚预期甲面，SHA-256为`1daddbe5…2495`。扩展专用工作区11/11硬链接、3分片/55枚预期甲面，manifest SHA-256为`28a2dbfa…614c`，训练用途仍禁止 |
+| `M2-T3-VAL-REPLACEMENT-CANDIDATE-GENERATION` | 11张替补的YOLO紧框与55枚定向SAM候选生成 | ✅ PASS（候选生成） | v6在1024/conf=0.15生成73个候选，机器身份/几何0错误；原分辨率整图筛除背景甲片与重复框后固定11图/55个逐甲提示，SAM2.1 large完成55/55、0 fallback、0错误，几何46 pass/9 suspect。所有输出继续为candidate-only，必须由批次014—016完成整图、逐甲2×及人工polygon返修后才能晋级真值 |
 | `M2-T3-PROMPT-DIAGNOSTICS` | 辅助标注单甲失败精确定位 | ✅ PASS | FastSAM/SAM2空mask错误包含提示序号和模式，polygon转换错误包含提示序号；专项测试通过，实跑准确定位`prompt 6 (box)`及`prompt 9 (box-center)` |
 | `M2-T3-REGION-EXTRACTION` | 从截图/拼图中提取受审计单照片区域 | ✅ PASS | 9张小红书截图主区域9/9提取成功；报告包含父子SHA-256、归一化/像素框、尺寸、reviewRequired和父图稳定sourceGroup；Windows Unicode控制台兼容及非法框/路径守卫测试通过 |
 | `M2-T3-DERIVED-ANNOTATION` | 派生照片逐甲SAM2标注与父图稳定分组审计 | ✅ PASS | 9张派生图9/9有审核决策，7张/41 mask通过、2张返修；机器审计核对派生图哈希、尺寸、逐图sourceGroup、mask数、多边形边界与面积，0错误；2项专项测试通过 |
@@ -407,7 +411,7 @@ npm.cmd run build
 | `USER-AUTH-01` | 明确图片仅内部测试或可用于正式训练 | ✅ PASS | 用户于 2026-07-11 选择 A，确认 22 张真实素材可用于商业模型训练和长期回归测试；300 张团队 AI 图亦已确认商业训练授权 |
 | `USER-DEVICE-01` | 确认 Windows、Android、iPhone 的优先级和可测试机型 | ✅ PASS | 已确认普通 Windows、Android、Android Pad、iPhone、iPad；可测 ROG 枪神 8 Plus、vivo Pad2、vivo X100s Pro、小米 13 Pro、vivo S30 |
 | `USER-REVIEW-01` | 对固定样本标记直接可用、需修正或不可用 | ✅ PASS | 用户确认 22 张图片均清晰可用，但现有自动标注全部有问题；审核表已统一登记为 `needs_manual_fix`，22/22 进入人工多边形修正队列 |
-| `USER-ANNOTATION-01` | 修正真实图片的甲面多边形 | 🟡 IN PROGRESS | 外部首批train已形成100张唯一图片/521个完整mask；来源隔离val现有16张唯一图片/74个完整mask通过角色绑定终审，剩余14张返修。整套val未全通过，约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画 |
+| `USER-ANNOTATION-01` | 修正真实图片的甲面多边形 | 🟡 IN PROGRESS | 外部首批train已形成100张唯一图片/521个完整mask；来源隔离val现有19张唯一图片/89个完整mask通过角色绑定终审，剩余11张已按7个完整来源组建立替补角色和候选工作区，正由批次014—016返修。整套val未全通过，约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画 |
 | `USER-AUTH-02` | 确认 `真实素材/2026_7_12` 新增 113 张素材是否可用于商业模型训练和长期回归测试 | ✅ PASS | 用户于2026-07-12选择A，明确允许用于商业模型训练和长期回归；80张已导入、5张因源图质量排除、28张返修项仍隔离 |
 | `USER-AUTH-03` | 确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试 | ⏸️ USER INPUT | 机器审计与11页视觉总览已完成；当前仅登记为合成候选池，未导入正式集。需明确授权后再进入逐图筛选和标注流程 |
 | `USER-AUTH-04` | 确认 `真实素材/2026_7_13` 的101张素材用途 | ✅ PASS | 用户确认允许用于独立发布测试和长期回归；intake将训练用途固定为prohibited，9张跨批重复排除，92张保留 |
