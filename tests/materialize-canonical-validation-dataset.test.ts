@@ -23,7 +23,7 @@ const sha = (file: string) =>
 type Fixture = {
   root: string;
   indexPath: string;
-  index: Record<string, any>;
+  index: Record<string, unknown>;
 };
 
 async function fixture(): Promise<Fixture> {

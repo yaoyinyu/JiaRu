@@ -222,7 +222,7 @@ function run(
     args.push("--hard-negative-manifest", item.hardManifest);
   }
   const result = spawnSync("python", args, { encoding: "utf8" });
-  let report: Record<string, any> | undefined;
+  let report: Record<string, unknown> | undefined;
   if (existsSync(output)) {
     try {
       report = JSON.parse(readFileSync(output, "utf8"));
@@ -258,6 +258,27 @@ test("approves deterministic hash-bound isolation across all four roles", () => 
   const second = run(item);
   assert.equal(second.status, 0, second.stderr || second.stdout);
   assert.equal(second.report.allRolesSha256, first.report.allRolesSha256);
+});
+
+test("accepts the hash-bound legacy training-truth contract without truthRole", () => {
+  const item = fixture();
+  item.trainDocument.inputs = {
+    truthDir: path.dirname(item.trainDocument.canonicalTruths[0].reportPath),
+    reportPattern: "training-truth-*-final.json",
+  };
+  for (const truth of item.trainDocument.canonicalTruths) {
+    const report = JSON.parse(readFileSync(truth.reportPath, "utf8"));
+    delete report.inputs.truthRole;
+    report.item.annotationTruthStatus =
+      "approved-as-training-truth-candidate";
+    report.item.trainingUse = "prohibited-until-materialization-audit";
+    writeFileSync(truth.reportPath, `${JSON.stringify(report)}\n`);
+    truth.reportSha256 = shaFile(truth.reportPath);
+  }
+  save(item);
+  const result = run(item);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.equal(result.report.status, "PASS");
 });
 
 test("excludes the in-dataset materialization report from the exact file inventory", () => {
