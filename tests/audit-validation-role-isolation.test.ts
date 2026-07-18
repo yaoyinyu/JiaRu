@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -201,8 +202,11 @@ function save(item: Fixture) {
   );
 }
 
-function run(item: Fixture, withHardNegatives = true) {
-  const output = path.join(item.root, "isolation-report.json");
+function run(
+  item: Fixture,
+  withHardNegatives = true,
+  output = path.join(item.root, "isolation-report.json"),
+) {
   const args = [
     script,
     "--val-materialization-report",
@@ -218,10 +222,18 @@ function run(item: Fixture, withHardNegatives = true) {
     args.push("--hard-negative-manifest", item.hardManifest);
   }
   const result = spawnSync("python", args, { encoding: "utf8" });
+  let report: Record<string, any> | undefined;
+  if (existsSync(output)) {
+    try {
+      report = JSON.parse(readFileSync(output, "utf8"));
+    } catch {
+      report = undefined;
+    }
+  }
   return {
     ...result,
     output,
-    report: JSON.parse(readFileSync(output, "utf8")),
+    report,
   };
 }
 
@@ -246,6 +258,21 @@ test("approves deterministic hash-bound isolation across all four roles", () => 
   const second = run(item);
   assert.equal(second.status, 0, second.stderr || second.stdout);
   assert.equal(second.report.allRolesSha256, first.report.allRolesSha256);
+});
+
+test("excludes the in-dataset materialization report from the exact file inventory", () => {
+  const item = fixture();
+  const report = path.join(
+    item.valDocument.outputDir,
+    "metadata",
+    "materialization-report.json",
+  );
+  mkdirSync(path.dirname(report), { recursive: true });
+  writeFileSync(report, `${JSON.stringify(item.valDocument, null, 2)}\n`);
+  item.valReport = report;
+  const result = run(item);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.equal(result.report.status, "PASS");
 });
 
 test("places cross-role fileName, image hash, or source group overlap on HOLD", async (t) => {
@@ -344,6 +371,16 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     assert.notEqual(result.status, 0);
     assert.match(result.report.errors.join("\n"), /orphan files/);
   });
+  await t.test("unlisted physical validation orphan despite clean report counters", () => {
+    const item = fixture();
+    writeFileSync(path.join(item.valDocument.outputDir, "orphan.txt"), "orphan");
+    const result = run(item);
+    assert.notEqual(result.status, 0);
+    assert.match(
+      result.report.errors.join("\n"),
+      /file inventory differs from datasetFiles.*orphan\.txt/,
+    );
+  });
   await t.test("val dataset file drift", () => {
     const item = fixture();
     const target = path.join(
@@ -373,5 +410,128 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     const result = run(item);
     assert.notEqual(result.status, 0);
     assert.match(result.report.errors.join("\n"), /items SHA-256 drift/);
+  });
+});
+
+test("requires an explicitly approved and hash-bound hard-negative manifest", async (t) => {
+  for (const scenario of [
+    {
+      name: "ok must be true",
+      mutate: (item: Fixture) => {
+        item.hardDocument.ok = false;
+      },
+      pattern: /hard-negative manifest is not usable/,
+    },
+    {
+      name: "decision must be approved_hard_negative_manifest",
+      mutate: (item: Fixture) => {
+        item.hardDocument.decision = "candidate_hard_negative_manifest";
+      },
+      pattern: /hard-negative manifest is not usable/,
+    },
+    {
+      name: "trainingUse must be permitted",
+      mutate: (item: Fixture) => {
+        item.hardDocument.trainingUse = "prohibited";
+      },
+      pattern: /hard-negative manifest is not usable/,
+    },
+  ]) {
+    await t.test(scenario.name, () => {
+      const item = fixture();
+      scenario.mutate(item);
+      save(item);
+      const result = run(item);
+      assert.notEqual(result.status, 0);
+      assert.match(result.report.errors.join("\n"), scenario.pattern);
+    });
+  }
+
+  await t.test("itemsSha256 is mandatory", () => {
+    const item = fixture();
+    delete item.hardDocument.itemsSha256;
+    writeFileSync(
+      item.hardManifest,
+      `${JSON.stringify(item.hardDocument, null, 2)}\n`,
+    );
+    const result = run(item);
+    assert.notEqual(result.status, 0);
+    assert.match(result.report.errors.join("\n"), /itemsSha256.*SHA-256/);
+  });
+
+  await t.test("itemsSha256 must match items", () => {
+    const item = fixture();
+    item.hardDocument.items[0].sourceGroup = "changed-without-rehash";
+    writeFileSync(
+      item.hardManifest,
+      `${JSON.stringify(item.hardDocument, null, 2)}\n`,
+    );
+    const result = run(item);
+    assert.notEqual(result.status, 0);
+    assert.match(result.report.errors.join("\n"), /items SHA-256 drift/);
+  });
+});
+
+test("rejects unsafe frozen-test lane values before resolving image evidence", async (t) => {
+  for (const lane of ["../core", "..\\core", "core/child", "core\\child"]) {
+    await t.test(JSON.stringify(lane), () => {
+      const item = fixture();
+      item.frozenDocument.items[0].lane = lane;
+      save(item);
+      const result = run(item);
+      assert.notEqual(result.status, 0);
+      assert.match(result.report.errors.join("\n"), /invalid lane/);
+    });
+  }
+
+  await t.test("absolute lane", () => {
+    const item = fixture();
+    item.frozenDocument.items[0].lane = path.resolve(
+      path.dirname(item.frozenManifest),
+      "images",
+      "core",
+    );
+    save(item);
+    const result = run(item);
+    assert.notEqual(result.status, 0);
+    assert.match(result.report.errors.join("\n"), /invalid lane/);
+  });
+
+  await t.test("unknown single-segment lane", () => {
+    const item = fixture();
+    item.frozenDocument.items[0].lane = "other";
+    save(item);
+    const result = run(item);
+    assert.notEqual(result.status, 0);
+    assert.match(result.report.errors.join("\n"), /invalid lane/);
+  });
+});
+
+test("protects --output before reading roles or writing a report", async (t) => {
+  await t.test("does not overwrite an input", () => {
+    const item = fixture();
+    const original = readFileSync(item.trainIndex);
+    const result = run(item, true, item.trainIndex);
+    assert.notEqual(result.status, 0);
+    assert.deepEqual(readFileSync(item.trainIndex), original);
+    assert.match(result.stdout, /output must not equal any input file/);
+  });
+
+  await t.test("does not write inside the validation dataset root", () => {
+    const item = fixture();
+    const output = path.join(
+      item.valDocument.outputDir,
+      "metadata",
+      "role-isolation.json",
+    );
+    mkdirSync(path.dirname(output), { recursive: true });
+    writeFileSync(output, "preserve-me");
+    const result = run(item, true, output);
+    assert.notEqual(result.status, 0);
+    assert.equal(readFileSync(output, "utf8"), "preserve-me");
+    assert.match(
+      result.stdout,
+      /output must not be located inside the validation materialized dataset root/,
+    );
   });
 });

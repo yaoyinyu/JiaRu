@@ -13,6 +13,7 @@ from typing import Any
 
 
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
+FROZEN_TEST_LANES = {"core", "stress"}
 
 
 def sha256_file(path: Path) -> str:
@@ -45,6 +46,14 @@ def require_hash(value: Any, label: str) -> str:
     if not SHA256_PATTERN.fullmatch(normalized):
         raise ValueError(f"{label} is missing or is not a SHA-256")
     return normalized
+
+
+def is_within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
 
 
 def require_identity(
@@ -152,18 +161,36 @@ def validate_val_materialization(
         relative = str(item.get("path", ""))
         if (
             not relative
-            or relative in dataset_paths
             or Path(relative).is_absolute()
             or ".." in Path(relative).parts
         ):
             raise ValueError(f"val dataset file {index} has an invalid path")
-        dataset_paths.add(relative)
-        artifact = output_dir / Path(relative)
+        artifact = (output_dir / Path(relative)).resolve()
+        if not is_within(artifact, output_dir):
+            raise ValueError(f"val dataset file {index} escapes outputDir")
+        normalized_relative = artifact.relative_to(output_dir).as_posix()
+        if normalized_relative in dataset_paths:
+            raise ValueError(f"val dataset file {index} has a duplicate path")
+        dataset_paths.add(normalized_relative)
         expected_hash = require_hash(
             item.get("sha256"), f"val dataset file {relative}"
         )
         if not artifact.is_file() or sha256_file(artifact) != expected_hash:
             raise ValueError(f"val dataset file hash drift: {relative}")
+
+    report_path = path.resolve()
+    actual_dataset_paths = {
+        artifact.resolve().relative_to(output_dir).as_posix()
+        for artifact in output_dir.rglob("*")
+        if artifact.is_file() and artifact.resolve() != report_path
+    }
+    if actual_dataset_paths != dataset_paths:
+        unlisted = sorted(actual_dataset_paths - dataset_paths)
+        missing = sorted(dataset_paths - actual_dataset_paths)
+        raise ValueError(
+            "val materialization file inventory differs from datasetFiles: "
+            f"unlisted={unlisted}, missing={missing}"
+        )
 
     records: list[dict[str, Any]] = []
     seen_names: set[str] = set()
@@ -304,9 +331,20 @@ def validate_frozen_test(
                 f"frozen test item is not training-prohibited: {identity['fileName']}"
             )
         lane = str(item.get("lane", ""))
-        image_path = path.parent / "images" / lane / identity["fileName"]
         if (
-            not lane
+            lane not in FROZEN_TEST_LANES
+            or Path(lane).is_absolute()
+            or Path(lane).name != lane
+            or any(separator in lane for separator in ("/", "\\"))
+            or ".." in Path(lane).parts
+        ):
+            raise ValueError(
+                f"frozen test item has an invalid lane: {identity['fileName']}"
+            )
+        lane_root = (path.parent / "images" / lane).resolve()
+        image_path = (lane_root / identity["fileName"]).resolve()
+        if (
+            not is_within(image_path, lane_root)
             or not image_path.is_file()
             or sha256_file(image_path) != identity["imageSha256"]
         ):
@@ -332,9 +370,20 @@ def pick_items(document: dict[str, Any], label: str) -> list[Any]:
 def validate_hard_negatives(
     path: Path, document: dict[str, Any]
 ) -> list[dict[str, Any]]:
-    if document.get("ok") is False or document.get("trainingUse") == "prohibited":
+    if (
+        document.get("ok") is not True
+        or document.get("decision") != "approved_hard_negative_manifest"
+        or document.get("trainingUse") != "permitted"
+    ):
         raise ValueError("hard-negative manifest is not usable")
-    raw_records = pick_items(document, "hard-negative manifest")
+    raw_records = document.get("items")
+    if not isinstance(raw_records, list) or not raw_records:
+        raise ValueError("hard-negative manifest items are missing")
+    expected_items_hash = require_hash(
+        document.get("itemsSha256"), "hard-negative manifest itemsSha256"
+    )
+    if expected_items_hash != canonical_sha256(raw_records):
+        raise ValueError("hard-negative manifest items SHA-256 drift")
     records: list[dict[str, Any]] = []
     seen_names: set[str] = set()
     seen_hashes: set[str] = set()
@@ -491,6 +540,34 @@ def input_evidence(args: argparse.Namespace) -> dict[str, dict[str, str | None]]
     return evidence
 
 
+def protect_output_path(args: argparse.Namespace, output: Path) -> None:
+    input_paths = [
+        Path(value).resolve()
+        for value in (
+            args.val_materialization_report,
+            args.train_truth_index,
+            args.frozen_test_manifest,
+            args.hard_negative_manifest,
+        )
+        if value
+    ]
+    if output in input_paths:
+        raise ValueError("output must not equal any input file")
+
+    val_report_path = Path(args.val_materialization_report).resolve()
+    if not val_report_path.is_file():
+        return
+    document = read_json(val_report_path, "valMaterializationReport")
+    output_dir_value = document.get("outputDir")
+    if not isinstance(output_dir_value, str) or not output_dir_value.strip():
+        return
+    val_output_dir = Path(output_dir_value).resolve()
+    if is_within(output, val_output_dir):
+        raise ValueError(
+            "output must not be located inside the validation materialized dataset root"
+        )
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Audit validation isolation from train, frozen test, and hard negatives."
@@ -502,6 +579,23 @@ def main() -> None:
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
     output = Path(args.output).resolve()
+    try:
+        protect_output_path(args, output)
+    except Exception as error:
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "status": "HOLD",
+                    "decision": "hold_validation_role_isolation",
+                    "errors": [str(error)],
+                    "output": str(output),
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        raise SystemExit(1)
     try:
         report = build(args)
     except Exception as error:

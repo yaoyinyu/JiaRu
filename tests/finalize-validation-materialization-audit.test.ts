@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import {
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -18,8 +19,23 @@ const materializeScript = path.resolve(
 const finalizeScript = path.resolve(
   "model/training/finalize-validation-materialization-audit.py",
 );
+const roleIsolationScript = path.resolve(
+  "model/training/audit-validation-role-isolation.py",
+);
 const sha = (file: string) =>
   createHash("sha256").update(readFileSync(file)).digest("hex");
+const canonical = (value: unknown): string => {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+};
+const shaCanonical = (value: unknown) =>
+  createHash("sha256").update(canonical(value)).digest("hex");
 
 type Fixture = Awaited<ReturnType<typeof fixture>>;
 
@@ -147,35 +163,96 @@ async function fixture() {
     "metadata",
     "materialization-report.json",
   );
-  const roleIsolation = path.join(root, "role-isolation.json");
-  const roleIsolationDocument = {
-    ok: true,
-    status: "PASS",
-    decision: "approved_validation_role_isolation",
-    inputs: {
-      valMaterializationReport: {
-        path: materializationReport,
-        sha256: sha(materializationReport),
-      },
-    },
-    roles: {
-      val: { images: 30, imageSha256: 30, sourceGroups: 30 },
-      train: { images: 100 },
-      "frozen-test": { images: 67 },
-    },
-    overlaps: { fileName: [], imageSha256: [], sourceGroup: [] },
-    invariants: {
-      validationHasNoOrphans: true,
-      fileNamesDisjointAcrossRoles: true,
-      imageSha256DisjointAcrossRoles: true,
-      sourceGroupsDisjointAcrossRoles: true,
-    },
-    errors: [],
-  };
+
+  const trainRoot = path.join(root, "train");
+  mkdirSync(trainRoot, { recursive: true });
+  const trainImage = path.join(trainRoot, "train-a.png");
+  writeFileSync(trainImage, Buffer.concat([basePng, Buffer.from("train-a")]));
+  const trainReport = path.join(trainRoot, "training-truth-001-final.json");
   writeFileSync(
-    roleIsolation,
-    `${JSON.stringify(roleIsolationDocument, null, 2)}\n`,
+    trainReport,
+    `${JSON.stringify({
+      ok: true,
+      decision:
+        "approved_as_training_truth_candidate_pending_dataset_materialization",
+      inputs: {
+        truthRole: "train",
+        image: trainImage,
+        imageSha256: sha(trainImage),
+      },
+      item: {
+        fileName: "train-a.png",
+        sha256: sha(trainImage),
+        sourceGroup: "train-group-a",
+      },
+    })}\n`,
   );
+  const trainTruthIndex = path.join(trainRoot, "training-truth-index.json");
+  writeFileSync(
+    trainTruthIndex,
+    `${JSON.stringify({
+      ok: true,
+      decision: "approved_unique_training_truth_index",
+      inputs: { truthRole: "train" },
+      summary: { uniqueImageCount: 1 },
+      canonicalTruths: [
+        {
+          fileName: "train-a.png",
+          imageSha256: sha(trainImage),
+          sourceGroup: "train-group-a",
+          reportPath: trainReport,
+          reportSha256: sha(trainReport),
+        },
+      ],
+      conflicts: [],
+      errors: [],
+    }, null, 2)}\n`,
+  );
+
+  const frozenRoot = path.join(root, "frozen");
+  mkdirSync(path.join(frozenRoot, "images", "core"), { recursive: true });
+  const frozenImage = path.join(frozenRoot, "images", "core", "test-a.png");
+  writeFileSync(frozenImage, Buffer.concat([basePng, Buffer.from("test-a")]));
+  const frozenItems = [
+    {
+      lane: "core",
+      fileName: "test-a.png",
+      sourceGroup: "test-group-a",
+      parentSourceGroup: "test-parent-a",
+      imageSha256: sha(frozenImage),
+      trainingUse: "prohibited",
+    },
+  ];
+  const frozenManifest = path.join(frozenRoot, "manifest.json");
+  writeFileSync(
+    frozenManifest,
+    `${JSON.stringify({
+      decision: "frozen_reviewed_candidate_not_release_ready",
+      trainingUse: "prohibited",
+      counts: { images: 1 },
+      itemsSha256: shaCanonical(frozenItems),
+      items: frozenItems,
+    }, null, 2)}\n`,
+  );
+
+  const roleIsolation = path.join(root, "role-isolation.json");
+  const isolated = spawnSync(
+    "python",
+    [
+      roleIsolationScript,
+      "--val-materialization-report",
+      materializationReport,
+      "--train-truth-index",
+      trainTruthIndex,
+      "--frozen-test-manifest",
+      frozenManifest,
+      "--output",
+      roleIsolation,
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(isolated.status, 0, isolated.stderr || isolated.stdout);
+  const roleIsolationDocument = JSON.parse(readFileSync(roleIsolation, "utf8"));
   return {
     root,
     truthIndex,
@@ -185,28 +262,32 @@ async function fixture() {
     materializationReport,
     roleIsolation,
     roleIsolationDocument,
+    trainTruthIndex,
+    frozenManifest,
   };
+}
+
+function finalizeArgs(item: Fixture, output: string) {
+  return [
+    finalizeScript,
+    "--dataset",
+    item.dataset,
+    "--truth-index",
+    item.truthIndex,
+    "--materialization-report",
+    item.materializationReport,
+    "--role-isolation-report",
+    item.roleIsolation,
+    "--output",
+    output,
+  ];
 }
 
 function run(item: Fixture) {
   const output = path.join(item.root, "truth-audit.json");
-  const result = spawnSync(
-    "python",
-    [
-      finalizeScript,
-      "--dataset",
-      item.dataset,
-      "--truth-index",
-      item.truthIndex,
-      "--materialization-report",
-      item.materializationReport,
-      "--role-isolation-report",
-      item.roleIsolation,
-      "--output",
-      output,
-    ],
-    { encoding: "utf8" },
-  );
+  const result = spawnSync("python", finalizeArgs(item, output), {
+    encoding: "utf8",
+  });
   return {
     ...result,
     output,
@@ -262,6 +343,50 @@ test("holds on isolation failure or any upstream/data hash drift", async (t) => 
     assert.equal(result.report.decision, "rejected_as_calibration_truth");
     assert.equal(result.report.calibrationTruthEligible, false);
     assert.match(result.report.errors.join("\n"), /not PASS/);
+  });
+  await t.test("forged isolation report without required role inputs", async () => {
+    const item = await fixture();
+    item.roleIsolationDocument.inputs = {
+      valMaterializationReport:
+        item.roleIsolationDocument.inputs.valMaterializationReport,
+    };
+    writeFileSync(
+      item.roleIsolation,
+      `${JSON.stringify(item.roleIsolationDocument, null, 2)}\n`,
+    );
+    const result = run(item);
+    assert.notEqual(result.status, 0);
+    assert.match(
+      result.report.errors.join("\n"),
+      /missing required role inputs/,
+    );
+  });
+  await t.test("recomputes overlap instead of trusting an empty overlap claim", async () => {
+    const item = await fixture();
+    const trainIndex = JSON.parse(readFileSync(item.trainTruthIndex, "utf8"));
+    const truth = trainIndex.canonicalTruths[0];
+    const trainReport = JSON.parse(readFileSync(truth.reportPath, "utf8"));
+    truth.sourceGroup = "val-group-001";
+    trainReport.item.sourceGroup = truth.sourceGroup;
+    writeFileSync(truth.reportPath, `${JSON.stringify(trainReport)}\n`);
+    truth.reportSha256 = sha(truth.reportPath);
+    writeFileSync(
+      item.trainTruthIndex,
+      `${JSON.stringify(trainIndex, null, 2)}\n`,
+    );
+    item.roleIsolationDocument.inputs.trainTruthIndex.sha256 = sha(
+      item.trainTruthIndex,
+    );
+    writeFileSync(
+      item.roleIsolation,
+      `${JSON.stringify(item.roleIsolationDocument, null, 2)}\n`,
+    );
+    const result = run(item);
+    assert.notEqual(result.status, 0);
+    assert.match(
+      result.report.errors.join("\n"),
+      /recomputation found cross-role overlap/,
+    );
   });
   await t.test("dataset hash drift", async () => {
     const item = await fixture();
@@ -322,6 +447,37 @@ test("holds on isolation failure or any upstream/data hash drift", async (t) => 
     const result = run(item);
     assert.notEqual(result.status, 0);
     assert.match(result.report.errors.join("\n"), /fewer than 30/);
+  });
+});
+
+test("rejects unsafe output targets before writing or overwriting", async (t) => {
+  await t.test("direct input target", async () => {
+    const item = await fixture();
+    const before = readFileSync(item.dataset);
+    const result = spawnSync(
+      "python",
+      finalizeArgs(item, item.dataset),
+      { encoding: "utf8" },
+    );
+    assert.notEqual(result.status, 0);
+    assert.deepEqual(readFileSync(item.dataset), before);
+    assert.match(result.stdout, /must not overwrite any direct input/);
+    assert.match(result.stdout, /"outputWritten": false/);
+  });
+  await t.test("target inside materialized dataset", async () => {
+    const item = await fixture();
+    const output = path.join(
+      item.datasetRoot,
+      "metadata",
+      "unsafe-final-audit.json",
+    );
+    const result = spawnSync("python", finalizeArgs(item, output), {
+      encoding: "utf8",
+    });
+    assert.notEqual(result.status, 0);
+    assert.equal(existsSync(output), false);
+    assert.match(result.stdout, /outside the materialized dataset root/);
+    assert.match(result.stdout, /"outputWritten": false/);
   });
 });
 

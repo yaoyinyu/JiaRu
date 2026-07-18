@@ -340,10 +340,10 @@ test("rejects invalid polygons and same-image overlap before publishing output",
     annotation.annotations.push({
       label: "nail_texture",
       polygon: [
-        { x: 5, y: 5 },
+        { x: 7.99999999, y: 5 },
         { x: 12, y: 5 },
         { x: 12, y: 12 },
-        { x: 5, y: 12 },
+        { x: 7.99999999, y: 12 },
       ],
     });
     writeFileSync(truth.annotationPath, `${JSON.stringify(annotation)}\n`);
