@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-18T15:02:40.647Z",
+  "generatedAt": "2026-07-18T15:32:41.055Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 309,
-    "passMarkerCount": 296,
+    "progressMarkerCount": 311,
+    "passMarkerCount": 298,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -53,7 +53,7 @@
         "id": "M2-T3-VISION-ANNOTATION",
         "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask。来源隔离val 30张完成首轮审核后已终审10张/44 mask，剩余20张返修；整套val尚未全通过，约100张hard negative及整批物化/来源隔离继续推进"
+        "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask。来源隔离val 30张完成首轮审核后已终审12张/54 mask，剩余18张返修；整套val尚未全通过，约100张hard negative及整批物化/来源隔离继续推进"
       },
       {
         "id": "M2-T3-RELEASE-TEST-ANNOTATION",
@@ -89,7 +89,7 @@
         "id": "USER-ANNOTATION-01",
         "task": "修正真实图片的甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "外部首批train已形成100张唯一图片/521个完整mask；来源隔离val现有10张唯一图片/44个完整mask通过角色绑定终审，剩余20张返修。整套val未全通过，约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画"
+        "evidence": "外部首批train已形成100张唯一图片/521个完整mask；来源隔离val现有12张唯一图片/54个完整mask通过角色绑定终审，剩余18张返修。整套val未全通过，约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画"
       },
       {
         "id": "USER-AUTH-03",
@@ -675,6 +675,14 @@
         {
           "checked": true,
           "text": "验证真值唯一索引更新为10个批准报告、10张唯一图片/44个完整mask、0冗余、0冲突，SHA-256为`f7f3c9f3…379c`；全部绑定val角色且训练用途固定prohibited。剩余20张仍须返修，30/30全量通过、约100张hard negative、整批物化和来源隔离审计完成前禁止校准或候选训练。"
+        },
+        {
+          "checked": true,
+          "text": "完成val返修批次008：`00933/00942`两张原图均确认5枚长甲清晰且完整露出。SAM2.1 large完成2图/10提示、0 fallback、几何10/10，但原分辨率视觉门发现`00942`横向透明甲吸收整段手指，另有多甲甲根皮肤、锯齿或附着装饰边界风险；终版保留5个已审polygon、人工重画5个问题polygon，并在逐甲2×下继续收紧第1甲侧边立体装饰。10/10 polygon合法、同图零交叠、几何通过，整图及全部逐甲2×视觉通过。"
+        },
+        {
+          "checked": true,
+          "text": "验证真值唯一索引更新为12个批准报告、12张唯一图片/54个完整mask、0冗余、0冲突，SHA-256为`28e609c7…9b0f`；全部绑定val角色且训练用途固定prohibited。剩余18张仍须返修，30/30全量通过、约100张hard negative、整批物化和来源隔离审计完成前禁止校准或候选训练。"
         },
         {
           "checked": true,
