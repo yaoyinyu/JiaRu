@@ -55,3 +55,49 @@ test("annotation workspace binds source hashes and keeps source groups in one sh
   }
   assert.ok([...groupShards.values()].every((shards) => shards.size === 1));
 });
+
+test("annotation workspace materializes only the complete source-isolated val role", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "annotation-workspace-val-"));
+  const images = path.join(root, "images");
+  mkdirSync(images);
+  const definitions = [
+    { fileName: "train.jpg", sourceGroup: "train-group", assignedRole: "train", firstAnnotationBatch: true },
+    { fileName: "val-a.jpg", sourceGroup: "val-group", assignedRole: "val", firstAnnotationBatch: false },
+    { fileName: "val-b.jpg", sourceGroup: "val-group", assignedRole: "val", firstAnnotationBatch: false },
+    { fileName: "test.jpg", sourceGroup: "test-group", assignedRole: "independent-release-test", firstAnnotationBatch: false },
+  ];
+  definitions.forEach((item, index) => execFileSync("python", ["-c", `from PIL import Image; Image.new('RGB',(64,96),(${index + 30},40,50)).save(r'${path.join(images, item.fileName)}')`]));
+  const entries = definitions.map((item) => ({
+    fileName: item.fileName,
+    sha256: hash(path.join(images, item.fileName)),
+    sourceGroup: item.sourceGroup,
+    trainingUse: "prohibited",
+  }));
+  const authorization = path.join(root, "authorization.json");
+  writeFileSync(authorization, JSON.stringify({ ok: true, root: images, authorization: { decision: "A" }, entries }));
+  const plan = path.join(root, "plan.json");
+  writeFileSync(plan, JSON.stringify({
+    ok: true,
+    decision: "first_annotation_batch_plan_ready_mask_review_required",
+    inputs: { authorizationSha256: hash(authorization) },
+    counts: { firstAnnotationBatchImages: 1, byRole: { train: 1, val: 2, "independent-release-test": 1 } },
+    items: definitions.map((item) => ({
+      ...entries.find((entry) => entry.fileName === item.fileName),
+      assignedRole: item.assignedRole,
+      firstAnnotationBatch: item.firstAnnotationBatch,
+      fullyVisibleNails: 5,
+      annotationTruthStatus: "not-started",
+    })),
+  }));
+  const output = path.join(root, "output");
+  const result = spawnSync("python", [script, "--plan", plan, "--authorization", authorization, "--output-dir", output, "--selection-mode", "val", "--target-shard-size", "1"], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  const manifest = JSON.parse(readFileSync(path.join(output, "annotation-workspace-manifest.json"), "utf8"));
+  assert.equal(manifest.policy.selectionMode, "val");
+  assert.equal(manifest.policy.assignedRole, "val");
+  assert.equal(manifest.counts.images, 2);
+  assert.equal(manifest.counts.sourceGroups, 1);
+  assert.equal(manifest.counts.shards, 1);
+  assert.deepEqual(manifest.items.map((item: { fileName: string }) => item.fileName).sort(), ["val-a.jpg", "val-b.jpg"]);
+  assert.ok(manifest.items.every((item: { assignedRole: string; trainingUse: string }) => item.assignedRole === "val" && item.trainingUse === "prohibited"));
+});

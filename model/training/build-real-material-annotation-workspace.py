@@ -25,6 +25,12 @@ def main() -> None:
     parser.add_argument("--authorization", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--target-shard-size", type=int, default=20)
+    parser.add_argument(
+        "--selection-mode",
+        choices=("first-train", "val"),
+        default="first-train",
+        help="Materialize the reviewed first train batch or the complete source-isolated val role.",
+    )
     args = parser.parse_args()
 
     plan_path = Path(args.plan).resolve()
@@ -49,10 +55,16 @@ def main() -> None:
     authorized_by_file = {
         str(item.get("fileName", "")): item for item in authorization.get("entries", [])
     }
-    selected = [item for item in plan.get("items", []) if item.get("firstAnnotationBatch") is True]
-    expected_count = int(plan.get("counts", {}).get("firstAnnotationBatchImages", -1))
+    if args.selection_mode == "first-train":
+        selected = [item for item in plan.get("items", []) if item.get("firstAnnotationBatch") is True]
+        expected_count = int(plan.get("counts", {}).get("firstAnnotationBatchImages", -1))
+        assigned_role = "train"
+    else:
+        selected = [item for item in plan.get("items", []) if item.get("assignedRole") == "val"]
+        expected_count = int(plan.get("counts", {}).get("byRole", {}).get("val", -1))
+        assigned_role = "val"
     if len(selected) != expected_count:
-        errors.append("first annotation batch count differs from the plan summary")
+        errors.append(f"{args.selection_mode} annotation count differs from the plan summary")
 
     by_group: dict[str, list[dict[str, object]]] = {}
     seen_files: set[str] = set()
@@ -66,8 +78,8 @@ def main() -> None:
         if authorized is None:
             errors.append(f"selected file is missing from authorization: {file_name}")
             continue
-        if item.get("assignedRole") != "train":
-            errors.append(f"first annotation batch item is not assigned to train: {file_name}")
+        if item.get("assignedRole") != assigned_role:
+            errors.append(f"selected item is not assigned to {assigned_role}: {file_name}")
         if item.get("sha256") != authorized.get("sha256") or item.get("sourceGroup") != authorized.get("sourceGroup"):
             errors.append(f"selected identity differs from authorization: {file_name}")
         if item.get("trainingUse") != "prohibited" or item.get("annotationTruthStatus") != "not-started":
@@ -119,7 +131,7 @@ def main() -> None:
                 "workspacePath": str(target_path),
                 "sha256": item["sha256"],
                 "sourceGroup": item["sourceGroup"],
-                "assignedRole": "train",
+                "assignedRole": assigned_role,
                 "expectedFullyVisibleNails": item.get("fullyVisibleNails"),
                 "shardIndex": shard_index,
                 "materializationMethod": method,
@@ -163,6 +175,8 @@ def main() -> None:
             "authorizationSha256": sha256_file(authorization_path),
         },
         "policy": {
+            "selectionMode": args.selection_mode,
+            "assignedRole": assigned_role,
             "sourceGroupsRemainAtomicAcrossShards": True,
             "workspaceDoesNotApproveMasks": True,
             "workspaceDoesNotGrantTrainingUse": True,

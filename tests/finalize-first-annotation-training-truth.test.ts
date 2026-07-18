@@ -85,4 +85,36 @@ test("training truth finalizer accepts a hash-bound direct mask-review pass", as
   assert.equal(report.inputs.visualReviewType, "direct-mask-review");
   assert.equal(report.item.completeMaskCount, 2);
   assert.equal(report.item.annotationTruthStatus, "approved-as-training-truth-candidate");
+
+  const roleManifest = path.join(root, "val-workspace.json");
+  writeFileSync(roleManifest, JSON.stringify({
+    ok: true,
+    decision: "annotation_workspace_ready_candidate_only",
+    policy: { selectionMode: "val", assignedRole: "val" },
+    items: [{
+      fileName: "direct.png",
+      sha256: hash(image),
+      sourceGroup: "g-direct",
+      assignedRole: "val",
+      expectedFullyVisibleNails: 2,
+      trainingUse: "prohibited",
+    }],
+  }));
+  const valOutput = path.join(root, "val-output.json");
+  const valRun = spawnSync("python", [
+    script,
+    "--mask-review-final", review,
+    "--annotation", annotation,
+    "--image", image,
+    "--truth-role", "val",
+    "--role-manifest", roleManifest,
+    "--output", valOutput,
+  ], { encoding: "utf8" });
+  assert.equal(valRun.status, 0, valRun.stderr || valRun.stdout);
+  const valReport = JSON.parse(readFileSync(valOutput, "utf8"));
+  assert.equal(valReport.decision, "approved_as_validation_truth_candidate_pending_dataset_materialization");
+  assert.equal(valReport.inputs.truthRole, "val");
+  assert.equal(valReport.item.annotationTruthStatus, "approved-as-validation-truth-candidate");
+  assert.equal(valReport.item.trainingUse, "prohibited");
+  assert.equal(valReport.item.validationUse, "prohibited-until-materialization-audit");
 });

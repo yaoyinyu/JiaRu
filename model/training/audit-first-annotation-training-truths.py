@@ -9,10 +9,6 @@ from pathlib import Path
 from typing import Any
 
 
-TRUTH_NAME = re.compile(r"^training-truth-(\d+)-.*-final\.json$")
-EXPECTED_DECISION = "approved_as_training_truth_candidate_pending_dataset_materialization"
-
-
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as source:
@@ -21,25 +17,28 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
-def sequence(path: Path) -> tuple[int, str]:
-    match = TRUTH_NAME.match(path.name)
+def sequence(path: Path, prefix: str) -> tuple[int, str]:
+    match = re.match(rf"^{re.escape(prefix)}-(\d+)-.*-final\.json$", path.name)
     return (int(match.group(1)) if match else -1, path.name)
 
 
-def read_candidate(path: Path) -> tuple[dict[str, Any] | None, str | None, dict[str, Any] | None]:
+def read_candidate(path: Path, truth_role: str, prefix: str) -> tuple[dict[str, Any] | None, str | None, dict[str, Any] | None]:
     try:
         document = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as error:
         return None, f"{path.name}: unreadable JSON: {error}", None
     item = document.get("item", {})
     inputs = document.get("inputs", {})
-    if document.get("ok") is False or document.get("decision") == "reject_training_truth_candidate":
+    truth_label = "validation" if truth_role == "val" else "training"
+    expected_decision = f"approved_as_{truth_label}_truth_candidate_pending_dataset_materialization"
+    rejected_decision = f"reject_{truth_role}_truth_candidate"
+    if document.get("ok") is False or document.get("decision") == rejected_decision:
         return None, None, {
             "reportName": path.name,
             "decision": document.get("decision"),
             "errors": document.get("errors", []),
         }
-    if document.get("ok") is not True or document.get("decision") != EXPECTED_DECISION:
+    if document.get("ok") is not True or document.get("decision") != expected_decision:
         return None, f"{path.name}: report has an unsupported state", None
     required = {
         "fileName": item.get("fileName"),
@@ -55,7 +54,7 @@ def read_candidate(path: Path) -> tuple[dict[str, Any] | None, str | None, dict[
         "reportPath": str(path),
         "reportName": path.name,
         "reportSha256": sha256_file(path),
-        "sequence": sequence(path)[0],
+        "sequence": sequence(path, prefix)[0],
         "fileName": str(item["fileName"]),
         "imageSha256": str(item["sha256"]),
         "sourceGroup": str(item["sourceGroup"]),
@@ -71,20 +70,24 @@ def main() -> None:
     )
     parser.add_argument("--truth-dir", required=True)
     parser.add_argument("--output", required=True)
+    parser.add_argument("--truth-role", choices=("train", "val"), default="train")
     args = parser.parse_args()
     truth_dir = Path(args.truth_dir).resolve()
     output_path = Path(args.output).resolve()
     errors: list[str] = []
     candidates: list[dict[str, Any]] = []
     rejected_reports: list[dict[str, Any]] = []
+    truth_label = "validation" if args.truth_role == "val" else "training"
+    prefix = f"{truth_label}-truth"
+    report_pattern = f"{prefix}-*-final.json"
     if not truth_dir.is_dir():
-        errors.append("training truth directory is missing")
+        errors.append(f"{truth_label} truth directory is missing")
     else:
-        paths = sorted(truth_dir.glob("training-truth-*-final.json"), key=sequence)
+        paths = sorted(truth_dir.glob(report_pattern), key=lambda path: sequence(path, prefix))
         if not paths:
-            errors.append("training truth directory contains no finalized reports")
+            errors.append(f"{truth_label} truth directory contains no finalized reports")
         for path in paths:
-            candidate, error, rejected = read_candidate(path)
+            candidate, error, rejected = read_candidate(path, args.truth_role, prefix)
             if error:
                 errors.append(error)
             elif candidate:
@@ -121,18 +124,20 @@ def main() -> None:
     result = {
         "schemaVersion": 1,
         "ok": not errors,
-        "decision": "approved_unique_training_truth_index" if not errors else "reject_training_truth_index",
+        "decision": f"approved_unique_{truth_label}_truth_index" if not errors else f"reject_{truth_label}_truth_index",
         "inputs": {
+            "truthRole": args.truth_role,
             "truthDir": str(truth_dir),
-            "reportPattern": "training-truth-*-final.json",
+            "reportPattern": report_pattern,
         },
         "policy": {
             "uniqueKey": "item.fileName",
-            "canonicalSelection": "highest numeric training-truth sequence, then report filename",
+            "canonicalSelection": f"highest numeric {prefix} sequence, then report filename",
             "redundantIdenticalReportsAreCountedOnce": True,
             "conflictingDuplicateReportsAreRejected": True,
             "datasetMaterializationAndSourceIsolationStillRequired": True,
-            "trainingUse": "prohibited-until-materialization-audit",
+            "trainingUse": "prohibited" if args.truth_role == "val" else "prohibited-until-materialization-audit",
+            "validationUse": "prohibited-until-materialization-audit" if args.truth_role == "val" else None,
         },
         "summary": {
             "approvedReportCount": len(candidates),
