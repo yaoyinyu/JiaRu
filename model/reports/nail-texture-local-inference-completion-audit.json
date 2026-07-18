@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-18T16:46:58.799Z",
+  "generatedAt": "2026-07-18T18:11:57.128Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 315,
-    "passMarkerCount": 302,
+    "progressMarkerCount": 319,
+    "passMarkerCount": 306,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -89,7 +89,7 @@
         "id": "USER-ANNOTATION-01",
         "task": "修正真实图片的甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "外部首批train已形成100张唯一图片/521个完整mask；来源隔离val现有16张唯一图片/74个完整mask通过角色绑定终审，剩余14张返修。整套val未全通过，约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画"
+        "evidence": "外部首批train已形成100张唯一图片/521个完整mask；来源隔离val现有19张唯一图片/89个完整mask通过角色绑定终审，剩余11张已按7个完整来源组建立替补角色和候选工作区，正由批次014—016返修。整套val未全通过，约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画"
       },
       {
         "id": "USER-AUTH-03",
@@ -699,6 +699,18 @@
         {
           "checked": true,
           "text": "验证真值唯一索引更新为16个批准报告、16张唯一图片/74个完整mask、0冗余、0冲突，SHA-256为`a583b884…ef8d`；全部绑定val角色且训练用途固定prohibited。剩余14张仍须返修，30/30全量通过、约100张hard negative、整批物化和来源隔离审计完成前禁止校准或候选训练。"
+        },
+        {
+          "checked": true,
+          "text": "完成val返修批次011—013并把验证真值推进到19/30张、89个完整mask；`00351…_4/00826/00828`共15甲通过整图、全部逐甲2×、合法性、零交叠和几何审核，`00935`因右侧拇指甲根触边、实际仅4枚完整甲面而排除。唯一索引SHA-256为`924d04f0…faf4`，剩余11张不得从无效源图虚构。"
+        },
+        {
+          "checked": true,
+          "text": "建立val替补整组角色迁移与物化硬门；扩展器必须拒绝独立发布test、已有train真值、首批train工作区、部分来源组、授权或图片SHA漂移。11张替补按7个完整来源组迁移，扩展专用工作区11/11硬链接、3分片/55枚预期甲面，训练用途继续prohibited。"
+        },
+        {
+          "checked": true,
+          "text": "为11张替补生成受审计候选；v6在1024口径生成73个候选，经整图筛框形成55个逐甲提示，SAM2.1 large完成55/55、0 fallback、0错误，几何46 pass/9 suspect。候选生成PASS不等于真值PASS，批次014—016仍须完成人工polygon、整图和全部逐甲2×终审。"
         },
         {
           "checked": true,
