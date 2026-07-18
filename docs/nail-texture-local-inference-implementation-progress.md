@@ -83,7 +83,7 @@ npm.cmd run build
 | `M2-T2-DATA-GATE` | 数据结构、来源授权、split 与训练环境门禁 | ✅ PASS | 正式有效集409图/2142个mask、409条来源记录，split=300/46/63；7张截图派生图按父图稳定分组，来源授权、标签、split比例、训练物化和readiness通过 |
 | `M2-T3-SYNTHETIC-BASELINE` | 训练、评测并导出隔离的合成数据基线 | ✅ PASS | 300 张 AI 图逐 SHA-256 核对无缺失；88 epochs early stop；test box mAP50=0.522、mask mAP50=0.454；11.09MB ONNX 完整性与浏览器 WebGPU 通过；发布门禁按预期拒绝 |
 | `M2-T3-REAL-DATA` | 导入授权真实图片并建立来源隔离测试集 | 🟠 PARTIAL | 新增113张已获商业训练与长期回归授权；80张原图/516 mask及7张截图派生图/41 mask正式导入，5张源图排除、28张原图继续返修。真实发布测试样本仍未达到100–200张代表性要求 |
-| `M2-T3-VISION-ANNOTATION` | 识图提示 + SAM2/YOLO 辅助重建真实甲面多边形 | 🟡 IN PROGRESS | 正式集409图/2142 mask不变；外部首批train审核现有93个批准报告归并为92张唯一图片/481个完整mask、1冗余、0冲突，最低100张train正样本仍缺8张。val 0/30、约100张hard negative及代表性test扩充继续推进 |
+| `M2-T3-VISION-ANNOTATION` | 识图提示 + SAM2/YOLO 辅助重建真实甲面多边形 | 🟡 IN PROGRESS | 正式集409图/2142 mask不变；外部首批train审核现有96个批准报告归并为95张唯一图片/496个完整mask、1冗余、0冲突，最低100张train正样本仍缺5张。val 0/30、约100张hard negative及代表性test扩充继续推进 |
 | `M2-T3-PROMPT-DIAGNOSTICS` | 辅助标注单甲失败精确定位 | ✅ PASS | FastSAM/SAM2空mask错误包含提示序号和模式，polygon转换错误包含提示序号；专项测试通过，实跑准确定位`prompt 6 (box)`及`prompt 9 (box-center)` |
 | `M2-T3-REGION-EXTRACTION` | 从截图/拼图中提取受审计单照片区域 | ✅ PASS | 9张小红书截图主区域9/9提取成功；报告包含父子SHA-256、归一化/像素框、尺寸、reviewRequired和父图稳定sourceGroup；Windows Unicode控制台兼容及非法框/路径守卫测试通过 |
 | `M2-T3-DERIVED-ANNOTATION` | 派生照片逐甲SAM2标注与父图稳定分组审计 | ✅ PASS | 9张派生图9/9有审核决策，7张/41 mask通过、2张返修；机器审计核对派生图哈希、尺寸、逐图sourceGroup、mask数、多边形边界与面积，0错误；2项专项测试通过 |
@@ -319,6 +319,10 @@ npm.cmd run build
 | `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-091` | 第九十一个训练真值报告暨第九十张唯一真值图片 | ✅ PASS | `nail_00476…_0`五枚灰粉贝壳亮片甲完整，拇指金属碎片和中指甲根细小支路已清除；返修/真值SHA-256为`6e60e5c6…70ba`/`e5e8d7ac…5b6b` |
 | `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-092` | 第九十二个训练真值报告暨第九十一张唯一真值图片 | ✅ PASS | `nail_00712…_5`五枚粉白银粉延长甲覆盖透明拇指甲尖、甲根和完整自由缘，无衣物或背景支路；返修/真值SHA-256为`bd70072f…691b`/`d99e3c7a…2926` |
 | `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-093` | 第九十三个训练真值报告暨第九十二张唯一真值图片 | ✅ PASS | `nail_00291…_2`五枚银灰水钻长甲的甲根、甲身、甲尖和立体装饰均完整且无邻指交叠；返修/真值SHA-256为`98a34ec9…155c`/`136ece68…2174`。唯一索引累计92张/481 mask、1冗余、0冲突，SHA-256为`a9d5936a…2246`；最低100张train正样本完成92%、仍缺8张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REPAIR-BATCH-065` | `00293/00711/00292`裸粉金粉、水钻粉甲与透明亮片长甲混合返修 | ✅ PASS | `00915`两轮SAM仍合并手指/手掌后留在返修队列，改选`00292`；终版以6个逐甲审核通过的SAM polygon和9个人工polygon覆盖3图15枚完整甲面。第二轮视觉门继续修正`00293`拇指皮肤、`00711`第4甲漏尖和`00292`拇指衣物轮廓，15/15 polygon合法、零交叠、几何15 pass/0 suspect/0 missing |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-094` | 第九十四个训练真值报告暨第九十三张唯一真值图片 | ✅ PASS | `nail_00293…_4`五枚裸粉、金粉与透明水钻延长甲完整，横向拇指甲根皮肤和相邻第4/5甲交叠清除；返修/真值SHA-256为`b82e94b7…5f97`/`bc11ac78…9440` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-095` | 第九十五个训练真值报告暨第九十四张唯一真值图片 | ✅ PASS | `nail_00711…_4`五枚透明、粉色水钻及银灰亮片长甲覆盖完整甲根、甲身与甲尖，银灰第4甲漏尖已补齐；返修/真值SHA-256为`acdac8ea…4dac`/`e2d84076…e64c` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-096` | 第九十六个训练真值报告暨第九十五张唯一真值图片 | ✅ PASS | `nail_00292…_3`五枚透明裸粉亮片和水钻长甲完整，衣物、戒指、皮肤及相邻装饰污染清除；返修/真值SHA-256为`96b02ea7…0537d`/`c4854173…34d7`。唯一索引累计95张/496 mask、1冗余、0冲突，SHA-256为`12e3d613…3510`；最低100张train正样本完成95%、仍缺5张 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
 | `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |
@@ -381,7 +385,7 @@ npm.cmd run build
 | `USER-AUTH-01` | 明确图片仅内部测试或可用于正式训练 | ✅ PASS | 用户于 2026-07-11 选择 A，确认 22 张真实素材可用于商业模型训练和长期回归测试；300 张团队 AI 图亦已确认商业训练授权 |
 | `USER-DEVICE-01` | 确认 Windows、Android、iPhone 的优先级和可测试机型 | ✅ PASS | 已确认普通 Windows、Android、Android Pad、iPhone、iPad；可测 ROG 枪神 8 Plus、vivo Pad2、vivo X100s Pro、小米 13 Pro、vivo S30 |
 | `USER-REVIEW-01` | 对固定样本标记直接可用、需修正或不可用 | ✅ PASS | 用户确认 22 张图片均清晰可用，但现有自动标注全部有问题；审核表已统一登记为 `needs_manual_fix`，22/22 进入人工多边形修正队列 |
-| `USER-ANNOTATION-01` | 修正真实图片的甲面多边形 | 🟡 IN PROGRESS | 外部首批train审核已有93个批准报告归并为92张唯一图片/481个完整mask、1个冗余报告、0冲突；最低100张正样本仍缺8张，val仍为0/30。当前无需用户逐点重画，继续由原分辨率视觉审核与人工polygon返修推进 |
+| `USER-ANNOTATION-01` | 修正真实图片的甲面多边形 | 🟡 IN PROGRESS | 外部首批train审核已有96个批准报告归并为95张唯一图片/496个完整mask、1个冗余报告、0冲突；最低100张正样本仍缺5张，val仍为0/30。当前无需用户逐点重画，继续由原分辨率视觉审核与人工polygon返修推进 |
 | `USER-AUTH-02` | 确认 `真实素材/2026_7_12` 新增 113 张素材是否可用于商业模型训练和长期回归测试 | ✅ PASS | 用户于2026-07-12选择A，明确允许用于商业模型训练和长期回归；80张已导入、5张因源图质量排除、28张返修项仍隔离 |
 | `USER-AUTH-03` | 确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试 | ⏸️ USER INPUT | 机器审计与11页视觉总览已完成；当前仅登记为合成候选池，未导入正式集。需明确授权后再进入逐图筛选和标注流程 |
 | `USER-AUTH-04` | 确认 `真实素材/2026_7_13` 的101张素材用途 | ✅ PASS | 用户确认允许用于独立发布测试和长期回归；intake将训练用途固定为prohibited，9张跨批重复排除，92张保留 |
