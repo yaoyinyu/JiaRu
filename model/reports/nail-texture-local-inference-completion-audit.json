@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-18T13:38:00.190Z",
+  "generatedAt": "2026-07-18T15:02:40.647Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 302,
-    "passMarkerCount": 289,
+    "progressMarkerCount": 309,
+    "passMarkerCount": 296,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -53,7 +53,7 @@
         "id": "M2-T3-VISION-ANNOTATION",
         "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask，最低100张门已达到。来源隔离val已物化30张/7来源组并完成首轮审核，1张/2 mask直通、29张返修、0排除；正式val真值仍为0/30，约100张hard negative及整批物化/来源隔离继续推进"
+        "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask。来源隔离val 30张完成首轮审核后已终审10张/44 mask，剩余20张返修；整套val尚未全通过，约100张hard negative及整批物化/来源隔离继续推进"
       },
       {
         "id": "M2-T3-RELEASE-TEST-ANNOTATION",
@@ -89,7 +89,7 @@
         "id": "USER-ANNOTATION-01",
         "task": "修正真实图片的甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "外部首批train已形成100张唯一图片/521个完整mask并达到最低门；来源隔离val 30张已完成首轮原分辨率审核，1张/2 mask直通、29张返修、0排除，正式val真值仍0/30。约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画，继续由人工polygon返修推进"
+        "evidence": "外部首批train已形成100张唯一图片/521个完整mask；来源隔离val现有10张唯一图片/44个完整mask通过角色绑定终审，剩余20张返修。整套val未全通过，约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画"
       },
       {
         "id": "USER-AUTH-03",
@@ -655,6 +655,26 @@
         {
           "checked": true,
           "text": "完成30张val候选的YOLO→SAM2→原分辨率首轮审核闭环：YOLO v6在部署512口径生成155候选，14张少候选、4张计数相等、12张多候选、6对重复重叠；SAM2.1 large完成30图/155提示、0 fallback、0错误，几何112 pass/43 suspect。16页逐图原分辨率审核只放行`nail_00456…_2`的2枚完整甲面，29张因漏甲、重复、眼睛/头发/瓶体/衣物/背景或皮肤污染返修，0张源图排除；4个哈希绑定分片终结为1 pass/29 rework/0 exclude。该1张仍只是待最终拓扑/角色真值审计的直通候选，整套val正式真值保持0/30，任何返修未清零前禁止阈值校准或候选训练。"
+        },
+        {
+          "checked": true,
+          "text": "将最终真值终结器和唯一索引扩展为角色感知模式；`--truth-role val`必须同时绑定`--role-manifest`，逐图核对`assignedRole=val`、图片SHA-256、来源组、预期甲数和`trainingUse=prohibited`，输出独立`approved_as_validation_truth_candidate…`状态，禁止混入训练真值索引。唯一索引支持`validation-truth-*-final.json`并继续拒绝同图冲突报告；默认train行为保持兼容，专项5/5通过。"
+        },
+        {
+          "checked": true,
+          "text": "完成val返修批次001—004：`00454/00457/00384`通过删除明显假阳性或紧框重建形成15个完整SAM polygon；`00829`紧框SAM仍在透明区断开并带入后方局部甲，改为2个人工polygon；`00672`两枚长甲SAM仍吸收指腹，保留3个已审polygon并人工重画2枚；`00455`拇指SAM重试仍吸收大块皮肤，继续返修未晋级。所有晋级项均通过原分辨率整图、逐甲2×、polygon合法性、同图零交叠和几何门。"
+        },
+        {
+          "checked": true,
+          "text": "验证真值唯一索引当前为8个批准报告、8张唯一图片/34个完整mask、0冗余、0冲突，SHA-256为`b080d9d1…fa69`；8项均绑定val角色且训练用途固定prohibited。批次005对`00946`删除眼睛/镜片/衣物/重复候选，人工重画吸收面部的右侧拇指及2×复核发现漏甲尖的横向甲；批次006对`00945`五甲全部紧框重建，并两轮人工收紧吸收指腹的横向甲。两图终版10/10 polygon合法、零交叠、几何通过，整图及全部逐甲2×视觉通过。该进度不等于整套验证集获批：剩余22张仍须返修，30/30全量通过、物化和来源隔离审计完成前禁止校准或候选训练。"
+        },
+        {
+          "checked": true,
+          "text": "完成val返修批次007：`00944/00936`两张原图均确认5枚长甲清晰且完整露出，删除全部漏甲及眼睛、眼镜、头发、衣物或手指皮肤旧候选；SAM2.1 large完成2图/10提示、0 fallback、几何10/10，但原分辨率视觉门拒绝两枚吸收面部/眼镜的横向甲和两枚带入头发/皮肤的拇指。首轮人工重画后，逐甲2×继续发现`00944`镜面甲/白色渐变甲以及`00936`前三甲的甲根碎边，其中立体装饰甲需纳入真实附着轮廓；第二轮最终保留5个已审polygon并人工重画5个。10/10 polygon合法、同图零交叠、几何通过，整图及全部逐甲2×视觉通过。"
+        },
+        {
+          "checked": true,
+          "text": "验证真值唯一索引更新为10个批准报告、10张唯一图片/44个完整mask、0冗余、0冲突，SHA-256为`f7f3c9f3…379c`；全部绑定val角色且训练用途固定prohibited。剩余20张仍须返修，30/30全量通过、约100张hard negative、整批物化和来源隔离审计完成前禁止校准或候选训练。"
         },
         {
           "checked": true,
