@@ -230,7 +230,13 @@ def validate_train_index(path: Path, document: dict[str, Any]) -> list[dict[str,
     ):
         raise ValueError("train truth index is not approved")
     inputs = document.get("inputs")
-    if not isinstance(inputs, dict) or inputs.get("truthRole") != "train":
+    explicit_role = isinstance(inputs, dict) and inputs.get("truthRole") == "train"
+    legacy_training_contract = (
+        isinstance(inputs, dict)
+        and str(inputs.get("reportPattern", "")).startswith("training-truth-")
+        and bool(str(inputs.get("truthDir", "")).strip())
+    )
+    if not explicit_role and not legacy_training_contract:
         raise ValueError("train truth index is not restricted to truthRole=train")
     if document.get("errors") not in (None, []) or document.get("conflicts") not in (
         None,
@@ -277,6 +283,18 @@ def validate_train_index(path: Path, document: dict[str, Any]) -> list[dict[str,
         report_inputs = report.get("inputs")
         if not isinstance(report_item, dict) or not isinstance(report_inputs, dict):
             raise ValueError(f"train final report is incomplete: {identity['fileName']}")
+        report_has_explicit_role = report_inputs.get("truthRole") == "train"
+        report_has_legacy_role = (
+            legacy_training_contract
+            and report_path.name.startswith("training-truth-")
+            and report_item.get("annotationTruthStatus")
+            == "approved-as-training-truth-candidate"
+            and str(report_item.get("trainingUse", "")).startswith("prohibited")
+        )
+        if not report_has_explicit_role and not report_has_legacy_role:
+            raise ValueError(
+                f"train final report lacks a safe train-role binding: {identity['fileName']}"
+            )
         if (
             report_item.get("fileName") != identity["fileName"]
             or report_item.get("sha256") != identity["imageSha256"]
