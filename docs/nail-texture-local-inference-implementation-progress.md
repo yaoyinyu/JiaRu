@@ -301,6 +301,16 @@ npm.cmd run build
 | `M2-T3-REAL-MATERIAL-FIRST-MASK-REPAIR-BATCH-059` | 清晰长甲头发/猫毛背景误检与漏甲返修 | ✅ PASS | `00194/00906`共9枚完整可见甲面全部人工重画；原分辨率视觉门拦截首轮蝶形透明长甲根部遗漏及三枚宽框皮肤/猫毛污染，返修后2张/9 polygon合法、零交叠、几何9/9，整图和逐甲2×复核通过 |
 | `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-079` | 第七十九个训练真值报告暨第七十八张唯一真值图片 | ✅ PASS | `nail_00194…_7`移除头发误检并完整重画五枚绿色长甲；返修终结SHA-256为`e57217c3…f199`，最终真值SHA-256为`c12cd939…1eac` |
 | `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-080` | 第八十个训练真值报告暨第七十九张唯一真值图片 | ✅ PASS | `nail_00906…_8`补齐两枚蝶形透明甲和两枚深色甲，透明甲从甲根到自由缘完整且无猫毛/皮肤污染；返修终结SHA-256为`35f01f70…1ddb`，最终真值SHA-256为`2371f289…2bd7`。唯一索引累计79张/416 mask、1冗余、0冲突，SHA-256为`6e4dadf9…378d`；最低100张train正样本完成79%、仍缺21张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REPAIR-BATCH-060` | `00183/00201`清晰五甲原分辨率人工多边形返修 | ✅ PASS | 两图10枚完整可见甲面为7个已审polygon+3个人工polygon；侧视拇指白色立体装饰纳入完整甲面轮廓，10/10 polygon合法、零交叠、几何10 pass/0 suspect/0 missing，整图与逐甲2×视觉通过 |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-081` | 第八十一个训练真值报告暨第八十张唯一真值图片 | ✅ PASS | `nail_00183…_5`五枚完整甲面一甲一mask，无漏甲、重复、交叠或背景污染；返修/真值SHA-256为`a7821305…15aa`/`b34c4d96…20ea` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-082` | 第八十二个训练真值报告暨第八十一张唯一真值图片 | ✅ PASS | `nail_00201…_9`四枚正视延长甲与一枚侧视装饰拇指甲均完整；返修/真值SHA-256为`d9734c65…cdc5`/`826831f7…3da8`。唯一索引累计81张/426 mask、1冗余、0冲突，SHA-256为`48d5ea4b…ed48`；最低100张train正样本完成81%、仍缺19张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REPAIR-BATCH-061` | `00719/01115`清晰五甲混合多边形返修 | ✅ PASS | 两图10枚完整可见长甲以8个已审SAM polygon和2个人工polygon重建；原分辨率整图与逐甲2×复核收紧`00719`第5甲甲根和`01115`第3甲暗色背景外扩，最终10/10 polygon合法、零交叠、几何10 pass/0 suspect/0 missing |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-083` | 第八十三个训练真值报告暨第八十二张唯一真值图片 | ✅ PASS | `nail_00719…_0`五枚绿色长甲从甲根、两侧甲缘到甲尖完整且无衣物/背景污染；返修/真值SHA-256为`e9bc325d…2960`/`990dbba8…06f9` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-084` | 第八十四个训练真值报告暨第八十三张唯一真值图片 | ✅ PASS | `nail_01115…_2`五枚透明低对比延长甲完整，返修长甲无暗色背景外扩；返修/真值SHA-256为`97c16351…f313`/`07e0e9e9…7e9f`。唯一索引累计83张/436 mask、1冗余、0冲突，SHA-256为`a2942ab0…2d2`；最低100张train正样本完成83%、仍缺17张 |
+| `M2-T3-REAL-MATERIAL-FIRST-MASK-REPAIR-BATCH-062` | `00722/00723/01118`透明甲与玩偶背景混合人工返修 | ✅ PASS | 两轮SAM多点候选仍吸收衣带、皮肤、玩偶绒毛或眼睛后切换原分辨率人工多边形；终版13个人工polygon与2个已审SAM polygon覆盖3图15枚完整甲面，15/15 polygon合法、零交叠、几何15 pass/0 suspect/0 missing |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-085` | 第八十五个训练真值报告暨第八十四张唯一真值图片 | ✅ PASS | `nail_00722…_3`五枚完整可见裸粉/装饰长甲均覆盖甲根、甲缘与完整甲尖；返修/真值SHA-256为`ff2bdb04…c63e`/`81baeaff…0cb` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-086` | 第八十六个训练真值报告暨第八十五张唯一真值图片 | ✅ PASS | `nail_00723…_4`五枚完整可见长甲无衣带、皮肤或重复甲面污染；返修/真值SHA-256为`be037c5d…c618`/`7ebe092f…19f8` |
+| `M2-T3-REAL-MATERIAL-FIRST-TRAINING-TRUTH-087` | 第八十七个训练真值报告暨第八十六张唯一真值图片 | ✅ PASS | `nail_01118…_5`五枚宝石/银色延长甲完整，玩偶眼睛、绒毛与相邻甲面污染清除；返修/真值SHA-256为`134a1cd7…f389`/`c5bf14a7…369f`。唯一索引累计86张/451 mask、1冗余、0冲突，SHA-256为`300ef9ea…28a2`；最低100张train正样本完成86%、仍缺14张 |
 | `M2-T4-INPUT-SIZE` | 用 FP32 基线评估输入尺寸 | ✅ PASS | 640 基线 box/mask mAP50=0.522/0.454；512=0.524/0.468，通过 0.02 退化门禁；384=0.475/0.438，box 退化 0.046，被门禁拒绝；下一轮优先评估 512 |
 | `M2-T5-QUANTIZATION` | 评估 INT8 量化且不牺牲细边缘 | ✅ PASS（拒绝候选） | QDQ INT8 从 11.63MB 降至 3.50MB，但 test box/mask mAP50 均为 0；自动质量门禁拒绝，FP32 保持默认 |
 | `M2-T6-EXPERIMENT` | 训练并验收真实数据模型试验版 | ✅ PASS（仅辅助标注） | real-prelabel-v3 的 9 张非正式验证集 mask mAP50=0.849、mAP50-95=0.511；512 FP32 ONNX 为 11.03MB，SHA-256 与 manifest 一致，真实 ORT 输出 `[1,37,5376]` / `[1,32,128,128]`，TypeScript fixture 解码出 5 个带 mask 候选。该模型只通过辅助标注用途门，不得注册为正式候选 |

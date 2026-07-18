@@ -13,7 +13,7 @@
 ## 功能概览
 
 | 模块 | 入口 | 状态 | 说明 |
-|------|------|:---:|------|
+| --- | --- | :---: | --- |
 | 首页 | `/` | ✅ | 品牌展示 + 四大功能入口 |
 | 涂色编辑器 | `/editor` | ✅ | 上传照片 → 五指独立选色 → Canvas 涂抹 → 本地保存 |
 | AI 美甲生图 | `/ai-generate` | 📌 | 文字描述 + 10 种风格提示词库（各 50 段） → DALL·E 3 生成 → 下载 |
@@ -64,7 +64,7 @@ npm.cmd run start
 ```powershell
 npm.cmd run lint          # ESLint 检查
 npm.cmd run test          # 全量测试（当前 350+ 项）
-npm.cmd run audit:encoding # 文本文件编码审计（当前 386 个文件）
+npm.cmd run audit:encoding # 文本文件编码审计（当前 407 个文件）
 npm.cmd run build          # Next.js 生产构建
 ```
 
@@ -206,7 +206,7 @@ JiaRu/
 ## 环境变量
 
 | 变量 | 说明 | 必须 |
-|------|------|:---:|
+| --- | --- | :---: |
 | `OPENAI_API_KEY` | OpenAI API 密钥（DALL·E 3 生图） | AI 生成功能需要 |
 | `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL` | 浏览器端纹理模型 manifest 路径 | 否（有默认值） |
 
@@ -223,8 +223,8 @@ copy .env.local.example .env.local
 ### 核心文档
 
 | 文档 | 说明 |
-|------|------|
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.99 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| --- | --- |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.170 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
@@ -233,7 +233,7 @@ copy .env.local.example .env.local
 ### AR 专项文档
 
 | 文档 | 说明 |
-|------|------|
+| --- | --- |
 | [全局朝向门控修复](docs/global-render-gate-fix.md) | 两层防御体系（全局门控 + 逐指过滤） |
 | [逐指可见性增强](docs/finger-visibility-enhancement.md) | 三信号融合 + 时序平滑 |
 | [逐指识别与左右手](docs/finger-hand-identification.md) | UI 指示器 + 指甲形状差异化 |
@@ -253,7 +253,7 @@ copy .env.local.example .env.local
 **核心原则：图片和摄像头数据尽量留在浏览器本地。**
 
 | 功能 | 数据处理 |
-|------|----------|
+| --- | --- |
 | 涂色编辑器 | 照片在浏览器 Canvas 本地处理，保存为本地 PNG |
 | AR 试戴 | 摄像头帧仅存内存，**不录制、不上传** |
 | AI 生图 | 仅发送文字描述到服务端，**不发送原图** |
@@ -264,14 +264,17 @@ copy .env.local.example .env.local
 ## 路线图
 
 ### Phase 1: MVP ✅ 完成
+
 - [x] 首页、编辑器、图库、隐私页
 - [x] ESLint 0 errors、350+ 测试通过、生产构建通过
 
 ### Phase 2: AI 生成 ✅ 完成
+
 - [x] DALL·E 3 API 集成、10 风格 × 50 段提示词库
 - [x] 前端状态机、错误处理、图片保存
 
 ### Phase 3: AR 实时试戴 🚧 核心功能完成，待真机验证
+
 - [x] 摄像头管线、MediaPipe 手部检测
 - [x] 逐指可见性判定（4 信号融合）
 - [x] 全局朝向检测（4 传感器融合）
@@ -284,6 +287,7 @@ copy .env.local.example .env.local
 - [ ] 3D AR 试戴（Three.js 已安装）
 
 ### Phase 4: 纹理识别模型 🚧 训练与审核中
+
 - [x] 浏览器端 ONNX Runtime Web 推理管线
 - [x] 正式数据集（409 图/2142 mask）
 - [x] v6 候选通过资产、浏览器协议和桌面性能门
@@ -294,6 +298,7 @@ copy .env.local.example .env.local
 - [ ] Beta 人工质量审核（100 张）
 
 ### 待规划
+
 - [ ] Vercel 部署 + 域名绑定
 - [ ] 真实灵感图库与内容后台
 - [ ] 用户账户、云同步
@@ -305,7 +310,7 @@ copy .env.local.example .env.local
 ## 技术栈
 
 | 层级 | 技术 | 版本 |
-|------|------|------|
+| --- | --- | --- |
 | 框架 | Next.js App Router | 16.2.9 |
 | UI | React | 19.2.4 |
 | 语言 | TypeScript | 5.x |
