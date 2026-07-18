@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-18T08:38:47.890Z",
+  "generatedAt": "2026-07-18T10:06:54.836Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 271,
-    "passMarkerCount": 258,
+    "progressMarkerCount": 281,
+    "passMarkerCount": 268,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -583,6 +583,30 @@
         {
           "checked": true,
           "text": "完成`00194/00906`批次059并形成第79至80个批准真值报告；两图9枚完整可见甲面全部人工重画，原分辨率视觉门拦截并修复头发、皮肤、猫毛宽框污染及蝶形透明长甲根部遗漏。最终2张/9 polygon合法、同图零交叠、几何9/9，整图和逐甲2×视觉通过。唯一索引更新为80个批准报告、2个历史拒绝报告、79张唯一图片/416 mask、1冗余、0冲突，SHA-256为`6e4dadf9…378d`；最低100张train正样本完成79%、仍缺21张，val 0/30和约100张hard negative不变，整批物化与来源隔离前继续禁止训练。"
+        },
+        {
+          "checked": true,
+          "text": "完成`00183/00201`批次060并形成第81至82个批准真值报告；两张清晰实拍图各有5枚完整可见甲面，保留7个已通过放大审核的polygon并人工重画3枚问题甲；侧视拇指的白色立体装饰纳入完整甲面轮廓。最终2张/10 polygon合法、同图零交叠、几何10/10，整图和逐甲2×视觉通过。"
+        },
+        {
+          "checked": true,
+          "text": "训练真值唯一索引更新为82个批准报告、2个历史拒绝报告、81张唯一图片/426 mask、1个冗余报告、0冲突，SHA-256为`48d5ea4b…ed48`；最低100张train正样本完成81%、仍缺19张。val 0/30和约100张hard negative不变，整批物化与来源隔离前继续禁止训练。"
+        },
+        {
+          "checked": true,
+          "text": "完成`00719/01115`批次061并形成第83至84个批准真值报告；两张清晰实拍图各有5枚完整可见长甲，以8个已审SAM polygon和2个人工polygon重建。原分辨率整图与逐甲2×复核收紧`00719`第5甲甲根和`01115`第3甲暗色背景外扩，最终2张/10 polygon合法、同图零交叠、几何10/10。"
+        },
+        {
+          "checked": true,
+          "text": "训练真值唯一索引更新为84个批准报告、2个历史拒绝报告、83张唯一图片/436 mask、1个冗余报告、0冲突，SHA-256为`a2942ab0…2d2`；最低100张train正样本完成83%、仍缺17张。val 0/30和约100张hard negative不变，整批物化与来源隔离前继续禁止训练。"
+        },
+        {
+          "checked": true,
+          "text": "完成`00722/00723/01118`批次062并形成第85至87个批准真值报告；两轮SAM多点提示仍吸收衣带、皮肤、玩偶绒毛或眼睛后，按门禁切换为13个人工polygon与2个已审SAM polygon。原分辨率整图及全部逐甲2×复核确认3张/15枚完整甲面覆盖甲根、两侧甲缘、装饰区和完整甲尖，15/15 polygon合法、同图零交叠、几何15/15。"
+        },
+        {
+          "checked": true,
+          "text": "训练真值唯一索引更新为87个批准报告、2个历史拒绝报告、86张唯一图片/451 mask、1个冗余报告、0冲突，SHA-256为`300ef9ea…28a2`；最低100张train正样本完成86%、仍缺14张。val 0/30和约100张hard negative不变，整批物化与来源隔离前继续禁止训练。"
         },
         {
           "checked": true,
