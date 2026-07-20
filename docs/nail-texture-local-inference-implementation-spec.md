@@ -707,8 +707,8 @@ missingRate = GT 甲面中未被 predictedMask 覆盖的面积 / GT 甲面总面
 - [x] 建立来源隔离验证集专用阈值校准器；硬拒绝test/release-test调参、val来源跨split和未知预测，少于30图或存在无效真值polygon时只输出诊断结果，不生成manifest阈值。
 - [x] 建立验证集真值隔离返修与全覆盖视觉审核门；v6旧val的13/13张原分辨率审核仅3张通过、7张返修、3张排除并发现2张交叠，整套split标记为`rejected_as_calibration_truth`，历史高mAP和0.20诊断点不得用于模型选择或manifest。
 - [x] 将验证真值审核资格接入阈值校准器；只有`approved_as_calibration_truth`且dataset/逐标签哈希、13/13覆盖及全pass计数一致时才可能校准，缺审核或`rejected_as_calibration_truth`分别输出未审核/已拒绝诊断并保持`manifestScoreThreshold=null`。
-- [x] 建立正式候选训练验证证据门；通用来源隔离审计逐文件核对`sources.csv`与split，候选预检要求val-only来源组、不少于30图、全量原分辨率审核通过、逐标签哈希、合法polygon和零交叠。`train-yolo-seg.py --candidate-mode`必须绑定通过报告并复验上游报告哈希；普通实验明确记录`training_intent=experiment`，不得冒充候选。
-- [x] 将正式候选验证证据门接入训练发布编排器；`run-training-release-pipeline.ts --candidate-mode`必须同时提供`--candidate-validation-report`并原样下传训练入口，流水线报告固定记录`trainingIntent`与证据路径，缺失或拒绝证据时不得继续评估、导出或治理。
+- [x] 建立历史候选训练验证诊断门；通用来源隔离审计逐文件核对`sources.csv`与split，旧候选预检要求val-only来源组、不少于30图、全量原分辨率审核通过、逐标签哈希、合法polygon和零交叠，并曾正确拒绝不合格409图集。其外层PASS现仅保留为历史诊断，不再单独授权正式候选；正式授权由后续完整输入深审承担，普通实验继续明确记录`training_intent=experiment`。
+- [x] 完成历史`--candidate-validation-report`编排接线并在后续升级为`--candidate-input-report`首步深审；旧报告路径不再作为正式授权，当前候选编排必须先执行`candidate-input-preflight`，缺失、拒绝或漂移证据不得继续环境检查、训练、评估、导出或治理。
 - [x] 实现 letterbox 和精确坐标还原。
 - [x] 实现真实输出转置、Top-K、NMS 和按框 mask 解码。
 - [x] 优化 prototype 和 typed array 内存使用。
@@ -842,6 +842,8 @@ missingRate = GT 甲面中未被 predictedMask 覆盖的面积 / GT 甲面总面
 - [x] 完成val替补批次014—018及最终30张真值闭环；批次继续拦截裁断、遮挡、仅局部露出和完整甲数错误源图，并在主线程复核中补齐透明甲尖、丝带尾、立体花瓣、圆珠、水钻和完整甲根。最终30个批准报告归并为30张唯一图片/144个完整mask、0拒绝、0冗余、0冲突，索引SHA-256为`2ccde942…b92d`；全部polygon合法、同图严格零交叠，全部条目固定`trainingUse=prohibited`。
 - [x] 建立规范validation物化、角色隔离和最终晋升三段门禁；物化器只接受不少于30张的approved val唯一索引，输出固定val-only split并逐文件绑定图片、annotation、YOLO label和聚合哈希。隔离器从当前val、train、冻结test及可选hard negative证据重算文件名、图片SHA-256和sourceGroup交集；最终器再次独立重算隔离、polygon合法性和任意非零交叠，并拒绝伪造PASS、路径逃逸、输出覆盖、写后孤儿和输入漂移。真实结果为30图/144 mask、train/test为0、孤儿0，与train 100张及冻结test 67张三类身份零重叠，最终`approved_as_calibration_truth`、`calibrationTruthEligible=true`。
 - [x] 完成现有37张域外排除项的hard negative原分辨率复筛；仅`nail_00844…_0`满足清晰、无真人有效甲面、部署相关、授权A及与train/val/frozen test隔离，继续保持candidate-only。其余36张为教程/甲型/手绘模板、独立甲片、拼图或仍含真实美甲，全部排除；100张建议目标当前1/100、仍缺99张，不得用不合格图片凑数。
+- [x] 建立规范候选训练数据集物化器；正式下限固定train正样本100、`approved_hard_negative_manifest`负样本100、`approved_as_calibration_truth`验证图30且CLI不可下调。写目录前复验训练真值、val终审、冻结test和四角色文件名/图片SHA-256/sourceGroup零重叠；输出采用事务式目录替换，hard-negative标签必须零字节、test固定为空，逐文件与聚合SHA-256完整绑定。真实100/1/30运行正确HOLD并只写外部报告，候选数据集目录未创建。
+- [x] 建立候选训练完整输入独立深审并接入训练/发布入口；审计器重新计算annotation→YOLO标签、polygon合法性与任意非零交叠、负样本空标签、val逐项等价、孤儿和四角色隔离，`verify_approved_report()`拒绝伪造PASS或写后漂移。`train-yolo-seg.py --candidate-mode --candidate-input-report`在Ultralytics/GPU前及训练后重放，旧validation外层PASS不再授权；发布编排固定先执行`candidate-input-preflight`，即使`--skip-train`也要求旧摘要绑定相同dataset、输入报告和权重哈希。
 - [x] 评估量化，但不牺牲纹理细边缘。（INT8 候选经门禁拒绝，FP32 保持默认）
 - [ ] 建立真实设备性能和内存报告。（v6 桌面 Chromium WebGPU 29 次热推理 P95=133.7ms、20 次内存稳定性门已通过；Android/iPhone/iPad 真机矩阵与移动端峰值内存等待执行）
 - [x] 将质量、性能和模型资产门禁接入发布决策。
