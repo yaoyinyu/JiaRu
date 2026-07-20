@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Materialize a frozen reviewed snapshot as an evaluation-only YOLO dataset.
 
-The tool never changes the frozen snapshot and never assigns an item to a
-training or validation split. It independently verifies snapshot hashes,
-polygon validity, pairwise zero-overlap, and source isolation from the formal
-training dataset before replacing the derived evaluation directory.
+The source snapshot and formal training identities are treated only as inputs:
+all hashes, polygons, split contents, and isolation claims are recomputed before
+an output directory is committed.  Both the dataset and its external report are
+staged transactionally and an existing target is never reused.
 """
 
 from __future__ import annotations
@@ -13,7 +13,10 @@ import argparse
 import csv
 import hashlib
 import json
+import os
+import re
 import shutil
+import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -21,18 +24,31 @@ from PIL import Image
 from shapely.geometry import Polygon
 
 
+SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
+
+
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description="Materialize a frozen release-test evaluation dataset.")
+    parser = argparse.ArgumentParser(
+        description="Materialize a frozen release-test evaluation dataset."
+    )
     parser.add_argument("--snapshot-root", required=True)
     parser.add_argument("--output-dir", required=True)
-    parser.add_argument("--training-dataset-root", default="model/datasets/nail-texture-v1")
-    parser.add_argument("--training-sources", default="model/datasets/nail-texture-v1/metadata/sources.csv")
+    parser.add_argument(
+        "--training-dataset-root", default="model/datasets/nail-texture-v1"
+    )
+    parser.add_argument(
+        "--training-sources",
+        default="model/datasets/nail-texture-v1/metadata/sources.csv",
+    )
     parser.add_argument("--report", default="")
     return parser
 
 
 def load_json(path: Path) -> dict[str, Any]:
-    value = json.loads(path.read_text(encoding="utf-8"))
+    try:
+        value = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"Unreadable JSON: {path}: {error}") from error
     if not isinstance(value, dict):
         raise ValueError(f"Expected an object: {path}")
     return value
@@ -47,45 +63,118 @@ def sha256_path(path: Path) -> str:
 
 
 def canonical_sha256(value: Any) -> str:
-    payload = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
     return hashlib.sha256(payload.encode("utf-8")).hexdigest()
+
+
+def require_sha256(value: Any, field: str) -> str:
+    digest = str(value or "")
+    if not SHA256_PATTERN.fullmatch(digest):
+        raise ValueError(f"Invalid {field}: {digest!r}")
+    return digest
 
 
 def safe_file_name(value: Any, field: str) -> str:
     file_name = str(value or "")
-    if not file_name or Path(file_name).name != file_name or file_name in {".", ".."}:
+    if (
+        not file_name
+        or Path(file_name).name != file_name
+        or file_name in {".", ".."}
+        or any(separator in file_name for separator in ("/", "\\"))
+    ):
         raise ValueError(f"Unsafe {field}: {file_name!r}")
     return file_name
 
 
-def training_evidence(dataset_root: Path, sources_path: Path) -> tuple[set[str], set[str]]:
+def is_within(path: Path, root: Path) -> bool:
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def require_nonempty_text(value: Any, field: str) -> str:
+    text = str(value or "").strip()
+    if not text:
+        raise ValueError(f"Missing {field}")
+    return text
+
+
+def training_evidence(
+    dataset_root: Path, sources_path: Path
+) -> tuple[list[dict[str, str]], set[str], set[str], set[str]]:
+    if not dataset_root.is_dir():
+        raise FileNotFoundError(f"Training dataset root is missing: {dataset_root}")
     if not sources_path.is_file():
         raise FileNotFoundError(f"Training sources are missing: {sources_path}")
     groups: set[str] = set()
     image_hashes: set[str] = set()
+    file_names: set[str] = set()
+    identities: list[dict[str, str]] = []
     with sources_path.open("r", encoding="utf-8-sig", newline="") as handle:
         rows = list(csv.DictReader(handle))
     if not rows:
         raise ValueError("Training sources are empty")
     for row_index, row in enumerate(rows, start=2):
-        group = str(row.get("sourceGroup") or "").strip()
-        image_ref = str(row.get("imagePath") or "").strip()
-        if not group or not image_ref:
-            raise ValueError(f"Training source row {row_index} lacks sourceGroup or imagePath")
+        group = require_nonempty_text(
+            row.get("sourceGroup"), f"training source row {row_index} sourceGroup"
+        )
+        image_ref = require_nonempty_text(
+            row.get("imagePath"), f"training source row {row_index} imagePath"
+        )
         image_path = Path(image_ref)
         if not image_path.is_absolute():
-            image_path = dataset_root / image_path
+            image_path = (dataset_root / image_path).resolve()
+        else:
+            image_path = image_path.resolve()
         if not image_path.is_file():
-            raise FileNotFoundError(f"Training source image is missing at row {row_index}: {image_path}")
+            raise FileNotFoundError(
+                f"Training source image is missing at row {row_index}: {image_path}"
+            )
+        file_name = safe_file_name(
+            row.get("fileName") or image_path.name,
+            f"training source row {row_index} fileName",
+        )
+        image_sha256 = sha256_path(image_path)
+        declared_hash = str(row.get("imageSha256") or "").strip()
+        if declared_hash and require_sha256(
+            declared_hash, f"training source row {row_index} imageSha256"
+        ) != image_sha256:
+            raise ValueError(
+                f"Training source row {row_index} image SHA-256 drift: {image_path}"
+            )
         groups.add(group)
-        image_hashes.add(sha256_path(image_path))
-    return groups, image_hashes
+        image_hashes.add(image_sha256)
+        file_names.add(file_name)
+        identities.append(
+            {
+                "fileName": file_name,
+                "sourceGroup": group,
+                "imagePath": str(image_path),
+                "imageSha256": image_sha256,
+            }
+        )
+    identities.sort(
+        key=lambda item: (
+            item["fileName"],
+            item["sourceGroup"],
+            item["imagePath"],
+        )
+    )
+    return identities, groups, image_hashes, file_names
 
 
-def validate_polygons(document: dict[str, Any], expected_masks: int, file_name: str) -> list[str]:
+def validate_polygons(
+    document: dict[str, Any], expected_masks: int, file_name: str
+) -> list[str]:
     image = document.get("image")
     annotations = document.get("annotations")
-    if document.get("version") != "nail-texture-dataset/v1" or not isinstance(image, dict):
+    if document.get("version") != "nail-texture-dataset/v1" or not isinstance(
+        image, dict
+    ):
         raise ValueError(f"{file_name}: unsupported annotation document")
     if image.get("fileName") != file_name:
         raise ValueError(f"{file_name}: annotation image fileName mismatch")
@@ -93,8 +182,10 @@ def validate_polygons(document: dict[str, Any], expected_masks: int, file_name: 
     height = int(image.get("height") or 0)
     if width <= 0 or height <= 0 or not isinstance(annotations, list):
         raise ValueError(f"{file_name}: invalid image dimensions or annotations")
-    if len(annotations) != expected_masks:
-        raise ValueError(f"{file_name}: expected {expected_masks} masks, found {len(annotations)}")
+    if expected_masks < 1 or len(annotations) != expected_masks:
+        raise ValueError(
+            f"{file_name}: expected {expected_masks} masks, found {len(annotations)}"
+        )
 
     lines: list[str] = []
     polygons: list[Polygon] = []
@@ -106,11 +197,20 @@ def validate_polygons(document: dict[str, Any], expected_masks: int, file_name: 
         normalized: list[str] = []
         for point_index, point in enumerate(points, start=1):
             if not isinstance(point, dict):
-                raise ValueError(f"{file_name}: nail {index} point {point_index} is invalid")
-            x = float(point.get("x"))
-            y = float(point.get("y"))
+                raise ValueError(
+                    f"{file_name}: nail {index} point {point_index} is invalid"
+                )
+            try:
+                x = float(point.get("x"))
+                y = float(point.get("y"))
+            except (TypeError, ValueError) as error:
+                raise ValueError(
+                    f"{file_name}: nail {index} point {point_index} is invalid"
+                ) from error
             if x < 0 or y < 0 or x > width or y > height:
-                raise ValueError(f"{file_name}: nail {index} point {point_index} is out of bounds")
+                raise ValueError(
+                    f"{file_name}: nail {index} point {point_index} is out of bounds"
+                )
             coords.append((x, y))
             normalized.extend((f"{x / width:.8f}", f"{y / height:.8f}"))
         polygon = Polygon(coords)
@@ -122,17 +222,110 @@ def validate_polygons(document: dict[str, Any], expected_masks: int, file_name: 
     for first in range(len(polygons)):
         for second in range(first + 1, len(polygons)):
             overlap = polygons[first].intersection(polygons[second]).area
-            if overlap > 1e-6:
+            if overlap > 0:
                 raise ValueError(
-                    f"{file_name}: nails {first + 1}/{second + 1} overlap by {overlap:.6f} pixels"
+                    f"{file_name}: nails {first + 1}/{second + 1} overlap "
+                    f"by {overlap:.12f} pixels"
                 )
     return lines
 
 
-def ensure_safe_output(output_dir: Path) -> None:
+def inventory(root: Path) -> list[dict[str, str]]:
+    paths = [item for item in root.rglob("*") if item.is_file()]
+    paths.sort(key=lambda item: item.relative_to(root).as_posix())
+    return [
+        {
+            "path": path.relative_to(root).as_posix(),
+            "sha256": sha256_path(path),
+        }
+        for path in paths
+    ]
+
+
+def write_json(path: Path, value: Any) -> None:
+    path.write_text(
+        json.dumps(value, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+    )
+
+
+def ensure_safe_targets(
+    snapshot_root: Path,
+    dataset_root: Path,
+    output_dir: Path,
+    report_path: Path,
+    input_files: list[Path],
+) -> None:
     cwd = Path.cwd().resolve()
-    if output_dir == cwd or output_dir == output_dir.anchor or output_dir.parent == output_dir:
+    if output_dir in {cwd, Path(output_dir.anchor)} or output_dir.parent == output_dir:
         raise ValueError(f"Unsafe output directory: {output_dir}")
+    if output_dir.exists():
+        raise ValueError(f"Output directory must not already exist: {output_dir}")
+    if is_within(output_dir, snapshot_root) or is_within(snapshot_root, output_dir):
+        raise ValueError("Output directory must be separate from the source snapshot")
+    if is_within(output_dir, dataset_root) or is_within(dataset_root, output_dir):
+        raise ValueError("Output directory must be separate from the training dataset")
+    if report_path.exists():
+        raise ValueError(f"Report target must not already exist: {report_path}")
+    if is_within(report_path, output_dir):
+        raise ValueError("Report target must not be inside the output directory")
+    if report_path in {path.resolve() for path in input_files}:
+        raise ValueError("Report target must not overwrite an input file")
+    if is_within(report_path, snapshot_root) or is_within(report_path, dataset_root):
+        raise ValueError("Report target must be separate from source inputs")
+
+
+def assert_output_tree(
+    root: Path, expected_images: dict[str, set[str]], expected_labels: dict[str, set[str]]
+) -> None:
+    for split in ("train", "val"):
+        image_files = [item for item in (root / "images" / split).rglob("*") if item.is_file()]
+        label_files = [item for item in (root / "labels" / split).rglob("*") if item.is_file()]
+        if image_files or label_files:
+            raise ValueError(f"Evaluation-only dataset has non-empty {split} split")
+    for lane in ("core", "stress"):
+        image_root = root / "images" / "test" / lane
+        label_root = root / "labels" / "test" / lane
+        actual_images = {
+            item.relative_to(image_root).as_posix()
+            for item in image_root.rglob("*")
+            if item.is_file()
+        }
+        actual_labels = {
+            item.relative_to(label_root).as_posix()
+            for item in label_root.rglob("*")
+            if item.is_file()
+        }
+        if actual_images != expected_images[lane]:
+            raise ValueError(
+                f"Evaluation image {lane} orphan/missing: "
+                f"{sorted(actual_images ^ expected_images[lane])}"
+            )
+        if actual_labels != expected_labels[lane]:
+            raise ValueError(
+                f"Evaluation label {lane} orphan/missing: "
+                f"{sorted(actual_labels ^ expected_labels[lane])}"
+            )
+    if not any(expected_images.values()):
+        raise ValueError("Evaluation test split must not be empty")
+
+
+def dataset_yaml(test_path: str) -> str:
+    return "\n".join(
+        [
+            "path: .",
+            "train: images/train",
+            "val: images/val",
+            f"test: {test_path}",
+            "",
+            "names:",
+            "  0: nail_texture",
+            "",
+            "task: segment",
+            "class_count: 1",
+            "image_size: 512",
+            "",
+        ]
+    )
 
 
 def main() -> None:
@@ -141,170 +334,379 @@ def main() -> None:
     output_dir = Path(args.output_dir).resolve()
     dataset_root = Path(args.training_dataset_root).resolve()
     sources_path = Path(args.training_sources).resolve()
-    report_path = Path(args.report).resolve() if args.report else output_dir.with_name(f"{output_dir.name}-report.json")
-    ensure_safe_output(output_dir)
-
+    report_path = (
+        Path(args.report).resolve()
+        if args.report
+        else output_dir.with_name(f"{output_dir.name}-report.json")
+    )
     manifest_path = snapshot_root / "manifest.json"
+    if not manifest_path.is_file():
+        raise FileNotFoundError(f"Frozen snapshot manifest is missing: {manifest_path}")
+    ensure_safe_targets(
+        snapshot_root,
+        dataset_root,
+        output_dir,
+        report_path,
+        [manifest_path, sources_path],
+    )
+
+    source_manifest_sha256 = sha256_path(manifest_path)
+    training_sources_sha256 = sha256_path(sources_path)
     manifest = load_json(manifest_path)
     items = manifest.get("items")
     if manifest.get("decision") != "frozen_reviewed_candidate_not_release_ready":
         raise ValueError("Snapshot decision is not a frozen reviewed candidate")
-    if manifest.get("trainingUse") != "prohibited" or not isinstance(items, list) or not items:
-        raise ValueError("Snapshot must be non-empty and trainingUse must be prohibited")
-    if canonical_sha256(items) != manifest.get("itemsSha256"):
+    if (
+        manifest.get("trainingUse") != "prohibited"
+        or not isinstance(items, list)
+        or not items
+    ):
+        raise ValueError(
+            "Snapshot must be non-empty and trainingUse must be prohibited"
+        )
+    source_items_sha256 = require_sha256(
+        manifest.get("itemsSha256"), "snapshot itemsSha256"
+    )
+    if canonical_sha256(items) != source_items_sha256:
         raise ValueError("Snapshot itemsSha256 mismatch")
-    if int((manifest.get("counts") or {}).get("images") or 0) != len(items):
+    counts = manifest.get("counts")
+    if not isinstance(counts, dict) or int(counts.get("images") or 0) != len(items):
         raise ValueError("Snapshot image count does not match manifest items")
 
-    training_groups, training_hashes = training_evidence(dataset_root, sources_path)
-    frozen_groups = {str(item.get("parentSourceGroup") or "") for item in items if isinstance(item, dict)}
-    group_overlap = sorted(frozen_groups & training_groups)
-    if group_overlap:
-        raise ValueError(f"Frozen parent source groups overlap training data: {group_overlap}")
+    (
+        training_identities,
+        training_groups,
+        training_hashes,
+        training_file_names,
+    ) = training_evidence(dataset_root, sources_path)
 
-    temporary = output_dir.with_name(f"{output_dir.name}.tmp")
-    if temporary.exists():
-        shutil.rmtree(temporary)
-    (temporary / "images" / "test" / "core").mkdir(parents=True)
-    (temporary / "images" / "test" / "stress").mkdir(parents=True)
-    (temporary / "images" / "empty").mkdir(parents=True)
-    (temporary / "labels" / "test" / "core").mkdir(parents=True)
-    (temporary / "labels" / "test" / "stress").mkdir(parents=True)
-    (temporary / "labels" / "empty").mkdir(parents=True)
-
-    records: list[dict[str, Any]] = []
+    prepared: list[dict[str, Any]] = []
+    frozen_groups: set[str] = set()
     frozen_hashes: set[str] = set()
+    frozen_file_names: set[str] = set()
     seen_targets: set[str] = set()
+    lane_counts = {"core": 0, "stress": 0}
     total_masks = 0
-    try:
-        for item_index, item in enumerate(items, start=1):
-            if not isinstance(item, dict) or item.get("trainingUse") != "prohibited":
-                raise ValueError(f"Snapshot item {item_index} is not training-prohibited")
-            lane = str(item.get("lane") or "")
-            if lane not in {"core", "stress"}:
-                raise ValueError(f"Snapshot item {item_index} has unsupported lane: {lane}")
-            file_name = safe_file_name(item.get("fileName"), "fileName")
-            annotation_name = f"{Path(file_name).stem}.json"
-            image_path = snapshot_root / "images" / lane / file_name
-            annotation_path = snapshot_root / "annotations" / lane / annotation_name
-            if not image_path.is_file() or not annotation_path.is_file():
-                raise FileNotFoundError(f"Frozen pair is incomplete: {lane}/{file_name}")
-            image_sha256 = sha256_path(image_path)
-            annotation_sha256 = sha256_path(annotation_path)
-            if image_sha256 != item.get("imageSha256") or annotation_sha256 != item.get("annotationSha256"):
-                raise ValueError(f"Frozen pair hash mismatch: {lane}/{file_name}")
-            if canonical_sha256({"imageSha256": image_sha256, "annotationSha256": annotation_sha256}) != item.get("imageAnnotationPairSha256"):
-                raise ValueError(f"Frozen pair joint hash mismatch: {lane}/{file_name}")
-            if image_sha256 in training_hashes:
-                raise ValueError(f"Frozen image exactly duplicates formal training data: {lane}/{file_name}")
-            frozen_hashes.add(image_sha256)
+    for item_index, item in enumerate(items, start=1):
+        if not isinstance(item, dict) or item.get("trainingUse") != "prohibited":
+            raise ValueError(f"Snapshot item {item_index} is not training-prohibited")
+        lane = str(item.get("lane") or "")
+        if lane not in lane_counts:
+            raise ValueError(
+                f"Snapshot item {item_index} has unsupported lane: {lane}"
+            )
+        file_name = safe_file_name(item.get("fileName"), "fileName")
+        target_key = f"{lane}/{file_name}"
+        if target_key in seen_targets:
+            raise ValueError(f"Duplicate evaluation target: {target_key}")
+        seen_targets.add(target_key)
+        source_group = require_nonempty_text(
+            item.get("sourceGroup"), f"snapshot item {item_index} sourceGroup"
+        )
+        parent_source_group = require_nonempty_text(
+            item.get("parentSourceGroup"),
+            f"snapshot item {item_index} parentSourceGroup",
+        )
+        annotation_name = f"{Path(file_name).stem}.json"
+        image_path = snapshot_root / "images" / lane / file_name
+        annotation_path = snapshot_root / "annotations" / lane / annotation_name
+        if not image_path.is_file() or not annotation_path.is_file():
+            raise FileNotFoundError(f"Frozen pair is incomplete: {lane}/{file_name}")
+        image_sha256 = sha256_path(image_path)
+        annotation_sha256 = sha256_path(annotation_path)
+        if image_sha256 != require_sha256(
+            item.get("imageSha256"), f"{target_key} imageSha256"
+        ) or annotation_sha256 != require_sha256(
+            item.get("annotationSha256"), f"{target_key} annotationSha256"
+        ):
+            raise ValueError(f"Frozen pair hash mismatch: {target_key}")
+        pair_sha256 = canonical_sha256(
+            {
+                "imageSha256": image_sha256,
+                "annotationSha256": annotation_sha256,
+            }
+        )
+        if pair_sha256 != require_sha256(
+            item.get("imageAnnotationPairSha256"),
+            f"{target_key} imageAnnotationPairSha256",
+        ):
+            raise ValueError(f"Frozen pair joint hash mismatch: {target_key}")
 
-            document = load_json(annotation_path)
-            if str((document.get("image") or {}).get("sourceGroup") or "") != str(item.get("sourceGroup") or ""):
-                raise ValueError(f"{file_name}: annotation sourceGroup mismatch")
-            with Image.open(image_path) as image:
-                actual_size = image.size
-                image.verify()
-            if actual_size != (int(item.get("width") or 0), int(item.get("height") or 0)):
-                raise ValueError(f"{file_name}: frozen image dimensions mismatch")
+        document = load_json(annotation_path)
+        document_image = document.get("image")
+        if not isinstance(document_image, dict):
+            raise ValueError(f"{file_name}: annotation image identity is missing")
+        if str(document_image.get("sourceGroup") or "") != source_group:
+            raise ValueError(f"{file_name}: annotation sourceGroup mismatch")
+        item_width = int(item.get("width") or 0)
+        item_height = int(item.get("height") or 0)
+        if (
+            int(document_image.get("width") or 0) != item_width
+            or int(document_image.get("height") or 0) != item_height
+        ):
+            raise ValueError(f"{file_name}: annotation dimensions mismatch manifest")
+        with Image.open(image_path) as image:
+            actual_size = image.size
+            image.verify()
+        if actual_size != (item_width, item_height):
+            raise ValueError(f"{file_name}: frozen image dimensions mismatch")
+        mask_count = int(item.get("maskCount") or 0)
+        lines = validate_polygons(document, mask_count, file_name)
 
-            mask_count = int(item.get("maskCount") or 0)
-            lines = validate_polygons(document, mask_count, file_name)
-            target_name = file_name
-            target_key = f"{lane}/{target_name}"
-            if target_key in seen_targets:
-                raise ValueError(f"Duplicate evaluation target: {target_key}")
-            seen_targets.add(target_key)
-            label_name = f"{Path(target_name).stem}.txt"
-            image_target = temporary / "images" / "test" / lane / target_name
-            label_target = temporary / "labels" / "test" / lane / label_name
-            shutil.copy2(image_path, image_target)
-            label_target.write_text("\n".join(lines) + "\n", encoding="utf-8")
-            total_masks += mask_count
-            records.append({
+        lane_counts[lane] += 1
+        total_masks += mask_count
+        frozen_groups.add(parent_source_group)
+        frozen_hashes.add(image_sha256)
+        frozen_file_names.add(file_name)
+        prepared.append(
+            {
                 "lane": lane,
-                "sourceFileName": file_name,
-                "materializedFileName": target_name,
-                "parentSourceGroup": item.get("parentSourceGroup"),
+                "fileName": file_name,
+                "sourceGroup": source_group,
+                "parentSourceGroup": parent_source_group,
                 "maskCount": mask_count,
-                "sourceImageSha256": image_sha256,
-                "sourceAnnotationSha256": annotation_sha256,
-                "materializedImageSha256": sha256_path(image_target),
-                "materializedLabelSha256": sha256_path(label_target),
-            })
+                "width": item_width,
+                "height": item_height,
+                "sourceImage": image_path,
+                "sourceAnnotation": annotation_path,
+                "imageSha256": image_sha256,
+                "annotationSha256": annotation_sha256,
+                "imageAnnotationPairSha256": pair_sha256,
+                "labelText": "\n".join(lines) + "\n",
+            }
+        )
 
-        expected_masks = int((manifest.get("counts") or {}).get("masks") or 0)
-        if total_masks != expected_masks:
-            raise ValueError(f"Snapshot mask count mismatch: expected {expected_masks}, found {total_masks}")
-        def dataset_yaml(test_path: str) -> str:
-            return "\n".join([
-                "path: .",
-                "train: images/empty",
-                "val: images/empty",
-                f"test: {test_path}",
-                "",
-                "names:",
-                "  0: nail_texture",
-                "",
-                "task: segment",
-                "class_count: 1",
-                "image_size: 512",
-                "",
-            ])
+    expected_masks = int(counts.get("masks") or 0)
+    if total_masks != expected_masks:
+        raise ValueError(
+            f"Snapshot mask count mismatch: expected {expected_masks}, found {total_masks}"
+        )
+    for lane, count_key in (("core", "coreImages"), ("stress", "stressImages")):
+        if count_key in counts and int(counts.get(count_key) or 0) != lane_counts[lane]:
+            raise ValueError(f"Snapshot {count_key} count mismatch")
 
-        yaml = dataset_yaml("images/test")
-        (temporary / "dataset.yaml").write_text(yaml, encoding="utf-8")
-        (temporary / "dataset.core.yaml").write_text(dataset_yaml("images/test/core"), encoding="utf-8")
-        (temporary / "dataset.stress.yaml").write_text(dataset_yaml("images/test/stress"), encoding="utf-8")
+    group_overlap = sorted(frozen_groups & training_groups)
+    exact_hash_overlap = sorted(frozen_hashes & training_hashes)
+    file_name_overlap = sorted(frozen_file_names & training_file_names)
+    if group_overlap:
+        raise ValueError(
+            f"Frozen parent source groups overlap training data: {group_overlap}"
+        )
+    if exact_hash_overlap:
+        raise ValueError(
+            f"Frozen image exactly duplicates formal training data: {exact_hash_overlap}"
+        )
+
+    prepared.sort(key=lambda item: (item["lane"], item["fileName"]))
+    output_dir.parent.mkdir(parents=True, exist_ok=True)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = Path(
+        tempfile.mkdtemp(prefix=f".{output_dir.name}.tmp-", dir=str(output_dir.parent))
+    )
+    report_handle, report_temporary_name = tempfile.mkstemp(
+        prefix=f".{report_path.name}.tmp-", dir=str(report_path.parent)
+    )
+    os.close(report_handle)
+    report_temporary = Path(report_temporary_name)
+    output_committed = False
+    report_committed = False
+    try:
+        for split in ("train", "val"):
+            (temporary / "images" / split).mkdir(parents=True, exist_ok=True)
+            (temporary / "labels" / split).mkdir(parents=True, exist_ok=True)
+        for lane in ("core", "stress"):
+            (temporary / "images" / "test" / lane).mkdir(parents=True, exist_ok=True)
+            (temporary / "labels" / "test" / lane).mkdir(parents=True, exist_ok=True)
+
+        records: list[dict[str, Any]] = []
+        expected_images = {"core": set(), "stress": set()}
+        expected_labels = {"core": set(), "stress": set()}
+        for item in prepared:
+            lane = item["lane"]
+            file_name = item["fileName"]
+            label_name = f"{Path(file_name).stem}.txt"
+            image_relative = f"images/test/{lane}/{file_name}"
+            label_relative = f"labels/test/{lane}/{label_name}"
+            image_target = temporary / image_relative
+            label_target = temporary / label_relative
+            shutil.copyfile(item["sourceImage"], image_target)
+            label_target.write_text(item["labelText"], encoding="utf-8")
+            materialized_image_sha256 = sha256_path(image_target)
+            materialized_label_sha256 = sha256_path(label_target)
+            if materialized_image_sha256 != item["imageSha256"]:
+                raise ValueError(f"Materialized image hash drift: {lane}/{file_name}")
+            expected_images[lane].add(file_name)
+            expected_labels[lane].add(label_name)
+            records.append(
+                {
+                    "lane": lane,
+                    "sourceFileName": file_name,
+                    "materializedFileName": file_name,
+                    "sourceGroup": item["sourceGroup"],
+                    "parentSourceGroup": item["parentSourceGroup"],
+                    "width": item["width"],
+                    "height": item["height"],
+                    "maskCount": item["maskCount"],
+                    "sourceImage": str(item["sourceImage"]),
+                    "sourceAnnotation": str(item["sourceAnnotation"]),
+                    "sourceImageSha256": item["imageSha256"],
+                    "sourceAnnotationSha256": item["annotationSha256"],
+                    "sourceImageAnnotationPairSha256": item[
+                        "imageAnnotationPairSha256"
+                    ],
+                    "materializedImage": image_relative,
+                    "materializedLabel": label_relative,
+                    "materializedImageSha256": materialized_image_sha256,
+                    "materializedLabelSha256": materialized_label_sha256,
+                }
+            )
+
+        dataset_paths = {
+            "dataset.yaml": "images/test",
+            "dataset.core.yaml": "images/test/core",
+            "dataset.stress.yaml": "images/test/stress",
+        }
+        for name, test_path in dataset_paths.items():
+            (temporary / name).write_text(dataset_yaml(test_path), encoding="utf-8")
+
+        source_isolation = {
+            "trainingIdentities": len(training_identities),
+            "trainingIdentitiesSha256": canonical_sha256(training_identities),
+            "trainingSourceGroups": len(training_groups),
+            "trainingImageHashes": len(training_hashes),
+            "trainingFileNames": len(training_file_names),
+            "parentSourceGroupOverlap": group_overlap,
+            "exactImageHashOverlap": exact_hash_overlap,
+            "fileNameOverlapDiagnostic": file_name_overlap,
+        }
         evaluation_manifest = {
-            "schemaVersion": 1,
+            "schemaVersion": 2,
             "decision": "evaluation_only_frozen_reviewed_snapshot",
             "trainingUse": "prohibited",
             "sourceSnapshotId": manifest.get("snapshotId"),
-            "sourceItemsSha256": manifest.get("itemsSha256"),
-            "counts": {"images": len(records), "masks": total_masks, "parentSourceGroups": len(frozen_groups)},
-            "sourceIsolation": {
-                "trainingSourceGroups": len(training_groups),
-                "trainingImageHashes": len(training_hashes),
-                "parentSourceGroupOverlap": group_overlap,
-                "exactImageHashOverlap": sorted(frozen_hashes & training_hashes),
+            "sourceSnapshotManifest": {
+                "path": str(manifest_path),
+                "sha256": source_manifest_sha256,
             },
+            "sourceItemsSha256": source_items_sha256,
+            "counts": {
+                "images": len(records),
+                "masks": total_masks,
+                "coreImages": lane_counts["core"],
+                "stressImages": lane_counts["stress"],
+                "trainImages": 0,
+                "validationImages": 0,
+                "testImages": len(records),
+                "parentSourceGroups": len(frozen_groups),
+            },
+            "sourceIsolation": source_isolation,
             "recordsSha256": canonical_sha256(records),
             "records": records,
         }
-        (temporary / "evaluation-manifest.json").write_text(
-            json.dumps(evaluation_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"
+        evaluation_manifest_path = temporary / "evaluation-manifest.json"
+        write_json(evaluation_manifest_path, evaluation_manifest)
+        assert_output_tree(temporary, expected_images, expected_labels)
+
+        file_records = inventory(temporary)
+        files_sha256 = canonical_sha256(file_records)
+        dataset_yaml_path = temporary / "dataset.yaml"
+        core_yaml_path = temporary / "dataset.core.yaml"
+        stress_yaml_path = temporary / "dataset.stress.yaml"
+        report = {
+            "schemaVersion": 2,
+            "ok": True,
+            "status": "PASS",
+            "decision": "evaluation_only_frozen_reviewed_snapshot",
+            "trainingUse": "prohibited",
+            "inputs": {
+                "sourceFrozenManifest": {
+                    "path": str(manifest_path),
+                    "sha256": source_manifest_sha256,
+                    "itemsSha256": source_items_sha256,
+                },
+                "trainingDatasetRoot": str(dataset_root),
+                "trainingSources": {
+                    "path": str(sources_path),
+                    "sha256": training_sources_sha256,
+                    "identitiesSha256": canonical_sha256(training_identities),
+                },
+            },
+            "snapshotRoot": str(snapshot_root),
+            "sourceFrozenManifest": str(manifest_path),
+            "sourceFrozenManifestSha256": source_manifest_sha256,
+            "sourceItemsSha256": source_items_sha256,
+            "outputDir": str(output_dir),
+            "datasetYaml": str(output_dir / "dataset.yaml"),
+            "coreDatasetYaml": str(output_dir / "dataset.core.yaml"),
+            "stressDatasetYaml": str(output_dir / "dataset.stress.yaml"),
+            "evaluationManifest": str(output_dir / "evaluation-manifest.json"),
+            "counts": evaluation_manifest["counts"],
+            "sourceIsolation": source_isolation,
+            "artifacts": {
+                "datasetYaml": {
+                    "path": str(output_dir / "dataset.yaml"),
+                    "sha256": sha256_path(dataset_yaml_path),
+                },
+                "coreDatasetYaml": {
+                    "path": str(output_dir / "dataset.core.yaml"),
+                    "sha256": sha256_path(core_yaml_path),
+                },
+                "stressDatasetYaml": {
+                    "path": str(output_dir / "dataset.stress.yaml"),
+                    "sha256": sha256_path(stress_yaml_path),
+                },
+                "evaluationManifest": {
+                    "path": str(output_dir / "evaluation-manifest.json"),
+                    "sha256": sha256_path(evaluation_manifest_path),
+                },
+            },
+            "recordsSha256": canonical_sha256(records),
+            "records": records,
+            "file_records": file_records,
+            "files_sha256": files_sha256,
+            "datasetFiles": file_records,
+            "datasetFilesSha256": files_sha256,
+            "invariants": {
+                "sourceFrozenManifestHashBound": True,
+                "sourceItemsHashRecomputed": True,
+                "sourceFilesHashRecomputed": True,
+                "materializedImagesMatchFrozenManifest": True,
+                "materializedLabelsHashBound": True,
+                "fixedEvaluationOnlySplit": True,
+                "testSplitNonEmpty": True,
+                "trainSplitEmpty": True,
+                "validationSplitEmpty": True,
+                "coreStressNestedLayout": True,
+                "validPolygons": True,
+                "pairwiseZeroOverlap": True,
+                "trainingIdentityIsolationRecomputed": True,
+                "transactionalMaterialization": True,
+                "targetsNotReused": True,
+                "noOrphans": True,
+            },
+            "errors": [],
+        }
+        report_temporary.write_text(
+            json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
         )
-        if output_dir.exists():
-            shutil.rmtree(output_dir)
-        temporary.replace(output_dir)
+        if inventory(temporary) != file_records:
+            raise ValueError("Evaluation file inventory changed before commit")
+        assert_output_tree(temporary, expected_images, expected_labels)
+
+        os.replace(temporary, output_dir)
+        output_committed = True
+        os.replace(report_temporary, report_path)
+        report_committed = True
     except Exception:
-        if temporary.exists():
-            shutil.rmtree(temporary)
+        if report_committed:
+            report_path.unlink(missing_ok=True)
+        if output_committed:
+            shutil.rmtree(output_dir, ignore_errors=True)
+        shutil.rmtree(temporary, ignore_errors=True)
+        report_temporary.unlink(missing_ok=True)
         raise
 
-    report = {
-        "ok": True,
-        "decision": "evaluation_only_frozen_reviewed_snapshot",
-        "trainingUse": "prohibited",
-        "snapshotRoot": str(snapshot_root),
-        "outputDir": str(output_dir),
-        "datasetYaml": str(output_dir / "dataset.yaml"),
-        "coreDatasetYaml": str(output_dir / "dataset.core.yaml"),
-        "stressDatasetYaml": str(output_dir / "dataset.stress.yaml"),
-        "evaluationManifest": str(output_dir / "evaluation-manifest.json"),
-        "counts": {"images": len(records), "masks": total_masks, "parentSourceGroups": len(frozen_groups)},
-        "sourceIsolation": {
-            "trainingSourceGroups": len(training_groups),
-            "trainingImageHashes": len(training_hashes),
-            "parentSourceGroupOverlap": group_overlap,
-            "exactImageHashOverlap": sorted(frozen_hashes & training_hashes),
-        },
-        "recordsSha256": canonical_sha256(records),
-        "errors": [],
-    }
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(report, ensure_ascii=False, indent=2))
 
 

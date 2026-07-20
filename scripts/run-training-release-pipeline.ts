@@ -30,6 +30,12 @@ interface CliOptions {
   candidateMode: boolean;
   candidateInputReport?: string;
   candidateValidationReport?: string;
+  calibrationDataset?: string;
+  calibrationDatasetReport?: string;
+  calibrationTruthAudit?: string;
+  calibrationOutput?: string;
+  releaseTestDataset?: string;
+  releaseTestReport?: string;
   sourceAuthorizationDatasetRoot: string;
   minSegMap50: number;
   minBoxMap50: number;
@@ -130,6 +136,7 @@ function parseArgs(argv: string[]): CliOptions {
     governancePerformanceReport: false,
     governanceRegistry: false,
     governanceHistoryManifest: false,
+    split: false,
   };
 
   for (let index = 0; index < argv.length; index++) {
@@ -155,7 +162,10 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--patience") options.patience = Number(argv[++index]);
     else if (arg === "--device") options.device = argv[++index] ?? options.device;
     else if (arg === "--workers") options.workers = Number(argv[++index]);
-    else if (arg === "--split") options.split = (argv[++index] as CliOptions["split"]) ?? options.split;
+    else if (arg === "--split") {
+      explicit.split = true;
+      options.split = (argv[++index] as CliOptions["split"]) ?? options.split;
+    }
     else if (arg === "--dry-run") options.dryRun = true;
     else if (arg === "--skip-train") options.skipTrain = true;
     else if (arg === "--skip-evaluate") options.skipEvaluate = true;
@@ -169,6 +179,24 @@ function parseArgs(argv: string[]): CliOptions {
     }
     else if (arg === "--candidate-validation-report") {
       options.candidateValidationReport = path.resolve(argv[++index]);
+    }
+    else if (arg === "--calibration-dataset") {
+      options.calibrationDataset = path.resolve(argv[++index]);
+    }
+    else if (arg === "--calibration-dataset-report") {
+      options.calibrationDatasetReport = path.resolve(argv[++index]);
+    }
+    else if (arg === "--calibration-truth-audit") {
+      options.calibrationTruthAudit = path.resolve(argv[++index]);
+    }
+    else if (arg === "--calibration-output") {
+      options.calibrationOutput = path.resolve(argv[++index]);
+    }
+    else if (arg === "--release-test-dataset") {
+      options.releaseTestDataset = path.resolve(argv[++index]);
+    }
+    else if (arg === "--release-test-report") {
+      options.releaseTestReport = path.resolve(argv[++index]);
     }
     else if (arg === "--source-authorization-dataset-root") {
       options.sourceAuthorizationDatasetRoot = path.resolve(argv[++index]);
@@ -225,7 +253,7 @@ function parseArgs(argv: string[]): CliOptions {
     }
     else {
       throw new Error(
-        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--skip-source-authorization] [--skip-training-environment-check] [--require-local-model] [--candidate-mode --candidate-input-report <report.json>] [--source-authorization-dataset-root <dir>] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-performance-report <performance-report.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
+        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--skip-source-authorization] [--skip-training-environment-check] [--require-local-model] [--candidate-mode --candidate-input-report <report.json> --calibration-dataset <dataset.yaml> --calibration-dataset-report <report.json> --calibration-truth-audit <audit.json> --calibration-output <report.json> --release-test-dataset <dataset.yaml> --release-test-report <report.json>] [--source-authorization-dataset-root <dir>] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-performance-report <performance-report.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
       );
     }
   }
@@ -248,11 +276,48 @@ function parseArgs(argv: string[]): CliOptions {
   if (!explicit.governanceHistoryManifest) {
     options.governanceHistoryManifest = resolveDefaultGovernanceHistoryManifest(options.trainOutputDir);
   }
-  if (options.candidateMode && !options.candidateInputReport) {
-    throw new Error("--candidate-mode requires --candidate-input-report <report.json>");
+  if (options.candidateMode) {
+    const requiredCandidateOptions: Array<[string, string | undefined]> = [
+      ["--candidate-input-report", options.candidateInputReport],
+      ["--calibration-dataset", options.calibrationDataset],
+      ["--calibration-dataset-report", options.calibrationDatasetReport],
+      ["--calibration-truth-audit", options.calibrationTruthAudit],
+      ["--calibration-output", options.calibrationOutput],
+      ["--release-test-dataset", options.releaseTestDataset],
+      ["--release-test-report", options.releaseTestReport],
+    ];
+    const missing = requiredCandidateOptions
+      .filter(([, value]) => !value)
+      .map(([flag]) => flag);
+    if (missing.length > 0) {
+      throw new Error(`--candidate-mode requires ${missing.join(", ")}`);
+    }
+    if (explicit.split) {
+      throw new Error("--candidate-mode forbids --split; canonical validation is fixed to val and frozen release-test is fixed to test");
+    }
+    const laneDatasets = [options.dataset, options.calibrationDataset!, options.releaseTestDataset!]
+      .map((value) => normalizePathIdentity(value));
+    if (new Set(laneDatasets).size !== laneDatasets.length) {
+      throw new Error("candidate training, calibration, and release-test datasets must use three different paths");
+    }
+    if (options.skipEvaluate) {
+      throw new Error("--candidate-mode forbids --skip-evaluate because no hash-bound calibration and frozen-test resume evidence was provided");
+    }
+    if (options.skipExport) {
+      throw new Error("--candidate-mode forbids --skip-export because no hash-bound candidate export resume evidence was provided");
+    }
   }
 
   return options;
+}
+
+function normalizePathIdentity(filePath: string): string {
+  const normalized = path.normalize(path.resolve(filePath));
+  return process.platform === "win32" ? normalized.toLowerCase() : normalized;
+}
+
+function pathsEqual(left: string, right: string): boolean {
+  return normalizePathIdentity(left) === normalizePathIdentity(right);
 }
 
 function resolveBestWeightsPath(options: CliOptions): string {
@@ -263,12 +328,36 @@ function resolveMetricsPath(options: CliOptions): string {
   return path.join(options.trainOutputDir, "metrics.json");
 }
 
+function resolveCalibrationMetricsPath(options: CliOptions): string {
+  return path.join(options.trainOutputDir, "calibration", "metrics.val.json");
+}
+
+function resolveReleaseTestMetricsPath(options: CliOptions): string {
+  return path.join(options.trainOutputDir, "release-test", "metrics.test.json");
+}
+
 function resolveEvaluationArtifactsDir(options: CliOptions): string {
   return path.join(options.trainOutputDir, "evaluation-artifacts");
 }
 
 function resolveEvaluationArtifactIndexPath(options: CliOptions): string {
   return path.join(resolveEvaluationArtifactsDir(options), "evaluation-artifacts.json");
+}
+
+function resolveCalibrationEvaluationArtifactsDir(options: CliOptions): string {
+  return path.join(options.trainOutputDir, "calibration", "evaluation-artifacts");
+}
+
+function resolveCalibrationEvaluationArtifactIndexPath(options: CliOptions): string {
+  return path.join(resolveCalibrationEvaluationArtifactsDir(options), "evaluation-artifacts.json");
+}
+
+function resolveReleaseTestEvaluationArtifactsDir(options: CliOptions): string {
+  return path.join(options.trainOutputDir, "release-test", "evaluation-artifacts");
+}
+
+function resolveReleaseTestEvaluationArtifactIndexPath(options: CliOptions): string {
+  return path.join(resolveReleaseTestEvaluationArtifactsDir(options), "evaluation-artifacts.json");
 }
 
 function resolveManifestPath(options: CliOptions): string {
@@ -330,6 +419,189 @@ async function pathExists(filePath?: string): Promise<boolean> {
 
 async function sha256File(filePath: string): Promise<string> {
   return createHash("sha256").update(await readFile(filePath)).digest("hex");
+}
+
+async function fileEvidence(filePath?: string): Promise<{ path: string; sha256: string } | null> {
+  if (!filePath || !(await pathExists(filePath))) return null;
+  return { path: filePath, sha256: await sha256File(filePath) };
+}
+
+function asRecord(value: unknown, label: string): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error(`${label} must be a JSON object`);
+  }
+  return value as Record<string, unknown>;
+}
+
+async function readRequiredJson(filePath: string, label: string): Promise<Record<string, unknown>> {
+  try {
+    return asRecord(JSON.parse(await readFile(filePath, "utf8")), label);
+  } catch (error) {
+    throw new Error(`${label} cannot be read: ${error instanceof Error ? error.message : String(error)}`);
+  }
+}
+
+function evidencePath(document: Record<string, unknown>, key: string, label: string): string {
+  const inputs = asRecord(document.inputs, `${label} inputs`);
+  const evidence = asRecord(inputs[key], `${label} ${key}`);
+  const filePath = String(evidence.path ?? "").trim();
+  if (!filePath) throw new Error(`${label} ${key} path is missing`);
+  return path.resolve(filePath);
+}
+
+async function requireEvidenceHash(
+  document: Record<string, unknown>,
+  key: string,
+  expectedPath: string,
+  label: string
+): Promise<void> {
+  const inputs = asRecord(document.inputs, `${label} inputs`);
+  const evidence = asRecord(inputs[key], `${label} ${key}`);
+  const boundPath = String(evidence.path ?? "").trim();
+  const boundSha256 = String(evidence.sha256 ?? "").trim();
+  if (!boundPath || !pathsEqual(boundPath, expectedPath)) {
+    throw new Error(`${label} ${key} belongs to another path`);
+  }
+  if (!boundSha256 || boundSha256 !== await sha256File(expectedPath)) {
+    throw new Error(`${label} ${key} SHA-256 binding has drifted`);
+  }
+}
+
+async function verifyCandidateLaneInputs(options: CliOptions): Promise<void> {
+  const requiredFiles: Array<[string, string]> = [
+    [options.dataset, "candidate training dataset"],
+    [options.candidateInputReport!, "candidate input report"],
+    [options.calibrationDataset!, "canonical validation dataset"],
+    [options.calibrationDatasetReport!, "canonical validation materialization report"],
+    [options.calibrationTruthAudit!, "canonical validation truth audit"],
+    [options.releaseTestDataset!, "frozen release-test dataset"],
+    [options.releaseTestReport!, "frozen release-test materialization report"],
+  ];
+  for (const [filePath, label] of requiredFiles) {
+    if (!(await pathExists(filePath))) throw new Error(`${label} does not exist: ${filePath}`);
+  }
+
+  const candidate = await readRequiredJson(options.candidateInputReport!, "candidate input report");
+  if (
+    candidate.ok !== true ||
+    candidate.status !== "PASS" ||
+    candidate.decision !== "approved_candidate_training_input" ||
+    candidate.candidateTrainingEligible !== true
+  ) {
+    throw new Error("candidate input report is not an approved PASS");
+  }
+  if (!pathsEqual(String(candidate.datasetYaml ?? ""), options.dataset)) {
+    throw new Error("candidate input report belongs to another training dataset");
+  }
+  await requireEvidenceHash(
+    candidate,
+    "validationDatasetYaml",
+    options.calibrationDataset!,
+    "candidate input report"
+  );
+  await requireEvidenceHash(
+    candidate,
+    "validationFinalAudit",
+    options.calibrationTruthAudit!,
+    "candidate input report"
+  );
+  const frozenManifestPath = evidencePath(candidate, "frozenTestManifest", "candidate input report");
+  await requireEvidenceHash(candidate, "frozenTestManifest", frozenManifestPath, "candidate input report");
+
+  const calibrationReport = await readRequiredJson(
+    options.calibrationDatasetReport!,
+    "canonical validation materialization report"
+  );
+  if (calibrationReport.ok !== true) {
+    throw new Error("canonical validation materialization report is not approved");
+  }
+  if (!pathsEqual(String(calibrationReport.datasetYaml ?? ""), options.calibrationDataset!)) {
+    throw new Error("canonical validation materialization report belongs to another dataset");
+  }
+
+  const calibrationAudit = await readRequiredJson(
+    options.calibrationTruthAudit!,
+    "canonical validation truth audit"
+  );
+  const calibrationAuditInputs = asRecord(
+    calibrationAudit.inputs,
+    "canonical validation truth audit inputs"
+  );
+  if (
+    calibrationAudit.ok !== true ||
+    calibrationAudit.decision !== "approved_as_calibration_truth" ||
+    calibrationAudit.calibrationTruthEligible !== true ||
+    calibrationAuditInputs.split !== "val" ||
+    !pathsEqual(String(calibrationAuditInputs.datasetYaml ?? ""), options.calibrationDataset!) ||
+    calibrationAuditInputs.datasetYamlSha256 !== await sha256File(options.calibrationDataset!)
+  ) {
+    throw new Error("canonical validation truth audit does not bind the selected calibration dataset");
+  }
+
+  const releaseReport = await readRequiredJson(
+    options.releaseTestReport!,
+    "frozen release-test materialization report"
+  );
+  const releaseCounts = asRecord(releaseReport.counts, "frozen release-test counts");
+  const releaseIsolation = asRecord(
+    releaseReport.sourceIsolation,
+    "frozen release-test source isolation"
+  );
+  if (
+    releaseReport.ok !== true ||
+    releaseReport.decision !== "evaluation_only_frozen_reviewed_snapshot" ||
+    releaseReport.trainingUse !== "prohibited" ||
+    !pathsEqual(String(releaseReport.datasetYaml ?? ""), options.releaseTestDataset!) ||
+    Number(releaseCounts.images ?? 0) <= 0 ||
+    !Array.isArray(releaseIsolation.parentSourceGroupOverlap) ||
+    releaseIsolation.parentSourceGroupOverlap.length !== 0 ||
+    !Array.isArray(releaseIsolation.exactImageHashOverlap) ||
+    releaseIsolation.exactImageHashOverlap.length !== 0 ||
+    (Array.isArray(releaseReport.errors) && releaseReport.errors.length !== 0)
+  ) {
+    throw new Error("frozen release-test report is not an isolated non-empty evaluation-only dataset");
+  }
+
+  const evaluationManifestPath = path.resolve(String(releaseReport.evaluationManifest ?? ""));
+  if (!(await pathExists(evaluationManifestPath))) {
+    throw new Error("frozen release-test evaluation manifest does not exist");
+  }
+  const evaluationManifest = await readRequiredJson(
+    evaluationManifestPath,
+    "frozen release-test evaluation manifest"
+  );
+  const frozenManifest = await readRequiredJson(frozenManifestPath, "frozen release-test snapshot manifest");
+  const evaluationCounts = asRecord(
+    evaluationManifest.counts,
+    "frozen release-test evaluation manifest counts"
+  );
+  if (
+    evaluationManifest.decision !== "evaluation_only_frozen_reviewed_snapshot" ||
+    evaluationManifest.trainingUse !== "prohibited" ||
+    evaluationManifest.sourceItemsSha256 !== frozenManifest.itemsSha256 ||
+    Number(evaluationCounts.images ?? -1) !== Number(releaseCounts.images ?? -2) ||
+    evaluationManifest.recordsSha256 !== releaseReport.recordsSha256
+  ) {
+    throw new Error("frozen release-test report is not bound to the candidate frozen snapshot");
+  }
+}
+
+function plannedStep(name: string, command: string[]): StepResult {
+  return {
+    name,
+    ok: true,
+    stdout: { planned: true, dryRun: true },
+    command,
+  };
+}
+
+async function runCandidateCommand(
+  options: CliOptions,
+  name: string,
+  command: string[],
+  cwd: string
+): Promise<StepResult> {
+  return options.dryRun ? plannedStep(name, command) : runCommand(name, command, cwd);
 }
 
 async function verifyCandidateResume(
@@ -511,13 +783,35 @@ async function main() {
   const reportPath = path.join(options.trainOutputDir, "training-release-pipeline-report.json");
 
   const weightsPath = resolveBestWeightsPath(options);
-  const metricsPath = resolveMetricsPath(options);
+  const metricsPath = options.candidateMode
+    ? resolveReleaseTestMetricsPath(options)
+    : resolveMetricsPath(options);
   const evaluationArtifactsDir = resolveEvaluationArtifactsDir(options);
   const evaluationArtifactIndexPath = resolveEvaluationArtifactIndexPath(options);
+  const calibrationMetricsPath = resolveCalibrationMetricsPath(options);
+  const calibrationEvaluationArtifactsDir = resolveCalibrationEvaluationArtifactsDir(options);
+  const calibrationEvaluationArtifactIndexPath = resolveCalibrationEvaluationArtifactIndexPath(options);
+  const releaseTestMetricsPath = resolveReleaseTestMetricsPath(options);
+  const releaseTestEvaluationArtifactsDir = resolveReleaseTestEvaluationArtifactsDir(options);
+  const releaseTestEvaluationArtifactIndexPath = resolveReleaseTestEvaluationArtifactIndexPath(options);
   const manifestPath = resolveManifestPath(options);
 
   const steps: StepResult[] = [];
   if (options.candidateMode) {
+    await verifyCandidateLaneInputs(options);
+    if (
+      pathsEqual(options.calibrationOutput!, calibrationMetricsPath) ||
+      pathsEqual(options.calibrationOutput!, releaseTestMetricsPath)
+    ) {
+      throw new Error("--calibration-output must not overwrite canonical val or frozen release-test metrics");
+    }
+    if (options.skipTrain) {
+      const resumeResult = await verifyCandidateResume(options, weightsPath);
+      steps.push(resumeResult);
+      if (!resumeResult.ok) {
+        return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+      }
+    }
     const command = [
       "python",
       "model/training/train-yolo-seg.py",
@@ -530,17 +824,28 @@ async function main() {
       options.candidateInputReport!,
       "--dry-run",
     ];
-    const result = await runCommand("candidate-input-preflight", command, cwd);
+    const result = await runCandidateCommand(options, "candidate-input-preflight", command, cwd);
     steps.push(result);
     if (!result.ok) {
       return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
     }
-    if (options.skipTrain) {
-      const resumeResult = await verifyCandidateResume(options, weightsPath);
-      steps.push(resumeResult);
-      if (!resumeResult.ok) {
-        return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
-      }
+    const releaseTestPreflightCommand = [
+      "python",
+      "model/training/materialize-frozen-release-test-evaluation.py",
+      "--verify-report",
+      options.releaseTestReport!,
+      "--expected-dataset",
+      options.releaseTestDataset!,
+    ];
+    const releaseTestPreflightResult = await runCandidateCommand(
+      options,
+      "release-test-preflight",
+      releaseTestPreflightCommand,
+      cwd
+    );
+    steps.push(releaseTestPreflightResult);
+    if (!releaseTestPreflightResult.ok) {
+      return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
     }
   }
   if (
@@ -580,7 +885,9 @@ async function main() {
       ...(options.requireLocalModel ? ["--require-local-model"] : []),
       ...(!options.dryRun ? ["--strict"] : []),
     ];
-    const result = await runCommand("check-training-environment", command, cwd);
+    const result = options.candidateMode
+      ? await runCandidateCommand(options, "check-training-environment", command, cwd)
+      : await runCommand("check-training-environment", command, cwd);
     steps.push(result);
     if (!result.ok) return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
   }
@@ -614,12 +921,151 @@ async function main() {
         : []),
       ...(options.dryRun ? ["--dry-run"] : []),
     ];
-    const result = await runCommand("train-yolo-seg", command, cwd);
+    const result = options.candidateMode
+      ? await runCandidateCommand(options, "train-yolo-seg", command, cwd)
+      : await runCommand("train-yolo-seg", command, cwd);
     steps.push(result);
     if (!result.ok) return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
   }
 
-  if (!options.skipEvaluate) {
+  if (options.candidateMode) {
+    const calibrationEvaluateCommand = [
+      "python",
+      "model/training/evaluate.py",
+      "--dataset",
+      options.calibrationDataset!,
+      "--train-output-dir",
+      options.trainOutputDir,
+      "--run-name",
+      options.runName,
+      "--weights",
+      weightsPath,
+      "--output",
+      calibrationMetricsPath,
+      "--artifacts-dir",
+      calibrationEvaluationArtifactsDir,
+      "--split",
+      "val",
+      "--imgsz",
+      String(options.imgsz),
+      "--device",
+      options.device,
+      ...(options.dryRun ? ["--dry-run"] : []),
+    ];
+    const calibrationEvaluateResult = await runCandidateCommand(
+      options,
+      "evaluate-canonical-validation",
+      calibrationEvaluateCommand,
+      cwd
+    );
+    steps.push(calibrationEvaluateResult);
+    if (!calibrationEvaluateResult.ok) {
+      return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+    }
+
+    if (!options.dryRun) {
+      const verifyCalibrationCommand = [
+        process.execPath,
+        "--no-warnings",
+        "--experimental-strip-types",
+        "scripts/verify-evaluation-artifacts.ts",
+        "--index",
+        calibrationEvaluationArtifactIndexPath,
+        "--require-split",
+        "val",
+      ];
+      const verifyCalibrationResult = await runCommand(
+        "verify-canonical-validation-artifacts",
+        verifyCalibrationCommand,
+        cwd
+      );
+      steps.push(verifyCalibrationResult);
+      if (!verifyCalibrationResult.ok) {
+        return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+      }
+    }
+
+    const calibrateCommand = [
+      "python",
+      "model/training/calibrate-model-score-threshold.py",
+      "--dataset",
+      options.calibrationDataset!,
+      "--dataset-report",
+      options.calibrationDatasetReport!,
+      "--metrics",
+      calibrationMetricsPath,
+      "--truth-audit",
+      options.calibrationTruthAudit!,
+      "--output",
+      options.calibrationOutput!,
+    ];
+    const calibrateResult = await runCandidateCommand(
+      options,
+      "calibrate-model-score-threshold",
+      calibrateCommand,
+      cwd
+    );
+    steps.push(calibrateResult);
+    if (!calibrateResult.ok) {
+      return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+    }
+
+    const releaseTestEvaluateCommand = [
+      "python",
+      "model/training/evaluate.py",
+      "--dataset",
+      options.releaseTestDataset!,
+      "--train-output-dir",
+      options.trainOutputDir,
+      "--run-name",
+      options.runName,
+      "--weights",
+      weightsPath,
+      "--output",
+      releaseTestMetricsPath,
+      "--artifacts-dir",
+      releaseTestEvaluationArtifactsDir,
+      "--split",
+      "test",
+      "--imgsz",
+      String(options.imgsz),
+      "--device",
+      options.device,
+      ...(options.dryRun ? ["--dry-run"] : []),
+    ];
+    const releaseTestEvaluateResult = await runCandidateCommand(
+      options,
+      "evaluate-frozen-release-test",
+      releaseTestEvaluateCommand,
+      cwd
+    );
+    steps.push(releaseTestEvaluateResult);
+    if (!releaseTestEvaluateResult.ok) {
+      return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+    }
+
+    if (!options.dryRun) {
+      const verifyReleaseTestCommand = [
+        process.execPath,
+        "--no-warnings",
+        "--experimental-strip-types",
+        "scripts/verify-evaluation-artifacts.ts",
+        "--index",
+        releaseTestEvaluationArtifactIndexPath,
+        "--require-split",
+        "test",
+      ];
+      const verifyReleaseTestResult = await runCommand(
+        "verify-frozen-release-test-artifacts",
+        verifyReleaseTestCommand,
+        cwd
+      );
+      steps.push(verifyReleaseTestResult);
+      if (!verifyReleaseTestResult.ok) {
+        return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+      }
+    }
+  } else if (!options.skipEvaluate) {
     const command = [
       "python",
       "model/training/evaluate.py",
@@ -684,9 +1130,14 @@ async function main() {
       String(options.imgsz),
       "--task",
       "segment",
+      ...(options.candidateMode
+        ? ["--candidate-mode", "--calibration-report", options.calibrationOutput!]
+        : []),
       ...(options.dryRun ? ["--dry-run"] : []),
     ];
-    const result = await runCommand("export-onnx", command, cwd);
+    const result = options.candidateMode
+      ? await runCandidateCommand(options, "export-onnx", command, cwd)
+      : await runCommand("export-onnx", command, cwd);
     steps.push(result);
     if (!result.ok) return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
   }
@@ -795,12 +1246,37 @@ async function finish(
     mode: options.dryRun ? "dry-run" : "real-run",
     paths: {
       dataset: options.dataset,
+      trainingDataset: options.dataset,
+      calibrationDataset: options.calibrationDataset ?? null,
+      calibrationDatasetReport: options.calibrationDatasetReport ?? null,
+      calibrationTruthAudit: options.calibrationTruthAudit ?? null,
+      calibrationOutput: options.calibrationOutput ?? null,
+      releaseTestDataset: options.releaseTestDataset ?? null,
+      releaseTestReport: options.releaseTestReport ?? null,
       trainOutputDir: options.trainOutputDir,
       browserModelDir: options.browserModelDir,
       weightsPath,
       metricsPath,
       evaluationArtifactsDir: resolveEvaluationArtifactsDir(options),
       evaluationArtifactIndexPath: resolveEvaluationArtifactIndexPath(options),
+      calibrationMetricsPath: options.candidateMode
+        ? resolveCalibrationMetricsPath(options)
+        : null,
+      calibrationEvaluationArtifactsDir: options.candidateMode
+        ? resolveCalibrationEvaluationArtifactsDir(options)
+        : null,
+      calibrationEvaluationArtifactIndexPath: options.candidateMode
+        ? resolveCalibrationEvaluationArtifactIndexPath(options)
+        : null,
+      releaseTestMetricsPath: options.candidateMode
+        ? resolveReleaseTestMetricsPath(options)
+        : null,
+      releaseTestEvaluationArtifactsDir: options.candidateMode
+        ? resolveReleaseTestEvaluationArtifactsDir(options)
+        : null,
+      releaseTestEvaluationArtifactIndexPath: options.candidateMode
+        ? resolveReleaseTestEvaluationArtifactIndexPath(options)
+        : null,
       manifestPath,
       governanceReportPath: options.runGovernance ? governanceReportPath : null,
     },
@@ -824,6 +1300,12 @@ async function finish(
       trainingIntent: options.candidateMode ? "candidate" : "experiment",
       candidateInputReport: options.candidateInputReport ?? null,
       candidateValidationReport: options.candidateValidationReport ?? null,
+      calibrationDataset: options.calibrationDataset ?? null,
+      calibrationDatasetReport: options.calibrationDatasetReport ?? null,
+      calibrationTruthAudit: options.calibrationTruthAudit ?? null,
+      calibrationOutput: options.calibrationOutput ?? null,
+      releaseTestDataset: options.releaseTestDataset ?? null,
+      releaseTestReport: options.releaseTestReport ?? null,
       sourceAuthorizationDatasetRoot: options.sourceAuthorizationDatasetRoot,
       minSegMap50: options.minSegMap50,
       minBoxMap50: options.minBoxMap50,
@@ -853,6 +1335,18 @@ async function finish(
       governanceSetCurrent: options.governanceSetCurrent,
       governancePromote: options.governancePromote,
     },
+    evidence: options.candidateMode
+      ? {
+          trainingDataset: await fileEvidence(options.dataset),
+          candidateInputReport: await fileEvidence(options.candidateInputReport),
+          calibrationDataset: await fileEvidence(options.calibrationDataset),
+          calibrationDatasetReport: await fileEvidence(options.calibrationDatasetReport),
+          calibrationTruthAudit: await fileEvidence(options.calibrationTruthAudit),
+          calibrationOutput: await fileEvidence(options.calibrationOutput),
+          releaseTestDataset: await fileEvidence(options.releaseTestDataset),
+          releaseTestReport: await fileEvidence(options.releaseTestReport),
+        }
+      : null,
     steps,
     artifacts: {
       trainSummary: await readJsonIfExists(path.join(options.trainOutputDir, "train-summary.json")),
@@ -860,10 +1354,27 @@ async function finish(
         path.join(options.trainOutputDir, "training-dataset-readiness-release.json")
       ),
       metrics: await readJsonIfExists(metricsPath),
+      calibrationMetrics: options.candidateMode
+        ? await readJsonIfExists(resolveCalibrationMetricsPath(options))
+        : null,
+      calibration: options.candidateMode
+        ? await readJsonIfExists(options.calibrationOutput ?? "")
+        : null,
+      releaseTestMetrics: options.candidateMode
+        ? await readJsonIfExists(resolveReleaseTestMetricsPath(options))
+        : null,
       recognitionPerformance: await readJsonIfExists(options.governancePerformanceReport ?? ""),
       evaluationArtifacts: await readJsonIfExists(
-        resolveEvaluationArtifactIndexPath(options)
+        options.candidateMode
+          ? resolveReleaseTestEvaluationArtifactIndexPath(options)
+          : resolveEvaluationArtifactIndexPath(options)
       ),
+      calibrationEvaluationArtifacts: options.candidateMode
+        ? await readJsonIfExists(resolveCalibrationEvaluationArtifactIndexPath(options))
+        : null,
+      releaseTestEvaluationArtifacts: options.candidateMode
+        ? await readJsonIfExists(resolveReleaseTestEvaluationArtifactIndexPath(options))
+        : null,
       manifest: await readJsonIfExists(manifestPath),
       finalAudit: await readJsonIfExists(
         path.join(
