@@ -8,7 +8,6 @@ import test from "node:test";
 
 const script = path.resolve("model/training/calibrate-model-score-threshold.py");
 const hash = (content: string | Buffer) => createHash("sha256").update(content).digest("hex");
-const canonicalHash = (value: unknown) => hash(JSON.stringify(value, Object.keys(value as object).sort()));
 
 function canonicalJson(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
@@ -18,7 +17,7 @@ function canonicalJson(value: unknown): string {
       .map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`)
       .join(",")}}`;
   }
-  return JSON.stringify(value);
+  return JSON.stringify(value) ?? "null";
 }
 
 const canonicalSha = (value: unknown) => hash(canonicalJson(value));
@@ -129,6 +128,207 @@ async function buildFixture() {
   return { root, dataset, datasetReport, metrics, artifactIndex, truthAudit };
 }
 
+async function buildCanonicalFixture() {
+  const root = await mkdtemp(path.join(tmpdir(), "canonical-score-threshold-"));
+  const sourceRoot = path.join(root, "source");
+  const finalRoot = path.join(root, "validation-final");
+  await mkdir(sourceRoot, { recursive: true });
+  await mkdir(finalRoot, { recursive: true });
+  const canonicalTruths: Array<Record<string, unknown>> = [];
+  for (let index = 0; index < 30; index += 1) {
+    const stem = `canonical-${String(index).padStart(3, "0")}`;
+    const fileName = `${stem}.jpg`;
+    const sourceGroup = `canonical-val-group-${String(index).padStart(3, "0")}`;
+    const imagePath = path.join(sourceRoot, fileName);
+    const annotationPath = path.join(sourceRoot, `${stem}.json`);
+    const pixels = Array.from({ length: 100 }, (_, pixel) =>
+      `${(index + pixel) % 256} ${(index * 3 + pixel) % 256} ${(index * 7 + pixel) % 256}`
+    ).join(" ");
+    await writeFile(imagePath, `P3\n10 10\n255\n${pixels}\n`);
+    const annotation = {
+      image: { fileName, sourceGroup, width: 10, height: 10 },
+      annotations: [{
+        label: "nail_texture",
+        polygon: [{ x: 1, y: 1 }, { x: 8, y: 1 }, { x: 8, y: 8 }, { x: 1, y: 8 }],
+      }],
+    };
+    await writeJson(annotationPath, annotation);
+    const imageSha256 = hash(await readFile(imagePath));
+    const annotationSha256 = hash(await readFile(annotationPath));
+    const finalPath = path.join(finalRoot, `validation-truth-${String(index + 1).padStart(3, "0")}-final.json`);
+    await writeJson(finalPath, {
+      ok: true,
+      decision: "approved_as_validation_truth_candidate_pending_dataset_materialization",
+      inputs: {
+        truthRole: "val",
+        image: imagePath,
+        imageSha256,
+        annotation: annotationPath,
+        annotationSha256,
+      },
+      item: {
+        fileName,
+        sha256: imageSha256,
+        sourceGroup,
+        completeMaskCount: 1,
+        trainingUse: "prohibited",
+      },
+    });
+    canonicalTruths.push({
+      reportPath: finalPath,
+      reportName: path.basename(finalPath),
+      reportSha256: hash(await readFile(finalPath)),
+      sequence: index + 1,
+      fileName,
+      imageSha256,
+      sourceGroup,
+      completeMaskCount: 1,
+      annotationPath,
+      annotationSha256,
+    });
+  }
+  const truthIndex = path.join(root, "validation-truth-index.json");
+  await writeJson(truthIndex, {
+    schemaVersion: 1,
+    ok: true,
+    decision: "approved_unique_validation_truth_index",
+    inputs: { truthRole: "val", truthDir: finalRoot, reportPattern: "validation-truth-*-final.json" },
+    summary: {
+      approvedReportCount: 30,
+      rejectedReportCount: 0,
+      uniqueImageCount: 30,
+      completeMaskCount: 30,
+      redundantReportCount: 0,
+      redundantImageCount: 0,
+      conflictingImageCount: 0,
+    },
+    canonicalTruths,
+    errors: [],
+    conflicts: [],
+  });
+
+  const datasetRoot = path.join(root, "canonical-validation-dataset");
+  runPython([
+    path.resolve("model/training/materialize-canonical-validation-dataset.py"),
+    "--truth-index", truthIndex,
+    "--output-dir", datasetRoot,
+  ]);
+  const dataset = path.join(datasetRoot, "dataset.yaml");
+  const datasetReport = path.join(datasetRoot, "metadata", "materialization-report.json");
+
+  const trainRoot = path.join(root, "train-role");
+  await mkdir(trainRoot, { recursive: true });
+  const trainImage = path.join(trainRoot, "train-only.jpg");
+  await writeFile(trainImage, "P3\n2 2\n255\n1 2 3 4 5 6 7 8 9 10 11 12\n");
+  const trainHash = hash(await readFile(trainImage));
+  const trainFinal = path.join(trainRoot, "training-truth-001-final.json");
+  await writeJson(trainFinal, {
+    ok: true,
+    decision: "approved_as_training_truth_candidate_pending_dataset_materialization",
+    inputs: { truthRole: "train", image: trainImage, imageSha256: trainHash },
+    item: {
+      fileName: path.basename(trainImage), sha256: trainHash,
+      sourceGroup: "train-only-group", trainingUse: "prohibited",
+    },
+  });
+  const trainIndex = path.join(trainRoot, "training-truth-index.json");
+  await writeJson(trainIndex, {
+    ok: true,
+    decision: "approved_unique_training_truth_index",
+    inputs: { truthRole: "train" },
+    summary: { uniqueImageCount: 1 },
+    canonicalTruths: [{
+      fileName: path.basename(trainImage), imageSha256: trainHash,
+      sourceGroup: "train-only-group", reportPath: trainFinal,
+      reportSha256: hash(await readFile(trainFinal)),
+    }],
+    errors: [], conflicts: [],
+  });
+
+  const frozenRoot = path.join(root, "frozen-role");
+  await mkdir(path.join(frozenRoot, "images", "core"), { recursive: true });
+  const frozenImage = path.join(frozenRoot, "images", "core", "frozen-only.jpg");
+  await writeFile(frozenImage, "P3\n2 2\n255\n12 11 10 9 8 7 6 5 4 3 2 1\n");
+  const frozenItem = {
+    fileName: path.basename(frozenImage), imageSha256: hash(await readFile(frozenImage)),
+    sourceGroup: "frozen-only-group", lane: "core", trainingUse: "prohibited",
+  };
+  const frozenManifest = path.join(frozenRoot, "manifest.json");
+  await writeJson(frozenManifest, {
+    decision: "frozen_reviewed_candidate_not_release_ready",
+    trainingUse: "prohibited",
+    counts: { images: 1 },
+    itemsSha256: canonicalSha([frozenItem]),
+    items: [frozenItem],
+  });
+
+  const roleIsolation = path.join(root, "validation-role-isolation.json");
+  runPython([
+    path.resolve("model/training/audit-validation-role-isolation.py"),
+    "--val-materialization-report", datasetReport,
+    "--train-truth-index", trainIndex,
+    "--frozen-test-manifest", frozenManifest,
+    "--output", roleIsolation,
+  ]);
+  const truthAudit = path.join(root, "validation-calibration-truth-audit.json");
+  runPython([
+    path.resolve("model/training/finalize-validation-materialization-audit.py"),
+    "--dataset", dataset,
+    "--truth-index", truthIndex,
+    "--materialization-report", datasetReport,
+    "--role-isolation-report", roleIsolation,
+    "--output", truthAudit,
+  ]);
+
+  const artifacts = path.join(root, "evaluation-artifacts");
+  const predictionRoot = path.join(artifacts, "labels");
+  await mkdir(predictionRoot, { recursive: true });
+  const fileRecords: Array<{ path: string; sha256: string }> = [];
+  const predictionRecords: Array<Record<string, unknown>> = [];
+  for (let index = 0; index < 30; index += 1) {
+    const stem = `canonical-${String(index).padStart(3, "0")}`;
+    const relative = `labels/${stem}.txt`;
+    const predictionPath = path.join(artifacts, relative);
+    await writeFile(predictionPath, "0 0.10000000 0.10000000 0.80000000 0.10000000 0.80000000 0.80000000 0.10000000 0.80000000 0.80\n");
+    const predictionHash = hash(await readFile(predictionPath));
+    fileRecords.push({ path: relative, sha256: predictionHash });
+    predictionRecords.push({ stem, path: relative, sha256: predictionHash, prediction_count: 1 });
+  }
+  const artifactIndex = path.join(artifacts, "evaluation-artifacts.json");
+  const artifactDocument = {
+    schema_version: 1,
+    split: "val",
+    artifacts_dir: artifacts,
+    files: fileRecords.map((item) => item.path),
+    file_records: fileRecords,
+    files_sha256: canonicalSha(fileRecords),
+    prediction_records: predictionRecords,
+    prediction_records_sha256: canonicalSha(predictionRecords),
+    counts: { total: 30, plots: 0, prediction_labels: 30, json: 0 },
+  };
+  await writeJson(artifactIndex, artifactDocument);
+  const weights = path.join(root, "best.pt");
+  await writeFile(weights, "canonical-weights");
+  const metrics = path.join(root, "val-metrics.json");
+  await writeJson(metrics, {
+    split: "val",
+    dataset_yaml: dataset,
+    dataset_yaml_sha256: hash(await readFile(dataset)),
+    dataset_root: datasetRoot,
+    weights,
+    weights_sha256: hash(await readFile(weights)),
+    evaluation_artifacts: {
+      index: artifactIndex,
+      index_sha256: hash(await readFile(artifactIndex)),
+      files_sha256: artifactDocument.files_sha256,
+    },
+  });
+  return {
+    root, datasetRoot, dataset, datasetReport, truthIndex, trainIndex,
+    frozenManifest, roleIsolation, truthAudit, artifacts, artifactIndex, metrics, weights,
+  };
+}
+
 function runCalibration(
   fixture: Awaited<ReturnType<typeof buildFixture>>,
   output: string,
@@ -162,19 +362,116 @@ function runCalibration(
   );
 }
 
-test("calibrates a manifest threshold from source-isolated validation predictions", async () => {
+function runCanonicalCalibration(
+  fixture: Awaited<ReturnType<typeof buildCanonicalFixture>>,
+  output: string,
+  extra: string[] = []
+) {
+  return spawnSync(
+    "python",
+    [
+      script,
+      "--dataset", fixture.dataset,
+      "--dataset-report", fixture.datasetReport,
+      "--metrics", fixture.metrics,
+      "--truth-audit", fixture.truthAudit,
+      "--output", output,
+      "--confidence-sweep", "0.50,0.80,0.90",
+      "--min-recall", "0.90",
+      "--max-false-positives-per-image", "0.50",
+      ...extra,
+    ],
+    { encoding: "utf8" }
+  );
+}
+
+test("keeps a legacy source-isolated experiment diagnostic-only", async () => {
   const fixture = await buildFixture();
   const output = path.join(fixture.root, "calibration.json");
   const result = runCalibration(fixture, output);
   assert.equal(result.status, 0, result.stderr);
   const report = JSON.parse(await readFile(output, "utf8"));
-  assert.equal(report.decision, "calibrated_threshold_ready_for_candidate_manifest");
-  assert.equal(report.calibrationEligible, true);
-  assert.equal(report.manifestScoreThreshold, 0.6);
+  assert.equal(report.decision, "diagnostic_only_legacy_experiment_dataset");
+  assert.equal(report.calibrationEligible, false);
+  assert.equal(report.manifestScoreThreshold, null);
+  assert.equal(report.diagnosticBestThreshold, 0.6);
   assert.deepEqual(report.inputs.validationSourceGroups, ["validation"]);
   assert.equal(report.selected.falsePositives, 0);
   assert.equal(report.selected.recallAtIou50, 1);
   assert.match(report.releaseTestPolicy, /validation-only/);
+});
+
+test("calibrates a formal threshold from a deeply replayed canonical validation contract", async () => {
+  const fixture = await buildCanonicalFixture();
+  const output = path.join(fixture.root, "calibration.json");
+  const result = runCanonicalCalibration(fixture, output);
+  assert.equal(result.status, 0, result.stderr);
+  const report = JSON.parse(await readFile(output, "utf8"));
+  assert.equal(report.decision, "calibrated_threshold_ready_for_candidate_manifest");
+  assert.equal(report.calibrationEligible, true);
+  assert.equal(report.manifestScoreThreshold, 0.8);
+  assert.equal(report.inputs.evidenceMode, "canonical-validation");
+  assert.equal(report.counts.validationImages, 30);
+  assert.equal(report.counts.truthMasks, 30);
+  assert.equal(report.counts.predictionLabelFiles, 30);
+});
+
+test("rejects a forged canonical truth-audit PASS", async () => {
+  const fixture = await buildCanonicalFixture();
+  const audit = JSON.parse(await readFile(fixture.truthAudit, "utf8"));
+  audit.counts.validationMasks += 1;
+  await writeJson(fixture.truthAudit, audit);
+  const result = runCanonicalCalibration(fixture, path.join(fixture.root, "calibration.json"));
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /differs from an independent replay/);
+});
+
+test("rejects canonical label hash drift", async () => {
+  const fixture = await buildCanonicalFixture();
+  const label = path.join(fixture.datasetRoot, "labels", "val", "canonical-000.txt");
+  await writeFile(label, `${await readFile(label, "utf8")}\n`);
+  const result = runCanonicalCalibration(fixture, path.join(fixture.root, "calibration.json"));
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /SHA-256 drift|hash drift/);
+});
+
+test("rejects canonical cross-role leakage even when the role report is rewritten", async () => {
+  const fixture = await buildCanonicalFixture();
+  const audit = JSON.parse(await readFile(fixture.truthAudit, "utf8"));
+  const role = JSON.parse(await readFile(fixture.roleIsolation, "utf8"));
+  const train = JSON.parse(await readFile(fixture.trainIndex, "utf8"));
+  train.canonicalTruths[0].sourceGroup = audit.items[0].sourceGroup;
+  const trainFinalPath = train.canonicalTruths[0].reportPath;
+  const trainFinal = JSON.parse(await readFile(trainFinalPath, "utf8"));
+  trainFinal.item.sourceGroup = audit.items[0].sourceGroup;
+  await writeJson(trainFinalPath, trainFinal);
+  train.canonicalTruths[0].reportSha256 = hash(await readFile(trainFinalPath));
+  await writeJson(fixture.trainIndex, train);
+  role.inputs.trainTruthIndex.sha256 = hash(await readFile(fixture.trainIndex));
+  await writeJson(fixture.roleIsolation, role);
+  audit.inputs.roleIsolationReportSha256 = hash(await readFile(fixture.roleIsolation));
+  await writeJson(fixture.truthAudit, audit);
+  const result = runCanonicalCalibration(fixture, path.join(fixture.root, "calibration.json"));
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /cross-role overlap/);
+});
+
+test("rejects formal artifact hash drift and unregistered prediction evidence", async () => {
+  const fixture = await buildCanonicalFixture();
+  const prediction = path.join(fixture.artifacts, "labels", "canonical-000.txt");
+  await writeFile(prediction, `${await readFile(prediction, "utf8")}0 0.1 0.1 0.2 0.1 0.2 0.2 0.1 0.2 0.7\n`);
+  const result = runCanonicalCalibration(fixture, path.join(fixture.root, "calibration.json"));
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /artifact hash drift|prediction label hash drift/);
+});
+
+test("rejects calibration output that overwrites an input", async () => {
+  const fixture = await buildCanonicalFixture();
+  const before = await readFile(fixture.dataset);
+  const result = runCanonicalCalibration(fixture, fixture.dataset);
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /output must not overwrite/);
+  assert.deepEqual(await readFile(fixture.dataset), before);
 });
 
 test("rejects validation source groups that leak into training", async () => {
