@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
+from types import ModuleType
 
 from _training_common import (
     count_files,
@@ -28,8 +30,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--device", default="auto")
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--run-name", default="nail-texture-seg-v1")
-    parser.add_argument("--candidate-mode", action="store_true", help="Require approved validation evidence and mark this run as a release-candidate training attempt")
-    parser.add_argument("--candidate-validation-report", default="", help="Approved report from audit-candidate-training-validation.py")
+    parser.add_argument("--candidate-mode", action="store_true", help="Require a deeply replayed candidate-input audit and mark this run as a release-candidate training attempt")
+    parser.add_argument("--candidate-input-report", default="", help="Approved report from audit-candidate-training-input.py")
+    parser.add_argument("--candidate-validation-report", default="", help="Deprecated legacy evidence; use --candidate-input-report")
     parser.add_argument("--dry-run", action="store_true", help="Validate config and print the resolved training plan")
     return parser
 
@@ -57,47 +60,75 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-def candidate_validation(args: argparse.Namespace, dataset_yaml: Path) -> dict[str, object] | None:
+def is_within(path: Path, root: Path) -> bool:
+    try:
+        path.resolve().relative_to(root.resolve())
+        return True
+    except ValueError:
+        return False
+
+
+def load_candidate_input_auditor() -> ModuleType:
+    script_path = Path(__file__).with_name("audit-candidate-training-input.py")
+    spec = importlib.util.spec_from_file_location(
+        "audit_candidate_training_input", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load candidate training input auditor")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def candidate_input_validation(
+    args: argparse.Namespace, dataset_yaml: Path, output_dir: Path
+) -> dict[str, object] | None:
     if not args.candidate_mode:
-        if args.candidate_validation_report:
-            raise ValueError("--candidate-validation-report requires --candidate-mode")
+        if args.candidate_input_report or args.candidate_validation_report:
+            raise ValueError("candidate evidence requires --candidate-mode")
         return None
-    if not args.candidate_validation_report:
-        raise ValueError("--candidate-mode requires --candidate-validation-report")
-    path = Path(args.candidate_validation_report).resolve()
-    report = json.loads(path.read_text(encoding="utf-8"))
-    if (
-        report.get("ok") is not True
-        or report.get("candidateTrainingEligible") is not True
-        or report.get("decision") != "approved_candidate_training_validation"
-    ):
-        raise ValueError("candidate validation report is not approved")
-    inputs = report.get("inputs", {})
-    if Path(str(inputs.get("datasetYaml", ""))).resolve() != dataset_yaml:
-        raise ValueError("candidate validation dataset path does not match")
-    if inputs.get("datasetYamlSha256") != sha256(dataset_yaml):
-        raise ValueError("candidate validation dataset hash does not match")
-    if inputs.get("split") != "val":
-        raise ValueError("candidate validation report is not restricted to split=val")
-    for path_key, hash_key in (
-        ("sourceIsolationReport", "sourceIsolationReportSha256"),
-        ("truthAudit", "truthAuditSha256"),
-    ):
-        evidence_path = Path(str(inputs.get(path_key, ""))).resolve()
-        if not evidence_path.is_file() or inputs.get(hash_key) != sha256(evidence_path):
-            raise ValueError(f"candidate validation evidence drift: {path_key}")
+    if args.candidate_validation_report:
+        raise ValueError(
+            "--candidate-validation-report is legacy and cannot authorize candidate training; "
+            "use --candidate-input-report"
+        )
+    if not args.candidate_input_report:
+        raise ValueError("--candidate-mode requires --candidate-input-report")
+    path = Path(args.candidate_input_report).resolve()
+    auditor = load_candidate_input_auditor()
+    report = auditor.verify_approved_report(path, dataset_yaml)
     counts = report.get("counts", {})
     if (
-        int(counts.get("validationImages", -1)) < int(counts.get("minimumValidationImages", 0))
-        or int(counts.get("geometryErrors", -1)) != 0
+        int(counts.get("trainPositiveImages", -1)) < 100
+        or int(counts.get("hardNegativeImages", -1)) < 100
+        or int(counts.get("validationImages", -1)) < 30
+        or int(counts.get("testImages", -1)) != 0
+        or int(counts.get("orphanFiles", -1)) != 0
     ):
-        raise ValueError("candidate validation count or geometry gate is not satisfied")
+        raise ValueError("candidate training input count gate is not satisfied")
+    dataset_root = Path(str(report.get("outputDir", ""))).resolve()
+    if dataset_root != dataset_yaml.parent.resolve():
+        raise ValueError("candidate training input dataset root does not match")
+    if is_within(output_dir, dataset_root):
+        raise ValueError("candidate training output must be outside the dataset root")
+    inputs = report.get("inputs", {})
+    validation_evidence = (
+        inputs.get("validationDatasetYaml") if isinstance(inputs, dict) else None
+    )
+    if isinstance(validation_evidence, dict):
+        validation_dataset = Path(str(validation_evidence.get("path", ""))).resolve()
+        if is_within(output_dir, validation_dataset.parent):
+            raise ValueError(
+                "candidate training output must be outside the canonical validation dataset"
+            )
     return {
         "path": str(path),
         "sha256": sha256(path),
         "decision": report["decision"],
-        "source_isolation_report": inputs["sourceIsolationReport"],
-        "truth_audit": inputs["truthAudit"],
+        "materialization_report": inputs["materializationReport"],
+        "dataset_files_sha256": report["datasetFilesSha256"],
+        "all_roles_sha256": report["allRolesSha256"],
+        "counts": counts,
     }
 
 
@@ -107,7 +138,9 @@ def main() -> None:
     dataset_yaml = Path(args.dataset).resolve()
     output_dir = Path(args.output_dir).resolve()
     config = load_dataset_config(dataset_yaml)
-    validation_evidence = candidate_validation(args, dataset_yaml)
+    candidate_input_evidence = candidate_input_validation(
+        args, dataset_yaml, output_dir
+    )
     runtime_dataset_yaml = output_dir / "resolved-dataset.yaml"
 
     summary = {
@@ -132,7 +165,7 @@ def main() -> None:
         "run_dir": str(resolve_training_run_dir(output_dir, args.run_name)),
         "best_weights_path": str(resolve_best_weights_path(output_dir, args.run_name)),
         "training_intent": "candidate" if args.candidate_mode else "experiment",
-        "candidate_validation_evidence": validation_evidence,
+        "candidate_input_evidence": candidate_input_evidence,
         "dry_run": args.dry_run,
     }
 
@@ -158,12 +191,21 @@ def main() -> None:
     )
     results_dir = Path(getattr(results, "save_dir", output_dir)).resolve()
     actual_best_weights_path = results_dir / "weights" / "best.pt"
+    if args.candidate_mode:
+        # Re-run the full evidence chain after training so a dataset or upstream
+        # mutation during the run cannot produce an eligible candidate summary.
+        candidate_input_validation(args, dataset_yaml, output_dir)
     write_json(
         output_dir / "train-summary.json",
         {
             **summary,
             "results_dir": str(results_dir),
             "best_weights_path": str(actual_best_weights_path),
+            "best_weights_sha256": (
+                sha256(actual_best_weights_path)
+                if actual_best_weights_path.is_file()
+                else None
+            ),
         },
     )
     print(f"Training finished. Summary written to {output_dir / 'train-summary.json'}")
