@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
@@ -7,6 +8,127 @@ import { promisify } from "node:util";
 import test from "node:test";
 
 const execFileAsync = promisify(execFile);
+
+const sha256 = (content: string | Buffer) => createHash("sha256").update(content).digest("hex");
+
+async function writeJson(filePath: string, value: unknown) {
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+async function createCandidateLaneFixture(root: string) {
+  const trainingDataset = path.join(root, "training", "dataset.yaml");
+  const calibrationDataset = path.join(root, "canonical-val", "dataset.yaml");
+  const releaseTestDataset = path.join(root, "frozen-test", "dataset.yaml");
+  await mkdir(path.dirname(trainingDataset), { recursive: true });
+  await mkdir(path.dirname(calibrationDataset), { recursive: true });
+  await mkdir(path.dirname(releaseTestDataset), { recursive: true });
+  await writeFile(trainingDataset, "path: .\ntrain: images/train\nval: images/val\ntest: images/empty\n");
+  await writeFile(calibrationDataset, "path: .\ntrain: images/empty\nval: images/val\ntest: images/empty\n");
+  await writeFile(releaseTestDataset, "path: .\ntrain: images/empty\nval: images/empty\ntest: images/test\n");
+
+  const calibrationDatasetReport = path.join(root, "canonical-val", "materialization-report.json");
+  await writeJson(calibrationDatasetReport, {
+    ok: true,
+    decision: "canonical_validation_dataset_materialized_pending_role_isolation_audit",
+    datasetYaml: calibrationDataset,
+  });
+  const calibrationTruthAudit = path.join(root, "canonical-val", "truth-audit.json");
+  await writeJson(calibrationTruthAudit, {
+    ok: true,
+    decision: "approved_as_calibration_truth",
+    calibrationTruthEligible: true,
+    inputs: {
+      split: "val",
+      datasetYaml: calibrationDataset,
+      datasetYamlSha256: sha256(await readFile(calibrationDataset)),
+    },
+  });
+
+  const frozenManifest = path.join(root, "frozen-test", "snapshot-manifest.json");
+  const sourceItemsSha256 = "a".repeat(64);
+  await writeJson(frozenManifest, {
+    decision: "frozen_reviewed_candidate_not_release_ready",
+    trainingUse: "prohibited",
+    itemsSha256: sourceItemsSha256,
+    counts: { images: 2 },
+    items: [],
+  });
+  const evaluationManifest = path.join(root, "frozen-test", "evaluation-manifest.json");
+  const recordsSha256 = "b".repeat(64);
+  await writeJson(evaluationManifest, {
+    decision: "evaluation_only_frozen_reviewed_snapshot",
+    trainingUse: "prohibited",
+    sourceItemsSha256,
+    counts: { images: 2, masks: 10 },
+    recordsSha256,
+    records: [],
+  });
+  const releaseTestReport = path.join(root, "frozen-test", "materialization-report.json");
+  await writeJson(releaseTestReport, {
+    ok: true,
+    decision: "evaluation_only_frozen_reviewed_snapshot",
+    trainingUse: "prohibited",
+    datasetYaml: releaseTestDataset,
+    evaluationManifest,
+    counts: { images: 2, masks: 10 },
+    sourceIsolation: { parentSourceGroupOverlap: [], exactImageHashOverlap: [] },
+    recordsSha256,
+    errors: [],
+  });
+
+  const candidateInputReport = path.join(root, "training", "candidate-input-report.json");
+  await writeJson(candidateInputReport, {
+    ok: true,
+    status: "PASS",
+    decision: "approved_candidate_training_input",
+    candidateTrainingEligible: true,
+    datasetYaml: trainingDataset,
+    inputs: {
+      validationDatasetYaml: {
+        path: calibrationDataset,
+        sha256: sha256(await readFile(calibrationDataset)),
+      },
+      validationFinalAudit: {
+        path: calibrationTruthAudit,
+        sha256: sha256(await readFile(calibrationTruthAudit)),
+      },
+      frozenTestManifest: {
+        path: frozenManifest,
+        sha256: sha256(await readFile(frozenManifest)),
+      },
+    },
+  });
+
+  return {
+    trainingDataset,
+    candidateInputReport,
+    calibrationDataset,
+    calibrationDatasetReport,
+    calibrationTruthAudit,
+    calibrationOutput: path.join(root, "output", "score-threshold-calibration.json"),
+    releaseTestDataset,
+    releaseTestReport,
+  };
+}
+
+function candidateArgs(fixture: Awaited<ReturnType<typeof createCandidateLaneFixture>>): string[] {
+  return [
+    "--dataset", fixture.trainingDataset,
+    "--candidate-input-report", fixture.candidateInputReport,
+    "--calibration-dataset", fixture.calibrationDataset,
+    "--calibration-dataset-report", fixture.calibrationDatasetReport,
+    "--calibration-truth-audit", fixture.calibrationTruthAudit,
+    "--calibration-output", fixture.calibrationOutput,
+    "--release-test-dataset", fixture.releaseTestDataset,
+    "--release-test-report", fixture.releaseTestReport,
+  ];
+}
+
+function commandValue(command: string[], flag: string): string | undefined {
+  const index = command.indexOf(flag);
+  return index >= 0 ? command[index + 1] : undefined;
+}
 
 async function registerBaselineRelease(modelDir: string, registryPath: string, version: string) {
   const manifestPath = path.join(modelDir, "manifest.json");
@@ -94,74 +216,185 @@ test("run-training-release-pipeline produces a dry-run orchestration report", as
   assert.equal(report.steps.at(-1)?.stdout?.skipped, true);
 });
 
-test("run-training-release-pipeline requires and preflights candidate input evidence", async () => {
-  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-candidate-"));
-  const outputDir = path.join(root, "model", "exports", "candidate");
-  const browserDir = path.join(root, "public", "models", "nail-texture-seg");
-  const rejectedReport = path.join(root, "candidate-validation.json");
-  await mkdir(outputDir, { recursive: true });
-  await mkdir(browserDir, { recursive: true });
-  await writeFile(
-    rejectedReport,
-    JSON.stringify({
-      ok: false,
-      decision: "rejected_candidate_training_validation",
-      candidateTrainingEligible: false,
-    }),
-    "utf8"
+test("candidate mode requires all three lanes and forbids ambiguous split or reused datasets", async () => {
+  const scriptArgs = [
+    "--no-warnings",
+    "--experimental-strip-types",
+    "scripts/run-training-release-pipeline.ts",
+    "--candidate-mode",
+    "--dry-run",
+  ];
+  await assert.rejects(
+    execFileAsync(process.execPath, scriptArgs, { cwd: path.resolve(".") }),
+    /--calibration-dataset/
   );
 
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-candidate-cli-"));
+  const fixture = await createCandidateLaneFixture(root);
+  await assert.rejects(
+    execFileAsync(
+      process.execPath,
+      [...scriptArgs, ...candidateArgs(fixture), "--split", "val"],
+      { cwd: path.resolve(".") }
+    ),
+    /forbids --split/
+  );
   await assert.rejects(
     execFileAsync(
       process.execPath,
       [
-        "--no-warnings",
-        "--experimental-strip-types",
-        "scripts/run-training-release-pipeline.ts",
-        "--candidate-mode",
-        "--dry-run",
+        ...scriptArgs,
+        ...candidateArgs(fixture),
+        "--calibration-dataset",
+        fixture.trainingDataset,
       ],
       { cwd: path.resolve(".") }
     ),
-    /--candidate-mode requires --candidate-input-report/
+    /three different paths/
+  );
+});
+
+test("candidate dry-run exposes the separated training, calibration, frozen-test, and export plan", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-candidate-plan-"));
+  const fixture = await createCandidateLaneFixture(root);
+  const outputDir = path.join(root, "model", "exports", "candidate-v10");
+  const browserDir = path.join(root, "public", "models", "nail-texture-seg");
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/run-training-release-pipeline.ts",
+      "--candidate-mode",
+      ...candidateArgs(fixture),
+      "--train-output-dir", outputDir,
+      "--browser-model-dir", browserDir,
+      "--skip-training-environment-check",
+      "--dry-run",
+    ],
+    { cwd: path.resolve(".") }
+  );
+
+  const report = JSON.parse(stdout) as {
+    ok: boolean;
+    options: {
+      trainingIntent: string;
+      calibrationDataset: string;
+      releaseTestDataset: string;
+      calibrationOutput: string;
+    };
+    paths: {
+      metricsPath: string;
+      calibrationMetricsPath: string;
+      releaseTestMetricsPath: string;
+      calibrationEvaluationArtifactsDir: string;
+      releaseTestEvaluationArtifactsDir: string;
+    };
+    evidence: { releaseTestReport: { sha256: string } };
+    steps: Array<{ name: string; command: string[]; stdout?: { planned?: boolean } }>;
+  };
+  assert.equal(report.ok, true);
+  assert.equal(report.options.trainingIntent, "candidate");
+  assert.equal(report.options.calibrationDataset, fixture.calibrationDataset);
+  assert.equal(report.options.releaseTestDataset, fixture.releaseTestDataset);
+  assert.equal(report.options.calibrationOutput, fixture.calibrationOutput);
+  assert.ok(report.evidence.releaseTestReport.sha256);
+  assert.deepEqual(report.steps.map((step) => step.name), [
+    "candidate-input-preflight",
+    "release-test-preflight",
+    "train-yolo-seg",
+    "evaluate-canonical-validation",
+    "calibrate-model-score-threshold",
+    "evaluate-frozen-release-test",
+    "export-onnx",
+    "verify-training-release",
+    "run-real-model-final-audit",
+  ]);
+  assert.equal(report.steps[0]?.stdout?.planned, true);
+
+  const releasePreflight = report.steps.find((step) => step.name === "release-test-preflight")!;
+  assert.ok(releasePreflight.command.includes("--verify-report"));
+  assert.equal(commandValue(releasePreflight.command, "--verify-report"), fixture.releaseTestReport);
+  assert.equal(commandValue(releasePreflight.command, "--expected-dataset"), fixture.releaseTestDataset);
+
+  const training = report.steps.find((step) => step.name === "train-yolo-seg")!;
+  assert.equal(commandValue(training.command, "--dataset"), fixture.trainingDataset);
+  const calibrationEvaluate = report.steps.find((step) => step.name === "evaluate-canonical-validation")!;
+  assert.equal(commandValue(calibrationEvaluate.command, "--dataset"), fixture.calibrationDataset);
+  assert.equal(commandValue(calibrationEvaluate.command, "--split"), "val");
+  assert.equal(commandValue(calibrationEvaluate.command, "--output"), report.paths.calibrationMetricsPath);
+  assert.equal(
+    commandValue(calibrationEvaluate.command, "--artifacts-dir"),
+    report.paths.calibrationEvaluationArtifactsDir
+  );
+
+  const calibrate = report.steps.find((step) => step.name === "calibrate-model-score-threshold")!;
+  assert.equal(commandValue(calibrate.command, "--dataset-report"), fixture.calibrationDatasetReport);
+  assert.equal(commandValue(calibrate.command, "--truth-audit"), fixture.calibrationTruthAudit);
+  assert.equal(commandValue(calibrate.command, "--metrics"), report.paths.calibrationMetricsPath);
+  assert.equal(commandValue(calibrate.command, "--output"), fixture.calibrationOutput);
+
+  const releaseEvaluate = report.steps.find((step) => step.name === "evaluate-frozen-release-test")!;
+  assert.equal(commandValue(releaseEvaluate.command, "--dataset"), fixture.releaseTestDataset);
+  assert.equal(commandValue(releaseEvaluate.command, "--split"), "test");
+  assert.equal(commandValue(releaseEvaluate.command, "--output"), report.paths.releaseTestMetricsPath);
+  assert.equal(
+    commandValue(releaseEvaluate.command, "--artifacts-dir"),
+    report.paths.releaseTestEvaluationArtifactsDir
+  );
+  assert.equal(report.paths.metricsPath, report.paths.releaseTestMetricsPath);
+  assert.notEqual(report.paths.calibrationMetricsPath, report.paths.releaseTestMetricsPath);
+  assert.notEqual(
+    report.paths.calibrationEvaluationArtifactsDir,
+    report.paths.releaseTestEvaluationArtifactsDir
+  );
+
+  const exportStep = report.steps.find((step) => step.name === "export-onnx")!;
+  assert.ok(exportStep.command.includes("--candidate-mode"));
+  assert.equal(commandValue(exportStep.command, "--calibration-report"), fixture.calibrationOutput);
+  const verifyStep = report.steps.find((step) => step.name === "verify-training-release")!;
+  assert.ok(verifyStep.command.includes("--candidate-mode"));
+  assert.equal(commandValue(verifyStep.command, "--metrics"), report.paths.releaseTestMetricsPath);
+  assert.equal(commandValue(verifyStep.command, "--calibration-report"), fixture.calibrationOutput);
+  assert.equal(commandValue(verifyStep.command, "--release-test-report"), fixture.releaseTestReport);
+});
+
+test("candidate mode rejects unbound skip and resume paths before any Python command", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-candidate-resume-"));
+  const fixture = await createCandidateLaneFixture(root);
+  const outputDir = path.join(root, "model", "exports", "candidate-v10");
+  const baseArgs = [
+    "--no-warnings",
+    "--experimental-strip-types",
+    "scripts/run-training-release-pipeline.ts",
+    "--candidate-mode",
+    ...candidateArgs(fixture),
+    "--train-output-dir", outputDir,
+    "--dry-run",
+  ];
+  await assert.rejects(
+    execFileAsync(process.execPath, [...baseArgs, "--skip-evaluate"], { cwd: path.resolve(".") }),
+    /forbids --skip-evaluate/
+  );
+  await assert.rejects(
+    execFileAsync(process.execPath, [...baseArgs, "--skip-export"], { cwd: path.resolve(".") }),
+    /forbids --skip-export/
   );
 
   let caught: unknown;
   try {
-    await execFileAsync(
-      process.execPath,
-      [
-        "--no-warnings",
-        "--experimental-strip-types",
-        "scripts/run-training-release-pipeline.ts",
-        "--train-output-dir",
-        outputDir,
-        "--browser-model-dir",
-        browserDir,
-        "--candidate-mode",
-        "--candidate-input-report",
-        rejectedReport,
-        "--skip-training-environment-check",
-        "--dry-run",
-      ],
-      { cwd: path.resolve(".") }
-    );
+    await execFileAsync(process.execPath, [...baseArgs, "--skip-train"], { cwd: path.resolve(".") });
   } catch (error) {
     caught = error;
   }
-  assert.ok(caught, "rejected candidate evidence must stop the pipeline");
+  assert.ok(caught, "candidate resume without a bound train summary must fail");
   const report = JSON.parse((caught as { stdout?: string }).stdout ?? "") as {
     ok: boolean;
-    options: { trainingIntent: string; candidateInputReport: string | null; candidateValidationReport: string | null };
     steps: Array<{ name: string; command: string[] }>;
   };
   assert.equal(report.ok, false);
-  assert.equal(report.options.trainingIntent, "candidate");
-  assert.equal(report.options.candidateInputReport, rejectedReport);
-  assert.equal(report.options.candidateValidationReport, null);
-  assert.deepEqual(report.steps.map((step) => step.name), ["candidate-input-preflight"]);
-  assert.ok(report.steps[0]?.command.includes("--candidate-mode"));
-  assert.ok(report.steps[0]?.command.includes(rejectedReport));
+  assert.deepEqual(report.steps.map((step) => step.name), ["verify-candidate-resume"]);
+  assert.ok(report.steps.every((step) => step.command[0]?.startsWith("internal:")));
 });
 
 

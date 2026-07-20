@@ -1158,6 +1158,15 @@ async function main() {
       String(options.minBoxMap50),
       "--max-model-mb",
       String(options.maxModelMb),
+      ...(options.candidateMode
+        ? [
+            "--candidate-mode",
+            "--calibration-report",
+            options.calibrationOutput!,
+            "--release-test-report",
+            options.releaseTestReport!,
+          ]
+        : []),
     ];
     const result = await runCommand("verify-training-release", command, cwd);
     steps.push(result);
@@ -1211,9 +1220,32 @@ async function main() {
     ok: true,
     stdout: {
       skipped: true,
+      planned: options.candidateMode,
       reason: "dry-run mode only validates configuration; no real metrics or exported artifact were produced",
     },
-    command: [],
+    command: options.candidateMode
+      ? [
+          process.execPath,
+          "--no-warnings",
+          "--experimental-strip-types",
+          "scripts/verify-training-release.ts",
+          "--metrics",
+          metricsPath,
+          "--manifest",
+          manifestPath,
+          "--min-seg-map50",
+          String(options.minSegMap50),
+          "--min-box-map50",
+          String(options.minBoxMap50),
+          "--max-model-mb",
+          String(options.maxModelMb),
+          "--candidate-mode",
+          "--calibration-report",
+          options.calibrationOutput!,
+          "--release-test-report",
+          options.releaseTestReport!,
+        ]
+      : [],
   });
   steps.push({
     name: "run-real-model-final-audit",
