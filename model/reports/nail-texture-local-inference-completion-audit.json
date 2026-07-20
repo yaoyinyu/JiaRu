@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-20T15:56:52.334Z",
+  "generatedAt": "2026-07-20T16:32:25.255Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 327,
-    "passMarkerCount": 315,
+    "progressMarkerCount": 328,
+    "passMarkerCount": 316,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -725,6 +725,10 @@
         {
           "checked": true,
           "text": "建立候选训练完整输入独立深审并接入训练/发布入口；审计器重新计算annotation→YOLO标签、polygon合法性与任意非零交叠、负样本空标签、val逐项等价、孤儿和四角色隔离，`verify_approved_report()`拒绝伪造PASS或写后漂移。`train-yolo-seg.py --candidate-mode --candidate-input-report`在Ultralytics/GPU前及训练后重放，旧validation外层PASS不再授权；发布编排固定先执行`candidate-input-preflight`，即使`--skip-train`也要求旧摘要绑定相同dataset、输入报告和权重哈希。"
+        },
+        {
+          "checked": true,
+          "text": "将规范val30接入部署512评估和正式阈值深审；评估前把选定split复制到独立runtime dataset并在推理前后复算规范源树逐文件SHA-256，禁止Ultralytics cache写回真值目录。指标绑定dataset/weights，制品索引绑定跨平台稳定文件清单、逐文件SHA和每张图的显式预测记录（含零预测）；校准器重放规范物化、角色隔离及`approved_as_calibration_truth`终审，旧实验仅可诊断。v6在30图/144 mask上box/mask mAP50=0.6241/0.5630，0.05—0.50无阈值同时满足召回、误检和候选数门，正确保持`manifestScoreThreshold=null`。"
         },
         {
           "checked": true,

@@ -305,10 +305,13 @@ def main() -> None:
         raise ValueError(
             "evaluation output directory drifted from the requested fresh artifact directory"
         )
-    artifact_paths = sorted(
+    artifact_paths = list(
         item
         for item in resolved_artifacts_dir.rglob("*")
         if item.is_file() and item.name != "evaluation-artifacts.json"
+    )
+    artifact_paths.sort(
+        key=lambda item: item.relative_to(resolved_artifacts_dir).as_posix()
     )
     artifact_files = [item.relative_to(resolved_artifacts_dir).as_posix() for item in artifact_paths]
     file_records = [

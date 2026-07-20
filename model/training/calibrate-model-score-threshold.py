@@ -13,6 +13,9 @@ from _instance_segmentation_metrics import match_instances, parse_yolo_polygons
 from _training_common import load_dataset_config, write_json
 
 
+READY_DECISION = "calibrated_threshold_ready_for_candidate_manifest"
+
+
 def read_json(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
@@ -619,15 +622,179 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
     }
 
 
+def validate_calibration_parameters(args: argparse.Namespace) -> None:
+    if args.match_iou > args.strong_iou:
+        raise ValueError("match IoU must not exceed strong IoU")
+    if args.max_false_positives_per_image < 0:
+        raise ValueError("maximum false positives per image must be non-negative")
+    if args.max_candidates_per_image <= 0 or args.min_validation_images <= 0:
+        raise ValueError("candidate and validation image limits must be positive")
+
+
+def replay_arguments(report_path: Path, report: dict[str, Any]) -> argparse.Namespace:
+    inputs = report.get("inputs")
+    thresholds = report.get("thresholds")
+    sweep = report.get("thresholdSweep")
+    if not isinstance(inputs, dict) or not isinstance(thresholds, dict):
+        raise ValueError("calibration report inputs or thresholds are missing")
+    if not isinstance(sweep, list) or not sweep:
+        raise ValueError("calibration report thresholdSweep is missing")
+
+    required_inputs = ("datasetYaml", "datasetReport", "metrics", "truthAudit")
+    missing_inputs = [key for key in required_inputs if not isinstance(inputs.get(key), str) or not inputs[key]]
+    if missing_inputs:
+        raise ValueError(f"calibration report inputs are incomplete: {missing_inputs}")
+
+    confidence_values: list[str] = []
+    for index, item in enumerate(sweep, start=1):
+        if not isinstance(item, dict) or isinstance(item.get("confidence"), bool):
+            raise ValueError(f"calibration report thresholdSweep item {index} is malformed")
+        try:
+            confidence = float(item["confidence"])
+        except (KeyError, TypeError, ValueError) as error:
+            raise ValueError(
+                f"calibration report thresholdSweep item {index} has invalid confidence"
+            ) from error
+        if not math.isfinite(confidence) or confidence <= 0 or confidence >= 1:
+            raise ValueError(f"calibration report thresholdSweep item {index} has invalid confidence")
+        confidence_values.append(format(confidence, ".17g"))
+
+    threshold_fields = {
+        "match_iou": "matchIou",
+        "strong_iou": "strongIou",
+        "min_recall": "minimumRecall",
+        "max_false_positives_per_image": "maximumFalsePositivesPerImage",
+        "max_candidates_per_image": "maximumCandidatesPerImage",
+        "min_validation_images": "minimumValidationImages",
+    }
+    missing_thresholds = [key for key in threshold_fields.values() if key not in thresholds]
+    if missing_thresholds:
+        raise ValueError(f"calibration report threshold parameters are incomplete: {missing_thresholds}")
+
+    # build_report never writes its output. This sentinel only lets the nested
+    # truth-audit replay enforce the same output-placement rules as generation.
+    replay_output = report_path.parent / f".{report_path.name}.verify-replay-output.json"
+    args = argparse.Namespace(
+        dataset=inputs["datasetYaml"],
+        dataset_report=inputs["datasetReport"],
+        metrics=inputs["metrics"],
+        truth_audit=inputs["truthAudit"],
+        output=str(replay_output),
+        confidence_sweep=",".join(confidence_values),
+        match_iou=float(thresholds[threshold_fields["match_iou"]]),
+        strong_iou=float(thresholds[threshold_fields["strong_iou"]]),
+        min_recall=float(thresholds[threshold_fields["min_recall"]]),
+        max_false_positives_per_image=float(
+            thresholds[threshold_fields["max_false_positives_per_image"]]
+        ),
+        max_candidates_per_image=int(thresholds[threshold_fields["max_candidates_per_image"]]),
+        min_validation_images=int(thresholds[threshold_fields["min_validation_images"]]),
+    )
+    validate_calibration_parameters(args)
+    protect_direct_output(args)
+    return args
+
+
+def first_report_difference(expected: Any, actual: Any, path: str = "$") -> str | None:
+    if type(expected) is not type(actual):
+        return f"{path}: type {type(expected).__name__} != {type(actual).__name__}"
+    if isinstance(expected, dict):
+        expected_keys = set(expected)
+        actual_keys = set(actual)
+        if expected_keys != actual_keys:
+            missing = sorted(expected_keys - actual_keys)
+            extra = sorted(actual_keys - expected_keys)
+            return f"{path}: keys differ (missing={missing}, extra={extra})"
+        for key in sorted(expected_keys):
+            difference = first_report_difference(expected[key], actual[key], f"{path}.{key}")
+            if difference:
+                return difference
+        return None
+    if isinstance(expected, list):
+        if len(expected) != len(actual):
+            return f"{path}: list length {len(expected)} != {len(actual)}"
+        for index, (expected_item, actual_item) in enumerate(zip(expected, actual)):
+            difference = first_report_difference(expected_item, actual_item, f"{path}[{index}]")
+            if difference:
+                return difference
+        return None
+    if expected != actual:
+        return f"{path}: {expected!r} != {actual!r}"
+    return None
+
+
+def verify_calibration_report(
+    raw_report_path: str | Path,
+    expected_weights: str | Path | None = None,
+) -> dict[str, Any]:
+    report_path = Path(raw_report_path).resolve()
+    if not report_path.is_file():
+        raise FileNotFoundError(f"calibration report is missing: {report_path}")
+    report_sha256_before = sha256(report_path)
+    persisted = read_json(report_path)
+    replay_args = replay_arguments(report_path, persisted)
+    recomputed = build_report(replay_args)
+    report_sha256_after = sha256(report_path)
+    if report_sha256_after != report_sha256_before:
+        raise ValueError("calibration report changed while it was being verified")
+    difference = first_report_difference(persisted, recomputed)
+    if difference:
+        raise ValueError(f"calibration report replay mismatch at {difference}")
+
+    if persisted.get("decision") != READY_DECISION:
+        raise ValueError(f"calibration report decision is not ready: {persisted.get('decision')}")
+    if persisted.get("calibrationEligible") is not True:
+        raise ValueError("calibration report calibrationEligible must be true")
+    score_threshold = persisted.get("manifestScoreThreshold")
+    if isinstance(score_threshold, bool) or not isinstance(score_threshold, (int, float)):
+        raise ValueError("calibration report manifestScoreThreshold must be non-null")
+    score_threshold = float(score_threshold)
+    if not math.isfinite(score_threshold) or score_threshold <= 0 or score_threshold >= 1:
+        raise ValueError("calibration report manifestScoreThreshold must be between 0 and 1")
+
+    inputs = persisted["inputs"]
+    weights = Path(str(inputs["weights"])).resolve()
+    if not weights.is_file() or inputs.get("weightsSha256") != sha256(weights):
+        raise ValueError("calibration report weights evidence has drifted")
+    if expected_weights is not None:
+        required_weights = Path(expected_weights).resolve()
+        if not required_weights.is_file():
+            raise FileNotFoundError(f"expected model weights are missing: {required_weights}")
+        if weights != required_weights or inputs.get("weightsSha256") != sha256(required_weights):
+            raise ValueError("calibration report weights do not match the requested export weights")
+
+    return {
+        "report": persisted,
+        "reportPath": report_path,
+        "reportSha256": report_sha256_before,
+        "scoreThreshold": score_threshold,
+        "datasetYamlSha256": str(inputs["datasetYamlSha256"]),
+        "metricsSha256": str(inputs["metricsSha256"]),
+        "artifactIndexSha256": str(inputs["artifactIndexSha256"]),
+        "weightsSha256": str(inputs["weightsSha256"]),
+        "decision": str(persisted["decision"]),
+    }
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Calibrate a model score threshold using source-isolated validation predictions only."
     )
-    parser.add_argument("--dataset", required=True)
-    parser.add_argument("--dataset-report", required=True)
-    parser.add_argument("--metrics", required=True)
+    parser.add_argument("--dataset")
+    parser.add_argument("--dataset-report")
+    parser.add_argument("--metrics")
     parser.add_argument("--truth-audit")
-    parser.add_argument("--output", required=True)
+    parser.add_argument("--output")
+    parser.add_argument(
+        "--verify-report",
+        "--verify",
+        dest="verify_report",
+        help="Deeply replay an existing calibration report without writing it.",
+    )
+    parser.add_argument(
+        "--expected-weights",
+        help="Optional checkpoint that a verified report must bind by path and SHA-256.",
+    )
     parser.add_argument("--confidence-sweep", default="0.10,0.15,0.20,0.25,0.30,0.35,0.40,0.45,0.50")
     parser.add_argument("--match-iou", type=parse_probability, default=0.50)
     parser.add_argument("--strong-iou", type=parse_probability, default=0.75)
@@ -636,12 +803,47 @@ def main() -> None:
     parser.add_argument("--max-candidates-per-image", type=int, default=10)
     parser.add_argument("--min-validation-images", type=int, default=30)
     args = parser.parse_args()
-    if args.match_iou > args.strong_iou:
-        raise ValueError("match IoU must not exceed strong IoU")
-    if args.max_false_positives_per_image < 0:
-        raise ValueError("maximum false positives per image must be non-negative")
-    if args.max_candidates_per_image <= 0 or args.min_validation_images <= 0:
-        raise ValueError("candidate and validation image limits must be positive")
+    if args.verify_report:
+        conflicting = [
+            name
+            for name in ("dataset", "dataset_report", "metrics", "truth_audit", "output")
+            if getattr(args, name)
+        ]
+        if conflicting:
+            raise ValueError(f"verify mode does not accept calibration-generation arguments: {conflicting}")
+        verified = verify_calibration_report(args.verify_report, args.expected_weights)
+        print(
+            json.dumps(
+                {
+                    "ok": True,
+                    "decision": verified["decision"],
+                    "calibrationEligible": True,
+                    "manifestScoreThreshold": verified["scoreThreshold"],
+                    "report": str(verified["reportPath"]),
+                    "reportSha256": verified["reportSha256"],
+                    "weightsSha256": verified["weightsSha256"],
+                    "outputWritten": False,
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
+        return
+    missing = [
+        option
+        for option, value in (
+            ("--dataset", args.dataset),
+            ("--dataset-report", args.dataset_report),
+            ("--metrics", args.metrics),
+            ("--output", args.output),
+        )
+        if not value
+    ]
+    if missing:
+        parser.error(f"calibration generation requires: {', '.join(missing)}")
+    if args.expected_weights:
+        parser.error("--expected-weights is only valid with --verify-report")
+    validate_calibration_parameters(args)
     protect_direct_output(args)
     report = build_report(args)
     output = Path(args.output).resolve()
