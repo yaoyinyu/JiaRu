@@ -180,6 +180,80 @@ def validate_polygon_label(path: Path, expected_masks: int, label: str) -> int:
     return len(shapes)
 
 
+def annotation_yolo_text(
+    document: dict[str, Any],
+    file_name: str,
+    source_group: str,
+    expected_masks: int,
+) -> str:
+    """Independently reproduce the canonical annotation-to-YOLO conversion."""
+    image = document.get("image")
+    if not isinstance(image, dict):
+        raise ValueError(f"{file_name}: annotation image metadata is missing")
+    if image.get("fileName") != file_name or image.get("sourceGroup") != source_group:
+        raise ValueError(f"{file_name}: annotation identity differs")
+    width = image.get("width")
+    height = image.get("height")
+    if (
+        not isinstance(width, int)
+        or isinstance(width, bool)
+        or width <= 0
+        or not isinstance(height, int)
+        or isinstance(height, bool)
+        or height <= 0
+    ):
+        raise ValueError(f"{file_name}: annotation dimensions are invalid")
+    annotations = document.get("annotations")
+    if not isinstance(annotations, list) or len(annotations) != expected_masks:
+        raise ValueError(f"{file_name}: annotation mask count differs")
+    shapes: list[Polygon] = []
+    lines: list[str] = []
+    for index, annotation in enumerate(annotations, start=1):
+        if not isinstance(annotation, dict) or annotation.get("label") not in (
+            None,
+            "nail_texture",
+        ):
+            raise ValueError(f"{file_name}: annotation {index} is invalid")
+        points = annotation.get("polygon")
+        if not isinstance(points, list) or len(points) < 3:
+            raise ValueError(f"{file_name}: annotation {index} polygon is invalid")
+        coordinates: list[tuple[float, float]] = []
+        for point in points:
+            if not isinstance(point, dict) or "x" not in point or "y" not in point:
+                raise ValueError(f"{file_name}: annotation {index} point is invalid")
+            try:
+                x = float(point["x"])
+                y = float(point["y"])
+            except (TypeError, ValueError) as error:
+                raise ValueError(
+                    f"{file_name}: annotation {index} point is non-numeric"
+                ) from error
+            if (
+                not math.isfinite(x)
+                or not math.isfinite(y)
+                or x < 0
+                or x > width
+                or y < 0
+                or y > height
+            ):
+                raise ValueError(f"{file_name}: annotation {index} point is outside image")
+            coordinates.append((x, y))
+        shape = Polygon(coordinates)
+        if shape.is_empty or not shape.is_valid or shape.area <= 0:
+            raise ValueError(f"{file_name}: annotation {index} topology is invalid")
+        shapes.append(shape)
+        normalized = [
+            value
+            for x, y in coordinates
+            for value in (f"{x / width:.8f}", f"{y / height:.8f}")
+        ]
+        lines.append(" ".join(["0", *normalized]))
+    for left, right in combinations(range(len(shapes)), 2):
+        if shapes[left].intersection(shapes[right]).area > 0:
+            raise ValueError(f"{file_name}: source annotation polygons overlap")
+    return "\n".join(lines) + "\n"
+
+
 def record_identity(item: dict[str, Any], index: int) -> dict[str, Any]:
     file_name = str(item.get("fileName", ""))
     if not file_name or Path(file_name).name != file_name:
@@ -274,6 +348,15 @@ def validate_validation_audit(
         or inputs.get("datasetYamlSha256") != sha256_file(dataset_path)
     ):
         raise ValueError("validation final audit dataset binding has drifted")
+    required_input_paths = ("truthIndex", "materializationReport", "roleIsolationReport")
+    if any(not str(inputs.get(key, "")).strip() for key in required_input_paths):
+        raise ValueError("validation final audit is missing canonical evidence inputs")
+    for key in required_input_paths:
+        require_current_hash(
+            Path(str(inputs[key])).resolve(),
+            inputs.get(f"{key}Sha256"),
+            f"validation audit input {key}",
+        )
     items = document.get("items")
     if not isinstance(items, list) or len(items) < minimum_images:
         raise ValueError(f"validation final audit has fewer than {minimum_images} items")
@@ -295,6 +378,20 @@ def validate_validation_audit(
     label_hashes = document.get("labelSha256")
     if not isinstance(label_hashes, dict):
         raise ValueError("validation final audit labelSha256 map is missing")
+    invariants = document.get("invariants")
+    required_invariants = (
+        "canonicalTruthCoverageComplete",
+        "allInputsHashBound",
+        "allImagesAnnotationsAndLabelsHashBound",
+        "polygonTopologyValid",
+        "pairwisePolygonOverlapZero",
+        "roleIsolationPassed",
+        "trainingUseProhibited",
+    )
+    if not isinstance(invariants, dict) or any(
+        invariants.get(key) is not True for key in required_invariants
+    ):
+        raise ValueError("validation final audit invariants are incomplete")
 
     dataset = load_dataset_config(dataset_path)
     if dataset.val != "images/val":
@@ -322,20 +419,44 @@ def validate_validation_audit(
         seen_hashes.add(image_hash)
         image_path = dataset.dataset_root / "images" / "val" / file_name
         label_path = dataset.dataset_root / "labels" / "val" / f"{Path(file_name).stem}.txt"
+        annotation_path = (
+            dataset.dataset_root
+            / "annotations"
+            / "raw-json"
+            / f"{Path(file_name).stem}.json"
+        )
         require_current_hash(image_path, image_hash, f"validation image {file_name}")
         require_current_hash(label_path, label_hash, f"validation label {file_name}")
+        annotation_hash = require_current_hash(
+            annotation_path,
+            item.get("annotationSha256"),
+            f"validation annotation {file_name}",
+        )
         if label_hashes.get(label_path.name) != label_hash:
             raise ValueError(f"validation label hash map differs for {file_name}")
         masks = int(item.get("completeMaskCount", -1))
         if masks <= 0:
             raise ValueError(f"validation item has no complete masks: {file_name}")
         validate_polygon_label(label_path, masks, f"validation truth {file_name}")
+        expected_label = annotation_yolo_text(
+            read_json(annotation_path, f"validation annotation {file_name}"),
+            file_name,
+            source_group,
+            masks,
+        )
+        if label_path.read_text(encoding="utf-8") != expected_label:
+            raise ValueError(f"validation label differs from annotation: {file_name}")
         mask_total += masks
         records.append(
             {
                 "fileName": file_name,
                 "imageSha256": image_hash,
                 "sourceGroups": [source_group],
+                "sourceLabel": str(label_path),
+                "sourceLabelSha256": label_hash,
+                "sourceAnnotation": str(annotation_path),
+                "sourceAnnotationSha256": annotation_hash,
+                "maskCount": masks,
             }
         )
     if int(counts.get("validationMasks", -1)) != mask_total:
@@ -424,6 +545,33 @@ def validate_split_and_sources(
         raise ValueError("sources-isolation.csv differs from materialized records")
 
 
+def validate_dataset_tree_allow_list(
+    dataset_files: list[dict[str, str]], records: list[dict[str, Any]]
+) -> None:
+    expected = {
+        "dataset.yaml",
+        "metadata/split.json",
+        "metadata/sources-isolation.csv",
+    }
+    label_paths: set[str] = set()
+    for item in records:
+        image_relative = f"images/{item['split']}/{item['fileName']}"
+        label_relative = (
+            f"labels/{item['split']}/{Path(str(item['fileName'])).stem}.txt"
+        )
+        if label_relative in label_paths:
+            raise ValueError(f"candidate records have a label-stem collision: {label_relative}")
+        label_paths.add(label_relative)
+        expected.add(image_relative)
+        expected.add(label_relative)
+    actual = {str(item["path"]) for item in dataset_files}
+    if actual != expected:
+        raise ValueError(
+            "candidate dataset tree contains missing or unexpected files: "
+            f"missing={sorted(expected - actual)} unexpected={sorted(actual - expected)}"
+        )
+
+
 def build(args: argparse.Namespace) -> dict[str, Any]:
     report_path = Path(args.materialization_report).resolve()
     materialization = read_json(report_path, "candidate materialization report")
@@ -506,6 +654,42 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     if normalized_files != dataset_files:
         raise ValueError("datasetFiles are not canonical normalized records")
 
+    auditor = load_role_auditor()
+    train_document = read_json(train_index_path, "training truth index")
+    train_upstream = auditor.validate_train_index(train_index_path, train_document)
+    hard_upstream = auditor.validate_hard_negatives(
+        hard_manifest_path, read_json(hard_manifest_path, "hard-negative manifest")
+    )
+    validation_upstream = validate_validation_audit(
+        validation_dataset_path,
+        read_json(validation_audit_path, "validation final audit"),
+        args.minimum_validation_images,
+    )
+    frozen_upstream = auditor.validate_frozen_test(
+        frozen_path, read_json(frozen_path, "frozen test manifest")
+    )
+    if len(train_upstream) < args.minimum_positive_images:
+        raise ValueError(
+            f"approved positive image count {len(train_upstream)} is below "
+            f"{args.minimum_positive_images}"
+        )
+    if len(hard_upstream) < args.minimum_hard_negative_images:
+        raise ValueError(
+            f"formal hard-negative image count {len(hard_upstream)} is below "
+            f"{args.minimum_hard_negative_images}"
+        )
+    raw_train_truths = train_document.get("canonicalTruths")
+    if not isinstance(raw_train_truths, list):
+        raise ValueError("training truth index canonicalTruths are missing")
+    train_truth_by_name = {
+        str(item.get("fileName", "")): item
+        for item in raw_train_truths
+        if isinstance(item, dict)
+    }
+    validation_by_name = {
+        str(item["fileName"]): item for item in validation_upstream
+    }
+
     raw_records = materialization.get("records")
     if (
         not isinstance(raw_records, list)
@@ -546,49 +730,92 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                 mask_count != 0
                 or item.get("sourceLabel") is not None
                 or item.get("sourceLabelSha256") is not None
+                or item.get("sourceAnnotation") is not None
+                or item.get("sourceAnnotationSha256") is not None
+                or item.get("finalReport") is not None
+                or item.get("finalReportSha256") is not None
                 or label_path.read_bytes() != b""
             ):
                 raise ValueError(f"hard-negative label is not byte-empty: {file_name}")
             empty_negative_labels += 1
-        else:
+        elif role == "train-positive":
             if mask_count <= 0:
                 raise ValueError(f"positive record has no masks: {file_name}")
-            source_label = Path(str(item.get("sourceLabel", ""))).resolve()
-            source_label_hash = require_current_hash(
-                source_label, item.get("sourceLabelSha256"), f"source label {file_name}"
+            if item.get("sourceLabel") is not None or item.get("sourceLabelSha256") is not None:
+                raise ValueError(f"training record must be annotation-derived: {file_name}")
+            truth = train_truth_by_name.get(file_name)
+            if not isinstance(truth, dict):
+                raise ValueError(f"training truth is missing: {file_name}")
+            source_annotation = Path(str(item.get("sourceAnnotation", ""))).resolve()
+            if source_annotation != Path(str(truth.get("annotationPath", ""))).resolve():
+                raise ValueError(f"training source annotation path differs: {file_name}")
+            annotation_hash = require_current_hash(
+                source_annotation,
+                item.get("sourceAnnotationSha256"),
+                f"training source annotation {file_name}",
             )
-            if source_label_hash != label_hash or source_label.read_bytes() != label_path.read_bytes():
-                raise ValueError(f"materialized label differs from approved source: {file_name}")
+            if annotation_hash != truth.get("annotationSha256"):
+                raise ValueError(f"training source annotation hash differs: {file_name}")
+            final_report = Path(str(item.get("finalReport", ""))).resolve()
+            if final_report != Path(str(truth.get("reportPath", ""))).resolve():
+                raise ValueError(f"training final report path differs: {file_name}")
+            report_hash = require_current_hash(
+                final_report, item.get("finalReportSha256"), f"training final report {file_name}"
+            )
+            if report_hash != truth.get("reportSha256"):
+                raise ValueError(f"training final report hash differs: {file_name}")
+            expected_label = annotation_yolo_text(
+                read_json(source_annotation, f"training annotation {file_name}"),
+                file_name,
+                str(item["sourceGroup"]),
+                mask_count,
+            )
+            if label_path.read_text(encoding="utf-8") != expected_label:
+                raise ValueError(f"training label differs from approved annotation: {file_name}")
+            validate_polygon_label(label_path, mask_count, file_name)
+        else:
+            if mask_count <= 0:
+                raise ValueError(f"validation record has no masks: {file_name}")
+            source = validation_by_name.get(file_name)
+            if source is None:
+                raise ValueError(f"validation source is missing: {file_name}")
+            source_label = Path(str(item.get("sourceLabel", ""))).resolve()
+            source_annotation = Path(str(item.get("sourceAnnotation", ""))).resolve()
+            if (
+                source_label != Path(str(source["sourceLabel"])).resolve()
+                or source_annotation != Path(str(source["sourceAnnotation"])).resolve()
+            ):
+                raise ValueError(f"validation source paths differ: {file_name}")
+            source_label_hash = require_current_hash(
+                source_label, item.get("sourceLabelSha256"), f"validation source label {file_name}"
+            )
+            source_annotation_hash = require_current_hash(
+                source_annotation,
+                item.get("sourceAnnotationSha256"),
+                f"validation source annotation {file_name}",
+            )
+            if (
+                source_label_hash != source["sourceLabelSha256"]
+                or source_annotation_hash != source["sourceAnnotationSha256"]
+                or source_label_hash != label_hash
+                or source_label.read_bytes() != label_path.read_bytes()
+            ):
+                raise ValueError(f"materialized validation evidence differs: {file_name}")
+            final_report = Path(str(item.get("finalReport", ""))).resolve()
+            if final_report != validation_audit_path:
+                raise ValueError(f"validation final report path differs: {file_name}")
+            if require_current_hash(
+                final_report,
+                item.get("finalReportSha256"),
+                f"validation final report {file_name}",
+            ) != validation_audit_hash:
+                raise ValueError(f"validation final report hash differs: {file_name}")
             validate_polygon_label(label_path, mask_count, file_name)
         mask_counts[role] += mask_count
         materialized_by_role[role].append(identity)
     reject_duplicate_identities(identities)
+    validate_dataset_tree_allow_list(normalized_files, identities)
 
-    auditor = load_role_auditor()
-    train_upstream = auditor.validate_train_index(
-        train_index_path, read_json(train_index_path, "training truth index")
-    )
-    hard_upstream = auditor.validate_hard_negatives(
-        hard_manifest_path, read_json(hard_manifest_path, "hard-negative manifest")
-    )
-    validation_upstream = validate_validation_audit(
-        validation_dataset_path,
-        read_json(validation_audit_path, "validation final audit"),
-        args.minimum_validation_images,
-    )
-    frozen_upstream = auditor.validate_frozen_test(
-        frozen_path, read_json(frozen_path, "frozen test manifest")
-    )
-    if len(train_upstream) < args.minimum_positive_images:
-        raise ValueError(
-            f"approved positive image count {len(train_upstream)} is below "
-            f"{args.minimum_positive_images}"
-        )
-    if len(hard_upstream) < args.minimum_hard_negative_images:
-        raise ValueError(
-            f"formal hard-negative image count {len(hard_upstream)} is below "
-            f"{args.minimum_hard_negative_images}"
-        )
     compare_role_to_upstream(
         "train-positive", materialized_by_role["train-positive"], train_upstream
     )
@@ -654,11 +881,45 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     }
     if materialization.get("roles") != recomputed_role_summary:
         raise ValueError("materialization role summaries differ from recomputed identities")
+    materialization_invariants = materialization.get("invariants")
+    required_materialization_invariants = (
+        "allInputsHashBoundAndCurrent",
+        "formalHardNegativeManifestOnly",
+        "hardNegativeLabelsEmpty",
+        "testSplitEmpty",
+        "fileNamesDisjointAcrossRoles",
+        "imageSha256DisjointAcrossRoles",
+        "sourceGroupsDisjointAcrossRoles",
+        "frozenTestIsolationChecked",
+        "noOrphans",
+        "transactionalMaterialization",
+    )
+    if (
+        not isinstance(materialization_invariants, dict)
+        or any(
+            materialization_invariants.get(key) is not True
+            for key in required_materialization_invariants
+        )
+        or int(materialization_invariants.get("minimumPositiveImages", -1))
+        < FORMAL_MINIMUM_POSITIVE_IMAGES
+        or int(materialization_invariants.get("minimumHardNegativeImages", -1))
+        < FORMAL_MINIMUM_HARD_NEGATIVE_IMAGES
+        or int(materialization_invariants.get("minimumValidationImages", -1))
+        < FORMAL_MINIMUM_VALIDATION_IMAGES
+    ):
+        raise ValueError("materialization invariants do not prove the formal candidate gate")
     if materialization.get("overlaps") != {
         "fileName": [], "imageSha256": [], "sourceGroup": []
     }:
         raise ValueError("materialization self-reports non-canonical overlap evidence")
-    if materialization.get("allRolesSha256") != canonical_sha256(normalized_roles):
+    all_role_identities = {
+        **normalized_roles,
+        "frozen-test": sorted(
+            [normalized_upstream_identity(item) for item in frozen_upstream],
+            key=identity_sort_key,
+        ),
+    }
+    if materialization.get("allRolesSha256") != canonical_sha256(all_role_identities):
         raise ValueError("materialization allRolesSha256 differs from recomputed identities")
 
     # Re-read every mutable evidence source after all semantic checks. This closes
@@ -695,7 +956,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "counts": recomputed_counts,
         "roles": recomputed_role_summary,
         "overlaps": overlaps,
-        "allRolesSha256": canonical_sha256(normalized_roles),
+        "allRolesSha256": canonical_sha256(all_role_identities),
         "datasetFilesSha256": canonical_sha256(dataset_files),
         "invariants": {
             "minimumPositiveImages": args.minimum_positive_images,

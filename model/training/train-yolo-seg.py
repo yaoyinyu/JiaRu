@@ -145,6 +145,7 @@ def main() -> None:
 
     summary = {
         "dataset_yaml": str(dataset_yaml),
+        "dataset_yaml_sha256": sha256(dataset_yaml),
         "dataset_root": str(config.dataset_root),
         "runtime_dataset_yaml": str(runtime_dataset_yaml),
         "train_images": count_files(config.dataset_root / config.train, (".jpg", ".jpeg", ".png", ".webp")),
@@ -166,6 +167,7 @@ def main() -> None:
         "best_weights_path": str(resolve_best_weights_path(output_dir, args.run_name)),
         "training_intent": "candidate" if args.candidate_mode else "experiment",
         "candidate_input_evidence": candidate_input_evidence,
+        "candidate_validation_evidence": None,
         "dry_run": args.dry_run,
     }
 

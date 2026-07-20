@@ -70,12 +70,13 @@ test("run-training-release-pipeline produces a dry-run orchestration report", as
   const report = JSON.parse(stdout) as {
     ok: boolean;
     mode: string;
-    options: { trainingIntent: string; candidateValidationReport: string | null };
+    options: { trainingIntent: string; candidateInputReport: string | null; candidateValidationReport: string | null };
     steps: Array<{ name: string; ok: boolean; stdout?: { skipped?: boolean }; command: string[] }>;
   };
   assert.equal(report.ok, true);
   assert.equal(report.mode, "dry-run");
   assert.equal(report.options.trainingIntent, "experiment");
+  assert.equal(report.options.candidateInputReport, null);
   assert.equal(report.options.candidateValidationReport, null);
   assert.deepEqual(report.steps.map((step) => step.name), [
     "check-training-environment",
@@ -93,7 +94,7 @@ test("run-training-release-pipeline produces a dry-run orchestration report", as
   assert.equal(report.steps.at(-1)?.stdout?.skipped, true);
 });
 
-test("run-training-release-pipeline requires and forwards candidate validation evidence", async () => {
+test("run-training-release-pipeline requires and preflights candidate input evidence", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-candidate-"));
   const outputDir = path.join(root, "model", "exports", "candidate");
   const browserDir = path.join(root, "public", "models", "nail-texture-seg");
@@ -122,7 +123,7 @@ test("run-training-release-pipeline requires and forwards candidate validation e
       ],
       { cwd: path.resolve(".") }
     ),
-    /--candidate-mode requires --candidate-validation-report/
+    /--candidate-mode requires --candidate-input-report/
   );
 
   let caught: unknown;
@@ -138,7 +139,7 @@ test("run-training-release-pipeline requires and forwards candidate validation e
         "--browser-model-dir",
         browserDir,
         "--candidate-mode",
-        "--candidate-validation-report",
+        "--candidate-input-report",
         rejectedReport,
         "--skip-training-environment-check",
         "--dry-run",
@@ -151,13 +152,14 @@ test("run-training-release-pipeline requires and forwards candidate validation e
   assert.ok(caught, "rejected candidate evidence must stop the pipeline");
   const report = JSON.parse((caught as { stdout?: string }).stdout ?? "") as {
     ok: boolean;
-    options: { trainingIntent: string; candidateValidationReport: string | null };
+    options: { trainingIntent: string; candidateInputReport: string | null; candidateValidationReport: string | null };
     steps: Array<{ name: string; command: string[] }>;
   };
   assert.equal(report.ok, false);
   assert.equal(report.options.trainingIntent, "candidate");
-  assert.equal(report.options.candidateValidationReport, rejectedReport);
-  assert.deepEqual(report.steps.map((step) => step.name), ["train-yolo-seg"]);
+  assert.equal(report.options.candidateInputReport, rejectedReport);
+  assert.equal(report.options.candidateValidationReport, null);
+  assert.deepEqual(report.steps.map((step) => step.name), ["candidate-input-preflight"]);
   assert.ok(report.steps[0]?.command.includes("--candidate-mode"));
   assert.ok(report.steps[0]?.command.includes(rejectedReport));
 });
