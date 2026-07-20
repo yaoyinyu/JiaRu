@@ -2,10 +2,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import math
 import shutil
 from pathlib import Path
+from types import ModuleType
 
 from _training_common import ensure_python_dependency, resolve_best_weights_path, write_json
 
@@ -25,6 +27,16 @@ def probability(value: str) -> float:
     return parsed
 
 
+def load_calibration_verifier() -> ModuleType:
+    script = Path(__file__).with_name("calibrate-model-score-threshold.py")
+    spec = importlib.util.spec_from_file_location("score_threshold_calibration_for_export", script)
+    if spec is None or spec.loader is None:
+        raise ValueError(f"calibration verifier cannot be loaded: {script}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Export the nail texture segmentation model to ONNX and write a browser manifest.")
     parser.add_argument("--weights", default="", help="PyTorch checkpoint to export; defaults to <train-output-dir>/<run-name>/weights/best.pt")
@@ -38,7 +50,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--normalization", default="zero_to_one")
     parser.add_argument("--resize-mode", default="letterbox")
     parser.add_argument("--output-contract", default="ultralytics-seg-raw-v1")
-    parser.add_argument("--score-threshold", type=probability, default=0.35)
+    parser.add_argument("--score-threshold", type=probability)
+    parser.add_argument("--candidate-mode", action="store_true")
+    parser.add_argument("--calibration-report")
     parser.add_argument("--task", default="segment")
     parser.add_argument("--backend-preferences", nargs="+", default=["webgpu", "wasm"])
     parser.add_argument("--labels", nargs="+", default=["nail_texture"])
@@ -53,6 +67,34 @@ def main() -> None:
     output_dir = Path(args.output_dir).resolve()
     onnx_path = output_dir / f"{args.model_version}.onnx"
     manifest_path = output_dir / "manifest.json"
+    calibration_evidence = None
+    if args.candidate_mode:
+        if not args.calibration_report:
+            raise ValueError("candidate mode requires --calibration-report")
+        if args.score_threshold is not None:
+            raise ValueError(
+                "candidate mode derives scoreThreshold from --calibration-report; "
+                "--score-threshold is prohibited"
+            )
+        calibration_report = Path(args.calibration_report).resolve()
+        if calibration_report in {onnx_path, manifest_path}:
+            raise ValueError("candidate export output must not overwrite the calibration report")
+        verifier = load_calibration_verifier()
+        verified = verifier.verify_calibration_report(calibration_report, weights)
+        score_threshold = verified["scoreThreshold"]
+        calibration_evidence = {
+            "path": str(verified["reportPath"]),
+            "sha256": verified["reportSha256"],
+            "datasetYamlSha256": verified["datasetYamlSha256"],
+            "metricsSha256": verified["metricsSha256"],
+            "artifactIndexSha256": verified["artifactIndexSha256"],
+            "weightsSha256": verified["weightsSha256"],
+            "decision": verified["decision"],
+        }
+    else:
+        if args.calibration_report:
+            raise ValueError("--calibration-report requires --candidate-mode")
+        score_threshold = args.score_threshold if args.score_threshold is not None else 0.35
 
     summary = {
         "weights": str(weights),
@@ -68,7 +110,9 @@ def main() -> None:
         "normalization": args.normalization,
         "resize_mode": args.resize_mode,
         "output_contract": args.output_contract,
-        "score_threshold": args.score_threshold,
+        "score_threshold": score_threshold,
+        "candidate_mode": args.candidate_mode,
+        "score_threshold_evidence": calibration_evidence,
         "task": args.task,
         "backend_preferences": args.backend_preferences,
         "labels": args.labels,
@@ -87,9 +131,7 @@ def main() -> None:
     shutil.copyfile(export_path, onnx_path)
     model_size_bytes = onnx_path.stat().st_size
     model_sha256 = sha256_file(onnx_path)
-    write_json(
-        manifest_path,
-        {
+    manifest = {
             "version": args.model_version,
             "task": args.task,
             "inputSize": args.input_size,
@@ -100,12 +142,14 @@ def main() -> None:
             "backendPreferences": args.backend_preferences,
             "modelFile": onnx_path.name,
             "outputContract": args.output_contract,
-            "scoreThreshold": args.score_threshold,
+            "scoreThreshold": score_threshold,
             "modelSizeBytes": model_size_bytes,
             "sha256": model_sha256,
             "labels": args.labels,
-        },
-    )
+        }
+    if calibration_evidence is not None:
+        manifest["scoreThresholdEvidence"] = calibration_evidence
+    write_json(manifest_path, manifest)
     print(f"ONNX export finished. Manifest written to {manifest_path}")
 
 

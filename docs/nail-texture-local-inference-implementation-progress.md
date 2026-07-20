@@ -1,6 +1,6 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-07-20
+更新日期：2026-07-21
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
 ## 标记规则
@@ -368,6 +368,7 @@ npm.cmd run build
 | `M2-T6-V6-VAL-THRESHOLD-CALIBRATION` | 来源隔离验证集阈值校准与测试集防泄漏门 | ✅ PASS（拒绝写入manifest） | 校准器仅接受split=val及val-only来源组，绑定数据集/来源报告/指标/预测/权重SHA-256，硬拒绝test和跨split来源；v6部署512在13张/45 mask val上box/mask mAP50=0.9376/0.9420，诊断最优confidence=0.20时匹配40、漏5、误检2、F1=0.9195，但发现14个真值polygon需拓扑修复且13<30图，因此`calibrationEligible=false`、`manifestScoreThreshold=null`，生产阈值不变 |
 | `M2-T6-V6-VAL-TRUTH-AUDIT` | v6旧验证真值隔离返修候选与原分辨率全覆盖审核 | ✅ PASS（拒绝旧val真值） | 候选生成器绑定dataset/source report/calibration哈希，只处理val且不覆盖源标签；14个无效polygon生成隔离候选、13/13整图和14组逐甲2×证据。审核结果3张通过、7张返修、3张排除，并发现2张未声明交叠以及漏甲、背景/雕塑误标、重复mask、皮肤污染和边缘裁断；机器报告输出`rejected_as_calibration_truth`。旧val的0.9376/0.9420与0.20仅保留为不合格真值上的历史诊断，不用于模型选择、阈值或manifest |
 | `M2-T6-VAL-TRUTH-AUDIT-CONTRACT` | 验证真值视觉审核资格接入阈值校准器 | ✅ PASS | 校准器新增`--truth-audit`：正式阈值只接受`approved_as_calibration_truth`，并绑定dataset路径/SHA-256、逐标签哈希和全量pass计数；缺失审核或显式拒绝分别降级为`diagnostic_only_validation_truth_unreviewed/rejected`。v6旧val带拒绝报告复跑仍仅保留0.20诊断点，`calibrationEligible=false`、`manifestScoreThreshold=null` |
+| `M2-T6-CANONICAL-VAL30-CALIBRATION` | 规范val30部署512评估、阈值深审与只读源隔离 | ✅ PASS（工程门；拒绝v6阈值） | 校准器独立重放规范物化、30图/144 mask终审、角色隔离和当前文件字节；旧实验永远只作诊断。评估器将所选split复制到独立runtime dataset，源树推理前后逐文件哈希一致，Ultralytics cache不得污染规范源；预测制品使用跨平台稳定清单、逐文件SHA和30图显式预测记录。v6部署512为box/mask mAP50=0.6241/0.5630；0.05虽召回0.7569但每图误检9.8333、单图最多28候选，其余阈值召回不足0.75，故`no_threshold_meets_validation_constraints`、`manifestScoreThreshold=null`。PASS只证明门禁可靠，不代表v6质量通过 |
 | `M2-T6-NEXT-CANDIDATE-PREFLIGHT` | 下一真实候选的数据与训练可行性预检 | ✅ PASS（等待训练授权） | RTX 4060 Laptop 8GB与v6/v9权重可用，正式409图/2142 mask readiness通过；但正式val 46图/234 mask含5处polygon交叠，且300张AI图的同一`sourceGroup`跨train/val/test，不能作为来源隔离模型选择或阈值真值。现有授权真实数据已进入v7–v9且连续退化；未获`真实素材/2026_7_14`商业训练授权前不启动缺乏数据依据的v10，也不触碰冻结发布测试或未授权素材 |
 | `M2-T6-CANDIDATE-TRAINING-VALIDATION-GATE` | 历史候选训练来源与视觉真值诊断门 | ✅ PASS（已被深审门取代授权职责） | 通用来源隔离与旧候选验证审计曾正确拒绝409图集的AI来源跨split、缺视觉审核及5处交叠；其外层PASS不再单独授权训练。正式候选授权已迁移到`M2-T6-CANDIDATE-INPUT-DEEP-AUDIT`，默认实验摘要仍固定`training_intent=experiment` |
 | `M2-T6-CANDIDATE-PIPELINE-EVIDENCE` | 历史候选验证报告编排接线 | ✅ PASS（已被输入预检取代） | 旧`--candidate-validation-report`接线保留为历史证据，但已明确拒绝作为正式候选授权；当前权威入口为`--candidate-input-report`，并由`M2-T6-CANDIDATE-PIPELINE-PREFLIGHT`保证第一步深度重放。默认运行仍明确为`experiment` |

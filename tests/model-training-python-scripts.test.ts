@@ -207,6 +207,11 @@ test("evaluate script persists visual evaluation artifact index and metrics", as
   assert.equal(metrics.evaluation_artifacts.counts.plots, 3);
   assert.equal(metrics.evaluation_artifacts.counts.prediction_labels, 1);
   assert.equal(artifactIndex.split, "test");
+  assert.deepEqual(artifactIndex.files, [...artifactIndex.files].sort());
+  assert.deepEqual(
+    artifactIndex.file_records.map((item) => item.path),
+    artifactIndex.files
+  );
   assert.ok(artifactIndex.files.includes("confusion_matrix.png"));
   assert.ok(artifactIndex.files.includes("val_batch0_pred.jpg"));
   assert.equal(metrics.dataset_yaml_sha256, sha256(await readFile(datasetPath)));
