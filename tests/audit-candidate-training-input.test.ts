@@ -16,7 +16,6 @@ import test from "node:test";
 
 const script = path.resolve("model/training/audit-candidate-training-input.py");
 const trainScript = path.resolve("model/training/train-yolo-seg.py");
-const pipelineScript = path.resolve("scripts/run-training-release-pipeline.ts");
 const polygon =
   "0 0.10000000 0.10000000 0.40000000 0.10000000 0.40000000 0.40000000 0.10000000 0.40000000\n";
 const annotation = (fileName: string, sourceGroup: string) => ({
@@ -648,34 +647,9 @@ test("approves a complete hash-bound 100/100/30 candidate input", () => {
   );
   assert.equal(existsSync(trainOutput), false, "candidate dry-run must be write-free");
 
-  const resume = spawnSync(
-    process.execPath,
-    [
-      "--no-warnings",
-      "--experimental-strip-types",
-      pipelineScript,
-      "--dataset",
-      item.candidateDataset,
-      "--train-output-dir",
-      trainOutput,
-      "--candidate-mode",
-      "--candidate-input-report",
-      result.output,
-      "--skip-train",
-      "--skip-evaluate",
-      "--skip-export",
-      "--skip-training-environment-check",
-    ],
-    { encoding: "utf8" },
-  );
-  assert.notEqual(resume.status, 0, "resume without a bound train summary must fail");
-  const resumeReport = JSON.parse(resume.stdout);
-  assert.deepEqual(
-    resumeReport.steps.map((step: Json) => step.name),
-    ["candidate-input-preflight", "verify-candidate-resume"],
-  );
-  assert.equal(resumeReport.steps[0].ok, true);
-  assert.equal(resumeReport.steps[1].ok, false);
+  // Candidate pipeline resume behavior is covered by run-training-release-pipeline.test.ts.
+  // That path now requires all three dataset lanes and forbids skip-evaluate/skip-export,
+  // so this input-audit fixture intentionally stops after proving the training entrypoint.
 });
 
 test("does not allow CLI flags to lower the formal 100/100/30 gates", () => {
