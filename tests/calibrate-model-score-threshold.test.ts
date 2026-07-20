@@ -8,6 +8,30 @@ import test from "node:test";
 
 const script = path.resolve("model/training/calibrate-model-score-threshold.py");
 const hash = (content: string | Buffer) => createHash("sha256").update(content).digest("hex");
+const canonicalHash = (value: unknown) => hash(JSON.stringify(value, Object.keys(value as object).sort()));
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => `${JSON.stringify(key)}:${canonicalJson(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+const canonicalSha = (value: unknown) => hash(canonicalJson(value));
+
+async function writeJson(filePath: string, value: unknown) {
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`);
+}
+
+function runPython(args: string[]) {
+  const result = spawnSync("python", args, { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+}
 
 async function buildFixture() {
   const root = await mkdtemp(path.join(tmpdir(), "score-threshold-calibration-"));

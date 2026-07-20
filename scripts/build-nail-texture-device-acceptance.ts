@@ -1,7 +1,10 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-
-const DEVICE_FAMILIES = new Set(["android", "android-tablet", "iphone", "ipad"]);
+import {
+  DEVICE_ACCEPTANCE_VERSION,
+  DEVICE_FAMILIES,
+  verifyDeviceEvidence,
+} from "./lib/nail-texture-device-acceptance.ts";
 
 function arg(name: string): string | undefined {
   const index = process.argv.indexOf(name);
@@ -12,14 +15,8 @@ function required(name: string): string {
   if (!value) throw new Error(`Missing required argument ${name}`);
   return value;
 }
-async function json(filePath: string): Promise<Record<string, unknown>> {
-  const value = JSON.parse(await readFile(filePath, "utf8"));
-  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error(`Expected JSON object: ${filePath}`);
-  return value;
-}
-
 const deviceFamily = required("--device-family");
-if (!DEVICE_FAMILIES.has(deviceFamily)) throw new Error(`Unsupported device family: ${deviceFamily}`);
+if (!DEVICE_FAMILIES.includes(deviceFamily as typeof DEVICE_FAMILIES[number])) throw new Error(`Unsupported device family: ${deviceFamily}`);
 const deviceName = required("--device-name");
 const operatingSystem = required("--os");
 const browser = required("--browser");
@@ -27,29 +24,52 @@ const backend = required("--backend");
 const performancePath = path.resolve(required("--performance"));
 const memoryPath = path.resolve(required("--memory"));
 const outputPath = path.resolve(required("--output"));
-const performance = await json(performancePath);
-const memory = await json(memoryPath);
-const performanceTotals = performance.totals as { samples?: number } | undefined;
-const memoryTotals = memory.totals as { samples?: number } | undefined;
-const performanceSamples = Number(performanceTotals?.samples ?? 0);
-const memorySamples = Number(memoryTotals?.samples ?? memory.sampleCount ?? 0);
-const errors: string[] = [];
-if (performance.ok !== true) errors.push("performance verification is not passing");
-if (memory.ok !== true) errors.push("memory verification is not passing");
-if (performanceSamples < 20) errors.push(`performance samples ${performanceSamples} are below 20`);
-if (memorySamples < 20) errors.push(`memory samples ${memorySamples} are below 20`);
+if ([performancePath, memoryPath].some((input) => input.toLowerCase() === outputPath.toLowerCase())) {
+  throw new Error("--output must not overwrite an input evidence file");
+}
+const verification = await verifyDeviceEvidence(performancePath, memoryPath);
+const errors = verification.errors;
+if (verification.performance.identity.deviceFamily !== deviceFamily) {
+  errors.push("device family does not match bound performance and memory evidence");
+}
+if (verification.performance.identity.backend !== backend) {
+  errors.push("backend does not match bound performance and memory evidence");
+}
 const report = {
-  version: "nail-texture-device-acceptance/v1",
+  version: DEVICE_ACCEPTANCE_VERSION,
+  generatedAt: new Date().toISOString(),
   deviceFamily,
   deviceName,
   operatingSystem,
   browser,
   backend,
+  sessionId: verification.performance.identity.sessionId,
+  modelVersion: verification.performance.identity.modelVersion,
+  inputSize: verification.performance.identity.inputSize,
   ok: errors.length === 0,
   decision: errors.length === 0 ? "pass" : "hold",
-  performance: { ok: performance.ok === true && performanceSamples >= 20, sampleCount: performanceSamples, thresholds: performance.thresholds ?? null, stats: performance.stats ?? null },
-  memory: { ok: memory.ok === true && memorySamples >= 20, sampleCount: memorySamples, thresholds: memory.thresholds ?? null, stats: memory.stats ?? null },
+  performance: {
+    ok: verification.ok,
+    sampleCount: verification.performance.sampleCount,
+    p95Ms: verification.performance.p95Ms,
+    maxElapsedMs: verification.performance.maxElapsedMs,
+  },
+  memory: {
+    ok: verification.ok,
+    sampleCount: verification.memory.sampleCount,
+    peakUsedJSHeapMiB: verification.memory.peakUsedJSHeapMiB,
+    peakBrowserPrivateMiB: verification.memory.peakBrowserPrivateMiB,
+  },
   sourcePaths: { performance: performancePath, memory: memoryPath },
+  evidence: {
+    performance: { path: performancePath, sha256: verification.performance.reportSha256 },
+    memory: {
+      verificationPath: memoryPath,
+      verificationSha256: verification.memory.verificationSha256,
+      rawReportPath: verification.memory.rawReportPath,
+      rawReportSha256: verification.memory.rawReportSha256,
+    },
+  },
   errors,
 };
 await mkdir(path.dirname(outputPath), { recursive: true });

@@ -13,6 +13,11 @@ interface MemorySample {
 interface MemoryReport {
   version: string;
   profile: string;
+  sessionId?: string;
+  deviceFamily?: string;
+  modelVersion?: string;
+  backend?: string;
+  inputSize?: number;
   sampleCount: number;
   samples: MemorySample[];
 }
@@ -101,6 +106,13 @@ const summary = {
   ok: errors.length === 0,
   inputPath,
   profile: report.profile,
+  identity: {
+    sessionId: report.sessionId ?? null,
+    deviceFamily: report.deviceFamily ?? null,
+    modelVersion: report.modelVersion ?? null,
+    backend: report.backend ?? null,
+    inputSize: report.inputSize ?? null,
+  },
   thresholds: { minSamples, maxJsGrowthMiB, maxPrivateGrowthMiB, maxConsecutiveGrowth },
   totals: { samples: samples.length },
   stats: {

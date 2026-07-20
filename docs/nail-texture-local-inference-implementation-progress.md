@@ -1,6 +1,6 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-07-18
+更新日期：2026-07-20
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
 ## 标记规则
@@ -382,6 +382,7 @@ npm.cmd run build
 | `M3-T1-GATES` | 性能、纹理质量、发布测试集代表性与发布决策门禁 | ✅ PASS | 性能、客户端开销、直接可用率、污染率、形状保真、样本量和 release-test-split 硬门禁均有自动测试；发布决策会阻止不合格候选 |
 | `M3-T2-DESKTOP-SMOKE` | 桌面浏览器工程性能冒烟 | ✅ PASS | Chromium Worker + WebGPU 连续 20 次已预热实测：端到端 P50=63ms、P95=72ms、max=79ms；Worker P95=57ms；客户端开销 P95=17ms；20/20 均返回 4 个候选。仅证明合成基线工程性能，不代表正式模型质量 |
 | `M3-T3-DEVICE` | Windows、Android 与 iPhone 真机矩阵 | 🟠 PARTIAL | Windows Chromium WebGPU 已完成29次热性能和20次内存稳定性基准：P95=133.7ms，JS heap 峰值19.86MiB、首末增长1.69MiB，浏览器私有内存首末增长121.81MiB；Android/iPhone/iPad 真机仍等待执行 |
+| `M3-T3-MOBILE-BENCH-EVIDENCE` | 移动真机批量采集、系统内存转换与设备验收深审门 | ✅ PASS（工程门） | `/device-benchmark`固定3次预热+20次正式样本，记录session/device/model/backend/input并拒绝fallback或混合身份；Profiler/Instruments CSV转换器绑定会话与源哈希。设备验收v2和最终完成度审计深度重算性能/内存原始样本、统计、路径及SHA-256，伪造外层PASS、跨session、少样本、输出覆盖和写后漂移均被测试拒绝；四类真机实际运行仍属`M3-T3-DEVICE`的USER INPUT |
 | `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | 🟡 IN PROGRESS | 冻结67张/384 mask已在部署512口径完成v6评估；全量box/mask mAP50=0.8370/0.8313，核心=0.8485/0.8523，压力=0.8179/0.7919，压力组退化触发拒绝。代表性规模仍缺33张，直接可用率、污染率和人工修正成本仍需100张Beta逐图审核 |
 | `M3-T5-BETA` | Beta 发布决策 | 🔴 HOLD | v6 在扩展冻结快照的部署512质量门被拒绝；同时仍缺100张代表性真实测试集、移动真机矩阵、用户失败案例和Beta人工质量验收，禁止 promotion |
 

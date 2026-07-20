@@ -846,6 +846,7 @@ missingRate = GT 甲面中未被 predictedMask 覆盖的面积 / GT 甲面总面
 - [x] 建立候选训练完整输入独立深审并接入训练/发布入口；审计器重新计算annotation→YOLO标签、polygon合法性与任意非零交叠、负样本空标签、val逐项等价、孤儿和四角色隔离，`verify_approved_report()`拒绝伪造PASS或写后漂移。`train-yolo-seg.py --candidate-mode --candidate-input-report`在Ultralytics/GPU前及训练后重放，旧validation外层PASS不再授权；发布编排固定先执行`candidate-input-preflight`，即使`--skip-train`也要求旧摘要绑定相同dataset、输入报告和权重哈希。
 - [x] 评估量化，但不牺牲纹理细边缘。（INT8 候选经门禁拒绝，FP32 保持默认）
 - [ ] 建立真实设备性能和内存报告。（v6 桌面 Chromium WebGPU 29 次热推理 P95=133.7ms、20 次内存稳定性门已通过；Android/iPhone/iPad 真机矩阵与移动端峰值内存等待执行）
+- [x] 建立移动真机基准采集与不可伪造证据链；`/device-benchmark`固定3次预热+20次正式推理并导出同一session/device/model/backend/input绑定的原始会话，fallback、混合身份或不足20次保持HOLD。Profiler/Instruments内存CSV转换器绑定会话和源SHA-256；设备验收v2及最终完成度审计重新读取性能、内存验证和原始内存样本，重算统计、路径、哈希与身份，源漂移后既有PASS自动失效。该工程门通过不等于四类物理设备已验收。
 - [x] 将质量、性能和模型资产门禁接入发布决策。
 - [x] 保持 fallback、手动修正和回滚能力。
 - [x] 建立本地上传图片的 MIME、10 MB、320–4096 像素和解码失败门禁，并统一编辑器与 AR 入口。
