@@ -385,6 +385,18 @@ function runCanonicalCalibration(
   );
 }
 
+function runVerification(report: string, expectedWeights?: string) {
+  return spawnSync(
+    "python",
+    [
+      script,
+      "--verify-report", report,
+      ...(expectedWeights ? ["--expected-weights", expectedWeights] : []),
+    ],
+    { encoding: "utf8" }
+  );
+}
+
 test("keeps a legacy source-isolated experiment diagnostic-only", async () => {
   const fixture = await buildFixture();
   const output = path.join(fixture.root, "calibration.json");
@@ -415,6 +427,116 @@ test("calibrates a formal threshold from a deeply replayed canonical validation 
   assert.equal(report.counts.validationImages, 30);
   assert.equal(report.counts.truthMasks, 30);
   assert.equal(report.counts.predictionLabelFiles, 30);
+});
+
+test("deeply verifies a persisted ready report without overwriting it", async () => {
+  const fixture = await buildCanonicalFixture();
+  const output = path.join(fixture.root, "calibration.json");
+  const calibration = runCanonicalCalibration(fixture, output);
+  assert.equal(calibration.status, 0, calibration.stderr);
+  const before = await readFile(output);
+
+  const verification = runVerification(output, fixture.weights);
+  assert.equal(verification.status, 0, verification.stderr);
+  const summary = JSON.parse(verification.stdout);
+  assert.equal(summary.decision, "calibrated_threshold_ready_for_candidate_manifest");
+  assert.equal(summary.manifestScoreThreshold, 0.8);
+  assert.equal(summary.outputWritten, false);
+  assert.equal(summary.reportSha256, hash(before));
+  assert.deepEqual(await readFile(output), before);
+});
+
+test("verification rejects evidence drift after a calibration report was written", async () => {
+  const fixture = await buildCanonicalFixture();
+  const output = path.join(fixture.root, "calibration.json");
+  const calibration = runCanonicalCalibration(fixture, output);
+  assert.equal(calibration.status, 0, calibration.stderr);
+  const before = await readFile(output);
+  await writeFile(fixture.metrics, `${await readFile(fixture.metrics, "utf8")}\n`);
+
+  const verification = runVerification(output);
+  assert.notEqual(verification.status, 0);
+  assert.match(verification.stderr, /replay mismatch.*metricsSha256|metrics.*drift/i);
+  assert.deepEqual(await readFile(output), before);
+});
+
+test("verification rejects a faithfully replayed report whose decision is not ready", async () => {
+  const fixture = await buildCanonicalFixture();
+  const output = path.join(fixture.root, "calibration-not-ready.json");
+  const calibration = runCanonicalCalibration(fixture, output, ["--confidence-sweep", "0.90"]);
+  assert.equal(calibration.status, 0, calibration.stderr);
+  const report = JSON.parse(await readFile(output, "utf8"));
+  assert.equal(report.decision, "no_threshold_meets_validation_constraints");
+  assert.equal(report.calibrationEligible, false);
+  assert.equal(report.manifestScoreThreshold, null);
+
+  const verification = runVerification(output);
+  assert.notEqual(verification.status, 0);
+  assert.match(verification.stderr, /decision is not ready/);
+});
+
+test("verification rejects a report bound to different export weights", async () => {
+  const fixture = await buildCanonicalFixture();
+  const output = path.join(fixture.root, "calibration.json");
+  const calibration = runCanonicalCalibration(fixture, output);
+  assert.equal(calibration.status, 0, calibration.stderr);
+  const otherWeights = path.join(fixture.root, "other.pt");
+  await writeFile(otherWeights, "different-weights");
+
+  const verification = runVerification(output, otherWeights);
+  assert.notEqual(verification.status, 0);
+  assert.match(verification.stderr, /weights do not match/);
+});
+
+test("candidate ONNX export derives its threshold and manifest evidence from deep verification", async () => {
+  const fixture = await buildCanonicalFixture();
+  const calibrationReport = path.join(fixture.root, "calibration.json");
+  const calibration = runCanonicalCalibration(fixture, calibrationReport);
+  assert.equal(calibration.status, 0, calibration.stderr);
+
+  const fakeModuleDir = path.join(fixture.root, "fake-python-modules");
+  const exportedPath = path.join(fixture.root, "candidate.onnx");
+  const outputDir = path.join(fixture.root, "browser-candidate");
+  await mkdir(fakeModuleDir, { recursive: true });
+  await writeFile(exportedPath, Buffer.alloc(300 * 1024));
+  await writeFile(
+    path.join(fakeModuleDir, "ultralytics.py"),
+    [
+      "class YOLO:",
+      "    def __init__(self, weights):",
+      "        self.weights = weights",
+      "    def export(self, **kwargs):",
+      `        return r'${exportedPath.replaceAll("\\", "\\\\")}'`,
+    ].join("\n")
+  );
+  const result = spawnSync(
+    "python",
+    [
+      path.resolve("model/training/export-onnx.py"),
+      "--weights", fixture.weights,
+      "--output-dir", outputDir,
+      "--model-version", "candidate-v1",
+      "--candidate-mode",
+      "--calibration-report", calibrationReport,
+    ],
+    {
+      encoding: "utf8",
+      env: { ...process.env, PYTHONPATH: fakeModuleDir },
+    }
+  );
+  assert.equal(result.status, 0, result.stderr);
+  const manifest = JSON.parse(await readFile(path.join(outputDir, "manifest.json"), "utf8"));
+  const report = JSON.parse(await readFile(calibrationReport, "utf8"));
+  assert.equal(manifest.scoreThreshold, 0.8);
+  assert.deepEqual(manifest.scoreThresholdEvidence, {
+    path: calibrationReport,
+    sha256: hash(await readFile(calibrationReport)),
+    datasetYamlSha256: report.inputs.datasetYamlSha256,
+    metricsSha256: report.inputs.metricsSha256,
+    artifactIndexSha256: report.inputs.artifactIndexSha256,
+    weightsSha256: report.inputs.weightsSha256,
+    decision: "calibrated_threshold_ready_for_candidate_manifest",
+  });
 });
 
 test("rejects a forged canonical truth-audit PASS", async () => {

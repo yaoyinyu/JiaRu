@@ -256,6 +256,36 @@ test("export onnx script dry-run prints manifest target", async () => {
   assert.match(String(result.manifest_path), /public[\\/]+models[\\/]+nail-texture-seg[\\/]+manifest\.json$/);
 });
 
+test("candidate ONNX export requires a calibration report and forbids a manual threshold", async () => {
+  const missingReport = await execFileAsync(
+    "python",
+    ["model/training/export-onnx.py", "--candidate-mode", "--dry-run"],
+    { cwd: path.resolve(".") }
+  ).then(
+    () => null,
+    (error: { stderr?: string }) => error
+  );
+  assert.ok(missingReport);
+  assert.match(missingReport.stderr ?? "", /requires --calibration-report/);
+
+  const manualThreshold = await execFileAsync(
+    "python",
+    [
+      "model/training/export-onnx.py",
+      "--candidate-mode",
+      "--calibration-report", "unused.json",
+      "--score-threshold", "0.42",
+      "--dry-run",
+    ],
+    { cwd: path.resolve(".") }
+  ).then(
+    () => null,
+    (error: { stderr?: string }) => error
+  );
+  assert.ok(manualThreshold);
+  assert.match(manualThreshold.stderr ?? "", /--score-threshold is prohibited/);
+});
+
 test("export onnx script writes manifest integrity metadata", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-export-onnx-integrity-"));
   const fakeModuleDir = path.join(root, "fake-python-modules");
