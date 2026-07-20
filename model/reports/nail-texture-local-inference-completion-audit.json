@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-20T14:46:19.398Z",
+  "generatedAt": "2026-07-20T15:39:02.248Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 323,
-    "passMarkerCount": 311,
+    "progressMarkerCount": 326,
+    "passMarkerCount": 314,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -180,11 +180,11 @@
         },
         {
           "checked": true,
-          "text": "建立正式候选训练验证证据门；通用来源隔离审计逐文件核对`sources.csv`与split，候选预检要求val-only来源组、不少于30图、全量原分辨率审核通过、逐标签哈希、合法polygon和零交叠。`train-yolo-seg.py --candidate-mode`必须绑定通过报告并复验上游报告哈希；普通实验明确记录`training_intent=experiment`，不得冒充候选。"
+          "text": "建立历史候选训练验证诊断门；通用来源隔离审计逐文件核对`sources.csv`与split，旧候选预检要求val-only来源组、不少于30图、全量原分辨率审核通过、逐标签哈希、合法polygon和零交叠，并曾正确拒绝不合格409图集。其外层PASS现仅保留为历史诊断，不再单独授权正式候选；正式授权由后续完整输入深审承担，普通实验继续明确记录`training_intent=experiment`。"
         },
         {
           "checked": true,
-          "text": "将正式候选验证证据门接入训练发布编排器；`run-training-release-pipeline.ts --candidate-mode`必须同时提供`--candidate-validation-report`并原样下传训练入口，流水线报告固定记录`trainingIntent`与证据路径，缺失或拒绝证据时不得继续评估、导出或治理。"
+          "text": "完成历史`--candidate-validation-report`编排接线并在后续升级为`--candidate-input-report`首步深审；旧报告路径不再作为正式授权，当前候选编排必须先执行`candidate-input-preflight`，缺失、拒绝或漂移证据不得继续环境检查、训练、评估、导出或治理。"
         },
         {
           "checked": true,
@@ -717,6 +717,14 @@
         {
           "checked": true,
           "text": "完成现有37张域外排除项的hard negative原分辨率复筛；仅`nail_00844…_0`满足清晰、无真人有效甲面、部署相关、授权A及与train/val/frozen test隔离，继续保持candidate-only。其余36张为教程/甲型/手绘模板、独立甲片、拼图或仍含真实美甲，全部排除；100张建议目标当前1/100、仍缺99张，不得用不合格图片凑数。"
+        },
+        {
+          "checked": true,
+          "text": "建立规范候选训练数据集物化器；正式下限固定train正样本100、`approved_hard_negative_manifest`负样本100、`approved_as_calibration_truth`验证图30且CLI不可下调。写目录前复验训练真值、val终审、冻结test和四角色文件名/图片SHA-256/sourceGroup零重叠；输出采用事务式目录替换，hard-negative标签必须零字节、test固定为空，逐文件与聚合SHA-256完整绑定。真实100/1/30运行正确HOLD并只写外部报告，候选数据集目录未创建。"
+        },
+        {
+          "checked": true,
+          "text": "建立候选训练完整输入独立深审并接入训练/发布入口；审计器重新计算annotation→YOLO标签、polygon合法性与任意非零交叠、负样本空标签、val逐项等价、孤儿和四角色隔离，`verify_approved_report()`拒绝伪造PASS或写后漂移。`train-yolo-seg.py --candidate-mode --candidate-input-report`在Ultralytics/GPU前及训练后重放，旧validation外层PASS不再授权；发布编排固定先执行`candidate-input-preflight`，即使`--skip-train`也要求旧摘要绑定相同dataset、输入报告和权重哈希。"
         },
         {
           "checked": true,
