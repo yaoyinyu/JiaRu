@@ -378,6 +378,20 @@ test("HOLDs 99 hard negatives before creating the dataset and writes only extern
   const hold = JSON.parse(readFileSync(reportOutput, "utf8"));
   assert.equal(hold.status, "HOLD");
   assert.equal(hold.candidateTrainingEligible, false);
+  assert.deepEqual(hold.observedCounts, {
+    trainPositiveImages: 100,
+    hardNegativeImages: 99,
+    validationImages: 30,
+  });
+  assert.deepEqual(hold.requiredCounts, {
+    trainPositiveImages: 100,
+    hardNegativeImages: 100,
+    validationImages: 30,
+  });
+  assert.equal(
+    hold.inputs.hardNegativeManifest.sha256,
+    shaFile(item.hardNegativeManifest),
+  );
   assert.match(hold.errors.join("\n"), /only 99 images.*at least 100/);
 });
 

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
 import { access, mkdir, readFile, writeFile } from "node:fs/promises";
@@ -27,6 +28,7 @@ interface CliOptions {
   skipTrainingEnvironmentCheck: boolean;
   requireLocalModel: boolean;
   candidateMode: boolean;
+  candidateInputReport?: string;
   candidateValidationReport?: string;
   sourceAuthorizationDatasetRoot: string;
   minSegMap50: number;
@@ -162,6 +164,9 @@ function parseArgs(argv: string[]): CliOptions {
     else if (arg === "--skip-training-environment-check") options.skipTrainingEnvironmentCheck = true;
     else if (arg === "--require-local-model") options.requireLocalModel = true;
     else if (arg === "--candidate-mode") options.candidateMode = true;
+    else if (arg === "--candidate-input-report") {
+      options.candidateInputReport = path.resolve(argv[++index]);
+    }
     else if (arg === "--candidate-validation-report") {
       options.candidateValidationReport = path.resolve(argv[++index]);
     }
@@ -220,7 +225,7 @@ function parseArgs(argv: string[]): CliOptions {
     }
     else {
       throw new Error(
-        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--skip-source-authorization] [--skip-training-environment-check] [--require-local-model] [--candidate-mode --candidate-validation-report <report.json>] [--source-authorization-dataset-root <dir>] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-performance-report <performance-report.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
+        "Usage: node --experimental-strip-types scripts/run-training-release-pipeline.ts [--dataset <dataset.yaml>] [--train-output-dir <dir>] [--browser-model-dir <dir>] [--run-name <name>] [--model-version <name>] [--model <checkpoint>] [--epochs <n>] [--imgsz <n>] [--batch <value>] [--patience <n>] [--device <value>] [--workers <n>] [--split <train|val|test>] [--dry-run] [--skip-train] [--skip-evaluate] [--skip-export] [--skip-source-authorization] [--skip-training-environment-check] [--require-local-model] [--candidate-mode --candidate-input-report <report.json>] [--source-authorization-dataset-root <dir>] [--min-seg-map50 <n>] [--min-box-map50 <n>] [--max-model-mb <n>] [--final-audit-image <image>] [--final-audit-output-dir <dir>] [--final-audit-debug-prefix <name>] [--final-audit-dump <dump.json>] [--final-audit-fixture-out <fixture.json>] [--final-audit-annotation-dir <annotations-dir>] [--final-audit-annotation <annotation-image>] [--final-audit-ui-review <ui-review.json>] [--run-governance] [--governance-compare-summary <compare-summary.json>] [--governance-performance-report <performance-report.json>] [--governance-registry <release-registry.json>] [--governance-release-trace-draft <release-trace-draft.json>] [--governance-reviewed-batch-import-pipeline-report <reviewed-batch-import-pipeline-report.json>] [--governance-reviewed-batch-root-dir <seed-batch-dir>] [--governance-reviewed-batch-release-handoff <reviewed-batch-release-handoff.json>] [--governance-active-learning-handoff <debug-sample-active-learning-handoff.json>] [--governance-history-manifest <release-history-manifest.json>] [--governance-allow-manual-review true|false] [--governance-set-current true|false] [--governance-promote true|false]"
       );
     }
   }
@@ -243,8 +248,8 @@ function parseArgs(argv: string[]): CliOptions {
   if (!explicit.governanceHistoryManifest) {
     options.governanceHistoryManifest = resolveDefaultGovernanceHistoryManifest(options.trainOutputDir);
   }
-  if (options.candidateMode && !options.candidateValidationReport) {
-    throw new Error("--candidate-mode requires --candidate-validation-report <report.json>");
+  if (options.candidateMode && !options.candidateInputReport) {
+    throw new Error("--candidate-mode requires --candidate-input-report <report.json>");
   }
 
   return options;
@@ -320,6 +325,67 @@ async function pathExists(filePath?: string): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+async function sha256File(filePath: string): Promise<string> {
+  return createHash("sha256").update(await readFile(filePath)).digest("hex");
+}
+
+async function verifyCandidateResume(
+  options: CliOptions,
+  weightsPath: string
+): Promise<StepResult> {
+  const summaryPath = path.join(options.trainOutputDir, "train-summary.json");
+  const command = ["internal:verify-candidate-resume", summaryPath];
+  try {
+    const summary = (await readJsonIfExists(summaryPath)) as
+      | {
+          dataset_yaml?: string;
+          dataset_yaml_sha256?: string;
+          training_intent?: string;
+          candidate_input_evidence?: { path?: string; sha256?: string };
+          best_weights_path?: string;
+          best_weights_sha256?: string;
+        }
+      | null;
+    if (!summary) throw new Error("candidate --skip-train requires train-summary.json");
+    if (summary.training_intent !== "candidate") {
+      throw new Error("existing train summary is not a candidate run");
+    }
+    if (path.resolve(summary.dataset_yaml ?? "") !== options.dataset) {
+      throw new Error("existing train summary belongs to another dataset");
+    }
+    if (summary.dataset_yaml_sha256 !== await sha256File(options.dataset)) {
+      throw new Error("candidate dataset changed after the existing training run");
+    }
+    if (
+      path.resolve(summary.candidate_input_evidence?.path ?? "") !==
+        options.candidateInputReport ||
+      summary.candidate_input_evidence?.sha256 !==
+        (await sha256File(options.candidateInputReport!))
+    ) {
+      throw new Error("existing train summary belongs to another candidate input report");
+    }
+    if (
+      path.resolve(summary.best_weights_path ?? "") !== weightsPath ||
+      summary.best_weights_sha256 !== (await sha256File(weightsPath))
+    ) {
+      throw new Error("existing candidate weights are missing or hash-drifted");
+    }
+    return {
+      name: "verify-candidate-resume",
+      ok: true,
+      stdout: { summaryPath, weightsPath },
+      command,
+    };
+  } catch (error) {
+    return {
+      name: "verify-candidate-resume",
+      ok: false,
+      stderr: error instanceof Error ? error.message : String(error),
+      command,
+    };
   }
 }
 
@@ -443,7 +509,6 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   const cwd = path.resolve(".");
   const reportPath = path.join(options.trainOutputDir, "training-release-pipeline-report.json");
-  await mkdir(path.dirname(reportPath), { recursive: true });
 
   const weightsPath = resolveBestWeightsPath(options);
   const metricsPath = resolveMetricsPath(options);
@@ -452,7 +517,38 @@ async function main() {
   const manifestPath = resolveManifestPath(options);
 
   const steps: StepResult[] = [];
-  if (!options.dryRun && !options.skipTrain && !options.skipSourceAuthorization) {
+  if (options.candidateMode) {
+    const command = [
+      "python",
+      "model/training/train-yolo-seg.py",
+      "--dataset",
+      options.dataset,
+      "--output-dir",
+      options.trainOutputDir,
+      "--candidate-mode",
+      "--candidate-input-report",
+      options.candidateInputReport!,
+      "--dry-run",
+    ];
+    const result = await runCommand("candidate-input-preflight", command, cwd);
+    steps.push(result);
+    if (!result.ok) {
+      return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+    }
+    if (options.skipTrain) {
+      const resumeResult = await verifyCandidateResume(options, weightsPath);
+      steps.push(resumeResult);
+      if (!resumeResult.ok) {
+        return await finish(false, options, reportPath, steps, weightsPath, metricsPath, manifestPath);
+      }
+    }
+  }
+  if (
+    !options.candidateMode &&
+    !options.dryRun &&
+    !options.skipTrain &&
+    !options.skipSourceAuthorization
+  ) {
     const command = [
       process.execPath,
       "--no-warnings",
@@ -514,7 +610,7 @@ async function main() {
       "--run-name",
       options.runName,
       ...(options.candidateMode
-        ? ["--candidate-mode", "--candidate-validation-report", options.candidateValidationReport!]
+        ? ["--candidate-mode", "--candidate-input-report", options.candidateInputReport!]
         : []),
       ...(options.dryRun ? ["--dry-run"] : []),
     ];
@@ -726,6 +822,7 @@ async function finish(
       skipTrainingEnvironmentCheck: options.skipTrainingEnvironmentCheck,
       requireLocalModel: options.requireLocalModel,
       trainingIntent: options.candidateMode ? "candidate" : "experiment",
+      candidateInputReport: options.candidateInputReport ?? null,
       candidateValidationReport: options.candidateValidationReport ?? null,
       sourceAuthorizationDatasetRoot: options.sourceAuthorizationDatasetRoot,
       minSegMap50: options.minSegMap50,
@@ -791,6 +888,7 @@ async function finish(
   });
 
   let report = await buildReport();
+  await mkdir(path.dirname(reportPath), { recursive: true });
   await writeFile(reportPath, JSON.stringify(report, null, 2), "utf8");
 
   if (options.runGovernance && !options.dryRun && !governanceStep) {

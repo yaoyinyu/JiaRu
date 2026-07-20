@@ -547,6 +547,51 @@ def protect_report_output(args: argparse.Namespace) -> Path | None:
     return report
 
 
+def failure_evidence(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str, Any]]:
+    values = {
+        "trainingTruthIndex": args.training_truth_index,
+        "hardNegativeManifest": args.hard_negative_manifest,
+        "validationDatasetYaml": args.validation_dataset,
+        "validationFinalAudit": args.validation_final_audit,
+        "frozenTestManifest": args.frozen_test_manifest,
+    }
+    inputs: dict[str, Any] = {}
+    documents: dict[str, dict[str, Any]] = {}
+    for label, value in values.items():
+        if not value:
+            continue
+        path = Path(value).resolve()
+        inputs[label] = {
+            "path": str(path),
+            "sha256": sha256_file(path) if path.is_file() else None,
+        }
+        if path.is_file() and path.suffix.lower() == ".json":
+            try:
+                documents[label] = read_json(path, label)
+            except ValueError:
+                pass
+    train = documents.get("trainingTruthIndex", {})
+    hard = documents.get("hardNegativeManifest", {})
+    validation = documents.get("validationFinalAudit", {})
+    hard_items = hard.get("items")
+    if not isinstance(hard_items, list):
+        hard_items = hard.get("candidates")
+    observed = {
+        "trainPositiveImages": (
+            train.get("summary", {}).get("uniqueImageCount")
+            if isinstance(train.get("summary"), dict)
+            else None
+        ),
+        "hardNegativeImages": len(hard_items) if isinstance(hard_items, list) else None,
+        "validationImages": (
+            validation.get("counts", {}).get("pass")
+            if isinstance(validation.get("counts"), dict)
+            else None
+        ),
+    }
+    return inputs, observed
+
+
 def inventory(root: Path, excluded: set[Path] | None = None) -> list[dict[str, str]]:
     excluded = {path.resolve() for path in (excluded or set())}
     return [
@@ -783,12 +828,20 @@ def main() -> None:
         report_output = protect_report_output(args)
         report = materialize(args)
     except Exception as error:
+        hold_inputs, observed_counts = failure_evidence(args)
         hold = {
             "ok": False,
             "status": "HOLD",
             "decision": "hold_canonical_candidate_dataset_materialization",
             "candidateTrainingEligible": False,
             "outputDir": str(Path(args.output_dir).resolve()),
+            "inputs": hold_inputs,
+            "observedCounts": observed_counts,
+            "requiredCounts": {
+                "trainPositiveImages": max(100, args.minimum_positive_images),
+                "hardNegativeImages": max(100, args.minimum_hard_negative_images),
+                "validationImages": max(30, args.minimum_validation_images),
+            },
             "errors": [str(error)],
         }
         if report_output is not None:

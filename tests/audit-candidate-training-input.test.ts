@@ -15,7 +15,25 @@ import path from "node:path";
 import test from "node:test";
 
 const script = path.resolve("model/training/audit-candidate-training-input.py");
-const polygon = "0 0.1 0.1 0.4 0.1 0.4 0.4 0.1 0.4\n";
+const trainScript = path.resolve("model/training/train-yolo-seg.py");
+const pipelineScript = path.resolve("scripts/run-training-release-pipeline.ts");
+const polygon =
+  "0 0.10000000 0.10000000 0.40000000 0.10000000 0.40000000 0.40000000 0.10000000 0.40000000\n";
+const annotation = (fileName: string, sourceGroup: string) => ({
+  version: "nail-texture-dataset/v1",
+  image: { fileName, sourceGroup, width: 10, height: 10 },
+  annotations: [
+    {
+      label: "nail_texture",
+      polygon: [
+        { x: 1, y: 1 },
+        { x: 4, y: 1 },
+        { x: 4, y: 4 },
+        { x: 1, y: 4 },
+      ],
+    },
+  ],
+});
 const sha = (file: string) =>
   createHash("sha256").update(readFileSync(file)).digest("hex");
 const canonical = (value: unknown): string => {
@@ -33,7 +51,9 @@ const shaCanonical = (value: unknown) =>
 const writeJson = (file: string, value: unknown) =>
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 
-type Json = Record<string, any>;
+// Fixture documents intentionally mix several report schemas; `unknown` keeps
+// the helper generic without weakening the repository's no-explicit-any rule.
+type Json = Record<string, unknown>;
 type Fixture = ReturnType<typeof fixture>;
 
 function datasetYaml(root: string, version: string) {
@@ -87,7 +107,7 @@ function identity(record: Json) {
   };
 }
 
-function roleEvidence(records: Json[]) {
+function roleEvidence(records: Json[], frozen: Json[] = []) {
   const roles: Json = {};
   const roleIdentities: Json = {};
   for (const role of ["train-positive", "hard-negative", "val"]) {
@@ -106,6 +126,15 @@ function roleEvidence(records: Json[]) {
       sourceGroups: new Set(selected.flatMap((item) => item.sourceGroups)).size,
       identitiesSha256: shaCanonical(identities),
     };
+  }
+  if (frozen.length) {
+    roleIdentities["frozen-test"] = frozen
+      .map((item) => ({
+        fileName: item.fileName,
+        imageSha256: item.imageSha256,
+        sourceGroups: [item.sourceGroup, item.parentSourceGroup].filter(Boolean).sort(),
+      }))
+      .sort((left, right) => left.fileName.localeCompare(right.fileName));
   }
   return { roles, allRolesSha256: shaCanonical(roleIdentities) };
 }
@@ -128,34 +157,46 @@ function fixture(hardNegativeCount = 100) {
     const fileName = `positive-${id}.jpg`;
     const image = path.join(trainRoot, fileName);
     const label = path.join(trainRoot, `positive-${id}.txt`);
+    const annotationPath = path.join(trainRoot, `positive-${id}.json`);
     writeFileSync(image, `approved-positive-image-${id}`);
     writeFileSync(label, polygon);
+    writeJson(annotationPath, annotation(fileName, `positive-group-${id}`));
     const report = path.join(trainRoot, `training-truth-${id}-final.json`);
     writeJson(report, {
       ok: true,
       decision: "approved_as_training_truth_candidate_pending_dataset_materialization",
-      inputs: { truthRole: "train", image, imageSha256: sha(image) },
+      inputs: {
+        truthRole: "train",
+        image,
+        imageSha256: sha(image),
+        annotation: annotationPath,
+        annotationSha256: sha(annotationPath),
+      },
       item: {
         fileName,
         sha256: sha(image),
         sourceGroup: `positive-group-${id}`,
+        completeMaskCount: 1,
       },
     });
     trainTruths.push({
       fileName,
       imageSha256: sha(image),
       sourceGroup: `positive-group-${id}`,
+      completeMaskCount: 1,
+      annotationPath,
+      annotationSha256: sha(annotationPath),
       reportPath: report,
       reportSha256: sha(report),
     });
-    trainSources.push({ fileName, image, label });
+    trainSources.push({ fileName, image, label, annotationPath, report });
   }
   const trainIndex = path.join(trainRoot, "training-truth-index.json");
   writeJson(trainIndex, {
     ok: true,
     decision: "approved_unique_training_truth_index",
     inputs: { truthRole: "train" },
-    summary: { uniqueImageCount: trainTruths.length },
+    summary: { uniqueImageCount: trainTruths.length, completeMaskCount: 100 },
     canonicalTruths: trainTruths,
     conflicts: [],
     errors: [],
@@ -190,6 +231,8 @@ function fixture(hardNegativeCount = 100) {
   mkdirSync(path.join(valRoot, "images", "test"), { recursive: true });
   mkdirSync(path.join(valRoot, "labels", "train"), { recursive: true });
   mkdirSync(path.join(valRoot, "labels", "test"), { recursive: true });
+  mkdirSync(path.join(valRoot, "annotations", "raw-json"), { recursive: true });
+  mkdirSync(path.join(valRoot, "metadata"), { recursive: true });
   const validationDataset = datasetYaml(valRoot, "canonical-validation-dataset/v1");
   const valItems: Json[] = [];
   const valLabelHashes: Json = {};
@@ -198,18 +241,31 @@ function fixture(hardNegativeCount = 100) {
     const fileName = `validation-${id}.jpg`;
     const image = path.join(valRoot, "images", "val", fileName);
     const label = path.join(valRoot, "labels", "val", `validation-${id}.txt`);
+    const annotationPath = path.join(
+      valRoot,
+      "annotations",
+      "raw-json",
+      `validation-${id}.json`,
+    );
     writeFileSync(image, `approved-validation-image-${id}`);
     writeFileSync(label, polygon);
+    writeJson(annotationPath, annotation(fileName, `validation-group-${id}`));
     valLabelHashes[path.basename(label)] = sha(label);
     valItems.push({
       fileName,
       sourceGroup: `validation-group-${id}`,
       imageSha256: sha(image),
-      annotationSha256: sha(label),
+      annotationSha256: sha(annotationPath),
       labelSha256: sha(label),
       completeMaskCount: 1,
     });
   }
+  const valTruthIndex = path.join(valRoot, "metadata", "truth-index.json");
+  const valMaterialization = path.join(valRoot, "metadata", "materialization-report.json");
+  const valRoleIsolation = path.join(valRoot, "metadata", "role-isolation.json");
+  writeJson(valTruthIndex, { fixture: "truth-index" });
+  writeJson(valMaterialization, { fixture: "materialization" });
+  writeJson(valRoleIsolation, { fixture: "role-isolation" });
   const validationAudit = path.join(valRoot, "validation-final-audit.json");
   writeJson(validationAudit, {
     schemaVersion: 1,
@@ -222,6 +278,12 @@ function fixture(hardNegativeCount = 100) {
       datasetYaml: validationDataset,
       datasetYamlSha256: sha(validationDataset),
       datasetRoot: valRoot,
+      truthIndex: valTruthIndex,
+      truthIndexSha256: sha(valTruthIndex),
+      materializationReport: valMaterialization,
+      materializationReportSha256: sha(valMaterialization),
+      roleIsolationReport: valRoleIsolation,
+      roleIsolationReportSha256: sha(valRoleIsolation),
       split: "val",
     },
     counts: {
@@ -238,6 +300,15 @@ function fixture(hardNegativeCount = 100) {
     labelSha256: valLabelHashes,
     itemsSha256: shaCanonical(valItems),
     items: valItems,
+    invariants: {
+      canonicalTruthCoverageComplete: true,
+      allInputsHashBound: true,
+      allImagesAnnotationsAndLabelsHashBound: true,
+      polygonTopologyValid: true,
+      pairwisePolygonOverlapZero: true,
+      roleIsolationPassed: true,
+      trainingUseProhibited: true,
+    },
     errors: [],
   });
 
@@ -293,8 +364,12 @@ function fixture(hardNegativeCount = 100) {
       maskCount: 1,
       sourceImage: source.image,
       sourceImageSha256: sha(source.image),
-      sourceLabel: source.label,
-      sourceLabelSha256: sha(source.label),
+      sourceLabel: null,
+      sourceLabelSha256: null,
+      sourceAnnotation: source.annotationPath,
+      sourceAnnotationSha256: sha(source.annotationPath),
+      finalReport: source.report,
+      finalReportSha256: sha(source.report),
       materializedImageSha256: sha(image),
       materializedLabelSha256: sha(label),
     });
@@ -321,6 +396,10 @@ function fixture(hardNegativeCount = 100) {
       sourceImageSha256: item.imageSha256,
       sourceLabel: null,
       sourceLabelSha256: null,
+      sourceAnnotation: null,
+      sourceAnnotationSha256: null,
+      finalReport: null,
+      finalReportSha256: null,
       materializedImageSha256: sha(image),
       materializedLabelSha256: sha(label),
     });
@@ -332,6 +411,12 @@ function fixture(hardNegativeCount = 100) {
       "labels",
       "val",
       `${path.parse(item.fileName).name}.txt`,
+    );
+    const sourceAnnotation = path.join(
+      valRoot,
+      "annotations",
+      "raw-json",
+      `${path.parse(item.fileName).name}.json`,
     );
     const image = path.join(datasetRoot, "images", "val", item.fileName);
     const label = path.join(
@@ -354,6 +439,10 @@ function fixture(hardNegativeCount = 100) {
       sourceImageSha256: item.imageSha256,
       sourceLabel,
       sourceLabelSha256: item.labelSha256,
+      sourceAnnotation,
+      sourceAnnotationSha256: item.annotationSha256,
+      finalReport: validationAudit,
+      finalReportSha256: sha(validationAudit),
       materializedImageSha256: sha(image),
       materializedLabelSha256: sha(label),
     });
@@ -388,7 +477,7 @@ function fixture(hardNegativeCount = 100) {
     "metadata",
     "materialization-report.json",
   );
-  const { roles, allRolesSha256 } = roleEvidence(records);
+  const { roles, allRolesSha256 } = roleEvidence(records, frozenItems);
   const report: Json = {
     schemaVersion: 1,
     ok: true,
@@ -434,6 +523,21 @@ function fixture(hardNegativeCount = 100) {
     },
     datasetFiles: [],
     datasetFilesSha256: "",
+    invariants: {
+      minimumPositiveImages: 100,
+      minimumHardNegativeImages: 100,
+      minimumValidationImages: 30,
+      allInputsHashBoundAndCurrent: true,
+      formalHardNegativeManifestOnly: true,
+      hardNegativeLabelsEmpty: true,
+      testSplitEmpty: true,
+      fileNamesDisjointAcrossRoles: true,
+      imageSha256DisjointAcrossRoles: true,
+      sourceGroupsDisjointAcrossRoles: true,
+      frozenTestIsolationChecked: true,
+      noOrphans: true,
+      transactionalMaterialization: true,
+    },
     errors: [],
   };
   report.datasetFiles = filesBelow(
@@ -467,7 +571,8 @@ function refresh(item: Fixture) {
   item.report.artifacts.splitJson.sha256 = sha(item.splitJson);
   item.report.artifacts.sourcesIsolationCsv.sha256 = sha(item.sourcesCsv);
   item.report.recordsSha256 = shaCanonical(item.report.records);
-  const roleData = roleEvidence(item.report.records);
+  const frozenDocument = JSON.parse(readFileSync(item.frozenManifest, "utf8"));
+  const roleData = roleEvidence(item.report.records, frozenDocument.items);
   item.report.roles = roleData.roles;
   item.report.allRolesSha256 = roleData.allRolesSha256;
   item.report.datasetFiles = filesBelow(
@@ -518,6 +623,59 @@ test("approves a complete hash-bound 100/100/30 candidate input", () => {
     imageSha256: [],
     sourceGroup: [],
   });
+  const trainOutput = path.join(item.root, "candidate-train-output");
+  const train = spawnSync(
+    "python",
+    [
+      trainScript,
+      "--dataset",
+      item.candidateDataset,
+      "--output-dir",
+      trainOutput,
+      "--candidate-mode",
+      "--candidate-input-report",
+      result.output,
+      "--dry-run",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(train.status, 0, train.stderr || train.stdout);
+  const plan = JSON.parse(train.stdout);
+  assert.equal(plan.training_intent, "candidate");
+  assert.equal(
+    plan.candidate_input_evidence.decision,
+    "approved_candidate_training_input",
+  );
+  assert.equal(existsSync(trainOutput), false, "candidate dry-run must be write-free");
+
+  const resume = spawnSync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      pipelineScript,
+      "--dataset",
+      item.candidateDataset,
+      "--train-output-dir",
+      trainOutput,
+      "--candidate-mode",
+      "--candidate-input-report",
+      result.output,
+      "--skip-train",
+      "--skip-evaluate",
+      "--skip-export",
+      "--skip-training-environment-check",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(resume.status, 0, "resume without a bound train summary must fail");
+  const resumeReport = JSON.parse(resume.stdout);
+  assert.deepEqual(
+    resumeReport.steps.map((step: Json) => step.name),
+    ["candidate-input-preflight", "verify-candidate-resume"],
+  );
+  assert.equal(resumeReport.steps[0].ok, true);
+  assert.equal(resumeReport.steps[1].ok, false);
 });
 
 test("does not allow CLI flags to lower the formal 100/100/30 gates", () => {
@@ -555,26 +713,23 @@ test("rejects a forged PASS whose hard-negative label is non-empty", () => {
   assert.match(result.report.errors[0], /not byte-empty/);
 });
 
-test("rejects positive polygon overlap even after all report hashes are forged", () => {
+test("rejects a forged positive label that diverges from the approved annotation", () => {
   const item = fixture();
   const record = item.report.records.find((entry: Json) => entry.role === "train-positive");
-  const sourceLabel = record.sourceLabel;
   const label = path.join(
     item.datasetRoot,
     "labels",
     "train",
     `${path.parse(record.fileName).name}.txt`,
   );
-  writeFileSync(sourceLabel, polygon + polygon);
   writeFileSync(label, polygon + polygon);
   record.maskCount = 2;
-  record.sourceLabelSha256 = sha(sourceLabel);
   record.materializedLabelSha256 = sha(label);
   item.report.counts.positiveMasks += 1;
   refresh(item);
   const result = run(item);
   assert.equal(result.status, 1);
-  assert.match(result.report.errors[0], /overlap/);
+  assert.match(result.report.errors[0], /annotation|overlap/);
 });
 
 test("rejects cross-role source-group leakage after independent recomputation", () => {
@@ -619,12 +774,13 @@ test("rejects path traversal in the materialized file allow-list", () => {
   assert.match(result.report.errors[0], /invalid relative path/);
 });
 
-test("detects an unlisted file as a write-after-audit orphan", () => {
+test("detects an orphan even when a forged PASS adds it to datasetFiles", () => {
   const item = fixture();
   writeFileSync(path.join(item.datasetRoot, "metadata", "late-orphan.txt"), "late");
+  refresh(item);
   const result = run(item);
   assert.equal(result.status, 1);
-  assert.match(result.report.errors[0], /orphan=.*late-orphan/);
+  assert.match(result.report.errors[0], /unexpected=.*late-orphan/);
 });
 
 test("refuses output overwrite and output inside the dataset without writing", () => {
@@ -638,6 +794,30 @@ test("refuses output overwrite and output inside the dataset without writing", (
   const nested = run(item, inside);
   assert.equal(nested.status, 1);
   assert.equal(existsSync(inside), false);
+});
+
+test("exposes a successful deep-replay verifier for the training entrypoint", () => {
+  const item = fixture();
+  const result = run(item);
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const replay = spawnSync(
+    "python",
+    [
+      "-c",
+      [
+        "import importlib.util, json, pathlib, sys",
+        `p=pathlib.Path(${JSON.stringify(script)})`,
+        "sys.path.insert(0, str(p.parent))",
+        "s=importlib.util.spec_from_file_location('candidate_input_audit', p)",
+        "m=importlib.util.module_from_spec(s); s.loader.exec_module(m)",
+        `r=m.verify_approved_report(${JSON.stringify(result.output)}, ${JSON.stringify(item.candidateDataset)})`,
+        "print(json.dumps({'decision':r['decision']}))",
+      ].join(";"),
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(replay.status, 0, replay.stderr || replay.stdout);
+  assert.match(replay.stdout, /approved_candidate_training_input/);
 });
 
 test("deep replay rejects a stored PASS after dataset drift", () => {

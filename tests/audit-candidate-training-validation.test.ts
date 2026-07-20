@@ -46,9 +46,9 @@ test("approves fully bound source-isolated candidate training validation", () =>
   const report = JSON.parse(readFileSync(item.report, "utf8"));
   assert.equal(report.ok, true);
   assert.equal(report.candidateTrainingEligible, true);
-  const plan = JSON.parse(execFileSync("python", [trainScript, "--dataset", item.dataset, "--candidate-mode", "--candidate-validation-report", item.report, "--dry-run"], { encoding: "utf8" }));
-  assert.equal(plan.training_intent, "candidate");
-  assert.equal(plan.candidate_validation_evidence.decision, "approved_candidate_training_validation");
+  const legacy = spawnSync("python", [trainScript, "--dataset", item.dataset, "--candidate-mode", "--candidate-validation-report", item.report, "--dry-run"], { encoding: "utf8" });
+  assert.notEqual(legacy.status, 0);
+  assert.match(legacy.stderr, /legacy|candidate-input-report/);
 });
 
 test("rejects a validation source group that leaks into training", () => {
@@ -69,5 +69,5 @@ test("candidate training mode refuses missing or rejected evidence", () => {
   writeFileSync(item.report, JSON.stringify({ ok: false, candidateTrainingEligible: false, decision: "rejected_candidate_training_validation" }));
   const rejected = spawnSync("python", [trainScript, "--dataset", item.dataset, "--candidate-mode", "--candidate-validation-report", item.report, "--dry-run"], { encoding: "utf8" });
   assert.notEqual(rejected.status, 0);
-  assert.match(rejected.stderr, /not approved/);
+  assert.match(rejected.stderr, /legacy|candidate-input-report/);
 });
