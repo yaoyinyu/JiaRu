@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { promisify } from "node:util";
 import os from "node:os";
@@ -106,6 +107,17 @@ test("evaluate script persists visual evaluation artifact index and metrics", as
   const artifactsDir = path.join(outputDir, "evaluation-artifacts");
   const metricsPath = path.join(outputDir, "metrics.json");
   const weightsPath = path.join(root, "best.pt");
+  const datasetRoot = path.join(root, "source-dataset");
+  const datasetPath = path.join(datasetRoot, "dataset.yaml");
+  for (const folder of ["images/train", "images/val", "images/test", "labels/train", "labels/val", "labels/test"]) {
+    await mkdir(path.join(datasetRoot, folder), { recursive: true });
+  }
+  await writeFile(path.join(datasetRoot, "images", "test", "sample-001.jpg"), "fixture-image", "utf8");
+  await writeFile(path.join(datasetRoot, "labels", "test", "sample-001.txt"), "0 0.1 0.1 0.2 0.1 0.2 0.2 0.1 0.2\n", "utf8");
+  await writeFile(datasetPath, [
+    "path: .", "train: images/train", "val: images/val", "test: images/test", "",
+    "names:", "  0: nail_texture", "", "task: segment", "class_count: 1", "image_size: 640", "",
+  ].join("\n"), "utf8");
   await mkdir(fakeModuleDir, { recursive: true });
   await writeFile(weightsPath, "fake", "utf8");
   await writeFile(
@@ -124,6 +136,8 @@ test("evaluate script persists visual evaluation artifact index and metrics", as
       "    def __init__(self, weights):",
       "        self.weights = weights",
       "    def val(self, **kwargs):",
+      "        runtime_root = Path(kwargs['data']).parent",
+      "        (runtime_root / 'labels' / 'test' / 'test.cache').write_text('runtime-only-cache', encoding='utf-8')",
       "        save_dir = Path(kwargs['project']) / kwargs['name']",
       "        (save_dir / 'labels').mkdir(parents=True, exist_ok=True)",
       "        for name in ['confusion_matrix.png', 'PR_curve.png', 'val_batch0_pred.jpg', 'predictions.json']:",
@@ -138,6 +152,8 @@ test("evaluate script persists visual evaluation artifact index and metrics", as
     "python",
     [
       "model/training/evaluate.py",
+      "--dataset",
+      datasetPath,
       "--weights",
       weightsPath,
       "--output",
@@ -155,12 +171,37 @@ test("evaluate script persists visual evaluation artifact index and metrics", as
     seg_map50: number;
     evaluation_artifacts: {
       index: string;
+      index_sha256: string;
+      files_sha256: string;
       counts: { total: number; plots: number; prediction_labels: number };
     };
+    dataset_yaml_sha256: string;
+    weights_sha256: string;
+    source_dataset_inventory_sha256_before: string;
+    source_dataset_inventory_sha256_after: string;
+    source_dataset_unchanged: boolean;
+    runtime_dataset_root: string;
+    runtime_dataset_inventory_sha256: string;
+    runtime_materialization_records: Array<{
+      sourceImage: string;
+      sourceLabel: string;
+      runtimeImage: string;
+      runtimeLabel: string;
+      imageMaterialization: string;
+      labelMaterialization: string;
+    }>;
   };
   const artifactIndex = JSON.parse(
     await readFile(path.join(artifactsDir, "evaluation-artifacts.json"), "utf8")
-  ) as { split: string; files: string[] };
+  ) as {
+    split: string;
+    files: string[];
+    file_records: Array<{ path: string; sha256: string }>;
+    files_sha256: string;
+    prediction_records: Array<{ stem: string; path: string | null; sha256: string | null; prediction_count: number }>;
+    prediction_records_sha256: string;
+  };
+  const sha256 = (value: Buffer | string) => createHash("sha256").update(value).digest("hex");
   assert.equal(metrics.seg_map50, 0.8);
   assert.equal(metrics.evaluation_artifacts.counts.total, 5);
   assert.equal(metrics.evaluation_artifacts.counts.plots, 3);
@@ -168,6 +209,36 @@ test("evaluate script persists visual evaluation artifact index and metrics", as
   assert.equal(artifactIndex.split, "test");
   assert.ok(artifactIndex.files.includes("confusion_matrix.png"));
   assert.ok(artifactIndex.files.includes("val_batch0_pred.jpg"));
+  assert.equal(metrics.dataset_yaml_sha256, sha256(await readFile(datasetPath)));
+  assert.equal(metrics.weights_sha256, sha256(await readFile(weightsPath)));
+  assert.equal(metrics.source_dataset_unchanged, true);
+  assert.equal(
+    metrics.source_dataset_inventory_sha256_before,
+    metrics.source_dataset_inventory_sha256_after
+  );
+  assert.equal(metrics.runtime_materialization_records.length, 1);
+  assert.equal(metrics.runtime_materialization_records[0]?.imageMaterialization, "copy");
+  assert.equal(metrics.runtime_materialization_records[0]?.labelMaterialization, "copy");
+  assert.match(metrics.runtime_dataset_inventory_sha256, /^[a-f0-9]{64}$/);
+  assert.equal(
+    await readFile(path.join(metrics.runtime_dataset_root, "labels", "test", "test.cache"), "utf8"),
+    "runtime-only-cache"
+  );
+  await assert.rejects(readFile(path.join(datasetRoot, "labels", "test.cache"), "utf8"));
+  await assert.rejects(readFile(path.join(datasetRoot, "labels", "test", "test.cache"), "utf8"));
+  assert.equal(
+    metrics.evaluation_artifacts.index_sha256,
+    sha256(await readFile(path.join(artifactsDir, "evaluation-artifacts.json")))
+  );
+  assert.equal(metrics.evaluation_artifacts.files_sha256, artifactIndex.files_sha256);
+  assert.equal(artifactIndex.file_records.length, artifactIndex.files.length);
+  assert.deepEqual(artifactIndex.prediction_records, [{
+    stem: "sample-001",
+    path: "labels/sample-001.txt",
+    sha256: sha256(await readFile(path.join(artifactsDir, "labels", "sample-001.txt"))),
+    prediction_count: 1,
+  }]);
+  assert.match(artifactIndex.prediction_records_sha256, /^[a-f0-9]{64}$/);
 });
 test("export onnx script dry-run prints manifest target", async () => {
   const result = await runPython("model/training/export-onnx.py", ["--dry-run"]);
