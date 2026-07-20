@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from pathlib import Path
+from typing import Any
 
 from _training_common import (
     ensure_python_dependency,
@@ -11,6 +13,76 @@ from _training_common import (
     write_json,
     write_resolved_dataset_yaml,
 )
+
+
+IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tif", ".tiff"}
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def canonical_sha256(value: Any) -> str:
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def expected_split_stems(dataset_root: Path, split_path: str) -> list[str]:
+    image_root = (dataset_root / split_path).resolve()
+    if not image_root.is_dir():
+        raise ValueError(f"evaluation split image directory is missing: {image_root}")
+    stems = sorted(
+        path.stem
+        for path in image_root.iterdir()
+        if path.is_file() and path.suffix.lower() in IMAGE_SUFFIXES
+    )
+    if not stems or len(stems) != len(set(stems)):
+        raise ValueError("evaluation split has no images or duplicate image stems")
+    return stems
+
+
+def prediction_records(
+    artifacts_dir: Path, expected_stems: list[str]
+) -> list[dict[str, Any]]:
+    labels_root = artifacts_dir / "labels"
+    labels = {
+        path.stem: path
+        for path in sorted(labels_root.glob("*.txt"))
+        if path.is_file()
+    } if labels_root.is_dir() else {}
+    unknown = sorted(set(labels) - set(expected_stems))
+    if unknown:
+        raise ValueError(f"prediction labels contain unknown split images: {unknown}")
+    records: list[dict[str, Any]] = []
+    for stem in expected_stems:
+        path = labels.get(stem)
+        if path is None:
+            records.append(
+                {"stem": stem, "path": None, "sha256": None, "prediction_count": 0}
+            )
+            continue
+        count = sum(
+            1
+            for line in path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+        if count <= 0:
+            raise ValueError(f"prediction label is empty; record zero explicitly instead: {stem}")
+        records.append(
+            {
+                "stem": stem,
+                "path": path.relative_to(artifacts_dir).as_posix(),
+                "sha256": sha256_file(path),
+                "prediction_count": count,
+            }
+        )
+    return records
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -40,13 +112,19 @@ def main() -> None:
         else (output.parent / "evaluation-artifacts").resolve()
     )
     config = load_dataset_config(dataset_yaml)
+    if not args.dry_run and not weights.is_file():
+        raise FileNotFoundError(f"model weights are missing: {weights}")
+    dataset_yaml_sha256 = sha256_file(dataset_yaml)
+    weights_sha256 = sha256_file(weights) if weights.is_file() else None
     runtime_dataset_yaml = output.parent / "resolved-dataset.yaml"
 
     summary = {
         "dataset_yaml": str(dataset_yaml),
         "dataset_root": str(config.dataset_root),
+        "dataset_yaml_sha256": dataset_yaml_sha256,
         "runtime_dataset_yaml": str(runtime_dataset_yaml),
         "weights": str(weights),
+        "weights_sha256": weights_sha256,
         "train_output_dir": str(train_output_dir),
         "run_name": args.run_name,
         "output": str(output),
@@ -80,10 +158,20 @@ def main() -> None:
         save_conf=True,
     )
     resolved_artifacts_dir = Path(getattr(metrics, "save_dir", artifacts_dir)).resolve()
-    artifact_files = sorted(
-        str(item.relative_to(resolved_artifacts_dir)).replace("\\", "/")
+    artifact_paths = sorted(
+        item
         for item in resolved_artifacts_dir.rglob("*")
         if item.is_file() and item.name != "evaluation-artifacts.json"
+    )
+    artifact_files = [item.relative_to(resolved_artifacts_dir).as_posix() for item in artifact_paths]
+    file_records = [
+        {"path": item.relative_to(resolved_artifacts_dir).as_posix(), "sha256": sha256_file(item)}
+        for item in artifact_paths
+    ]
+    split_path = str(getattr(config, args.split))
+    explicit_prediction_records = prediction_records(
+        resolved_artifacts_dir,
+        expected_split_stems(config.dataset_root, split_path),
     )
     artifact_index_path = resolved_artifacts_dir / "evaluation-artifacts.json"
     artifact_index = {
@@ -91,6 +179,10 @@ def main() -> None:
         "split": args.split,
         "artifacts_dir": str(resolved_artifacts_dir),
         "files": artifact_files,
+        "file_records": file_records,
+        "files_sha256": canonical_sha256(file_records),
+        "prediction_records": explicit_prediction_records,
+        "prediction_records_sha256": canonical_sha256(explicit_prediction_records),
         "counts": {
             "total": len(artifact_files),
             "plots": sum(1 for item in artifact_files if item.lower().endswith((".png", ".jpg", ".jpeg"))),
@@ -108,6 +200,8 @@ def main() -> None:
         "evaluation_artifacts": {
             "directory": str(resolved_artifacts_dir),
             "index": str(artifact_index_path),
+            "index_sha256": sha256_file(artifact_index_path),
+            "files_sha256": artifact_index["files_sha256"],
             "counts": artifact_index["counts"],
         },
     }

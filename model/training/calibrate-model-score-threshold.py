@@ -2,9 +2,11 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import math
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 from _instance_segmentation_metrics import match_instances, parse_yolo_polygons
@@ -24,6 +26,49 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def canonical_sha256(value: Any) -> str:
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def is_within(path: Path, root: Path) -> bool:
+    try:
+        path.relative_to(root)
+    except ValueError:
+        return False
+    return True
+
+
+def load_validation_finalizer() -> ModuleType:
+    script = Path(__file__).with_name("finalize-validation-materialization-audit.py")
+    spec = importlib.util.spec_from_file_location(
+        "validation_materialization_finalizer_for_calibration", script
+    )
+    if spec is None or spec.loader is None:
+        raise ValueError(f"validation finalizer cannot be loaded: {script}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def protect_direct_output(args: argparse.Namespace) -> None:
+    output = Path(args.output).resolve()
+    direct_inputs = {
+        Path(value).resolve()
+        for value in (
+            args.dataset,
+            args.dataset_report,
+            args.metrics,
+            args.truth_audit,
+        )
+        if value
+    }
+    if output in direct_inputs:
+        raise ValueError("output must not overwrite a calibration input")
 
 
 def resolve_truth_audit(
@@ -80,6 +125,65 @@ def resolve_truth_audit(
     }
 
 
+def resolve_canonical_truth_audit(
+    raw_path: str | None,
+    dataset_yaml: Path,
+    dataset_report_path: Path,
+    output_path: Path,
+) -> dict[str, Any]:
+    if not raw_path:
+        raise ValueError("canonical validation calibration requires --truth-audit")
+    path = Path(raw_path).resolve()
+    audit = read_json(path)
+    decision = audit.get("decision")
+    if decision == "rejected_as_calibration_truth":
+        if audit.get("calibrationTruthEligible") is not False:
+            raise ValueError("rejected truth audit must set calibrationTruthEligible=false")
+        return {
+            "status": "rejected",
+            "path": path,
+            "sha256": sha256(path),
+            "decision": decision,
+            "report": audit,
+        }
+    if decision != "approved_as_calibration_truth":
+        raise ValueError("canonical truth audit is not approved_as_calibration_truth")
+    inputs = audit.get("inputs")
+    if not isinstance(inputs, dict):
+        raise ValueError("canonical truth audit inputs are missing")
+    if Path(str(inputs.get("datasetYaml", ""))).resolve() != dataset_yaml:
+        raise ValueError("canonical truth audit dataset path does not match calibration dataset")
+    if inputs.get("datasetYamlSha256") != sha256(dataset_yaml):
+        raise ValueError("canonical truth audit dataset hash does not match current input")
+    if Path(str(inputs.get("materializationReport", ""))).resolve() != dataset_report_path:
+        raise ValueError("canonical truth audit materialization report path differs")
+    if inputs.get("materializationReportSha256") != sha256(dataset_report_path):
+        raise ValueError("canonical truth audit materialization report hash differs")
+
+    truth_index_path = Path(str(inputs.get("truthIndex", ""))).resolve()
+    role_isolation_path = Path(str(inputs.get("roleIsolationReport", ""))).resolve()
+    finalizer = load_validation_finalizer()
+    replay_args = argparse.Namespace(
+        dataset=str(dataset_yaml),
+        truth_index=str(truth_index_path),
+        materialization_report=str(dataset_report_path),
+        role_isolation_report=str(role_isolation_path),
+        output=str(output_path),
+    )
+    recomputed = finalizer.build(replay_args)
+    if audit != recomputed:
+        raise ValueError(
+            "canonical truth audit differs from an independent replay of current bytes"
+        )
+    return {
+        "status": "approved",
+        "path": path,
+        "sha256": sha256(path),
+        "decision": decision,
+        "report": recomputed,
+    }
+
+
 def parse_probability(value: str) -> float:
     parsed = float(value)
     if not math.isfinite(parsed) or parsed <= 0 or parsed >= 1:
@@ -94,6 +198,125 @@ def parse_thresholds(value: str) -> list[float]:
     return thresholds
 
 
+def validate_formal_artifact_index(
+    artifact_index_path: Path,
+    artifact_index: dict[str, Any],
+    truth_stems: set[str],
+) -> dict[str, Path]:
+    artifact_root = artifact_index_path.parent.resolve()
+    if artifact_index.get("schema_version") != 1:
+        raise ValueError("formal artifact index schema_version must be 1")
+    if Path(str(artifact_index.get("artifacts_dir", ""))).resolve() != artifact_root:
+        raise ValueError("formal artifact index artifacts_dir differs from its location")
+
+    raw_files = artifact_index.get("files")
+    raw_records = artifact_index.get("file_records")
+    if not isinstance(raw_files, list) or not isinstance(raw_records, list):
+        raise ValueError("formal artifact index requires files and file_records")
+    files = [str(item) for item in raw_files]
+    if files != sorted(files) or len(files) != len(set(files)):
+        raise ValueError("formal artifact file list must be sorted and unique")
+    records: list[dict[str, str]] = []
+    for index, item in enumerate(raw_records, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"formal artifact file record {index} is malformed")
+        relative = str(item.get("path", ""))
+        relative_path = Path(relative)
+        artifact = (artifact_root / relative_path).resolve()
+        if (
+            not relative
+            or relative_path.is_absolute()
+            or ".." in relative_path.parts
+            or not is_within(artifact, artifact_root)
+        ):
+            raise ValueError(f"formal artifact path is unsafe: {relative}")
+        expected_hash = str(item.get("sha256", ""))
+        if not artifact.is_file() or sha256(artifact) != expected_hash:
+            raise ValueError(f"formal artifact hash drift: {relative}")
+        records.append({"path": relative_path.as_posix(), "sha256": expected_hash})
+    if [item["path"] for item in records] != files:
+        raise ValueError("formal artifact files and file_records differ")
+    if artifact_index.get("files_sha256") != canonical_sha256(records):
+        raise ValueError("formal artifact files_sha256 drift")
+    actual_files = sorted(
+        path.relative_to(artifact_root).as_posix()
+        for path in artifact_root.rglob("*")
+        if path.is_file() and path.resolve() != artifact_index_path
+    )
+    if actual_files != files:
+        raise ValueError(
+            "formal artifact inventory has missing or orphan files: "
+            f"registered={files} actual={actual_files}"
+        )
+
+    counts = artifact_index.get("counts")
+    if not isinstance(counts, dict):
+        raise ValueError("formal artifact counts are missing")
+    expected_counts = {
+        "total": len(files),
+        "plots": sum(
+            1 for item in files if item.lower().endswith((".png", ".jpg", ".jpeg"))
+        ),
+        "prediction_labels": sum(
+            1 for item in files if item.startswith("labels/") and item.endswith(".txt")
+        ),
+        "json": sum(1 for item in files if item.lower().endswith(".json")),
+    }
+    if counts != expected_counts:
+        raise ValueError("formal artifact counts differ from the exact inventory")
+
+    prediction_records = artifact_index.get("prediction_records")
+    if not isinstance(prediction_records, list):
+        raise ValueError("formal artifact index requires explicit prediction_records")
+    if artifact_index.get("prediction_records_sha256") != canonical_sha256(
+        prediction_records
+    ):
+        raise ValueError("formal prediction_records_sha256 drift")
+    predictions_by_stem: dict[str, Path] = {}
+    seen_stems: set[str] = set()
+    for index, item in enumerate(prediction_records, start=1):
+        if not isinstance(item, dict):
+            raise ValueError(f"formal prediction record {index} is malformed")
+        stem = str(item.get("stem", ""))
+        if not stem or stem in seen_stems:
+            raise ValueError("formal prediction records have missing or duplicate stems")
+        seen_stems.add(stem)
+        raw_path = item.get("path")
+        prediction_count = int(item.get("prediction_count", -1))
+        if raw_path is None:
+            if item.get("sha256") is not None or prediction_count != 0:
+                raise ValueError(f"zero-prediction record is inconsistent: {stem}")
+            continue
+        relative = str(raw_path)
+        expected_relative = f"labels/{stem}.txt"
+        if Path(relative).as_posix() != expected_relative:
+            raise ValueError(f"formal prediction label path differs from stem: {stem}")
+        prediction_path = (artifact_root / relative).resolve()
+        if not is_within(prediction_path, artifact_root) or not prediction_path.is_file():
+            raise ValueError(f"formal prediction label is missing or unsafe: {stem}")
+        if item.get("sha256") != sha256(prediction_path):
+            raise ValueError(f"formal prediction label hash drift: {stem}")
+        actual_count = sum(
+            1
+            for line in prediction_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+        if prediction_count != actual_count or prediction_count <= 0:
+            raise ValueError(f"formal prediction count differs from label: {stem}")
+        predictions_by_stem[stem] = prediction_path
+    if seen_stems != truth_stems:
+        raise ValueError("formal prediction records do not cover every validation image")
+    registered_prediction_files = {
+        f"labels/{stem}.txt" for stem in predictions_by_stem
+    }
+    actual_prediction_files = {
+        item for item in files if item.startswith("labels/") and item.endswith(".txt")
+    }
+    if registered_prediction_files != actual_prediction_files:
+        raise ValueError("formal prediction labels include unregistered or missing files")
+    return predictions_by_stem
+
+
 def resolve_validation_evidence(args: argparse.Namespace) -> dict[str, Any]:
     dataset_yaml = Path(args.dataset).resolve()
     dataset = load_dataset_config(dataset_yaml)
@@ -102,26 +325,32 @@ def resolve_validation_evidence(args: argparse.Namespace) -> dict[str, Any]:
     metrics_path = Path(args.metrics).resolve()
     metrics = read_json(metrics_path)
 
-    if dataset_report.get("decision") != "experiment_only_source_isolated_real_dataset":
-        raise ValueError("dataset report is not a source-isolated real experiment")
+    report_decision = dataset_report.get("decision")
+    if report_decision == "canonical_validation_dataset_materialized_pending_role_isolation_audit":
+        evidence_mode = "canonical-validation"
+    elif report_decision == "experiment_only_source_isolated_real_dataset":
+        evidence_mode = "legacy-experiment-diagnostic"
+    else:
+        raise ValueError("dataset report is neither canonical validation nor a legacy experiment")
     if Path(str(dataset_report.get("outputDir", ""))).resolve() != dataset.dataset_root:
         raise ValueError("dataset report outputDir does not match dataset root")
 
     val_groups: list[str] = []
-    group_counts = dataset_report.get("groupCounts")
-    if not isinstance(group_counts, dict) or not group_counts:
-        raise ValueError("dataset report groupCounts are required")
-    for group, raw_counts in group_counts.items():
-        if not isinstance(raw_counts, dict):
-            raise ValueError(f"dataset report group {group} has invalid counts")
-        val_count = int(raw_counts.get("val", 0))
-        if val_count <= 0:
-            continue
-        if int(raw_counts.get("train", 0)) != 0 or int(raw_counts.get("test", 0)) != 0:
-            raise ValueError(f"validation source group leaks into train or test: {group}")
-        val_groups.append(str(group))
-    if not val_groups:
-        raise ValueError("dataset report has no validation-only source group")
+    if evidence_mode == "legacy-experiment-diagnostic":
+        group_counts = dataset_report.get("groupCounts")
+        if not isinstance(group_counts, dict) or not group_counts:
+            raise ValueError("dataset report groupCounts are required")
+        for group, raw_counts in group_counts.items():
+            if not isinstance(raw_counts, dict):
+                raise ValueError(f"dataset report group {group} has invalid counts")
+            val_count = int(raw_counts.get("val", 0))
+            if val_count <= 0:
+                continue
+            if int(raw_counts.get("train", 0)) != 0 or int(raw_counts.get("test", 0)) != 0:
+                raise ValueError(f"validation source group leaks into train or test: {group}")
+            val_groups.append(str(group))
+        if not val_groups:
+            raise ValueError("dataset report has no validation-only source group")
 
     if metrics.get("split") != "val":
         raise ValueError("threshold calibration requires metrics from split=val")
@@ -146,24 +375,72 @@ def resolve_validation_evidence(args: argparse.Namespace) -> dict[str, Any]:
     if not labels_root.is_dir():
         labels_root = dataset.dataset_root / "labels" / "val"
     truth_paths = sorted(labels_root.glob("*.txt"))
-    expected_val_images = int(dataset_report.get("splitCounts", {}).get("val", 0))
+    expected_val_images = (
+        int(dataset_report.get("counts", {}).get("validationImages", 0))
+        if evidence_mode == "canonical-validation"
+        else int(dataset_report.get("splitCounts", {}).get("val", 0))
+    )
     if not truth_paths or len(truth_paths) != expected_val_images:
         raise ValueError(
             f"validation truth count drift: labels={len(truth_paths)}, report={expected_val_images}"
         )
-    truth_audit = resolve_truth_audit(args.truth_audit, dataset_yaml, truth_paths)
-
-    prediction_root = artifact_index_path.parent / "labels"
-    prediction_paths = sorted(prediction_root.rglob("*.txt")) if prediction_root.is_dir() else []
-    predictions_by_stem: dict[str, Path] = {}
-    for prediction_path in prediction_paths:
-        if prediction_path.stem in predictions_by_stem:
-            raise ValueError(f"duplicate prediction label stem: {prediction_path.stem}")
-        predictions_by_stem[prediction_path.stem] = prediction_path
     truth_stems = {path.stem for path in truth_paths}
-    unknown_predictions = sorted(set(predictions_by_stem) - truth_stems)
-    if unknown_predictions:
-        raise ValueError(f"prediction labels contain unknown validation images: {unknown_predictions}")
+    if evidence_mode == "canonical-validation":
+        truth_audit = resolve_canonical_truth_audit(
+            args.truth_audit,
+            dataset_yaml,
+            dataset_report_path,
+            Path(args.output).resolve(),
+        )
+        audit_items = truth_audit["report"].get("items", [])
+        val_groups = sorted(
+            {
+                str(item.get("sourceGroup"))
+                for item in audit_items
+                if isinstance(item, dict) and str(item.get("sourceGroup", "")).strip()
+            }
+        )
+        if not val_groups:
+            raise ValueError("canonical truth audit has no validation source groups")
+        if Path(str(metrics.get("dataset_yaml", ""))).resolve() != dataset_yaml:
+            raise ValueError("formal metrics dataset_yaml differs from calibration dataset")
+        if metrics.get("dataset_yaml_sha256") != sha256(dataset_yaml):
+            raise ValueError("formal metrics dataset_yaml_sha256 drift")
+        if metrics.get("weights_sha256") != sha256(weights):
+            raise ValueError("formal metrics weights_sha256 drift")
+        artifact_evidence = metrics.get("evaluation_artifacts")
+        if not isinstance(artifact_evidence, dict):
+            raise ValueError("formal metrics evaluation_artifacts are missing")
+        if artifact_evidence.get("index_sha256") != sha256(artifact_index_path):
+            raise ValueError("formal metrics artifact index hash drift")
+        if artifact_evidence.get("files_sha256") != artifact_index.get("files_sha256"):
+            raise ValueError("formal metrics artifact inventory hash drift")
+        predictions_by_stem = validate_formal_artifact_index(
+            artifact_index_path, artifact_index, truth_stems
+        )
+    else:
+        truth_audit = resolve_truth_audit(args.truth_audit, dataset_yaml, truth_paths)
+        prediction_root = artifact_index_path.parent / "labels"
+        prediction_paths = sorted(prediction_root.rglob("*.txt")) if prediction_root.is_dir() else []
+        predictions_by_stem = {}
+        for prediction_path in prediction_paths:
+            if prediction_path.stem in predictions_by_stem:
+                raise ValueError(f"duplicate prediction label stem: {prediction_path.stem}")
+            predictions_by_stem[prediction_path.stem] = prediction_path
+        unknown_predictions = sorted(set(predictions_by_stem) - truth_stems)
+        if unknown_predictions:
+            raise ValueError(f"prediction labels contain unknown validation images: {unknown_predictions}")
+
+    output_path = Path(args.output).resolve()
+    protected_inputs = {dataset_yaml, dataset_report_path, metrics_path, artifact_index_path, weights}
+    if truth_audit["path"] is not None:
+        protected_inputs.add(Path(truth_audit["path"]).resolve())
+    if output_path in protected_inputs:
+        raise ValueError("output must not overwrite resolved calibration evidence")
+    if evidence_mode == "canonical-validation" and is_within(
+        output_path, artifact_index_path.parent.resolve()
+    ):
+        raise ValueError("formal calibration output must be outside the artifact directory")
 
     return {
         "datasetYaml": dataset_yaml,
@@ -176,6 +453,7 @@ def resolve_validation_evidence(args: argparse.Namespace) -> dict[str, Any]:
         "predictionsByStem": predictions_by_stem,
         "validationSourceGroups": sorted(val_groups),
         "truthAudit": truth_audit,
+        "evidenceMode": evidence_mode,
     }
 
 
@@ -266,9 +544,12 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         and image_count >= args.min_validation_images
         and repaired_truth_count == 0
         and evidence["truthAudit"]["status"] == "approved"
+        and evidence["evidenceMode"] == "canonical-validation"
     )
     if evidence["truthAudit"]["status"] == "rejected":
         decision = "diagnostic_only_validation_truth_rejected"
+    elif evidence["evidenceMode"] == "legacy-experiment-diagnostic":
+        decision = "diagnostic_only_legacy_experiment_dataset"
     elif repaired_truth_count > 0:
         decision = "diagnostic_only_validation_truth_requires_repair"
     elif evidence["truthAudit"]["status"] == "unreviewed":
@@ -304,6 +585,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
             "truthAudit": str(evidence["truthAudit"]["path"]) if evidence["truthAudit"]["path"] else None,
             "truthAuditSha256": evidence["truthAudit"]["sha256"],
             "truthAuditDecision": evidence["truthAudit"]["decision"],
+            "evidenceMode": evidence["evidenceMode"],
         },
         "counts": {
             "validationImages": image_count,
@@ -323,6 +605,7 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         "selected": selected,
         "thresholdSweep": sweep,
         "releaseTestPolicy": "Calibration accepts validation-only evidence. Frozen test and release-test predictions are prohibited inputs.",
+        "formalEvidencePolicy": "Only the canonical validation dataset with an independently replayed approved truth audit may authorize a candidate manifest threshold; legacy experiment reports are diagnostic-only.",
         "nextSteps": (
             ["Write manifestScoreThreshold into the candidate manifest, then rerun untouched release-test and Beta gates."]
             if calibration_eligible
@@ -359,6 +642,7 @@ def main() -> None:
         raise ValueError("maximum false positives per image must be non-negative")
     if args.max_candidates_per_image <= 0 or args.min_validation_images <= 0:
         raise ValueError("candidate and validation image limits must be positive")
+    protect_direct_output(args)
     report = build_report(args)
     output = Path(args.output).resolve()
     write_json(output, report)

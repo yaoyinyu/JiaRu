@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { verifyApprovedDeviceAcceptanceReport } from "./lib/nail-texture-device-acceptance.ts";
 
 interface Options {
   specPath: string;
@@ -57,14 +58,6 @@ interface PerformanceReport { ok?: boolean; totals?: { samples?: number } }
 interface MemoryReport { ok?: boolean; sampleCount?: number }
 interface BetaReview { version?: string; ok?: boolean; reviewedByUser?: boolean; sampleCount?: number; directlyUsableRate?: number }
 interface FailureCases { version?: string; ok?: boolean; sampleCount?: number }
-interface DeviceReport {
-  version?: string;
-  deviceFamily?: string;
-  ok?: boolean;
-  decision?: string;
-  performance?: { ok?: boolean; sampleCount?: number };
-  memory?: { ok?: boolean };
-}
 interface ProductionManifest { modelFile?: string; sha256?: string; modelSizeBytes?: number; [key: string]: unknown }
 
 function usage(): never {
@@ -282,26 +275,25 @@ async function main() {
     memorySamples: desktopMemory?.sampleCount ?? null,
   };
   const mobileGates = await Promise.all(options.mobileReports.map(async ({ device, filePath }) => {
-    const report = await readJson<DeviceReport>(filePath);
-    const ok =
-      report?.version === "nail-texture-device-acceptance/v1" &&
-      report.deviceFamily === device &&
-      report.ok === true &&
-      report.performance?.ok === true &&
-      Number(report.performance?.sampleCount ?? 0) >= 20 &&
-      report.memory?.ok === true;
+    const verification = await verifyApprovedDeviceAcceptanceReport(filePath, device);
+    const report = verification.report;
     return {
       device,
       filePath,
-      found: report !== null,
-      ok,
+      found: verification.found,
+      ok: verification.ok,
       evidence: report ? {
         version: report.version ?? null,
         deviceFamily: report.deviceFamily ?? null,
         decision: report.decision ?? null,
-        performanceOk: report.performance?.ok ?? null,
-        performanceSamples: report.performance?.sampleCount ?? null,
-        memoryOk: report.memory?.ok ?? null,
+        performanceOk: verification.performance.sampleCount >= 20 && verification.errors.every((error) => !error.startsWith("performance")),
+        performanceSamples: verification.performance.sampleCount,
+        performanceReportSha256: verification.performance.reportSha256 || null,
+        memoryOk: verification.memory.sampleCount >= 20 && verification.errors.every((error) => !error.includes("memory")),
+        memorySamples: verification.memory.sampleCount,
+        memoryVerificationSha256: verification.memory.verificationSha256 || null,
+        rawMemorySha256: verification.memory.rawReportSha256,
+        replayErrors: verification.errors,
       } : null,
     };
   }));

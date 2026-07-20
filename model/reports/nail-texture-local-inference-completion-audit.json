@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-20T15:39:02.248Z",
+  "generatedAt": "2026-07-20T15:56:52.334Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 326,
-    "passMarkerCount": 314,
+    "progressMarkerCount": 327,
+    "passMarkerCount": 315,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -733,6 +733,10 @@
         {
           "checked": false,
           "text": "建立真实设备性能和内存报告。（v6 桌面 Chromium WebGPU 29 次热推理 P95=133.7ms、20 次内存稳定性门已通过；Android/iPhone/iPad 真机矩阵与移动端峰值内存等待执行）"
+        },
+        {
+          "checked": true,
+          "text": "建立移动真机基准采集与不可伪造证据链；`/device-benchmark`固定3次预热+20次正式推理并导出同一session/device/model/backend/input绑定的原始会话，fallback、混合身份或不足20次保持HOLD。Profiler/Instruments内存CSV转换器绑定会话和源SHA-256；设备验收v2及最终完成度审计重新读取性能、内存验证和原始内存样本，重算统计、路径、哈希与身份，源漂移后既有PASS自动失效。该工程门通过不等于四类物理设备已验收。"
         },
         {
           "checked": true,

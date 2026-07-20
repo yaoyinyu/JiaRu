@@ -19,6 +19,10 @@ interface TimingSample {
   imageId: string | null;
   backend: string | null;
   modelVersion: string | null;
+  backendName: string | null;
+  inputSize: number | null;
+  sessionId: string | null;
+  deviceFamily: string | null;
   elapsedMs: number;
   workerElapsedMs: number | null;
   clientOverheadMs: number | null;
@@ -109,6 +113,10 @@ function parseSample(filePath: string, document: Record<string, unknown>): Timin
     imageId: toStringOrNull(document.imageId) ?? toStringOrNull(document.input),
     backend: toStringOrNull(document.backend),
     modelVersion: toStringOrNull(document.modelVersion),
+    backendName: toStringOrNull(document.backendName),
+    inputSize: toNumber(document.inputSize),
+    sessionId: toStringOrNull(document.sessionId),
+    deviceFamily: toStringOrNull(document.deviceFamily),
     elapsedMs,
     workerElapsedMs,
     clientOverheadMs:
@@ -172,6 +180,15 @@ const slowClientOverheadSamples =
           sample.clientOverheadMs > options.maxClientOverheadMs!
       );
 const missingWorkerTimingSamples = samples.filter((sample) => sample.workerElapsedMs == null);
+const distinct = (values: Array<string | number | null>) =>
+  [...new Set(values.filter((value): value is string | number => value !== null))];
+const identity = {
+  sessionIds: distinct(samples.map((sample) => sample.sessionId)),
+  deviceFamilies: distinct(samples.map((sample) => sample.deviceFamily)),
+  backends: distinct(samples.map((sample) => sample.backendName)),
+  modelVersions: distinct(samples.map((sample) => sample.modelVersion)),
+  inputSizes: distinct(samples.map((sample) => sample.inputSize)),
+};
 const errors: string[] = [];
 if (samples.length < options.minSamples) {
   errors.push(`sample count ${samples.length} is below required minimum ${options.minSamples}`);
@@ -220,6 +237,7 @@ const summary = {
     averageClientOverheadMs: average(clientOverheadValues),
     p95ClientOverheadMs: percentile(clientOverheadValues, 0.95),
   },
+  identity,
   samples,
   slowSamples,
   slowClientOverheadSamples,
