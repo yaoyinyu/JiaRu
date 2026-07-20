@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-18T18:11:57.128Z",
+  "generatedAt": "2026-07-20T14:46:19.398Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 319,
-    "passMarkerCount": 306,
+    "progressMarkerCount": 323,
+    "passMarkerCount": 311,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -53,7 +53,7 @@
         "id": "M2-T3-VISION-ANNOTATION",
         "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask。来源隔离val 30张完成首轮审核后已终审16张/74 mask，剩余14张返修；整套val尚未全通过，约100张hard negative及整批物化/来源隔离继续推进"
+        "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask。来源隔离val已完成30张/144 mask、0冲突，并通过val-only物化、train/冻结test来源隔离和校准真值终审。hard negative严格筛选仅1/100张安全候选，仍缺99张且未正式物化"
       },
       {
         "id": "M2-T3-RELEASE-TEST-ANNOTATION",
@@ -86,12 +86,6 @@
         "evidence": "v6保留资产、协议和桌面性能证据，但在冻结67张的部署512质量门被拒绝；生产manifest保持不变，需用训练授权且与冻结快照来源隔离的新压力样本改进候选，再重跑同一门禁"
       },
       {
-        "id": "USER-ANNOTATION-01",
-        "task": "修正真实图片的甲面多边形",
-        "status": "🟡 IN PROGRESS",
-        "evidence": "外部首批train已形成100张唯一图片/521个完整mask；来源隔离val现有19张唯一图片/89个完整mask通过角色绑定终审，剩余11张已按7个完整来源组建立替补角色和候选工作区，正由批次014—016返修。整套val未全通过，约100张hard negative和整批物化/来源隔离尚未完成；当前无需用户逐点重画"
-      },
-      {
         "id": "USER-AUTH-03",
         "task": "确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试",
         "status": "⏸️ USER INPUT",
@@ -100,8 +94,8 @@
       {
         "id": "USER-HARD-NEGATIVE-01",
         "task": "补充或确认约100张清晰、来源隔离的hard negative",
-        "status": "⏭ DEFERRED",
-        "evidence": "2026_7_14源图筛选排除项主要为拼图、低清、裁断、残缺或域外页面，不能冒充合格负样本；先推进160张真实正样本标注，待其他工程项完成后再集中请求或从独立合格语料选择"
+        "status": "⏭ USER INPUT",
+        "evidence": "已复筛现有37张域外排除项，仅1张满足清晰、部署相关、无真实有效甲面、授权和来源隔离要求，仍缺99张。需要补充普通手部无美甲、珠宝/花瓣/印刷纹理/玩偶等易误检但清晰的独立图片；拼图、模板、独立甲片、低清和裁断图不可凑数"
       },
       {
         "id": "USER-FAILURE-01",
@@ -711,6 +705,18 @@
         {
           "checked": true,
           "text": "为11张替补生成受审计候选；v6在1024口径生成73个候选，经整图筛框形成55个逐甲提示，SAM2.1 large完成55/55、0 fallback、0错误，几何46 pass/9 suspect。候选生成PASS不等于真值PASS，批次014—016仍须完成人工polygon、整图和全部逐甲2×终审。"
+        },
+        {
+          "checked": true,
+          "text": "完成val替补批次014—018及最终30张真值闭环；批次继续拦截裁断、遮挡、仅局部露出和完整甲数错误源图，并在主线程复核中补齐透明甲尖、丝带尾、立体花瓣、圆珠、水钻和完整甲根。最终30个批准报告归并为30张唯一图片/144个完整mask、0拒绝、0冗余、0冲突，索引SHA-256为`2ccde942…b92d`；全部polygon合法、同图严格零交叠，全部条目固定`trainingUse=prohibited`。"
+        },
+        {
+          "checked": true,
+          "text": "建立规范validation物化、角色隔离和最终晋升三段门禁；物化器只接受不少于30张的approved val唯一索引，输出固定val-only split并逐文件绑定图片、annotation、YOLO label和聚合哈希。隔离器从当前val、train、冻结test及可选hard negative证据重算文件名、图片SHA-256和sourceGroup交集；最终器再次独立重算隔离、polygon合法性和任意非零交叠，并拒绝伪造PASS、路径逃逸、输出覆盖、写后孤儿和输入漂移。真实结果为30图/144 mask、train/test为0、孤儿0，与train 100张及冻结test 67张三类身份零重叠，最终`approved_as_calibration_truth`、`calibrationTruthEligible=true`。"
+        },
+        {
+          "checked": true,
+          "text": "完成现有37张域外排除项的hard negative原分辨率复筛；仅`nail_00844…_0`满足清晰、无真人有效甲面、部署相关、授权A及与train/val/frozen test隔离，继续保持candidate-only。其余36张为教程/甲型/手绘模板、独立甲片、拼图或仍含真实美甲，全部排除；100张建议目标当前1/100、仍缺99张，不得用不合格图片凑数。"
         },
         {
           "checked": true,
