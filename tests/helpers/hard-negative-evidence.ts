@@ -24,6 +24,7 @@ const shaFile = (file: string) =>
   createHash("sha256").update(readFileSync(file)).digest("hex");
 
 let crcTable: Uint32Array | undefined;
+const pngBaseCache = new Map<string, { head: Buffer; tail: Buffer }>();
 
 function crc32(data: Buffer) {
   if (!crcTable) {
@@ -57,31 +58,40 @@ export function writeTestPng(
   height = 320,
 ) {
   mkdirSync(path.dirname(file), { recursive: true });
-  const raw = Buffer.alloc((width * 4 + 1) * height);
-  const red = (seed * 53 + 17) & 0xff;
-  const green = (seed * 97 + 31) & 0xff;
-  const blue = (seed * 193 + 47) & 0xff;
-  for (let y = 0; y < height; y++) {
-    const row = y * (width * 4 + 1);
-    raw[row] = 0;
-    for (let x = 0; x < width; x++) {
-      const offset = row + 1 + x * 4;
-      raw[offset] = (red + x) & 0xff;
-      raw[offset + 1] = (green + y) & 0xff;
-      raw[offset + 2] = (blue + x + y) & 0xff;
-      raw[offset + 3] = 0xff;
+  const cacheKey = `${width}x${height}`;
+  let base = pngBaseCache.get(cacheKey);
+  if (!base) {
+    const raw = Buffer.alloc((width * 4 + 1) * height);
+    for (let y = 0; y < height; y++) {
+      const row = y * (width * 4 + 1);
+      raw[row] = 0;
+      for (let x = 0; x < width; x++) {
+        const offset = row + 1 + x * 4;
+        raw[offset] = 80;
+        raw[offset + 1] = 120;
+        raw[offset + 2] = 160;
+        raw[offset + 3] = 0xff;
+      }
     }
+    const header = Buffer.alloc(13);
+    header.writeUInt32BE(width, 0);
+    header.writeUInt32BE(height, 4);
+    header[8] = 8;
+    header[9] = 6;
+    base = {
+      head: Buffer.concat([
+        Buffer.from("89504e470d0a1a0a", "hex"),
+        pngChunk("IHDR", header),
+        pngChunk("IDAT", deflateSync(raw)),
+      ]),
+      tail: pngChunk("IEND", Buffer.alloc(0)),
+    };
+    pngBaseCache.set(cacheKey, base);
   }
-  const header = Buffer.alloc(13);
-  header.writeUInt32BE(width, 0);
-  header.writeUInt32BE(height, 4);
-  header[8] = 8;
-  header[9] = 6;
   const png = Buffer.concat([
-    Buffer.from("89504e470d0a1a0a", "hex"),
-    pngChunk("IHDR", header),
-    pngChunk("IDAT", deflateSync(raw)),
-    pngChunk("IEND", Buffer.alloc(0)),
+    base.head,
+    pngChunk("tEXt", Buffer.from(`fixture-seed\0${seed}`, "latin1")),
+    base.tail,
   ]);
   writeFileSync(file, png);
 }

@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-20T16:53:37.484Z",
+  "generatedAt": "2026-07-21T17:48:49.578Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -40,8 +40,8 @@
     "gateCount": 10,
     "passedGates": 2,
     "failedGates": 8,
-    "progressMarkerCount": 329,
-    "passMarkerCount": 317,
+    "progressMarkerCount": 330,
+    "passMarkerCount": 318,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -717,6 +717,10 @@
         {
           "checked": true,
           "text": "完成现有37张域外排除项的hard negative原分辨率复筛；仅`nail_00844…_0`满足清晰、无真人有效甲面、部署相关、授权A及与train/val/frozen test隔离，继续保持candidate-only。其余36张为教程/甲型/手绘模板、独立甲片、拼图或仍含真实美甲，全部排除；100张建议目标当前1/100、仍缺99张，不得用不合格图片凑数。"
+        },
+        {
+          "checked": true,
+          "text": "建立逐图审核hard negative正式终结器与消费端深度重放；`finalize-reviewed-hard-negative-manifest.py`只接受绑定原分辨率视觉、A授权、当前图片哈希和来源隔离证据的候选批次，固定100张下限且CLI不可调低。schema v2在100张前只输出`HOLD`和不可训练`candidateItems`，达到门槛才输出`approved_hard_negative_manifest`；Pillow执行`verify()`与完整`load()`、复核320像素最短边和审核尺寸，损坏图/文本伪装图拒绝，真实格式与扩展名不一致的可解码图只生成匹配实际格式的物化文件名而不改源文件。来源隔离、候选物化和GPU前输入审计均重放批准报告，物化后负样本还会再次解码。当前1张真实候选生成schema v2 HOLD，SHA-256为`c35214e9…65a4`，仍缺99张且未创建候选训练数据集。"
         },
         {
           "checked": true,

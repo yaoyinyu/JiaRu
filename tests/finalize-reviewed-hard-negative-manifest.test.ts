@@ -34,7 +34,7 @@ function writeJson(file: string, value: unknown) {
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
-function fixture(count: number) {
+function fixture(count: number, mismatchedFirstExtension = false) {
   const root = mkdtempSync(path.join(tmpdir(), "hard-negative-finalizer-"));
   const images = path.join(root, "images");
   mkdirSync(images, { recursive: true });
@@ -49,7 +49,10 @@ function fixture(count: number) {
 
   const reviewedCandidates = Array.from({ length: count }, (_, index) => {
     const id = String(index + 1).padStart(3, "0");
-    const fileName = `negative-${id}.png`;
+    const fileName =
+      mismatchedFirstExtension && index === 0
+        ? `negative-${id}.jpg`
+        : `negative-${id}.png`;
     const sourcePath = path.join(images, fileName);
     writeTestPng(sourcePath, index + 1);
     const sha256 = shaFile(sourcePath);
@@ -183,7 +186,7 @@ function run(manifest: string, output: string, extra: string[] = []) {
 }
 
 test("approves exactly 100 fully reviewed hard negatives", () => {
-  const data = fixture(100);
+  const data = fixture(100, true);
   const output = path.join(data.root, "approved.json");
   const result = run(data.manifest, output);
   assert.equal(result.status, 0, result.stderr);
@@ -196,6 +199,10 @@ test("approves exactly 100 fully reviewed hard negatives", () => {
   assert.equal(report.summary.gapToMinimum, 0);
   assert.equal(report.schemaVersion, 2);
   assert.equal(report.items.length, 100);
+  assert.equal(report.items[0].sourceFileName, "negative-001.jpg");
+  assert.equal(report.items[0].fileName, "negative-001.png");
+  assert.equal(report.items[0].imageFormat, "PNG");
+  assert.equal(report.items[0].sourceExtensionMatchesFormat, false);
   assert.ok(report.items.every((item: { trainingUse: string }) => item.trainingUse === "permitted"));
   assert.equal(
     report.itemsSha256,
@@ -299,4 +306,24 @@ test("cannot lower the formal 100-image gate", () => {
   const result = run(data.manifest, output, ["--minimum-images", "1"]);
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /cannot lower the formal 100-image/);
+});
+
+test("never overwrites candidate, review, or image evidence", () => {
+  const data = fixture(100);
+  const originalManifest = readFileSync(data.manifest);
+  const candidateResult = spawnSync(
+    python,
+    [
+      script,
+      "--candidate-manifest",
+      data.manifest,
+      "--output",
+      data.manifest,
+      "--overwrite",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(candidateResult.status, 0);
+  assert.match(candidateResult.stderr, /must not overwrite an input evidence/);
+  assert.deepEqual(readFileSync(data.manifest), originalManifest);
 });

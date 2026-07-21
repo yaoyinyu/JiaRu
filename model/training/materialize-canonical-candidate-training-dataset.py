@@ -225,7 +225,7 @@ def validate_hard_negatives(
         identity = identity_by_name.get(file_name)
         if identity is None:
             raise ValueError(f"{file_name}: hard-negative identity is missing")
-        if item.get("trainingUse") not in (None, "permitted"):
+        if item.get("trainingUse") != "permitted":
             raise ValueError(f"{file_name}: hard-negative item trainingUse is not permitted")
         path_value = item.get("imagePath") or item.get("sourceImage")
         image_path = (

@@ -669,7 +669,7 @@ test("does not allow CLI flags to lower the formal 100/100/30 gates", () => {
   assert.equal(result.report.status, "HOLD");
   assert.equal(result.report.validationBridgeEligible, true);
   assert.equal(result.report.candidateTrainingEligible, false);
-  assert.match(result.report.errors[0], /below 100/);
+  assert.match(result.report.errors[0], /not usable|below 100/);
 });
 
 test("rejects a forged PASS whose hard-negative label is non-empty", () => {
@@ -688,6 +688,29 @@ test("rejects a forged PASS whose hard-negative label is non-empty", () => {
   assert.equal(result.status, 1);
   assert.equal(result.report.status, "HOLD");
   assert.match(result.report.errors[0], /not byte-empty/);
+});
+
+test("rejects a materialized hard negative whose bytes are not an image", () => {
+  const item = fixture();
+  const record = item.report.records.find(
+    (entry: Json) => entry.role === "hard-negative",
+  );
+  const image = path.join(
+    item.datasetRoot,
+    "images",
+    "train",
+    record.fileName,
+  );
+  writeFileSync(image, "plain text disguised as a materialized image");
+  record.imageSha256 = sha(image);
+  record.materializedImageSha256 = sha(image);
+  refresh(item);
+  const result = run(item);
+  assert.equal(result.status, 1);
+  assert.match(
+    result.report.errors[0],
+    /source image identity drift|cannot be fully decoded/,
+  );
 });
 
 test("rejects a forged positive label that diverges from the approved annotation", () => {
@@ -738,7 +761,10 @@ test("rejects cross-role source-group leakage after independent recomputation", 
   refresh(item);
   const result = run(item);
   assert.equal(result.status, 1);
-  assert.match(result.report.errors[0], /not source-isolated/);
+  assert.match(
+    result.report.errors[0],
+    /not source-isolated|differs from current replayed evidence/,
+  );
 });
 
 test("rejects path traversal in the materialized file allow-list", () => {
