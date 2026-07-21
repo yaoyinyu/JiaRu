@@ -5,15 +5,34 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 from itertools import combinations
 from pathlib import Path
+from types import ModuleType
 from typing import Any
 
 
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 FROZEN_TEST_LANES = {"core", "stress"}
+
+
+def load_hard_negative_finalizer() -> ModuleType:
+    path = Path(__file__).resolve().with_name(
+        "finalize-reviewed-hard-negative-manifest.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "reviewed_hard_negative_finalizer", path
+    )
+    if spec is None or spec.loader is None:
+        raise ValueError(f"cannot load hard-negative finalizer: {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+HARD_NEGATIVE_FINALIZER = load_hard_negative_finalizer()
 
 
 def sha256_file(path: Path) -> str:
@@ -389,7 +408,9 @@ def validate_hard_negatives(
     path: Path, document: dict[str, Any]
 ) -> list[dict[str, Any]]:
     if (
-        document.get("ok") is not True
+        document.get("schemaVersion") != 2
+        or document.get("ok") is not True
+        or document.get("status") != "PASS"
         or document.get("decision") != "approved_hard_negative_manifest"
         or document.get("trainingUse") != "permitted"
     ):
@@ -421,6 +442,7 @@ def validate_hard_negatives(
             raise ValueError(f"hard-negative image hash drift: {identity['fileName']}")
         records.append(identity)
     reject_duplicate_identities("hard-negative", records)
+    HARD_NEGATIVE_FINALIZER.verify_approved_report(path)
     return records
 
 

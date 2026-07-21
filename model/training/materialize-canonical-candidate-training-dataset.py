@@ -575,6 +575,8 @@ def failure_evidence(args: argparse.Namespace) -> tuple[dict[str, Any], dict[str
     validation = documents.get("validationFinalAudit", {})
     hard_items = hard.get("items")
     if not isinstance(hard_items, list):
+        hard_items = hard.get("candidateItems")
+    if not isinstance(hard_items, list):
         hard_items = hard.get("candidates")
     observed = {
         "trainPositiveImages": (

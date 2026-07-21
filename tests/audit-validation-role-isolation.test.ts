@@ -11,6 +11,10 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import {
+  createApprovedHardNegativeEvidence,
+  writeTestPng,
+} from "./helpers/hard-negative-evidence.ts";
 
 const script = path.resolve("model/training/audit-validation-role-isolation.py");
 const shaFile = (file: string) =>
@@ -147,25 +151,21 @@ function fixture() {
 
   const hardRoot = path.join(root, "hard-negatives");
   mkdirSync(hardRoot);
-  const hardImage = path.join(hardRoot, "negative-a.jpg");
-  writeFileSync(hardImage, "negative-image-a");
-  const hardItems = [
-    {
-      fileName: "negative-a.jpg",
-      sourceGroup: "negative-group-a",
-      imageSha256: shaFile(hardImage),
-      imagePath: hardImage,
-    },
-  ];
-  const hardManifest = path.join(hardRoot, "manifest.json");
-  const hardDocument = {
-    ok: true,
-    decision: "approved_hard_negative_manifest",
-    trainingUse: "permitted",
-    itemsSha256: shaCanonical(hardItems),
-    items: hardItems,
-  };
-  writeFileSync(hardManifest, `${JSON.stringify(hardDocument, null, 2)}\n`);
+  const hardItems = Array.from({ length: 100 }, (_, index) => {
+    const id = String(index + 1).padStart(3, "0");
+    const fileName = `negative-${id}.png`;
+    const imagePath = path.join(hardRoot, fileName);
+    writeTestPng(imagePath, index + 1);
+    return {
+      fileName,
+      sourceGroup: `negative-group-${id}`,
+      imageSha256: shaFile(imagePath),
+      imagePath,
+    };
+  });
+  const hardEvidence = createApprovedHardNegativeEvidence(hardRoot, hardItems);
+  const hardManifest = hardEvidence.approvedManifest;
+  const hardDocument = hardEvidence.approvedDocument;
 
   return {
     root,

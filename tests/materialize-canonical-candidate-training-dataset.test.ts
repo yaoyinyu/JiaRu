@@ -12,6 +12,10 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import {
+  createApprovedHardNegativeEvidence,
+  writeTestPng,
+} from "./helpers/hard-negative-evidence.ts";
 
 const script = path.resolve(
   "model/training/materialize-canonical-candidate-training-dataset.py",
@@ -150,9 +154,9 @@ function fixture(hardCount = 100) {
   mkdirSync(path.join(hardRoot, "images"), { recursive: true });
   const hardItems = Array.from({ length: hardCount }, (_, index) => {
     const id = String(index + 1).padStart(3, "0");
-    const fileName = `negative-${id}.jpg`;
+    const fileName = `negative-${id}.png`;
     const imagePath = path.join(hardRoot, "images", fileName);
-    writeImage(imagePath, 100 + index);
+    writeTestPng(imagePath, 100 + index);
     return {
       fileName,
       sourceGroup: `hard-group-${id}`,
@@ -161,16 +165,9 @@ function fixture(hardCount = 100) {
       trainingUse: "permitted",
     };
   });
-  const hardNegativeManifest = path.join(hardRoot, "manifest.json");
-  const hardDocument = {
-    schemaVersion: 1,
-    ok: true,
-    decision: "approved_hard_negative_manifest",
-    trainingUse: "permitted",
-    itemsSha256: shaCanonical(hardItems),
-    items: hardItems,
-  };
-  writeFileSync(hardNegativeManifest, `${JSON.stringify(hardDocument, null, 2)}\n`);
+  const hardEvidence = createApprovedHardNegativeEvidence(hardRoot, hardItems);
+  const hardNegativeManifest = hardEvidence.approvedManifest;
+  const hardDocument = hardEvidence.approvedDocument;
 
   const valRoot = path.join(root, "validation");
   for (const split of ["train", "val", "test"]) {
