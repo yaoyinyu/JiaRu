@@ -13,6 +13,10 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import {
+  createApprovedHardNegativeEvidence,
+  writeTestPng,
+} from "./helpers/hard-negative-evidence.ts";
 
 const script = path.resolve("model/training/audit-candidate-training-input.py");
 const trainScript = path.resolve("model/training/train-yolo-seg.py");
@@ -204,9 +208,9 @@ function fixture(hardNegativeCount = 100) {
   const hardItems: Json[] = [];
   for (let index = 1; index <= hardNegativeCount; index++) {
     const id = String(index).padStart(3, "0");
-    const fileName = `negative-${id}.jpg`;
+    const fileName = `negative-${id}.png`;
     const imagePath = path.join(hardRoot, fileName);
-    writeFileSync(imagePath, `formal-hard-negative-image-${id}`);
+    writeTestPng(imagePath, index);
     hardItems.push({
       fileName,
       sourceGroup: `hard-group-${id}`,
@@ -214,15 +218,14 @@ function fixture(hardNegativeCount = 100) {
       imagePath,
     });
   }
-  const hardManifest = path.join(hardRoot, "manifest.json");
-  const hardDocument = {
-    ok: true,
-    decision: "approved_hard_negative_manifest",
-    trainingUse: "permitted",
-    itemsSha256: shaCanonical(hardItems),
-    items: hardItems,
-  };
-  writeJson(hardManifest, hardDocument);
+  const hardEvidence = createApprovedHardNegativeEvidence(hardRoot, hardItems as Array<{
+    fileName: string;
+    sourceGroup: string;
+    imageSha256: string;
+    imagePath: string;
+  }>);
+  const hardManifest = hardEvidence.approvedManifest;
+  const hardDocument = hardEvidence.approvedDocument;
 
   mkdirSync(path.join(valRoot, "images", "val"), { recursive: true });
   mkdirSync(path.join(valRoot, "labels", "val"), { recursive: true });

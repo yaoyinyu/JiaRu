@@ -15,6 +15,7 @@ from pathlib import Path
 from types import ModuleType
 from typing import Any
 
+from PIL import Image, UnidentifiedImageError
 from shapely.geometry import Polygon
 
 from _training_common import load_dataset_config
@@ -28,6 +29,13 @@ SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 FORMAL_MINIMUM_POSITIVE_IMAGES = 100
 FORMAL_MINIMUM_HARD_NEGATIVE_IMAGES = 100
 FORMAL_MINIMUM_VALIDATION_IMAGES = 30
+IMAGE_FORMAT_BY_SUFFIX = {
+    ".jpg": "JPEG",
+    ".jpeg": "JPEG",
+    ".png": "PNG",
+    ".webp": "WEBP",
+}
+MINIMUM_HARD_NEGATIVE_SIDE = 320
 
 
 def sha256_file(path: Path) -> str:
@@ -111,6 +119,35 @@ def require_current_hash(path: Path, expected: Any, label: str) -> str:
     if not path.is_file() or sha256_file(path) != digest:
         raise ValueError(f"{label} is missing or hash-drifted: {path}")
     return digest
+
+
+def validate_decodable_hard_negative(
+    path: Path, file_name: str, label: str
+) -> tuple[int, int, str]:
+    try:
+        with Image.open(path) as image:
+            image_format = str(image.format or "").upper()
+            width, height = image.size
+            image.verify()
+        with Image.open(path) as image:
+            image.load()
+            if image.size != (width, height):
+                raise ValueError(f"{label} dimensions changed while decoding: {file_name}")
+    except (OSError, SyntaxError, UnidentifiedImageError) as error:
+        raise ValueError(
+            f"{label} cannot be fully decoded: {file_name}: {error}"
+        ) from error
+    expected_format = IMAGE_FORMAT_BY_SUFFIX.get(Path(file_name).suffix.lower())
+    if expected_format is None or image_format != expected_format:
+        raise ValueError(
+            f"{label} format {image_format or 'UNKNOWN'} does not match extension: {file_name}"
+        )
+    if min(width, height) < MINIMUM_HARD_NEGATIVE_SIDE:
+        raise ValueError(
+            f"{label} dimensions {width}x{height} are below the "
+            f"{MINIMUM_HARD_NEGATIVE_SIDE}px minimum: {file_name}"
+        )
+    return width, height, image_format
 
 
 def validate_dataset_inventory(
@@ -657,9 +694,18 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     auditor = load_role_auditor()
     train_document = read_json(train_index_path, "training truth index")
     train_upstream = auditor.validate_train_index(train_index_path, train_document)
+    hard_document = read_json(hard_manifest_path, "hard-negative manifest")
     hard_upstream = auditor.validate_hard_negatives(
-        hard_manifest_path, read_json(hard_manifest_path, "hard-negative manifest")
+        hard_manifest_path, hard_document
     )
+    raw_hard_items = hard_document.get("items")
+    if not isinstance(raw_hard_items, list):
+        raise ValueError("hard-negative manifest items are missing")
+    hard_item_by_name = {
+        str(item.get("fileName", "")): item
+        for item in raw_hard_items
+        if isinstance(item, dict)
+    }
     validation_upstream = validate_validation_audit(
         validation_dataset_path,
         read_json(validation_audit_path, "validation final audit"),
@@ -737,6 +783,27 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
                 or label_path.read_bytes() != b""
             ):
                 raise ValueError(f"hard-negative label is not byte-empty: {file_name}")
+            source_image_info = validate_decodable_hard_negative(
+                source_image, file_name, "source hard-negative image"
+            )
+            materialized_image_info = validate_decodable_hard_negative(
+                image_path, file_name, "materialized hard-negative image"
+            )
+            if materialized_image_info != source_image_info:
+                raise ValueError(
+                    f"materialized hard-negative decode identity differs: {file_name}"
+                )
+            upstream_item = hard_item_by_name.get(file_name)
+            if not isinstance(upstream_item, dict):
+                raise ValueError(f"upstream hard-negative item is missing: {file_name}")
+            if (
+                upstream_item.get("width"),
+                upstream_item.get("height"),
+                upstream_item.get("imageFormat"),
+            ) != source_image_info:
+                raise ValueError(
+                    f"hard-negative dimensions/format differ from approved manifest: {file_name}"
+                )
             empty_negative_labels += 1
         elif role == "train-positive":
             if mask_count <= 0:
