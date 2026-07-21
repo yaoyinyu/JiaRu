@@ -31,9 +31,9 @@ IMAGE_FORMAT_BY_SUFFIX = {
     ".png": "PNG",
     ".webp": "WEBP",
 }
+CANONICAL_SUFFIX_BY_FORMAT = {"JPEG": ".jpg", "PNG": ".png", "WEBP": ".webp"}
 MINIMUM_IMAGE_SIDE = 320
 REQUIRED_CANDIDATE_GATES = (
-    "allThirtySevenOriginalResolutionReviewed",
     "allSourceImageHashesMatchBoundScreeningEvidence",
     "allRelevantShardReportAndDecisionHashesMatch",
     "authorizationAConfirmed",
@@ -125,12 +125,8 @@ def validate_decodable_image(path: Path, file_name: str) -> tuple[int, int, str]
                 raise ValueError(f"{file_name}: image dimensions changed while decoding")
     except (OSError, SyntaxError, UnidentifiedImageError) as error:
         raise ValueError(f"{file_name}: image cannot be fully decoded: {error}") from error
-    expected_format = IMAGE_FORMAT_BY_SUFFIX[Path(file_name).suffix.lower()]
-    if image_format != expected_format:
-        raise ValueError(
-            f"{file_name}: image format {image_format or 'UNKNOWN'} does not match "
-            f"the {expected_format} file extension"
-        )
+    if image_format not in CANONICAL_SUFFIX_BY_FORMAT:
+        raise ValueError(f"{file_name}: unsupported decoded image format {image_format}")
     if min(width, height) < MINIMUM_IMAGE_SIDE:
         raise ValueError(
             f"{file_name}: image dimensions {width}x{height} are below "
@@ -163,6 +159,16 @@ def validate_candidate_review(
     for gate in REQUIRED_CANDIDATE_GATES:
         if gates.get(gate) is not True:
             raise ValueError(f"candidate manifest gate is not true: {gate}: {manifest_path}")
+    if not any(
+        gates.get(key) is True
+        for key in (
+            "allCandidatesOriginalResolutionReviewed",
+            "allThirtySevenOriginalResolutionReviewed",
+        )
+    ):
+        raise ValueError(
+            f"candidate manifest does not prove full original-resolution review: {manifest_path}"
+        )
 
     inputs = manifest.get("inputs")
     if not isinstance(inputs, dict):
@@ -261,6 +267,13 @@ def validate_candidate_review(
         image_hash = require_sha256(item.get("sha256"), f"{file_name} image SHA-256")
         image_path = require_current_file(item.get("sourcePath"), image_hash, f"{file_name} image")
         width, height, image_format = validate_decodable_image(image_path, file_name)
+        expected_format = IMAGE_FORMAT_BY_SUFFIX[Path(file_name).suffix.lower()]
+        extension_matches_format = image_format == expected_format
+        materialized_file_name = (
+            file_name
+            if extension_matches_format
+            else f"{Path(file_name).stem}{CANONICAL_SUFFIX_BY_FORMAT[image_format]}"
+        )
         if (
             item.get("authorization") != "A"
             or item.get("sourceIsolation")
@@ -334,13 +347,15 @@ def validate_candidate_review(
 
         prepared.append(
             {
-                "fileName": file_name,
+                "fileName": materialized_file_name,
+                "sourceFileName": file_name,
                 "sourceGroup": source_group,
                 "imageSha256": image_hash,
                 "imagePath": str(image_path),
                 "width": width,
                 "height": height,
                 "imageFormat": image_format,
+                "sourceExtensionMatchesFormat": extension_matches_format,
                 "role": "hard-negative",
                 "originalResolutionVisualReview": True,
                 "authorization": "A",
@@ -438,6 +453,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "invariants": {
             "allCandidateManifestsAndReviewDecisionsHashBound": True,
             "allCurrentImageBytesMatch": True,
+            "materializedFileNamesMatchDecodedFormat": True,
             "allOriginalResolutionVisualReviewsPass": True,
             "allAuthorizationACommercialTrainingEligible": True,
             "allReviewedSourceIsolationEvidencePass": True,
@@ -571,9 +587,23 @@ def main() -> None:
     if not args.output:
         parser.error("--output is required with --candidate-manifest")
     output_path = Path(args.output).resolve()
+    if output_path.suffix.lower() != ".json":
+        raise ValueError(f"output must be a .json file: {output_path}")
     if output_path.exists() and not args.overwrite:
         raise ValueError(f"output already exists; pass --overwrite to replace it: {output_path}")
     report = build(args)
+    protected_paths = {
+        Path(str(evidence[key])).resolve()
+        for evidence in report["inputs"]
+        for key in evidence
+        if key.endswith("Path")
+    }
+    protected_paths.update(
+        Path(str(item["imagePath"])).resolve()
+        for item in report.get("items", report.get("candidateItems", []))
+    )
+    if output_path in protected_paths:
+        raise ValueError(f"output must not overwrite an input evidence file: {output_path}")
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(
         json.dumps(report, ensure_ascii=False, indent=2) + "\n", encoding="utf-8"

@@ -18,6 +18,7 @@
 - `audit-labels.ts`：检查标注质量并输出 CSV
 - `convert-annotations.ts`：把原始 polygon JSON 转成 YOLO segmentation 标签
 - `materialize-training-dataset.ts`：把 raw 图片和转换后的标签物化为 Ultralytics 标准 train / val / test 目录
+- `finalize-reviewed-hard-negative-manifest.py`：把一个或多个已完成原分辨率审核的hard negative候选批次终结为schema v2清单；不足100张时只输出不可训练HOLD，达到门槛后才输出可供规范物化器消费的批准清单
 - `audit-phase1-readiness.ts`：检查是否达到 Phase 1 的数据量与测试覆盖门槛
 - `plan-phase1-collection.ts`：把 Phase 1 readiness 缺口翻译成下一批补样本计划
 - `generate-first-batch-checklist.ts`：把当前 readiness/collection 结果翻译成首批真实数据执行清单
@@ -66,6 +67,8 @@ node --no-warnings --experimental-strip-types model/training/split-dataset.ts
 node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 node --no-warnings --experimental-strip-types model/training/convert-annotations.ts
 node --no-warnings --experimental-strip-types model/training/materialize-training-dataset.ts
+python model/training/finalize-reviewed-hard-negative-manifest.py --candidate-manifest C:/path/to/hard-negative-candidate-manifest.json --output C:/path/to/hard-negative-formalization.json
+python model/training/finalize-reviewed-hard-negative-manifest.py --verify-report C:/path/to/approved-hard-negative-manifest.json
 node --no-warnings --experimental-strip-types model/training/audit-phase1-readiness.ts
 node --no-warnings --experimental-strip-types model/training/plan-phase1-collection.ts
 node --no-warnings --experimental-strip-types model/training/generate-first-batch-checklist.ts
@@ -127,6 +130,16 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
 
 - `scripts/verify-nail-detection.ts` 的模型推理 overlay 扩展
 - 真实训练依赖安装说明与训练机环境约束
+
+### Hard negative 正式终结门
+
+`finalize-reviewed-hard-negative-manifest.py`不会把候选清单的外层`PASS`直接当作训练授权。它会重放候选清单、逐图审核决定、A授权、图片SHA-256、尺寸和解码结果，并要求所有候选清晰、无有效真人美甲甲面、非裁断/拼图/模板/独立甲片。正式下限固定为100张，`--minimum-images`只能提高、不能降低。
+
+- 少于100张：输出`status=HOLD`、`trainingUse=prohibited`和`candidateItems`，不输出可消费的正式`items`。
+- 达到100张：输出schema v2 `approved_hard_negative_manifest`；角色隔离、候选数据物化和训练输入审计会调用`verify_approved_report()`从当前审核、授权与图片字节重新验证。
+- 图片必须由Pillow完成`verify()`与完整像素`load()`，最短边不少于320像素，审核记录宽高必须与当前文件一致。
+- 可解码图片的真实格式若与扩展名不一致，源文件不改，正式清单使用匹配真实格式的物化文件名；文本、损坏文件或不支持格式直接拒绝。
+- 物化后的hard negative在GPU前输入审计中再次解码，标签必须严格为零字节。
 
 ## 评估可视化产物
 

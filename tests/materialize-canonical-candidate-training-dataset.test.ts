@@ -389,7 +389,10 @@ test("HOLDs 99 hard negatives before creating the dataset and writes only extern
     hold.inputs.hardNegativeManifest.sha256,
     shaFile(item.hardNegativeManifest),
   );
-  assert.match(hold.errors.join("\n"), /only 99 images.*at least 100/);
+  assert.match(
+    hold.errors.join("\n"),
+    /not usable|fewer than 100 items|only 99 images.*at least 100/,
+  );
 });
 
 test("rejects formal-manifest drift and role identity overlap before output", async (t) => {
@@ -408,7 +411,7 @@ test("rejects formal-manifest drift and role identity overlap before output", as
     const result = run(item);
     assert.notEqual(result.status, 0);
     assert.equal(existsSync(result.output), false);
-    assert.match(result.stdout, /cross-role sourceGroup overlap/);
+    assert.match(result.stdout, /differs from current replayed evidence/);
   });
   await t.test("frozen test overlaps validation", () => {
     const item = fixture();

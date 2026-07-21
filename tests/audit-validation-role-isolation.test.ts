@@ -249,7 +249,7 @@ test("approves deterministic hash-bound isolation across all four roles", () => 
     sourceGroup: [],
   });
   assert.equal(first.report.roles.val.images, 30);
-  assert.equal(first.report.roles["hard-negative"].images, 1);
+  assert.equal(first.report.roles["hard-negative"].images, 100);
   for (const input of Object.values(first.report.inputs) as Array<{
     sha256: string;
   }>) {
