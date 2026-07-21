@@ -1,78 +1,526 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { link, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
 import test from "node:test";
+import {
+  INSTANCE_REVIEW_HEADER,
+  REQUIRED_SCENARIO_DIMENSIONS,
+  SCENARIO_REGRESSION_HEADER,
+} from "../scripts/lib/nail-texture-release-product-quality.ts";
 
-test("completion audit reports external evidence blockers instead of false completion", async () => {
-  const root = await mkdtemp(path.join(tmpdir(), "nail-completion-audit-"));
-  const spec = path.join(root, "spec.md");
-  const progress = path.join(root, "progress.md");
-  const dataset = path.join(root, "dataset.json");
-  const review = path.join(root, "review.json");
-  const releaseTestSnapshot = path.join(root, "release-test-snapshot.json");
-  const releaseTestQuality = path.join(root, "release-test-quality.json");
-  const metrics = path.join(root, "metrics.json");
-  const manifest = path.join(root, "manifest.json");
-  const desktopPerformance = path.join(root, "desktop-performance.json");
-  const desktopMemory = path.join(root, "desktop-memory.json");
-  const output = path.join(root, "completion.json");
-  await writeFile(spec, [
-    "### 16.1 用户需要完成", "- [ ] 提供失败案例。", "### 16.2 工程侧需要完成",
-    "- [x] 实现推理。", "- [ ] 建立真机报告。", "## 17. 推荐执行顺序",
-  ].join("\n"));
-  await writeFile(progress, "| `M1` | 工程 | ✅ PASS | tested |\n| `M3` | 真机 | 🟠 PARTIAL | desktop only |\n");
-  await writeFile(dataset, JSON.stringify({ ok: true }));
-  await writeFile(review, JSON.stringify({ dataset: { testImages: 13 } }));
-  await writeFile(releaseTestSnapshot, JSON.stringify({
-    snapshotId: "reviewed-candidate-v1",
+function run(script: string, args: string[]) {
+  return spawnSync("node", ["--no-warnings", "--experimental-strip-types", script, ...args], { encoding: "utf8" });
+}
+
+async function writeJson(filePath: string, value: unknown) {
+  await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+}
+
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>).sort(([left], [right]) => left < right ? -1 : left > right ? 1 : 0).map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function canonicalSha256(value: unknown): string {
+  return createHash("sha256").update(canonical(value), "utf8").digest("hex");
+}
+
+function buildProductQuality(snapshot: string, instances: string, scenarios: string, output: string) {
+  const result = run("scripts/build-nail-texture-release-product-quality.ts", [
+    "--snapshot", snapshot,
+    "--instances-csv", instances,
+    "--scenarios-csv", scenarios,
+    "--reviewer", "product-owner",
+    "--output", output,
+  ]);
+  assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`);
+}
+
+async function writeReleaseManifest(root: string, manifestPath: string, version: string, modelBytes: Buffer) {
+  const modelPath = path.join(root, `${version}.onnx`);
+  await writeFile(modelPath, modelBytes);
+  await writeJson(manifestPath, {
+    version,
+    inputSize: 512,
+    task: "segment",
+    backendPreferences: ["webgpu", "wasm"],
+    modelFile: path.basename(modelPath),
+    modelSizeBytes: modelBytes.length,
+    sha256: createHash("sha256").update(modelBytes).digest("hex"),
+    labels: ["nail_texture"],
+  });
+  return modelPath;
+}
+
+function registerRelease(manifestPath: string, registryPath: string) {
+  const result = run("scripts/register-model-release.ts", [
+    "--manifest", manifestPath,
+    "--registry", registryPath,
+  ]);
+  assert.equal(result.status, 0, result.stderr);
+}
+
+function writeRollbackAudit(registryPath: string, manifestPath: string, outputPath: string) {
+  const result = run("scripts/audit-release-rollback.ts", [
+    "--registry", registryPath,
+    "--manifest", manifestPath,
+    "--output", outputPath,
+  ]);
+  assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`);
+}
+
+async function prepareDeviceReport(root: string, deviceFamily: string) {
+  const deviceRoot = path.join(root, deviceFamily);
+  await mkdir(deviceRoot);
+  const sessionId = `${deviceFamily}-session`;
+  const rawPerformance = path.join(deviceRoot, "raw-performance.json");
+  const performance = path.join(deviceRoot, "performance.json");
+  const rawMemory = path.join(deviceRoot, "raw-memory.json");
+  const memory = path.join(deviceRoot, "memory.json");
+  const output = path.join(deviceRoot, "acceptance.json");
+  await writeJson(rawPerformance, {
+    version: "nail-texture-device-session/v1",
+    sessionId,
+    deviceFamily,
+    samples: Array.from({ length: 20 }, (_, index) => ({
+      imageId: `sample-${index + 1}`,
+      sessionId,
+      deviceFamily,
+      backend: "model",
+      backendName: "wasm",
+      modelVersion: "nail-texture-seg-v2",
+      inputSize: 512,
+      elapsedMs: 700 + index,
+      workerElapsedMs: 650 + index,
+    })),
+  });
+  const performanceResult = run("scripts/verify-recognition-performance.ts", [
+    "--profile", "mobile", "--min-samples", "20", "--output", performance, rawPerformance,
+  ]);
+  assert.equal(performanceResult.status, 0, performanceResult.stderr);
+  const memorySamples = Array.from({ length: 20 }, (_, index) => ({
+    iteration: index + 1,
+    usedJSHeapBytes: 20 * 1024 * 1024 + (index % 3) * 1024,
+    browserPrivateBytes: 120 * 1024 * 1024 + (index % 3) * 1024,
+    browserWorkingSetBytes: 100 * 1024 * 1024,
+    browserProcessCount: 1,
+  }));
+  await writeJson(rawMemory, {
+    version: "nail-texture-recognition-memory/v1",
+    profile: deviceFamily,
+    sessionId,
+    deviceFamily,
+    backend: "wasm",
+    modelVersion: "nail-texture-seg-v2",
+    inputSize: 512,
+    sampleCount: 20,
+    samples: memorySamples,
+  });
+  const memoryResult = run("scripts/verify-recognition-memory.ts", ["--input", rawMemory, "--output", memory]);
+  assert.equal(memoryResult.status, 0, memoryResult.stderr);
+  const acceptanceResult = run("scripts/build-nail-texture-device-acceptance.ts", [
+    "--device-family", deviceFamily,
+    "--device-name", `${deviceFamily} fixture`,
+    "--os", "fixture-os",
+    "--browser", "fixture-browser",
+    "--backend", "wasm",
+    "--performance", performance,
+    "--memory", memory,
+    "--output", output,
+  ]);
+  assert.equal(acceptanceResult.status, 0, acceptanceResult.stderr);
+  return output;
+}
+
+async function preparePassingFixture(root: string) {
+  const files = {
+    spec: path.join(root, "spec.md"),
+    progress: path.join(root, "progress.md"),
+    dataset: path.join(root, "dataset.json"),
+    review: path.join(root, "review.json"),
+    snapshot: path.join(root, "release-test-snapshot.json"),
+    quality: path.join(root, "release-test-quality.json"),
+    metrics: path.join(root, "metrics.json"),
+    manifest: path.join(root, "manifest.json"),
+    desktopPerformance: path.join(root, "desktop-performance.json"),
+    desktopMemory: path.join(root, "desktop-memory.json"),
+    beta: path.join(root, "beta.json"),
+    failures: path.join(root, "failures.json"),
+    productQuality: path.join(root, "release-product-quality.json"),
+    productInstances: path.join(root, "release-product-instances.csv"),
+    productScenarios: path.join(root, "release-product-scenarios.csv"),
+    registry: path.join(root, "release-registry.json"),
+    rollback: path.join(root, "rollback.json"),
+  };
+  await writeFile(files.spec, [
+    "### 16.1 用户需要完成", "- [x] 用户证据完成。", "### 16.2 工程侧需要完成",
+    "- [x] 工程证据完成。", "## 17. 推荐执行顺序",
+  ].join("\n"), "utf8");
+  await writeFile(files.progress, "| `M1` | 工程 | ✅ PASS | tested |\n", "utf8");
+  await writeJson(files.dataset, { ok: true });
+  await writeJson(files.review, { dataset: { testImages: 100 } });
+  const snapshotItems = Array.from({ length: 100 }, (_, index) => ({
+    fileName: `sample-${index}.jpg`,
+    lane: index < 70 ? "core" : "stress",
+    sourceGroup: `release-source-${index}`,
+    imageSha256: createHash("sha256").update(`release-image-${index}`).digest("hex"),
+    maskCount: 5,
+    trainingUse: "prohibited",
+  }));
+  const itemsSha256 = canonicalSha256(snapshotItems);
+  const snapshot = {
+    snapshotId: "reviewed-candidate-v2",
     decision: "frozen_reviewed_candidate_not_release_ready",
     trainingUse: "prohibited",
-    counts: { images: 67, masks: 384, coreImages: 45, stressImages: 22 },
-    representativeReleaseGate: { ok: false, actual: 67, required: 100, shortfall: 33 },
-    itemsSha256: "a".repeat(64),
-    items: Array.from({ length: 67 }, (_, index) => ({ fileName: `sample-${index}.jpg`, lane: "core", trainingUse: "prohibited" })),
-  }));
-  await writeFile(releaseTestQuality, JSON.stringify({
+    counts: { images: 100, masks: 500, coreImages: 70, stressImages: 30 },
+    representativeReleaseGate: { ok: true, actual: 100, required: 100, shortfall: 0 },
+    itemsSha256,
+    items: snapshotItems,
+  };
+  await writeJson(files.snapshot, snapshot);
+  await writeJson(files.quality, {
     ok: true,
-    decision: "reject_v6_release_at_deployment_resolution",
-    qualityGatePassed: false,
+    decision: "approve_candidate_at_deployment_resolution",
+    qualityGatePassed: true,
     trainingUse: "prohibited",
-    snapshot: { itemsSha256: "a".repeat(64), counts: { images: 67, masks: 384 } },
-    evaluations: { full512: { imgsz: 512, boxMap50: 0.837, maskMap50: 0.831, predictionLabels: 67 } },
-  }));
-  await writeFile(metrics, JSON.stringify({ box_map50: 0.86, seg_map50: 0.8 }));
-  await writeFile(manifest, JSON.stringify({ modelFile: "missing.onnx" }));
-  await writeFile(desktopPerformance, JSON.stringify({ ok: true, totals: { samples: 20 } }));
-  await writeFile(desktopMemory, JSON.stringify({ ok: true, sampleCount: 20 }));
+    snapshot: { itemsSha256, counts: { images: 100, masks: 500 } },
+    evaluations: { full512: { imgsz: 512, boxMap50: 0.9, maskMap50: 0.85, predictionLabels: 100 } },
+  });
+  await writeJson(files.metrics, { box_map50: 0.9, seg_map50: 0.85 });
+  const previousModelBytes = Buffer.alloc(1024, 0x31);
+  const previousModelPath = await writeReleaseManifest(root, files.manifest, "nail-texture-seg-v1", previousModelBytes);
+  registerRelease(files.manifest, files.registry);
+  const currentModelBytes = Buffer.alloc(2048, 0x32);
+  const currentModelPath = await writeReleaseManifest(
+    root,
+    files.manifest,
+    "nail-texture-seg-v2",
+    currentModelBytes,
+  );
+  registerRelease(files.manifest, files.registry);
+  await writeJson(files.desktopPerformance, { ok: true, totals: { samples: 20 } });
+  await writeJson(files.desktopMemory, { ok: true, sampleCount: 20 });
+  await writeJson(files.beta, {
+    version: "nail-texture-beta-quality-review/v1",
+    ok: true,
+    reviewedByUser: true,
+    sampleCount: 100,
+    directlyUsableRate: 0.85,
+  });
+  await writeJson(files.failures, { version: "nail-texture-user-failure-cases/v1", ok: true, sampleCount: 4 });
+  const instanceRows = [[...INSTANCE_REVIEW_HEADER].join(",")];
+  for (const item of snapshotItems) {
+    for (let instanceIndex = 1; instanceIndex <= item.maskCount; instanceIndex += 1) {
+      instanceRows.push(`${item.fileName},${item.sourceGroup},${item.imageSha256},${instanceIndex},directly_usable,false,false,100,2,100,5`);
+    }
+  }
+  await writeFile(files.productInstances, `${instanceRows.join("\n")}\n`, "utf8");
+  await writeFile(files.productScenarios, [
+    [...SCENARIO_REGRESSION_HEADER].join(","),
+    ...REQUIRED_SCENARIO_DIMENSIONS.map((dimension) => `${dimension},${dimension}-coverage,100,0.90,0.89,0.90,0.88`),
+  ].join("\n") + "\n", "utf8");
+  buildProductQuality(files.snapshot, files.productInstances, files.productScenarios, files.productQuality);
+  const productQuality = JSON.parse(await readFile(files.productQuality, "utf8"));
+  writeRollbackAudit(files.registry, files.manifest, files.rollback);
+  const rollback = JSON.parse(await readFile(files.rollback, "utf8"));
+  const devices: Record<string, string> = {};
+  for (const device of ["android", "android-tablet", "iphone", "ipad"]) {
+    devices[device] = await prepareDeviceReport(root, device);
+  }
+  return { files, productQuality, rollback, snapshot, devices, previousModelPath, currentModelPath, currentModelBytes };
+}
 
-  const result = spawnSync("node", [
-    "--no-warnings", "--experimental-strip-types", "scripts/audit-nail-texture-local-inference-completion.ts",
-    "--spec", spec, "--progress", progress, "--dataset-readiness", dataset,
-    "--candidate-review", review, "--best-metrics", metrics, "--production-manifest", manifest,
-    "--release-test-snapshot", releaseTestSnapshot,
-    "--release-test-quality", releaseTestQuality,
-    "--desktop-performance", desktopPerformance, "--desktop-memory", desktopMemory,
-    "--beta-review", path.join(root, "missing-beta.json"), "--failure-cases", path.join(root, "missing-failures.json"),
-    "--mobile-report", `android=${path.join(root, "missing-android.json")}`,
-    "--mobile-report", `android-tablet=${path.join(root, "missing-android-tablet.json")}`,
-    "--mobile-report", `iphone=${path.join(root, "missing-iphone.json")}`,
-    "--mobile-report", `ipad=${path.join(root, "missing-ipad.json")}`,
+function runAudit(
+  fixture: Awaited<ReturnType<typeof preparePassingFixture>>,
+  output: string,
+) {
+  const { files, devices } = fixture;
+  return run("scripts/audit-nail-texture-local-inference-completion.ts", [
+    "--spec", files.spec,
+    "--progress", files.progress,
+    "--dataset-readiness", files.dataset,
+    "--candidate-review", files.review,
+    "--release-test-snapshot", files.snapshot,
+    "--release-test-quality", files.quality,
+    "--best-metrics", files.metrics,
+    "--production-manifest", files.manifest,
+    "--desktop-performance", files.desktopPerformance,
+    "--desktop-memory", files.desktopMemory,
+    "--beta-review", files.beta,
+    "--failure-cases", files.failures,
+    "--release-product-quality", files.productQuality,
+    "--release-registry", files.registry,
+    "--rollback-audit", files.rollback,
+    ...Object.entries(devices).flatMap(([device, filePath]) => ["--mobile-report", `${device}=${filePath}`]),
     "--output", output,
-  ], { encoding: "utf8" });
-  assert.equal(result.status, 1);
-  const report = JSON.parse(await readFile(output, "utf8"));
-  assert.equal(report.ok, false);
-  assert.equal(report.decision, "hold");
-  assert.equal(report.gates.bestCandidateMetrics.ok, false);
-  assert.equal(report.gates.bestCandidateMetrics.evidenceScope, "frozen-reviewed-candidate-67-deployment-512");
-  assert.equal(report.gates.desktopAcceptance.ok, true);
-  assert.equal(report.gates.representativeReleaseTest.actual, 67);
-  assert.equal(report.gates.representativeReleaseTest.evaluatedModelTestImages, 67);
-  assert.equal(report.gates.representativeReleaseTest.historicalEvaluatedModelTestImages, 13);
-  assert.equal(report.gates.representativeReleaseTest.evidenceScope, "frozen-reviewed-candidate");
-  assert.deepEqual(report.blockingInputs.map((item: { code: string }) => item.code), [
-    "USER_FAILURE_CASES", "MODEL_QUALITY_REGRESSION", "REPRESENTATIVE_RELEASE_TESTSET", "MOBILE_DEVICE_ACCEPTANCE", "USER_BETA_QUALITY_REVIEW",
   ]);
+}
+
+async function readReport(output: string) {
+  return JSON.parse(await readFile(output, "utf8"));
+}
+
+test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence", async (t) => {
+  const root = await mkdtemp(path.join(tmpdir(), "nail-completion-audit-v2-"));
+  const fixture = await preparePassingFixture(root);
+
+  await t.test("accepts a fully bound release evidence set", async () => {
+    const output = path.join(root, "complete.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 0, result.stderr);
+    const report = await readReport(output);
+    assert.equal(report.ok, true);
+    assert.equal(report.decision, "complete");
+    assert.equal(report.version, "nail-texture-local-inference-completion-audit/v2");
+    assert.equal(report.summary.gateCount, 13);
+    assert.equal(report.gates.releaseProductQuality.ok, true);
+    assert.equal(report.gates.releaseRollback.ok, true);
+  });
+
+  await t.test("treats a non-PASS progress marker as a formal blocking gate", async () => {
+    await writeFile(fixture.files.progress, "| `M1` | 工程 | 🟠 PARTIAL | incomplete |\n", "utf8");
+    const output = path.join(root, "partial-marker.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.progressMarkers.ok, false);
+    assert.equal(report.summary.failedGates, 1);
+    assert.deepEqual(report.gates.progressMarkers.incompleteMarkers.map((item: { id: string }) => item.id), ["M1"]);
+    assert.ok(report.blockingInputs.some((item: { code: string }) => item.code === "INCOMPLETE_PROGRESS_MARKERS"));
+    await writeFile(fixture.files.progress, "| `M1` | 工程 | ✅ PASS | tested |\n", "utf8");
+  });
+
+  await t.test("rejects forged outer product-quality PASS and snapshot drift", async () => {
+    await writeJson(fixture.files.productQuality, { ...fixture.productQuality, errors: ["hidden failure"] });
+    let output = path.join(root, "forged-product-quality.json");
+    let result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    let report = await readReport(output);
+    assert.equal(report.gates.releaseProductQuality.ok, false);
+    assert.match(report.gates.releaseProductQuality.errors.join(" "), /errors must be empty|does not match replay/);
+
+    await writeJson(fixture.files.productQuality, {
+      ...fixture.productQuality,
+      snapshot: { itemsSha256: "b".repeat(64) },
+    });
+    output = path.join(root, "snapshot-drift.json");
+    result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    report = await readReport(output);
+    assert.match(report.gates.releaseProductQuality.errors.join(" "), /missing snapshot\.path|snapshot.*does not match replay/);
+    await writeJson(fixture.files.productQuality, fixture.productQuality);
+  });
+
+  await t.test("rejects a fully handwritten product-quality PASS without raw evidence", async () => {
+    await writeJson(fixture.files.productQuality, {
+      version: "nail-texture-release-product-quality/v1",
+      ok: true,
+      decision: "pass",
+      reviewedByUser: true,
+      reviewer: "forged-reviewer",
+      trainingUse: "prohibited",
+      sampleImages: 100,
+      sampleInstances: 500,
+      directlyUsableRate: 1,
+      contaminationInstanceRate: 0,
+      roughRectangleRate: 0,
+      pixelLeakageRate: 0,
+      missingRate: 0,
+      frozenMaximumMissingRate: 0.1,
+      minimumAllowedDelta: -0.02,
+      scenarioGroups: fixture.productQuality.scenarioGroups,
+      errors: [],
+    });
+    const output = path.join(root, "fully-forged-product-quality.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.releaseProductQuality.ok, false);
+    assert.match(report.gates.releaseProductQuality.errors.join(" "), /missing snapshot\.path|missing rawEvidence/);
+    await writeJson(fixture.files.productQuality, fixture.productQuality);
+  });
+
+  await t.test("rejects product-quality evidence after the instance CSV drifts", async () => {
+    const original = await readFile(fixture.files.productInstances, "utf8");
+    await writeFile(fixture.files.productInstances, original.replace(",100,2,100,5", ",100,3,100,5"), "utf8");
+    const output = path.join(root, "product-instance-csv-drift.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.releaseProductQuality.ok, false);
+    assert.match(report.gates.releaseProductQuality.errors.join(" "), /rawEvidence|pixelLeakageRate/);
+    await writeFile(fixture.files.productInstances, original, "utf8");
+  });
+
+  await t.test("rejects product-quality evidence after the expected snapshot drifts", async () => {
+    const original = await readFile(fixture.files.snapshot, "utf8");
+    const drifted = JSON.parse(original);
+    drifted.snapshotId = "drifted-after-product-report";
+    await writeJson(fixture.files.snapshot, drifted);
+    const output = path.join(root, "product-snapshot-source-drift.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.releaseProductQuality.ok, false);
+    assert.match(report.gates.releaseProductQuality.errors.join(" "), /snapshot.*does not match replay/);
+    await writeFile(fixture.files.snapshot, original, "utf8");
+  });
+
+  await t.test("rejects a recomputed snapshot that reuses one image SHA under different names", async () => {
+    const original = await readFile(fixture.files.snapshot, "utf8");
+    const duplicateHashSnapshot = JSON.parse(original);
+    duplicateHashSnapshot.items[1].imageSha256 = duplicateHashSnapshot.items[0].imageSha256;
+    duplicateHashSnapshot.itemsSha256 = canonicalSha256(duplicateHashSnapshot.items);
+    await writeJson(fixture.files.snapshot, duplicateHashSnapshot);
+    const output = path.join(root, "product-snapshot-duplicate-image-hash.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.representativeReleaseTest.snapshotOk, false);
+    assert.equal(report.gates.releaseProductQuality.ok, false);
+    assert.match(report.gates.releaseProductQuality.errors.join(" "), /duplicate imageSha256/);
+    await writeFile(fixture.files.snapshot, original, "utf8");
+  });
+
+  await t.test("rejects rebinding to another internally valid snapshot path", async () => {
+    const alternateSnapshot = path.join(root, "alternate-valid-release-test-snapshot.json");
+    await writeFile(alternateSnapshot, await readFile(fixture.files.snapshot));
+    buildProductQuality(
+      alternateSnapshot,
+      fixture.files.productInstances,
+      fixture.files.productScenarios,
+      fixture.files.productQuality,
+    );
+    const output = path.join(root, "alternate-snapshot-rebind.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.releaseProductQuality.ok, false);
+    assert.match(report.gates.releaseProductQuality.errors.join(" "), /snapshot\.path does not match expected frozen snapshot/);
+    buildProductQuality(
+      fixture.files.snapshot,
+      fixture.files.productInstances,
+      fixture.files.productScenarios,
+      fixture.files.productQuality,
+    );
+    fixture.productQuality = JSON.parse(await readFile(fixture.files.productQuality, "utf8"));
+  });
+
+  await t.test("protects direct and transitive evidence files from --output overwrite", async (overwriteTest) => {
+    const manifestAlias = path.join(root, "production-manifest-hardlink-alias.json");
+    await link(fixture.files.manifest, manifestAlias);
+    const cases = [
+      ["production manifest", fixture.files.manifest],
+      ["existing hardlink alias", manifestAlias],
+      ["product instance CSV", fixture.files.productInstances],
+      ["rollback candidate model", fixture.previousModelPath],
+    ] as const;
+    for (const [label, protectedPath] of cases) {
+      await overwriteTest.test(label, async () => {
+        const before = await readFile(protectedPath);
+        const result = runAudit(fixture, protectedPath);
+        assert.equal(result.status, 1);
+        assert.match(result.stderr, /must not overwrite an input evidence file/);
+        assert.deepEqual(await readFile(protectedPath), before);
+      });
+    }
+  });
+
+  const weakCases: Array<[string, Record<string, unknown>, RegExp]> = [
+    ["directly-usable", { directlyUsableRate: 0.849 }, /directlyUsableRate/],
+    ["contamination", { contaminationInstanceRate: 0.1 }, /contaminationInstanceRate/],
+    ["rough-rectangle", { roughRectangleRate: 0.151 }, /roughRectangleRate/],
+    ["pixel-leakage", { pixelLeakageRate: -0.001 }, /pixelLeakageRate/],
+    ["missing-rate", { missingRate: 0.11 }, /missingRate does not match replay/],
+    ["self-relaxed-missing-ceiling", { frozenMaximumMissingRate: 1 }, /frozenMaximumMissingRate does not match replay/],
+    ["self-relaxed-regression-floor", { minimumAllowedDelta: -0.5 }, /minimumAllowedDelta does not match replay/],
+    ["snapshot-image-count", { sampleImages: 99 }, /sampleImages/],
+    ["snapshot-instance-count", { sampleInstances: 499 }, /sampleInstances/],
+    ["scenario-ok", {
+      scenarioGroups: [{ name: "stress", dimension: "skin-tone", sampleCount: 100, ok: false, boxMap50Delta: -0.01, maskMap50Delta: -0.01 }],
+    }, /scenarioGroups does not match replay/],
+    ["scenario-delta", {
+      scenarioGroups: [{ name: "stress", dimension: "skin-tone", sampleCount: 100, ok: true, boxMap50Delta: -0.021, maskMap50Delta: -0.02 }],
+    }, /scenarioGroups does not match replay/],
+    ["scenario-missing-dimension", {
+      scenarioGroups: fixture.productQuality.scenarioGroups.filter((group) => group.dimension !== "device-backend"),
+    }, /scenarioGroups does not match replay/],
+  ];
+  for (const [name, mutation, expected] of weakCases) {
+    await t.test(`rejects ${name} threshold or scenario evidence`, async () => {
+      await writeJson(fixture.files.productQuality, { ...fixture.productQuality, ...mutation });
+      const output = path.join(root, `${name}.json`);
+      const result = runAudit(fixture, output);
+      assert.equal(result.status, 1);
+      const report = await readReport(output);
+      assert.equal(report.gates.releaseProductQuality.ok, false);
+      assert.match(report.gates.releaseProductQuality.errors.join(" "), expected);
+      await writeJson(fixture.files.productQuality, fixture.productQuality);
+    });
+  }
+
+  await t.test("rejects forged rollback PASS without verified release integrity", async () => {
+    await writeJson(fixture.files.rollback, {
+      ...fixture.rollback,
+      releases: fixture.rollback.releases.map((release, index) => index === 0 ? { ...release, integrityOk: false } : release),
+    });
+    const output = path.join(root, "forged-rollback.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.releaseRollback.ok, false);
+    assert.match(report.gates.releaseRollback.errors.join(" "), /differs from current-state replay/);
+    assert.ok(report.blockingInputs.some((item: { code: string }) => item.code === "RELEASE_ROLLBACK_AUDIT"));
+    await writeJson(fixture.files.rollback, fixture.rollback);
+  });
+
+  await t.test("rejects a fully hand-written rollback PASS when its bound registry does not exist", async () => {
+    const realRegistryPath = fixture.files.registry;
+    const missingRegistryPath = path.join(root, "missing-release-registry.json");
+    fixture.files.registry = missingRegistryPath;
+    await writeJson(fixture.files.rollback, {
+      ...fixture.rollback,
+      inputs: {
+        ...fixture.rollback.inputs,
+        registry: { path: missingRegistryPath, sha256: "a".repeat(64) },
+      },
+      ok: true,
+      decision: "approved_release_rollback_audit",
+      releases: fixture.rollback.releases.map((release) => ({
+        ...release,
+        ok: true,
+        integrityOk: true,
+        errors: [],
+      })),
+      errors: [],
+    });
+    const output = path.join(root, "fully-forged-rollback.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.releaseRollback.ok, false);
+    assert.match(report.gates.releaseRollback.errors.join(" "), /cannot replay rollback evidence/);
+    fixture.files.registry = realRegistryPath;
+    await writeJson(fixture.files.rollback, fixture.rollback);
+  });
+
+  await t.test("rejects rollback evidence after the current model drifts", async () => {
+    await writeFile(fixture.currentModelPath, Buffer.from("drifted-after-rollback-report"));
+    const output = path.join(root, "rollback-model-drift.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.releaseRollback.ok, false);
+    assert.match(
+      report.gates.releaseRollback.errors.join(" "),
+      /modelSizeBytes|sha256|differs from current-state replay/,
+    );
+    await writeFile(fixture.currentModelPath, fixture.currentModelBytes);
+  });
 });

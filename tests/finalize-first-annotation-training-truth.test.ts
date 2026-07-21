@@ -117,4 +117,51 @@ test("training truth finalizer accepts a hash-bound direct mask-review pass", as
   assert.equal(valReport.item.annotationTruthStatus, "approved-as-validation-truth-candidate");
   assert.equal(valReport.item.trainingUse, "prohibited");
   assert.equal(valReport.item.validationUse, "prohibited-until-materialization-audit");
+
+  const releaseRoleManifest = path.join(root, "release-test-workspace.json");
+  writeFileSync(releaseRoleManifest, JSON.stringify({
+    ok: true,
+    decision: "annotation_workspace_ready_candidate_only",
+    policy: {
+      selectionMode: "independent-release-test",
+      assignedRole: "independent-release-test",
+    },
+    items: [{
+      fileName: "direct.png",
+      sha256: hash(image),
+      sourceGroup: "g-direct",
+      assignedRole: "independent-release-test",
+      expectedFullyVisibleNails: 2,
+      trainingUse: "prohibited",
+    }],
+  }));
+  const releaseOutput = path.join(root, "release-test-output.json");
+  const releaseRun = spawnSync("python", [
+    script,
+    "--mask-review-final", review,
+    "--annotation", annotation,
+    "--image", image,
+    "--truth-role", "release-test",
+    "--role-manifest", releaseRoleManifest,
+    "--output", releaseOutput,
+  ], { encoding: "utf8" });
+  assert.notEqual(releaseRun.status, 0);
+  const rejectedReleaseReport = JSON.parse(readFileSync(releaseOutput, "utf8"));
+  assert.equal(rejectedReleaseReport.decision, "reject_release_test_truth_candidate");
+  assert.match(
+    rejectedReleaseReport.errors.join("\n"),
+    /deep replay failed|no current decisions file/,
+  );
+
+  const imageBeforeAliasAttempt = hash(image);
+  const rejectedAlias = spawnSync("python", [
+    script,
+    "--mask-review-final", review,
+    "--annotation", annotation,
+    "--image", image,
+    "--output", image,
+  ], { encoding: "utf8" });
+  assert.notEqual(rejectedAlias.status, 0);
+  assert.equal(hash(image), imageBeforeAliasAttempt);
+  assert.match(rejectedAlias.stderr, /output must not overwrite input evidence/);
 });

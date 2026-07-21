@@ -16,6 +16,7 @@
     "build:nail-texture-device-acceptance": "node --no-warnings --experimental-strip-types scripts/build-nail-texture-device-acceptance.ts",
     "build:nail-texture-mobile-memory": "node --no-warnings --experimental-strip-types scripts/build-nail-texture-mobile-memory-raw.ts",
     "build:nail-texture-beta-review": "node --no-warnings --experimental-strip-types scripts/build-nail-texture-beta-review.ts",
+    "build:nail-texture-release-product-quality": "node --no-warnings --experimental-strip-types scripts/build-nail-texture-release-product-quality.ts",
     "build:nail-texture-failure-cases": "node --no-warnings --experimental-strip-types scripts/build-nail-texture-user-failure-cases.ts"
   },
   "dependencies": {
