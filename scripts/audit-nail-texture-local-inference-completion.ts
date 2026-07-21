@@ -2,6 +2,12 @@ import { createHash } from "node:crypto";
 import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { verifyApprovedDeviceAcceptanceReport } from "./lib/nail-texture-device-acceptance.ts";
+import { verifyApprovedReleaseProductQualityReport } from "./lib/nail-texture-release-product-quality.ts";
+import {
+  collectReleaseRollbackEvidencePaths,
+  verifyApprovedReleaseRollbackReport,
+} from "./lib/release-rollback-audit.ts";
+import { assertSafeOutputPath } from "./lib/safe-output-path.ts";
 
 interface Options {
   specPath: string;
@@ -16,6 +22,9 @@ interface Options {
   desktopMemoryPath: string;
   betaReviewPath: string;
   failureCasesPath: string;
+  releaseProductQualityPath: string;
+  releaseRegistryPath: string;
+  rollbackAuditPath: string;
   mobileReports: Array<{ device: string; filePath: string }>;
   outputPath?: string;
 }
@@ -43,7 +52,7 @@ interface ReleaseTestSnapshot {
   counts?: { images?: number; masks?: number; coreImages?: number; stressImages?: number };
   representativeReleaseGate?: { ok?: boolean; actual?: number; required?: number; shortfall?: number };
   itemsSha256?: string;
-  items?: Array<{ fileName?: string; lane?: string; trainingUse?: string }>;
+  items?: Array<{ fileName?: string; lane?: string; imageSha256?: string; trainingUse?: string }>;
 }
 interface ReleaseTestQuality {
   ok?: boolean;
@@ -67,7 +76,8 @@ function usage(): never {
       "[--release-test-snapshot <json>] [--release-test-quality <json>] " +
       "[--best-metrics <json>] [--production-manifest <json>] [--desktop-performance <json>] " +
       "[--desktop-memory <json>] [--mobile-report <device=json>] [--beta-review <json>] " +
-      "[--failure-cases <json>] [--output <json>]"
+      "[--failure-cases <json>] [--release-product-quality <json>] [--release-registry <json>] [--rollback-audit <json>] " +
+      "[--output <json>]"
   );
 }
 
@@ -85,6 +95,9 @@ function parseArgs(argv: string[]): Options {
     desktopMemoryPath: path.resolve("model/reports/nail-texture-seg-real-candidate-v6-desktop-memory.json"),
     betaReviewPath: path.resolve("model/reports/nail-texture-beta-quality-review.json"),
     failureCasesPath: path.resolve("model/reports/nail-texture-user-failure-cases.json"),
+    releaseProductQualityPath: path.resolve("model/reports/nail-texture-release-product-quality.json"),
+    releaseRegistryPath: path.resolve("public/models/nail-texture-seg/release-registry.json"),
+    rollbackAuditPath: path.resolve("model/reports/nail-texture-release-rollback.json"),
     mobileReports: [
       { device: "android", filePath: path.resolve("model/reports/nail-texture-device-android.json") },
       { device: "android-tablet", filePath: path.resolve("model/reports/nail-texture-device-android-tablet.json") },
@@ -109,6 +122,9 @@ function parseArgs(argv: string[]): Options {
     else if (arg === "--desktop-memory") options.desktopMemoryPath = path.resolve(value);
     else if (arg === "--beta-review") options.betaReviewPath = path.resolve(value);
     else if (arg === "--failure-cases") options.failureCasesPath = path.resolve(value);
+    else if (arg === "--release-product-quality") options.releaseProductQualityPath = path.resolve(value);
+    else if (arg === "--release-registry") options.releaseRegistryPath = path.resolve(value);
+    else if (arg === "--rollback-audit") options.rollbackAuditPath = path.resolve(value);
     else if (arg === "--output") options.outputPath = path.resolve(value);
     else if (arg === "--mobile-report") {
       const [device, rawPath] = value.split("=", 2);
@@ -139,6 +155,81 @@ async function readJson<T extends object = Record<string, unknown>>(filePath: st
   }
 }
 
+function object(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function evidencePath(value: unknown): string | null {
+  return typeof value === "string" && value.trim() ? path.resolve(value) : null;
+}
+
+function directInputPaths(options: Options): string[] {
+  return [
+    options.specPath,
+    options.progressPath,
+    options.datasetReadinessPath,
+    options.candidateReviewPath,
+    options.releaseTestSnapshotPath,
+    options.releaseTestQualityPath,
+    options.bestMetricsPath,
+    options.productionManifestPath,
+    options.desktopPerformancePath,
+    options.desktopMemoryPath,
+    options.betaReviewPath,
+    options.failureCasesPath,
+    options.releaseProductQualityPath,
+    options.releaseRegistryPath,
+    options.rollbackAuditPath,
+    ...options.mobileReports.map((item) => item.filePath),
+  ];
+}
+
+function productQualityInputPaths(
+  verification: Awaited<ReturnType<typeof verifyApprovedReleaseProductQualityReport>>,
+): string[] {
+  const paths: string[] = [];
+  const reportSnapshot = object(verification.report?.snapshot);
+  const reportRaw = object(verification.report?.rawEvidence);
+  const reportInstances = object(reportRaw?.instances);
+  const reportScenarios = object(reportRaw?.scenarios);
+  for (const value of [reportSnapshot?.path, reportInstances?.path, reportScenarios?.path]) {
+    const resolved = evidencePath(value);
+    if (resolved) paths.push(resolved);
+  }
+  if (verification.replay) {
+    paths.push(
+      verification.replay.snapshot.path,
+      verification.replay.rawEvidence.instances.path,
+      verification.replay.rawEvidence.scenarios.path,
+    );
+  }
+  return paths;
+}
+
+function rollbackInputPaths(
+  verification: Awaited<ReturnType<typeof verifyApprovedReleaseRollbackReport>>,
+): string[] {
+  const paths: string[] = [];
+  for (const document of [verification.report, verification.replay]) {
+    if (!document) continue;
+    for (const value of [document.inputs?.registry?.path, document.inputs?.activeManifest?.path]) {
+      const resolved = evidencePath(value);
+      if (resolved) paths.push(resolved);
+    }
+    for (const release of document.releases ?? []) {
+      for (const value of [release.snapshotPath, release.modelPath]) {
+        const resolved = evidencePath(value);
+        if (resolved) paths.push(resolved);
+      }
+    }
+    for (const value of [document.activeRelease?.manifestPath, document.activeRelease?.modelPath]) {
+      const resolved = evidencePath(value);
+      if (resolved) paths.push(resolved);
+    }
+  }
+  return paths;
+}
+
 function section(text: string, start: string, end: string): string {
   const startIndex = text.indexOf(start);
   const endIndex = text.indexOf(end, startIndex + start.length);
@@ -162,6 +253,81 @@ function progressMarkers(text: string) {
   }));
 }
 
+function isPassMarker(status: string): boolean {
+  return /^(?:✅\s*)?PASS(?:\s|（|\(|$)/i.test(status.trim());
+}
+
+function releaseProductQualityGate(
+  verification: Awaited<ReturnType<typeof verifyApprovedReleaseProductQualityReport>>,
+  filePath: string,
+  frozenSnapshotOk: boolean,
+  expectedSnapshotPath: string,
+) {
+  const report = verification.report;
+  const replay = verification.replay;
+  const reportedSnapshot = report?.snapshot && typeof report.snapshot === "object" && !Array.isArray(report.snapshot)
+    ? report.snapshot as Record<string, unknown>
+    : null;
+  const errors = [...verification.errors];
+  if (!frozenSnapshotOk) errors.push("frozen release-test snapshot is not valid");
+
+  return {
+    ok: errors.length === 0,
+    filePath,
+    found: verification.found,
+    evidence: report ? {
+      version: report.version ?? null,
+      outerOk: report.ok === true,
+      reviewedByUser: report.reviewedByUser === true,
+      trainingUse: report.trainingUse ?? null,
+      expectedSnapshotPath,
+      reportedSnapshotPath: reportedSnapshot?.path ?? null,
+      snapshotItemsSha256: reportedSnapshot?.itemsSha256 ?? null,
+      snapshotSha256: reportedSnapshot?.sha256 ?? null,
+      instanceCsvSha256: replay?.rawEvidence.instances.sha256 ?? null,
+      scenarioCsvSha256: replay?.rawEvidence.scenarios.sha256 ?? null,
+      sampleImages: replay?.sampleImages ?? null,
+      sampleInstances: replay?.sampleInstances ?? null,
+      directlyUsableRate: replay?.directlyUsableRate ?? null,
+      contaminationInstanceRate: replay?.contaminationInstanceRate ?? null,
+      roughRectangleRate: replay?.roughRectangleRate ?? null,
+      pixelLeakageRate: replay?.pixelLeakageRate ?? null,
+      missingRate: replay?.missingRate ?? null,
+      frozenMaximumMissingRate: replay?.frozenMaximumMissingRate ?? null,
+      minimumAllowedDelta: replay?.minimumAllowedDelta ?? null,
+      scenarioGroupCount: replay?.scenarioGroups.length ?? null,
+      replayOk: replay?.ok === true,
+    } : null,
+    errors,
+  };
+}
+
+function rollbackAuditGate(
+  verification: Awaited<ReturnType<typeof verifyApprovedReleaseRollbackReport>>,
+  filePath: string,
+) {
+  const report = verification.report;
+  const replay = verification.replay;
+  return {
+    ok: verification.ok,
+    filePath,
+    found: verification.found,
+    evidence: report ? {
+      version: report.version,
+      currentVersion: report.currentVersion ?? null,
+      rollbackCandidateCount: report.rollbackCandidateCount,
+      rollbackCandidates: report.rollbackCandidates,
+      releaseCount: report.releaseCount,
+      registryPath: report.inputs?.registry?.path ?? null,
+      registrySha256: report.inputs?.registry?.sha256 ?? null,
+      activeManifestPath: report.inputs?.activeManifest?.path ?? null,
+      activeManifestSha256: report.inputs?.activeManifest?.sha256 ?? null,
+      replayOk: replay?.ok === true,
+    } : null,
+    errors: verification.errors,
+  };
+}
+
 async function productionAsset(manifestPath: string) {
   const manifest = await readJson<ProductionManifest>(manifestPath);
   const modelFile = typeof manifest?.modelFile === "string" ? manifest.modelFile : null;
@@ -182,6 +348,7 @@ async function productionAsset(manifestPath: string) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  if (options.outputPath) await assertSafeOutputPath(options.outputPath, directInputPaths(options));
   const [specText, progressText] = await Promise.all([
     readFile(options.specPath, "utf8"),
     readFile(options.progressPath, "utf8"),
@@ -200,6 +367,24 @@ async function main() {
   const betaReview = await readJson<BetaReview>(options.betaReviewPath);
   const failureCases = await readJson<FailureCases>(options.failureCasesPath);
   const production = await productionAsset(options.productionManifestPath);
+  const productQualityVerification = await verifyApprovedReleaseProductQualityReport(
+    options.releaseProductQualityPath,
+    options.releaseTestSnapshotPath,
+  );
+  const rollbackVerification = await verifyApprovedReleaseRollbackReport(
+    options.rollbackAuditPath,
+    options.releaseRegistryPath,
+    options.productionManifestPath,
+  );
+  let currentRollbackEvidencePaths: string[] = [];
+  try {
+    currentRollbackEvidencePaths = await collectReleaseRollbackEvidencePaths(
+      options.releaseRegistryPath,
+      options.productionManifestPath,
+    );
+  } catch {
+    // The rollback gate reports unreadable registry/manifest evidence; direct inputs remain protected.
+  }
 
   const evaluatedReleaseTestImages = Number(candidateReview?.dataset?.testImages ?? 0);
   const snapshotItems = Array.isArray(releaseTestSnapshot?.items) ? releaseTestSnapshot.items : [];
@@ -210,6 +395,8 @@ async function main() {
     snapshotImages > 0 &&
     snapshotItems.length === snapshotImages &&
     new Set(snapshotItems.map((item) => `${item.lane}:${item.fileName}`)).size === snapshotImages &&
+    snapshotItems.every((item) => typeof item.imageSha256 === "string" && /^[a-f0-9]{64}$/i.test(item.imageSha256)) &&
+    new Set(snapshotItems.map((item) => item.imageSha256!.toLowerCase())).size === snapshotImages &&
     snapshotItems.every((item) => item.trainingUse === "prohibited") &&
     releaseTestSnapshot.representativeReleaseGate?.actual === snapshotImages &&
     releaseTestSnapshot.representativeReleaseGate?.required === 100 &&
@@ -239,8 +426,10 @@ async function main() {
     snapshotSourceHash: frozenSnapshotOk ? releaseTestSnapshot?.itemsSha256 ?? null : null,
     evaluatedModelTestImages: frozenQualityOk ? snapshotImages : evaluatedReleaseTestImages,
     historicalEvaluatedModelTestImages: evaluatedReleaseTestImages,
-    note: frozenSnapshotOk && frozenQualityOk
-      ? "The frozen reviewed candidate has deployment-resolution quality evidence, but remains below the 100-image representative-size gate."
+    note: frozenSnapshotOk && frozenQualityOk && releaseTestImages >= 100
+      ? "The frozen reviewed candidate has deployment-resolution quality evidence and reaches the 100-image representative-size gate."
+      : frozenSnapshotOk && frozenQualityOk
+        ? "The frozen reviewed candidate has deployment-resolution quality evidence, but remains below the 100-image representative-size gate."
       : frozenSnapshotOk
         ? "Frozen reviewed candidates count toward dataset-size readiness only; no lineage-checked snapshot quality report was found."
         : "No valid frozen reviewed candidate snapshot was found; using the evaluated model test split count.",
@@ -256,7 +445,9 @@ async function main() {
     maskMap50: selectedMaskMap50,
     minimumBoxMap50: 0.85,
     minimumMaskMap50: 0.75,
-    evidenceScope: frozenQualityOk ? "frozen-reviewed-candidate-67-deployment-512" : "historical-evaluated-model-test-split-13",
+    evidenceScope: frozenQualityOk
+      ? `frozen-reviewed-candidate-${snapshotImages}-deployment-512`
+      : "historical-evaluated-model-test-split-13",
     qualityReportPath: options.releaseTestQualityPath,
     qualityReportOk: frozenQualityOk,
     qualityDecision: frozenQualityOk ? releaseTestQuality?.decision ?? null : null,
@@ -274,10 +465,31 @@ async function main() {
     memoryOk: desktopMemory?.ok === true,
     memorySamples: desktopMemory?.sampleCount ?? null,
   };
-  const mobileGates = await Promise.all(options.mobileReports.map(async ({ device, filePath }) => {
+  const mobileResults = await Promise.all(options.mobileReports.map(async ({ device, filePath }) => {
     const verification = await verifyApprovedDeviceAcceptanceReport(filePath, device);
     const report = verification.report;
-    return {
+    const sourcePaths = object(report?.sourcePaths);
+    const reportEvidence = object(report?.evidence);
+    const performanceEvidence = object(reportEvidence?.performance);
+    const memoryEvidence = object(reportEvidence?.memory);
+    const performancePath = evidencePath(sourcePaths?.performance);
+    const memoryPath = evidencePath(sourcePaths?.memory);
+    const transitivePaths = [
+      performancePath,
+      memoryPath,
+      evidencePath(performanceEvidence?.path),
+      evidencePath(memoryEvidence?.verificationPath),
+      evidencePath(memoryEvidence?.rawReportPath),
+      verification.memory.rawReportPath,
+    ]
+      .filter((value): value is string => Boolean(value));
+    for (const evidenceFile of [performancePath, memoryPath]) {
+      if (!evidenceFile) continue;
+      const evidenceDocument = await readJson<Record<string, unknown>>(evidenceFile);
+      const rawInputPath = evidencePath(evidenceDocument?.inputPath);
+      if (rawInputPath) transitivePaths.push(rawInputPath);
+    }
+    return { gate: {
       device,
       filePath,
       found: verification.found,
@@ -295,8 +507,9 @@ async function main() {
         rawMemorySha256: verification.memory.rawReportSha256,
         replayErrors: verification.errors,
       } : null,
-    };
+    }, transitivePaths };
   }));
+  const mobileGates = mobileResults.map((item) => item.gate);
   const requiredMobileDevices = ["android", "android-tablet", "iphone", "ipad"];
   const mobileGate = {
     ok:
@@ -351,18 +564,51 @@ async function main() {
   };
   const userChecklistGate = { ok: userChecklist.length > 0 && userChecklist.every((item) => item.checked), items: userChecklist };
   const engineeringChecklistGate = { ok: engineeringChecklist.length > 0 && engineeringChecklist.every((item) => item.checked), items: engineeringChecklist };
+  const incompleteProgressMarkers = markers.filter((marker) => !isPassMarker(marker.status));
+  const progressMarkersGate = {
+    ok: markers.length > 0 && incompleteProgressMarkers.length === 0,
+    markerCount: markers.length,
+    passMarkerCount: markers.length - incompleteProgressMarkers.length,
+    incompleteMarkers: incompleteProgressMarkers,
+  };
+  const productQualityGate = releaseProductQualityGate(
+    productQualityVerification,
+    options.releaseProductQualityPath,
+    frozenSnapshotOk,
+    options.releaseTestSnapshotPath,
+  );
+  const rollbackGate = rollbackAuditGate(rollbackVerification, options.rollbackAuditPath);
+  if (options.outputPath) {
+    await assertSafeOutputPath(options.outputPath, [
+      ...directInputPaths(options),
+      ...productQualityInputPaths(productQualityVerification),
+      ...rollbackInputPaths(rollbackVerification),
+      ...currentRollbackEvidencePaths,
+      ...mobileResults.flatMap((item) => item.transitivePaths),
+      ...(production.modelPath ? [production.modelPath] : []),
+    ]);
+  }
 
   const blockingInputs = [
+    ...(!userChecklistGate.ok ? [{ code: "SPEC_USER_CHECKLIST", owner: "user", summary: "Complete every explicit user checklist item in implementation spec section 16.1." }] : []),
+    ...(!engineeringChecklistGate.ok ? [{ code: "SPEC_ENGINEERING_CHECKLIST", owner: "engineering", summary: "Complete every explicit engineering checklist item in implementation spec section 16.2." }] : []),
+    ...(!progressMarkersGate.ok ? [{ code: "INCOMPLETE_PROGRESS_MARKERS", owner: "user+engineering", summary: `${incompleteProgressMarkers.length} progress marker(s) are not PASS: ${incompleteProgressMarkers.map((marker) => marker.id).join(", ")}.` }] : []),
+    ...(!datasetGate.ok ? [{ code: "DATASET_READINESS", owner: "engineering", summary: "Restore approved release-mode dataset readiness evidence." }] : []),
     ...(!failureCaseGate.ok ? [{ code: "USER_FAILURE_CASES", owner: "user", summary: "Provide representative real-world failure images and an approved failure-case report." }] : []),
     ...(!bestMetricsGate.ok ? [{ code: "MODEL_QUALITY_REGRESSION", owner: "engineering", summary: `Improve the deployment-resolution model: current box/mask mAP50 is ${bestMetricsGate.boxMap50.toFixed(4)}/${bestMetricsGate.maskMap50.toFixed(4)}.` }] : []),
     ...(!releaseTestGate.ok ? [{ code: "REPRESENTATIVE_RELEASE_TESTSET", owner: "user+engineering", summary: `Provide and review at least ${releaseTestGate.required - releaseTestGate.actual} more source-isolated real release-test images.` }] : []),
+    ...(!desktopGate.ok ? [{ code: "DESKTOP_ACCEPTANCE", owner: "engineering", summary: "Restore passing desktop performance and repeated-run memory evidence." }] : []),
     ...(!mobileGate.ok ? [{ code: "MOBILE_DEVICE_ACCEPTANCE", owner: "user+engineering", summary: "Run performance and memory acceptance on Android phone/tablet, iPhone, and iPad physical devices." }] : []),
     ...(!betaGate.ok ? [{ code: "USER_BETA_QUALITY_REVIEW", owner: "user", summary: "Complete the directly-usable / needs-fix / unusable Beta review on at least 100 representative images." }] : []),
+    ...(!productQualityGate.ok ? [{ code: "RELEASE_PRODUCT_QUALITY_EVIDENCE", owner: "user+engineering", summary: "Provide a user-reviewed, frozen-snapshot-bound product quality report covering usability, contamination, leakage, rough rectangles, missing nails, and scenario regressions." }] : []),
+    ...(!production.ok ? [{ code: "PRODUCTION_MODEL_ASSET", owner: "engineering", summary: "Publish an approved production ONNX whose size and SHA-256 match the production manifest." }] : []),
+    ...(!rollbackGate.ok ? [{ code: "RELEASE_ROLLBACK_AUDIT", owner: "engineering", summary: "Provide a passing rollback audit with an integrity-verified current release and at least one rollback candidate." }] : []),
   ];
 
   const gates = {
     userChecklist: userChecklistGate,
     engineeringChecklist: engineeringChecklistGate,
+    progressMarkers: progressMarkersGate,
     datasetReadiness: datasetGate,
     bestCandidateMetrics: bestMetricsGate,
     representativeReleaseTest: releaseTestGate,
@@ -370,12 +616,14 @@ async function main() {
     mobileAcceptance: mobileGate,
     failureCases: failureCaseGate,
     betaQualityReview: betaGate,
+    releaseProductQuality: productQualityGate,
     productionModelAsset: production,
+    releaseRollback: rollbackGate,
   };
   const ok = Object.values(gates).every((gate) => gate.ok === true);
   const report = {
     ok,
-    version: "nail-texture-local-inference-completion-audit/v1",
+    version: "nail-texture-local-inference-completion-audit/v2",
     generatedAt: new Date().toISOString(),
     decision: ok ? "complete" : "hold",
     inputs: options,
@@ -384,16 +632,14 @@ async function main() {
       passedGates: Object.values(gates).filter((gate) => gate.ok === true).length,
       failedGates: Object.values(gates).filter((gate) => gate.ok !== true).length,
       progressMarkerCount: markers.length,
-      passMarkerCount: markers.filter((marker) => marker.status.includes("PASS")).length,
-      incompleteProgressMarkers: markers.filter((marker) => !marker.status.includes("PASS")),
+      passMarkerCount: progressMarkersGate.passMarkerCount,
+      incompleteProgressMarkers,
     },
     gates,
     blockingInputs,
     nextAction: blockingInputs.length > 0
-      ? "Collect external/user evidence without promoting the production model."
-      : !production.ok
-        ? "Run the approved promotion pipeline and rerun this audit."
-        : "All implementation-spec completion gates are proven.",
+      ? "Resolve every failed completion gate without promoting the production model."
+      : "All implementation-spec completion gates are proven.",
   };
   if (options.outputPath) {
     await mkdir(path.dirname(options.outputPath), { recursive: true });

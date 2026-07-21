@@ -1,7 +1,7 @@
 {
   "ok": false,
-  "version": "nail-texture-local-inference-completion-audit/v1",
-  "generatedAt": "2026-07-21T17:56:38.144Z",
+  "version": "nail-texture-local-inference-completion-audit/v2",
+  "generatedAt": "2026-07-21T19:09:49.956Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -16,6 +16,9 @@
     "desktopMemoryPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-desktop-memory.json",
     "betaReviewPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-beta-quality-review.json",
     "failureCasesPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-user-failure-cases.json",
+    "releaseProductQualityPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-release-product-quality.json",
+    "releaseRegistryPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\release-registry.json",
+    "rollbackAuditPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-release-rollback.json",
     "mobileReports": [
       {
         "device": "android",
@@ -37,11 +40,11 @@
     "outputPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-local-inference-completion-audit.json"
   },
   "summary": {
-    "gateCount": 10,
+    "gateCount": 13,
     "passedGates": 2,
-    "failedGates": 8,
-    "progressMarkerCount": 330,
-    "passMarkerCount": 318,
+    "failedGates": 11,
+    "progressMarkerCount": 333,
+    "passMarkerCount": 321,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -59,7 +62,7 @@
         "id": "M2-T3-RELEASE-TEST-ANNOTATION",
         "task": "新增真实发布测试素材逐甲标注与整图复核",
         "status": "🟡 IN PROGRESS",
-        "evidence": "冻结前拓扑门发现030的关节假阳性及13图无效polygon/交叠边界；返修并经原分辨率复核后，92张父图为67张/384 mask通过、0返修、25张源图裁断或遮挡排除。核心57张为45张/268 mask通过、0返修、12排除，压力35张为22张/116 mask通过、0返修、13排除；当前候选已冻结，但仍少33张才达到100张代表性下限"
+        "evidence": "既有92张父图已冻结67张/384 mask并排除25张。新增33张候选已完成YOLO 204候选与SAM2 204/204 mask生成、33/33原分辨率视觉审核；严格结论为7张可直接通过、26张需删除误检/重复/局部mask或补建完整甲面、0张源图排除，其中1张虽视觉轮廓可用但存在5个无效拓扑，仍按返修处理。新增33张尚未完成返修、终审与冻结，因此代表性正式快照仍为67/100"
       },
       {
         "id": "M3-T3-DEVICE",
@@ -107,7 +110,7 @@
         "id": "USER-TESTSET-01",
         "task": "最终形成至少 100–200 张来源隔离的独立真实发布测试图",
         "status": "🟡 IN PROGRESS",
-        "evidence": "已冻结并评估67张/384 mask，18个父来源组、trainingUse=prohibited、逐文件与聚合哈希通过，且与正式训练集来源组/图片哈希零重叠；v6部署512质量评估已完成并被拒绝。代表性下限为100张，当前仍缺33张，历史13张仅保留为对照基线而不重复计数"
+        "evidence": "已冻结并评估67张/384 mask。补足规模所需的33张来源隔离候选已完成角色替换、工作区物化、YOLO+SAM候选生成和33/33原分辨率首审，但仅7张可直接通过、26张仍需返修和逐甲终审；因此图片身份候选已补齐，正式真值快照仍为67/100，不能提前按100张计数"
       },
       {
         "id": "USER-THRESHOLD-01",
@@ -797,6 +800,89 @@
         {
           "checked": true,
           "text": "建立真机、Beta和用户失败案例证据构建器与CSV模板；机器校验原始报告PASS、样本量、用户审核、图片存在、SHA-256、来源组、枚举值和直接可用率，用户无需手写内部JSON。"
+        },
+        {
+          "checked": true,
+          "text": "将最终完成度审计升级为v2强门：全部非PASS进度标记正式参与`decision`；新增与冻结发布测试`itemsSha256`、图片数和mask数绑定的用户审核产品质量证据，逐项深验直接可用率、污染实例率、像素泄漏、粗糙矩形化、冻结甲面缺失率及场景box/mask退化。产品质量报告必须由冻结快照、逐实例CSV和场景回归CSV构建；构建器按冻结工具的canonical JSON规则复算`itemsSha256`，校验固定decision/训练禁用契约和100图代表性门，要求fileName/imageSha256分别唯一并允许sourceGroup同源重复，且禁止场景样本数超过冻结图片数。逐实例记录以1起始索引完整覆盖每个mask并逐行绑定图片身份，聚合指标与八维场景delta均由构建器固定重算；完成度审计直接调用深验器，重读原始路径与SHA-256后重放计算，并要求报告快照路径与CLI指定冻结快照相同，拒绝漏项、重复、身份漂移、分子越界、源文件写后漂移、合法快照换绑、重复图片哈希凑数和无原始证据的手写PASS。`--output`必须避开全部直接输入及可解析的产品、回滚、生产模型和移动设备传递证据，Windows大小写、真实路径或已有文件身份相同均拒绝覆盖。67图快照即使聚合达标仍保持HOLD。缺失率冻结上限固定为0.10，场景最低允许delta固定为-0.02；场景组使用受控`dimension`并强制覆盖12.3的`skin-tone`、`nail-color`、`reflectivity`、`occlusion`、`orientation`、`nail-count`、`background`、`device-backend`八维。新增回滚审计深验，要求当前版本、至少一个回滚候选及全部release的`ok`/`integrityOk`。外层伪PASS、快照漂移、自报放宽阈值、缺维度、场景失败、非PASS标记和不可验证回滚均必须保持HOLD。"
+        }
+      ]
+    },
+    "progressMarkers": {
+      "ok": false,
+      "markerCount": 333,
+      "passMarkerCount": 321,
+      "incompleteMarkers": [
+        {
+          "id": "M2-T3-REAL-DATA",
+          "task": "导入授权真实图片并建立来源隔离测试集",
+          "status": "🟠 PARTIAL",
+          "evidence": "新增113张已获商业训练与长期回归授权；80张原图/516 mask及7张截图派生图/41 mask正式导入，5张源图排除、28张原图继续返修。真实发布测试样本仍未达到100–200张代表性要求"
+        },
+        {
+          "id": "M2-T3-VISION-ANNOTATION",
+          "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
+          "status": "🟡 IN PROGRESS",
+          "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask。来源隔离val已完成30张/144 mask、0冲突，并通过val-only物化、train/冻结test来源隔离和校准真值终审。hard negative严格筛选仅1/100张安全候选，仍缺99张且未正式物化"
+        },
+        {
+          "id": "M2-T3-RELEASE-TEST-ANNOTATION",
+          "task": "新增真实发布测试素材逐甲标注与整图复核",
+          "status": "🟡 IN PROGRESS",
+          "evidence": "既有92张父图已冻结67张/384 mask并排除25张。新增33张候选已完成YOLO 204候选与SAM2 204/204 mask生成、33/33原分辨率视觉审核；严格结论为7张可直接通过、26张需删除误检/重复/局部mask或补建完整甲面、0张源图排除，其中1张虽视觉轮廓可用但存在5个无效拓扑，仍按返修处理。新增33张尚未完成返修、终审与冻结，因此代表性正式快照仍为67/100"
+        },
+        {
+          "id": "M3-T3-DEVICE",
+          "task": "Windows、Android 与 iPhone 真机矩阵",
+          "status": "🟠 PARTIAL",
+          "evidence": "Windows Chromium WebGPU 已完成29次热性能和20次内存稳定性基准：P95=133.7ms，JS heap 峰值19.86MiB、首末增长1.69MiB，浏览器私有内存首末增长121.81MiB；Android/iPhone/iPad 真机仍等待执行"
+        },
+        {
+          "id": "M3-T4-QUALITY",
+          "task": "真实测试集直接可用率、污染率和人工修正成本",
+          "status": "🟡 IN PROGRESS",
+          "evidence": "冻结67张/384 mask已在部署512口径完成v6评估；全量box/mask mAP50=0.8370/0.8313，核心=0.8485/0.8523，压力=0.8179/0.7919，压力组退化触发拒绝。代表性规模仍缺33张，直接可用率、污染率和人工修正成本仍需100张Beta逐图审核"
+        },
+        {
+          "id": "M3-T5-BETA",
+          "task": "Beta 发布决策",
+          "status": "🔴 HOLD",
+          "evidence": "v6 在扩展冻结快照的部署512质量门被拒绝；同时仍缺100张代表性真实测试集、移动真机矩阵、用户失败案例和Beta人工质量验收，禁止 promotion"
+        },
+        {
+          "id": "REL-T2-CANDIDATE",
+          "task": "正式模型候选发布",
+          "status": "🔴 HOLD",
+          "evidence": "v6保留资产、协议和桌面性能证据，但在冻结67张的部署512质量门被拒绝；生产manifest保持不变，需用训练授权且与冻结快照来源隔离的新压力样本改进候选，再重跑同一门禁"
+        },
+        {
+          "id": "USER-AUTH-03",
+          "task": "确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试",
+          "status": "⏸️ USER INPUT",
+          "evidence": "机器审计与11页视觉总览已完成；当前仅登记为合成候选池，未导入正式集。需明确授权后再进入逐图筛选和标注流程"
+        },
+        {
+          "id": "USER-HARD-NEGATIVE-01",
+          "task": "补充或确认约100张清晰、来源隔离的hard negative",
+          "status": "⏭ USER INPUT",
+          "evidence": "已复筛现有37张域外排除项，仅1张满足清晰、部署相关、无真实有效甲面、授权和来源隔离要求，仍缺99张。需要补充普通手部无美甲、珠宝/花瓣/印刷纹理/玩偶等易误检但清晰的独立图片；拼图、模板、独立甲片、低清和裁断图不可凑数"
+        },
+        {
+          "id": "USER-FAILURE-01",
+          "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
+          "status": "⏭ USER INPUT",
+          "evidence": "hard negative 与失败类型优化"
+        },
+        {
+          "id": "USER-TESTSET-01",
+          "task": "最终形成至少 100–200 张来源隔离的独立真实发布测试图",
+          "status": "🟡 IN PROGRESS",
+          "evidence": "已冻结并评估67张/384 mask。补足规模所需的33张来源隔离候选已完成角色替换、工作区物化、YOLO+SAM候选生成和33/33原分辨率首审，但仅7张可直接通过、26张仍需返修和逐甲终审；因此图片身份候选已补齐，正式真值快照仍为67/100，不能提前按100张计数"
+        },
+        {
+          "id": "USER-THRESHOLD-01",
+          "task": "根据首轮真实测试冻结甲面缺失率与分组退化门槛",
+          "status": "⏭ USER INPUT",
+          "evidence": "Beta 后、正式发布前"
         }
       ]
     },
@@ -918,6 +1004,15 @@
       "found": false,
       "evidence": null
     },
+    "releaseProductQuality": {
+      "ok": false,
+      "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-release-product-quality.json",
+      "found": false,
+      "evidence": null,
+      "errors": [
+        "cannot read product quality report: ENOENT: no such file or directory, open 'E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-release-product-quality.json'"
+      ]
+    },
     "productionModelAsset": {
       "ok": false,
       "manifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
@@ -944,9 +1039,33 @@
       "modelSizeBytes": 0,
       "actualSha256": null,
       "integrityOk": false
+    },
+    "releaseRollback": {
+      "ok": false,
+      "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-release-rollback.json",
+      "found": false,
+      "evidence": null,
+      "errors": [
+        "cannot read rollback audit report: ENOENT: no such file or directory, open 'E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-release-rollback.json'"
+      ]
     }
   },
   "blockingInputs": [
+    {
+      "code": "SPEC_USER_CHECKLIST",
+      "owner": "user",
+      "summary": "Complete every explicit user checklist item in implementation spec section 16.1."
+    },
+    {
+      "code": "SPEC_ENGINEERING_CHECKLIST",
+      "owner": "engineering",
+      "summary": "Complete every explicit engineering checklist item in implementation spec section 16.2."
+    },
+    {
+      "code": "INCOMPLETE_PROGRESS_MARKERS",
+      "owner": "user+engineering",
+      "summary": "12 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-RELEASE-TEST-ANNOTATION, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, REL-T2-CANDIDATE, USER-AUTH-03, USER-HARD-NEGATIVE-01, USER-FAILURE-01, USER-TESTSET-01, USER-THRESHOLD-01."
+    },
     {
       "code": "USER_FAILURE_CASES",
       "owner": "user",
@@ -971,7 +1090,22 @@
       "code": "USER_BETA_QUALITY_REVIEW",
       "owner": "user",
       "summary": "Complete the directly-usable / needs-fix / unusable Beta review on at least 100 representative images."
+    },
+    {
+      "code": "RELEASE_PRODUCT_QUALITY_EVIDENCE",
+      "owner": "user+engineering",
+      "summary": "Provide a user-reviewed, frozen-snapshot-bound product quality report covering usability, contamination, leakage, rough rectangles, missing nails, and scenario regressions."
+    },
+    {
+      "code": "PRODUCTION_MODEL_ASSET",
+      "owner": "engineering",
+      "summary": "Publish an approved production ONNX whose size and SHA-256 match the production manifest."
+    },
+    {
+      "code": "RELEASE_ROLLBACK_AUDIT",
+      "owner": "engineering",
+      "summary": "Provide a passing rollback audit with an integrity-verified current release and at least one rollback candidate."
     }
   ],
-  "nextAction": "Collect external/user evidence without promoting the production model."
+  "nextAction": "Resolve every failed completion gate without promoting the production model."
 }

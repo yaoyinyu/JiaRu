@@ -8,6 +8,7 @@ import test from "node:test";
 
 const script = path.resolve("model/training/audit-first-annotation-training-truths.py");
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
+const hashFile = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
 
 function writeTruth(root: string, name: string, fileName: string, annotationHash: string, masks = 5) {
   const report = {
@@ -81,4 +82,115 @@ test("validation truth index accepts only validation reports and keeps training 
   assert.equal(index.summary.completeMaskCount, 2);
   assert.equal(index.policy.trainingUse, "prohibited");
   assert.equal(index.policy.validationUse, "prohibited-until-materialization-audit");
+});
+
+test("release-test truth index rejects outer-only forged evidence", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "release-test-truth-index-"));
+  const image = path.join(root, "release-a.jpg");
+  const annotation = path.join(root, "release-a.json");
+  const visualReview = path.join(root, "release-a-review.json");
+  const roleManifest = path.join(root, "release-role.json");
+  writeFileSync(image, "release-image-bytes");
+  writeFileSync(annotation, JSON.stringify({ annotations: [{ polygon: [1, 2, 3] }] }));
+  writeFileSync(visualReview, JSON.stringify({ ok: true }));
+  writeFileSync(roleManifest, JSON.stringify({
+    ok: true,
+    decision: "annotation_workspace_ready_candidate_only",
+    policy: {
+      selectionMode: "independent-release-test",
+      assignedRole: "independent-release-test",
+    },
+    items: [{
+      fileName: "release-a.jpg",
+      sha256: hashFile(image),
+      sourceGroup: "release-group-a",
+      assignedRole: "independent-release-test",
+      expectedFullyVisibleNails: 1,
+      trainingUse: "prohibited",
+    }],
+  }));
+  const report = {
+    ok: true,
+    decision: "approved_as_release_test_truth_candidate_pending_snapshot_freeze",
+    inputs: {
+      truthRole: "release-test",
+      visualReviewFinal: visualReview,
+      visualReviewFinalSha256: hashFile(visualReview),
+      image,
+      imageSha256: hashFile(image),
+      annotation,
+      annotationSha256: hashFile(annotation),
+      roleManifest,
+      roleManifestSha256: hashFile(roleManifest),
+    },
+    policy: {
+      snapshotFreezeAndSourceIsolationStillRequired: true,
+      trainingUse: "prohibited",
+      evaluationUse: "prohibited-until-snapshot-freeze",
+    },
+    item: {
+      fileName: "release-a.jpg",
+      sha256: hashFile(image),
+      sourceGroup: "release-group-a",
+      completeMaskCount: 1,
+      annotationTruthStatus: "approved-as-release-test-truth-candidate",
+      trainingUse: "prohibited",
+      evaluationUse: "prohibited-until-snapshot-freeze",
+    },
+  };
+  writeFileSync(
+    path.join(root, "release-test-truth-001-release-a-final.json"),
+    `${JSON.stringify(report)}\n`,
+  );
+  const output = path.join(root, "report.json");
+  const run = spawnSync("python", [
+    script,
+    "--truth-dir", root,
+    "--truth-role", "release-test",
+    "--output", output,
+  ], { encoding: "utf8" });
+  assert.notEqual(run.status, 0);
+  const index = JSON.parse(readFileSync(output, "utf8"));
+  assert.equal(index.decision, "reject_release_test_truth_index");
+  assert.match(index.errors.join("\n"), /truth deep replay failed/);
+});
+
+test("truth index rejects a directory containing only rejected reports", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "release-test-truth-empty-index-"));
+  writeFileSync(
+    path.join(root, "release-test-truth-001-rejected-final.json"),
+    `${JSON.stringify({
+      ok: false,
+      decision: "reject_release_test_truth_candidate",
+      errors: ["not reviewed"],
+    })}\n`,
+  );
+  const output = path.join(root, "index.json");
+  const run = spawnSync("python", [
+    script,
+    "--truth-dir", root,
+    "--truth-role", "release-test",
+    "--output", output,
+  ], { encoding: "utf8" });
+  assert.notEqual(run.status, 0);
+  const index = JSON.parse(readFileSync(output, "utf8"));
+  assert.equal(index.decision, "reject_release_test_truth_index");
+  assert.equal(index.summary.approvedReportCount, 0);
+  assert.equal(index.summary.rejectedReportCount, 1);
+  assert.match(index.errors.join("\n"), /requires at least one approved candidate/);
+});
+
+test("truth index output cannot overwrite a finalized report", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "training-truth-output-alias-"));
+  const reportPath = path.join(root, "training-truth-001-a-final.json");
+  writeTruth(root, path.basename(reportPath), "a.jpg", "annotation-a", 4);
+  const before = hashFile(reportPath);
+  const run = spawnSync("python", [
+    script,
+    "--truth-dir", root,
+    "--output", reportPath,
+  ], { encoding: "utf8" });
+  assert.notEqual(run.status, 0);
+  assert.equal(hashFile(reportPath), before);
+  assert.match(run.stderr, /output must not overwrite input evidence/);
 });
