@@ -388,6 +388,42 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
     await writeFile(fixture.files.progress, "| `M1` | 工程 | ✅ PASS | tested |\n", "utf8");
   });
 
+  await t.test("rejects an empty progress table instead of vacuously passing it", async () => {
+    await writeFile(fixture.files.progress, "# progress\n", "utf8");
+    const output = path.join(root, "empty-progress.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.progressMarkers.ok, false);
+    assert.equal(report.gates.progressMarkers.markerCount, 0);
+    assert.match(
+      report.blockingInputs.find((item: { code: string }) => item.code === "INCOMPLETE_PROGRESS_MARKERS")?.summary ?? "",
+      /no parseable markers/,
+    );
+    await writeFile(fixture.files.progress, "| `M1` | 工程 | ✅ PASS | tested |\n", "utf8");
+  });
+
+  await t.test("rejects duplicate PASS marker IDs instead of counting both", async () => {
+    await writeFile(
+      fixture.files.progress,
+      "| `M1` | 工程一 | ✅ PASS | tested once |\n| `M1` | 工程二 | ✅ PASS | tested twice |\n",
+      "utf8",
+    );
+    const output = path.join(root, "duplicate-progress.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.progressMarkers.ok, false);
+    assert.equal(report.gates.progressMarkers.markerCount, 2);
+    assert.equal(report.gates.progressMarkers.uniqueMarkerCount, 1);
+    assert.deepEqual(report.gates.progressMarkers.duplicateMarkerIds, ["M1"]);
+    assert.match(
+      report.blockingInputs.find((item: { code: string }) => item.code === "INCOMPLETE_PROGRESS_MARKERS")?.summary ?? "",
+      /Duplicate progress marker IDs.*M1/,
+    );
+    await writeFile(fixture.files.progress, "| `M1` | 工程 | ✅ PASS | tested |\n", "utf8");
+  });
+
   await t.test("rejects forged outer product-quality PASS and snapshot drift", async () => {
     await writeJson(fixture.files.productQuality, { ...fixture.productQuality, errors: ["hidden failure"] });
     let output = path.join(root, "forged-product-quality.json");

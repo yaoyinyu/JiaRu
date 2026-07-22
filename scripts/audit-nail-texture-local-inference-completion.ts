@@ -307,6 +307,15 @@ function isPassMarker(status: string): boolean {
   return /^(?:✅\s*)?PASS(?:\s|（|\(|$)/i.test(status.trim());
 }
 
+function duplicateValues(values: string[]): string[] {
+  const counts = new Map<string, number>();
+  for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
+  return [...counts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([value]) => value)
+    .sort((left, right) => left.localeCompare(right));
+}
+
 function releaseProductQualityGate(
   verification: Awaited<ReturnType<typeof verifyApprovedReleaseProductQualityReport>>,
   filePath: string,
@@ -627,10 +636,13 @@ async function main() {
   const userChecklistGate = { ok: userChecklist.length > 0 && userChecklist.every((item) => item.checked), items: userChecklist };
   const engineeringChecklistGate = { ok: engineeringChecklist.length > 0 && engineeringChecklist.every((item) => item.checked), items: engineeringChecklist };
   const incompleteProgressMarkers = markers.filter((marker) => !isPassMarker(marker.status));
+  const duplicateProgressMarkerIds = duplicateValues(markers.map((marker) => marker.id));
   const progressMarkersGate = {
-    ok: markers.length > 0 && incompleteProgressMarkers.length === 0,
+    ok: markers.length > 0 && duplicateProgressMarkerIds.length === 0 && incompleteProgressMarkers.length === 0,
     markerCount: markers.length,
+    uniqueMarkerCount: new Set(markers.map((marker) => marker.id)).size,
     passMarkerCount: markers.length - incompleteProgressMarkers.length,
+    duplicateMarkerIds: duplicateProgressMarkerIds,
     incompleteMarkers: incompleteProgressMarkers,
   };
   const productQualityGate = releaseProductQualityGate(
@@ -655,7 +667,19 @@ async function main() {
   const blockingInputs = [
     ...(!userChecklistGate.ok ? [{ code: "SPEC_USER_CHECKLIST", owner: "user", summary: "Complete every explicit user checklist item in implementation spec section 16.1." }] : []),
     ...(!engineeringChecklistGate.ok ? [{ code: "SPEC_ENGINEERING_CHECKLIST", owner: "engineering", summary: "Complete every explicit engineering checklist item in implementation spec section 16.2." }] : []),
-    ...(!progressMarkersGate.ok ? [{ code: "INCOMPLETE_PROGRESS_MARKERS", owner: "user+engineering", summary: `${incompleteProgressMarkers.length} progress marker(s) are not PASS: ${incompleteProgressMarkers.map((marker) => marker.id).join(", ")}.` }] : []),
+    ...(!progressMarkersGate.ok ? [{
+      code: "INCOMPLETE_PROGRESS_MARKERS",
+      owner: "user+engineering",
+      summary: [
+        markers.length === 0 ? "The progress table contains no parseable markers." : "",
+        duplicateProgressMarkerIds.length > 0
+          ? `Duplicate progress marker IDs must be resolved: ${duplicateProgressMarkerIds.join(", ")}.`
+          : "",
+        incompleteProgressMarkers.length > 0
+          ? `${incompleteProgressMarkers.length} progress marker(s) are not PASS: ${incompleteProgressMarkers.map((marker) => marker.id).join(", ")}.`
+          : "",
+      ].filter(Boolean).join(" "),
+    }] : []),
     ...(!datasetGate.ok ? [{ code: "DATASET_READINESS", owner: "engineering", summary: "Restore approved release-mode dataset readiness evidence." }] : []),
     ...(!failureCaseGate.ok ? [{ code: "USER_FAILURE_CASES", owner: "user", summary: "Provide representative real-world failure images and an approved failure-case report." }] : []),
     ...(!bestMetricsGate.ok ? [{
