@@ -29,6 +29,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - 质量分片审核必须以审核页报告中绑定的输入分片路径和SHA-256为唯一清单来源；工作区内即使存在同编号的`review-*.csv`或其他旧分片，也不得按文件名猜测或混用，写决策前必须复验报告绑定路径、哈希和条目数。
 - `build-reviewed-sam-repair-prompts.py` 的 `keepPromptIndices` 使用从 1 开始的提示序号；编写返修清单时不得按数组的 0 起始索引填写。
 - Windows 下运行项目 npm 脚本必须显式使用 `npm.cmd`，禁止调用无扩展名的裸 `npm`；本机 `C:\Windows\System32\npm` 可能优先于 Node.js 安装目录并触发“选择应用打开”弹窗。
+- Windows 下执行项目 PowerShell 命令时优先显式使用 `C:\Program Files\PowerShell\7\pwsh.exe`；不要因宿主默认仍指向旧版 Windows PowerShell 而误判 PowerShell 7 未安装。
 - 未经用户在当前任务中明确要求，不执行 `git commit` 或 `git push`；完成修改与验证后仅保留本地工作区差异。
 - 父截图可用但派生区域选错时，应按父文件 SHA-256 和稳定 `sourceGroup` 替换旧区域，并保持一父图一派生区域；禁止把新旧区域重复计数，也不得因此误排除父图。
 - 验证集真值必须逐图通过原分辨率完整甲面审核；任一图片仍为返修或排除、存在未声明交叠、漏甲、重复、误标或污染时，整套 split 不得用于模型选择或阈值校准，基于该真值产生的高指标只能保留为历史诊断。

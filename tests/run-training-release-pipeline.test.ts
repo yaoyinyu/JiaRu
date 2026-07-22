@@ -134,6 +134,8 @@ async function registerBaselineRelease(modelDir: string, registryPath: string, v
   const manifestPath = path.join(modelDir, "manifest.json");
   const currentManifest = await readFile(manifestPath, "utf8");
   const modelFile = `${version}.onnx`;
+  const modelBytes = Buffer.alloc(300 * 1024);
+  await writeFile(path.join(modelDir, modelFile), modelBytes, "binary");
   await writeFile(
     manifestPath,
     JSON.stringify(
@@ -143,6 +145,8 @@ async function registerBaselineRelease(modelDir: string, registryPath: string, v
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile,
+        modelSizeBytes: modelBytes.byteLength,
+        sha256: sha256(modelBytes),
         labels: ["nail_texture"],
       },
       null,
@@ -150,7 +154,6 @@ async function registerBaselineRelease(modelDir: string, registryPath: string, v
     ),
     "utf8"
   );
-  await writeFile(path.join(modelDir, modelFile), Buffer.alloc(300 * 1024), "binary");
   await execFileAsync(
     process.execPath,
     [

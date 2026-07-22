@@ -33,6 +33,10 @@ def main() -> None:
     candidate_report.add_argument("--sam-report")
     candidate_report.add_argument("--manual-report")
     parser.add_argument("--geometry-audit", required=True)
+    parser.add_argument(
+        "--visual-evidence",
+        help="Optional schema-v2 SAM visual evidence report with hash-bound 2x source/overlay crops.",
+    )
     parser.add_argument("--decision", required=True)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
@@ -46,6 +50,8 @@ def main() -> None:
         "geometryAudit": Path(args.geometry_audit).resolve(),
         "decision": Path(args.decision).resolve(),
     }
+    if args.visual_evidence:
+        paths["visualEvidence"] = Path(args.visual_evidence).resolve()
     output_path = Path(args.output).resolve()
     errors: list[str] = []
     for label, path in paths.items():
@@ -61,6 +67,7 @@ def main() -> None:
     candidate_report_data = read_json(paths[report_key])
     geometry = read_json(paths["geometryAudit"])
     decision = read_json(paths["decision"])
+    visual_evidence = read_json(paths["visualEvidence"]) if "visualEvidence" in paths else None
     file_name = args.file_name
     manual_mode = report_key == "manualReport"
 
@@ -125,8 +132,13 @@ def main() -> None:
     if not overlay_path.is_file():
         errors.append("bound repair overlay is missing")
 
-    if decision.get("schemaVersion") != 1 or decision.get("fileName") != file_name:
+    decision_schema = decision.get("schemaVersion")
+    if decision_schema not in {1, 2} or decision.get("fileName") != file_name:
         errors.append("unsupported decision schema or fileName mismatch")
+    if decision_schema == 2 and visual_evidence is None:
+        errors.append("schema-v2 decision requires hash-bound visual evidence")
+    if decision_schema == 1 and visual_evidence is not None:
+        errors.append("hash-bound visual evidence requires a schema-v2 decision")
     for key, path in paths.items():
         if key == "decision":
             continue
@@ -155,6 +167,73 @@ def main() -> None:
     if overlay_path.is_file() and decision.get("reviewedOverlaySha256") != sha256_file(overlay_path):
         errors.append("decision does not acknowledge the reviewed original-resolution overlay")
 
+    visual_item: dict[str, Any] | None = None
+    if visual_evidence is not None:
+        if (
+            manual_mode
+            or visual_evidence.get("ok") is not True
+            or visual_evidence.get("decision") != "sam_visual_review_evidence_ready_not_truth"
+            or visual_evidence.get("policy", {}).get("evidenceDoesNotGrantTruth") is not True
+            or visual_evidence.get("policy", {}).get("everyPolygonHasSourceAndOverlay2xCrop") is not True
+            or visual_evidence.get("policy", {}).get("trainingUse") != "prohibited"
+        ):
+            errors.append("a passing candidate-only SAM visual evidence report is required")
+        visual_inputs = visual_evidence.get("inputs", {})
+        expected_visual_inputs = {
+            "prompts": paths["repairPrompts"],
+            "samReport": paths["samReport"] if "samReport" in paths else None,
+            "geometryAudit": paths["geometryAudit"],
+        }
+        for key, path in expected_visual_inputs.items():
+            if path is None:
+                continue
+            if Path(str(visual_inputs.get(key, ""))).resolve() != path:
+                errors.append(f"visual evidence {key} path differs from repair input")
+            if visual_inputs.get(f"{key}Sha256") != sha256_file(path):
+                errors.append(f"visual evidence does not bind current {key}")
+        visual_item = next(
+            (item for item in visual_evidence.get("items", []) if item.get("fileName") == file_name),
+            None,
+        )
+        if visual_item is None:
+            errors.append("visual evidence does not contain the requested file")
+        else:
+            if initial_item is not None and (
+                visual_item.get("sourceGroup") != initial_item.get("sourceGroup")
+                or visual_item.get("imageSha256") != initial_item.get("sha256")
+            ):
+                errors.append("visual evidence image identity differs from the initial reviewed item")
+            if (
+                Path(str(visual_item.get("annotationPath", ""))).resolve() != annotation_path
+                or visual_item.get("annotationSha256") != sha256_file(annotation_path)
+            ):
+                errors.append("visual evidence does not bind the repair annotation")
+            if (
+                Path(str(visual_item.get("overlayPath", ""))).resolve() != overlay_path
+                or visual_item.get("overlaySha256") != sha256_file(overlay_path)
+            ):
+                errors.append("visual evidence does not bind the reviewed overlay")
+            crops = visual_item.get("crops", [])
+            if not isinstance(crops, list) or len(crops) != len(annotation.get("annotations", [])):
+                errors.append("visual evidence requires one crop pair per repaired polygon")
+                crops = []
+            seen_indices: set[int] = set()
+            for crop in crops:
+                nail_index = crop.get("nailIndex")
+                if not isinstance(nail_index, int) or nail_index < 1 or nail_index in seen_indices:
+                    errors.append("visual evidence crop nail indices must be unique and 1-based")
+                else:
+                    seen_indices.add(nail_index)
+                for key, hash_key in (
+                    ("sourceCrop", "sourceCropSha256"),
+                    ("overlayCrop", "overlayCropSha256"),
+                ):
+                    crop_path = Path(str(crop.get(key, ""))).resolve()
+                    if not crop_path.is_file() or crop.get(hash_key) != sha256_file(crop_path):
+                        errors.append(f"visual evidence crop is missing or drifted: {key} nail {nail_index}")
+            if crops and seen_indices != set(range(1, len(crops) + 1)):
+                errors.append("visual evidence crop nail indices must cover every polygon exactly once")
+
     status = str(decision.get("reviewStatus", ""))
     issue_codes = decision.get("issueCodes", [])
     final_count = decision.get("finalCompleteMaskCount")
@@ -163,6 +242,11 @@ def main() -> None:
     prompt_count = len(prompt_item.get("boxes", [])) if prompt_item else 0
     geometry_rows = [row for row in geometry.get("rows", []) if row.get("fileName") == file_name]
     geometry_suspects = sum(row.get("status") != "pass" for row in geometry_rows)
+    if visual_item is not None:
+        if visual_item.get("polygonCount") != polygon_count:
+            errors.append("visual evidence polygon count differs from the repair annotation")
+        if visual_item.get("geometrySuspectCount") != geometry_suspects:
+            errors.append("visual evidence geometry suspect count differs from the current audit")
     if status not in VALID_STATUSES:
         errors.append(f"invalid reviewStatus: {status}")
     if not isinstance(issue_codes, list) or any(not isinstance(code, str) or not code for code in issue_codes):
@@ -188,7 +272,7 @@ def main() -> None:
         raise SystemExit(1)
 
     result = {
-        "schemaVersion": 1,
+        "schemaVersion": 2 if visual_evidence is not None else 1,
         "ok": True,
         "decision": "mask_repair_review_complete_final_truth_audit_still_required",
         "inputs": {

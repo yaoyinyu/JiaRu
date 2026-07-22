@@ -42,6 +42,78 @@ function buildProductQuality(snapshot: string, instances: string, scenarios: str
   assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`);
 }
 
+async function buildFrozenReleaseTestQuality(
+  root: string,
+  snapshot: string,
+  output: string,
+  counts: { images: number; masks: number; coreImages: number; stressImages: number; parentSourceGroups: number },
+) {
+  const evaluationRoot = path.join(root, "frozen-evaluation");
+  const materialization = path.join(root, "frozen-materialization.json");
+  await writeJson(materialization, {
+    ok: true,
+    trainingUse: "prohibited",
+    outputDir: evaluationRoot,
+    counts,
+    sourceIsolation: { parentSourceGroupOverlap: [], exactImageHashOverlap: [] },
+  });
+  const weights = path.join(root, "quality-candidate.pt");
+  await writeFile(weights, Buffer.from("quality-candidate-weights"));
+  const writeMetric = async (
+    label: string,
+    imgsz: number,
+    predictions: number,
+    boxMap50: number,
+    maskMap50: number,
+    datasetRoot = evaluationRoot,
+  ) => {
+    const artifact = path.join(root, `${label}-artifacts.json`);
+    await writeJson(artifact, { split: "test", counts: { prediction_labels: predictions } });
+    const metric = path.join(root, `${label}-metrics.json`);
+    await writeJson(metric, {
+      split: "test",
+      imgsz,
+      dataset_root: datasetRoot,
+      weights,
+      box_map50: boxMap50,
+      seg_map50: maskMap50,
+      box_map: boxMap50 - 0.3,
+      seg_map: maskMap50 - 0.3,
+      evaluation_artifacts: { index: artifact, counts: { prediction_labels: predictions } },
+    });
+    return metric;
+  };
+  const baseline = await writeMetric("quality-baseline", 512, 13, 0.9, 0.85, path.join(root, "historical-test"));
+  const full512 = await writeMetric("quality-full-512", 512, counts.images, 0.895, 0.845);
+  const full640 = await writeMetric("quality-full-640", 640, counts.images, 0.9, 0.85);
+  const core512 = await writeMetric("quality-core-512", 512, counts.coreImages, 0.9, 0.85);
+  const stress512 = await writeMetric("quality-stress-512", 512, counts.stressImages, 0.885, 0.835);
+  const assessment = path.join(root, "quality-assessment.json");
+  await writeJson(assessment, {
+    ok: true,
+    baseline: { metricsPath: baseline, metrics: { boxMap50: 0.9, maskMap50: 0.85 } },
+    thresholds: { maxBoxMap50Drop: 0.02, maxMaskMap50Drop: 0.02, minBoxMap50: 0.85, minMaskMap50: 0.75 },
+    candidates: [
+      { label: `release${counts.images}`, metricsPath: full512, metrics: { boxMap50: 0.895, maskMap50: 0.845, boxMap50To95: 0.595, maskMap50To95: 0.545 }, qualityGatePassed: true },
+      { label: `core${counts.coreImages}`, metricsPath: core512, metrics: { boxMap50: 0.9, maskMap50: 0.85, boxMap50To95: 0.6, maskMap50To95: 0.55 }, qualityGatePassed: true },
+      { label: `stress${counts.stressImages}`, metricsPath: stress512, metrics: { boxMap50: 0.885, maskMap50: 0.835, boxMap50To95: 0.585, maskMap50To95: 0.535 }, qualityGatePassed: true },
+    ],
+  });
+  const result = spawnSync("python", [
+    path.resolve("model/training/build-frozen-release-test-quality-report.py"),
+    "--snapshot-manifest", snapshot,
+    "--materialization-report", materialization,
+    "--baseline-metrics", baseline,
+    "--full-512", full512,
+    "--full-640", full640,
+    "--core-512", core512,
+    "--stress-512", stress512,
+    "--assessment", assessment,
+    "--output", output,
+  ], { encoding: "utf8" });
+  assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`);
+}
+
 async function writeReleaseManifest(root: string, manifestPath: string, version: string, modelBytes: Buffer) {
   const modelPath = path.join(root, `${version}.onnx`);
   await writeFile(modelPath, modelBytes);
@@ -169,7 +241,9 @@ async function preparePassingFixture(root: string) {
     fileName: `sample-${index}.jpg`,
     lane: index < 70 ? "core" : "stress",
     sourceGroup: `release-source-${index}`,
+    parentSourceGroup: `release-parent-${index % 20}`,
     imageSha256: createHash("sha256").update(`release-image-${index}`).digest("hex"),
+    annotationSha256: createHash("sha256").update(`release-annotation-${index}`).digest("hex"),
     maskCount: 5,
     trainingUse: "prohibited",
   }));
@@ -178,20 +252,13 @@ async function preparePassingFixture(root: string) {
     snapshotId: "reviewed-candidate-v2",
     decision: "frozen_reviewed_candidate_not_release_ready",
     trainingUse: "prohibited",
-    counts: { images: 100, masks: 500, coreImages: 70, stressImages: 30 },
+    counts: { images: 100, masks: 500, coreImages: 70, stressImages: 30, parentSourceGroups: 20 },
     representativeReleaseGate: { ok: true, actual: 100, required: 100, shortfall: 0 },
     itemsSha256,
     items: snapshotItems,
   };
   await writeJson(files.snapshot, snapshot);
-  await writeJson(files.quality, {
-    ok: true,
-    decision: "approve_candidate_at_deployment_resolution",
-    qualityGatePassed: true,
-    trainingUse: "prohibited",
-    snapshot: { itemsSha256, counts: { images: 100, masks: 500 } },
-    evaluations: { full512: { imgsz: 512, boxMap50: 0.9, maskMap50: 0.85, predictionLabels: 100 } },
-  });
+  await buildFrozenReleaseTestQuality(root, files.snapshot, files.quality, snapshot.counts);
   await writeJson(files.metrics, { box_map50: 0.9, seg_map50: 0.85 });
   const previousModelBytes = Buffer.alloc(1024, 0x31);
   const previousModelPath = await writeReleaseManifest(root, files.manifest, "nail-texture-seg-v1", previousModelBytes);
@@ -281,6 +348,31 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
     assert.equal(report.summary.gateCount, 13);
     assert.equal(report.gates.releaseProductQuality.ok, true);
     assert.equal(report.gates.releaseRollback.ok, true);
+  });
+
+  await t.test("rejects a handwritten frozen quality PASS or decision drift", async () => {
+    const original = JSON.parse(await readFile(fixture.files.quality, "utf8"));
+    await writeJson(fixture.files.quality, {
+      ...original,
+      qualityGatePassed: false,
+      decision: "reject_candidate_release_at_deployment_resolution",
+    });
+    const output = path.join(root, "forged-frozen-quality.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.bestCandidateMetrics.qualityReportDeepVerificationOk, false);
+    assert.match(report.gates.bestCandidateMetrics.qualityReportVerificationErrors.join(" "), /deep replay failed/);
+    await writeJson(fixture.files.quality, original);
+  });
+
+  await t.test("protects frozen quality transitive evidence from audit output overwrite", async () => {
+    const quality = JSON.parse(await readFile(fixture.files.quality, "utf8"));
+    const metricPath = quality.inputs.full_512 as string;
+    const before = await readFile(metricPath);
+    const result = runAudit(fixture, metricPath);
+    assert.notEqual(result.status, 0);
+    assert.deepEqual(await readFile(metricPath), before);
   });
 
   await t.test("treats a non-PASS progress marker as a formal blocking gate", async () => {

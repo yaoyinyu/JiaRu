@@ -141,9 +141,10 @@ def replay_release_visual_evidence(evidence_path: Path, evidence: dict[str, Any]
                 str(inputs.get("geometryAudit", "")),
                 "--decision",
                 str(inputs.get("decision", "")),
-                "--output",
-                str(replay_path),
             ]
+            if inputs.get("visualEvidence"):
+                command.extend(["--visual-evidence", str(inputs.get("visualEvidence"))])
+            command.extend(["--output", str(replay_path)])
         else:
             raise ValueError("unsupported release-test visual evidence state")
         completed = subprocess.run(command, capture_output=True, text=True, check=False)
