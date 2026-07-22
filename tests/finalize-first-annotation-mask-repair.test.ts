@@ -22,16 +22,50 @@ test("mask repair finalizer binds visual evidence and never grants training trut
   writeFileSync(sam, JSON.stringify({ ok: true, decision: "sam_candidate_only_not_training_truth", outputs: [{ fileName: "a.jpg", annotationPath: annotation, overlayPath: overlay }] }));
   const geometry = path.join(root, "geometry.json");
   writeFileSync(geometry, JSON.stringify({ rows: [{ fileName: "a.jpg", status: "pass" }] }));
+  const sourceCrop = path.join(root, "a-source-2x.png"); writeFileSync(sourceCrop, "source-crop");
+  const overlayCrop = path.join(root, "a-overlay-2x.png"); writeFileSync(overlayCrop, "overlay-crop");
+  const visualEvidence = path.join(root, "visual-evidence.json");
+  writeFileSync(visualEvidence, JSON.stringify({
+    ok: true,
+    decision: "sam_visual_review_evidence_ready_not_truth",
+    inputs: {
+      prompts,
+      promptsSha256: hash(prompts),
+      samReport: sam,
+      samReportSha256: hash(sam),
+      geometryAudit: geometry,
+      geometryAuditSha256: hash(geometry),
+    },
+    policy: { evidenceDoesNotGrantTruth: true, everyPolygonHasSourceAndOverlay2xCrop: true, trainingUse: "prohibited" },
+    items: [{
+      fileName: "a.jpg",
+      sourceGroup: "g1",
+      imageSha256: "image-hash",
+      annotationPath: annotation,
+      annotationSha256: hash(annotation),
+      overlayPath: overlay,
+      overlaySha256: hash(overlay),
+      polygonCount: 1,
+      geometrySuspectCount: 0,
+      crops: [{ nailIndex: 1, sourceCrop, sourceCropSha256: hash(sourceCrop), overlayCrop, overlayCropSha256: hash(overlayCrop) }],
+    }],
+  }));
   const decision = path.join(root, "decision.json");
-  writeFileSync(decision, JSON.stringify({ schemaVersion: 1, fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", initialShardFinalSha256: hash(initial), repairPromptsSha256: hash(prompts), samReportSha256: hash(sam), geometryAuditSha256: hash(geometry), annotationSha256: hash(annotation), reviewedOverlaySha256: hash(overlay), reviewStatus: "pass", finalCompleteMaskCount: 1, issueCodes: [] }));
+  writeFileSync(decision, JSON.stringify({ schemaVersion: 2, fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", initialShardFinalSha256: hash(initial), repairPromptsSha256: hash(prompts), samReportSha256: hash(sam), geometryAuditSha256: hash(geometry), visualEvidenceSha256: hash(visualEvidence), annotationSha256: hash(annotation), reviewedOverlaySha256: hash(overlay), reviewStatus: "pass", finalCompleteMaskCount: 1, issueCodes: [] }));
   const output = path.join(root, "output.json");
-  const args = [script, "--initial-shard-final", initial, "--file-name", "a.jpg", "--repair-prompts", prompts, "--sam-report", sam, "--geometry-audit", geometry, "--decision", decision, "--output", output];
+  const args = [script, "--initial-shard-final", initial, "--file-name", "a.jpg", "--repair-prompts", prompts, "--sam-report", sam, "--geometry-audit", geometry, "--visual-evidence", visualEvidence, "--decision", decision, "--output", output];
   const run = spawnSync("python", args, { encoding: "utf8" });
   assert.equal(run.status, 0, run.stderr || run.stdout);
   const report = JSON.parse(readFileSync(output, "utf8"));
   assert.equal(report.item.reviewStatus, "pass");
   assert.equal(report.item.trainingUse, "prohibited");
   assert.equal(report.item.annotationTruthStatus, "reviewed-repair-candidate-not-final-truth");
+  assert.equal(report.schemaVersion, 2);
+  assert.equal(report.inputs.visualEvidenceSha256, hash(visualEvidence));
+  writeFileSync(sourceCrop, "drifted-source-crop");
+  const driftedCrop = spawnSync("python", args, { encoding: "utf8" });
+  assert.notEqual(driftedCrop.status, 0);
+  writeFileSync(sourceCrop, "source-crop");
   const drifted = JSON.parse(readFileSync(decision, "utf8")); drifted.reviewedOverlaySha256 = "bad"; writeFileSync(decision, JSON.stringify(drifted));
   const rejected = spawnSync("python", args, { encoding: "utf8" });
   assert.notEqual(rejected.status, 0);

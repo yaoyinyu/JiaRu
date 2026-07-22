@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { spawnSync } from "node:child_process";
 import { access, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { verifyApprovedDeviceAcceptanceReport } from "./lib/nail-texture-device-acceptance.ts";
@@ -55,12 +56,14 @@ interface ReleaseTestSnapshot {
   items?: Array<{ fileName?: string; lane?: string; imageSha256?: string; trainingUse?: string }>;
 }
 interface ReleaseTestQuality {
+  schemaVersion?: number;
   ok?: boolean;
   decision?: string;
   qualityGatePassed?: boolean;
   trainingUse?: string;
   snapshot?: { itemsSha256?: string; counts?: { images?: number; masks?: number } };
   evaluations?: { full512?: { imgsz?: number; boxMap50?: number; maskMap50?: number; predictionLabels?: number } };
+  inputs?: Record<string, string>;
 }
 interface MetricsReport { box_map50?: number; seg_map50?: number }
 interface PerformanceReport { ok?: boolean; totals?: { samples?: number } }
@@ -161,6 +164,53 @@ function object(value: unknown): Record<string, unknown> | null {
 
 function evidencePath(value: unknown): string | null {
   return typeof value === "string" && value.trim() ? path.resolve(value) : null;
+}
+
+function sameResolvedPath(left: string, right: string): boolean {
+  return path.resolve(left).toLocaleLowerCase("en-US") === path.resolve(right).toLocaleLowerCase("en-US");
+}
+
+function verifyFrozenReleaseTestQuality(
+  reportPath: string,
+  expectedSnapshotPath: string,
+  report: ReleaseTestQuality | null,
+) {
+  const transitivePaths = Object.values(report?.inputs ?? {})
+    .map(evidencePath)
+    .filter((value): value is string => value !== null);
+  const errors: string[] = [];
+  if (!report) errors.push("cannot read frozen release-test quality report");
+  else if (report.schemaVersion !== 2) errors.push("frozen release-test quality report schemaVersion must be 2");
+  const reportSnapshot = evidencePath(report?.inputs?.snapshot_manifest);
+  if (!reportSnapshot || !sameResolvedPath(reportSnapshot, expectedSnapshotPath)) {
+    errors.push("frozen release-test quality report is not bound to the requested snapshot path");
+  }
+  if (errors.length === 0) {
+    const script = path.resolve("model/training/build-frozen-release-test-quality-report.py");
+    const result = spawnSync("python", [script, "--verify-report", reportPath], {
+      encoding: "utf8",
+      windowsHide: true,
+    });
+    if (result.status !== 0) {
+      errors.push(`frozen release-test quality deep replay failed: ${(result.stderr || result.stdout).trim()}`);
+    } else {
+      try {
+        const verification = JSON.parse(result.stdout) as { ok?: boolean; reportPath?: string; snapshotManifest?: string };
+        if (
+          verification.ok !== true ||
+          !verification.reportPath ||
+          !sameResolvedPath(verification.reportPath, reportPath) ||
+          !verification.snapshotManifest ||
+          !sameResolvedPath(verification.snapshotManifest, expectedSnapshotPath)
+        ) {
+          errors.push("frozen release-test quality verifier returned a mismatched identity");
+        }
+      } catch {
+        errors.push("frozen release-test quality verifier returned invalid JSON");
+      }
+    }
+  }
+  return { ok: errors.length === 0, errors, transitivePaths };
 }
 
 function directInputPaths(options: Options): string[] {
@@ -361,6 +411,11 @@ async function main() {
   const candidateReview = await readJson<CandidateReview>(options.candidateReviewPath);
   const releaseTestSnapshot = await readJson<ReleaseTestSnapshot>(options.releaseTestSnapshotPath);
   const releaseTestQuality = await readJson<ReleaseTestQuality>(options.releaseTestQualityPath);
+  const releaseTestQualityVerification = verifyFrozenReleaseTestQuality(
+    options.releaseTestQualityPath,
+    options.releaseTestSnapshotPath,
+    releaseTestQuality,
+  );
   const bestMetrics = await readJson<MetricsReport>(options.bestMetricsPath);
   const desktopPerformance = await readJson<PerformanceReport>(options.desktopPerformancePath);
   const desktopMemory = await readJson<MemoryReport>(options.desktopMemoryPath);
@@ -406,6 +461,7 @@ async function main() {
   const frozenQuality = releaseTestQuality?.evaluations?.full512;
   const frozenQualityOk =
     frozenSnapshotOk &&
+    releaseTestQualityVerification.ok &&
     releaseTestQuality?.ok === true &&
     releaseTestQuality.trainingUse === "prohibited" &&
     releaseTestQuality.snapshot?.itemsSha256 === releaseTestSnapshot?.itemsSha256 &&
@@ -434,22 +490,28 @@ async function main() {
         ? "Frozen reviewed candidates count toward dataset-size readiness only; no lineage-checked snapshot quality report was found."
         : "No valid frozen reviewed candidate snapshot was found; using the evaluated model test split count.",
   };
+  const requiresBoundFrozenQuality = frozenSnapshotOk && snapshotImages >= 100;
   const selectedBoxMap50 = frozenQualityOk ? Number(frozenQuality?.boxMap50) : Number(bestMetrics?.box_map50 ?? 0);
   const selectedMaskMap50 = frozenQualityOk ? Number(frozenQuality?.maskMap50) : Number(bestMetrics?.seg_map50 ?? 0);
   const bestMetricsGate = {
     ok:
       selectedBoxMap50 >= 0.85 &&
       selectedMaskMap50 >= 0.75 &&
-      (!frozenQualityOk || releaseTestQuality?.qualityGatePassed === true),
+      (!requiresBoundFrozenQuality || (frozenQualityOk && releaseTestQuality?.qualityGatePassed === true)),
     boxMap50: selectedBoxMap50,
     maskMap50: selectedMaskMap50,
     minimumBoxMap50: 0.85,
     minimumMaskMap50: 0.75,
     evidenceScope: frozenQualityOk
       ? `frozen-reviewed-candidate-${snapshotImages}-deployment-512`
-      : "historical-evaluated-model-test-split-13",
+      : requiresBoundFrozenQuality
+        ? `missing-or-invalid-frozen-reviewed-candidate-${snapshotImages}-deployment-512-quality`
+        : "historical-evaluated-model-test-split-13",
+    frozenQualityRequired: requiresBoundFrozenQuality,
     qualityReportPath: options.releaseTestQualityPath,
     qualityReportOk: frozenQualityOk,
+    qualityReportDeepVerificationOk: releaseTestQualityVerification.ok,
+    qualityReportVerificationErrors: releaseTestQualityVerification.errors,
     qualityDecision: frozenQualityOk ? releaseTestQuality?.decision ?? null : null,
     historical13: {
       boxMap50: bestMetrics?.box_map50 ?? null,
@@ -584,6 +646,7 @@ async function main() {
       ...productQualityInputPaths(productQualityVerification),
       ...rollbackInputPaths(rollbackVerification),
       ...currentRollbackEvidencePaths,
+      ...releaseTestQualityVerification.transitivePaths,
       ...mobileResults.flatMap((item) => item.transitivePaths),
       ...(production.modelPath ? [production.modelPath] : []),
     ]);
@@ -595,7 +658,13 @@ async function main() {
     ...(!progressMarkersGate.ok ? [{ code: "INCOMPLETE_PROGRESS_MARKERS", owner: "user+engineering", summary: `${incompleteProgressMarkers.length} progress marker(s) are not PASS: ${incompleteProgressMarkers.map((marker) => marker.id).join(", ")}.` }] : []),
     ...(!datasetGate.ok ? [{ code: "DATASET_READINESS", owner: "engineering", summary: "Restore approved release-mode dataset readiness evidence." }] : []),
     ...(!failureCaseGate.ok ? [{ code: "USER_FAILURE_CASES", owner: "user", summary: "Provide representative real-world failure images and an approved failure-case report." }] : []),
-    ...(!bestMetricsGate.ok ? [{ code: "MODEL_QUALITY_REGRESSION", owner: "engineering", summary: `Improve the deployment-resolution model: current box/mask mAP50 is ${bestMetricsGate.boxMap50.toFixed(4)}/${bestMetricsGate.maskMap50.toFixed(4)}.` }] : []),
+    ...(!bestMetricsGate.ok ? [{
+      code: "MODEL_QUALITY_REGRESSION",
+      owner: "engineering",
+      summary: requiresBoundFrozenQuality && !frozenQualityOk
+        ? `Provide a deep-verifiable deployment-512 quality report bound to the frozen ${snapshotImages}-image snapshot; historical small-test metrics cannot satisfy this gate.`
+        : `Improve the deployment-resolution model: current box/mask mAP50 is ${bestMetricsGate.boxMap50.toFixed(4)}/${bestMetricsGate.maskMap50.toFixed(4)}.`,
+    }] : []),
     ...(!releaseTestGate.ok ? [{ code: "REPRESENTATIVE_RELEASE_TESTSET", owner: "user+engineering", summary: `Provide and review at least ${releaseTestGate.required - releaseTestGate.actual} more source-isolated real release-test images.` }] : []),
     ...(!desktopGate.ok ? [{ code: "DESKTOP_ACCEPTANCE", owner: "engineering", summary: "Restore passing desktop performance and repeated-run memory evidence." }] : []),
     ...(!mobileGate.ok ? [{ code: "MOBILE_DEVICE_ACCEPTANCE", owner: "user+engineering", summary: "Run performance and memory acceptance on Android phone/tablet, iPhone, and iPad physical devices." }] : []),

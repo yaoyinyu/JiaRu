@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFile } from "node:child_process";
+import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -11,6 +12,8 @@ const execFileAsync = promisify(execFile);
 async function createManifest(modelDir: string, version: string, sizeBytes = 1024) {
   const manifestPath = path.join(modelDir, "manifest.json");
   const modelFile = `${version}.onnx`;
+  const modelBytes = Buffer.alloc(sizeBytes);
+  await writeFile(path.join(modelDir, modelFile), modelBytes, "binary");
   await writeFile(
     manifestPath,
     JSON.stringify(
@@ -20,6 +23,8 @@ async function createManifest(modelDir: string, version: string, sizeBytes = 102
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile,
+        modelSizeBytes: modelBytes.byteLength,
+        sha256: createHash("sha256").update(modelBytes).digest("hex"),
         labels: ["nail_texture"],
       },
       null,
@@ -27,7 +32,6 @@ async function createManifest(modelDir: string, version: string, sizeBytes = 102
     ),
     "utf8"
   );
-  await writeFile(path.join(modelDir, modelFile), Buffer.alloc(sizeBytes), "binary");
   return manifestPath;
 }
 

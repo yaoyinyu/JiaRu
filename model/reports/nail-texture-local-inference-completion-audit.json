@@ -1,14 +1,14 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-21T19:09:49.956Z",
+  "generatedAt": "2026-07-22T09:12:12.663Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
     "progressPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-progress.md",
     "datasetReadinessPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-dataset-readiness-release.json",
     "candidateReviewPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v9-review.json",
-    "releaseTestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1\\manifest.json",
+    "releaseTestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\frozen-reviewed-release-test-100-v1\\manifest.json",
     "releaseTestQualityPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-release-test-67-quality.json",
     "bestMetricsPath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\test-metrics.512.json",
     "productionManifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
@@ -41,28 +41,22 @@
   },
   "summary": {
     "gateCount": 13,
-    "passedGates": 2,
-    "failedGates": 11,
-    "progressMarkerCount": 333,
-    "passMarkerCount": 321,
+    "passedGates": 3,
+    "failedGates": 10,
+    "progressMarkerCount": 340,
+    "passMarkerCount": 330,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
         "task": "导入授权真实图片并建立来源隔离测试集",
         "status": "🟠 PARTIAL",
-        "evidence": "新增113张已获商业训练与长期回归授权；80张原图/516 mask及7张截图派生图/41 mask正式导入，5张源图排除、28张原图继续返修。真实发布测试样本仍未达到100–200张代表性要求"
+        "evidence": "新增113张已获商业训练与长期回归授权；80张原图/516 mask及7张截图派生图/41 mask正式导入。独立发布测试已冻结100张/554 mask并达到最低代表性规模，当前规范train正样本也已形成100张/521 mask；正式训练的直接素材阻断仅为hard negative仍缺99张。旧2026_7_13批次另有28张历史返修未清零，但未计入当前规范train100，属于可选扩充项而非本轮开训阻断"
       },
       {
         "id": "M2-T3-VISION-ANNOTATION",
         "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
         "status": "🟡 IN PROGRESS",
         "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask。来源隔离val已完成30张/144 mask、0冲突，并通过val-only物化、train/冻结test来源隔离和校准真值终审。hard negative严格筛选仅1/100张安全候选，仍缺99张且未正式物化"
-      },
-      {
-        "id": "M2-T3-RELEASE-TEST-ANNOTATION",
-        "task": "新增真实发布测试素材逐甲标注与整图复核",
-        "status": "🟡 IN PROGRESS",
-        "evidence": "既有92张父图已冻结67张/384 mask并排除25张。新增33张候选已完成YOLO 204候选与SAM2 204/204 mask生成、33/33原分辨率视觉审核；严格结论为7张可直接通过、26张需删除误检/重复/局部mask或补建完整甲面、0张源图排除，其中1张虽视觉轮廓可用但存在5个无效拓扑，仍按返修处理。新增33张尚未完成返修、终审与冻结，因此代表性正式快照仍为67/100"
       },
       {
         "id": "M3-T3-DEVICE",
@@ -74,13 +68,13 @@
         "id": "M3-T4-QUALITY",
         "task": "真实测试集直接可用率、污染率和人工修正成本",
         "status": "🟡 IN PROGRESS",
-        "evidence": "冻结67张/384 mask已在部署512口径完成v6评估；全量box/mask mAP50=0.8370/0.8313，核心=0.8485/0.8523，压力=0.8179/0.7919，压力组退化触发拒绝。代表性规模仍缺33张，直接可用率、污染率和人工修正成本仍需100张Beta逐图审核"
+        "evidence": "冻结100张/554 mask代表性规模已完成并物化；v6仅有旧67张/384 mask在部署512口径的质量拒绝结果，新100张快照尚未绑定新候选模型评估，直接可用率、污染率和人工修正成本仍需Beta人工审核"
       },
       {
         "id": "M3-T5-BETA",
         "task": "Beta 发布决策",
         "status": "🔴 HOLD",
-        "evidence": "v6 在扩展冻结快照的部署512质量门被拒绝；同时仍缺100张代表性真实测试集、移动真机矩阵、用户失败案例和Beta人工质量验收，禁止 promotion"
+        "evidence": "代表性发布测试集已达到100张/554 mask；但尚无通过新100张冻结评估的候选模型，移动真机矩阵、用户失败案例和Beta人工质量证据仍缺，禁止 promotion"
       },
       {
         "id": "REL-T2-CANDIDATE",
@@ -105,12 +99,6 @@
         "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
         "status": "⏭ USER INPUT",
         "evidence": "hard negative 与失败类型优化"
-      },
-      {
-        "id": "USER-TESTSET-01",
-        "task": "最终形成至少 100–200 张来源隔离的独立真实发布测试图",
-        "status": "🟡 IN PROGRESS",
-        "evidence": "已冻结并评估67张/384 mask。补足规模所需的33张来源隔离候选已完成角色替换、工作区物化、YOLO+SAM候选生成和33/33原分辨率首审，但仅7张可直接通过、26张仍需返修和逐甲终审；因此图片身份候选已补齐，正式真值快照仍为67/100，不能提前按100张计数"
       },
       {
         "id": "USER-THRESHOLD-01",
@@ -207,7 +195,7 @@
         },
         {
           "checked": false,
-          "text": "完善真实数据来源、授权、分组拆分和人工复核。（正式训练集已有80张原图/516 mask及7张截图派生图/41 mask导入；新增92张独立发布测试父图完成核心/压力审核，最终67张/384 mask冻结为受审核候选、0张返修、25张源图裁断或遮挡排除，18个父来源组且训练用途固定prohibited。评估专用物化逐文件复算哈希，并证明与409张正式训练图的来源组及图片SHA-256重叠均为0。v6在部署512口径的全量67张box/mask mAP50=0.8370/0.8313，核心45张=0.8485/0.8523，压力22张=0.8179/0.7919，压力退化触发正式拒绝；640全量诊断0.8570/0.8549不得覆盖部署口径。代表性规模仍为67/100、缺33张；完整露出甲面必须由单一完整mask覆盖，自动或人工返修仍须原图尺寸/来源组、合法性、零交叠、几何、整图与逐甲2×视觉审核；1001张Claude生成图在本批授权与逐图标注审核前仍仅作为合成候选池）"
+          "text": "完善真实数据来源、授权、分组拆分和人工复核。（正式训练集已有80张原图/516 mask及7张截图派生图/41 mask导入；独立发布测试原67张/384 mask与新增33张/170 mask均完成完整甲面审核并合并冻结为100张/554 mask、core78/stress22、29个父来源组，训练用途固定prohibited。新快照及评估专用物化逐文件复算图片、annotation、联合和聚合哈希，与train100、val30及正式409图训练集按文件名、图片SHA-256、sourceGroup/parentSourceGroup均零重叠；代表性规模100/100已满足。v6在旧67张部署512口径的box/mask mAP50=0.8370/0.8313仍是拒绝结果，不能因扩充真值而改写；新100张须用于下一候选模型的冻结评估。正式训练输入仍因hard negative 1/100、缺99张而HOLD；完整露出甲面继续要求单一完整mask和原图尺寸视觉审核，1001张Claude生成图在本批授权与逐图标注审核前仍仅作为合成候选池）"
         },
         {
           "checked": true,
@@ -804,31 +792,45 @@
         {
           "checked": true,
           "text": "将最终完成度审计升级为v2强门：全部非PASS进度标记正式参与`decision`；新增与冻结发布测试`itemsSha256`、图片数和mask数绑定的用户审核产品质量证据，逐项深验直接可用率、污染实例率、像素泄漏、粗糙矩形化、冻结甲面缺失率及场景box/mask退化。产品质量报告必须由冻结快照、逐实例CSV和场景回归CSV构建；构建器按冻结工具的canonical JSON规则复算`itemsSha256`，校验固定decision/训练禁用契约和100图代表性门，要求fileName/imageSha256分别唯一并允许sourceGroup同源重复，且禁止场景样本数超过冻结图片数。逐实例记录以1起始索引完整覆盖每个mask并逐行绑定图片身份，聚合指标与八维场景delta均由构建器固定重算；完成度审计直接调用深验器，重读原始路径与SHA-256后重放计算，并要求报告快照路径与CLI指定冻结快照相同，拒绝漏项、重复、身份漂移、分子越界、源文件写后漂移、合法快照换绑、重复图片哈希凑数和无原始证据的手写PASS。`--output`必须避开全部直接输入及可解析的产品、回滚、生产模型和移动设备传递证据，Windows大小写、真实路径或已有文件身份相同均拒绝覆盖。67图快照即使聚合达标仍保持HOLD。缺失率冻结上限固定为0.10，场景最低允许delta固定为-0.02；场景组使用受控`dimension`并强制覆盖12.3的`skin-tone`、`nail-color`、`reflectivity`、`occlusion`、`orientation`、`nail-count`、`background`、`device-backend`八维。新增回滚审计深验，要求当前版本、至少一个回滚候选及全部release的`ok`/`integrityOk`。外层伪PASS、快照漂移、自报放宽阈值、缺维度、场景失败、非PASS标记和不可验证回滚均必须保持HOLD。"
+        },
+        {
+          "checked": true,
+          "text": "完成33张补充独立发布测试真值终审；第二轮SAM返修13张中8张直接通过，5张转混合人工polygon，独立视觉复核继续拦截白色法式、透明浅色及透明银色延长甲尖/附饰遗漏。最终33张/170 mask、0拒绝/冗余/冲突，所有polygon合法、同图严格零交叠，并保持`trainingUse=prohibited`。"
+        },
+        {
+          "checked": true,
+          "text": "建立扩展冻结test合并器并形成100张代表性快照；深验旧67 manifest、新33 truth index、train100与val30的当前字节和身份，按文件名、图片SHA-256、`sourceGroup`及`parentSourceGroup`复算零泄漏。冻结结果为100图/554 mask、core78/stress22、29父来源组，代表性门100/100通过；评估专用物化为train0/val0/test100并通过只读深度重放。该PASS只解除test规模缺口，不代表模型质量、真机或Beta发布门通过。"
+        },
+        {
+          "checked": true,
+          "text": "将冻结发布测试质量报告升级为通用schema v2；从manifest动态复算旧67/384或新100/554的图片、mask、core/stress和父来源组，深验评估物化、assessment标签、预测制品、baseline与全量/核心/压力/640诊断四次评估的同权重身份。部署512的全量、核心和压力三组必须同时满足绝对与不退化门，640只允许诊断；不足100图始终拒绝，输出不得覆盖或硬链接别名覆盖任一输入。旧67真实证据重放保持拒绝，新100只有获得新候选模型指标后才能形成质量结论。"
+        },
+        {
+          "checked": true,
+          "text": "为冻结质量报告增加独立`--verify-report`只读重放，并把该重放接入最终完成度审计；验证器必须重读报告声明的全部传递输入、使用临时输出完整重建报告并逐字段比较，拒绝手写外层决定、输入写后漂移、快照换绑及输出覆盖传递证据。当代表性100图冻结快照存在时，完成度审计不得退回历史13图或旧67图质量证据，缺少与当前快照绑定且可重放的部署512报告必须保持质量门HOLD。"
+        },
+        {
+          "checked": true,
+          "text": "修复发布治理回归夹具与当前回滚完整性契约的偏差；测试manifest使用真实模型字节动态填写`modelSizeBytes`和SHA-256，不降低生产深审逻辑。发布治理与训练发布编排专项27/27、全量串行630/630通过。"
         }
       ]
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 333,
-      "passMarkerCount": 321,
+      "markerCount": 340,
+      "passMarkerCount": 330,
       "incompleteMarkers": [
         {
           "id": "M2-T3-REAL-DATA",
           "task": "导入授权真实图片并建立来源隔离测试集",
           "status": "🟠 PARTIAL",
-          "evidence": "新增113张已获商业训练与长期回归授权；80张原图/516 mask及7张截图派生图/41 mask正式导入，5张源图排除、28张原图继续返修。真实发布测试样本仍未达到100–200张代表性要求"
+          "evidence": "新增113张已获商业训练与长期回归授权；80张原图/516 mask及7张截图派生图/41 mask正式导入。独立发布测试已冻结100张/554 mask并达到最低代表性规模，当前规范train正样本也已形成100张/521 mask；正式训练的直接素材阻断仅为hard negative仍缺99张。旧2026_7_13批次另有28张历史返修未清零，但未计入当前规范train100，属于可选扩充项而非本轮开训阻断"
         },
         {
           "id": "M2-T3-VISION-ANNOTATION",
           "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
           "status": "🟡 IN PROGRESS",
           "evidence": "正式集409图/2142 mask不变；外部首批train为100张唯一图片/521个完整mask。来源隔离val已完成30张/144 mask、0冲突，并通过val-only物化、train/冻结test来源隔离和校准真值终审。hard negative严格筛选仅1/100张安全候选，仍缺99张且未正式物化"
-        },
-        {
-          "id": "M2-T3-RELEASE-TEST-ANNOTATION",
-          "task": "新增真实发布测试素材逐甲标注与整图复核",
-          "status": "🟡 IN PROGRESS",
-          "evidence": "既有92张父图已冻结67张/384 mask并排除25张。新增33张候选已完成YOLO 204候选与SAM2 204/204 mask生成、33/33原分辨率视觉审核；严格结论为7张可直接通过、26张需删除误检/重复/局部mask或补建完整甲面、0张源图排除，其中1张虽视觉轮廓可用但存在5个无效拓扑，仍按返修处理。新增33张尚未完成返修、终审与冻结，因此代表性正式快照仍为67/100"
         },
         {
           "id": "M3-T3-DEVICE",
@@ -840,13 +842,13 @@
           "id": "M3-T4-QUALITY",
           "task": "真实测试集直接可用率、污染率和人工修正成本",
           "status": "🟡 IN PROGRESS",
-          "evidence": "冻结67张/384 mask已在部署512口径完成v6评估；全量box/mask mAP50=0.8370/0.8313，核心=0.8485/0.8523，压力=0.8179/0.7919，压力组退化触发拒绝。代表性规模仍缺33张，直接可用率、污染率和人工修正成本仍需100张Beta逐图审核"
+          "evidence": "冻结100张/554 mask代表性规模已完成并物化；v6仅有旧67张/384 mask在部署512口径的质量拒绝结果，新100张快照尚未绑定新候选模型评估，直接可用率、污染率和人工修正成本仍需Beta人工审核"
         },
         {
           "id": "M3-T5-BETA",
           "task": "Beta 发布决策",
           "status": "🔴 HOLD",
-          "evidence": "v6 在扩展冻结快照的部署512质量门被拒绝；同时仍缺100张代表性真实测试集、移动真机矩阵、用户失败案例和Beta人工质量验收，禁止 promotion"
+          "evidence": "代表性发布测试集已达到100张/554 mask；但尚无通过新100张冻结评估的候选模型，移动真机矩阵、用户失败案例和Beta人工质量证据仍缺，禁止 promotion"
         },
         {
           "id": "REL-T2-CANDIDATE",
@@ -871,12 +873,6 @@
           "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
           "status": "⏭ USER INPUT",
           "evidence": "hard negative 与失败类型优化"
-        },
-        {
-          "id": "USER-TESTSET-01",
-          "task": "最终形成至少 100–200 张来源隔离的独立真实发布测试图",
-          "status": "🟡 IN PROGRESS",
-          "evidence": "已冻结并评估67张/384 mask。补足规模所需的33张来源隔离候选已完成角色替换、工作区物化、YOLO+SAM候选生成和33/33原分辨率首审，但仅7张可直接通过、26张仍需返修和逐甲终审；因此图片身份候选已补齐，正式真值快照仍为67/100，不能提前按100张计数"
         },
         {
           "id": "USER-THRESHOLD-01",
@@ -917,32 +913,38 @@
     },
     "bestCandidateMetrics": {
       "ok": false,
-      "boxMap50": 0.8369770379597032,
-      "maskMap50": 0.8313123822582702,
+      "boxMap50": 0.8527541703044659,
+      "maskMap50": 0.847659037958229,
       "minimumBoxMap50": 0.85,
       "minimumMaskMap50": 0.75,
-      "evidenceScope": "frozen-reviewed-candidate-67-deployment-512",
+      "evidenceScope": "missing-or-invalid-frozen-reviewed-candidate-100-deployment-512-quality",
+      "frozenQualityRequired": true,
       "qualityReportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-release-test-67-quality.json",
-      "qualityReportOk": true,
-      "qualityDecision": "reject_v6_release_at_deployment_resolution",
+      "qualityReportOk": false,
+      "qualityReportDeepVerificationOk": false,
+      "qualityReportVerificationErrors": [
+        "frozen release-test quality report schemaVersion must be 2",
+        "frozen release-test quality report is not bound to the requested snapshot path"
+      ],
+      "qualityDecision": null,
       "historical13": {
         "boxMap50": 0.8527541703044659,
         "maskMap50": 0.847659037958229
       }
     },
     "representativeReleaseTest": {
-      "ok": false,
-      "actual": 67,
+      "ok": true,
+      "actual": 100,
       "required": 100,
       "recommendedMaximum": 200,
       "evidenceScope": "frozen-reviewed-candidate",
-      "snapshotPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1\\manifest.json",
+      "snapshotPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\frozen-reviewed-release-test-100-v1\\manifest.json",
       "snapshotOk": true,
-      "snapshotMasks": 384,
-      "snapshotSourceHash": "5b4b8d80941cfd7d85bf35859aeb28ccae8e1e1be616f96cebfe5ab6b23b1aa1",
-      "evaluatedModelTestImages": 67,
+      "snapshotMasks": 554,
+      "snapshotSourceHash": "8620ab82a817b6c696f864b4dc23dc79e4ad137c400f7c639a304425644e2ffb",
+      "evaluatedModelTestImages": 13,
       "historicalEvaluatedModelTestImages": 13,
-      "note": "The frozen reviewed candidate has deployment-resolution quality evidence, but remains below the 100-image representative-size gate."
+      "note": "Frozen reviewed candidates count toward dataset-size readiness only; no lineage-checked snapshot quality report was found."
     },
     "desktopAcceptance": {
       "ok": true,
@@ -1064,7 +1066,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "12 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-RELEASE-TEST-ANNOTATION, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, REL-T2-CANDIDATE, USER-AUTH-03, USER-HARD-NEGATIVE-01, USER-FAILURE-01, USER-TESTSET-01, USER-THRESHOLD-01."
+      "summary": "10 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, REL-T2-CANDIDATE, USER-AUTH-03, USER-HARD-NEGATIVE-01, USER-FAILURE-01, USER-THRESHOLD-01."
     },
     {
       "code": "USER_FAILURE_CASES",
@@ -1074,12 +1076,7 @@
     {
       "code": "MODEL_QUALITY_REGRESSION",
       "owner": "engineering",
-      "summary": "Improve the deployment-resolution model: current box/mask mAP50 is 0.8370/0.8313."
-    },
-    {
-      "code": "REPRESENTATIVE_RELEASE_TESTSET",
-      "owner": "user+engineering",
-      "summary": "Provide and review at least 33 more source-isolated real release-test images."
+      "summary": "Provide a deep-verifiable deployment-512 quality report bound to the frozen 100-image snapshot; historical small-test metrics cannot satisfy this gate."
     },
     {
       "code": "MOBILE_DEVICE_ACCEPTANCE",
