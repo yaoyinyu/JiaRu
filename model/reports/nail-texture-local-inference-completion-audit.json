@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-23T17:25:59.322Z",
+  "generatedAt": "2026-07-23T17:50:11.440Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -10,6 +10,7 @@
     "candidateReviewPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v9-review.json",
     "releaseTestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\frozen-reviewed-release-test-100-v1\\manifest.json",
     "releaseTestQualityPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\frozen-release-test-100-quality-report-v1.json",
+    "hardNegativeAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\hard-negative-watermark-training-audit-v2.json",
     "bestMetricsPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\eval100-512-v2\\metrics.json",
     "productionManifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
     "desktopPerformancePath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\browser-performance-report.json",
@@ -40,11 +41,11 @@
     "outputPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-local-inference-completion-audit.json"
   },
   "summary": {
-    "gateCount": 13,
+    "gateCount": 14,
     "passedGates": 4,
-    "failedGates": 9,
-    "progressMarkerCount": 343,
-    "passMarkerCount": 332,
+    "failedGates": 10,
+    "progressMarkerCount": 346,
+    "passMarkerCount": 335,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -86,7 +87,7 @@
         "id": "REL-T2-CANDIDATE",
         "task": "正式模型候选发布",
         "status": "🔴 HOLD",
-        "evidence": "2026-07-24候选已通过冻结100张部署512 mAP门，但困难负样本裁水印变体出现2/100误检且训练负样本不能充当独立留出；生产manifest保持不变，须先用新批次无统一水印的独立负样本证明泛化，再完成阈值、Beta、移动真机和回滚门"
+        "evidence": "2026-07-24候选已通过冻结100张部署512 mAP门，规范val30正式校准得到候选阈值0.50；但困难负样本裁水印变体出现2/100误检且训练负样本不能充当独立留出。生产manifest保持不变，须先用新批次无统一水印的独立负样本证明泛化，再完成Beta、移动真机和回滚门"
       },
       {
         "id": "USER-AUTH-03",
@@ -730,6 +731,10 @@
           "text": "建立AI困难负样本水印捷径与误检消融；`audit-hard-negative-watermark-shortcut.py`深验批准清单和候选权重，使用受控多线程生成原图、裁右下12%及右下角模糊变体，在0.35部署阈值与0.20诊断阈值分别统计误检并固定训练集/独立留出角色。当前候选部署误检为0/2/0、诊断误检为3/5/2，严格零误检和零变体delta门失败；训练集报告固定`releaseGeneralizationEligible=false`，不得用正样本mAP或训练集原图0误检覆盖失败。"
         },
         {
+          "checked": true,
+          "text": "将困难负样本水印审计接入最终完成度独立强门；审计报告新增`--verify-report`只读深验，重新核对权重、批准清单、100张源图与300张受控变体的路径/SHA-256、逐图预测计数、聚合误检、变体delta和外层决定。完成度审计不再只依赖进度文字，固定要求`independent-holdout`、不少于100张、三种变体零误检且零delta；训练集即使稳定也因`releaseGeneralizationEligible=false`保持HOLD。"
+        },
+        {
           "checked": false,
           "text": "补齐并冻结独立困难负样本留出集；候选必须来自不同生成批次/提示族，最好无统一水印，且不得是训练图的裁剪、遮挡、重绘或其他派生。建议新提供150—200张候选以按同等原分辨率规则筛出不少于100张合格图，其中至少30张从未参与训练、阈值选择或返修决策并以`independent-holdout`角色运行同一消融；未达到零误检/零变体delta前候选不得晋升。"
         },
@@ -744,6 +749,14 @@
         {
           "checked": true,
           "text": "建立候选训练、规范val校准和冻结release-test三路强隔离编排；候选模式固定要求三套不同dataset及六份输入/输出证据，禁止显式通用`--split`、未绑定的skip/resume和复用输出。真实100/100/30输入已完成v6续训50轮，候选权重SHA-256为`bcb145b5…1a50`；冻结100图部署512 full/core/stress box/mask mAP50为0.9654/0.9601、0.9715/0.9718、0.9436/0.9240，640全量0.9657/0.9623仅作诊断。正式质量报告深度重放通过，但不覆盖困难负样本独立留出、阈值、Beta或设备门。"
+        },
+        {
+          "checked": true,
+          "text": "完成新候选在规范val30上的正式阈值校准与只读深度重放；以独立runtime副本重新生成`split=val`的30图/144 mask、部署512预测证据，box/mask mAP50为0.928/0.815。校准器重放规范物化、角色隔离、全量真值审核和权重SHA-256后给出候选阈值`0.50`，决定`calibrated_threshold_ready_for_candidate_manifest`；该阈值只授权候选清单，不写入当前生产manifest，也不覆盖困难负样本HOLD。"
+        },
+        {
+          "checked": true,
+          "text": "完成冻结100图在候选阈值0.50下的逐实例失败画像；修复画像工具只接受`lane__stem`而无法消费正式评估平铺预测名的问题，改为深验制品索引中的逐图预测记录、SHA-256、数量及快照一一覆盖。结果为554个真值中匹配512、漏42、误检30、弱形状59，召回0.9242；core/stress召回0.9269/0.9138并生成25张最高风险叠加图。该报告仅用于Beta审核和新来源训练采样规划，冻结图、标签、裁剪及父来源组继续禁止训练。"
         },
         {
           "checked": true,
@@ -843,9 +856,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 343,
-      "uniqueMarkerCount": 343,
-      "passMarkerCount": 332,
+      "markerCount": 346,
+      "uniqueMarkerCount": 346,
+      "passMarkerCount": 335,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -889,7 +902,7 @@
           "id": "REL-T2-CANDIDATE",
           "task": "正式模型候选发布",
           "status": "🔴 HOLD",
-          "evidence": "2026-07-24候选已通过冻结100张部署512 mAP门，但困难负样本裁水印变体出现2/100误检且训练负样本不能充当独立留出；生产manifest保持不变，须先用新批次无统一水印的独立负样本证明泛化，再完成阈值、Beta、移动真机和回滚门"
+          "evidence": "2026-07-24候选已通过冻结100张部署512 mAP门，规范val30正式校准得到候选阈值0.50；但困难负样本裁水印变体出现2/100误检且训练负样本不能充当独立留出。生产manifest保持不变，须先用新批次无统一水印的独立负样本证明泛化，再完成Beta、移动真机和回滚门"
         },
         {
           "id": "USER-AUTH-03",
@@ -945,6 +958,32 @@
           }
         ]
       }
+    },
+    "independentHardNegativeWatermark": {
+      "ok": false,
+      "filePath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\hard-negative-watermark-training-audit-v2.json",
+      "found": true,
+      "evidence": {
+        "outerOk": false,
+        "status": "HOLD",
+        "decision": "hold_hard_negative_watermark_shortcut_instability",
+        "datasetRole": "training",
+        "releaseGeneralizationEligible": false,
+        "imageCount": 100,
+        "maxFalsePositiveImages": 0,
+        "maxVariantDetectionDelta": 0,
+        "deploymentFalsePositiveImages": {
+          "original": 0,
+          "crop12": 2,
+          "blur_corner": 0
+        },
+        "variantDetectionDeltas": {
+          "crop12": 2,
+          "blur_corner": 0
+        },
+        "deepVerificationOk": true
+      },
+      "errors": []
     },
     "bestCandidateMetrics": {
       "ok": true,
@@ -1099,6 +1138,11 @@
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
       "summary": "11 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-WATERMARK-AUDIT-005, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, REL-T2-CANDIDATE, USER-AUTH-03, USER-HARD-NEGATIVE-01, USER-FAILURE-01, USER-THRESHOLD-01."
+    },
+    {
+      "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
+      "owner": "user+engineering",
+      "summary": "Provide at least 100 source-isolated, original-resolution-reviewed independent hard negatives and pass the zero-false-positive / zero-variant-delta watermark shortcut audit."
     },
     {
       "code": "USER_FAILURE_CASES",

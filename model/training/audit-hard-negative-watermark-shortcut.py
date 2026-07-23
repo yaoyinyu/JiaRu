@@ -165,6 +165,200 @@ def prediction_count(result: Any) -> tuple[int, list[float]]:
     return len(boxes), [float(value) for value in confidences.detach().cpu().tolist()]
 
 
+def require_number(value: Any, label: str) -> float:
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ValueError(f"{label} must be numeric")
+    return float(value)
+
+
+def verify_threshold_summary(
+    value: Any, label: str, expected_images: int
+) -> dict[str, dict[str, Any]]:
+    if not isinstance(value, dict):
+        raise ValueError(f"{label} must be an object")
+    expected_variants = {"original", "crop12", "blur_corner"}
+    if set(value) != expected_variants:
+        raise ValueError(f"{label} must contain exactly {sorted(expected_variants)}")
+    verified: dict[str, dict[str, Any]] = {}
+    for variant in sorted(expected_variants):
+        summary = value[variant]
+        if not isinstance(summary, dict):
+            raise ValueError(f"{label}.{variant} must be an object")
+        counts = summary.get("counts")
+        if (
+            not isinstance(counts, list)
+            or len(counts) != expected_images
+            or any(isinstance(count, bool) or not isinstance(count, int) or count < 0 for count in counts)
+        ):
+            raise ValueError(
+                f"{label}.{variant}.counts must contain {expected_images} non-negative integers"
+            )
+        detections = sum(counts)
+        false_positive_images = sum(count > 0 for count in counts)
+        if summary.get("images") != expected_images:
+            raise ValueError(f"{label}.{variant}.images does not match records")
+        if summary.get("detections") != detections:
+            raise ValueError(f"{label}.{variant}.detections does not match counts")
+        if summary.get("falsePositiveImages") != false_positive_images:
+            raise ValueError(
+                f"{label}.{variant}.falsePositiveImages does not match counts"
+            )
+        expected_rate = false_positive_images / expected_images
+        if abs(require_number(summary.get("falsePositiveImageRate"), f"{label}.{variant}.falsePositiveImageRate") - expected_rate) > 1e-12:
+            raise ValueError(f"{label}.{variant}.falsePositiveImageRate is inconsistent")
+        if abs(require_number(summary.get("meanDetectionsPerImage"), f"{label}.{variant}.meanDetectionsPerImage") - detections / expected_images) > 1e-12:
+            raise ValueError(f"{label}.{variant}.meanDetectionsPerImage is inconsistent")
+        if summary.get("maximumDetectionsPerImage") != max(counts, default=0):
+            raise ValueError(
+                f"{label}.{variant}.maximumDetectionsPerImage is inconsistent"
+            )
+        maximum_confidence = require_number(
+            summary.get("maximumConfidence"), f"{label}.{variant}.maximumConfidence"
+        )
+        if not 0 <= maximum_confidence <= 1:
+            raise ValueError(f"{label}.{variant}.maximumConfidence must be in [0, 1]")
+        verified[variant] = summary
+    return verified
+
+
+def verify_report(report_path: Path) -> dict[str, Any]:
+    report = read_json(report_path, "watermark shortcut audit report")
+    if report.get("schemaVersion") != 1:
+        raise ValueError("watermark shortcut audit schemaVersion must be 1")
+    role = report.get("datasetRole")
+    if role not in {"training", "independent-holdout"}:
+        raise ValueError("datasetRole must be training or independent-holdout")
+
+    inputs = report.get("inputs")
+    if not isinstance(inputs, dict):
+        raise ValueError("inputs must be an object")
+    weights_input = inputs.get("weights")
+    manifest_input = inputs.get("hardNegativeManifest")
+    if not isinstance(weights_input, dict) or not isinstance(manifest_input, dict):
+        raise ValueError("weights and hardNegativeManifest inputs are required")
+    weights = Path(str(weights_input.get("path", ""))).resolve()
+    manifest = Path(str(manifest_input.get("path", ""))).resolve()
+    if not weights.is_file() or sha256_file(weights) != weights_input.get("sha256"):
+        raise ValueError("weights are missing or their SHA-256 has drifted")
+    if not manifest.is_file() or sha256_file(manifest) != manifest_input.get("sha256"):
+        raise ValueError("hard-negative manifest is missing or its SHA-256 has drifted")
+    manifest_document = read_json(manifest, "hard-negative manifest")
+    if manifest_document.get("itemsSha256") != manifest_input.get("itemsSha256"):
+        raise ValueError("hard-negative manifest itemsSha256 does not match the audit")
+
+    configuration = report.get("configuration")
+    counts = report.get("counts")
+    records = report.get("records")
+    if not isinstance(configuration, dict) or not isinstance(counts, dict):
+        raise ValueError("configuration and counts must be objects")
+    if not isinstance(records, list) or len(records) < 100:
+        raise ValueError("records must contain at least 100 hard-negative images")
+    image_count = len(records)
+    if counts != {"images": image_count, "variants": 3, "inferenceViews": image_count * 3}:
+        raise ValueError("counts do not match the bound records")
+    if canonical_sha256(records) != report.get("recordsSha256"):
+        raise ValueError("recordsSha256 does not match records")
+
+    file_names: set[str] = set()
+    source_paths: set[str] = set()
+    variant_paths: set[str] = set()
+    for index, record in enumerate(records, start=1):
+        if not isinstance(record, dict):
+            raise ValueError(f"record {index} must be an object")
+        file_name = record.get("fileName")
+        source_path = Path(str(record.get("sourcePath", ""))).resolve()
+        source_sha256 = record.get("sourceSha256")
+        if not isinstance(file_name, str) or not file_name:
+            raise ValueError(f"record {index} has no fileName")
+        if file_name in file_names:
+            raise ValueError(f"duplicate record fileName: {file_name}")
+        file_names.add(file_name)
+        source_identity = str(source_path).casefold()
+        if source_identity in source_paths:
+            raise ValueError(f"duplicate record sourcePath: {source_path}")
+        source_paths.add(source_identity)
+        if not source_path.is_file() or sha256_file(source_path) != source_sha256:
+            raise ValueError(f"record {index} source is missing or has drifted")
+        variants = record.get("variants")
+        if not isinstance(variants, dict) or set(variants) != {
+            "original",
+            "crop12",
+            "blur_corner",
+        }:
+            raise ValueError(f"record {index} must bind exactly three variants")
+        for variant_name, variant in variants.items():
+            if not isinstance(variant, dict):
+                raise ValueError(f"record {index} variant {variant_name} must be an object")
+            variant_path = Path(str(variant.get("path", ""))).resolve()
+            variant_identity = str(variant_path).casefold()
+            if variant_identity in variant_paths:
+                raise ValueError(f"duplicate variant path: {variant_path}")
+            variant_paths.add(variant_identity)
+            if not variant_path.is_file() or sha256_file(variant_path) != variant.get("sha256"):
+                raise ValueError(
+                    f"record {index} variant {variant_name} is missing or has drifted"
+                )
+
+    deployment = verify_threshold_summary(
+        report.get("deploymentThreshold"), "deploymentThreshold", image_count
+    )
+    verify_threshold_summary(
+        report.get("diagnosticThreshold"), "diagnosticThreshold", image_count
+    )
+    max_false_positive_images = configuration.get("maxFalsePositiveImages")
+    max_variant_detection_delta = configuration.get("maxVariantDetectionDelta")
+    if (
+        isinstance(max_false_positive_images, bool)
+        or not isinstance(max_false_positive_images, int)
+        or max_false_positive_images < 0
+        or isinstance(max_variant_detection_delta, bool)
+        or not isinstance(max_variant_detection_delta, int)
+        or max_variant_detection_delta < 0
+    ):
+        raise ValueError("false-positive and variant-delta limits must be non-negative integers")
+    original_detections = deployment["original"]["detections"]
+    variant_deltas = {
+        name: abs(summary["detections"] - original_detections)
+        for name, summary in deployment.items()
+        if name != "original"
+    }
+    if report.get("variantDetectionDeltas") != variant_deltas:
+        raise ValueError("variantDetectionDeltas do not match deployment counts")
+    deployment_pass = all(
+        summary["falsePositiveImages"] <= max_false_positive_images
+        for summary in deployment.values()
+    )
+    stability_pass = all(
+        delta <= max_variant_detection_delta for delta in variant_deltas.values()
+    )
+    expected_ok = deployment_pass and stability_pass
+    expected_eligible = expected_ok and role == "independent-holdout"
+    expected_status = "PASS" if expected_ok else "HOLD"
+    expected_decision = (
+        "hard_negative_watermark_shortcut_stability_pass"
+        if expected_ok
+        else "hold_hard_negative_watermark_shortcut_instability"
+    )
+    if (
+        report.get("ok") is not expected_ok
+        or report.get("status") != expected_status
+        or report.get("decision") != expected_decision
+        or report.get("releaseGeneralizationEligible") is not expected_eligible
+    ):
+        raise ValueError("outer decision fields do not match recomputed evidence")
+    return {
+        "ok": True,
+        "reportPath": str(report_path),
+        "reportSha256": sha256_file(report_path),
+        "datasetRole": role,
+        "imageCount": image_count,
+        "status": expected_status,
+        "releaseGeneralizationEligible": expected_eligible,
+        "weights": str(weights),
+        "hardNegativeManifest": str(manifest),
+    }
+
+
 def predict(
     model: Any,
     paths: dict[str, list[Path]],
@@ -206,11 +400,12 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description="Audit hard-negative watermark shortcut sensitivity."
     )
-    parser.add_argument("--weights", required=True)
-    parser.add_argument("--hard-negative-manifest", required=True)
-    parser.add_argument("--output", required=True)
-    parser.add_argument("--artifacts-dir", required=True)
-    parser.add_argument("--dataset-role", choices=["training", "independent-holdout"], required=True)
+    parser.add_argument("--verify-report")
+    parser.add_argument("--weights")
+    parser.add_argument("--hard-negative-manifest")
+    parser.add_argument("--output")
+    parser.add_argument("--artifacts-dir")
+    parser.add_argument("--dataset-role", choices=["training", "independent-holdout"])
     parser.add_argument("--imgsz", type=int, default=512)
     parser.add_argument("--device", default="0")
     parser.add_argument(
@@ -221,6 +416,32 @@ def main() -> None:
     parser.add_argument("--max-false-positive-images", type=int, default=0)
     parser.add_argument("--max-variant-detection-delta", type=int, default=0)
     args = parser.parse_args()
+    if args.verify_report:
+        forbidden = [
+            args.weights,
+            args.hard_negative_manifest,
+            args.output,
+            args.artifacts_dir,
+            args.dataset_role,
+        ]
+        if any(value is not None for value in forbidden):
+            raise ValueError("--verify-report cannot be combined with audit inputs")
+        verification = verify_report(Path(args.verify_report).resolve())
+        print(json.dumps(verification, ensure_ascii=False, indent=2))
+        return
+    if not all(
+        [
+            args.weights,
+            args.hard_negative_manifest,
+            args.output,
+            args.artifacts_dir,
+            args.dataset_role,
+        ]
+    ):
+        parser.error(
+            "--weights, --hard-negative-manifest, --output, --artifacts-dir "
+            "and --dataset-role are required unless --verify-report is used"
+        )
     if args.workers < 1:
         raise ValueError("--workers must be at least 1")
 

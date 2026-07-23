@@ -17,6 +17,7 @@ interface Options {
   candidateReviewPath: string;
   releaseTestSnapshotPath: string;
   releaseTestQualityPath: string;
+  hardNegativeAuditPath: string;
   bestMetricsPath: string;
   productionManifestPath: string;
   desktopPerformancePath: string;
@@ -65,6 +66,29 @@ interface ReleaseTestQuality {
   evaluations?: { full512?: { imgsz?: number; boxMap50?: number; maskMap50?: number; predictionLabels?: number } };
   inputs?: Record<string, string>;
 }
+interface HardNegativeAudit {
+  schemaVersion?: number;
+  ok?: boolean;
+  status?: string;
+  decision?: string;
+  datasetRole?: string;
+  releaseGeneralizationEligible?: boolean;
+  inputs?: {
+    weights?: { path?: string; sha256?: string };
+    hardNegativeManifest?: { path?: string; sha256?: string; itemsSha256?: string };
+  };
+  configuration?: {
+    maxFalsePositiveImages?: number;
+    maxVariantDetectionDelta?: number;
+  };
+  counts?: { images?: number; variants?: number; inferenceViews?: number };
+  deploymentThreshold?: Record<string, { falsePositiveImages?: number; detections?: number }>;
+  variantDetectionDeltas?: Record<string, number>;
+  records?: Array<{
+    sourcePath?: string;
+    variants?: Record<string, { path?: string }>;
+  }>;
+}
 interface MetricsReport { box_map50?: number; seg_map50?: number }
 interface PerformanceReport { ok?: boolean; totals?: { samples?: number } }
 interface MemoryReport { ok?: boolean; sampleCount?: number }
@@ -77,6 +101,7 @@ function usage(): never {
     "Usage: node --experimental-strip-types scripts/audit-nail-texture-local-inference-completion.ts " +
       "[--spec <md>] [--progress <md>] [--dataset-readiness <json>] [--candidate-review <json>] " +
       "[--release-test-snapshot <json>] [--release-test-quality <json>] " +
+      "[--hard-negative-audit <json>] " +
       "[--best-metrics <json>] [--production-manifest <json>] [--desktop-performance <json>] " +
       "[--desktop-memory <json>] [--mobile-report <device=json>] [--beta-review <json>] " +
       "[--failure-cases <json>] [--release-product-quality <json>] [--release-registry <json>] [--rollback-audit <json>] " +
@@ -92,6 +117,7 @@ function parseArgs(argv: string[]): Options {
     candidateReviewPath: path.resolve("model/reports/nail-texture-seg-real-candidate-v9-review.json"),
     releaseTestSnapshotPath: path.resolve("辅助材料/real-release-test-2026-07-13/frozen-reviewed-candidate-v1/manifest.json"),
     releaseTestQualityPath: path.resolve("model/reports/nail-texture-seg-real-candidate-v6-release-test-67-quality.json"),
+    hardNegativeAuditPath: path.resolve("model/reports/nail-texture-hard-negative-watermark-audit.json"),
     bestMetricsPath: path.resolve("model/exports/nail-texture-seg-real-candidate-v6/test-metrics.512.json"),
     productionManifestPath: path.resolve("public/models/nail-texture-seg/manifest.json"),
     desktopPerformancePath: path.resolve("model/exports/nail-texture-seg-real-candidate-v6/browser-performance-report.json"),
@@ -119,6 +145,7 @@ function parseArgs(argv: string[]): Options {
     else if (arg === "--candidate-review") options.candidateReviewPath = path.resolve(value);
     else if (arg === "--release-test-snapshot") options.releaseTestSnapshotPath = path.resolve(value);
     else if (arg === "--release-test-quality") options.releaseTestQualityPath = path.resolve(value);
+    else if (arg === "--hard-negative-audit") options.hardNegativeAuditPath = path.resolve(value);
     else if (arg === "--best-metrics") options.bestMetricsPath = path.resolve(value);
     else if (arg === "--production-manifest") options.productionManifestPath = path.resolve(value);
     else if (arg === "--desktop-performance") options.desktopPerformancePath = path.resolve(value);
@@ -214,6 +241,61 @@ function verifyFrozenReleaseTestQuality(
   return { ok: errors.length === 0, errors, transitivePaths };
 }
 
+function verifyHardNegativeWatermarkAudit(
+  reportPath: string,
+  report: HardNegativeAudit | null,
+) {
+  const errors: string[] = [];
+  const transitivePaths: string[] = [];
+  for (const value of [
+    report?.inputs?.weights?.path,
+    report?.inputs?.hardNegativeManifest?.path,
+    ...(report?.records ?? []).flatMap((record) => [
+      record.sourcePath,
+      ...Object.values(record.variants ?? {}).map((variant) => variant.path),
+    ]),
+  ]) {
+    const resolved = evidencePath(value);
+    if (resolved) transitivePaths.push(resolved);
+  }
+  if (!report) errors.push("cannot read hard-negative watermark audit report");
+  else if (report.schemaVersion !== 1) errors.push("hard-negative watermark audit schemaVersion must be 1");
+  if (errors.length === 0) {
+    const script = path.resolve("model/training/audit-hard-negative-watermark-shortcut.py");
+    const result = spawnSync("python", [script, "--verify-report", reportPath], {
+      encoding: "utf8",
+      env: { ...process.env, PYTHONIOENCODING: "utf-8" },
+      windowsHide: true,
+    });
+    if (result.status !== 0) {
+      errors.push(`hard-negative watermark audit deep verification failed: ${(result.stderr || result.stdout).trim()}`);
+    } else {
+      try {
+        const verification = JSON.parse(result.stdout) as {
+          ok?: boolean;
+          reportPath?: string;
+          datasetRole?: string;
+          imageCount?: number;
+          releaseGeneralizationEligible?: boolean;
+        };
+        if (
+          verification.ok !== true ||
+          !verification.reportPath ||
+          !sameResolvedPath(verification.reportPath, reportPath) ||
+          verification.datasetRole !== report?.datasetRole ||
+          verification.imageCount !== report?.counts?.images ||
+          verification.releaseGeneralizationEligible !== report?.releaseGeneralizationEligible
+        ) {
+          errors.push("hard-negative watermark verifier returned a mismatched identity");
+        }
+      } catch {
+        errors.push("hard-negative watermark verifier returned invalid JSON");
+      }
+    }
+  }
+  return { ok: errors.length === 0, errors, transitivePaths };
+}
+
 function directInputPaths(options: Options): string[] {
   return [
     options.specPath,
@@ -222,6 +304,7 @@ function directInputPaths(options: Options): string[] {
     options.candidateReviewPath,
     options.releaseTestSnapshotPath,
     options.releaseTestQualityPath,
+    options.hardNegativeAuditPath,
     options.bestMetricsPath,
     options.productionManifestPath,
     options.desktopPerformancePath,
@@ -460,6 +543,11 @@ async function main() {
     options.releaseTestSnapshotPath,
     releaseTestQuality,
   );
+  const hardNegativeAudit = await readJson<HardNegativeAudit>(options.hardNegativeAuditPath);
+  const hardNegativeAuditVerification = verifyHardNegativeWatermarkAudit(
+    options.hardNegativeAuditPath,
+    hardNegativeAudit,
+  );
   const bestMetrics = await readJson<MetricsReport>(options.bestMetricsPath);
   const desktopPerformance = await readJson<PerformanceReport>(options.desktopPerformancePath);
   const desktopMemory = await readJson<MemoryReport>(options.desktopMemoryPath);
@@ -668,6 +756,42 @@ async function main() {
         : [],
     } : null,
   };
+  const deploymentVariants = hardNegativeAudit?.deploymentThreshold ?? {};
+  const hardNegativeWatermarkGate = {
+    ok:
+      hardNegativeAuditVerification.ok &&
+      hardNegativeAudit?.ok === true &&
+      hardNegativeAudit.status === "PASS" &&
+      hardNegativeAudit.decision === "hard_negative_watermark_shortcut_stability_pass" &&
+      hardNegativeAudit.datasetRole === "independent-holdout" &&
+      hardNegativeAudit.releaseGeneralizationEligible === true &&
+      Number(hardNegativeAudit.counts?.images ?? 0) >= 100 &&
+      hardNegativeAudit.counts?.variants === 3 &&
+      hardNegativeAudit.configuration?.maxFalsePositiveImages === 0 &&
+      hardNegativeAudit.configuration?.maxVariantDetectionDelta === 0 &&
+      ["original", "crop12", "blur_corner"].every(
+        (variant) => deploymentVariants[variant]?.falsePositiveImages === 0,
+      ) &&
+      Object.values(hardNegativeAudit.variantDetectionDeltas ?? {}).every((delta) => delta === 0),
+    filePath: options.hardNegativeAuditPath,
+    found: hardNegativeAudit !== null,
+    evidence: hardNegativeAudit ? {
+      outerOk: hardNegativeAudit.ok === true,
+      status: hardNegativeAudit.status ?? null,
+      decision: hardNegativeAudit.decision ?? null,
+      datasetRole: hardNegativeAudit.datasetRole ?? null,
+      releaseGeneralizationEligible: hardNegativeAudit.releaseGeneralizationEligible === true,
+      imageCount: hardNegativeAudit.counts?.images ?? null,
+      maxFalsePositiveImages: hardNegativeAudit.configuration?.maxFalsePositiveImages ?? null,
+      maxVariantDetectionDelta: hardNegativeAudit.configuration?.maxVariantDetectionDelta ?? null,
+      deploymentFalsePositiveImages: Object.fromEntries(
+        Object.entries(deploymentVariants).map(([variant, value]) => [variant, value.falsePositiveImages ?? null]),
+      ),
+      variantDetectionDeltas: hardNegativeAudit.variantDetectionDeltas ?? null,
+      deepVerificationOk: hardNegativeAuditVerification.ok,
+    } : null,
+    errors: hardNegativeAuditVerification.errors,
+  };
   const duplicateUserChecklistItems = duplicateValues(userChecklist.map((item) => item.text));
   const duplicateEngineeringChecklistItems = duplicateValues(engineeringChecklist.map((item) => item.text));
   const userChecklistGate = {
@@ -719,6 +843,7 @@ async function main() {
       ...rollbackInputPaths(rollbackVerification),
       ...currentRollbackEvidencePaths,
       ...releaseTestQualityVerification.transitivePaths,
+      ...hardNegativeAuditVerification.transitivePaths,
       ...mobileResults.flatMap((item) => item.transitivePaths),
       ...(production.modelPath ? [production.modelPath] : []),
     ]);
@@ -768,6 +893,11 @@ async function main() {
       ].filter(Boolean).join(" "),
     }] : []),
     ...(!datasetGate.ok ? [{ code: "DATASET_READINESS", owner: "engineering", summary: "Restore approved release-mode dataset readiness evidence." }] : []),
+    ...(!hardNegativeWatermarkGate.ok ? [{
+      code: "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
+      owner: "user+engineering",
+      summary: "Provide at least 100 source-isolated, original-resolution-reviewed independent hard negatives and pass the zero-false-positive / zero-variant-delta watermark shortcut audit.",
+    }] : []),
     ...(!failureCaseGate.ok ? [{ code: "USER_FAILURE_CASES", owner: "user", summary: "Provide representative real-world failure images and an approved failure-case report." }] : []),
     ...(!bestMetricsGate.ok ? [{
       code: "MODEL_QUALITY_REGRESSION",
@@ -790,6 +920,7 @@ async function main() {
     engineeringChecklist: engineeringChecklistGate,
     progressMarkers: progressMarkersGate,
     datasetReadiness: datasetGate,
+    independentHardNegativeWatermark: hardNegativeWatermarkGate,
     bestCandidateMetrics: bestMetricsGate,
     representativeReleaseTest: releaseTestGate,
     desktopAcceptance: desktopGate,

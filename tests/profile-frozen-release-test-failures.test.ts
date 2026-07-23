@@ -8,6 +8,16 @@ import { createHash } from "node:crypto";
 
 const script = path.resolve("model/training/profile-frozen-release-test-failures.py");
 const hash = (value: string) => createHash("sha256").update(value).digest("hex");
+const canonical = (value: unknown): string => {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+};
 
 async function fixture() {
   const root = await mkdtemp(path.join(tmpdir(), "frozen-failure-profile-"));
@@ -20,10 +30,11 @@ async function fixture() {
     "0 0.60 0.60 0.80 0.60 0.80 0.80 0.60 0.80",
   ].join("\n") + "\n";
   await writeFile(path.join(evaluation, "labels", "test", "stress", "sample.txt"), truth);
-  await writeFile(path.join(artifacts, "labels", "stress__sample.txt"), [
+  const prediction = [
     "0 0.10 0.10 0.30 0.10 0.30 0.30 0.10 0.30 0.90",
     "0 0.40 0.10 0.50 0.10 0.50 0.20 0.40 0.20 0.80",
-  ].join("\n") + "\n");
+  ].join("\n") + "\n";
+  await writeFile(path.join(artifacts, "labels", "stress__sample.txt"), prediction);
   await writeFile(path.join(evaluation, "evaluation-manifest.json"), JSON.stringify({
     decision: "evaluation_only_frozen_reviewed_snapshot",
     trainingUse: "prohibited",
@@ -32,7 +43,18 @@ async function fixture() {
     sourceIsolation: { parentSourceGroupOverlap: [], exactImageHashOverlap: [] },
     records: [{ lane: "stress", materializedFileName: "sample.jpg", parentSourceGroup: "test-only", maskCount: 2, materializedLabelSha256: hash(truth) }],
   }));
-  await writeFile(path.join(artifacts, "evaluation-artifacts.json"), JSON.stringify({ split: "test", counts: { prediction_labels: 1 } }));
+  const predictionRecords = [{
+    stem: "stress__sample",
+    path: "labels/stress__sample.txt",
+    sha256: hash(prediction),
+    prediction_count: 2,
+  }];
+  await writeFile(path.join(artifacts, "evaluation-artifacts.json"), JSON.stringify({
+    split: "test",
+    counts: { prediction_labels: 1 },
+    prediction_records: predictionRecords,
+    prediction_records_sha256: hash(canonical(predictionRecords)),
+  }));
   return { root, evaluation, artifacts };
 }
 
