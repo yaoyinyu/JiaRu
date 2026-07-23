@@ -685,8 +685,20 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         or materialization.get("datasetFilesSha256") != canonical_sha256(dataset_files)
     ):
         raise ValueError("materialization datasetFiles are missing or hash-drifted")
+    internal_report_path = (
+        output_dir / "metadata" / "materialization-report.json"
+    ).resolve()
+    if not internal_report_path.is_file():
+        raise ValueError("candidate dataset internal materialization report is missing")
+    if (
+        internal_report_path != report_path
+        and sha256_file(internal_report_path) != sha256_file(report_path)
+    ):
+        raise ValueError(
+            "candidate dataset internal and external materialization reports differ"
+        )
     normalized_files = validate_dataset_inventory(
-        report_path, output_dir, dataset_files
+        internal_report_path, output_dir, dataset_files
     )
     if normalized_files != dataset_files:
         raise ValueError("datasetFiles are not canonical normalized records")
@@ -992,7 +1004,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     # Re-read every mutable evidence source after all semantic checks. This closes
     # the window in which a late file addition or upstream edit could otherwise
     # become an unreported orphan between audit and report emission.
-    validate_dataset_inventory(report_path, output_dir, dataset_files)
+    validate_dataset_inventory(internal_report_path, output_dir, dataset_files)
     for path, expected, label in (
         (train_index_path, train_index_hash, "training truth index"),
         (hard_manifest_path, hard_manifest_hash, "hard-negative manifest"),
