@@ -120,7 +120,7 @@ def materialize_runtime_dataset(
                 "labelMaterialization": label_mode,
             }
         )
-    return stems, records
+    return sorted(stems), records
 
 
 def expected_split_stems(dataset_root: Path, split_path: str) -> list[str]:
