@@ -25,6 +25,21 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def canonical_sha256(value: Any) -> str:
+    payload = json.dumps(
+        value, ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def is_within(candidate: Path, root: Path) -> bool:
+    try:
+        candidate.relative_to(root)
+        return True
+    except ValueError:
+        return False
+
+
 def aggregate(records: list[dict[str, Any]], key: str) -> list[dict[str, Any]]:
     groups: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for record in records:
@@ -79,7 +94,6 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
     manifest = read_json(manifest_path)
     artifact_index_path = Path(args.artifact_index).resolve()
     artifact_index = read_json(artifact_index_path)
-    prediction_root = artifact_index_path.parent / "labels"
 
     if manifest.get("decision") != "evaluation_only_frozen_reviewed_snapshot":
         raise ValueError("evaluation manifest decision is not frozen evaluation-only")
@@ -97,15 +111,59 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         raise ValueError("evaluation manifest record count drift")
     if artifact_index.get("counts", {}).get("prediction_labels") != len(records):
         raise ValueError("prediction label count does not cover every frozen image")
+    prediction_records = artifact_index.get("prediction_records")
+    if not isinstance(prediction_records, list):
+        raise ValueError("formal prediction_records are required")
+    if artifact_index.get("prediction_records_sha256") != canonical_sha256(
+        prediction_records
+    ):
+        raise ValueError("formal prediction_records_sha256 drift")
+    predictions_by_stem: dict[str, Path] = {}
+    for index, prediction_record in enumerate(prediction_records, start=1):
+        if not isinstance(prediction_record, dict):
+            raise ValueError(f"prediction record {index} is malformed")
+        stem = str(prediction_record.get("stem", ""))
+        relative_path = prediction_record.get("path")
+        if not stem or stem in predictions_by_stem:
+            raise ValueError("prediction records have missing or duplicate stems")
+        if not isinstance(relative_path, str) or not relative_path:
+            raise ValueError(f"frozen prediction is missing for {stem}")
+        prediction_path = (artifact_index_path.parent / relative_path).resolve()
+        if (
+            not is_within(prediction_path, artifact_index_path.parent.resolve())
+            or not prediction_path.is_file()
+            or sha256(prediction_path) != prediction_record.get("sha256")
+        ):
+            raise ValueError(f"prediction evidence is missing, unsafe, or drifted: {stem}")
+        actual_prediction_count = sum(
+            1
+            for line in prediction_path.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+        if actual_prediction_count != prediction_record.get("prediction_count"):
+            raise ValueError(f"prediction count drift for {stem}")
+        predictions_by_stem[stem] = prediction_path
 
     profiled: list[dict[str, Any]] = []
     visual_inputs: dict[tuple[str, str], tuple[Path, list[dict[str, Any]], list[dict[str, Any]], dict[str, Any]]] = {}
+    used_prediction_stems: set[str] = set()
     for record in records:
         lane = record["lane"]
         file_name = record["materializedFileName"]
         stem = Path(file_name).stem
         truth_path = evaluation_root / "labels" / "test" / lane / f"{stem}.txt"
-        prediction_path = prediction_root / f"{lane}__{stem}.txt"
+        matching_prediction_stems = [
+            candidate
+            for candidate in (stem, f"{lane}__{stem}")
+            if candidate in predictions_by_stem
+        ]
+        if len(matching_prediction_stems) != 1:
+            raise ValueError(
+                f"expected exactly one prediction record for {lane}/{file_name}"
+            )
+        prediction_stem = matching_prediction_stems[0]
+        prediction_path = predictions_by_stem[prediction_stem]
+        used_prediction_stems.add(prediction_stem)
         if not truth_path.is_file() or not prediction_path.is_file():
             raise FileNotFoundError(f"missing truth or prediction label for {lane}/{file_name}")
         if sha256(truth_path) != record["materializedLabelSha256"]:
@@ -123,6 +181,8 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
         })
         image_path = evaluation_root / "images" / "test" / lane / file_name
         visual_inputs[(lane, file_name)] = (image_path, truth, predictions, result)
+    if used_prediction_stems != set(predictions_by_stem):
+        raise ValueError("prediction evidence contains records outside the frozen snapshot")
 
     truth_total = sum(item["truthCount"] for item in profiled)
     matched_total = sum(item["matchedCount"] for item in profiled)

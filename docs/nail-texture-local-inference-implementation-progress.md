@@ -109,6 +109,7 @@ npm.cmd run build
 | `M2-T3-HARD-NEGATIVE-SCAN-001` | 现有域外排除项hard negative严格复筛 | ✅ PASS（候选不足） | 37/37原分辨率审核，仅`00844`玩偶+猫户外图满足无真人有效甲面、清晰、部署相关、授权A和角色隔离；其余36张为甲型/手绘模板、独立甲片、拼图或仍含真实美甲，全部排除。安全候选1/100，缺99，继续candidate-only |
 | `M2-T3-HARD-NEGATIVE-FINALIZER-002` | hard negative schema v2终结、真实解码与消费端深验 | ✅ PASS（真实100张批准） | 终结器重放候选清单、原分辨率审核、A授权、当前图片字节与来源隔离证据；100张下限不可降低。2026_7_23批次626张中99张严格通过并与历史1张合并，批准清单达到100张；0损坏、0完全重复，源/物化文件均完成Pillow完整解码。其余527张不回收凑数 |
 | `M2-T3-HARD-NEGATIVE-WATERMARK-AUDIT-005` | AI困难负样本误检与水印捷径消融 | 🔴 HOLD | 新审计固定原图、裁右下12%和右下角模糊三种变体，并在0.35部署阈值和0.20诊断阈值重放同一候选权重。部署阈值原图/裁剪/模糊误检图为0/2/0，诊断阈值为3/5/2；裁剪变体增加2个检测，严格零误检/零delta门失败。该100张属于训练集，`releaseGeneralizationEligible=false`；必须补充不同生成批次/提示族且无统一水印的独立留出集，不得以冻结正样本mAP覆盖该失败 |
+| `M2-T3-HARD-NEGATIVE-COMPLETION-GATE-006` | 困难负样本水印证据接入最终完成度独立强门 | ✅ PASS（真实训练证据被正确HOLD） | `audit-hard-negative-watermark-shortcut.py --verify-report`重算权重/清单/100源图/300变体SHA-256、逐图计数、误检、delta和决定；完成度审计新增第14门，固定要求不少于100张`independent-holdout`、三变体零误检/零delta及`releaseGeneralizationEligible=true`。现有训练报告深验有效但角色为training且裁剪误检2张，因此直接门正确失败，不能靠进度文字或手写PASS绕过 |
 | `M2-T6-CANONICAL-CANDIDATE-DATASET-GATE` | 规范候选训练数据集物化与写前门禁 | ✅ PASS（真实候选输入） | 固定train正样本100、正式hard negative100、val30且CLI不可下调；真实候选物化为train200（100正样本/521 mask + 100空标签负样本）、val30/144 mask、test0、孤儿0，与冻结test100按文件名/图片SHA/sourceGroup零重叠，文件树SHA-256为`4a97f5b6…12b8` |
 | `M2-T6-CANDIDATE-INPUT-DEEP-AUDIT` | 候选训练完整输入独立深审与训练入口重放 | ✅ PASS（工程门） | 独立重算物化allow-list、annotation→YOLO标签、正样本polygon合法性/严格零交叠、hard-negative零字节标签、val逐项等价、孤儿文件及四角色隔离；`verify_approved_report()`拒绝伪造PASS和写后漂移。`train-yolo-seg.py --candidate-mode --candidate-input-report`在GPU前后深度重放，旧validation外层PASS不再授权。输入/联调10/10通过 |
 | `M2-T6-CANDIDATE-PIPELINE-PREFLIGHT` | 发布编排候选输入首步预检与恢复训练哈希门 | ✅ PASS（工程门） | `candidate-input-preflight`在环境检查、训练、评估和导出之前执行，dry-run、`--skip-train`及跳过环境检查均不可绕过；恢复旧训练必须绑定同一dataset路径/SHA、输入报告路径/SHA和当前权重SHA。缺训练摘要的skip-train联调正确在第二步停止；全量506/506通过 |
@@ -375,6 +376,7 @@ npm.cmd run build
 | `M2-T6-V6-RELEASE-67-EVAL` | 在冻结67张发布测试快照上复评v6部署质量 | ✅ PASS（拒绝候选） | 评估专用物化独立复算67图/384 mask/18父组及逐文件哈希，和409张正式训练图的来源组、图片SHA-256重叠均为0；512全量box/mask mAP50=0.8370/0.8313，核心45张=0.8485/0.8523，压力22张=0.8179/0.7919，压力组相对历史13张基线下降0.0348/0.0557，质量门拒绝v6。640全量诊断=0.8570/0.8549，但不属于部署512口径，不能覆盖失败结论 |
 | `M2-T6-V6-RELEASE-67-FAILURE-PROFILE` | 冻结67张部署阈值逐图实例失败画像 | ✅ PASS（诊断闭环） | 以浏览器默认confidence=0.35、mask IoU=0.50匹配67图/384真值与346个预测：289匹配、95漏检、57误检、76个弱形状匹配，整体召回0.7526；核心召回0.7761，压力召回0.6983。0.20—0.45阈值扫描显示0.25可把压力召回提高到0.7845，但误检由57增至90，未绕过浏览器候选数、误检与Beta门直接改默认值。15张最高风险原分辨率叠加图确认透明相邻长甲、多甲同屏、低对比漏整甲/局部甲面及手指/腕表误检。报告固定禁止将冻结图片、标签、裁剪或父来源组用于训练 |
 | `M2-T6-V6-VAL-THRESHOLD-CALIBRATION` | 来源隔离验证集阈值校准与测试集防泄漏门 | ✅ PASS（拒绝写入manifest） | 校准器仅接受split=val及val-only来源组，绑定数据集/来源报告/指标/预测/权重SHA-256，硬拒绝test和跨split来源；v6部署512在13张/45 mask val上box/mask mAP50=0.9376/0.9420，诊断最优confidence=0.20时匹配40、漏5、误检2、F1=0.9195，但发现14个真值polygon需拓扑修复且13<30图，因此`calibrationEligible=false`、`manifestScoreThreshold=null`，生产阈值不变 |
+| `M2-T6-CANDIDATE-VAL30-THRESHOLD-20260724` | 新候选规范val30正式阈值校准 | ✅ PASS（候选阈值0.50） | 候选`bcb145b5…1a50`在来源隔离、30/30原分辨率终审通过的val30/144 mask上重新生成部署512、`split=val`正式制品，box/mask mAP50=0.928/0.815；校准器深度重放规范物化、角色隔离、真值终审、逐预测SHA和权重后决定`calibrated_threshold_ready_for_candidate_manifest`，`manifestScoreThreshold=0.50`，报告SHA-256为`064b0a26…79f6`。只授权候选，不修改生产manifest |
 | `M2-T6-V6-VAL-TRUTH-AUDIT` | v6旧验证真值隔离返修候选与原分辨率全覆盖审核 | ✅ PASS（拒绝旧val真值） | 候选生成器绑定dataset/source report/calibration哈希，只处理val且不覆盖源标签；14个无效polygon生成隔离候选、13/13整图和14组逐甲2×证据。审核结果3张通过、7张返修、3张排除，并发现2张未声明交叠以及漏甲、背景/雕塑误标、重复mask、皮肤污染和边缘裁断；机器报告输出`rejected_as_calibration_truth`。旧val的0.9376/0.9420与0.20仅保留为不合格真值上的历史诊断，不用于模型选择、阈值或manifest |
 | `M2-T6-VAL-TRUTH-AUDIT-CONTRACT` | 验证真值视觉审核资格接入阈值校准器 | ✅ PASS | 校准器新增`--truth-audit`：正式阈值只接受`approved_as_calibration_truth`，并绑定dataset路径/SHA-256、逐标签哈希和全量pass计数；缺失审核或显式拒绝分别降级为`diagnostic_only_validation_truth_unreviewed/rejected`。v6旧val带拒绝报告复跑仍仅保留0.20诊断点，`calibrationEligible=false`、`manifestScoreThreshold=null` |
 | `M2-T6-CANONICAL-VAL30-CALIBRATION` | 规范val30部署512评估、阈值深审与只读源隔离 | ✅ PASS（工程门；拒绝v6阈值） | 校准器独立重放规范物化、30图/144 mask终审、角色隔离和当前文件字节；旧实验永远只作诊断。评估器将所选split复制到独立runtime dataset，源树推理前后逐文件哈希一致，Ultralytics cache不得污染规范源；预测制品使用跨平台稳定清单、逐文件SHA和30图显式预测记录。v6部署512为box/mask mAP50=0.6241/0.5630；0.05虽召回0.7569但每图误检9.8333、单图最多28候选，其余阈值召回不足0.75，故`no_threshold_meets_validation_constraints`、`manifestScoreThreshold=null`。PASS只证明门禁可靠，不代表v6质量通过 |
@@ -396,6 +398,7 @@ npm.cmd run build
 | `M3-T4-QUALITY` | 真实测试集直接可用率、污染率和人工修正成本 | 🟡 IN PROGRESS | 新候选已绑定冻结100张/554 mask完成部署512 full/core/stress评估，box/mask mAP50分别为0.9654/0.9601、0.9715/0.9718、0.9436/0.9240，schema v2质量报告和深度重放通过。该mAP门不包含困难负样本水印捷径、逐实例直接可用率、污染率和人工修正成本，后续三项仍需独立负样本留出与Beta人工审核 |
 | `M3-T4-COMPLETION-AUDIT-V2` | 最终完成度非PASS、正式产品质量与回滚强门 | ✅ PASS（工程门） | v2把全部非PASS进度标记纳入正式gate。产品质量builder用冻结snapshot、逐实例CSV与场景回归CSV作为原始证据：按冻结工具同规则重算canonical `itemsSha256`并校验固定decision、训练禁用、100图代表性门及fileName/imageSha256双唯一（sourceGroup允许重复）；1起始实例索引必须完整覆盖每个mask并逐行绑定身份，场景样本数不得越过快照图片数，固定重算五项聚合及八维box/mask退化。完成度审计直接调用深验replay并强制报告绑定CLI指定快照路径；伪造items SHA、重复图片哈希凑数、67图假达标、漏重实例、身份漂移、分子越界、阈值失败、缺维度、场景超界、CSV/快照漂移、合法快照换绑和手写聚合PASS均有专项拒绝测试。统一输出保护覆盖直接输入、产品CSV、回滚snapshot/model、生产模型与移动原始证据，并拒绝Windows大小写/真实路径/硬链接别名覆盖。缺失率上限0.10、最低delta=-0.02；真实项目仍按预期HOLD，工程门PASS不代替用户实际审核证据 |
 | `M3-T4-FROZEN-QUALITY-REPORT-V2` | 冻结发布测试质量报告适配代表性100图快照 | ✅ PASS（真实候选mAP门） | schema v2报告已绑定新候选`bcb145b5…1a50`及同一权重的baseline30、full512、full640、core512、stress512；冻结100图/554 mask及预测覆盖重算通过，正式决定`accept_candidate_release`，深度重放SHA-256为`48e24565…234c`。Windows子进程输出解码改为字节捕获并只在失败时容错解码，复验无后台Unicode异常。该结论只通过mAP质量门，不覆盖困难负样本HOLD |
+| `M3-T4-FROZEN-FAILURE-PROFILE-100` | 冻结100图按候选阈值逐实例失败画像 | ✅ PASS（诊断与Beta准备） | 画像器改为从正式制品索引解析逐图预测记录并深验路径、SHA-256、预测数和快照全覆盖，兼容平铺stem与历史`lane__stem`。阈值0.50下554真值匹配512、漏42、误检30、弱形状59，召回0.9242；core/stress召回0.9269/0.9138，25张最高风险叠加图已生成。报告固定`trainingUse=prohibited`，只供Beta审核与新来源采样规划 |
 | `M3-T4-FROZEN-QUALITY-DEEP-REPLAY-003` | 冻结质量报告只读重放与代表性快照强绑定 | ✅ PASS（工程门） | 质量报告新增`--verify-report`，从已写报告重读全部传递输入并以临时输出完整重建，要求schema v2、固定部署512门、输入集合、外层决定和整份JSON逐字段一致；完成度审计直接调用该重放器，并把质量报告的传递输入加入输出覆盖保护。当100图冻结快照存在时，缺失、无效或绑定旧67图的质量报告一律不能退回历史13图指标。手写外层决定、源指标写后漂移和传递输入覆盖专项均被拒绝；联合专项41/41通过 |
 | `M3-T5-BETA` | Beta 发布决策 | 🔴 HOLD | 新候选已通过冻结100张mAP门，但AI困难负样本裁水印消融失败且缺独立负样本留出；移动真机矩阵、用户失败案例、100张Beta人工直接可用率/污染率/修正成本证据仍缺，禁止promotion |
 
@@ -405,12 +408,12 @@ npm.cmd run build
 | --- | --- | --- | --- |
 | `REL-T1-TOOLCHAIN` | 模型登记、A/B 比较、发布决策、promotion、trace、历史与回滚 | ✅ PASS | 全量测试覆盖注册完整性、回滚候选、失败阻断、主动学习告警和 trace 证据传递 |
 | `REL-T1-CONFIG-GUARD` | 生产与 smoke manifest 配置隔离 | ✅ PASS | `.env.local.example`不再启用smoke覆盖，复制后使用正式manifest默认路径；自动测试拒绝任何启用状态的示例覆盖，防止smoke模型成为共享默认值 |
-| `REL-T1-COMPLETION-AUDIT` | 实施规范最终完成度机器审计 | ✅ PASS（HOLD生效） | 总门已绑定新100张冻结快照、新候选质量报告及部署512指标重跑；Windows中文路径通过`PYTHONIOENCODING=utf-8`完成深度重放身份核对。当前343个标记/332 PASS、13个正式门中4个通过并输出HOLD；候选mAP门已由3/13提升到4/13，但独立困难负样本、水印捷径、移动真机、失败案例、Beta、生产资产和回滚仍阻断，未错误promotion |
+| `REL-T1-COMPLETION-AUDIT` | 实施规范最终完成度机器审计 | ✅ PASS（HOLD生效） | 总门已绑定新100张冻结快照、新候选质量报告、部署512指标和独立困难负样本水印强门；Windows中文路径通过`PYTHONIOENCODING=utf-8`完成深度重放身份核对。困难负样本门不接受training角色或外层手写PASS，正式门增至14项；独立困难负样本、水印捷径、移动真机、失败案例、Beta、生产资产和回滚仍阻断，未错误promotion |
 | `REL-T1-COMPLETION-MARKER-INTEGRITY-003` | 完成度规范章节与进度标记结构完整性门 | ✅ PASS（工程门） | 用户/工程清单必须实际存在且非空，清单候选行必须是合法checkbox且文本不得重复；进度表必须至少包含一个可解析标记，所有反引号标记行均须满足四列表格格式，标记ID必须唯一。真实规范与进度复验为343个标记/343唯一ID、0畸形行；新增水印HOLD标记被纳入正式总门而未静默消失 |
 | `REL-T1-FINAL-BLOCKER-AUDIT-004` | 正式训练与发布剩余依赖链最终阻断审计 | ✅ PASS（历史阻塞已解除） | 先前“困难负样本缺99张”的训练阻塞已由2026_7_23批次解除，规范候选训练和冻结100图mAP评估完成。当前发布阻塞转为独立负样本留出、水印捷径HOLD、移动真机、用户失败案例、Beta和回滚证据；不降低门槛、不回收527张已拒绝图且不修改生产manifest |
 | `REL-T1-ACCEPTANCE-EVIDENCE` | 真机、Beta与失败案例外部证据构建器 | ✅ PASS | 真机聚合器拒绝未通过或少于20次的性能/内存报告；Beta CSV强制100张、用户审核、SHA-256和85%直接可用率；失败案例CSV校验图片、来源组、类别、严重度和哈希；成功/拒绝专项6/6通过 |
 | `REL-T1-ROLLBACK-FIXTURE-INTEGRITY-002` | 发布治理回滚完整性回归夹具与当前manifest契约对齐 | ✅ PASS | 两组治理测试夹具在写入候选模型后动态填写真实`modelSizeBytes`与SHA-256，满足当前回滚深审要求；未降低生产校验逻辑。发布治理与训练发布编排专项27/27、全量串行630/630通过，原10项夹具型失败清零 |
-| `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD | 2026-07-24候选已通过冻结100张部署512 mAP门，但困难负样本裁水印变体出现2/100误检且训练负样本不能充当独立留出；生产manifest保持不变，须先用新批次无统一水印的独立负样本证明泛化，再完成阈值、Beta、移动真机和回滚门 |
+| `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD | 2026-07-24候选已通过冻结100张部署512 mAP门，规范val30正式校准得到候选阈值0.50；但困难负样本裁水印变体出现2/100误检且训练负样本不能充当独立留出。生产manifest保持不变，须先用新批次无统一水印的独立负样本证明泛化，再完成Beta、移动真机和回滚门 |
 
 ## 当前总体验收
 
@@ -458,3 +461,6 @@ npm.cmd run build
 - v6权重续训50轮，候选权重SHA-256为`bcb145b59fbb3fc305c90194e0eb1d7523fee981964793b60721f4f7fa091a50`；冻结100图部署512初评box/mask mAP50为0.965/0.960。
 - 冻结100图部署512正式报告已覆盖full/core/stress，三组box/mask mAP50为0.9654/0.9601、0.9715/0.9718、0.9436/0.9240，schema v2质量门和深度重放通过；640全量仅作诊断。
 - 困难负样本水印消融结果为部署0.35阈值原图/裁右下12%/模糊右下角误检0/2/0，严格门失败；0.20诊断阈值为3/5/2。当前候选继续HOLD，须补充独立无统一水印留出集，不能仅凭高mAP晋升。
+- 水印审计已具备只读深验并接入完成度第14个直接门，现有training角色报告虽证据有效仍被正确拒绝；完成度审计为346标记/335 PASS、14门中4门通过。
+- 候选在规范val30/144 mask上重新评估为box/mask mAP50=0.928/0.815，正式校准阈值0.50并通过权重绑定重放；生产manifest和共享阈值未修改。
+- 冻结100图按阈值0.50的逐实例画像为512/554匹配、42漏检、30误检和59弱形状匹配，core/stress召回0.9269/0.9138；25张最高风险叠加图只供Beta审核，禁止回流训练。

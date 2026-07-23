@@ -210,6 +210,82 @@ async function prepareDeviceReport(root: string, deviceFamily: string) {
   return output;
 }
 
+async function prepareHardNegativeAudit(root: string, output: string) {
+  const evidenceRoot = path.join(root, "hard-negative-evidence");
+  await mkdir(evidenceRoot);
+  const weights = path.join(evidenceRoot, "candidate.pt");
+  const manifest = path.join(evidenceRoot, "approved-manifest.json");
+  await writeFile(weights, Buffer.from("hard-negative-candidate"));
+  await writeJson(manifest, { itemsSha256: createHash("sha256").update("hard-negative-items").digest("hex") });
+  const records = [];
+  for (let index = 1; index <= 100; index += 1) {
+    const sourcePath = path.join(evidenceRoot, `source-${index}.bin`);
+    const sourceBytes = Buffer.from(`source-${index}`);
+    await writeFile(sourcePath, sourceBytes);
+    const variants: Record<string, { path: string; sha256: string }> = {};
+    for (const variant of ["original", "crop12", "blur_corner"]) {
+      const variantPath = path.join(evidenceRoot, `${variant}-${index}.bin`);
+      const variantBytes = Buffer.from(`${variant}-${index}`);
+      await writeFile(variantPath, variantBytes);
+      variants[variant] = {
+        path: variantPath,
+        sha256: createHash("sha256").update(variantBytes).digest("hex"),
+      };
+    }
+    records.push({
+      fileName: `negative-${index}.png`,
+      sourcePath,
+      sourceSha256: createHash("sha256").update(sourceBytes).digest("hex"),
+      sourceGroup: `negative-group-${index}`,
+      width: 512,
+      height: 512,
+      variants,
+    });
+  }
+  const emptyThreshold = Object.fromEntries(["original", "crop12", "blur_corner"].map((variant) => [
+    variant,
+    {
+      images: 100,
+      falsePositiveImages: 0,
+      falsePositiveImageRate: 0,
+      detections: 0,
+      meanDetectionsPerImage: 0,
+      maximumDetectionsPerImage: 0,
+      maximumConfidence: 0,
+      counts: Array.from({ length: 100 }, () => 0),
+    },
+  ]));
+  await writeJson(output, {
+    schemaVersion: 1,
+    ok: true,
+    status: "PASS",
+    decision: "hard_negative_watermark_shortcut_stability_pass",
+    datasetRole: "independent-holdout",
+    releaseGeneralizationEligible: true,
+    inputs: {
+      weights: { path: weights, sha256: createHash("sha256").update(await readFile(weights)).digest("hex") },
+      hardNegativeManifest: {
+        path: manifest,
+        sha256: createHash("sha256").update(await readFile(manifest)).digest("hex"),
+        itemsSha256: createHash("sha256").update("hard-negative-items").digest("hex"),
+      },
+    },
+    configuration: {
+      imgsz: 512,
+      deploymentConfidence: 0.35,
+      diagnosticConfidence: 0.20,
+      maxFalsePositiveImages: 0,
+      maxVariantDetectionDelta: 0,
+    },
+    counts: { images: 100, variants: 3, inferenceViews: 300 },
+    deploymentThreshold: emptyThreshold,
+    diagnosticThreshold: emptyThreshold,
+    variantDetectionDeltas: { blur_corner: 0, crop12: 0 },
+    recordsSha256: canonicalSha256(records),
+    records,
+  });
+}
+
 async function preparePassingFixture(root: string) {
   const files = {
     spec: path.join(root, "spec.md"),
@@ -218,6 +294,7 @@ async function preparePassingFixture(root: string) {
     review: path.join(root, "review.json"),
     snapshot: path.join(root, "release-test-snapshot.json"),
     quality: path.join(root, "release-test-quality.json"),
+    hardNegative: path.join(root, "hard-negative-watermark-audit.json"),
     metrics: path.join(root, "metrics.json"),
     manifest: path.join(root, "manifest.json"),
     desktopPerformance: path.join(root, "desktop-performance.json"),
@@ -259,6 +336,7 @@ async function preparePassingFixture(root: string) {
   };
   await writeJson(files.snapshot, snapshot);
   await buildFrozenReleaseTestQuality(root, files.snapshot, files.quality, snapshot.counts);
+  await prepareHardNegativeAudit(root, files.hardNegative);
   await writeJson(files.metrics, { box_map50: 0.9, seg_map50: 0.85 });
   const previousModelBytes = Buffer.alloc(1024, 0x31);
   const previousModelPath = await writeReleaseManifest(root, files.manifest, "nail-texture-seg-v1", previousModelBytes);
@@ -315,6 +393,7 @@ function runAudit(
     "--candidate-review", files.review,
     "--release-test-snapshot", files.snapshot,
     "--release-test-quality", files.quality,
+    "--hard-negative-audit", files.hardNegative,
     "--best-metrics", files.metrics,
     "--production-manifest", files.manifest,
     "--desktop-performance", files.desktopPerformance,
@@ -345,9 +424,53 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
     assert.equal(report.ok, true);
     assert.equal(report.decision, "complete");
     assert.equal(report.version, "nail-texture-local-inference-completion-audit/v2");
-    assert.equal(report.summary.gateCount, 13);
+    assert.equal(report.summary.gateCount, 14);
+    assert.equal(report.gates.independentHardNegativeWatermark.ok, true);
     assert.equal(report.gates.releaseProductQuality.ok, true);
     assert.equal(report.gates.releaseRollback.ok, true);
+  });
+
+  await t.test("rejects training negatives even when their watermark audit is stable", async () => {
+    const original = JSON.parse(await readFile(fixture.files.hardNegative, "utf8"));
+    await writeJson(fixture.files.hardNegative, {
+      ...original,
+      datasetRole: "training",
+      releaseGeneralizationEligible: false,
+    });
+    const output = path.join(root, "training-negative-audit.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.independentHardNegativeWatermark.ok, false);
+    assert.equal(report.gates.independentHardNegativeWatermark.evidence.deepVerificationOk, true);
+    assert.ok(report.blockingInputs.some(
+      (item: { code: string }) => item.code === "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
+    ));
+    await writeJson(fixture.files.hardNegative, original);
+  });
+
+  await t.test("rejects forged hard-negative decisions and drifted variant evidence", async () => {
+    const original = JSON.parse(await readFile(fixture.files.hardNegative, "utf8"));
+    const forged = structuredClone(original);
+    forged.deploymentThreshold.crop12.counts[0] = 1;
+    await writeJson(fixture.files.hardNegative, forged);
+    let output = path.join(root, "forged-hard-negative-audit.json");
+    let result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    let report = await readReport(output);
+    assert.equal(report.gates.independentHardNegativeWatermark.evidence.deepVerificationOk, false);
+    assert.match(report.gates.independentHardNegativeWatermark.errors.join(" "), /deep verification failed/);
+
+    await writeJson(fixture.files.hardNegative, original);
+    const variantPath = original.records[0].variants.original.path as string;
+    const originalVariant = await readFile(variantPath);
+    await writeFile(variantPath, Buffer.from("drifted"));
+    output = path.join(root, "drifted-hard-negative-audit.json");
+    result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    report = await readReport(output);
+    assert.equal(report.gates.independentHardNegativeWatermark.evidence.deepVerificationOk, false);
+    await writeFile(variantPath, originalVariant);
   });
 
   await t.test("rejects a handwritten frozen quality PASS or decision drift", async () => {
