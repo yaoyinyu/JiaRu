@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-22T09:12:12.663Z",
+  "generatedAt": "2026-07-22T16:31:46.587Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -43,8 +43,8 @@
     "gateCount": 13,
     "passedGates": 3,
     "failedGates": 10,
-    "progressMarkerCount": 340,
-    "passMarkerCount": 330,
+    "progressMarkerCount": 342,
+    "passMarkerCount": 332,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -136,7 +136,9 @@
           "checked": false,
           "text": "在 Beta 阶段参与“直接可用/需要修正/不可用”审核。"
         }
-      ]
+      ],
+      "malformedRows": [],
+      "duplicateItems": []
     },
     "engineeringChecklist": {
       "ok": false,
@@ -811,14 +813,27 @@
         },
         {
           "checked": true,
+          "text": "收紧实施规范与进度标记结构完整性门；用户/工程清单章节必须存在且各自至少包含一项，所有清单候选行必须采用合法checkbox格式且同一章节文本不得重复；进度表必须包含可解析标记，所有反引号开头的候选标记行不得因格式错误静默消失，同一标记ID只能出现一次。空进度、缺失清单章节、畸形或重复清单、畸形表格行和重复PASS ID必须使最终完成度审计保持HOLD并给出明确错误位置。"
+        },
+        {
+          "checked": true,
+          "text": "完成正式训练与发布剩余依赖链的最终阻断审计；复验困难负样本正式化报告、完成度报告及全部非PASS标记，确认现有37张域外项已穷尽复筛且仅1张合格，train100、val30、冻结test100之外仍缺99张困难负样本。候选质量、生产ONNX、移动真机、Beta和回滚均依赖新训练或外部证据，不得用降低门槛、回收不合格素材或伪造传递报告制造进度；连续三轮无新输入时允许把持续目标标记为等待用户输入的阻塞态，收到合格素材后从原分辨率审核和候选物化门恢复。"
+        },
+        {
+          "checked": true,
           "text": "修复发布治理回归夹具与当前回滚完整性契约的偏差；测试manifest使用真实模型字节动态填写`modelSizeBytes`和SHA-256，不降低生产深审逻辑。发布治理与训练发布编排专项27/27、全量串行630/630通过。"
         }
-      ]
+      ],
+      "malformedRows": [],
+      "duplicateItems": []
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 340,
-      "passMarkerCount": 330,
+      "markerCount": 342,
+      "uniqueMarkerCount": 342,
+      "passMarkerCount": 332,
+      "malformedRows": [],
+      "duplicateMarkerIds": [],
       "incompleteMarkers": [
         {
           "id": "M2-T3-REAL-DATA",

@@ -403,6 +403,80 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
     await writeFile(fixture.files.progress, "| `M1` | 工程 | ✅ PASS | tested |\n", "utf8");
   });
 
+  await t.test("rejects missing checklist sections instead of treating empty arrays as complete", async () => {
+    const original = await readFile(fixture.files.spec, "utf8");
+    await writeFile(fixture.files.spec, "# incomplete specification\n", "utf8");
+    const output = path.join(root, "missing-checklists.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.userChecklist.ok, false);
+    assert.equal(report.gates.engineeringChecklist.ok, false);
+    assert.equal(report.gates.userChecklist.items.length, 0);
+    assert.equal(report.gates.engineeringChecklist.items.length, 0);
+    assert.ok(report.blockingInputs.some((item: { code: string }) => item.code === "SPEC_USER_CHECKLIST"));
+    assert.ok(report.blockingInputs.some((item: { code: string }) => item.code === "SPEC_ENGINEERING_CHECKLIST"));
+    await writeFile(fixture.files.spec, original, "utf8");
+  });
+
+  await t.test("rejects malformed and duplicate checklist rows", async () => {
+    const original = await readFile(fixture.files.spec, "utf8");
+    await writeFile(fixture.files.spec, [
+      "# specification preamble",
+      "",
+      "### 16.1 用户需要完成",
+      "- [x] 用户证据完成。",
+      "- [ ]缺少复选框后的空格",
+      "### 16.2 工程侧需要完成",
+      "- [x] 重复工程证据。",
+      "- [x] 重复工程证据。",
+      "## 17. 推荐执行顺序",
+    ].join("\n"), "utf8");
+    const output = path.join(root, "malformed-duplicate-checklists.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.userChecklist.ok, false);
+    assert.deepEqual(report.gates.userChecklist.malformedRows, [{
+      lineNumber: 5,
+      text: "- [ ]缺少复选框后的空格",
+    }]);
+    assert.equal(report.gates.engineeringChecklist.ok, false);
+    assert.deepEqual(report.gates.engineeringChecklist.duplicateItems, ["重复工程证据。"]);
+    assert.match(
+      report.blockingInputs.find((item: { code: string }) => item.code === "SPEC_USER_CHECKLIST")?.summary ?? "",
+      /malformed user checklist rows.*5/i,
+    );
+    assert.match(
+      report.blockingInputs.find((item: { code: string }) => item.code === "SPEC_ENGINEERING_CHECKLIST")?.summary ?? "",
+      /duplicate engineering checklist items.*重复工程证据/i,
+    );
+    await writeFile(fixture.files.spec, original, "utf8");
+  });
+
+  await t.test("rejects a malformed marker row that would otherwise disappear from the audit", async () => {
+    await writeFile(
+      fixture.files.progress,
+      "| `M1` | 工程 | ✅ PASS | tested |\n| `M2` | 工程 | ✅ PASS | missing final separator\n",
+      "utf8",
+    );
+    const output = path.join(root, "malformed-progress.json");
+    const result = runAudit(fixture, output);
+    assert.equal(result.status, 1);
+    const report = await readReport(output);
+    assert.equal(report.gates.progressMarkers.ok, false);
+    assert.equal(report.gates.progressMarkers.markerCount, 1);
+    assert.deepEqual(report.gates.progressMarkers.malformedRows, [{
+      lineNumber: 2,
+      text: "| `M2` | 工程 | ✅ PASS | missing final separator",
+    }]);
+    assert.match(
+      report.blockingInputs.find((item: { code: string }) => item.code === "INCOMPLETE_PROGRESS_MARKERS")?.summary ?? "",
+      /Malformed progress marker rows.*2/,
+    );
+    await writeFile(fixture.files.progress, "| `M1` | 工程 | ✅ PASS | tested |\n", "utf8");
+  });
+
   await t.test("rejects duplicate PASS marker IDs instead of counting both", async () => {
     await writeFile(
       fixture.files.progress,
