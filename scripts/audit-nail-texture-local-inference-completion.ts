@@ -294,6 +294,20 @@ function checklist(text: string): ChecklistItem[] {
   }));
 }
 
+function sectionLineOffset(text: string, heading: string): number {
+  const index = text.indexOf(heading);
+  return index < 0 ? 0 : (text.slice(0, index).match(/\n/g) ?? []).length;
+}
+
+function malformedChecklistRows(text: string, lineOffset = 0) {
+  const validRow = /^- \[[ xX]\] .+$/;
+  return text.split(/\r?\n/).flatMap((line, index) =>
+    /^-\s*\[/.test(line) && !validRow.test(line)
+      ? [{ lineNumber: lineOffset + index + 1, text: line }]
+      : []
+  );
+}
+
 function progressMarkers(text: string) {
   return [...text.matchAll(/^\| `([^`]+)` \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)].map((match) => ({
     id: match[1]!.trim(),
@@ -301,6 +315,15 @@ function progressMarkers(text: string) {
     status: match[3]!.trim(),
     evidence: match[4]!.trim(),
   }));
+}
+
+function malformedProgressMarkerRows(text: string) {
+  const validRow = /^\| `([^`]+)` \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/;
+  return text.split(/\r?\n/).flatMap((line, index) =>
+    /^\|\s*`/.test(line) && !validRow.test(line)
+      ? [{ lineNumber: index + 1, text: line }]
+      : []
+  );
 }
 
 function isPassMarker(status: string): boolean {
@@ -412,9 +435,20 @@ async function main() {
     readFile(options.specPath, "utf8"),
     readFile(options.progressPath, "utf8"),
   ]);
-  const userChecklist = checklist(section(specText, "### 16.1 用户需要完成", "### 16.2 工程侧需要完成"));
-  const engineeringChecklist = checklist(section(specText, "### 16.2 工程侧需要完成", "## 17. 推荐执行顺序"));
+  const userChecklistSection = section(specText, "### 16.1 用户需要完成", "### 16.2 工程侧需要完成");
+  const engineeringChecklistSection = section(specText, "### 16.2 工程侧需要完成", "## 17. 推荐执行顺序");
+  const userChecklist = checklist(userChecklistSection);
+  const engineeringChecklist = checklist(engineeringChecklistSection);
+  const malformedUserChecklistRows = malformedChecklistRows(
+    userChecklistSection,
+    sectionLineOffset(specText, "### 16.1 用户需要完成"),
+  );
+  const malformedEngineeringChecklistRows = malformedChecklistRows(
+    engineeringChecklistSection,
+    sectionLineOffset(specText, "### 16.2 工程侧需要完成"),
+  );
   const markers = progressMarkers(progressText);
+  const malformedMarkerRows = malformedProgressMarkerRows(progressText);
 
   const datasetReadiness = await readJson<DatasetReadiness>(options.datasetReadinessPath);
   const candidateReview = await readJson<CandidateReview>(options.candidateReviewPath);
@@ -633,15 +667,40 @@ async function main() {
         : [],
     } : null,
   };
-  const userChecklistGate = { ok: userChecklist.length > 0 && userChecklist.every((item) => item.checked), items: userChecklist };
-  const engineeringChecklistGate = { ok: engineeringChecklist.length > 0 && engineeringChecklist.every((item) => item.checked), items: engineeringChecklist };
+  const duplicateUserChecklistItems = duplicateValues(userChecklist.map((item) => item.text));
+  const duplicateEngineeringChecklistItems = duplicateValues(engineeringChecklist.map((item) => item.text));
+  const userChecklistGate = {
+    ok:
+      userChecklist.length > 0 &&
+      malformedUserChecklistRows.length === 0 &&
+      duplicateUserChecklistItems.length === 0 &&
+      userChecklist.every((item) => item.checked),
+    items: userChecklist,
+    malformedRows: malformedUserChecklistRows,
+    duplicateItems: duplicateUserChecklistItems,
+  };
+  const engineeringChecklistGate = {
+    ok:
+      engineeringChecklist.length > 0 &&
+      malformedEngineeringChecklistRows.length === 0 &&
+      duplicateEngineeringChecklistItems.length === 0 &&
+      engineeringChecklist.every((item) => item.checked),
+    items: engineeringChecklist,
+    malformedRows: malformedEngineeringChecklistRows,
+    duplicateItems: duplicateEngineeringChecklistItems,
+  };
   const incompleteProgressMarkers = markers.filter((marker) => !isPassMarker(marker.status));
   const duplicateProgressMarkerIds = duplicateValues(markers.map((marker) => marker.id));
   const progressMarkersGate = {
-    ok: markers.length > 0 && duplicateProgressMarkerIds.length === 0 && incompleteProgressMarkers.length === 0,
+    ok:
+      markers.length > 0 &&
+      malformedMarkerRows.length === 0 &&
+      duplicateProgressMarkerIds.length === 0 &&
+      incompleteProgressMarkers.length === 0,
     markerCount: markers.length,
     uniqueMarkerCount: new Set(markers.map((marker) => marker.id)).size,
     passMarkerCount: markers.length - incompleteProgressMarkers.length,
+    malformedRows: malformedMarkerRows,
     duplicateMarkerIds: duplicateProgressMarkerIds,
     incompleteMarkers: incompleteProgressMarkers,
   };
@@ -665,13 +724,40 @@ async function main() {
   }
 
   const blockingInputs = [
-    ...(!userChecklistGate.ok ? [{ code: "SPEC_USER_CHECKLIST", owner: "user", summary: "Complete every explicit user checklist item in implementation spec section 16.1." }] : []),
-    ...(!engineeringChecklistGate.ok ? [{ code: "SPEC_ENGINEERING_CHECKLIST", owner: "engineering", summary: "Complete every explicit engineering checklist item in implementation spec section 16.2." }] : []),
+    ...(!userChecklistGate.ok ? [{
+      code: "SPEC_USER_CHECKLIST",
+      owner: "user",
+      summary: [
+        "Complete every explicit user checklist item in implementation spec section 16.1.",
+        malformedUserChecklistRows.length > 0
+          ? `Repair malformed user checklist rows: ${malformedUserChecklistRows.map((row) => row.lineNumber).join(", ")}.`
+          : "",
+        duplicateUserChecklistItems.length > 0
+          ? `Remove duplicate user checklist items: ${duplicateUserChecklistItems.join("; ")}.`
+          : "",
+      ].filter(Boolean).join(" "),
+    }] : []),
+    ...(!engineeringChecklistGate.ok ? [{
+      code: "SPEC_ENGINEERING_CHECKLIST",
+      owner: "engineering",
+      summary: [
+        "Complete every explicit engineering checklist item in implementation spec section 16.2.",
+        malformedEngineeringChecklistRows.length > 0
+          ? `Repair malformed engineering checklist rows: ${malformedEngineeringChecklistRows.map((row) => row.lineNumber).join(", ")}.`
+          : "",
+        duplicateEngineeringChecklistItems.length > 0
+          ? `Remove duplicate engineering checklist items: ${duplicateEngineeringChecklistItems.join("; ")}.`
+          : "",
+      ].filter(Boolean).join(" "),
+    }] : []),
     ...(!progressMarkersGate.ok ? [{
       code: "INCOMPLETE_PROGRESS_MARKERS",
       owner: "user+engineering",
       summary: [
         markers.length === 0 ? "The progress table contains no parseable markers." : "",
+        malformedMarkerRows.length > 0
+          ? `Malformed progress marker rows must be repaired: ${malformedMarkerRows.map((row) => row.lineNumber).join(", ")}.`
+          : "",
         duplicateProgressMarkerIds.length > 0
           ? `Duplicate progress marker IDs must be resolved: ${duplicateProgressMarkerIds.join(", ")}.`
           : "",
