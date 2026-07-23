@@ -33,6 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate-mode", action="store_true", help="Require a deeply replayed candidate-input audit and mark this run as a release-candidate training attempt")
     parser.add_argument("--candidate-input-report", default="", help="Approved report from audit-candidate-training-input.py")
     parser.add_argument("--candidate-validation-report", default="", help="Deprecated legacy evidence; use --candidate-input-report")
+    parser.add_argument("--finalize-existing-run", action="store_true", help="Finalize an already completed run after replaying its current evidence")
     parser.add_argument("--dry-run", action="store_true", help="Validate config and print the resolved training plan")
     return parser
 
@@ -132,12 +133,31 @@ def candidate_input_validation(
     }
 
 
+def remove_ultralytics_label_caches(dataset_root: Path) -> list[str]:
+    """Remove only Ultralytics' known, reproducible label-cache side effects."""
+
+    removed: list[str] = []
+    for split in ("train", "val", "test"):
+        cache = (dataset_root / "labels" / f"{split}.cache").resolve()
+        if not is_within(cache, dataset_root):
+            raise ValueError("resolved Ultralytics cache path escapes dataset root")
+        if cache.is_file():
+            cache.unlink()
+            removed.append(cache.relative_to(dataset_root).as_posix())
+    return removed
+
+
 def main() -> None:
     args = build_parser().parse_args()
     batch = parse_batch(args.batch)
     dataset_yaml = Path(args.dataset).resolve()
     output_dir = Path(args.output_dir).resolve()
     config = load_dataset_config(dataset_yaml)
+    preflight_removed_caches = (
+        remove_ultralytics_label_caches(config.dataset_root)
+        if args.finalize_existing_run
+        else []
+    )
     candidate_input_evidence = candidate_input_validation(
         args, dataset_yaml, output_dir
     )
@@ -175,6 +195,43 @@ def main() -> None:
         print(__import__("json").dumps(summary, indent=2))
         return
 
+    if args.finalize_existing_run:
+        results_dir = resolve_training_run_dir(output_dir, args.run_name)
+        actual_best_weights_path = results_dir / "weights" / "best.pt"
+        args_yaml = results_dir / "args.yaml"
+        results_csv = results_dir / "results.csv"
+        for artifact in (actual_best_weights_path, args_yaml, results_csv):
+            if not artifact.is_file():
+                raise ValueError(f"completed training artifact is missing: {artifact}")
+        removed_caches = [
+            *preflight_removed_caches,
+            *remove_ultralytics_label_caches(config.dataset_root),
+        ]
+        candidate_input_validation(args, dataset_yaml, output_dir)
+        write_json(
+            output_dir / "train-summary.json",
+            {
+                **summary,
+                "results_dir": str(results_dir),
+                "best_weights_path": str(actual_best_weights_path),
+                "best_weights_sha256": sha256(actual_best_weights_path),
+                "completed_run_evidence": {
+                    "args_yaml": {"path": str(args_yaml), "sha256": sha256(args_yaml)},
+                    "results_csv": {
+                        "path": str(results_csv),
+                        "sha256": sha256(results_csv),
+                    },
+                },
+                "removed_ultralytics_label_caches": removed_caches,
+                "finalized_existing_run": True,
+            },
+        )
+        print(
+            f"Existing training run finalized. Summary written to "
+            f"{output_dir / 'train-summary.json'}"
+        )
+        return
+
     ultralytics = ensure_python_dependency("ultralytics", "pip install ultralytics")
     write_resolved_dataset_yaml(runtime_dataset_yaml, config)
     model = ultralytics.YOLO(args.model)
@@ -196,6 +253,7 @@ def main() -> None:
     if args.candidate_mode:
         # Re-run the full evidence chain after training so a dataset or upstream
         # mutation during the run cannot produce an eligible candidate summary.
+        remove_ultralytics_label_caches(config.dataset_root)
         candidate_input_validation(args, dataset_yaml, output_dir)
     write_json(
         output_dir / "train-summary.json",

@@ -655,6 +655,19 @@ test("approves a complete hash-bound 100/100/30 candidate input", () => {
   // so this input-audit fixture intentionally stops after proving the training entrypoint.
 });
 
+test("accepts an external report copy while excluding the bound internal report from inventory", () => {
+  const item = fixture();
+  const externalReport = path.join(item.root, "external-materialization-report.json");
+  writeFileSync(externalReport, readFileSync(item.materializationReport));
+  const result = run(
+    { ...item, materializationReport: externalReport },
+    path.join(item.root, "external-input-audit.json"),
+  );
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.equal(result.report.status, "PASS");
+  assert.equal(result.report.counts.orphanFiles, 0);
+});
+
 test("does not allow CLI flags to lower the formal 100/100/30 gates", () => {
   const item = fixture(99);
   const result = run(item, undefined, [
