@@ -189,6 +189,7 @@ function verifyFrozenReleaseTestQuality(
     const script = path.resolve("model/training/build-frozen-release-test-quality-report.py");
     const result = spawnSync("python", [script, "--verify-report", reportPath], {
       encoding: "utf8",
+      env: { ...process.env, PYTHONIOENCODING: "utf-8" },
       windowsHide: true,
     });
     if (result.status !== 0) {
