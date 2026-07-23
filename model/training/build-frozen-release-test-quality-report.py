@@ -547,9 +547,11 @@ def verify_report(report_path: Path) -> dict[str, Any]:
         for name in BUILD_ARGUMENTS:
             command.extend((BUILD_FLAGS[name], str(input_paths[name])))
         command.extend(("--output", str(replay_path)))
-        completed = subprocess.run(command, capture_output=True, text=True, encoding="utf-8", check=False)
+        completed = subprocess.run(command, capture_output=True, check=False)
         if completed.returncode != 0:
-            detail = (completed.stderr or completed.stdout).strip()
+            detail = (completed.stderr or completed.stdout).decode(
+                "utf-8", errors="replace"
+            ).strip()
             raise ValueError(f"Frozen release-test quality evidence replay failed: {detail}")
         replay = load(replay_path)
     if replay != report:

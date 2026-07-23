@@ -18,7 +18,9 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import os
 import shutil
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
 from types import ModuleType
@@ -72,7 +74,7 @@ def load_finalizer() -> ModuleType:
 
 
 def build_variants(
-    items: list[dict[str, Any]], output_dir: Path
+    items: list[dict[str, Any]], output_dir: Path, workers: int
 ) -> tuple[dict[str, list[Path]], list[dict[str, Any]]]:
     variants = {
         name: output_dir / "variants" / name
@@ -80,15 +82,16 @@ def build_variants(
     }
     for directory in variants.values():
         directory.mkdir(parents=True, exist_ok=False)
-    paths: dict[str, list[Path]] = {name: [] for name in variants}
-    records: list[dict[str, Any]] = []
-    for index, item in enumerate(items, start=1):
+    def build_one(
+        indexed_item: tuple[int, dict[str, Any]],
+    ) -> tuple[int, dict[str, Path], dict[str, Any]]:
+        index, item = indexed_item
         source = Path(str(item["imagePath"])).resolve()
         file_name = f"negative-{index:03d}.png"
         with Image.open(source) as opened:
             image = opened.convert("RGB")
         original = variants["original"] / file_name
-        image.save(original, format="PNG", optimize=True)
+        image.save(original, format="PNG", compress_level=1)
 
         crop_width = max(1, round(image.width * 0.88))
         crop_height = max(1, round(image.height * 0.88))
@@ -96,7 +99,7 @@ def build_variants(
             image.size, Image.Resampling.LANCZOS
         )
         crop_path = variants["crop12"] / file_name
-        cropped.save(crop_path, format="PNG", optimize=True)
+        cropped.save(crop_path, format="PNG", compress_level=1)
 
         corner = image.copy()
         left = round(image.width * 0.70)
@@ -106,41 +109,49 @@ def build_variants(
         )
         corner.paste(region, (left, top))
         blur_path = variants["blur_corner"] / file_name
-        corner.save(blur_path, format="PNG", optimize=True)
+        corner.save(blur_path, format="PNG", compress_level=1)
 
-        for name, path in (
-            ("original", original),
-            ("crop12", crop_path),
-            ("blur_corner", blur_path),
-        ):
-            paths[name].append(path)
-        records.append(
-            {
-                "fileName": item["fileName"],
-                "sourceFileName": item.get("sourceFileName"),
-                "sourcePath": str(source),
-                "sourceSha256": item["imageSha256"],
-                "sourceGroup": item["sourceGroup"],
-                "width": image.width,
-                "height": image.height,
-                "variants": {
-                    "original": {
-                        "path": str(original),
-                        "sha256": sha256_file(original),
-                    },
-                    "crop12": {
-                        "path": str(crop_path),
-                        "sha256": sha256_file(crop_path),
-                        "cropBox": [0, 0, crop_width, crop_height],
-                    },
-                    "blur_corner": {
-                        "path": str(blur_path),
-                        "sha256": sha256_file(blur_path),
-                        "region": [left, top, image.width, image.height],
-                    },
+        path_record = {
+            "original": original,
+            "crop12": crop_path,
+            "blur_corner": blur_path,
+        }
+        record = {
+            "fileName": item["fileName"],
+            "sourceFileName": item.get("sourceFileName"),
+            "sourcePath": str(source),
+            "sourceSha256": item["imageSha256"],
+            "sourceGroup": item["sourceGroup"],
+            "width": image.width,
+            "height": image.height,
+            "variants": {
+                "original": {
+                    "path": str(original),
+                    "sha256": sha256_file(original),
                 },
-            }
-        )
+                "crop12": {
+                    "path": str(crop_path),
+                    "sha256": sha256_file(crop_path),
+                    "cropBox": [0, 0, crop_width, crop_height],
+                },
+                "blur_corner": {
+                    "path": str(blur_path),
+                    "sha256": sha256_file(blur_path),
+                    "region": [left, top, image.width, image.height],
+                },
+            },
+        }
+        return index, path_record, record
+
+    indexed_items = list(enumerate(items, start=1))
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        built = sorted(executor.map(build_one, indexed_items), key=lambda value: value[0])
+    paths: dict[str, list[Path]] = {name: [] for name in variants}
+    records: list[dict[str, Any]] = []
+    for _, path_record, record in built:
+        for name in variants:
+            paths[name].append(path_record[name])
+        records.append(record)
     return paths, records
 
 
@@ -202,11 +213,16 @@ def main() -> None:
     parser.add_argument("--dataset-role", choices=["training", "independent-holdout"], required=True)
     parser.add_argument("--imgsz", type=int, default=512)
     parser.add_argument("--device", default="0")
+    parser.add_argument(
+        "--workers", type=int, default=min(8, max(1, os.cpu_count() or 1))
+    )
     parser.add_argument("--deployment-confidence", type=float, default=0.35)
     parser.add_argument("--diagnostic-confidence", type=float, default=0.20)
     parser.add_argument("--max-false-positive-images", type=int, default=0)
     parser.add_argument("--max-variant-detection-delta", type=int, default=0)
     args = parser.parse_args()
+    if args.workers < 1:
+        raise ValueError("--workers must be at least 1")
 
     weights = Path(args.weights).resolve()
     manifest_path = Path(args.hard_negative_manifest).resolve()
@@ -223,7 +239,7 @@ def main() -> None:
     if not isinstance(items, list) or len(items) < 100:
         raise ValueError("hard-negative manifest must contain at least 100 approved items")
     artifacts_dir.mkdir(parents=True)
-    paths, records = build_variants(items, artifacts_dir)
+    paths, records = build_variants(items, artifacts_dir, args.workers)
 
     try:
         from ultralytics import YOLO
