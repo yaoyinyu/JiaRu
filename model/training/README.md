@@ -18,6 +18,8 @@
 - `audit-labels.ts`：检查标注质量并输出 CSV
 - `convert-annotations.ts`：把原始 polygon JSON 转成 YOLO segmentation 标签
 - `materialize-training-dataset.ts`：把 raw 图片和转换后的标签物化为 Ultralytics 标准 train / val / test 目录
+- `build-independent-hard-negative-review-workspace.py`：从A授权和机器审计构建逐图原分辨率审核工作区；生成1:1像素审核页，并在审核前证明与train、val、冻结test零身份重合
+- `finalize-independent-hard-negative-review.py`：重放授权、图片、审核页、受保护角色和逐图决定，输出候选清单；任何原图或证据漂移都会拒绝
 - `finalize-reviewed-hard-negative-manifest.py`：把一个或多个已完成原分辨率审核的hard negative候选批次终结为schema v2清单；不足100张时只输出不可训练HOLD，达到门槛后才输出可供规范物化器消费的批准清单
 - `audit-phase1-readiness.ts`：检查是否达到 Phase 1 的数据量与测试覆盖门槛
 - `plan-phase1-collection.ts`：把 Phase 1 readiness 缺口翻译成下一批补样本计划
@@ -67,6 +69,8 @@ node --no-warnings --experimental-strip-types model/training/split-dataset.ts
 node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 node --no-warnings --experimental-strip-types model/training/convert-annotations.ts
 node --no-warnings --experimental-strip-types model/training/materialize-training-dataset.ts
+python model/training/build-independent-hard-negative-review-workspace.py --authorization C:/path/to/authorization-A-v1.json --machine-audit C:/path/to/machine-audit.json --train-index C:/path/to/training-truth-index-v1.json --val-index C:/path/to/validation-truth-index-v1.json --frozen-test-manifest C:/path/to/frozen-test-manifest.json --output-dir C:/path/to/hard-negative-review-workspace
+python model/training/finalize-independent-hard-negative-review.py --workspace C:/path/to/hard-negative-review-workspace/review-workspace-v1.json --decisions C:/path/to/review-decisions-completed-v1.csv --output-dir C:/path/to/hard-negative-review-finalized
 python model/training/finalize-reviewed-hard-negative-manifest.py --candidate-manifest C:/path/to/hard-negative-candidate-manifest.json --output C:/path/to/hard-negative-formalization.json
 python model/training/finalize-reviewed-hard-negative-manifest.py --verify-report C:/path/to/approved-hard-negative-manifest.json
 node --no-warnings --experimental-strip-types model/training/audit-phase1-readiness.ts
@@ -132,6 +136,15 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
 - 真实训练依赖安装说明与训练机环境约束
 
 ### Hard negative 正式终结门
+
+独立AI困难负样本必须先经过两段审核，再进入既有schema v2终结器：
+
+1. `build-independent-hard-negative-review-workspace.py`逐文件复验A授权、机器审计、图片SHA-256、尺寸与完整解码，并与当前train、val、冻结test证据按文件名、图片SHA-256和`sourceGroup`复核零重合。
+2. 审核人员只能在绑定的1:1像素审核页和原图上填写另一份完成版CSV；禁止覆盖工作区中的空白模板，因为模板SHA-256属于工作区契约。
+3. `finalize-independent-hard-negative-review.py`再次重放所有输入和审核页哈希。`pass`必须有审核说明且不得带缺陷码；`exclude`必须给出受控缺陷码。输出仍为候选、`trainingUse=prohibited`。
+4. `finalize-reviewed-hard-negative-manifest.py`最后从当前证据重放候选清单；达到100张才生成schema v2批准清单。批准只允许后续角色物化，不代表模型发布通过。
+
+若某批图片已经被当前模型用于误检筛选，并且筛选结果将影响训练选择或返修，该批只能进入训练/诊断角色，不能继续作为下一候选的未见独立发布留出。下一版发布留出必须在训练方案与样本角色冻结后从新来源另建。
 
 `finalize-reviewed-hard-negative-manifest.py`不会把候选清单的外层`PASS`直接当作训练授权。它会重放候选清单、逐图审核决定、A授权、图片SHA-256、尺寸和解码结果，并要求所有候选清晰、无有效真人美甲甲面、非裁断/拼图/模板/独立甲片。正式下限固定为100张，`--minimum-images`只能提高、不能降低。
 
