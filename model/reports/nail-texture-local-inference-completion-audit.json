@@ -1,17 +1,17 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-23T17:50:11.440Z",
+  "generatedAt": "2026-07-26T00:47:59.074Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
     "progressPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-progress.md",
     "datasetReadinessPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-dataset-readiness-release.json",
     "candidateReviewPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v9-review.json",
-    "releaseTestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\frozen-reviewed-release-test-100-v1\\manifest.json",
-    "releaseTestQualityPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\frozen-release-test-100-quality-report-v1.json",
-    "hardNegativeAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\hard-negative-watermark-training-audit-v2.json",
-    "bestMetricsPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\eval100-512-v2\\metrics.json",
+    "releaseTestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1\\manifest.json",
+    "releaseTestQualityPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-release-test-67-quality.json",
+    "hardNegativeAuditPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-hard-negative-watermark-audit.json",
+    "bestMetricsPath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\test-metrics.512.json",
     "productionManifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
     "desktopPerformancePath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\browser-performance-report.json",
     "desktopMemoryPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-desktop-memory.json",
@@ -42,16 +42,16 @@
   },
   "summary": {
     "gateCount": 14,
-    "passedGates": 4,
-    "failedGates": 10,
-    "progressMarkerCount": 346,
-    "passMarkerCount": 335,
+    "passedGates": 3,
+    "failedGates": 11,
+    "progressMarkerCount": 353,
+    "passMarkerCount": 342,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
         "task": "导入授权真实图片并建立来源隔离测试集",
         "status": "🟠 PARTIAL",
-        "evidence": "真实正样本train100张/521 mask、val30张/144 mask和冻结发布test100张/554 mask均已完成严格审核与角色隔离；AI困难负样本626张中严格放行99张并与历史1张合并为100张，候选训练已执行。当前剩余数据阻断不是训练数量，而是同批AI图带系统性右下角标记且缺独立负样本留出集；旧2026_7_13批次28张历史返修仍是可选扩充项"
+        "evidence": "真实正样本train100张/521 mask、val30张/144 mask和冻结test100张/554 mask已严格审核与隔离；2026-07-24新批困难负样本158张已通过审核并进入第二候选train258。当前数据阻断为训练后才生成、未经任何候选模型筛选的新来源独立负样本留出仍未冻结满100张；第二候选的训练输入数量已不是阻断"
       },
       {
         "id": "M2-T3-VISION-ANNOTATION",
@@ -98,8 +98,8 @@
       {
         "id": "USER-HARD-NEGATIVE-01",
         "task": "补充独立、无统一水印的hard negative留出批次",
-        "status": "⏭ USER INPUT",
-        "evidence": "训练用100张已完成，但全部来自同一AI生成批次且带系统性右下角标记；裁掉右下12%后0.35阈值出现2/100误检。请另提供150—200张新批次候选，使用不同提示族/种子，最好无水印且不得与训练图做裁剪或重绘派生；严格筛选目标是不少于100张合格图，其中至少30张冻结为从不参与训练/调参的独立留出。低清、拼图、模板、独立甲片、裁断图和有效真人美甲不得凑数"
+        "status": "🟡 ENGINEERING IN PROGRESS",
+        "evidence": "原160张已严审为158张并用于第二候选训练，不再具备留出资格。训练完成后已启动新来源、不同提示族的100张独立留出并行生成；当前仅得到4张未终审文件，不计入冻结数量。必须在首次v2推理前锁定全批身份，完成不少于100张原分辨率审核后才运行三变体零误检/零delta门"
       },
       {
         "id": "USER-FAILURE-01",
@@ -735,8 +735,16 @@
           "text": "将困难负样本水印审计接入最终完成度独立强门；审计报告新增`--verify-report`只读深验，重新核对权重、批准清单、100张源图与300张受控变体的路径/SHA-256、逐图预测计数、聚合误检、变体delta和外层决定。完成度审计不再只依赖进度文字，固定要求`independent-holdout`、不少于100张、三种变体零误检且零delta；训练集即使稳定也因`releaseGeneralizationEligible=false`保持HOLD。"
         },
         {
+          "checked": true,
+          "text": "完成2026-07-24新批160张AI困难负样本的逐图原分辨率终审与schema v2批准清单；工作区构建器绑定A授权、机器审计、160张原图、40张1:1像素审核页及train/val/frozen-test当前证据，终审器再次重放全部路径与SHA-256。最终158张通过、2张排除（四指拓扑异常1、主体裁断1）、20个来源组与三套受保护角色零身份重合；候选清单SHA-256为`1040311c…bb7a`，批准清单SHA-256为`5e91f8ec…a265`，满足训练hard negative的100张下限。因该批已被当前模型用于误检筛选，只允许后续训练/诊断角色，不得冒充下一候选的未见独立发布留出。"
+        },
+        {
+          "checked": true,
+          "text": "将158张批准困难负样本物化为第二候选训练角色并完成训练域消融；规范包为train258（100正样本/521 mask+158空标签负样本）、val30/144 mask、test0、孤儿0，物化、文件树和输入深审SHA-256分别为`033b8d02…2ec`、`8709fa80…1170`、`b9bd6897…94dd`。RTX 4060续训50轮得到`e46968b7…3882`；上一候选对这批原图/裁切/模糊变体误检为52/65/52张，第二候选阈值0.45下三类均0误检；该PASS只证明训练抑制目标，报告固定`releaseGeneralizationEligible=false`。"
+        },
+        {
           "checked": false,
-          "text": "补齐并冻结独立困难负样本留出集；候选必须来自不同生成批次/提示族，最好无统一水印，且不得是训练图的裁剪、遮挡、重绘或其他派生。建议新提供150—200张候选以按同等原分辨率规则筛出不少于100张合格图，其中至少30张从未参与训练、阈值选择或返修决策并以`independent-holdout`角色运行同一消融；未达到零误检/零变体delta前候选不得晋升。"
+          "text": "补齐并冻结独立困难负样本留出集；候选必须在第二候选训练完成后才生成，来自不同生成批次/提示族，无统一水印，且不得是训练图的裁剪、遮挡、重绘或其他派生。当前已开始并行生成100张新来源候选，仅4张未终审文件已落盘且不计入冻结数量。必须在首次v2推理前锁定全批，以原分辨率审核严格排除低清、残缺、真人甲面、文字/水印和非目标域，不少于100张全部以`independent-holdout`角色运行同一三变体消融；未达到零误检/零变体delta前候选不得晋升。"
         },
         {
           "checked": true,
@@ -753,6 +761,10 @@
         {
           "checked": true,
           "text": "完成新候选在规范val30上的正式阈值校准与只读深度重放；以独立runtime副本重新生成`split=val`的30图/144 mask、部署512预测证据，box/mask mAP50为0.928/0.815。校准器重放规范物化、角色隔离、全量真值审核和权重SHA-256后给出候选阈值`0.50`，决定`calibrated_threshold_ready_for_candidate_manifest`；该阈值只授权候选清单，不写入当前生产manifest，也不覆盖困难负样本HOLD。"
+        },
+        {
+          "checked": true,
+          "text": "完成第二候选的规范val30校准与冻结test100评估；`e46968b7…3882`在val30部署512的box/mask mAP50为0.8788/0.8364，候选阈值0.45报告`36a41ebd…26b1`只读重放通过。冻结test100的full/core/stress为0.9501/0.9454、0.9508/0.9567、0.9472/0.9221，640全量仅作诊断；schema v2质量报告`b2b7167d…c16e`深验PASS。core box较上一候选下降0.02073，略超0.02跨候选诊断线，必须保留为选型风险；生产manifest、共享阈值与正式ONNX均未修改。"
         },
         {
           "checked": true,
@@ -856,9 +868,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 346,
-      "uniqueMarkerCount": 346,
-      "passMarkerCount": 335,
+      "markerCount": 353,
+      "uniqueMarkerCount": 353,
+      "passMarkerCount": 342,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -866,7 +878,7 @@
           "id": "M2-T3-REAL-DATA",
           "task": "导入授权真实图片并建立来源隔离测试集",
           "status": "🟠 PARTIAL",
-          "evidence": "真实正样本train100张/521 mask、val30张/144 mask和冻结发布test100张/554 mask均已完成严格审核与角色隔离；AI困难负样本626张中严格放行99张并与历史1张合并为100张，候选训练已执行。当前剩余数据阻断不是训练数量，而是同批AI图带系统性右下角标记且缺独立负样本留出集；旧2026_7_13批次28张历史返修仍是可选扩充项"
+          "evidence": "真实正样本train100张/521 mask、val30张/144 mask和冻结test100张/554 mask已严格审核与隔离；2026-07-24新批困难负样本158张已通过审核并进入第二候选train258。当前数据阻断为训练后才生成、未经任何候选模型筛选的新来源独立负样本留出仍未冻结满100张；第二候选的训练输入数量已不是阻断"
         },
         {
           "id": "M2-T3-VISION-ANNOTATION",
@@ -913,8 +925,8 @@
         {
           "id": "USER-HARD-NEGATIVE-01",
           "task": "补充独立、无统一水印的hard negative留出批次",
-          "status": "⏭ USER INPUT",
-          "evidence": "训练用100张已完成，但全部来自同一AI生成批次且带系统性右下角标记；裁掉右下12%后0.35阈值出现2/100误检。请另提供150—200张新批次候选，使用不同提示族/种子，最好无水印且不得与训练图做裁剪或重绘派生；严格筛选目标是不少于100张合格图，其中至少30张冻结为从不参与训练/调参的独立留出。低清、拼图、模板、独立甲片、裁断图和有效真人美甲不得凑数"
+          "status": "🟡 ENGINEERING IN PROGRESS",
+          "evidence": "原160张已严审为158张并用于第二候选训练，不再具备留出资格。训练完成后已启动新来源、不同提示族的100张独立留出并行生成；当前仅得到4张未终审文件，不计入冻结数量。必须在首次v2推理前锁定全批身份，完成不少于100张原分辨率审核后才运行三变体零误检/零delta门"
         },
         {
           "id": "USER-FAILURE-01",
@@ -961,61 +973,46 @@
     },
     "independentHardNegativeWatermark": {
       "ok": false,
-      "filePath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\hard-negative-watermark-training-audit-v2.json",
-      "found": true,
-      "evidence": {
-        "outerOk": false,
-        "status": "HOLD",
-        "decision": "hold_hard_negative_watermark_shortcut_instability",
-        "datasetRole": "training",
-        "releaseGeneralizationEligible": false,
-        "imageCount": 100,
-        "maxFalsePositiveImages": 0,
-        "maxVariantDetectionDelta": 0,
-        "deploymentFalsePositiveImages": {
-          "original": 0,
-          "crop12": 2,
-          "blur_corner": 0
-        },
-        "variantDetectionDeltas": {
-          "crop12": 2,
-          "blur_corner": 0
-        },
-        "deepVerificationOk": true
-      },
-      "errors": []
+      "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-hard-negative-watermark-audit.json",
+      "found": false,
+      "evidence": null,
+      "errors": [
+        "cannot read hard-negative watermark audit report"
+      ]
     },
     "bestCandidateMetrics": {
       "ok": true,
-      "boxMap50": 0.9654378696271786,
-      "maskMap50": 0.9601012024011896,
+      "boxMap50": 0.8527541703044659,
+      "maskMap50": 0.847659037958229,
       "minimumBoxMap50": 0.85,
       "minimumMaskMap50": 0.75,
-      "evidenceScope": "frozen-reviewed-candidate-100-deployment-512",
-      "frozenQualityRequired": true,
-      "qualityReportPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v1\\frozen-release-test-100-quality-report-v1.json",
-      "qualityReportOk": true,
-      "qualityReportDeepVerificationOk": true,
-      "qualityReportVerificationErrors": [],
-      "qualityDecision": "accept_candidate_release",
+      "evidenceScope": "historical-evaluated-model-test-split-13",
+      "frozenQualityRequired": false,
+      "qualityReportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-release-test-67-quality.json",
+      "qualityReportOk": false,
+      "qualityReportDeepVerificationOk": false,
+      "qualityReportVerificationErrors": [
+        "frozen release-test quality report schemaVersion must be 2"
+      ],
+      "qualityDecision": null,
       "historical13": {
-        "boxMap50": 0.9654378696271786,
-        "maskMap50": 0.9601012024011896
+        "boxMap50": 0.8527541703044659,
+        "maskMap50": 0.847659037958229
       }
     },
     "representativeReleaseTest": {
-      "ok": true,
-      "actual": 100,
+      "ok": false,
+      "actual": 67,
       "required": 100,
       "recommendedMaximum": 200,
       "evidenceScope": "frozen-reviewed-candidate",
-      "snapshotPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\frozen-reviewed-release-test-100-v1\\manifest.json",
+      "snapshotPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1\\manifest.json",
       "snapshotOk": true,
-      "snapshotMasks": 554,
-      "snapshotSourceHash": "8620ab82a817b6c696f864b4dc23dc79e4ad137c400f7c639a304425644e2ffb",
-      "evaluatedModelTestImages": 100,
+      "snapshotMasks": 384,
+      "snapshotSourceHash": "5b4b8d80941cfd7d85bf35859aeb28ccae8e1e1be616f96cebfe5ab6b23b1aa1",
+      "evaluatedModelTestImages": 13,
       "historicalEvaluatedModelTestImages": 13,
-      "note": "The frozen reviewed candidate has deployment-resolution quality evidence and reaches the 100-image representative-size gate."
+      "note": "Frozen reviewed candidates count toward dataset-size readiness only; no lineage-checked snapshot quality report was found."
     },
     "desktopAcceptance": {
       "ok": true,
@@ -1148,6 +1145,11 @@
       "code": "USER_FAILURE_CASES",
       "owner": "user",
       "summary": "Provide representative real-world failure images and an approved failure-case report."
+    },
+    {
+      "code": "REPRESENTATIVE_RELEASE_TESTSET",
+      "owner": "user+engineering",
+      "summary": "Provide and review at least 33 more source-isolated real release-test images."
     },
     {
       "code": "MOBILE_DEVICE_ACCEPTANCE",

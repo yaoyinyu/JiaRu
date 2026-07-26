@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import re
 from datetime import datetime, timezone
@@ -69,6 +70,21 @@ def read_json(path: Path, label: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{label} must contain a JSON object: {path}")
     return value
+
+
+def load_freeze_recorder() -> Any:
+    path = Path(__file__).with_name(
+        "record-independent-hard-negative-authorization.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "independent_holdout_freeze_recorder",
+        path,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load independent holdout freeze recorder")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def require_sha256(value: Any, label: str) -> str:
@@ -144,7 +160,11 @@ def require_summary_count(summary: dict[str, Any], key: str, expected: int) -> N
 def validate_candidate_review(
     manifest_path: Path,
     manifest: dict[str, Any],
+    expected_dataset_role: str = "training-candidate",
 ) -> tuple[list[dict[str, Any]], dict[str, str]]:
+    if expected_dataset_role not in {"training-candidate", "independent-holdout"}:
+        raise ValueError(f"unsupported expected dataset role: {expected_dataset_role}")
+    independent_holdout = expected_dataset_role == "independent-holdout"
     if (
         manifest.get("ok") is not True
         or manifest.get("decision")
@@ -187,6 +207,10 @@ def validate_candidate_review(
         inputs.get("authorizationPath"),
         inputs.get("authorizationSha256"),
         "authorization evidence",
+    )
+    source_screening = read_json(
+        source_screening_path,
+        "source screening batch",
     )
     review = read_json(review_path, "review decisions")
     if (
@@ -235,13 +259,50 @@ def validate_candidate_review(
         "review authorization input",
     ) != authorization_path:
         raise ValueError("candidate and review authorization paths differ")
+    authorization_uses = set(authorization_input.get("authorizedUses") or [])
+    required_authorized_use = (
+        "independent-release-test"
+        if independent_holdout
+        else "commercial-model-training"
+    )
     if (
         authorization_input.get("decision") != "A"
         or authorization_input.get("status") != "confirmed"
-        or "commercial-model-training"
-        not in list(authorization_input.get("authorizedUses") or [])
+        or required_authorized_use not in authorization_uses
     ):
-        raise ValueError("authorization evidence does not permit commercial model training")
+        raise ValueError(
+            f"authorization evidence does not permit {expected_dataset_role}"
+        )
+    if independent_holdout and "commercial-model-training" in authorization_uses:
+        raise ValueError(
+            "independent holdout authorization cannot include commercial training"
+        )
+    if independent_holdout:
+        screening_inputs = source_screening.get("inputs")
+        if not isinstance(screening_inputs, dict):
+            raise ValueError("independent holdout screening inputs are missing")
+        freeze_input = screening_inputs.get("freezeManifest")
+        if not isinstance(freeze_input, dict):
+            raise ValueError(
+                "independent holdout screening does not bind a freeze manifest"
+            )
+        freeze_path = require_current_file(
+            freeze_input.get("path"),
+            freeze_input.get("sha256"),
+            "independent holdout freeze manifest",
+        )
+        freeze_summary = load_freeze_recorder().verify_freeze_manifest(
+            freeze_path
+        )
+        if (
+            Path(str(freeze_summary.get("authorizationRecord") or "")).resolve()
+            != authorization_path
+            or freeze_summary.get("batchIdentitySha256")
+            != freeze_input.get("batchIdentitySha256")
+        ):
+            raise ValueError(
+                "independent holdout freeze differs from screening evidence"
+            )
 
     candidates = manifest.get("candidates")
     review_candidates = review.get("candidates")
@@ -276,6 +337,14 @@ def validate_candidate_review(
         )
         if (
             item.get("authorization") != "A"
+            or (
+                item.get("authorizedDatasetRole")
+                not in (
+                    {None, "training-candidate"}
+                    if not independent_holdout
+                    else {"independent-holdout"}
+                )
+            )
             or item.get("sourceIsolation")
             != "verified-zero-match-train-val-frozen-test"
             or item.get("humanManicureSurfaceAnywhere") is not False
@@ -331,12 +400,30 @@ def validate_candidate_review(
         isolation = reviewed.get("sourceIsolationEvidence")
         if not isinstance(authorization, dict) or not isinstance(isolation, dict):
             raise ValueError(f"{file_name}: authorization/source isolation evidence is missing")
+        expected_training_eligibility = (
+            "prohibited-independent-holdout-only"
+            if independent_holdout
+            else "permitted-after-visual-review-and-source-isolation"
+        )
+        expected_authorized_role = (
+            "independent-holdout"
+            if independent_holdout
+            else "training-candidate"
+        )
         if (
             authorization.get("decision") != "A"
             or authorization.get("authorizationEntryFileNameMatch") is not True
             or authorization.get("authorizationEntrySha256Match") is not True
             or authorization.get("trainingEligibility")
-            != "permitted-after-visual-review-and-source-isolation"
+            != expected_training_eligibility
+            or (
+                authorization.get("authorizedDatasetRole")
+                not in (
+                    {None, "training-candidate"}
+                    if not independent_holdout
+                    else {"independent-holdout"}
+                )
+            )
         ):
             raise ValueError(f"{file_name}: authorization evidence is not eligible")
         if isolation.get("isolated") is not True:
@@ -356,9 +443,14 @@ def validate_candidate_review(
                 "height": height,
                 "imageFormat": image_format,
                 "sourceExtensionMatchesFormat": extension_matches_format,
-                "role": "hard-negative",
+                "role": (
+                    "independent-holdout"
+                    if independent_holdout
+                    else "hard-negative"
+                ),
                 "originalResolutionVisualReview": True,
                 "authorization": "A",
+                "authorizedDatasetRole": expected_authorized_role,
                 "candidateManifestPath": str(manifest_path),
                 "candidateManifestSha256": sha256_file(manifest_path),
                 "reviewDecisionsPath": str(review_path),

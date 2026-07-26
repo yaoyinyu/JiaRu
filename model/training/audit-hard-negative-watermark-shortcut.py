@@ -20,6 +20,7 @@ import importlib.util
 import json
 import os
 import shutil
+import tempfile
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from pathlib import Path
@@ -71,6 +72,185 @@ def load_finalizer() -> ModuleType:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def load_holdout_finalizer() -> ModuleType:
+    script = Path(__file__).with_name(
+        "finalize-reviewed-independent-hard-negative-holdout.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "independent_hard_negative_holdout_finalizer",
+        script,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load independent hard-negative holdout finalizer")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def verify_bound_manifest(
+    manifest_path: Path,
+    dataset_role: str,
+) -> dict[str, Any]:
+    if dataset_role == "training":
+        report = load_finalizer().verify_approved_report(manifest_path)
+        if (
+            report.get("trainingUse") != "permitted"
+            or report.get("datasetRole") == "independent-holdout"
+        ):
+            raise ValueError("training audit requires a training-approved manifest")
+        return report
+    if dataset_role == "independent-holdout":
+        report = load_holdout_finalizer().verify_approved_report(manifest_path)
+        if (
+            report.get("datasetRole") != "independent-holdout"
+            or report.get("trainingUse") != "prohibited"
+        ):
+            raise ValueError(
+                "independent audit requires a training-prohibited holdout manifest"
+            )
+        return report
+    raise ValueError(f"unsupported hard-negative dataset role: {dataset_role}")
+
+
+def expected_inference_ledger_identity(
+    manifest: dict[str, Any],
+    evidence: dict[str, Any],
+) -> dict[str, Any]:
+    return {
+        "schemaVersion": 1,
+        "ok": True,
+        "decision": "authorized_candidate_inference_started_from_frozen_holdout",
+        "inferencePurpose": "independent-hard-negative-watermark-audit",
+        "datasetRole": "independent-holdout",
+        "freezeManifest": {
+            "path": str(Path(str(evidence["freezeManifestPath"])).resolve()),
+            "sha256": evidence["freezeManifestSha256"],
+            "batchIdentitySha256": evidence["batchIdentitySha256"],
+        },
+        "candidateWeights": {
+            "path": str(Path(str(evidence["candidateWeightsPath"])).resolve()),
+            "sha256": evidence["candidateWeightsSha256"],
+        },
+        "candidateThresholdReport": {
+            "path": str(
+                Path(str(evidence["candidateThresholdReportPath"])).resolve()
+            ),
+            "sha256": evidence["candidateThresholdReportSha256"],
+            "scoreThreshold": evidence["candidateScoreThreshold"],
+        },
+        "deploymentImageSize": 512,
+        "holdoutManifestItemsSha256": manifest["itemsSha256"],
+    }
+
+
+def validate_inference_ledger(
+    path: Path,
+    expected: dict[str, Any],
+) -> dict[str, Any]:
+    document = read_json(path, "authorized inference ledger")
+    for key, value in expected.items():
+        if document.get(key) != value:
+            raise ValueError(
+                f"authorized inference ledger {key} differs from frozen identity"
+            )
+    created_at = str(document.get("createdAt") or "")
+    if not created_at:
+        raise ValueError("authorized inference ledger createdAt is missing")
+    return document
+
+
+def prepare_inference_ledgers(
+    manifest: dict[str, Any],
+) -> list[dict[str, str]]:
+    inputs = manifest.get("inputs")
+    if not isinstance(inputs, list) or not inputs:
+        raise ValueError("independent holdout manifest inputs are missing")
+    result: list[dict[str, str]] = []
+    seen_paths: set[str] = set()
+    for number, evidence in enumerate(inputs, start=1):
+        if not isinstance(evidence, dict):
+            raise ValueError(f"independent holdout input {number} must be an object")
+        freeze_manifest = Path(
+            str(evidence.get("freezeManifestPath") or "")
+        ).resolve()
+        if not freeze_manifest.is_file():
+            raise ValueError(
+                f"independent holdout input {number} freeze manifest is missing"
+            )
+        ledger_path = freeze_manifest.parent / "authorized-inference-ledger-v1.json"
+        identity = str(ledger_path).casefold()
+        if identity in seen_paths:
+            continue
+        seen_paths.add(identity)
+        expected = expected_inference_ledger_identity(manifest, evidence)
+        if ledger_path.exists():
+            validate_inference_ledger(ledger_path, expected)
+        else:
+            staging = ledger_path.with_name(
+                f".{ledger_path.name}.staging-{os.getpid()}"
+            )
+            if staging.exists():
+                raise ValueError(
+                    f"stale authorized-inference ledger staging file: {staging}"
+                )
+            document = {
+                **expected,
+                "createdAt": datetime.now(timezone.utc).isoformat(),
+            }
+            write_json(staging, document)
+            try:
+                staging.rename(ledger_path)
+            except Exception:
+                staging.unlink(missing_ok=True)
+                if not ledger_path.exists():
+                    raise
+            validate_inference_ledger(ledger_path, expected)
+        result.append(
+            {
+                "path": str(ledger_path),
+                "sha256": sha256_file(ledger_path),
+            }
+        )
+    result.sort(key=lambda item: item["path"].casefold())
+    return result
+
+
+def verify_inference_ledgers(
+    report_inputs: dict[str, Any],
+    manifest: dict[str, Any],
+) -> None:
+    records = report_inputs.get("inferenceLedgers")
+    manifest_inputs = manifest.get("inputs")
+    if not isinstance(records, list) or not isinstance(manifest_inputs, list):
+        raise ValueError("independent audit inference-ledger bindings are missing")
+    expected_by_path: dict[str, dict[str, Any]] = {}
+    for evidence in manifest_inputs:
+        if not isinstance(evidence, dict):
+            raise ValueError("independent holdout input must be an object")
+        freeze_manifest = Path(
+            str(evidence.get("freezeManifestPath") or "")
+        ).resolve()
+        ledger_path = freeze_manifest.parent / "authorized-inference-ledger-v1.json"
+        expected_by_path[str(ledger_path).casefold()] = (
+            expected_inference_ledger_identity(manifest, evidence)
+        )
+    if len(records) != len(expected_by_path):
+        raise ValueError("independent audit inference-ledger coverage differs from freezes")
+    seen: set[str] = set()
+    for record in records:
+        if not isinstance(record, dict):
+            raise ValueError("independent audit inference-ledger binding must be an object")
+        path = Path(str(record.get("path") or "")).resolve()
+        identity = str(path).casefold()
+        expected = expected_by_path.get(identity)
+        if expected is None or identity in seen:
+            raise ValueError("independent audit has an unknown or duplicate inference ledger")
+        seen.add(identity)
+        if not path.is_file() or sha256_file(path) != record.get("sha256"):
+            raise ValueError("authorized inference ledger is missing or has drifted")
+        validate_inference_ledger(path, expected)
 
 
 def build_variants(
@@ -221,6 +401,59 @@ def verify_threshold_summary(
     return verified
 
 
+def normalized_variant_record(record: dict[str, Any]) -> dict[str, Any]:
+    variants = record.get("variants")
+    if not isinstance(variants, dict):
+        raise ValueError("variant record has no variants object")
+    normalized_variants: dict[str, dict[str, Any]] = {}
+    for name in ("original", "crop12", "blur_corner"):
+        value = variants.get(name)
+        if not isinstance(value, dict):
+            raise ValueError(f"variant record is missing {name}")
+        normalized = {"sha256": value.get("sha256")}
+        if name == "crop12":
+            normalized["cropBox"] = value.get("cropBox")
+        if name == "blur_corner":
+            normalized["region"] = value.get("region")
+        normalized_variants[name] = normalized
+    return {
+        "fileName": record.get("fileName"),
+        "sourceFileName": record.get("sourceFileName"),
+        "sourcePath": str(Path(str(record.get("sourcePath") or "")).resolve()),
+        "sourceSha256": record.get("sourceSha256"),
+        "sourceGroup": record.get("sourceGroup"),
+        "width": record.get("width"),
+        "height": record.get("height"),
+        "variants": normalized_variants,
+    }
+
+
+def compare_replayed_predictions(
+    persisted: dict[str, dict[str, Any]],
+    replayed: dict[str, dict[str, Any]],
+    label: str,
+) -> None:
+    for variant in ("original", "crop12", "blur_corner"):
+        expected = persisted[variant]
+        actual = replayed.get(variant)
+        if not isinstance(actual, dict):
+            raise ValueError(f"{label} replay is missing {variant}")
+        if actual.get("counts") != expected.get("counts"):
+            raise ValueError(f"{label}.{variant} prediction counts differ from replay")
+        expected_confidence = require_number(
+            expected.get("maximumConfidence"),
+            f"{label}.{variant}.maximumConfidence",
+        )
+        actual_confidence = require_number(
+            actual.get("maximumConfidence"),
+            f"{label}.{variant}.replayedMaximumConfidence",
+        )
+        if abs(actual_confidence - expected_confidence) > 1e-5:
+            raise ValueError(
+                f"{label}.{variant} maximum confidence differs from replay"
+            )
+
+
 def verify_report(report_path: Path) -> dict[str, Any]:
     report = read_json(report_path, "watermark shortcut audit report")
     if report.get("schemaVersion") != 1:
@@ -242,9 +475,19 @@ def verify_report(report_path: Path) -> dict[str, Any]:
         raise ValueError("weights are missing or their SHA-256 has drifted")
     if not manifest.is_file() or sha256_file(manifest) != manifest_input.get("sha256"):
         raise ValueError("hard-negative manifest is missing or its SHA-256 has drifted")
-    manifest_document = read_json(manifest, "hard-negative manifest")
+    manifest_document = verify_bound_manifest(manifest, str(role))
     if manifest_document.get("itemsSha256") != manifest_input.get("itemsSha256"):
         raise ValueError("hard-negative manifest itemsSha256 does not match the audit")
+    if (
+        role == "independent-holdout"
+        and manifest_document.get("candidateWeightsSha256")
+        != weights_input.get("sha256")
+    ):
+        raise ValueError(
+            "independent holdout manifest is bound to different candidate weights"
+        )
+    if role == "independent-holdout":
+        verify_inference_ledgers(inputs, manifest_document)
 
     configuration = report.get("configuration")
     counts = report.get("counts")
@@ -302,9 +545,16 @@ def verify_report(report_path: Path) -> dict[str, Any]:
     deployment = verify_threshold_summary(
         report.get("deploymentThreshold"), "deploymentThreshold", image_count
     )
-    verify_threshold_summary(
+    diagnostic = verify_threshold_summary(
         report.get("diagnosticThreshold"), "diagnosticThreshold", image_count
     )
+    imgsz = configuration.get("imgsz")
+    if isinstance(imgsz, bool) or not isinstance(imgsz, int) or imgsz < 1:
+        raise ValueError("configuration.imgsz must be a positive integer")
+    if role == "independent-holdout" and imgsz != 512:
+        raise ValueError(
+            "independent holdout release evidence must use deployment imgsz 512"
+        )
     max_false_positive_images = configuration.get("maxFalsePositiveImages")
     max_variant_detection_delta = configuration.get("maxVariantDetectionDelta")
     if (
@@ -316,6 +566,35 @@ def verify_report(report_path: Path) -> dict[str, Any]:
         or max_variant_detection_delta < 0
     ):
         raise ValueError("false-positive and variant-delta limits must be non-negative integers")
+    if role == "independent-holdout" and (
+        max_false_positive_images != 0 or max_variant_detection_delta != 0
+    ):
+        raise ValueError(
+            "independent holdout release evidence requires zero false positives and zero delta"
+        )
+    deployment_confidence = require_number(
+        configuration.get("deploymentConfidence"),
+        "configuration.deploymentConfidence",
+    )
+    if not 0 < deployment_confidence < 1:
+        raise ValueError("deployment confidence must be between 0 and 1")
+    if (
+        role == "independent-holdout"
+        and deployment_confidence
+        != require_number(
+            manifest_document.get("candidateScoreThreshold"),
+            "holdout manifest candidateScoreThreshold",
+        )
+    ):
+        raise ValueError(
+            "independent holdout audit did not use its pre-frozen candidate threshold"
+        )
+    diagnostic_confidence = require_number(
+        configuration.get("diagnosticConfidence"),
+        "configuration.diagnosticConfidence",
+    )
+    if not 0 < diagnostic_confidence < 1:
+        raise ValueError("diagnostic confidence must be between 0 and 1")
     original_detections = deployment["original"]["detections"]
     variant_deltas = {
         name: abs(summary["detections"] - original_detections)
@@ -346,6 +625,66 @@ def verify_report(report_path: Path) -> dict[str, Any]:
         or report.get("releaseGeneralizationEligible") is not expected_eligible
     ):
         raise ValueError("outer decision fields do not match recomputed evidence")
+
+    if role == "independent-holdout":
+        manifest_items = manifest_document.get("items")
+        if not isinstance(manifest_items, list) or len(manifest_items) != image_count:
+            raise ValueError(
+                "independent holdout manifest item coverage differs from audit records"
+            )
+        with tempfile.TemporaryDirectory(
+            prefix="jiaru-hard-negative-audit-replay-"
+        ) as temporary:
+            rebuilt_paths, rebuilt_records = build_variants(
+                manifest_items,
+                Path(temporary),
+                min(8, max(1, os.cpu_count() or 1)),
+            )
+            if len(rebuilt_records) != len(records):
+                raise ValueError("rebuilt variant coverage differs from audit records")
+            for index, (persisted_record, rebuilt_record) in enumerate(
+                zip(records, rebuilt_records),
+                start=1,
+            ):
+                if (
+                    normalized_variant_record(persisted_record)
+                    != normalized_variant_record(rebuilt_record)
+                ):
+                    raise ValueError(
+                        f"record {index} variants differ from deterministic rebuild"
+                    )
+            try:
+                from ultralytics import YOLO
+
+                model = YOLO(str(weights))
+                replayed_deployment = predict(
+                    model,
+                    rebuilt_paths,
+                    deployment_confidence,
+                    imgsz,
+                    str(configuration.get("device") or "0"),
+                )
+                replayed_diagnostic = predict(
+                    model,
+                    rebuilt_paths,
+                    diagnostic_confidence,
+                    imgsz,
+                    str(configuration.get("device") or "0"),
+                )
+            except Exception as error:
+                raise ValueError(
+                    f"independent holdout inference replay failed: {error}"
+                ) from error
+            compare_replayed_predictions(
+                deployment,
+                replayed_deployment,
+                "deploymentThreshold",
+            )
+            compare_replayed_predictions(
+                diagnostic,
+                replayed_diagnostic,
+                "diagnosticThreshold",
+            )
     return {
         "ok": True,
         "reportPath": str(report_path),
@@ -454,11 +793,30 @@ def main() -> None:
     if output.exists() or artifacts_dir.exists():
         raise ValueError("output and artifacts-dir must not already exist")
 
-    finalizer = load_finalizer()
-    manifest = finalizer.verify_approved_report(manifest_path)
+    manifest = verify_bound_manifest(manifest_path, str(args.dataset_role))
     items = manifest.get("items")
     if not isinstance(items, list) or len(items) < 100:
         raise ValueError("hard-negative manifest must contain at least 100 approved items")
+    if args.dataset_role == "independent-holdout":
+        if args.imgsz != 512:
+            raise ValueError(
+                "independent holdout release audit fixes deployment imgsz at 512"
+            )
+        if args.max_false_positive_images != 0 or args.max_variant_detection_delta != 0:
+            raise ValueError(
+                "independent holdout release audit fixes both error limits at zero"
+            )
+        if manifest.get("candidateWeightsSha256") != sha256_file(weights):
+            raise ValueError(
+                "independent holdout manifest is frozen against different candidate weights"
+            )
+        if args.deployment_confidence != manifest.get("candidateScoreThreshold"):
+            raise ValueError(
+                "independent holdout audit must use the pre-frozen candidate threshold"
+            )
+        inference_ledgers = prepare_inference_ledgers(manifest)
+    else:
+        inference_ledgers = []
     artifacts_dir.mkdir(parents=True)
     paths, records = build_variants(items, artifacts_dir, args.workers)
 
@@ -510,6 +868,11 @@ def main() -> None:
                 "sha256": sha256_file(manifest_path),
                 "itemsSha256": manifest["itemsSha256"],
             },
+            **(
+                {"inferenceLedgers": inference_ledgers}
+                if inference_ledgers
+                else {}
+            ),
         },
         "configuration": {
             "imgsz": args.imgsz,
@@ -543,7 +906,20 @@ def main() -> None:
             else []
         ),
     }
-    write_json(output, report)
+    staging_output = output.with_name(
+        f".{output.name}.staging-{os.getpid()}"
+    )
+    if staging_output.exists():
+        shutil.rmtree(artifacts_dir, ignore_errors=True)
+        raise ValueError(f"stale audit staging report exists: {staging_output}")
+    write_json(staging_output, report)
+    try:
+        verify_report(staging_output)
+        staging_output.rename(output)
+    except Exception:
+        staging_output.unlink(missing_ok=True)
+        shutil.rmtree(artifacts_dir, ignore_errors=True)
+        raise
     print(
         json.dumps(
             {

@@ -10,7 +10,10 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { writeTestPng } from "./helpers/hard-negative-evidence.ts";
+import {
+  createProtectedRoleEvidence,
+  writeTestPng,
+} from "./helpers/hard-negative-evidence.ts";
 
 const builder = path.resolve(
   "model/training/build-independent-hard-negative-review-workspace.py",
@@ -43,12 +46,7 @@ function makeFixture() {
   const root = mkdtempSync(path.join(tmpdir(), "independent-hard-negative-review-"));
   const images = path.join(root, "images");
   const workspace = path.join(root, "workspace");
-  const protectedRoles = {
-    train: path.join(root, "train.json"),
-    val: path.join(root, "val.json"),
-    frozenTest: path.join(root, "frozen-test.json"),
-  };
-  Object.values(protectedRoles).forEach((file) => writeJson(file, {}));
+  const protectedRoles = createProtectedRoleEvidence(root);
 
   const entries = Array.from({ length: 4 }, (_, index) => {
     const sequence = String(index + 1).padStart(3, "0");
@@ -227,4 +225,28 @@ test("rejects source-image byte drift after the review workspace is built", () =
   );
   assert.notEqual(finalized.status, 0);
   assert.match(finalized.stderr, /source image SHA-256 drift|current image SHA-256 drift/);
+});
+
+test("rejects empty or wrong protected-role evidence", () => {
+  const item = makeFixture();
+  writeJson(item.protectedRoles.train, {});
+  const built = buildFixture(item);
+  assert.notEqual(built.status, 0);
+  assert.match(
+    built.stderr,
+    /train truth index does not satisfy the formal role contract/,
+  );
+});
+
+test("rejects mixed independent-holdout and commercial-training authorization", () => {
+  const item = makeFixture();
+  const authorization = JSON.parse(readFileSync(item.authorization, "utf8"));
+  authorization.authorizedUses.push("independent-release-test");
+  writeJson(item.authorization, authorization);
+  const built = buildFixture(item);
+  assert.notEqual(built.status, 0);
+  assert.match(
+    built.stderr,
+    /cannot mix independent holdout and commercial training uses/,
+  );
 });

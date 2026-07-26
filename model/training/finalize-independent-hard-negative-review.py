@@ -12,6 +12,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import importlib.util
 import json
 import re
 from datetime import datetime, timezone
@@ -19,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from PIL import Image, UnidentifiedImageError
+from _protected_role_evidence import validate_protected_role_documents
 
 
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
@@ -72,6 +74,21 @@ def read_json(path: Path, label: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{label} must contain an object: {path}")
     return value
+
+
+def load_freeze_recorder() -> Any:
+    path = Path(__file__).with_name(
+        "record-independent-hard-negative-authorization.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "independent_holdout_freeze_recorder",
+        path,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load independent holdout freeze recorder")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def require_sha256(value: Any, label: str) -> str:
@@ -186,6 +203,7 @@ def main() -> None:
     authorization_input = inputs.get("authorization")
     machine_audit_input = inputs.get("machineAudit")
     protected_inputs = inputs.get("protectedRoles")
+    freeze_input = inputs.get("freezeManifest")
     if not all(
         isinstance(value, dict)
         for value in (authorization_input, machine_audit_input, protected_inputs)
@@ -202,17 +220,63 @@ def main() -> None:
         "machine audit",
     )
     authorization = read_json(authorization_path, "authorization evidence")
+    authorized_uses = set(authorization.get("authorizedUses") or [])
     if (
         authorization.get("ok") is not True
         or authorization.get("decision") != "A"
         or authorization.get("status") != "confirmed"
         or authorization.get("currentTrainingUse") != "prohibited"
-        or "commercial-model-training"
-        not in list(authorization.get("authorizedUses") or [])
+        or "long-term-regression" not in authorized_uses
+        or not {
+            "commercial-model-training",
+            "independent-release-test",
+        }.intersection(authorized_uses)
         or authorization.get("qualityConstraint")
         != "authorization-does-not-relax-quality-gates"
     ):
         raise ValueError("authorization no longer satisfies the candidate quality contract")
+    independent_holdout_only = (
+        "independent-release-test" in authorized_uses
+        and "commercial-model-training" not in authorized_uses
+    )
+    if {
+        "independent-release-test",
+        "commercial-model-training",
+    }.issubset(authorized_uses):
+        raise ValueError(
+            "authorization cannot mix independent holdout and commercial training uses"
+        )
+    freeze_summary: dict[str, Any] | None = None
+    if independent_holdout_only:
+        if not isinstance(freeze_input, dict):
+            raise ValueError(
+                "independent holdout workspace does not bind a freeze manifest"
+            )
+        freeze_path = require_current_file(
+            freeze_input.get("path"),
+            freeze_input.get("sha256"),
+            "independent holdout freeze manifest",
+        )
+        freeze_summary = load_freeze_recorder().verify_freeze_manifest(
+            freeze_path
+        )
+        if (
+            Path(str(freeze_summary.get("machineAudit") or "")).resolve()
+            != machine_audit_path
+            or Path(
+                str(freeze_summary.get("authorizationRecord") or "")
+            ).resolve()
+            != authorization_path
+            or freeze_summary.get("batchIdentitySha256")
+            != freeze_input.get("batchIdentitySha256")
+        ):
+            raise ValueError(
+                "independent holdout freeze binding differs from workspace"
+            )
+    elif freeze_input is not None:
+        raise ValueError(
+            "training candidate workspace cannot bind independent holdout freeze"
+        )
     authorization_entries = authorization.get("entries")
     if not isinstance(authorization_entries, list):
         raise ValueError("authorization entries are missing")
@@ -235,11 +299,26 @@ def main() -> None:
 
     if not isinstance(protected_inputs, dict):
         raise ValueError("protected role inputs are missing")
+    current_protected_paths: dict[str, Path] = {}
+    current_protected_documents: dict[str, dict[str, Any]] = {}
     for role in ("train", "val", "frozenTest"):
         value = protected_inputs.get(role)
         if not isinstance(value, dict):
             raise ValueError(f"protected role input is missing: {role}")
-        require_current_file(value.get("path"), value.get("sha256"), f"{role} evidence")
+        current_path = require_current_file(
+            value.get("path"),
+            value.get("sha256"),
+            f"{role} evidence",
+        )
+        current_protected_paths[role] = current_path
+        current_protected_documents[role] = read_json(
+            current_path,
+            f"{role} evidence",
+        )
+    validate_protected_role_documents(
+        current_protected_paths,
+        current_protected_documents,
+    )
 
     sheets = workspace.get("reviewSheets")
     if not isinstance(sheets, list) or not sheets:
@@ -385,7 +464,14 @@ def main() -> None:
                 "authorizationEntryFileNameMatch": True,
                 "authorizationEntrySha256Match": True,
                 "trainingEligibility": (
-                    "permitted-after-visual-review-and-source-isolation"
+                    "prohibited-independent-holdout-only"
+                    if independent_holdout_only
+                    else "permitted-after-visual-review-and-source-isolation"
+                ),
+                "authorizedDatasetRole": (
+                    "independent-holdout"
+                    if independent_holdout_only
+                    else "training-candidate"
                 ),
             },
             "sourceIsolationEvidence": isolation,
@@ -403,6 +489,11 @@ def main() -> None:
                 "sha256": image_hash,
                 "sourceGroup": item["sourceGroup"],
                 "authorization": "A",
+                "authorizedDatasetRole": (
+                    "independent-holdout"
+                    if independent_holdout_only
+                    else "training-candidate"
+                ),
                 "sourceIsolation": "verified-zero-match-train-val-frozen-test",
                 "humanManicureSurfaceAnywhere": False,
                 "candidatePurpose": "deployment-false-positive-suppression",
@@ -436,6 +527,34 @@ def main() -> None:
             },
             "authorization": authorization_summary,
             "protectedRoles": protected_inputs,
+            **(
+                {
+                    "freezeManifest": {
+                        "path": str(freeze_path),
+                        "sha256": sha256_file(freeze_path),
+                        "batchIdentitySha256": freeze_summary[
+                            "batchIdentitySha256"
+                        ],
+                        "candidateWeights": freeze_summary[
+                            "candidateWeights"
+                        ],
+                        "candidateWeightsSha256": freeze_summary[
+                            "candidateWeightsSha256"
+                        ],
+                        "candidateThresholdReport": freeze_summary[
+                            "candidateThresholdReport"
+                        ],
+                        "candidateThresholdReportSha256": freeze_summary[
+                            "candidateThresholdReportSha256"
+                        ],
+                        "candidateScoreThreshold": freeze_summary[
+                            "candidateScoreThreshold"
+                        ],
+                    }
+                }
+                if freeze_summary
+                else {}
+            ),
             "decisions": {
                 "path": str(decisions_path),
                 "sha256": sha256_file(decisions_path),
