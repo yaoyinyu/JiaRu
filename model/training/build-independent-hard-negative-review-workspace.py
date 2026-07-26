@@ -15,7 +15,10 @@ import csv
 import hashlib
 import importlib.util
 import json
+import os
 import re
+import shutil
+import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -73,19 +76,83 @@ def read_json(path: Path, label: str) -> dict[str, Any]:
     return value
 
 
-def load_freeze_recorder() -> Any:
-    path = Path(__file__).with_name(
-        "record-independent-hard-negative-authorization.py"
-    )
+def load_recorder(file_name: str, module_name: str, label: str) -> Any:
+    path = Path(__file__).with_name(file_name)
     spec = importlib.util.spec_from_file_location(
-        "independent_holdout_freeze_recorder",
+        module_name,
         path,
     )
     if spec is None or spec.loader is None:
-        raise RuntimeError("cannot load independent holdout freeze recorder")
+        raise RuntimeError(f"cannot load {label}")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def load_freeze_recorder() -> Any:
+    return load_recorder(
+        "record-independent-hard-negative-authorization.py",
+        "independent_holdout_freeze_recorder",
+        "independent holdout freeze recorder",
+    )
+
+
+def load_training_authorization_recorder() -> Any:
+    return load_recorder(
+        "record-training-hard-negative-authorization.py",
+        "training_hard_negative_authorization_recorder",
+        "training hard-negative authorization recorder",
+    )
+
+
+def is_link_or_reparse_point(path: Path) -> bool:
+    attributes = int(getattr(path.lstat(), "st_file_attributes", 0))
+    return (
+        path.is_symlink()
+        or bool(getattr(path, "is_junction", lambda: False)())
+        or bool(attributes & 0x0400)
+    )
+
+
+def safe_remove_generated_directory(path: Path, parent: Path, prefix: str) -> None:
+    if (
+        path.parent != parent
+        or not path.name.startswith(prefix)
+        or is_link_or_reparse_point(path)
+        or not path.is_dir()
+    ):
+        raise ValueError(f"refusing unsafe generated-directory cleanup: {path}")
+    shutil.rmtree(path)
+
+
+def commit_staged_directory(
+    staging_dir: Path,
+    output_dir: Path,
+    overwrite: bool,
+) -> None:
+    parent = output_dir.parent
+    backup_dir: Path | None = None
+    if os.path.lexists(output_dir):
+        if not overwrite:
+            raise ValueError(f"refusing to overwrite existing workspace: {output_dir}")
+        if is_link_or_reparse_point(output_dir) or not output_dir.is_dir():
+            raise ValueError(f"refusing unsafe workspace overwrite target: {output_dir}")
+        backup_dir = parent / (
+            f".{output_dir.name}.backup-{os.getpid()}-{uuid.uuid4().hex}"
+        )
+        os.replace(output_dir, backup_dir)
+    try:
+        os.replace(staging_dir, output_dir)
+    except Exception:
+        if backup_dir is not None and not os.path.lexists(output_dir):
+            os.replace(backup_dir, output_dir)
+        raise
+    if backup_dir is not None:
+        safe_remove_generated_directory(
+            backup_dir,
+            parent,
+            f".{output_dir.name}.backup-",
+        )
 
 
 def require_sha256(value: Any, label: str) -> str:
@@ -265,12 +332,17 @@ def main() -> None:
 
     authorization_path = Path(args.authorization).resolve()
     machine_audit_path = Path(args.machine_audit).resolve()
-    output_dir = Path(args.output_dir).resolve()
+    output_dir = Path(args.output_dir).absolute()
     report_path = output_dir / "review-workspace-v1.json"
     decisions_path = output_dir / "review-decisions-v1.csv"
-    if (report_path.exists() or decisions_path.exists()) and not args.overwrite:
+    output_dir.parent.mkdir(parents=True, exist_ok=True)
+    output_entry_exists = os.path.lexists(output_dir)
+    if output_entry_exists and not args.overwrite:
         raise ValueError(f"refusing to overwrite existing workspace: {output_dir}")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if output_entry_exists and (
+        not output_dir.is_dir() or is_link_or_reparse_point(output_dir)
+    ):
+        raise ValueError(f"refusing unsafe workspace overwrite target: {output_dir}")
 
     authorization, authorization_entries = validate_authorization(authorization_path)
     authorized_uses = set(authorization.get("authorizedUses") or [])
@@ -310,6 +382,7 @@ def main() -> None:
         raise ValueError("machine audit and authorization file coverage differ")
 
     freeze_input: dict[str, Any] | None = None
+    authorization_replay: dict[str, Any]
     if independent_holdout:
         if not args.freeze_manifest:
             raise ValueError(
@@ -331,6 +404,28 @@ def main() -> None:
             raise ValueError(
                 "freeze manifest does not bind the selected audit and authorization"
             )
+        authorization_replay = {
+            "mode": "independent-freeze-deep-replay",
+            "authorizationRecord": str(authorization_path),
+            "authorizationRecordSha256": sha256_file(authorization_path),
+            "machineAudit": str(machine_audit_path),
+            "machineAuditSha256": sha256_file(machine_audit_path),
+            "freezeManifest": str(freeze_path),
+            "freezeManifestSha256": sha256_file(freeze_path),
+            "batchIdentitySha256": freeze_verification["batchIdentitySha256"],
+            "protectedHardNegativeRegistry": freeze_verification[
+                "protectedHardNegativeRegistry"
+            ],
+            "protectedHardNegativeManifests": freeze_verification[
+                "protectedHardNegativeManifests"
+            ],
+            "protectedHardNegativeRecordsSha256": freeze_verification[
+                "protectedHardNegativeRecordsSha256"
+            ],
+            "protectedHardNegativeCrossCheck": freeze_verification[
+                "protectedHardNegativeCrossCheck"
+            ],
+        }
         freeze_input = {
             "path": str(freeze_path),
             "sha256": sha256_file(freeze_path),
@@ -348,11 +443,53 @@ def main() -> None:
             "candidateScoreThreshold": freeze_verification[
                 "candidateScoreThreshold"
             ],
+            "protectedHardNegativeRegistry": freeze_verification[
+                "protectedHardNegativeRegistry"
+            ],
+            "protectedHardNegativeManifests": freeze_verification[
+                "protectedHardNegativeManifests"
+            ],
+            "protectedHardNegativeRecordsSha256": freeze_verification[
+                "protectedHardNegativeRecordsSha256"
+            ],
+            "protectedHardNegativeCrossCheck": freeze_verification[
+                "protectedHardNegativeCrossCheck"
+            ],
         }
     elif args.freeze_manifest:
         raise ValueError(
             "--freeze-manifest is reserved for independent-holdout authorization"
         )
+    else:
+        training_verification = (
+            load_training_authorization_recorder().verify_authorization_record(
+                authorization_path
+            )
+        )
+        verified_authorization_path = Path(
+            str(training_verification.get("authorizationRecord") or "")
+        ).resolve()
+        verified_machine_path = Path(
+            str(training_verification.get("machineAudit") or "")
+        ).resolve()
+        if (
+            verified_authorization_path != authorization_path
+            or verified_machine_path != machine_audit_path
+            or training_verification.get("authorizationRecordSha256")
+            != sha256_file(authorization_path)
+            or training_verification.get("machineAuditSha256")
+            != sha256_file(machine_audit_path)
+            or training_verification.get("imageCount")
+            != len(authorization_entries)
+        ):
+            raise ValueError(
+                "training authorization deep replay does not bind the selected "
+                "authorization and machine audit"
+            )
+        authorization_replay = {
+            "mode": "training-authorization-deep-replay",
+            **training_verification,
+        }
 
     protected_paths = {
         "train": Path(args.train_index).resolve(),
@@ -379,6 +516,12 @@ def main() -> None:
         match = FILE_PATTERN.fullmatch(file_name)
         if not match:
             raise ValueError(f"file name does not match the hard-negative batch contract: {file_name}")
+        expected_batch_role = "independent" if independent_holdout else "training"
+        if match.group("batch_role").lower() != expected_batch_role:
+            raise ValueError(
+                "hard-negative file-name role differs from authorization role: "
+                f"expected={expected_batch_role}, fileName={file_name}"
+            )
         authorized = authorization_by_name[file_name]
         audited = audit_by_name[file_name]
         image_hash = require_sha256(authorized.get("sha256"), f"{file_name} authorization hash")
@@ -433,78 +576,102 @@ def main() -> None:
     if total_matches:
         raise ValueError(f"authorized images overlap protected roles: matches={total_matches}")
 
-    sheets = render_sheets(items, output_dir, args.overwrite)
-    with decisions_path.open("w", encoding="utf-8-sig", newline="") as stream:
-        writer = csv.DictWriter(stream, fieldnames=CSV_FIELDS)
-        writer.writeheader()
-        for item in items:
-            writer.writerow(
-                {
-                    "reviewId": item["reviewId"],
-                    "fileName": item["fileName"],
-                    "imageSha256": item["imageSha256"],
-                    "width": item["width"],
-                    "height": item["height"],
-                    "sourceGroup": item["sourceGroup"],
-                    "decision": "",
-                    "defectCodes": "",
-                    "notes": "",
-                }
-            )
-
-    generated_at = datetime.now(timezone.utc).isoformat()
-    report = {
-        "schemaVersion": 1,
-        "generatedAt": generated_at,
-        "ok": True,
-        "decision": "review_workspace_ready_no_quality_decisions",
-        "inputs": {
-            "authorization": {
-                "path": str(authorization_path),
-                "sha256": sha256_file(authorization_path),
-                "entriesSha256": authorization["entriesSha256"],
-            },
-            "machineAudit": {
-                "path": str(machine_audit_path),
-                "sha256": sha256_file(machine_audit_path),
-            },
-            "protectedRoles": protected_inputs,
-            **({"freezeManifest": freeze_input} if freeze_input else {}),
-        },
-        "policy": {
-            "aiOriginDoesNotRelaxQualityGate": True,
-            "reviewEveryImageAtOriginalResolution": True,
-            "reviewSheetsUseSourcePixelsWithoutResampling": True,
-            "reviewSheetsDoNotReplaceBoundSourceFiles": True,
-            "rejectLowQualityOrBlur": True,
-            "rejectImpossibleOrIncompleteTopology": True,
-            "rejectValidHumanManicureSurfaceAnywhere": True,
-            "rejectCollageTemplateOrIndependentNailTips": True,
-            "authorizationDoesNotAssignTrainingRole": True,
-            "trainingUseBeforeFinalization": "prohibited",
-        },
-        "summary": {
-            "authorizedImages": len(items),
-            "pendingReviewImages": len(items),
-            "promptFamilies": len(source_groups),
-            "protectedRoleIdentityMatches": total_matches,
-            "reviewSheets": len(sheets),
-        },
-        "decisionsTemplate": {
-            "path": str(decisions_path),
-            "sha256": sha256_file(decisions_path),
-            "encoding": "utf-8-sig",
-            "fields": list(CSV_FIELDS),
-        },
-        "itemsSha256": canonical_sha256(items),
-        "items": items,
-        "reviewSheetsSha256": canonical_sha256(sheets),
-        "reviewSheets": sheets,
-    }
-    report_path.write_text(
-        json.dumps(report, ensure_ascii=False, indent=2) + "\n",
-        encoding="utf-8",
+    staging_dir = output_dir.parent / (
+        f".{output_dir.name}.staging-{os.getpid()}-{uuid.uuid4().hex}"
     )
+    staging_report_path = staging_dir / report_path.name
+    staging_decisions_path = staging_dir / decisions_path.name
+    try:
+        staging_dir.mkdir()
+        sheets = render_sheets(items, staging_dir, False)
+        for sheet in sheets:
+            staging_sheet_path = Path(str(sheet["path"]))
+            sheet["path"] = str(
+                output_dir / staging_sheet_path.relative_to(staging_dir)
+            )
+        with staging_decisions_path.open(
+            "w", encoding="utf-8-sig", newline=""
+        ) as stream:
+            writer = csv.DictWriter(stream, fieldnames=CSV_FIELDS)
+            writer.writeheader()
+            for item in items:
+                writer.writerow(
+                    {
+                        "reviewId": item["reviewId"],
+                        "fileName": item["fileName"],
+                        "imageSha256": item["imageSha256"],
+                        "width": item["width"],
+                        "height": item["height"],
+                        "sourceGroup": item["sourceGroup"],
+                        "decision": "",
+                        "defectCodes": "",
+                        "notes": "",
+                    }
+                )
+
+        generated_at = datetime.now(timezone.utc).isoformat()
+        report = {
+            "schemaVersion": 1,
+            "generatedAt": generated_at,
+            "ok": True,
+            "decision": "review_workspace_ready_no_quality_decisions",
+            "inputs": {
+                "authorization": {
+                    "path": str(authorization_path),
+                    "sha256": sha256_file(authorization_path),
+                    "entriesSha256": authorization["entriesSha256"],
+                    "deepReplay": authorization_replay,
+                },
+                "machineAudit": {
+                    "path": str(machine_audit_path),
+                    "sha256": sha256_file(machine_audit_path),
+                },
+                "protectedRoles": protected_inputs,
+                **({"freezeManifest": freeze_input} if freeze_input else {}),
+            },
+            "policy": {
+                "aiOriginDoesNotRelaxQualityGate": True,
+                "reviewEveryImageAtOriginalResolution": True,
+                "reviewSheetsUseSourcePixelsWithoutResampling": True,
+                "reviewSheetsDoNotReplaceBoundSourceFiles": True,
+                "rejectLowQualityOrBlur": True,
+                "rejectImpossibleOrIncompleteTopology": True,
+                "rejectValidHumanManicureSurfaceAnywhere": True,
+                "rejectCollageTemplateOrIndependentNailTips": True,
+                "authorizationDoesNotAssignTrainingRole": True,
+                "trainingUseBeforeFinalization": "prohibited",
+            },
+            "summary": {
+                "authorizedImages": len(items),
+                "pendingReviewImages": len(items),
+                "promptFamilies": len(source_groups),
+                "protectedRoleIdentityMatches": total_matches,
+                "reviewSheets": len(sheets),
+            },
+            "decisionsTemplate": {
+                "path": str(decisions_path),
+                "sha256": sha256_file(staging_decisions_path),
+                "encoding": "utf-8-sig",
+                "fields": list(CSV_FIELDS),
+            },
+            "itemsSha256": canonical_sha256(items),
+            "items": items,
+            "reviewSheetsSha256": canonical_sha256(sheets),
+            "reviewSheets": sheets,
+        }
+        staging_report_path.write_text(
+            json.dumps(report, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        commit_staged_directory(staging_dir, output_dir, args.overwrite)
+    except Exception:
+        if staging_dir.exists():
+            safe_remove_generated_directory(
+                staging_dir,
+                output_dir.parent,
+                f".{output_dir.name}.staging-",
+            )
+        raise
     print(
         json.dumps(
             {

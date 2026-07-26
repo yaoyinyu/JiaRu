@@ -1,17 +1,17 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-26T00:47:59.074Z",
+  "generatedAt": "2026-07-26T08:05:25.080Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
     "progressPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-progress.md",
     "datasetReadinessPath": "E:\\AI Project\\Codex\\JiaRu\\model\\datasets\\nail-texture-v1\\metadata\\training-dataset-readiness-release.json",
     "candidateReviewPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v9-review.json",
-    "releaseTestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1\\manifest.json",
-    "releaseTestQualityPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-release-test-67-quality.json",
-    "hardNegativeAuditPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-hard-negative-watermark-audit.json",
-    "bestMetricsPath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\test-metrics.512.json",
+    "releaseTestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\frozen-reviewed-release-test-100-v1\\manifest.json",
+    "releaseTestQualityPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v2\\frozen-release-test-100-quality-report-v1.json",
+    "hardNegativeAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v2\\post-train-independent-holdout-v1\\hard-negative-watermark-audit-v1.json",
+    "bestMetricsPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v2\\eval100-512-v1\\metrics.json",
     "productionManifestPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.json",
     "desktopPerformancePath": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-real-candidate-v6\\browser-performance-report.json",
     "desktopMemoryPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-desktop-memory.json",
@@ -38,32 +38,60 @@
         "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-device-ipad.json"
       }
     ],
+    "evidenceProfilePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-completion-evidence-profile.json",
     "outputPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-local-inference-completion-audit.json"
+  },
+  "evidenceProfile": {
+    "path": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-completion-evidence-profile.json",
+    "sha256": "90b1266ab571c1753ca061d2e1664eb9cbe03a96a981453faef1deea623ecfea",
+    "decision": "nail_texture_completion_evidence_profile",
+    "candidate": {
+      "weightsSha256": "e46968b798462abdd4369e2cb3b3fa60f9bd2066885fb25d3e70f2d50e373882",
+      "deploymentScoreThreshold": 0.45
+    },
+    "evidence": {
+      "releaseTestSnapshot": {
+        "path": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\frozen-reviewed-release-test-100-v1\\manifest.json",
+        "sha256": "b3baa41c913548ed1513e7e22457fcc2bf4f1f99826ab9db1033e41e521823c6"
+      },
+      "releaseTestQuality": {
+        "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v2\\frozen-release-test-100-quality-report-v1.json",
+        "sha256": "b2b7167dbff98f71407962bee0dafa684dbd834fe3499fd6fbc454b703b0c16e"
+      },
+      "hardNegativeAudit": {
+        "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v2\\post-train-independent-holdout-v1\\hard-negative-watermark-audit-v1.json",
+        "sha256": "8fc8693683e584c90e69264e18bd4a0204937ed3a336477a3ba1144039df64e5"
+      },
+      "bestMetrics": {
+        "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v2\\eval100-512-v1\\metrics.json",
+        "sha256": "d6240635ba3665403440c9b3da4c54239f6382122389fad47b5f348c52e71d8e"
+      }
+    }
   },
   "summary": {
     "gateCount": 14,
-    "passedGates": 3,
-    "failedGates": 11,
-    "progressMarkerCount": 353,
-    "passMarkerCount": 342,
+    "passedGates": 4,
+    "failedGates": 10,
+    "progressMarkerCount": 361,
+    "passMarkerCount": 352,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
         "task": "导入授权真实图片并建立来源隔离测试集",
         "status": "🟠 PARTIAL",
-        "evidence": "真实正样本train100张/521 mask、val30张/144 mask和冻结test100张/554 mask已严格审核与隔离；2026-07-24新批困难负样本158张已通过审核并进入第二候选train258。当前数据阻断为训练后才生成、未经任何候选模型筛选的新来源独立负样本留出仍未冻结满100张；第二候选的训练输入数量已不是阻断"
+        "evidence": "真实正样本train100张/521 mask、val30张/144 mask和冻结test100张/554 mask已严格审核与隔离；第二候选所用158张困难负样本及训练后110张独立留出均已闭环，但独立留出三变体7/5/6张误检否决第二候选。第三候选新训练负样本现有75/160张，机器进度审计75/75通过；精确授权、原分辨率终审及至少100张正式批准尚未完成"
       },
       {
         "id": "M2-T3-VISION-ANNOTATION",
         "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
         "status": "🟡 IN PROGRESS",
-        "evidence": "正式集409图/2142 mask不变；外部首批train100张/521个完整mask、来源隔离val30张/144 mask和冻结test100张/554 mask均已完成原分辨率终审。困难负样本不含正样本polygon，已按清晰度、目标域、授权和来源隔离严格筛选100张用于训练；独立留出与Beta失败样本仍待补充"
+        "evidence": "正式集409图/2142 mask不变；外部首批train100张/521个完整mask、来源隔离val30张/144 mask和冻结test100张/554 mask均已完成原分辨率终审。第三候选困难负样本不含正样本polygon，但当前75张只通过生成时人工初筛及机器绑定的解码、尺寸、重复与受保护registry预检，正式原分辨率审核与训练批准仍按0计；Beta失败样本仍待补充"
       },
       {
-        "id": "M2-T3-HARD-NEGATIVE-WATERMARK-AUDIT-005",
-        "task": "AI困难负样本误检与水印捷径消融",
-        "status": "🔴 HOLD",
-        "evidence": "新审计固定原图、裁右下12%和右下角模糊三种变体，并在0.35部署阈值和0.20诊断阈值重放同一候选权重。部署阈值原图/裁剪/模糊误检图为0/2/0，诊断阈值为3/5/2；裁剪变体增加2个检测，严格零误检/零delta门失败。该100张属于训练集，`releaseGeneralizationEligible=false`；必须补充不同生成批次/提示族且无统一水印的独立留出集，不得以冻结正样本mAP覆盖该失败"
+        "id": "M2-T3-HARD-NEGATIVE-V3-TRAINING-010",
+        "task": "第三候选来源隔离训练负样本、训练与新独立留出",
+        "status": "🟡 ENGINEERING IN PROGRESS",
+        "evidence": "固定机器计划160张，当前75张，仍缺85张；计划绑定外部目录、001—160文件身份、registry SHA-256和家族/变体唯一性。当前进度报告75/75机器通过、0失败、0未知，精确授权未登记且正式原分辨率终审未开始，批准训练负样本仍为0/100。补齐并至少批准100张后才能物化第三候选；训练后还需另建不少于100张全新独立留出。失败110张只保留诊断/长期回归，禁止训练和重复充当未见发布证据"
       },
       {
         "id": "M3-T3-DEVICE",
@@ -75,43 +103,31 @@
         "id": "M3-T4-QUALITY",
         "task": "真实测试集直接可用率、污染率和人工修正成本",
         "status": "🟡 IN PROGRESS",
-        "evidence": "新候选已绑定冻结100张/554 mask完成部署512 full/core/stress评估，box/mask mAP50分别为0.9654/0.9601、0.9715/0.9718、0.9436/0.9240，schema v2质量报告和深度重放通过。该mAP门不包含困难负样本水印捷径、逐实例直接可用率、污染率和人工修正成本，后续三项仍需独立负样本留出与Beta人工审核"
+        "evidence": "第二候选已绑定冻结100张/554 mask完成部署512 full/core/stress评估，box/mask mAP50分别为0.9501/0.9454、0.9508/0.9567、0.9472/0.9221，schema v2质量报告和深度重放通过；但训练后独立留出110张三变体7/5/6张误检已否决该候选。第三候选尚未训练；逐实例直接可用率、污染率和人工修正成本仍需Beta人工审核"
       },
       {
         "id": "M3-T5-BETA",
         "task": "Beta 发布决策",
         "status": "🔴 HOLD",
-        "evidence": "新候选已通过冻结100张mAP门，但AI困难负样本裁水印消融失败且缺独立负样本留出；移动真机矩阵、用户失败案例、100张Beta人工直接可用率/污染率/修正成本证据仍缺，禁止promotion"
+        "evidence": "第二候选虽通过冻结100张mAP门，但训练后独立留出110张三变体7/5/6张误检并被否决；第三候选训练及训练后全新独立留出尚未完成。移动真机矩阵、用户失败案例、100张Beta人工直接可用率/污染率/修正成本证据仍缺，禁止promotion"
       },
       {
         "id": "REL-T2-CANDIDATE",
         "task": "正式模型候选发布",
-        "status": "🔴 HOLD",
-        "evidence": "2026-07-24候选已通过冻结100张部署512 mAP门，规范val30正式校准得到候选阈值0.50；但困难负样本裁水印变体出现2/100误检且训练负样本不能充当独立留出。生产manifest保持不变，须先用新批次无统一水印的独立负样本证明泛化，再完成Beta、移动真机和回滚门"
+        "status": "🔴 HOLD（第二候选已否决）",
+        "evidence": "第二候选已完成50轮训练、规范val30阈值0.45校准和冻结test100评估，但训练后独立留出110张的原图/裁角/模糊角标三变体仍误检7/5/6张，涉及9张独立图片，因此正式晋升失败。生产manifest、共享阈值和正式ONNX保持不变；必须训练第三候选并使用训练后新冻结的另一套独立留出证明泛化，再完成Beta、移动真机和回滚门"
       },
       {
-        "id": "USER-AUTH-03",
-        "task": "确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试",
-        "status": "⏸️ USER INPUT",
-        "evidence": "机器审计与11页视觉总览已完成；当前仅登记为合成候选池，未导入正式集。需明确授权后再进入逐图筛选和标注流程"
-      },
-      {
-        "id": "USER-HARD-NEGATIVE-01",
-        "task": "补充独立、无统一水印的hard negative留出批次",
-        "status": "🟡 ENGINEERING IN PROGRESS",
-        "evidence": "原160张已严审为158张并用于第二候选训练，不再具备留出资格。训练完成后已启动新来源、不同提示族的100张独立留出并行生成；当前仅得到4张未终审文件，不计入冻结数量。必须在首次v2推理前锁定全批身份，完成不少于100张原分辨率审核后才运行三变体零误检/零delta门"
+        "id": "USER-HARD-NEGATIVE-V3-AUTH-02",
+        "task": "授权第三候选最终冻结训练负样本精确文件清单",
+        "status": "⏸️ USER INPUT（批次补齐后）",
+        "evidence": "待001—160候选补齐并冻结精确路径、文件名和SHA-256后，需用户明确允许该精确清单用于商业模型训练和长期回归、禁止作为独立发布测试，且授权不放宽质量门。当前目录级旧授权不能替代新批逐文件授权；本项暂不阻塞继续补图和工程修复，但在正式建账、终审与物化前必须完成"
       },
       {
         "id": "USER-FAILURE-01",
         "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
         "status": "⏭ USER INPUT",
         "evidence": "hard negative 与失败类型优化"
-      },
-      {
-        "id": "USER-THRESHOLD-01",
-        "task": "根据首轮真实测试冻结甲面缺失率与分组退化门槛",
-        "status": "⏭ USER INPUT",
-        "evidence": "Beta 后、正式发布前"
       }
     ]
   },
@@ -204,7 +220,7 @@
         },
         {
           "checked": false,
-          "text": "完善真实数据来源、授权、分组拆分和人工复核。（train100张/521 mask、val30张/144 mask和冻结test100张/554 mask均完成原分辨率审核与来源隔离；626张AI困难负样本严格审核通过99张并与历史1张合并为100张，候选训练及冻结100图full/core/stress评估已完成。部署512三组mAP门通过，但同批AI图带系统性右下角标记，裁右下12%后出现2/100张误检且训练负样本不能作为独立留出。当前未完成项变更为：补充不同生成批次/提示族、无统一水印并与训练图无派生关系的独立困难负样本留出，继续完成Beta人工复核；完整露出甲面仍要求单一完整mask和原图尺寸视觉审核）"
+          "text": "完善真实数据来源、授权、分组拆分和人工复核。（train100张/521 mask、val30张/144 mask和冻结test100张/554 mask均完成原分辨率审核与来源隔离；第二候选已使用158张批准困难负样本完成训练，并在规范val30与冻结test100上完成评估。训练后另行生成的110张独立困难负样本已在首次第二候选推理前完成冻结和原分辨率终审，110/110通过，但部署512三变体审计在原图/裁角/模糊角标上分别误检7/5/6张，涉及9张独立图片，第二候选因此被正式否决。第三候选新训练困难负样本计划160张，当前75张、仍缺85张；机器绑定进度审计75/75通过，但精确逐文件授权、原分辨率终审和至少100张正式批准均未完成，不能以75张生成文件计作训练通过。训练后还需建立全新独立留出并通过三变体零误检/零delta门，同时继续完成Beta人工复核。完整露出甲面仍要求单一完整mask和原图尺寸视觉审核）"
         },
         {
           "checked": true,
@@ -743,8 +759,20 @@
           "text": "将158张批准困难负样本物化为第二候选训练角色并完成训练域消融；规范包为train258（100正样本/521 mask+158空标签负样本）、val30/144 mask、test0、孤儿0，物化、文件树和输入深审SHA-256分别为`033b8d02…2ec`、`8709fa80…1170`、`b9bd6897…94dd`。RTX 4060续训50轮得到`e46968b7…3882`；上一候选对这批原图/裁切/模糊变体误检为52/65/52张，第二候选阈值0.45下三类均0误检；该PASS只证明训练抑制目标，报告固定`releaseGeneralizationEligible=false`。"
         },
         {
+          "checked": true,
+          "text": "补齐、冻结并评估第二候选的独立困难负样本留出集；110张候选在首次第二候选推理前完成不可变冻结，28张1:1审核页逐图原分辨率终审110/110通过，批准清单固定`independent-holdout`且`trainingUse=prohibited`。部署512、阈值0.45的原图/裁右下12%/模糊右下角三变体分别误检7/5/6张，涉及9张独立图片，严格零误检/零delta门失败并正式否决第二候选。该结果已影响后续训练规划，因此这110张不得回流训练，也不得继续冒充第三候选的未见留出。"
+        },
+        {
+          "checked": true,
+          "text": "建立第三候选训练困难负样本精确授权和权威受保护集合门；`record-training-hard-negative-authorization.py`只接受显式文件白名单与唯一registry入口，固定768像素最短边、新批training前缀、SHA-256、规范sourceIdentity及dHash256距离门。当前registry SHA-256为`c533b3d9…3108`，绑定3份历史training与1份失败holdout清单，4份manifest深验并去重为368条保护记录；旧命名兼容仅限受保护侧。审核工作区对training授权做只读深度重放并以staging原子替换输出；专项11/11和5/5通过。该工程PASS不代表当前54张已经授权、终审或可训练。"
+        },
+        {
+          "checked": true,
+          "text": "将当前完成度证据固化为SHA-256绑定profile；默认命令不再依赖历史v6/67图路径，固定当前冻结test100、schema v2质量报告、第二候选110图独立留出审计、部署512指标、候选权重`e46968b7…3882`和阈值0.45。profile模式与四个受保护CLI覆盖互斥，加载和写报告前均复验哈希，并强制质量`full_512`、指标权重与困难负样本审计候选身份一致。profile只选择证据，不授予PASS；当前7/5/6张误检仍使完成度审计HOLD。"
+        },
+        {
           "checked": false,
-          "text": "补齐并冻结独立困难负样本留出集；候选必须在第二候选训练完成后才生成，来自不同生成批次/提示族，无统一水印，且不得是训练图的裁剪、遮挡、重绘或其他派生。当前已开始并行生成100张新来源候选，仅4张未终审文件已落盘且不计入冻结数量。必须在首次v2推理前锁定全批，以原分辨率审核严格排除低清、残缺、真人甲面、文字/水印和非目标域，不少于100张全部以`independent-holdout`角色运行同一三变体消融；未达到零误检/零变体delta前候选不得晋升。"
+          "text": "为第三候选建立来源隔离的新训练困难负样本并完成新一轮发布泛化验证；固定机器计划为160张，当前75张、仍缺85张，计划逐项绑定序号、文件名、提示族/变体、外部目录及受保护registry SHA-256。进度快照75/75完整解码、尺寸、命名、家族/变体唯一性、批内及registry SHA/dHash隔离通过，0失败、0未知；断点续跑允许新增图片但拒绝已完成图片字节漂移。现有文件尚未形成精确逐文件授权和正式原分辨率终审，训练批准继续为0/100。新训练批次必须针对独立留出暴露的贝壳、甲虫鞘翅、笔帽、安全反光片、梭形器件、玻璃镇纸、景泰蓝托盘、金属锦鲤和光盘反光等误检族扩展，但不得复制、裁剪、遮挡、重绘或提示复刻这110张留出。补齐后先以显式白名单和权威受保护registry完成授权建账；registry SHA-256为`c533b3d9…3108`，精确绑定3份历史training与1份失败holdout清单并规范去重为368条保护记录，随后以SHA-256/规范sourceIdentity/dHash256完成隔离。再经严格原分辨率终审至少批准100张进入训练；第三候选训练、规范val30校准和冻结test100评估完成后，必须用新版registry强门另生成并在首次第三候选推理前冻结不少于100张的全新独立留出，达到三变体零误检/零delta后才允许晋升。旧110图freeze未绑定registry，只能保留为第二候选历史诊断。"
         },
         {
           "checked": true,
@@ -868,9 +896,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 353,
-      "uniqueMarkerCount": 353,
-      "passMarkerCount": 342,
+      "markerCount": 361,
+      "uniqueMarkerCount": 361,
+      "passMarkerCount": 352,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -878,19 +906,19 @@
           "id": "M2-T3-REAL-DATA",
           "task": "导入授权真实图片并建立来源隔离测试集",
           "status": "🟠 PARTIAL",
-          "evidence": "真实正样本train100张/521 mask、val30张/144 mask和冻结test100张/554 mask已严格审核与隔离；2026-07-24新批困难负样本158张已通过审核并进入第二候选train258。当前数据阻断为训练后才生成、未经任何候选模型筛选的新来源独立负样本留出仍未冻结满100张；第二候选的训练输入数量已不是阻断"
+          "evidence": "真实正样本train100张/521 mask、val30张/144 mask和冻结test100张/554 mask已严格审核与隔离；第二候选所用158张困难负样本及训练后110张独立留出均已闭环，但独立留出三变体7/5/6张误检否决第二候选。第三候选新训练负样本现有75/160张，机器进度审计75/75通过；精确授权、原分辨率终审及至少100张正式批准尚未完成"
         },
         {
           "id": "M2-T3-VISION-ANNOTATION",
           "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
           "status": "🟡 IN PROGRESS",
-          "evidence": "正式集409图/2142 mask不变；外部首批train100张/521个完整mask、来源隔离val30张/144 mask和冻结test100张/554 mask均已完成原分辨率终审。困难负样本不含正样本polygon，已按清晰度、目标域、授权和来源隔离严格筛选100张用于训练；独立留出与Beta失败样本仍待补充"
+          "evidence": "正式集409图/2142 mask不变；外部首批train100张/521个完整mask、来源隔离val30张/144 mask和冻结test100张/554 mask均已完成原分辨率终审。第三候选困难负样本不含正样本polygon，但当前75张只通过生成时人工初筛及机器绑定的解码、尺寸、重复与受保护registry预检，正式原分辨率审核与训练批准仍按0计；Beta失败样本仍待补充"
         },
         {
-          "id": "M2-T3-HARD-NEGATIVE-WATERMARK-AUDIT-005",
-          "task": "AI困难负样本误检与水印捷径消融",
-          "status": "🔴 HOLD",
-          "evidence": "新审计固定原图、裁右下12%和右下角模糊三种变体，并在0.35部署阈值和0.20诊断阈值重放同一候选权重。部署阈值原图/裁剪/模糊误检图为0/2/0，诊断阈值为3/5/2；裁剪变体增加2个检测，严格零误检/零delta门失败。该100张属于训练集，`releaseGeneralizationEligible=false`；必须补充不同生成批次/提示族且无统一水印的独立留出集，不得以冻结正样本mAP覆盖该失败"
+          "id": "M2-T3-HARD-NEGATIVE-V3-TRAINING-010",
+          "task": "第三候选来源隔离训练负样本、训练与新独立留出",
+          "status": "🟡 ENGINEERING IN PROGRESS",
+          "evidence": "固定机器计划160张，当前75张，仍缺85张；计划绑定外部目录、001—160文件身份、registry SHA-256和家族/变体唯一性。当前进度报告75/75机器通过、0失败、0未知，精确授权未登记且正式原分辨率终审未开始，批准训练负样本仍为0/100。补齐并至少批准100张后才能物化第三候选；训练后还需另建不少于100张全新独立留出。失败110张只保留诊断/长期回归，禁止训练和重复充当未见发布证据"
         },
         {
           "id": "M3-T3-DEVICE",
@@ -902,43 +930,31 @@
           "id": "M3-T4-QUALITY",
           "task": "真实测试集直接可用率、污染率和人工修正成本",
           "status": "🟡 IN PROGRESS",
-          "evidence": "新候选已绑定冻结100张/554 mask完成部署512 full/core/stress评估，box/mask mAP50分别为0.9654/0.9601、0.9715/0.9718、0.9436/0.9240，schema v2质量报告和深度重放通过。该mAP门不包含困难负样本水印捷径、逐实例直接可用率、污染率和人工修正成本，后续三项仍需独立负样本留出与Beta人工审核"
+          "evidence": "第二候选已绑定冻结100张/554 mask完成部署512 full/core/stress评估，box/mask mAP50分别为0.9501/0.9454、0.9508/0.9567、0.9472/0.9221，schema v2质量报告和深度重放通过；但训练后独立留出110张三变体7/5/6张误检已否决该候选。第三候选尚未训练；逐实例直接可用率、污染率和人工修正成本仍需Beta人工审核"
         },
         {
           "id": "M3-T5-BETA",
           "task": "Beta 发布决策",
           "status": "🔴 HOLD",
-          "evidence": "新候选已通过冻结100张mAP门，但AI困难负样本裁水印消融失败且缺独立负样本留出；移动真机矩阵、用户失败案例、100张Beta人工直接可用率/污染率/修正成本证据仍缺，禁止promotion"
+          "evidence": "第二候选虽通过冻结100张mAP门，但训练后独立留出110张三变体7/5/6张误检并被否决；第三候选训练及训练后全新独立留出尚未完成。移动真机矩阵、用户失败案例、100张Beta人工直接可用率/污染率/修正成本证据仍缺，禁止promotion"
         },
         {
           "id": "REL-T2-CANDIDATE",
           "task": "正式模型候选发布",
-          "status": "🔴 HOLD",
-          "evidence": "2026-07-24候选已通过冻结100张部署512 mAP门，规范val30正式校准得到候选阈值0.50；但困难负样本裁水印变体出现2/100误检且训练负样本不能充当独立留出。生产manifest保持不变，须先用新批次无统一水印的独立负样本证明泛化，再完成Beta、移动真机和回滚门"
+          "status": "🔴 HOLD（第二候选已否决）",
+          "evidence": "第二候选已完成50轮训练、规范val30阈值0.45校准和冻结test100评估，但训练后独立留出110张的原图/裁角/模糊角标三变体仍误检7/5/6张，涉及9张独立图片，因此正式晋升失败。生产manifest、共享阈值和正式ONNX保持不变；必须训练第三候选并使用训练后新冻结的另一套独立留出证明泛化，再完成Beta、移动真机和回滚门"
         },
         {
-          "id": "USER-AUTH-03",
-          "task": "确认 `claude/2026_7_13` 的1001张生成素材是否可用于商业模型训练和长期回归测试",
-          "status": "⏸️ USER INPUT",
-          "evidence": "机器审计与11页视觉总览已完成；当前仅登记为合成候选池，未导入正式集。需明确授权后再进入逐图筛选和标注流程"
-        },
-        {
-          "id": "USER-HARD-NEGATIVE-01",
-          "task": "补充独立、无统一水印的hard negative留出批次",
-          "status": "🟡 ENGINEERING IN PROGRESS",
-          "evidence": "原160张已严审为158张并用于第二候选训练，不再具备留出资格。训练完成后已启动新来源、不同提示族的100张独立留出并行生成；当前仅得到4张未终审文件，不计入冻结数量。必须在首次v2推理前锁定全批身份，完成不少于100张原分辨率审核后才运行三变体零误检/零delta门"
+          "id": "USER-HARD-NEGATIVE-V3-AUTH-02",
+          "task": "授权第三候选最终冻结训练负样本精确文件清单",
+          "status": "⏸️ USER INPUT（批次补齐后）",
+          "evidence": "待001—160候选补齐并冻结精确路径、文件名和SHA-256后，需用户明确允许该精确清单用于商业模型训练和长期回归、禁止作为独立发布测试，且授权不放宽质量门。当前目录级旧授权不能替代新批逐文件授权；本项暂不阻塞继续补图和工程修复，但在正式建账、终审与物化前必须完成"
         },
         {
           "id": "USER-FAILURE-01",
           "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
           "status": "⏭ USER INPUT",
           "evidence": "hard negative 与失败类型优化"
-        },
-        {
-          "id": "USER-THRESHOLD-01",
-          "task": "根据首轮真实测试冻结甲面缺失率与分组退化门槛",
-          "status": "⏭ USER INPUT",
-          "evidence": "Beta 后、正式发布前"
         }
       ]
     },
@@ -973,46 +989,63 @@
     },
     "independentHardNegativeWatermark": {
       "ok": false,
-      "filePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-hard-negative-watermark-audit.json",
-      "found": false,
-      "evidence": null,
+      "filePath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v2\\post-train-independent-holdout-v1\\hard-negative-watermark-audit-v1.json",
+      "found": true,
+      "evidence": {
+        "outerOk": false,
+        "status": "HOLD",
+        "decision": "hold_hard_negative_watermark_shortcut_instability",
+        "datasetRole": "independent-holdout",
+        "releaseGeneralizationEligible": false,
+        "imageCount": 110,
+        "maxFalsePositiveImages": 0,
+        "maxVariantDetectionDelta": 0,
+        "deploymentFalsePositiveImages": {
+          "original": 7,
+          "crop12": 5,
+          "blur_corner": 6
+        },
+        "variantDetectionDeltas": {
+          "crop12": 2,
+          "blur_corner": 1
+        },
+        "deepVerificationOk": false
+      },
       "errors": [
-        "cannot read hard-negative watermark audit report"
+        "hard-negative watermark audit deep verification failed: Traceback (most recent call last):\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 947, in <module>\r\n    main()\r\n    ~~~~^^\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 768, in main\r\n    verification = verify_report(Path(args.verify_report).resolve())\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 478, in verify_report\r\n    manifest_document = verify_bound_manifest(manifest, str(role))\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 105, in verify_bound_manifest\r\n    report = load_holdout_finalizer().verify_approved_report(manifest_path)\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\finalize-reviewed-independent-hard-negative-holdout.py\", line 310, in verify_approved_report\r\n    replay = build(\r\n        candidate_paths,\r\n        max(FORMAL_MINIMUM_IMAGES, minimum_images),\r\n    )\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\finalize-reviewed-independent-hard-negative-holdout.py\", line 164, in build\r\n    items, input_record = training_finalizer.validate_candidate_review(\r\n                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^\r\n        path,\r\n        ^^^^^\r\n        document,\r\n        ^^^^^^^^^\r\n        expected_dataset_role=\"independent-holdout\",\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\finalize-reviewed-hard-negative-manifest.py\", line 294, in validate_candidate_review\r\n    freeze_summary = load_freeze_recorder().verify_freeze_manifest(\r\n        freeze_path\r\n    )\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\record-independent-hard-negative-authorization.py\", line 571, in verify_freeze_manifest\r\n    raise ValueError(\r\n        \"freeze manifest omits the protected hard-negative registry binding\"\r\n    )\r\nValueError: freeze manifest omits the protected hard-negative registry binding"
       ]
     },
     "bestCandidateMetrics": {
       "ok": true,
-      "boxMap50": 0.8527541703044659,
-      "maskMap50": 0.847659037958229,
+      "boxMap50": 0.9500858360319748,
+      "maskMap50": 0.945355171193564,
       "minimumBoxMap50": 0.85,
       "minimumMaskMap50": 0.75,
-      "evidenceScope": "historical-evaluated-model-test-split-13",
-      "frozenQualityRequired": false,
-      "qualityReportPath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-seg-real-candidate-v6-release-test-67-quality.json",
-      "qualityReportOk": false,
-      "qualityReportDeepVerificationOk": false,
-      "qualityReportVerificationErrors": [
-        "frozen release-test quality report schemaVersion must be 2"
-      ],
-      "qualityDecision": null,
+      "evidenceScope": "frozen-reviewed-candidate-100-deployment-512",
+      "frozenQualityRequired": true,
+      "qualityReportPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-07-24-v2\\frozen-release-test-100-quality-report-v1.json",
+      "qualityReportOk": true,
+      "qualityReportDeepVerificationOk": true,
+      "qualityReportVerificationErrors": [],
+      "qualityDecision": "accept_candidate_release",
       "historical13": {
-        "boxMap50": 0.8527541703044659,
-        "maskMap50": 0.847659037958229
+        "boxMap50": 0.9500858360319748,
+        "maskMap50": 0.945355171193564
       }
     },
     "representativeReleaseTest": {
-      "ok": false,
-      "actual": 67,
+      "ok": true,
+      "actual": 100,
       "required": 100,
       "recommendedMaximum": 200,
       "evidenceScope": "frozen-reviewed-candidate",
-      "snapshotPath": "E:\\AI Project\\Codex\\JiaRu\\辅助材料\\real-release-test-2026-07-13\\frozen-reviewed-candidate-v1\\manifest.json",
+      "snapshotPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_7_14_A_v1\\frozen-reviewed-release-test-100-v1\\manifest.json",
       "snapshotOk": true,
-      "snapshotMasks": 384,
-      "snapshotSourceHash": "5b4b8d80941cfd7d85bf35859aeb28ccae8e1e1be616f96cebfe5ab6b23b1aa1",
-      "evaluatedModelTestImages": 13,
+      "snapshotMasks": 554,
+      "snapshotSourceHash": "8620ab82a817b6c696f864b4dc23dc79e4ad137c400f7c639a304425644e2ffb",
+      "evaluatedModelTestImages": 100,
       "historicalEvaluatedModelTestImages": 13,
-      "note": "Frozen reviewed candidates count toward dataset-size readiness only; no lineage-checked snapshot quality report was found."
+      "note": "The frozen reviewed candidate has deployment-resolution quality evidence and reaches the 100-image representative-size gate."
     },
     "desktopAcceptance": {
       "ok": true,
@@ -1134,7 +1167,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "11 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-WATERMARK-AUDIT-005, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, REL-T2-CANDIDATE, USER-AUTH-03, USER-HARD-NEGATIVE-01, USER-FAILURE-01, USER-THRESHOLD-01."
+      "summary": "9 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, REL-T2-CANDIDATE, USER-HARD-NEGATIVE-V3-AUTH-02, USER-FAILURE-01."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
@@ -1145,11 +1178,6 @@
       "code": "USER_FAILURE_CASES",
       "owner": "user",
       "summary": "Provide representative real-world failure images and an approved failure-case report."
-    },
-    {
-      "code": "REPRESENTATIVE_RELEASE_TESTSET",
-      "owner": "user+engineering",
-      "summary": "Provide and review at least 33 more source-isolated real release-test images."
     },
     {
       "code": "MOBILE_DEVICE_ACCEPTANCE",

@@ -109,6 +109,29 @@ def load_threshold_calibrator() -> ModuleType:
     return module
 
 
+def load_training_authorization_recorder() -> ModuleType:
+    script = Path(__file__).with_name(
+        "record-training-hard-negative-authorization.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "independent_holdout_training_authorization_recorder",
+        script,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load training hard-negative authorization recorder")
+    module = importlib.util.module_from_spec(spec)
+    sibling_directory = str(script.parent)
+    inserted = sibling_directory not in sys.path
+    if inserted:
+        sys.path.insert(0, sibling_directory)
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        if inserted:
+            sys.path.remove(sibling_directory)
+    return module
+
+
 def difference_hash(image: Image.Image, size: int = 16) -> str:
     grayscale = image.convert("L").resize(
         (size + 1, size),
@@ -333,6 +356,7 @@ def enumerate_batch(
                 "bytes": resolved_path.stat().st_size,
                 "dhash256": perceptual_hash,
                 "sequence": sequence,
+                "batchDate": match.group("date"),
                 "promptFamily": match.group("family").lower(),
                 "promptVariant": int(match.group("variant")),
             }
@@ -343,6 +367,65 @@ def enumerate_batch(
         raise ValueError(f"batch sequences are not contiguous; missing={missing}")
     records.sort(key=lambda item: int(item["sequence"]))
     return records
+
+
+def reject_protected_overlaps(
+    records: list[dict[str, Any]],
+    protected_records: list[dict[str, Any]],
+) -> dict[str, Any]:
+    protected_hashes = {
+        str(item["imageSha256"]): str(item["fileName"])
+        for item in protected_records
+    }
+    protected_source_identities = {
+        str(item["sourceIdentity"]): str(item["fileName"])
+        for item in protected_records
+    }
+    recorder = load_training_authorization_recorder()
+    comparisons = 0
+    for record in records:
+        image_hash = str(record["sha256"])
+        if image_hash in protected_hashes:
+            raise ValueError(
+                "new independent holdout exactly duplicates a protected hard negative: "
+                f"{record['fileName']} == {protected_hashes[image_hash]}"
+            )
+        source_group = (
+            f"ai-hard-negative-independent-{record['batchDate']}:"
+            f"{record['promptFamily']}"
+        )
+        source_identity = recorder.normalize_protected_source_group(source_group)
+        record["sourceGroup"] = source_group
+        record["sourceIdentity"] = source_identity
+        if source_identity in protected_source_identities:
+            raise ValueError(
+                "new independent holdout sourceGroup overlaps a protected hard "
+                f"negative source: {record['fileName']} ~= "
+                f"{protected_source_identities[source_identity]}"
+            )
+        for protected in protected_records:
+            comparisons += 1
+            distance = hamming_distance(
+                str(record["dhash256"]),
+                str(protected["dhash256"]),
+            )
+            if distance <= FORMAL_NEAR_DUPLICATE_DISTANCE:
+                raise ValueError(
+                    "new independent holdout perceptually duplicates a protected "
+                    f"hard negative at dHash256 distance {distance}: "
+                    f"{record['fileName']} ~= {protected['fileName']}"
+                )
+    return {
+        "decision": "pass_no_protected_hard_negative_overlap",
+        "candidateRecordCount": len(records),
+        "protectedRecordCount": len(protected_records),
+        "protectedRecordsSha256": canonical_sha256(protected_records),
+        "exactSha256Matches": 0,
+        "sourceIdentityMatches": 0,
+        "perceptualMatchesAtOrBelowThreshold": 0,
+        "perceptualComparisons": comparisons,
+        "nearDuplicateThreshold": FORMAL_NEAR_DUPLICATE_DISTANCE,
+    }
 
 
 def find_near_duplicate_pairs(
@@ -480,6 +563,29 @@ def verify_freeze_manifest(path: Path) -> dict[str, Any]:
         != sha256_file(candidate_weights)
     ):
         raise ValueError("candidate threshold report binding differs from deep replay")
+    registry_input = inputs.get("protectedHardNegativeRegistry")
+    protected_manifest_inputs = inputs.get("protectedHardNegativeManifests")
+    if not isinstance(registry_input, dict) or not isinstance(
+        protected_manifest_inputs, list
+    ):
+        raise ValueError(
+            "freeze manifest omits the protected hard-negative registry binding"
+        )
+    registry_path = require_bound_file(
+        registry_input.get("path"),
+        registry_input.get("sha256"),
+        "protected hard-negative registry",
+    )
+    training_recorder = load_training_authorization_recorder()
+    (
+        registry_binding,
+        protected_manifest_bindings,
+        protected_records,
+    ) = training_recorder.load_protected_registry(str(registry_path))
+    if registry_binding != registry_input:
+        raise ValueError("protected hard-negative registry binding drift")
+    if protected_manifest_bindings != protected_manifest_inputs:
+        raise ValueError("protected hard-negative manifest binding drift")
     machine_audit_path = require_bound_relative_file(
         freeze_dir,
         inputs.get("machineAudit"),
@@ -530,6 +636,10 @@ def verify_freeze_manifest(path: Path) -> dict[str, Any]:
     )
     if find_near_duplicate_pairs(current_records):
         raise ValueError("current frozen batch no longer passes the perceptual duplicate gate")
+    protected_cross_check = reject_protected_overlaps(
+        current_records,
+        protected_records,
+    )
     current_records_sha256 = canonical_sha256(current_records)
     if (
         current_records_sha256 != batch_identity.get("recordsSha256")
@@ -587,6 +697,8 @@ def verify_freeze_manifest(path: Path) -> dict[str, Any]:
             "sha256": sha256_file(candidate_weights),
         },
         "candidateThresholdReport": threshold_report_input,
+        "protectedHardNegativeRegistry": registry_binding,
+        "protectedHardNegativeManifests": protected_manifest_bindings,
         "machineAudit": inputs.get("machineAudit"),
     }
     if authorization_inputs != expected_input_bindings:
@@ -605,8 +717,30 @@ def verify_freeze_manifest(path: Path) -> dict[str, Any]:
         or machine_audit.get("nearDuplicateThreshold")
         != FORMAL_NEAR_DUPLICATE_DISTANCE
         or machine_audit.get("nearDuplicatePairs") != []
+        or machine_audit.get("protectedHardNegativeRegistry") != registry_binding
+        or machine_audit.get("protectedHardNegativeManifests")
+        != protected_manifest_bindings
+        or machine_audit.get("protectedHardNegativeRecordsSha256")
+        != canonical_sha256(protected_records)
+        or machine_audit.get("protectedHardNegativeCrossCheck")
+        != protected_cross_check
     ):
         raise ValueError("machine audit outer contract differs from frozen evidence")
+    expected_registry_identity = {
+        "protectedRegistryBindingSha256": canonical_sha256(registry_binding),
+        "protectedManifestBindingsSha256": canonical_sha256(
+            protected_manifest_bindings
+        ),
+        "protectedRecordsSha256": canonical_sha256(protected_records),
+        "protectedCrossCheckSha256": canonical_sha256(protected_cross_check),
+    }
+    if any(
+        batch_identity.get(key) != value
+        for key, value in expected_registry_identity.items()
+    ):
+        raise ValueError("protected hard-negative batch identity drift")
+    if manifest.get("protectedHardNegativeCrossCheck") != protected_cross_check:
+        raise ValueError("freeze protected hard-negative cross-check drift")
     return {
         "ok": True,
         "decision": manifest["decision"],
@@ -622,6 +756,10 @@ def verify_freeze_manifest(path: Path) -> dict[str, Any]:
         "candidateScoreThreshold": threshold_verification["scoreThreshold"],
         "machineAudit": str(machine_audit_path),
         "authorizationRecord": str(authorization_record_path),
+        "protectedHardNegativeRegistry": registry_binding,
+        "protectedHardNegativeManifests": protected_manifest_bindings,
+        "protectedHardNegativeRecordsSha256": canonical_sha256(protected_records),
+        "protectedHardNegativeCrossCheck": protected_cross_check,
     }
 
 
@@ -637,6 +775,7 @@ def main() -> None:
     parser.add_argument("--user-authorization")
     parser.add_argument("--candidate-weights")
     parser.add_argument("--candidate-threshold-report")
+    parser.add_argument("--protected-hard-negative-registry")
     parser.add_argument("--batch-date")
     parser.add_argument("--sequence-start", type=int)
     parser.add_argument("--sequence-end", type=int)
@@ -648,6 +787,7 @@ def main() -> None:
             args.user_authorization,
             args.candidate_weights,
             args.candidate_threshold_report,
+            args.protected_hard_negative_registry,
             args.batch_date,
             args.sequence_start,
             args.sequence_end,
@@ -668,6 +808,7 @@ def main() -> None:
             args.user_authorization,
             args.candidate_weights,
             args.candidate_threshold_report,
+            args.protected_hard_negative_registry,
             args.batch_date,
             args.sequence_start,
             args.sequence_end,
@@ -675,8 +816,8 @@ def main() -> None:
     ):
         parser.error(
             "--source-root, --user-authorization, --candidate-weights, "
-            "--candidate-threshold-report, --batch-date, --sequence-start "
-            "and --sequence-end are required"
+            "--candidate-threshold-report, --protected-hard-negative-registry, "
+            "--batch-date, --sequence-start and --sequence-end are required"
         )
 
     source_root_raw = Path(str(args.source_root))
@@ -716,6 +857,14 @@ def main() -> None:
         candidate_threshold_report,
         candidate_weights,
     )
+    training_recorder = load_training_authorization_recorder()
+    (
+        registry_binding,
+        protected_manifest_bindings,
+        protected_records,
+    ) = training_recorder.load_protected_registry(
+        str(args.protected_hard_negative_registry)
+    )
     user_authorization_sha256 = sha256_file(user_authorization_path)
     user_authorization, authorized_uses = validate_user_authorization(
         user_authorization_path,
@@ -742,6 +891,7 @@ def main() -> None:
             f"dHash256 distance {FORMAL_NEAR_DUPLICATE_DISTANCE}: "
             f"pairs={len(near_duplicate_pairs)}"
         )
+    protected_cross_check = reject_protected_overlaps(records, protected_records)
 
     generated_at = datetime.now(timezone.utc).isoformat()
     weights_sha256 = sha256_file(candidate_weights)
@@ -758,6 +908,12 @@ def main() -> None:
         "candidateWeightsSha256": weights_sha256,
         "candidateThresholdReportSha256": threshold_verification["sha256"],
         "candidateScoreThreshold": threshold_verification["scoreThreshold"],
+        "protectedRegistryBindingSha256": canonical_sha256(registry_binding),
+        "protectedManifestBindingsSha256": canonical_sha256(
+            protected_manifest_bindings
+        ),
+        "protectedRecordsSha256": canonical_sha256(protected_records),
+        "protectedCrossCheckSha256": canonical_sha256(protected_cross_check),
     }
     batch_identity_sha256 = canonical_sha256(batch_identity)
     machine_audit = {
@@ -776,6 +932,10 @@ def main() -> None:
         "exactDuplicateGroups": [],
         "nearDuplicateThreshold": FORMAL_NEAR_DUPLICATE_DISTANCE,
         "nearDuplicatePairs": [],
+        "protectedHardNegativeRegistry": registry_binding,
+        "protectedHardNegativeManifests": protected_manifest_bindings,
+        "protectedHardNegativeRecordsSha256": canonical_sha256(protected_records),
+        "protectedHardNegativeCrossCheck": protected_cross_check,
         "dimensionHistogram": dict(sorted(dimension_histogram.items())),
         "recordsSha256": records_sha256,
         "records": records,
@@ -831,6 +991,8 @@ def main() -> None:
                 "sha256": threshold_verification["sha256"],
                 "scoreThreshold": threshold_verification["scoreThreshold"],
             },
+            "protectedHardNegativeRegistry": registry_binding,
+            "protectedHardNegativeManifests": protected_manifest_bindings,
         },
         "summary": {
             "authorizedImages": len(entries),
@@ -880,6 +1042,8 @@ def main() -> None:
                     "sha256": threshold_verification["sha256"],
                     "scoreThreshold": threshold_verification["scoreThreshold"],
                 },
+                "protectedHardNegativeRegistry": registry_binding,
+                "protectedHardNegativeManifests": protected_manifest_bindings,
                 "machineAudit": {
                     "pathWithinFreeze": machine_audit_path.name,
                     "sha256": sha256_file(machine_audit_path),
@@ -889,6 +1053,7 @@ def main() -> None:
                     "sha256": sha256_file(authorization_record_path),
                 },
             },
+            "protectedHardNegativeCrossCheck": protected_cross_check,
             "invariants": {
                 "fixedEvidenceDirectoryInsideSourceRoot": True,
                 "formalMinimumCannotBeLowered": True,
@@ -900,6 +1065,9 @@ def main() -> None:
                 "candidateWeightsBoundBeforeAuthorizedInference": True,
                 "candidateThresholdBoundBeforeAuthorizedInference": True,
                 "candidateThresholdReportDeeplyReplayed": True,
+                "protectedHardNegativeRegistryRequired": True,
+                "protectedHardNegativeRegistryDeeplyReplayed": True,
+                "protectedExactSourceAndPerceptualOverlapRejected": True,
                 "authorizationDoesNotAssignDatasetRole": True,
                 "trainingUseBeforeReview": "prohibited",
             },
@@ -919,15 +1087,35 @@ def main() -> None:
         )
         if threshold_before_commit != threshold_verification:
             raise ValueError("candidate threshold evidence changed during freeze creation")
+        (
+            registry_before_commit,
+            manifests_before_commit,
+            protected_before_commit,
+        ) = training_recorder.load_protected_registry(
+            str(registry_binding["path"])
+        )
+        if (
+            registry_before_commit != registry_binding
+            or manifests_before_commit != protected_manifest_bindings
+            or protected_before_commit != protected_records
+        ):
+            raise ValueError(
+                "protected hard-negative evidence changed during freeze creation"
+            )
         records_before_commit = enumerate_batch(
             source_root,
             batch_date,
             sequence_start,
             sequence_end,
         )
+        cross_check_before_commit = reject_protected_overlaps(
+            records_before_commit,
+            protected_before_commit,
+        )
         if (
             records_before_commit != records
             or find_near_duplicate_pairs(records_before_commit)
+            or cross_check_before_commit != protected_cross_check
         ):
             raise ValueError("source images changed during freeze creation")
 
@@ -949,6 +1137,8 @@ def main() -> None:
                 "candidateWeightsSha256": weights_sha256,
                 "candidateThresholdReportSha256": threshold_verification["sha256"],
                 "candidateScoreThreshold": verified_final["candidateScoreThreshold"],
+                "protectedHardNegativeRegistrySha256": registry_binding["sha256"],
+                "protectedHardNegativeRecordCount": len(protected_records),
                 "evidenceDir": str(evidence_dir),
                 "freezeManifest": str(final_manifest),
                 "freezeManifestSha256": sha256_file(final_manifest),

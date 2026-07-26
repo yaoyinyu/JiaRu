@@ -151,24 +151,74 @@ function makeFixture(count = 3) {
     });
     return manifest;
   };
-  const protectedManifests = [
-    createProtectedManifest(
+  const protectedTraining = createProtectedManifest(
       "protected-training",
       "approved_hard_negative_manifest",
       "permitted",
       "hard_negative_independent_20260724_501_protected_train_01.png",
-      "ai-hard-negative-independent-2026-07-24:protected_train",
+      "ai-hard-negative-training-2026-07-24:protected_train",
       8001,
-    ),
-    createProtectedManifest(
+    );
+  const protectedHoldout = createProtectedManifest(
       "protected-holdout",
       "approved_independent_hard_negative_holdout",
       "prohibited",
       "hard_negative_independent_20260725_601_protected_holdout_01.png",
       "ai-hard-negative-independent-20260725:protected_holdout",
       8002,
-    ),
+    );
+  const protectedTrainingDuplicate = path.join(
+    root,
+    "protected-training-duplicate.json",
+  );
+  writeFileSync(
+    protectedTrainingDuplicate,
+    readFileSync(protectedTraining),
+  );
+  const protectedHoldoutTwo = createProtectedManifest(
+    "protected-holdout-two",
+    "approved_independent_hard_negative_holdout",
+    "prohibited",
+    "nail_legacy_holdout_20260722_001.png",
+    "ai-hard-negative-independent-20260722:legacy_holdout",
+    8003,
+  );
+  const protectedManifests = [
+    protectedTraining,
+    protectedTrainingDuplicate,
+    protectedHoldout,
+    protectedHoldoutTwo,
   ];
+  const protectedRegistry = path.join(root, "protected-registry.json");
+  const registryEntries = protectedManifests
+    .map((manifestPath) => {
+      const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
+      return {
+        path: path.resolve(manifestPath),
+        sha256: shaFile(manifestPath),
+        role:
+          manifest.decision === "approved_hard_negative_manifest"
+            ? "training"
+            : "holdout",
+      };
+    })
+    .sort((left, right) => left.path.localeCompare(right.path));
+  writeJson(protectedRegistry, {
+    schemaVersion: 1,
+    ok: true,
+    decision: "protected_hard_negative_registry",
+    summary: {
+      manifestCount: registryEntries.length,
+      trainingManifestCount: registryEntries.filter(
+        (entry) => entry.role === "training",
+      ).length,
+      holdoutManifestCount: registryEntries.filter(
+        (entry) => entry.role === "holdout",
+      ).length,
+    },
+    entriesSha256: canonicalSha(registryEntries),
+    entries: registryEntries,
+  });
   return {
     root,
     sourceRoot,
@@ -176,14 +226,11 @@ function makeFixture(count = 3) {
     userAuthorization,
     relativePaths,
     protectedManifests,
+    protectedRegistry,
   };
 }
 
 function runRecorder(item: ReturnType<typeof makeFixture>) {
-  const protectedArguments = item.protectedManifests.flatMap((manifest) => [
-    "--protected-hard-negative-manifest",
-    manifest,
-  ]);
   return spawnSync(
     python,
     [
@@ -194,7 +241,8 @@ function runRecorder(item: ReturnType<typeof makeFixture>) {
       item.userAuthorization,
       "--output-dir",
       item.output,
-      ...protectedArguments,
+      "--protected-hard-negative-registry",
+      item.protectedRegistry,
       "--batch-date",
       "20260726",
       "--sequence-start",
@@ -204,6 +252,39 @@ function runRecorder(item: ReturnType<typeof makeFixture>) {
     ],
     { encoding: "utf8" },
   );
+}
+
+function writeRegistryEntries(
+  item: ReturnType<typeof makeFixture>,
+  entries: Array<{ path: string; sha256: string; role: string }>,
+) {
+  writeJson(item.protectedRegistry, {
+    schemaVersion: 1,
+    ok: true,
+    decision: "protected_hard_negative_registry",
+    summary: {
+      manifestCount: entries.length,
+      trainingManifestCount: entries.filter(
+        (entry) => entry.role === "training",
+      ).length,
+      holdoutManifestCount: entries.filter(
+        (entry) => entry.role === "holdout",
+      ).length,
+    },
+    entriesSha256: canonicalSha(entries),
+    entries,
+  });
+}
+
+function refreshRegistryHashes(item: ReturnType<typeof makeFixture>) {
+  const registry = JSON.parse(readFileSync(item.protectedRegistry, "utf8"));
+  const entries = registry.entries.map(
+    (entry: { path: string; sha256: string; role: string }) => ({
+      ...entry,
+      sha256: shaFile(entry.path),
+    }),
+  );
+  writeRegistryEntries(item, entries);
 }
 
 test("records an exact training batch and feeds the review workspace directly", () => {
@@ -222,8 +303,9 @@ test("records an exact training batch and feeds the review workspace directly", 
   assert.equal(machine.records.length, 3);
   assert.equal(machine.recordsSha256, canonicalSha(machine.records));
   assert.equal(machine.nearDuplicatePairs.length, 0);
-  assert.equal(machine.protectedHardNegativeManifests.length, 2);
-  assert.equal(machine.protectedHardNegativeRecords.length, 2);
+  assert.equal(machine.protectedHardNegativeManifests.length, 4);
+  assert.equal(machine.protectedHardNegativeRecords.length, 3);
+  assert.equal(machine.protectedHardNegativeRegistry.manifestCount, 4);
   assert.equal(authorization.currentTrainingUse, "prohibited");
   assert.equal(authorization.entries.length, 3);
   assert.equal(authorization.entriesSha256, canonicalSha(authorization.entries));
@@ -272,6 +354,14 @@ test("records an exact training batch and feeds the review workspace directly", 
     readFileSync(path.join(reviewOutput, "review-workspace-v1.json"), "utf8"),
   );
   assert.equal(workspace.summary.authorizedImages, 3);
+  assert.equal(
+    workspace.inputs.authorization.deepReplay.mode,
+    "training-authorization-deep-replay",
+  );
+  assert.equal(
+    workspace.inputs.authorization.deepReplay.machineAuditSha256,
+    shaFile(machinePath),
+  );
   assert.ok(
     workspace.items.every((entry: { sourceGroup: string }) =>
       entry.sourceGroup.startsWith("ai-hard-negative-training-20260726:"),
@@ -300,6 +390,58 @@ test("rejects mixed holdout authorization and an inexact source root", () => {
   assert.notEqual(broad.status, 0);
   assert.match(broad.stderr, /sourceRoot must exactly match/);
   assert.equal(existsSync(item.output), false);
+});
+
+test("requires both protected training and independent-holdout manifests", () => {
+  for (const retainedRole of ["training", "holdout"]) {
+    const item = makeFixture();
+    const registry = JSON.parse(readFileSync(item.protectedRegistry, "utf8"));
+    writeRegistryEntries(
+      item,
+      registry.entries.filter(
+        (entry: { role: string }) => entry.role === retainedRole,
+      ),
+    );
+    const result = runRecorder(item);
+    assert.notEqual(result.status, 0);
+    assert.match(
+      result.stderr,
+      /must include at least one approved training manifest and one approved independent holdout manifest/,
+    );
+  }
+});
+
+test("registry rejects omitted entries and manifest SHA-256 drift", () => {
+  const item = makeFixture();
+  const registry = JSON.parse(readFileSync(item.protectedRegistry, "utf8"));
+  registry.entries.pop();
+  writeJson(item.protectedRegistry, registry);
+  const omitted = runRecorder(item);
+  assert.notEqual(omitted.status, 0);
+  assert.match(omitted.stderr, /registry contract is invalid/);
+
+  const shaDrift = makeFixture();
+  const driftedRegistry = JSON.parse(
+    readFileSync(shaDrift.protectedRegistry, "utf8"),
+  );
+  driftedRegistry.entries[0].sha256 = "0".repeat(64);
+  writeRegistryEntries(shaDrift, driftedRegistry.entries);
+  const drifted = runRecorder(shaDrift);
+  assert.notEqual(drifted.status, 0);
+  assert.match(drifted.stderr, /registry manifest SHA-256 drift/);
+});
+
+test("accepts legacy protected names and binds every registry manifest", () => {
+  const item = makeFixture();
+  const verified = spawnSync(
+    python,
+    [recorder, "--verify-protected-registry", item.protectedRegistry],
+    { encoding: "utf8" },
+  );
+  assert.equal(verified.status, 0, verified.stderr);
+  const result = JSON.parse(verified.stdout);
+  assert.equal(result.manifestCount, 4);
+  assert.equal(result.protectedRecordCount, 3);
 });
 
 test("rejects naming, sequence, and explicit-path escape violations", () => {
@@ -402,14 +544,15 @@ test("rejects exact and perceptual duplicates against protected manifests", () =
 
   const near = makeFixture(1);
   const protectedManifest = JSON.parse(
-    readFileSync(near.protectedManifests[0], "utf8"),
+    readFileSync(near.protectedManifests[3], "utf8"),
   );
   writeTestPng(protectedManifest.items[0].imagePath, 1, 768, 768);
   protectedManifest.items[0].imageSha256 = shaFile(
     protectedManifest.items[0].imagePath,
   );
   protectedManifest.itemsSha256 = canonicalSha(protectedManifest.items);
-  writeJson(near.protectedManifests[0], protectedManifest);
+  writeJson(near.protectedManifests[3], protectedManifest);
+  refreshRegistryHashes(near);
   writeTestPng(path.join(near.sourceRoot, near.relativePaths[0]), 2, 768, 768);
   const nearResult = runRecorder(near);
   assert.notEqual(nearResult.status, 0);
@@ -530,7 +673,7 @@ test("detects authorization drift and refuses output overwrite", () => {
   assert.notEqual(protectedVerified.status, 0);
   assert.match(
     protectedVerified.stderr,
-    /protected hard-negative manifest binding drift/,
+    /protected registry manifest SHA-256 drift/,
   );
   writeFileSync(protectedManifestPath, protectedManifestBytes);
 

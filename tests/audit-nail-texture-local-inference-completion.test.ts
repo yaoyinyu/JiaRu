@@ -64,6 +64,7 @@ async function buildFrozenReleaseTestQuality(
   snapshot: string,
   output: string,
   counts: { images: number; masks: number; coreImages: number; stressImages: number; parentSourceGroups: number },
+  candidateWeights?: { path: string; sha256: string },
 ) {
   const evaluationRoot = path.join(root, "frozen-evaluation");
   const materialization = path.join(root, "frozen-materialization.json");
@@ -74,8 +75,9 @@ async function buildFrozenReleaseTestQuality(
     counts,
     sourceIsolation: { parentSourceGroupOverlap: [], exactImageHashOverlap: [] },
   });
-  const weights = path.join(root, "quality-candidate.pt");
-  await writeFile(weights, Buffer.from("quality-candidate-weights"));
+  const weights = candidateWeights?.path ?? path.join(root, "quality-candidate.pt");
+  if (!candidateWeights) await writeFile(weights, Buffer.from("quality-candidate-weights"));
+  const weightsSha256 = candidateWeights?.sha256 ?? createHash("sha256").update(await readFile(weights)).digest("hex");
   const writeMetric = async (
     label: string,
     imgsz: number,
@@ -92,6 +94,7 @@ async function buildFrozenReleaseTestQuality(
       imgsz,
       dataset_root: datasetRoot,
       weights,
+      weights_sha256: weightsSha256,
       box_map50: boxMap50,
       seg_map50: maskMap50,
       box_map: boxMap50 - 0.3,
@@ -256,6 +259,69 @@ async function prepareHardNegativeAudit(
   const shaFile = async (filePath: string) =>
     createHash("sha256").update(await readFile(filePath)).digest("hex");
 
+  const protectedManifestEntries: Array<{
+    path: string;
+    sha256: string;
+    role: "training" | "holdout";
+  }> = [];
+  for (const [role, sequence] of [
+    ["training", 901],
+    ["holdout", 902],
+  ] as const) {
+    const protectedImage = path.join(
+      root,
+      "protected-hard-negative-images",
+      `hard_negative_independent_20260720_${sequence}_protected_${role}_01.png`,
+    );
+    writePatternTestPng(protectedImage, sequence);
+    const protectedItems = [
+      {
+        fileName: path.basename(protectedImage),
+        sourceFileName: path.basename(protectedImage),
+        sourceGroup: `protected:${role}`,
+        imageSha256: await shaFile(protectedImage),
+        imagePath: protectedImage,
+        width: 320,
+        height: 320,
+        imageFormat: "PNG",
+        role: role === "training" ? "hard-negative" : "independent-holdout",
+        originalResolutionVisualReview: true,
+        trainingUse: role === "training" ? "permitted" : "prohibited",
+      },
+    ];
+    const protectedManifest = path.join(root, `protected-${role}.json`);
+    await writeJson(protectedManifest, {
+      schemaVersion: 2,
+      ok: true,
+      status: "PASS",
+      decision:
+        role === "training"
+          ? "approved_hard_negative_manifest"
+          : "approved_independent_hard_negative_holdout",
+      trainingUse: role === "training" ? "permitted" : "prohibited",
+      itemsSha256: canonicalSha256(protectedItems),
+      items: protectedItems,
+    });
+    protectedManifestEntries.push({
+      path: path.resolve(protectedManifest),
+      sha256: await shaFile(protectedManifest),
+      role,
+    });
+  }
+  const protectedRegistry = path.join(root, "protected-hard-negative-registry.json");
+  await writeJson(protectedRegistry, {
+    schemaVersion: 1,
+    ok: true,
+    decision: "protected_hard_negative_registry",
+    summary: {
+      manifestCount: 2,
+      trainingManifestCount: 1,
+      holdoutManifestCount: 1,
+    },
+    entriesSha256: canonicalSha256(protectedManifestEntries),
+    entries: protectedManifestEntries,
+  });
+
   const images = path.join(root, "independent-hard-negative-images");
   const threshold = createFormalThresholdEvidence(0.45);
   registerExternalRoot?.(threshold.root);
@@ -319,6 +385,7 @@ async function prepareHardNegativeAudit(
     "--user-authorization", userAuthorization,
     "--candidate-weights", threshold.weights,
     "--candidate-threshold-report", threshold.thresholdReport,
+    "--protected-hard-negative-registry", protectedRegistry,
     "--batch-date", "20260724",
     "--sequence-start", "161",
     "--sequence-end", "260",
@@ -451,7 +518,11 @@ async function prepareHardNegativeAudit(
     pythonEnvironment,
   );
   assert.equal(trainingAudited.status, 0, trainingAudited.stderr);
-  return { pythonEnvironment, trainingAudit };
+  return {
+    pythonEnvironment,
+    trainingAudit,
+    candidateWeights: { path: threshold.weights, sha256: await shaFile(threshold.weights) },
+  };
 }
 
 async function preparePassingFixture(
@@ -506,11 +577,17 @@ async function preparePassingFixture(
     items: snapshotItems,
   };
   await writeJson(files.snapshot, snapshot);
-  await buildFrozenReleaseTestQuality(root, files.snapshot, files.quality, snapshot.counts);
   const hardNegativeFixture = await prepareHardNegativeAudit(
     root,
     files.hardNegative,
     registerExternalRoot,
+  );
+  await buildFrozenReleaseTestQuality(
+    root,
+    files.snapshot,
+    files.quality,
+    snapshot.counts,
+    hardNegativeFixture.candidateWeights,
   );
   await writeJson(files.metrics, { box_map50: 0.9, seg_map50: 0.85 });
   const previousModelBytes = Buffer.alloc(1024, 0x31);
@@ -608,6 +685,7 @@ async function captureSharedEvidenceBaseline(
 function runAudit(
   fixture: Awaited<ReturnType<typeof preparePassingFixture>>,
   output: string,
+  evidenceProfile?: string,
 ) {
   const { files, devices } = fixture;
   return run("scripts/audit-nail-texture-local-inference-completion.ts", [
@@ -615,10 +693,12 @@ function runAudit(
     "--progress", files.progress,
     "--dataset-readiness", files.dataset,
     "--candidate-review", files.review,
-    "--release-test-snapshot", files.snapshot,
-    "--release-test-quality", files.quality,
-    "--hard-negative-audit", files.hardNegative,
-    "--best-metrics", files.metrics,
+    ...(evidenceProfile ? ["--evidence-profile", evidenceProfile] : [
+      "--release-test-snapshot", files.snapshot,
+      "--release-test-quality", files.quality,
+      "--hard-negative-audit", files.hardNegative,
+      "--best-metrics", files.metrics,
+    ]),
     "--production-manifest", files.manifest,
     "--desktop-performance", files.desktopPerformance,
     "--desktop-memory", files.desktopMemory,
@@ -630,6 +710,34 @@ function runAudit(
     ...Object.entries(devices).flatMap(([device, filePath]) => ["--mobile-report", `${device}=${filePath}`]),
     "--output", output,
   ], fixture.hardNegativePythonEnvironment);
+}
+
+async function writeEvidenceProfile(
+  fixture: Awaited<ReturnType<typeof preparePassingFixture>>,
+  profilePath: string,
+) {
+  const quality = JSON.parse(await readFile(fixture.files.quality, "utf8"));
+  const entries = {
+    releaseTestSnapshot: fixture.files.snapshot,
+    releaseTestQuality: fixture.files.quality,
+    hardNegativeAudit: fixture.files.hardNegative,
+    bestMetrics: quality.inputs.full_512 as string,
+  };
+  await writeJson(profilePath, {
+    schemaVersion: 1,
+    decision: "nail_texture_completion_evidence_profile",
+    candidate: {
+      weightsSha256: JSON.parse(await readFile(fixture.files.hardNegative, "utf8")).inputs.weights.sha256,
+      deploymentScoreThreshold: 0.45,
+    },
+    evidence: Object.fromEntries(await Promise.all(
+      Object.entries(entries).map(async ([key, filePath]) => [key, {
+        path: filePath,
+        sha256: createHash("sha256").update(await readFile(filePath)).digest("hex"),
+      }]),
+    )),
+  });
+  return entries;
 }
 
 async function readReport(output: string) {
@@ -667,6 +775,71 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
     assert.equal(report.gates.independentHardNegativeWatermark.ok, true);
     assert.equal(report.gates.releaseProductQuality.ok, true);
     assert.equal(report.gates.releaseRollback.ok, true);
+  });
+
+  await t.test("accepts a SHA-256-bound current evidence profile", async () => {
+    const profile = path.join(root, "completion-evidence-profile.json");
+    const output = path.join(root, "complete-from-profile.json");
+    await writeEvidenceProfile(fixture, profile);
+    const result = runAudit(fixture, output, profile);
+    assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`);
+    const report = await readReport(output);
+    assert.equal(report.evidenceProfile.decision, "nail_texture_completion_evidence_profile");
+    assert.equal(report.evidenceProfile.evidence.releaseTestSnapshot.path, path.resolve(fixture.files.snapshot));
+    assert.match(report.evidenceProfile.sha256, /^[a-f0-9]{64}$/);
+  });
+
+  await t.test("rejects evidence-profile hash drift before writing an audit", async () => {
+    const profile = path.join(root, "completion-evidence-profile-drift.json");
+    const output = path.join(root, "profile-drift-output.json");
+    const entries = await writeEvidenceProfile(fixture, profile);
+    const originalMetrics = await readFile(entries.bestMetrics);
+    await writeFile(entries.bestMetrics, '{"box_map50":0.1,"seg_map50":0.1}\n', "utf8");
+    const result = runAudit(fixture, output, profile);
+    await writeFile(entries.bestMetrics, originalMetrics);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /completion evidence profile hash drift for bestMetrics/);
+    await assert.rejects(readFile(output, "utf8"));
+  });
+
+  await t.test("rejects mixing a profile with protected evidence overrides", async () => {
+    const profile = path.join(root, "completion-evidence-profile-mixed.json");
+    await writeEvidenceProfile(fixture, profile);
+    const result = run("scripts/audit-nail-texture-local-inference-completion.ts", [
+      "--evidence-profile", profile,
+      "--best-metrics", fixture.files.metrics,
+    ]);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /cannot be combined with protected evidence overrides/);
+  });
+
+  await t.test("rejects a profile that mixes candidate identities", async () => {
+    const profile = path.join(root, "completion-evidence-profile-candidate-drift.json");
+    const output = path.join(root, "candidate-drift-output.json");
+    await writeEvidenceProfile(fixture, profile);
+    const document = JSON.parse(await readFile(profile, "utf8"));
+    document.candidate.weightsSha256 = "0".repeat(64);
+    await writeJson(profile, document);
+    const result = runAudit(fixture, output, profile);
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /bestMetrics candidate identity is invalid/);
+  });
+
+  await t.test("protects the evidence profile itself from output overwrite", async () => {
+    const profile = path.join(root, "completion-evidence-profile-protected.json");
+    await writeEvidenceProfile(fixture, profile);
+    const original = await readFile(profile);
+    const result = runAudit(fixture, profile, profile);
+    assert.equal(result.status, 1);
+    assert.deepEqual(await readFile(profile), original);
+  });
+
+  await t.test("package audit command pins the current evidence profile", async () => {
+    const packageDocument = JSON.parse(await readFile("package.json", "utf8"));
+    assert.match(
+      packageDocument.scripts["audit:nail-texture-completion"],
+      /--evidence-profile model\/reports\/nail-texture-completion-evidence-profile\.json/,
+    );
   });
 
   await t.test("rejects training negatives even when their watermark audit is stable", async () => {

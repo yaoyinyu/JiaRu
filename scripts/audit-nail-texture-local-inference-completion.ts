@@ -11,6 +11,7 @@ import {
 import { assertSafeOutputPath } from "./lib/safe-output-path.ts";
 
 interface Options {
+  evidenceProfilePath?: string;
   specPath: string;
   progressPath: string;
   datasetReadinessPath: string;
@@ -89,17 +90,34 @@ interface HardNegativeAudit {
     variants?: Record<string, { path?: string }>;
   }>;
 }
-interface MetricsReport { box_map50?: number; seg_map50?: number }
+interface MetricsReport {
+  split?: string;
+  imgsz?: number;
+  weights?: string;
+  weights_sha256?: string;
+  box_map50?: number;
+  seg_map50?: number;
+}
 interface PerformanceReport { ok?: boolean; totals?: { samples?: number } }
 interface MemoryReport { ok?: boolean; sampleCount?: number }
 interface BetaReview { version?: string; ok?: boolean; reviewedByUser?: boolean; sampleCount?: number; directlyUsableRate?: number }
 interface FailureCases { version?: string; ok?: boolean; sampleCount?: number }
 interface ProductionManifest { modelFile?: string; sha256?: string; modelSizeBytes?: number; [key: string]: unknown }
 
+type EvidenceProfileKey = "releaseTestSnapshot" | "releaseTestQuality" | "hardNegativeAudit" | "bestMetrics";
+
+interface CompletionEvidenceProfile {
+  schemaVersion?: number;
+  decision?: string;
+  candidate?: { weightsSha256?: string; deploymentScoreThreshold?: number };
+  evidence?: Partial<Record<EvidenceProfileKey, { path?: string; sha256?: string }>>;
+}
+
 function usage(): never {
   throw new Error(
     "Usage: node --experimental-strip-types scripts/audit-nail-texture-local-inference-completion.ts " +
       "[--spec <md>] [--progress <md>] [--dataset-readiness <json>] [--candidate-review <json>] " +
+      "[--evidence-profile <json>] " +
       "[--release-test-snapshot <json>] [--release-test-quality <json>] " +
       "[--hard-negative-audit <json>] " +
       "[--best-metrics <json>] [--production-manifest <json>] [--desktop-performance <json>] " +
@@ -135,18 +153,35 @@ function parseArgs(argv: string[]): Options {
     ],
   };
   let customMobileReports = false;
+  const protectedEvidenceOverrides: string[] = [];
   for (let index = 0; index < argv.length; index += 1) {
     const arg = argv[index]!;
     const value = argv[++index];
     if (!value) usage();
-    if (arg === "--spec") options.specPath = path.resolve(value);
+    if (arg === "--evidence-profile") {
+      if (options.evidenceProfilePath) throw new Error("--evidence-profile may only be provided once");
+      options.evidenceProfilePath = path.resolve(value);
+    }
+    else if (arg === "--spec") options.specPath = path.resolve(value);
     else if (arg === "--progress") options.progressPath = path.resolve(value);
     else if (arg === "--dataset-readiness") options.datasetReadinessPath = path.resolve(value);
     else if (arg === "--candidate-review") options.candidateReviewPath = path.resolve(value);
-    else if (arg === "--release-test-snapshot") options.releaseTestSnapshotPath = path.resolve(value);
-    else if (arg === "--release-test-quality") options.releaseTestQualityPath = path.resolve(value);
-    else if (arg === "--hard-negative-audit") options.hardNegativeAuditPath = path.resolve(value);
-    else if (arg === "--best-metrics") options.bestMetricsPath = path.resolve(value);
+    else if (arg === "--release-test-snapshot") {
+      protectedEvidenceOverrides.push(arg);
+      options.releaseTestSnapshotPath = path.resolve(value);
+    }
+    else if (arg === "--release-test-quality") {
+      protectedEvidenceOverrides.push(arg);
+      options.releaseTestQualityPath = path.resolve(value);
+    }
+    else if (arg === "--hard-negative-audit") {
+      protectedEvidenceOverrides.push(arg);
+      options.hardNegativeAuditPath = path.resolve(value);
+    }
+    else if (arg === "--best-metrics") {
+      protectedEvidenceOverrides.push(arg);
+      options.bestMetricsPath = path.resolve(value);
+    }
     else if (arg === "--production-manifest") options.productionManifestPath = path.resolve(value);
     else if (arg === "--desktop-performance") options.desktopPerformancePath = path.resolve(value);
     else if (arg === "--desktop-memory") options.desktopMemoryPath = path.resolve(value);
@@ -163,6 +198,11 @@ function parseArgs(argv: string[]): Options {
       customMobileReports = true;
       options.mobileReports.push({ device, filePath: path.resolve(rawPath) });
     } else usage();
+  }
+  if (options.evidenceProfilePath && protectedEvidenceOverrides.length > 0) {
+    throw new Error(
+      `--evidence-profile cannot be combined with protected evidence overrides: ${protectedEvidenceOverrides.join(", ")}`,
+    );
   }
   return options;
 }
@@ -195,6 +235,138 @@ function evidencePath(value: unknown): string | null {
 
 function sameResolvedPath(left: string, right: string): boolean {
   return path.resolve(left).toLocaleLowerCase("en-US") === path.resolve(right).toLocaleLowerCase("en-US");
+}
+
+async function applyEvidenceProfile(options: Options) {
+  if (!options.evidenceProfilePath) return null;
+  const profileBytes = await readFile(options.evidenceProfilePath);
+  let profile: CompletionEvidenceProfile;
+  try {
+    profile = JSON.parse(profileBytes.toString("utf8")) as CompletionEvidenceProfile;
+  } catch {
+    throw new Error(`cannot parse completion evidence profile: ${options.evidenceProfilePath}`);
+  }
+  if (profile.schemaVersion !== 1 || profile.decision !== "nail_texture_completion_evidence_profile") {
+    throw new Error("completion evidence profile schemaVersion or decision is invalid");
+  }
+  const exactKeys = (value: object, expected: string[], label: string) => {
+    const actual = Object.keys(value).sort();
+    const wanted = [...expected].sort();
+    if (actual.length !== wanted.length || actual.some((key, index) => key !== wanted[index])) {
+      throw new Error(`${label} must contain exactly: ${expected.join(", ")}`);
+    }
+  };
+  exactKeys(profile as object, ["schemaVersion", "decision", "candidate", "evidence"], "completion evidence profile");
+  if (!profile.candidate || typeof profile.candidate !== "object" || Array.isArray(profile.candidate)) {
+    throw new Error("completion evidence profile candidate is invalid");
+  }
+  exactKeys(profile.candidate, ["weightsSha256", "deploymentScoreThreshold"], "completion evidence profile candidate");
+  if (typeof profile.candidate.weightsSha256 !== "string" || !/^[a-f0-9]{64}$/i.test(profile.candidate.weightsSha256)) {
+    throw new Error("completion evidence profile candidate.weightsSha256 is invalid");
+  }
+  if (!Number.isFinite(profile.candidate.deploymentScoreThreshold) || Number(profile.candidate.deploymentScoreThreshold) <= 0 || Number(profile.candidate.deploymentScoreThreshold) >= 1) {
+    throw new Error("completion evidence profile candidate.deploymentScoreThreshold is invalid");
+  }
+  const keys: EvidenceProfileKey[] = [
+    "releaseTestSnapshot",
+    "releaseTestQuality",
+    "hardNegativeAudit",
+    "bestMetrics",
+  ];
+  if (!profile.evidence || typeof profile.evidence !== "object" || Array.isArray(profile.evidence)) {
+    throw new Error("completion evidence profile evidence is invalid");
+  }
+  exactKeys(profile.evidence, keys, "completion evidence profile evidence");
+  const resolved: Record<EvidenceProfileKey, string> = {} as Record<EvidenceProfileKey, string>;
+  const hashes: Record<EvidenceProfileKey, string> = {} as Record<EvidenceProfileKey, string>;
+  const identities = new Set<string>();
+  for (const key of keys) {
+    const entry = profile.evidence?.[key];
+    if (!entry || typeof entry.path !== "string" || !entry.path.trim()) {
+      throw new Error(`completion evidence profile is missing ${key}.path`);
+    }
+    if (typeof entry.sha256 !== "string" || !/^[a-f0-9]{64}$/i.test(entry.sha256)) {
+      throw new Error(`completion evidence profile has invalid ${key}.sha256`);
+    }
+    exactKeys(entry, ["path", "sha256"], `completion evidence profile ${key}`);
+    if (!path.isAbsolute(entry.path)) {
+      throw new Error(`completion evidence profile ${key}.path must be absolute`);
+    }
+    const filePath = path.resolve(entry.path);
+    const fileStat = await stat(filePath);
+    if (!fileStat.isFile()) throw new Error(`completion evidence profile ${key}.path must be a regular file`);
+    const identity = `${fileStat.dev}:${fileStat.ino}`;
+    if (identities.has(identity)) throw new Error("completion evidence profile evidence files must have distinct file identities");
+    identities.add(identity);
+    const actualSha256 = createHash("sha256").update(await readFile(filePath)).digest("hex");
+    if (actualSha256 !== entry.sha256.toLowerCase()) {
+      throw new Error(`completion evidence profile hash drift for ${key}: ${filePath}`);
+    }
+    resolved[key] = filePath;
+    hashes[key] = actualSha256;
+  }
+  if (new Set(Object.values(resolved).map((value) => value.toLocaleLowerCase("en-US"))).size !== keys.length) {
+    throw new Error("completion evidence profile must bind four distinct evidence files");
+  }
+  options.releaseTestSnapshotPath = resolved.releaseTestSnapshot;
+  options.releaseTestQualityPath = resolved.releaseTestQuality;
+  options.hardNegativeAuditPath = resolved.hardNegativeAudit;
+  options.bestMetricsPath = resolved.bestMetrics;
+  return {
+    path: options.evidenceProfilePath,
+    sha256: createHash("sha256").update(profileBytes).digest("hex"),
+    decision: profile.decision,
+    candidate: {
+      weightsSha256: profile.candidate.weightsSha256.toLowerCase(),
+      deploymentScoreThreshold: Number(profile.candidate.deploymentScoreThreshold),
+    },
+    evidence: Object.fromEntries(keys.map((key) => [key, { path: resolved[key], sha256: hashes[key] }])),
+  };
+}
+
+async function reverifyEvidenceProfile(evidenceProfile: Awaited<ReturnType<typeof applyEvidenceProfile>>) {
+  if (!evidenceProfile) return;
+  for (const [key, rawEntry] of Object.entries(evidenceProfile.evidence)) {
+    const entry = rawEntry as { path: string; sha256: string };
+    const actualSha256 = createHash("sha256").update(await readFile(entry.path)).digest("hex");
+    if (actualSha256 !== entry.sha256) {
+      throw new Error(`completion evidence profile hash drift during audit for ${key}: ${entry.path}`);
+    }
+  }
+}
+
+function assertEvidenceProfileConsistency(
+  evidenceProfile: Awaited<ReturnType<typeof applyEvidenceProfile>>,
+  releaseTestQuality: ReleaseTestQuality | null,
+  hardNegativeAudit: HardNegativeAudit | null,
+  bestMetrics: MetricsReport | null,
+) {
+  if (!evidenceProfile) return;
+  const expectedWeightsSha256 = evidenceProfile.candidate.weightsSha256;
+  const expectedThreshold = evidenceProfile.candidate.deploymentScoreThreshold;
+  const expectedMetricsPath = (evidenceProfile.evidence.bestMetrics as { path: string }).path;
+  const qualityMetricsPath = evidencePath(releaseTestQuality?.inputs?.full_512);
+  if (!qualityMetricsPath || !sameResolvedPath(qualityMetricsPath, expectedMetricsPath)) {
+    throw new Error("completion evidence profile bestMetrics is not the frozen quality full_512 evidence");
+  }
+  if (
+    bestMetrics?.split !== "test" ||
+    bestMetrics.imgsz !== 512 ||
+    bestMetrics.weights_sha256?.toLowerCase() !== expectedWeightsSha256
+  ) {
+    throw new Error("completion evidence profile bestMetrics candidate identity is invalid");
+  }
+  if (
+    hardNegativeAudit?.inputs?.weights?.sha256?.toLowerCase() !== expectedWeightsSha256 ||
+    hardNegativeAudit?.configuration?.deploymentConfidence !== expectedThreshold
+  ) {
+    throw new Error("completion evidence profile hard-negative candidate identity or threshold is invalid");
+  }
+  const metricWeightsPath = evidencePath(bestMetrics?.weights);
+  const auditWeightsPath = evidencePath(hardNegativeAudit?.inputs?.weights?.path);
+  if (!metricWeightsPath || !auditWeightsPath || !sameResolvedPath(metricWeightsPath, auditWeightsPath)) {
+    throw new Error("completion evidence profile metrics and hard-negative audit use different candidate weights");
+  }
 }
 
 function verifyFrozenReleaseTestQuality(
@@ -298,6 +470,7 @@ function verifyHardNegativeWatermarkAudit(
 
 function directInputPaths(options: Options): string[] {
   return [
+    ...(options.evidenceProfilePath ? [options.evidenceProfilePath] : []),
     options.specPath,
     options.progressPath,
     options.datasetReadinessPath,
@@ -514,6 +687,7 @@ async function productionAsset(manifestPath: string) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
+  const evidenceProfile = await applyEvidenceProfile(options);
   if (options.outputPath) await assertSafeOutputPath(options.outputPath, directInputPaths(options));
   const [specText, progressText] = await Promise.all([
     readFile(options.specPath, "utf8"),
@@ -549,6 +723,7 @@ async function main() {
     hardNegativeAudit,
   );
   const bestMetrics = await readJson<MetricsReport>(options.bestMetricsPath);
+  assertEvidenceProfileConsistency(evidenceProfile, releaseTestQuality, hardNegativeAudit, bestMetrics);
   const desktopPerformance = await readJson<PerformanceReport>(options.desktopPerformancePath);
   const desktopMemory = await readJson<MemoryReport>(options.desktopMemoryPath);
   const betaReview = await readJson<BetaReview>(options.betaReviewPath);
@@ -938,6 +1113,7 @@ async function main() {
     generatedAt: new Date().toISOString(),
     decision: ok ? "complete" : "hold",
     inputs: options,
+    evidenceProfile,
     summary: {
       gateCount: Object.keys(gates).length,
       passedGates: Object.values(gates).filter((gate) => gate.ok === true).length,
@@ -952,6 +1128,7 @@ async function main() {
       ? "Resolve every failed completion gate without promoting the production model."
       : "All implementation-spec completion gates are proven.",
   };
+  await reverifyEvidenceProfile(evidenceProfile);
   if (options.outputPath) {
     await mkdir(path.dirname(options.outputPath), { recursive: true });
     await writeFile(options.outputPath, JSON.stringify(report, null, 2) + "\n", "utf8");

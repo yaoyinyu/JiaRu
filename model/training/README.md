@@ -19,6 +19,7 @@
 - `convert-annotations.ts`：把原始 polygon JSON 转成 YOLO segmentation 标签
 - `materialize-training-dataset.ts`：把 raw 图片和转换后的标签物化为 Ultralytics 标准 train / val / test 目录
 - `build-independent-hard-negative-review-workspace.py`：从A授权和机器审计构建逐图原分辨率审核工作区；生成1:1像素审核页，并在审核前证明与train、val、冻结test零身份重合
+- `record-training-hard-negative-authorization.py`：为候选训练负样本建立精确逐文件授权和机器审计；只接受权威受保护registry，固定新批training命名、768像素最短边、SHA-256、规范sourceIdentity与dHash256隔离，输出始终保持`trainingUse=prohibited`
 - `record-independent-hard-negative-authorization.py`：在任何候选模型推理前原子冻结100张以上新来源困难负样本；固定拒绝精确/感知近重复、符号链接和宽泛授权，并把候选权重及规范val阈值深验报告一起锁定
 - `finalize-independent-hard-negative-review.py`：重放授权、图片、审核页、受保护角色和逐图决定，输出候选清单；任何原图或证据漂移都会拒绝
 - `finalize-reviewed-hard-negative-manifest.py`：把一个或多个已完成原分辨率审核的hard negative候选批次终结为schema v2清单；不足100张时只输出不可训练HOLD，达到门槛后才输出可供规范物化器消费的批准清单
@@ -71,6 +72,10 @@ node --no-warnings --experimental-strip-types model/training/split-dataset.ts
 node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 node --no-warnings --experimental-strip-types model/training/convert-annotations.ts
 node --no-warnings --experimental-strip-types model/training/materialize-training-dataset.ts
+python model/training/record-training-hard-negative-authorization.py --verify-protected-registry E:/path/to/protected-hard-negative-registry-v1.json
+python model/training/record-training-hard-negative-authorization.py --source-root C:/path/to/candidate3-training-v1 --user-authorization C:/path/to/candidate3-exact-authorization.json --output-dir C:/path/to/candidate3-training-authorization-v1 --protected-hard-negative-registry E:/path/to/protected-hard-negative-registry-v1.json --batch-date 20260726 --sequence-start 1 --sequence-end 160
+python model/training/record-training-hard-negative-authorization.py --verify-authorization C:/path/to/candidate3-training-authorization-v1/authorization-record-A-v1.json
+python model/training/build-independent-hard-negative-review-workspace.py --authorization C:/path/to/candidate3-training-authorization-v1/authorization-record-A-v1.json --machine-audit C:/path/to/candidate3-training-authorization-v1/machine-audit-v1.json --train-index C:/path/to/training-truth-index-v1.json --val-index C:/path/to/validation-truth-index-v1.json --frozen-test-manifest C:/path/to/frozen-test-manifest.json --output-dir C:/path/to/candidate3-training-review-workspace
 python model/training/record-independent-hard-negative-authorization.py --source-root C:/path/to/post-train-holdout --user-authorization C:/path/to/pre-existing-user-authorization.json --candidate-weights C:/path/to/best.pt --candidate-threshold-report C:/path/to/formal-val-threshold.json --batch-date 20260724 --sequence-start 161 --sequence-end 270
 python model/training/record-independent-hard-negative-authorization.py --verify-freeze C:/path/to/post-train-holdout/_independent_holdout_freeze_v1/freeze-manifest-v1.json
 python model/training/build-independent-hard-negative-review-workspace.py --authorization C:/path/to/post-train-holdout/_independent_holdout_freeze_v1/authorization-record-A-v1.json --machine-audit C:/path/to/post-train-holdout/_independent_holdout_freeze_v1/machine-audit-v1.json --freeze-manifest C:/path/to/post-train-holdout/_independent_holdout_freeze_v1/freeze-manifest-v1.json --train-index C:/path/to/training-truth-index-v1.json --val-index C:/path/to/validation-truth-index-v1.json --frozen-test-manifest C:/path/to/frozen-test-manifest.json --output-dir C:/path/to/hard-negative-review-workspace
@@ -144,9 +149,19 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
 
 ### Hard negative 正式终结门
 
+第三候选训练负样本与训练后独立留出是两种不同角色，不能共用授权记录：
+
+1. 训练负样本先由`record-training-hard-negative-authorization.py`建账。用户授权必须精确列出最终批次的相对路径，并明确允许商业模型训练与长期回归、排除独立发布测试；目录级宽泛授权不能替代逐文件白名单。
+2. `--protected-hard-negative-registry`是唯一受保护集合入口。registry固定每份历史training/holdout manifest的路径、SHA-256和角色；记录器会深验全部manifest，并把完全一致的历史重复证据规范去重。后续新增任何受保护manifest时必须先更新并重新冻结registry，禁止调用方只传有利子集。
+   - 使用`update-protected-hard-negative-registry.py`做单调追加；旧entries必须保持不可变前缀，工具拒绝删除、替换、改序、角色漂移、重复身份和manifest字节漂移，并支持`--verify-registry`深度重放。
+3. 新批文件必须使用`hard_negative_training_YYYYMMDD_NNN_family_VV`，序号在声明区间内连续，最短边不少于768像素。旧`hard_negative_ai_*`、`hard_negative_independent_*`或`nail_*`命名只允许在registry绑定的历史受保护清单中兼容，不能用于新训练批次。
+   - 生成阶段先固定160项计划，再用`audit-training-hard-negative-generation-progress.py`记录可恢复快照。允许缺图时输出诚实`HOLD`与下一缺口；补图时绑定`--previous-report`可增长但不可修改既有图片。即使160/160机器通过，也只会进入“可请求精确用户授权”，不会自动授予训练资格。
+4. 授权记录和机器清单不会直接赋予训练资格；两者始终为candidate-only、`trainingUse=prohibited`。审核工作区会调用记录器做只读深度重放，并采用staging与原子替换，防止半成品或旧页面混入。
+5. 每张图仍须通过原分辨率视觉终审；AI来源不降低清晰度、完整主体、真人甲面排除、无水印捷径和目标域标准。达到100张批准项后，才可由`finalize-reviewed-hard-negative-manifest.py`生成训练可消费的schema v2清单。
+
 独立AI困难负样本必须先完成冻结、逐图审核和角色专用终结：
 
-1. `record-independent-hard-negative-authorization.py`先在任何候选模型推理前冻结不少于100张的精确批次身份；授权文件必须预先存在且`sourceRoot`精确等于批次根。正式下限、dHash256距离12近重复门、固定证据目录、日期和连续序号均不可由CLI降低或改写；命名、完整解码、最短边、精确/感知重复、符号链接、当前SHA-256任一失败均不会留下最终证据。候选权重和规范val阈值报告在同一次原子冻结中深度重放并锁定。
+1. `record-independent-hard-negative-authorization.py`先在任何候选模型推理前冻结不少于100张的精确批次身份；授权文件必须预先存在且`sourceRoot`精确等于批次根，并强制提供当前受保护hard-negative registry。正式下限、dHash256距离12近重复门、固定证据目录、日期和连续序号均不可由CLI降低或改写；命名、完整解码、最短边、精确/感知重复、符号链接、当前SHA-256任一失败均不会留下最终证据。新留出还会按精确SHA-256、规范sourceIdentity和dHash256≤12拒绝与历史training/holdout全集重合；候选权重、规范val阈值报告与registry在同一次原子冻结中深度重放并锁定。
 2. `build-independent-hard-negative-review-workspace.py`逐文件复验A授权、机器审计、图片SHA-256、尺寸与完整解码，并与当前train、val、冻结test证据按文件名、图片SHA-256和`sourceGroup`复核零重合。
 3. 审核人员只能在绑定的1:1像素审核页和原图上填写另一份完成版CSV；禁止覆盖工作区中的空白模板，因为模板SHA-256属于工作区契约。
 4. `finalize-independent-hard-negative-review.py`再次重放所有输入和审核页哈希。`pass`必须有审核说明且不得带缺陷码；`exclude`必须给出受控缺陷码。输出仍为候选、`trainingUse=prohibited`。
