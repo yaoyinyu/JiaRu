@@ -27,7 +27,8 @@ from _protected_role_evidence import validate_protected_role_documents
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 FILE_PATTERN = re.compile(
-    r"^hard_negative_independent_(?P<date>\d{8})_(?P<sequence>\d{3})_"
+    r"^hard_negative_(?P<batch_role>independent|training)_"
+    r"(?P<date>\d{8})_(?P<sequence>\d{3})_"
     r"(?P<family>[a-z0-9_]+)_(?P<variant>\d{2})\.(?P<suffix>png|jpe?g|webp)$",
     re.IGNORECASE,
 )
@@ -377,7 +378,7 @@ def main() -> None:
     for sequence, file_name in enumerate(sorted(authorization_by_name), start=1):
         match = FILE_PATTERN.fullmatch(file_name)
         if not match:
-            raise ValueError(f"file name does not match the independent-batch contract: {file_name}")
+            raise ValueError(f"file name does not match the hard-negative batch contract: {file_name}")
         authorized = authorization_by_name[file_name]
         audited = audit_by_name[file_name]
         image_hash = require_sha256(authorized.get("sha256"), f"{file_name} authorization hash")
@@ -397,7 +398,8 @@ def main() -> None:
 
         family = match.group("family").lower()
         batch_date = match.group("date")
-        source_group = f"ai-hard-negative-independent-{batch_date}:{family}"
+        batch_role = match.group("batch_role").lower()
+        source_group = f"ai-hard-negative-{batch_role}-{batch_date}:{family}"
         source_groups.add(source_group)
         matches: dict[str, int] = {}
         for role, identities in protected_identities.items():

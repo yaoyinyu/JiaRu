@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
-import { link, mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
+import { link, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { spawnSync } from "node:child_process";
@@ -10,9 +10,26 @@ import {
   REQUIRED_SCENARIO_DIMENSIONS,
   SCENARIO_REGRESSION_HEADER,
 } from "../scripts/lib/nail-texture-release-product-quality.ts";
+import {
+  createApprovedHardNegativeEvidence,
+  createProtectedRoleEvidence,
+  writePatternTestPng,
+} from "./helpers/hard-negative-evidence.ts";
+import { createFormalThresholdEvidence } from "./helpers/formal-threshold-evidence.ts";
 
-function run(script: string, args: string[]) {
-  return spawnSync("node", ["--no-warnings", "--experimental-strip-types", script, ...args], { encoding: "utf8" });
+function run(
+  script: string,
+  args: string[],
+  environment: NodeJS.ProcessEnv = {},
+) {
+  return spawnSync(
+    "node",
+    ["--no-warnings", "--experimental-strip-types", script, ...args],
+    {
+      encoding: "utf8",
+      env: { ...process.env, ...environment },
+    },
+  );
 }
 
 async function writeJson(filePath: string, value: unknown) {
@@ -210,83 +227,237 @@ async function prepareDeviceReport(root: string, deviceFamily: string) {
   return output;
 }
 
-async function prepareHardNegativeAudit(root: string, output: string) {
-  const evidenceRoot = path.join(root, "hard-negative-evidence");
-  await mkdir(evidenceRoot);
-  const weights = path.join(evidenceRoot, "candidate.pt");
-  const manifest = path.join(evidenceRoot, "approved-manifest.json");
-  await writeFile(weights, Buffer.from("hard-negative-candidate"));
-  await writeJson(manifest, { itemsSha256: createHash("sha256").update("hard-negative-items").digest("hex") });
-  const records = [];
-  for (let index = 1; index <= 100; index += 1) {
-    const sourcePath = path.join(evidenceRoot, `source-${index}.bin`);
-    const sourceBytes = Buffer.from(`source-${index}`);
-    await writeFile(sourcePath, sourceBytes);
-    const variants: Record<string, { path: string; sha256: string }> = {};
-    for (const variant of ["original", "crop12", "blur_corner"]) {
-      const variantPath = path.join(evidenceRoot, `${variant}-${index}.bin`);
-      const variantBytes = Buffer.from(`${variant}-${index}`);
-      await writeFile(variantPath, variantBytes);
-      variants[variant] = {
-        path: variantPath,
-        sha256: createHash("sha256").update(variantBytes).digest("hex"),
-      };
-    }
-    records.push({
-      fileName: `negative-${index}.png`,
-      sourcePath,
-      sourceSha256: createHash("sha256").update(sourceBytes).digest("hex"),
-      sourceGroup: `negative-group-${index}`,
-      width: 512,
-      height: 512,
-      variants,
+async function prepareHardNegativeAudit(
+  root: string,
+  output: string,
+  registerExternalRoot?: (externalRoot: string) => void,
+) {
+  const python = process.env.PYTHON ?? "python";
+  const recorder = path.resolve(
+    "model/training/record-independent-hard-negative-authorization.py",
+  );
+  const workspaceBuilder = path.resolve(
+    "model/training/build-independent-hard-negative-review-workspace.py",
+  );
+  const reviewFinalizer = path.resolve(
+    "model/training/finalize-independent-hard-negative-review.py",
+  );
+  const holdoutFinalizer = path.resolve(
+    "model/training/finalize-reviewed-independent-hard-negative-holdout.py",
+  );
+  const audit = path.resolve(
+    "model/training/audit-hard-negative-watermark-shortcut.py",
+  );
+  const runPython = (args: string[], environment: NodeJS.ProcessEnv = {}) =>
+    spawnSync(python, args, {
+      encoding: "utf8",
+      env: { ...process.env, ...environment },
     });
-  }
-  const emptyThreshold = Object.fromEntries(["original", "crop12", "blur_corner"].map((variant) => [
-    variant,
-    {
-      images: 100,
-      falsePositiveImages: 0,
-      falsePositiveImageRate: 0,
-      detections: 0,
-      meanDetectionsPerImage: 0,
-      maximumDetectionsPerImage: 0,
-      maximumConfidence: 0,
-      counts: Array.from({ length: 100 }, () => 0),
-    },
-  ]));
-  await writeJson(output, {
+  const shaFile = async (filePath: string) =>
+    createHash("sha256").update(await readFile(filePath)).digest("hex");
+
+  const images = path.join(root, "independent-hard-negative-images");
+  const threshold = createFormalThresholdEvidence(0.45);
+  registerExternalRoot?.(threshold.root);
+  const userAuthorization = path.join(root, "independent-user-authorization.json");
+  const confirmationNote =
+    "用户明确允许该精确测试批次用于独立发布测试和长期回归。";
+  await writeJson(userAuthorization, {
     schemaVersion: 1,
     ok: true,
-    status: "PASS",
-    decision: "hard_negative_watermark_shortcut_stability_pass",
-    datasetRole: "independent-holdout",
-    releaseGeneralizationEligible: true,
-    inputs: {
-      weights: { path: weights, sha256: createHash("sha256").update(await readFile(weights)).digest("hex") },
-      hardNegativeManifest: {
-        path: manifest,
-        sha256: createHash("sha256").update(await readFile(manifest)).digest("hex"),
-        itemsSha256: createHash("sha256").update("hard-negative-items").digest("hex"),
-      },
+    decision: "authorized_for_independent_holdout_evaluation",
+    confirmedBy: "workspace-user",
+    confirmationNote,
+    authorizationEvidence: {
+      kind: "codex-user-message",
+      threadId: "019f4ca0-a894-7b63-8ec9-c286885a5a22",
+      decisionId:
+        "goal-thread/019f4ca0-a894-7b63-8ec9-c286885a5a22/completion-audit-fixture",
+      userMessageText: confirmationNote,
+      userMessageSha256: createHash("sha256")
+        .update(confirmationNote)
+        .digest("hex"),
     },
-    configuration: {
-      imgsz: 512,
-      deploymentConfidence: 0.35,
-      diagnosticConfidence: 0.20,
-      maxFalsePositiveImages: 0,
-      maxVariantDetectionDelta: 0,
-    },
-    counts: { images: 100, variants: 3, inferenceViews: 300 },
-    deploymentThreshold: emptyThreshold,
-    diagnosticThreshold: emptyThreshold,
-    variantDetectionDeltas: { blur_corner: 0, crop12: 0 },
-    recordsSha256: canonicalSha256(records),
-    records,
+    sourceRoot: images,
+    scopeIncludesDescendants: false,
+    authorizedUses: [
+      "independent-release-test",
+      "long-term-regression",
+      "model-diagnostic-evaluation",
+      "data-quality-review",
+    ],
+    qualityConstraint: "authorization-does-not-relax-quality-gates",
+    trainingUse: "prohibited-for-independent-holdout",
   });
+
+  const sources: Array<{
+    fileName: string;
+    sourceGroup: string;
+    imageSha256: string;
+    imagePath: string;
+  }> = [];
+  for (let index = 0; index < 100; index += 1) {
+    const sequence = 161 + index;
+    const family = `completion_family_${String(index % 20).padStart(2, "0")}`;
+    const variant = String((index % 99) + 1).padStart(2, "0");
+    const fileName =
+      `hard_negative_independent_20260724_${String(sequence).padStart(3, "0")}_` +
+      `${family}_${variant}.png`;
+    const imagePath = path.join(images, fileName);
+    writePatternTestPng(imagePath, sequence);
+    sources.push({
+      fileName,
+      sourceGroup: `fixture:${family}`,
+      imageSha256: await shaFile(imagePath),
+      imagePath,
+    });
+  }
+
+  const frozen = runPython([
+    recorder,
+    "--source-root", images,
+    "--user-authorization", userAuthorization,
+    "--candidate-weights", threshold.weights,
+    "--candidate-threshold-report", threshold.thresholdReport,
+    "--batch-date", "20260724",
+    "--sequence-start", "161",
+    "--sequence-end", "260",
+  ]);
+  assert.equal(frozen.status, 0, frozen.stderr);
+  const freezeRoot = path.join(images, "_independent_holdout_freeze_v1");
+  const freezeManifest = path.join(freezeRoot, "freeze-manifest-v1.json");
+  const authorization = path.join(freezeRoot, "authorization-record-A-v1.json");
+  const machineAudit = path.join(freezeRoot, "machine-audit-v1.json");
+
+  const protectedRoles = createProtectedRoleEvidence(root);
+  const workspace = path.join(root, "independent-review-workspace");
+  const built = runPython([
+    workspaceBuilder,
+    "--authorization", authorization,
+    "--machine-audit", machineAudit,
+    "--freeze-manifest", freezeManifest,
+    "--train-index", protectedRoles.train,
+    "--val-index", protectedRoles.val,
+    "--frozen-test-manifest", protectedRoles.frozenTest,
+    "--output-dir", workspace,
+  ]);
+  assert.equal(built.status, 0, built.stderr);
+
+  const decisionTemplate = await readFile(
+    path.join(workspace, "review-decisions-v1.csv"),
+    "utf8",
+  );
+  const completedDecisions = path.join(root, "review-decisions-completed.csv");
+  const completedLines = decisionTemplate
+    .replace(/^\uFEFF/, "")
+    .trimEnd()
+    .split(/\r?\n/)
+    .map((line, index) => {
+      if (index === 0) return line;
+      const fields = line.split(",");
+      assert.equal(fields.length, 9);
+      fields[6] = "pass";
+      fields[7] = "";
+      fields[8] =
+        "Original-resolution review confirms a clear complete non-human deployment hard negative.";
+      return fields.join(",");
+    });
+  await writeFile(
+    completedDecisions,
+    `\uFEFF${completedLines.join("\n")}\n`,
+    "utf8",
+  );
+
+  const reviewed = path.join(root, "independent-reviewed");
+  const finalizedReview = runPython([
+    reviewFinalizer,
+    "--workspace", path.join(workspace, "review-workspace-v1.json"),
+    "--decisions", completedDecisions,
+    "--output-dir", reviewed,
+  ]);
+  assert.equal(finalizedReview.status, 0, finalizedReview.stderr);
+  const candidateManifest = path.join(
+    reviewed,
+    "hard-negative-candidate-manifest-v1.json",
+  );
+  const approvedHoldout = path.join(
+    reviewed,
+    "approved-independent-hard-negative-holdout-v1.json",
+  );
+  const finalizedHoldout = runPython([
+    holdoutFinalizer,
+    "--candidate-manifest", candidateManifest,
+    "--output", approvedHoldout,
+  ]);
+  assert.equal(finalizedHoldout.status, 0, finalizedHoldout.stderr);
+
+  const fakePythonRoot = path.join(root, "fake-python");
+  const fakeUltralytics = path.join(fakePythonRoot, "ultralytics");
+  await mkdir(fakeUltralytics, { recursive: true });
+  await writeFile(
+    path.join(fakeUltralytics, "__init__.py"),
+    [
+      "class _Tensor:",
+      "    def detach(self): return self",
+      "    def cpu(self): return self",
+      "    def tolist(self): return []",
+      "",
+      "class _Boxes:",
+      "    conf = _Tensor()",
+      "    def __len__(self): return 0",
+      "",
+      "class _Result:",
+      "    boxes = _Boxes()",
+      "",
+      "class YOLO:",
+      "    def __init__(self, weights): self.weights = weights",
+      "    def predict(self, source, **kwargs): return [_Result() for _ in source]",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  const pythonEnvironment = {
+    PYTHONPATH: [fakePythonRoot, process.env.PYTHONPATH]
+      .filter(Boolean)
+      .join(path.delimiter),
+  };
+  const artifacts = path.join(root, "independent-hard-negative-artifacts");
+  const audited = runPython(
+    [
+      audit,
+      "--weights", threshold.weights,
+      "--hard-negative-manifest", approvedHoldout,
+      "--output", output,
+      "--artifacts-dir", artifacts,
+      "--dataset-role", "independent-holdout",
+      "--deployment-confidence", "0.45",
+    ],
+    pythonEnvironment,
+  );
+  assert.equal(audited.status, 0, audited.stderr);
+
+  const trainingEvidence = createApprovedHardNegativeEvidence(root, sources);
+  const trainingAudit = path.join(root, "training-hard-negative-audit.json");
+  const trainingAudited = runPython(
+    [
+      audit,
+      "--weights", threshold.weights,
+      "--hard-negative-manifest", trainingEvidence.approvedManifest,
+      "--output", trainingAudit,
+      "--artifacts-dir", path.join(root, "training-hard-negative-artifacts"),
+      "--dataset-role", "training",
+      "--deployment-confidence", "0.45",
+    ],
+    pythonEnvironment,
+  );
+  assert.equal(trainingAudited.status, 0, trainingAudited.stderr);
+  return { pythonEnvironment, trainingAudit };
 }
 
-async function preparePassingFixture(root: string) {
+async function preparePassingFixture(
+  root: string,
+  registerExternalRoot?: (externalRoot: string) => void,
+) {
   const files = {
     spec: path.join(root, "spec.md"),
     progress: path.join(root, "progress.md"),
@@ -336,7 +507,11 @@ async function preparePassingFixture(root: string) {
   };
   await writeJson(files.snapshot, snapshot);
   await buildFrozenReleaseTestQuality(root, files.snapshot, files.quality, snapshot.counts);
-  await prepareHardNegativeAudit(root, files.hardNegative);
+  const hardNegativeFixture = await prepareHardNegativeAudit(
+    root,
+    files.hardNegative,
+    registerExternalRoot,
+  );
   await writeJson(files.metrics, { box_map50: 0.9, seg_map50: 0.85 });
   const previousModelBytes = Buffer.alloc(1024, 0x31);
   const previousModelPath = await writeReleaseManifest(root, files.manifest, "nail-texture-seg-v1", previousModelBytes);
@@ -378,7 +553,56 @@ async function preparePassingFixture(root: string) {
   for (const device of ["android", "android-tablet", "iphone", "ipad"]) {
     devices[device] = await prepareDeviceReport(root, device);
   }
-  return { files, productQuality, rollback, snapshot, devices, previousModelPath, currentModelPath, currentModelBytes };
+  return {
+    files,
+    productQuality,
+    rollback,
+    snapshot,
+    devices,
+    previousModelPath,
+    currentModelPath,
+    currentModelBytes,
+    hardNegativePythonEnvironment: hardNegativeFixture.pythonEnvironment,
+    trainingHardNegativeAudit: hardNegativeFixture.trainingAudit,
+  };
+}
+
+async function captureSharedEvidenceBaseline(
+  fixture: Awaited<ReturnType<typeof preparePassingFixture>>,
+) {
+  const registryPath = fixture.files.registry;
+  const productQuality = structuredClone(fixture.productQuality);
+  const hardNegative = JSON.parse(
+    await readFile(fixture.files.hardNegative, "utf8"),
+  );
+  const mutableVariantPath = hardNegative.records[0].variants.original.path;
+  const evidencePaths = [
+    ...new Set([
+      ...Object.values(fixture.files),
+      ...Object.values(fixture.devices),
+      fixture.previousModelPath,
+      fixture.currentModelPath,
+      mutableVariantPath,
+    ]),
+  ];
+  const evidence = new Map(
+    await Promise.all(
+      evidencePaths.map(async (filePath) => [
+        filePath,
+        await readFile(filePath),
+      ] as const),
+    ),
+  );
+
+  return async () => {
+    fixture.files.registry = registryPath;
+    fixture.productQuality = structuredClone(productQuality);
+    await Promise.all(
+      [...evidence].map(([filePath, contents]) =>
+        writeFile(filePath, contents)
+      ),
+    );
+  };
 }
 
 function runAudit(
@@ -405,7 +629,7 @@ function runAudit(
     "--rollback-audit", files.rollback,
     ...Object.entries(devices).flatMap(([device, filePath]) => ["--mobile-report", `${device}=${filePath}`]),
     "--output", output,
-  ]);
+  ], fixture.hardNegativePythonEnvironment);
 }
 
 async function readReport(output: string) {
@@ -414,9 +638,24 @@ async function readReport(output: string) {
 
 test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence", async (t) => {
   const root = await mkdtemp(path.join(tmpdir(), "nail-completion-audit-v2-"));
-  const fixture = await preparePassingFixture(root);
+  const externalRoots = new Set<string>();
+  t.after(async () => {
+    await Promise.all(
+      [root, ...externalRoots].map((temporaryRoot) =>
+        rm(temporaryRoot, { recursive: true, force: true })
+      ),
+    );
+  });
+  const fixture = await preparePassingFixture(
+    root,
+    (externalRoot) => externalRoots.add(externalRoot),
+  );
+  const restoreSharedEvidence = await captureSharedEvidenceBaseline(fixture);
+  t.afterEach(restoreSharedEvidence);
 
-  await t.test("accepts a fully bound release evidence set", async () => {
+  // This synthetic bound fixture validates evidence binding and replay mechanics.
+  // It does not attest a real user identity or exercise real Ultralytics inference.
+  await t.test("accepts a fully bound synthetic release evidence fixture", async () => {
     const output = path.join(root, "complete.json");
     const result = runAudit(fixture, output);
     assert.equal(result.status, 0, result.stderr);
@@ -431,12 +670,11 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
   });
 
   await t.test("rejects training negatives even when their watermark audit is stable", async () => {
-    const original = JSON.parse(await readFile(fixture.files.hardNegative, "utf8"));
-    await writeJson(fixture.files.hardNegative, {
-      ...original,
-      datasetRole: "training",
-      releaseGeneralizationEligible: false,
-    });
+    const original = await readFile(fixture.files.hardNegative);
+    await writeFile(
+      fixture.files.hardNegative,
+      await readFile(fixture.trainingHardNegativeAudit),
+    );
     const output = path.join(root, "training-negative-audit.json");
     const result = runAudit(fixture, output);
     assert.equal(result.status, 1);
@@ -446,7 +684,7 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
     assert.ok(report.blockingInputs.some(
       (item: { code: string }) => item.code === "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
     ));
-    await writeJson(fixture.files.hardNegative, original);
+    await writeFile(fixture.files.hardNegative, original);
   });
 
   await t.test("rejects forged hard-negative decisions and drifted variant evidence", async () => {
