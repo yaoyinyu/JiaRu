@@ -36,6 +36,109 @@ function writeJson(file: string, value: unknown) {
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
 }
 
+const shaFile = (file: string) =>
+  createHash("sha256").update(readFileSync(file)).digest("hex");
+
+const canonical = (value: unknown): string => {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value) ?? "null";
+};
+
+const canonicalSha = (value: unknown) =>
+  createHash("sha256").update(canonical(value)).digest("hex");
+
+function makeProtectedRegistry(
+  root: string,
+  options: {
+    sourceIdentityCollision?: boolean;
+    exactCollisionImage?: string;
+    perceptualCollisionImage?: string;
+  } = {},
+) {
+  const manifests: string[] = [];
+  const protectedImages: string[] = [];
+  for (const [index, role] of ["training", "independent"].entries()) {
+    const fileName =
+      `hard_negative_${role}_20260723_${role === "training" ? "101" : "201"}_` +
+      `protected_${role}_01.png`;
+    const imagePath = path.join(root, "protected", role, fileName);
+    if (index === 0 && options.exactCollisionImage) {
+      mkdirSync(path.dirname(imagePath), { recursive: true });
+      writeFileSync(imagePath, readFileSync(options.exactCollisionImage));
+    } else if (index === 0 && options.perceptualCollisionImage) {
+      mkdirSync(path.dirname(imagePath), { recursive: true });
+      writeFileSync(
+        imagePath,
+        Buffer.concat([
+          readFileSync(options.perceptualCollisionImage),
+          Buffer.from("perceptual-reencoding-fixture"),
+        ]),
+      );
+    } else {
+      writePatternTestPng(imagePath, 5001 + index);
+    }
+    protectedImages.push(imagePath);
+    const sourceGroup =
+      index === 0 && options.sourceIdentityCollision
+        ? "ai-hard-negative-training-2026-07-24:fixture_family"
+        : `ai-hard-negative-${role}-2026-07-23:protected_${role}`;
+    const items = [
+      {
+        fileName,
+        sourceFileName: fileName,
+        sourceGroup,
+        imageSha256: shaFile(imagePath),
+        imagePath,
+        width: 320,
+        height: 320,
+        imageFormat: "PNG",
+        role: role === "training" ? "hard-negative" : "independent-holdout",
+        originalResolutionVisualReview: true,
+        trainingUse: role === "training" ? "permitted" : "prohibited",
+      },
+    ];
+    const manifest = path.join(root, `protected-${role}.json`);
+    writeJson(manifest, {
+      schemaVersion: 2,
+      ok: true,
+      status: "PASS",
+      decision:
+        role === "training"
+          ? "approved_hard_negative_manifest"
+          : "approved_independent_hard_negative_holdout",
+      trainingUse: role === "training" ? "permitted" : "prohibited",
+      itemsSha256: canonicalSha(items),
+      items,
+    });
+    manifests.push(manifest);
+  }
+  const registry = path.join(root, "protected-registry.json");
+  const entries = manifests.map((manifest, index) => ({
+    path: path.resolve(manifest),
+    sha256: shaFile(manifest),
+    role: index === 0 ? "training" : "holdout",
+  }));
+  writeJson(registry, {
+    schemaVersion: 1,
+    ok: true,
+    decision: "protected_hard_negative_registry",
+    summary: {
+      manifestCount: 2,
+      trainingManifestCount: 1,
+      holdoutManifestCount: 1,
+    },
+    entriesSha256: canonicalSha(entries),
+    entries,
+  });
+  return { registry, manifests, protectedImages };
+}
+
 function makeBatch(count = 100) {
   const root = mkdtempSync(path.join(tmpdir(), "independent-hard-negative-auth-"));
   const images = path.join(root, "images");
@@ -76,6 +179,7 @@ function makeBatch(count = 100) {
       `fixture_family_${String((index % 99) + 1).padStart(2, "0")}.png`;
     writePatternTestPng(path.join(images, shard, fileName), sequence);
   }
+  const protectedRegistry = makeProtectedRegistry(root);
   return {
     root,
     images,
@@ -83,10 +187,20 @@ function makeBatch(count = 100) {
     weights,
     thresholdReport,
     scoreThreshold,
+    protectedRegistry,
   };
 }
 
-function runRecorder(item: ReturnType<typeof makeBatch>) {
+function runRecorder(
+  item: ReturnType<typeof makeBatch>,
+  options: { omitRegistry?: boolean; registry?: string } = {},
+) {
+  const registryArgs = options.omitRegistry
+    ? []
+    : [
+        "--protected-hard-negative-registry",
+        options.registry ?? item.protectedRegistry.registry,
+      ];
   return spawnSync(
     python,
     [
@@ -99,6 +213,7 @@ function runRecorder(item: ReturnType<typeof makeBatch>) {
       item.weights,
       "--candidate-threshold-report",
       item.thresholdReport,
+      ...registryArgs,
       "--batch-date",
       "20260724",
       "--sequence-start",
@@ -150,6 +265,22 @@ test("atomically freezes a pre-authorized recursive 100-image batch", () => {
   assert.equal(freeze.batchIdentity.sequenceStart, 161);
   assert.equal(freeze.batchIdentity.sequenceEnd, 260);
   assert.equal(freeze.batchIdentity.candidateScoreThreshold, 0.45);
+  assert.equal(
+    freeze.inputs.protectedHardNegativeRegistry.sha256,
+    shaFile(item.protectedRegistry.registry),
+  );
+  assert.equal(
+    freeze.protectedHardNegativeCrossCheck.exactSha256Matches,
+    0,
+  );
+  assert.equal(
+    freeze.protectedHardNegativeCrossCheck.sourceIdentityMatches,
+    0,
+  );
+  assert.equal(
+    freeze.protectedHardNegativeCrossCheck.perceptualMatchesAtOrBelowThreshold,
+    0,
+  );
 
   const verified = spawnSync(
     python,
@@ -163,10 +294,97 @@ test("atomically freezes a pre-authorized recursive 100-image batch", () => {
   assert.equal(verified.status, 0, verified.stderr);
   assert.equal(JSON.parse(verified.stdout).imageCount, 100);
   assert.equal(JSON.parse(verified.stdout).candidateScoreThreshold, 0.45);
+  assert.equal(
+    JSON.parse(verified.stdout).protectedHardNegativeRegistry.sha256,
+    shaFile(item.protectedRegistry.registry),
+  );
 
   const repeated = runRecorder(item);
   assert.notEqual(repeated.status, 0);
   assert.match(repeated.stderr, /frozen evidence already exists and is immutable/);
+});
+
+test("requires a protected hard-negative registry for every new freeze", () => {
+  const item = makeBatch();
+  const result = runRecorder(item, { omitRegistry: true });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /--protected-hard-negative-registry/);
+  assert.equal(existsSync(path.join(item.images, freezeDirectory)), false);
+});
+
+test("verify-freeze deeply rejects protected registry drift and omission", () => {
+  const item = makeBatch();
+  const frozen = runRecorder(item);
+  assert.equal(frozen.status, 0, frozen.stderr);
+  const manifestPath = path.join(
+    item.images,
+    freezeDirectory,
+    "freeze-manifest-v1.json",
+  );
+
+  writeFileSync(item.protectedRegistry.registry, "{}\n");
+  const drifted = spawnSync(
+    python,
+    [recorder, "--verify-freeze", manifestPath],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(drifted.status, 0);
+  assert.match(drifted.stderr, /registry.*SHA-256.*drift|registry binding drift/is);
+
+  const freeze = JSON.parse(readFileSync(manifestPath, "utf8"));
+  delete freeze.inputs.protectedHardNegativeRegistry;
+  delete freeze.inputs.protectedHardNegativeManifests;
+  writeJson(manifestPath, freeze);
+  const omitted = spawnSync(
+    python,
+    [recorder, "--verify-freeze", manifestPath],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(omitted.status, 0);
+  assert.match(omitted.stderr, /omits the protected hard-negative registry binding/);
+});
+
+test("rejects exact SHA-256 overlap with protected training evidence", () => {
+  const item = makeBatch();
+  const candidate = path.join(
+    item.images,
+    "shard-a",
+    "hard_negative_independent_20260724_161_fixture_family_01.png",
+  );
+  const protectedRegistry = makeProtectedRegistry(item.root, {
+    exactCollisionImage: candidate,
+  });
+  const result = runRecorder(item, { registry: protectedRegistry.registry });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /exactly duplicates a protected hard negative/);
+  assert.equal(existsSync(path.join(item.images, freezeDirectory)), false);
+});
+
+test("rejects normalized sourceIdentity overlap with protected training evidence", () => {
+  const item = makeBatch();
+  const protectedRegistry = makeProtectedRegistry(item.root, {
+    sourceIdentityCollision: true,
+  });
+  const result = runRecorder(item, { registry: protectedRegistry.registry });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /sourceGroup overlaps a protected hard negative source/);
+  assert.equal(existsSync(path.join(item.images, freezeDirectory)), false);
+});
+
+test("rejects dHash256 near overlap with protected training evidence", () => {
+  const item = makeBatch();
+  const candidate = path.join(
+    item.images,
+    "shard-a",
+    "hard_negative_independent_20260724_161_fixture_family_01.png",
+  );
+  const protectedRegistry = makeProtectedRegistry(item.root, {
+    perceptualCollisionImage: candidate,
+  });
+  const result = runRecorder(item, { registry: protectedRegistry.registry });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /perceptually duplicates a protected hard negative/);
+  assert.equal(existsSync(path.join(item.images, freezeDirectory)), false);
 });
 
 test("refuses an undersized or non-contiguous batch without final evidence", () => {

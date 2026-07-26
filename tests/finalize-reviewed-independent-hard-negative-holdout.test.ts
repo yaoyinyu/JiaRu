@@ -37,6 +37,19 @@ const audit = path.resolve(
 const shaFile = (file: string) =>
   createHash("sha256").update(readFileSync(file)).digest("hex");
 
+const canonical = (value: unknown): string => {
+  if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.entries(value as Record<string, unknown>)
+      .sort(([left], [right]) => left.localeCompare(right))
+      .map(([key, item]) => `${JSON.stringify(key)}:${canonical(item)}`)
+      .join(",")}}`;
+  }
+  return JSON.stringify(value);
+};
+const canonicalSha = (value: unknown) =>
+  createHash("sha256").update(canonical(value)).digest("hex");
+
 function writeJson(file: string, value: unknown) {
   mkdirSync(path.dirname(file), { recursive: true });
   writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`);
@@ -163,6 +176,69 @@ function buildHoldoutFixture() {
     });
   }
 
+  const protectedEntries: Array<{
+    path: string;
+    sha256: string;
+    role: "training" | "holdout";
+  }> = [];
+  for (const [role, sequence] of [
+    ["training", 901],
+    ["holdout", 902],
+  ] as const) {
+    const protectedImage = path.join(
+      root,
+      "protected",
+      `hard_negative_independent_20260720_${sequence}_protected_${role}_01.png`,
+    );
+    writePatternTestPng(protectedImage, sequence);
+    const protectedItems = [
+      {
+        fileName: path.basename(protectedImage),
+        sourceFileName: path.basename(protectedImage),
+        sourceGroup: `protected:${role}`,
+        imageSha256: shaFile(protectedImage),
+        imagePath: protectedImage,
+        width: 320,
+        height: 320,
+        imageFormat: "PNG",
+        role: role === "training" ? "hard-negative" : "independent-holdout",
+        originalResolutionVisualReview: true,
+        trainingUse: role === "training" ? "permitted" : "prohibited",
+      },
+    ];
+    const protectedManifest = path.join(root, `protected-${role}.json`);
+    writeJson(protectedManifest, {
+      schemaVersion: 2,
+      ok: true,
+      status: "PASS",
+      decision:
+        role === "training"
+          ? "approved_hard_negative_manifest"
+          : "approved_independent_hard_negative_holdout",
+      trainingUse: role === "training" ? "permitted" : "prohibited",
+      itemsSha256: canonicalSha(protectedItems),
+      items: protectedItems,
+    });
+    protectedEntries.push({
+      path: path.resolve(protectedManifest),
+      sha256: shaFile(protectedManifest),
+      role,
+    });
+  }
+  const protectedRegistry = path.join(root, "protected-registry.json");
+  writeJson(protectedRegistry, {
+    schemaVersion: 1,
+    ok: true,
+    decision: "protected_hard_negative_registry",
+    summary: {
+      manifestCount: 2,
+      trainingManifestCount: 1,
+      holdoutManifestCount: 1,
+    },
+    entriesSha256: canonicalSha(protectedEntries),
+    entries: protectedEntries,
+  });
+
   const frozen = run([
     recorder,
     "--source-root",
@@ -173,6 +249,8 @@ function buildHoldoutFixture() {
     threshold.weights,
     "--candidate-threshold-report",
     threshold.thresholdReport,
+    "--protected-hard-negative-registry",
+    protectedRegistry,
     "--batch-date",
     "20260724",
     "--sequence-start",

@@ -42,12 +42,6 @@ FILE_PATTERN = re.compile(
     r"(?P<family>[a-z0-9_]+)_(?P<variant>\d{2})\.(?P<suffix>png|jpe?g|webp)$",
     re.IGNORECASE,
 )
-PROTECTED_FILE_PATTERN = re.compile(
-    r"^hard_negative_(?P<batch_role>independent|training)_"
-    r"(?P<date>\d{8})_(?P<sequence>\d{3})_"
-    r"(?P<family>[a-z0-9_]+)_(?P<variant>\d{2})\.(?P<suffix>png|jpe?g|webp)$",
-    re.IGNORECASE,
-)
 DATE_PATTERN = re.compile(r"^\d{8}$")
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 UUID_PATTERN = re.compile(
@@ -164,7 +158,12 @@ def hamming_distance(left: str, right: str) -> int:
     return (int(left, 16) ^ int(right, 16)).bit_count()
 
 
-def decode_image(path: Path) -> tuple[int, int, str, str]:
+def decode_image(
+    path: Path,
+    *,
+    minimum_side: int = FORMAL_MINIMUM_SIDE,
+    require_suffix_contract: bool = True,
+) -> tuple[int, int, str, str]:
     try:
         with Image.open(path) as image:
             width, height = image.size
@@ -178,14 +177,14 @@ def decode_image(path: Path) -> tuple[int, int, str, str]:
     except (OSError, RuntimeError, SyntaxError, UnidentifiedImageError) as error:
         raise ValueError(f"image cannot be fully decoded: {path}: {error}") from error
     expected_format = IMAGE_FORMAT_BY_SUFFIX.get(path.suffix.lower())
-    if image_format != expected_format:
+    if require_suffix_contract and image_format != expected_format:
         raise ValueError(
             f"image format {image_format!r} differs from suffix contract "
             f"{expected_format!r}: {path}"
         )
-    if min(width, height) < FORMAL_MINIMUM_SIDE:
+    if min(width, height) < minimum_side:
         raise ValueError(
-            f"image minimum side is below {FORMAL_MINIMUM_SIDE}px: {path}"
+            f"image minimum side is below {minimum_side}px: {path}"
         )
     return width, height, image_format, perceptual_hash
 
@@ -368,46 +367,47 @@ def audit_explicit_batch(
     return records
 
 
-def source_identity_from_manifest_item(
-    file_name: str,
-    source_group: str,
-) -> str:
-    match = PROTECTED_FILE_PATTERN.fullmatch(file_name)
-    if not match:
-        raise ValueError(
-            f"protected file name does not match a supported hard-negative contract: {file_name}"
-        )
-    batch_role = match.group("batch_role").lower()
-    batch_date = match.group("date")
-    family = match.group("family").lower()
-    iso_date = f"{batch_date[:4]}-{batch_date[4:6]}-{batch_date[6:]}"
-    allowed_groups = {
-        f"ai-hard-negative-{batch_role}-{batch_date}:{family}",
-        f"ai-hard-negative-{batch_role}-{iso_date}:{family}",
-    }
-    if source_group not in allowed_groups:
-        raise ValueError(
-            f"protected sourceGroup cannot be recomputed from file identity: {file_name}"
-        )
-    # Dataset role prefixes must not make two generated batches from the same
-    # date/family appear source-isolated.
-    return f"ai-hard-negative-{batch_date}:{family}"
+def normalize_protected_source_group(source_group: str) -> str:
+    value = source_group.strip().casefold().replace("\\", "/")
+    if not value:
+        raise ValueError("protected sourceGroup is missing")
+    head, separator, tail = value.partition(":")
+    parts = re.split(r"([-_/]+)", head)
+    normalized_head = "".join(
+        part
+        for part in parts
+        if part.casefold() not in {"training", "independent"}
+    )
+    normalized_head = re.sub(r"[-_/]{2,}", "-", normalized_head).strip("-_/ ")
+    normalized_head = re.sub(
+        r"(?<!\d)(\d{4})-(\d{2})-(\d{2})(?!\d)",
+        lambda match: "".join(match.groups()),
+        normalized_head,
+    )
+    if not normalized_head:
+        raise ValueError(f"protected sourceGroup cannot be normalized: {source_group}")
+    return f"{normalized_head}:{tail}" if separator else normalized_head
 
 
 def load_protected_manifests(
-    path_values: list[str],
+    registry_entries: list[dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-    if not path_values:
-        raise ValueError(
-            "at least one --protected-hard-negative-manifest is required"
-        )
     bindings: list[dict[str, Any]] = []
     protected_records: list[dict[str, Any]] = []
     seen_manifest_paths: set[str] = set()
-    seen_file_names: set[str] = set()
-    seen_image_paths: set[str] = set()
-    seen_image_hashes: set[str] = set()
-    for path_value in path_values:
+    global_records: list[dict[str, Any]] = []
+    records_by_file_name: dict[str, dict[str, Any]] = {}
+    records_by_image_path: dict[str, dict[str, Any]] = {}
+    records_by_image_hash: dict[str, dict[str, Any]] = {}
+    seen_contract_roles: set[str] = set()
+    for registry_entry in registry_entries:
+        path_value = str(registry_entry.get("path") or "")
+        registry_sha256 = str(registry_entry.get("sha256") or "")
+        registry_role = str(registry_entry.get("role") or "")
+        if registry_role not in {"training", "holdout"}:
+            raise ValueError(f"protected registry role is invalid: {registry_role}")
+        if not SHA256_PATTERN.fullmatch(registry_sha256):
+            raise ValueError("protected registry manifest SHA-256 is invalid")
         manifest_input = Path(path_value).absolute()
         if not manifest_input.is_file():
             raise ValueError(
@@ -418,6 +418,10 @@ def load_protected_manifests(
             "protected hard-negative manifest",
         )
         manifest_path = manifest_input.resolve(strict=True)
+        if sha256_file(manifest_path) != registry_sha256:
+            raise ValueError(
+                f"protected registry manifest SHA-256 drift: {manifest_path}"
+            )
         path_key = str(manifest_path).casefold()
         if path_key in seen_manifest_paths:
             raise ValueError(
@@ -446,6 +450,20 @@ def load_protected_manifests(
             raise ValueError(
                 f"protected hard-negative manifest contract is invalid: {manifest_path}"
             )
+        expected_batch_role = (
+            "training"
+            if decision == "approved_hard_negative_manifest"
+            else "independent"
+        )
+        expected_registry_role = (
+            "training" if expected_batch_role == "training" else "holdout"
+        )
+        if registry_role != expected_registry_role:
+            raise ValueError(
+                "protected registry role differs from manifest decision: "
+                f"registry={registry_role}, decision={decision}"
+            )
+        seen_contract_roles.add(expected_batch_role)
         items = manifest.get("items")
         if not isinstance(items, list) or not items:
             raise ValueError(
@@ -463,23 +481,20 @@ def load_protected_manifests(
                 )
             file_name = str(item.get("fileName") or "")
             source_group = str(item.get("sourceGroup") or "")
-            source_identity = source_identity_from_manifest_item(
-                file_name,
-                source_group,
-            )
+            source_identity = normalize_protected_source_group(source_group)
             image_input = Path(str(item.get("imagePath") or "")).absolute()
             if not image_input.is_file():
                 raise ValueError(f"protected image is missing: {image_input}")
             reject_linked_ancestors(image_input, "protected image")
             image_path = image_input.resolve(strict=True)
-            if image_path.name != file_name:
-                raise ValueError(
-                    f"protected image path/fileName mismatch: {file_name}"
-                )
             image_hash = sha256_file(image_path)
             if image_hash != str(item.get("imageSha256") or ""):
                 raise ValueError(f"protected image SHA-256 drift: {file_name}")
-            width, height, image_format, perceptual_hash = decode_image(image_path)
+            width, height, image_format, perceptual_hash = decode_image(
+                image_path,
+                minimum_side=320,
+                require_suffix_contract=False,
+            )
             if (
                 width != int(item.get("width", -1))
                 or height != int(item.get("height", -1))
@@ -488,25 +503,7 @@ def load_protected_manifests(
                 raise ValueError(
                     f"protected image dimensions or format drift: {file_name}"
                 )
-            file_key = file_name.casefold()
-            image_path_key = str(image_path).casefold()
-            if file_key in seen_file_names:
-                raise ValueError(
-                    f"duplicate protected hard-negative fileName: {file_name}"
-                )
-            if image_path_key in seen_image_paths:
-                raise ValueError(
-                    f"duplicate protected hard-negative imagePath: {image_path}"
-                )
-            if image_hash in seen_image_hashes:
-                raise ValueError(
-                    f"duplicate protected hard-negative image SHA-256: {file_name}"
-                )
-            seen_file_names.add(file_key)
-            seen_image_paths.add(image_path_key)
-            seen_image_hashes.add(image_hash)
-            record = {
-                "manifestPath": str(manifest_path),
+            record_identity = {
                 "fileName": file_name,
                 "imagePath": str(image_path),
                 "imageSha256": image_hash,
@@ -517,12 +514,52 @@ def load_protected_manifests(
                 "sourceIdentity": source_identity,
                 "dhash256": perceptual_hash,
             }
-            manifest_records.append(record)
-            protected_records.append(record)
+            manifest_record = {
+                "manifestPath": str(manifest_path),
+                **record_identity,
+            }
+            manifest_records.append(manifest_record)
+            collision_records = {
+                id(existing): existing
+                for existing in (
+                    records_by_file_name.get(file_name.casefold()),
+                    records_by_image_path.get(str(image_path).casefold()),
+                    records_by_image_hash.get(image_hash),
+                )
+                if existing is not None
+            }
+            if collision_records:
+                if len(collision_records) != 1:
+                    raise ValueError(
+                        f"conflicting protected hard-negative identities: {file_name}"
+                    )
+                existing = next(iter(collision_records.values()))
+                existing_identity = {
+                    key: value
+                    for key, value in existing.items()
+                    if key != "manifestPaths"
+                }
+                if existing_identity != record_identity:
+                    raise ValueError(
+                        "protected hard-negative duplicate evidence conflicts on "
+                        f"path/file/hash/sourceGroup: {file_name}"
+                    )
+                existing["manifestPaths"].append(str(manifest_path))
+                existing["manifestPaths"].sort(key=str.casefold)
+            else:
+                protected_record = {
+                    **record_identity,
+                    "manifestPaths": [str(manifest_path)],
+                }
+                global_records.append(protected_record)
+                records_by_file_name[file_name.casefold()] = protected_record
+                records_by_image_path[str(image_path).casefold()] = protected_record
+                records_by_image_hash[image_hash] = protected_record
         bindings.append(
             {
                 "path": str(manifest_path),
-                "sha256": sha256_file(manifest_path),
+                "sha256": registry_sha256,
+                "registryRole": registry_role,
                 "decision": decision,
                 "trainingUse": training_use,
                 "itemCount": len(items),
@@ -530,14 +567,81 @@ def load_protected_manifests(
                 "protectedRecordsSha256": canonical_sha256(manifest_records),
             }
         )
+    missing_contract_roles = {"training", "independent"} - seen_contract_roles
+    if missing_contract_roles:
+        raise ValueError(
+            "protected hard-negative manifests must include at least one approved "
+            "training manifest and one approved independent holdout manifest; "
+            f"missing={sorted(missing_contract_roles)}"
+        )
     bindings.sort(key=lambda item: str(item["path"]).casefold())
-    protected_records.sort(
+    protected_records = sorted(
+        global_records,
         key=lambda item: (
-            str(item["manifestPath"]).casefold(),
             str(item["fileName"]).casefold(),
+            str(item["imagePath"]).casefold(),
         )
     )
     return bindings, protected_records
+
+
+def load_protected_registry(
+    path_value: str,
+) -> tuple[dict[str, Any], list[dict[str, Any]], list[dict[str, Any]]]:
+    registry_input = Path(path_value).absolute()
+    if not registry_input.is_file():
+        raise ValueError(f"protected hard-negative registry is missing: {registry_input}")
+    reject_linked_ancestors(registry_input, "protected hard-negative registry")
+    registry_path = registry_input.resolve(strict=True)
+    registry = read_json(registry_path, "protected hard-negative registry")
+    entries = registry.get("entries")
+    if (
+        registry.get("schemaVersion") != 1
+        or registry.get("ok") is not True
+        or registry.get("decision") != "protected_hard_negative_registry"
+        or not isinstance(entries, list)
+        or not entries
+        or registry.get("entriesSha256") != canonical_sha256(entries)
+    ):
+        raise ValueError("protected hard-negative registry contract is invalid")
+    normalized_entries: list[dict[str, Any]] = []
+    seen_paths: set[str] = set()
+    for number, entry in enumerate(entries, start=1):
+        if not isinstance(entry, dict) or set(entry) != {"path", "sha256", "role"}:
+            raise ValueError(f"protected registry entry {number} is invalid")
+        manifest_path = Path(str(entry.get("path") or "")).absolute()
+        path_key = str(manifest_path).casefold()
+        if path_key in seen_paths:
+            raise ValueError(f"duplicate protected registry manifest path: {manifest_path}")
+        seen_paths.add(path_key)
+        normalized_entries.append(
+            {
+                "path": str(manifest_path),
+                "sha256": str(entry.get("sha256") or ""),
+                "role": str(entry.get("role") or ""),
+            }
+        )
+    if entries != normalized_entries:
+        raise ValueError("protected hard-negative registry entries are not canonical")
+    role_counts = Counter(str(item["role"]) for item in entries)
+    summary = registry.get("summary")
+    if summary != {
+        "manifestCount": len(entries),
+        "trainingManifestCount": role_counts["training"],
+        "holdoutManifestCount": role_counts["holdout"],
+    }:
+        raise ValueError("protected hard-negative registry summary drift")
+    bindings, records = load_protected_manifests(entries)
+    registry_binding = {
+        "path": str(registry_path),
+        "sha256": sha256_file(registry_path),
+        "decision": registry["decision"],
+        "entriesSha256": registry["entriesSha256"],
+        "manifestCount": len(entries),
+        "trainingManifestCount": role_counts["training"],
+        "holdoutManifestCount": role_counts["holdout"],
+    }
+    return registry_binding, bindings, records
 
 
 def reject_protected_overlaps(
@@ -642,10 +746,12 @@ def verify_authorization_record(path: Path) -> dict[str, Any]:
         raise ValueError("training authorization record inputs are missing")
     machine_input = inputs.get("machineAudit")
     user_input = inputs.get("userAuthorizationSource")
+    registry_input = inputs.get("protectedHardNegativeRegistry")
     protected_inputs = inputs.get("protectedHardNegativeManifests")
     if (
         not isinstance(machine_input, dict)
         or not isinstance(user_input, dict)
+        or not isinstance(registry_input, dict)
         or not isinstance(protected_inputs, list)
         or not protected_inputs
     ):
@@ -660,14 +766,17 @@ def verify_authorization_record(path: Path) -> dict[str, Any]:
         user_input.get("sha256"),
         "user authorization source",
     )
-    machine = read_json(machine_path, "machine audit")
-    protected_bindings, protected_records = load_protected_manifests(
-        [
-            str(item.get("path") or "")
-            for item in protected_inputs
-            if isinstance(item, dict)
-        ]
+    registry_path = require_bound_file(
+        registry_input.get("path"),
+        registry_input.get("sha256"),
+        "protected hard-negative registry",
     )
+    machine = read_json(machine_path, "machine audit")
+    registry_binding, protected_bindings, protected_records = load_protected_registry(
+        str(registry_path)
+    )
+    if registry_binding != registry_input:
+        raise ValueError("protected hard-negative registry binding drift")
     if protected_bindings != protected_inputs:
         raise ValueError("protected hard-negative manifest binding drift")
     records = machine.get("records")
@@ -685,6 +794,7 @@ def verify_authorization_record(path: Path) -> dict[str, Any]:
         or machine.get("recordsSha256") != canonical_sha256(records)
         or authorization.get("entriesSha256") != canonical_sha256(entries)
         or machine.get("protectedHardNegativeManifests") != protected_bindings
+        or machine.get("protectedHardNegativeRegistry") != registry_binding
         or machine.get("protectedHardNegativeRecordsSha256")
         != canonical_sha256(protected_records)
         or machine.get("protectedHardNegativeRecords") != protected_records
@@ -704,6 +814,8 @@ def verify_authorization_record(path: Path) -> dict[str, Any]:
     if (
         identity.get("protectedManifestBindingsSha256")
         != canonical_sha256(protected_bindings)
+        or identity.get("protectedRegistryBindingSha256")
+        != canonical_sha256(registry_binding)
         or identity.get("protectedRecordsSha256")
         != canonical_sha256(protected_records)
         or machine.get("batchIdentity") != identity
@@ -774,8 +886,8 @@ def create_evidence(args: argparse.Namespace) -> dict[str, Any]:
         user_path,
         source_root,
     )
-    protected_bindings, protected_records = load_protected_manifests(
-        list(args.protected_hard_negative_manifest or [])
+    registry_binding, protected_bindings, protected_records = load_protected_registry(
+        str(args.protected_hard_negative_registry)
     )
     records = audit_explicit_batch(
         source_root,
@@ -811,6 +923,7 @@ def create_evidence(args: argparse.Namespace) -> dict[str, Any]:
         "authorizedRelativePathsSha256": canonical_sha256(relative_paths),
         "recordsSha256": records_sha256,
         "protectedManifestBindingsSha256": canonical_sha256(protected_bindings),
+        "protectedRegistryBindingSha256": canonical_sha256(registry_binding),
         "protectedRecordsSha256": canonical_sha256(protected_records),
     }
     batch_identity_sha256 = canonical_sha256(batch_identity)
@@ -834,6 +947,7 @@ def create_evidence(args: argparse.Namespace) -> dict[str, Any]:
         "nearDuplicateThreshold": FORMAL_NEAR_DUPLICATE_DISTANCE,
         "nearDuplicatePairs": [],
         "minimumSide": FORMAL_MINIMUM_SIDE,
+        "protectedHardNegativeRegistry": registry_binding,
         "protectedHardNegativeManifests": protected_bindings,
         "protectedHardNegativeRecordsSha256": canonical_sha256(protected_records),
         "protectedHardNegativeRecords": protected_records,
@@ -898,6 +1012,7 @@ def create_evidence(args: argparse.Namespace) -> dict[str, Any]:
                     "path": str(final_machine_path),
                     "sha256": sha256_file(machine_path),
                 },
+                "protectedHardNegativeRegistry": registry_binding,
                 "protectedHardNegativeManifests": protected_bindings,
             },
             "summary": {
@@ -926,11 +1041,16 @@ def create_evidence(args: argparse.Namespace) -> dict[str, Any]:
         reject_protected_overlaps(current_records, protected_records)
         if current_records != records:
             raise ValueError("authorized image bytes changed during evidence creation")
-        current_bindings, current_protected_records = load_protected_manifests(
-            [str(item["path"]) for item in protected_bindings]
+        (
+            current_registry_binding,
+            current_bindings,
+            current_protected_records,
+        ) = load_protected_registry(
+            str(registry_binding["path"])
         )
         if (
-            current_bindings != protected_bindings
+            current_registry_binding != registry_binding
+            or current_bindings != protected_bindings
             or current_protected_records != protected_records
         ):
             raise ValueError(
@@ -964,16 +1084,10 @@ def main() -> None:
     mode = parser.add_mutually_exclusive_group(required=True)
     mode.add_argument("--source-root")
     mode.add_argument("--verify-authorization")
+    mode.add_argument("--verify-protected-registry")
     parser.add_argument("--user-authorization")
     parser.add_argument("--output-dir")
-    parser.add_argument(
-        "--protected-hard-negative-manifest",
-        action="append",
-        help=(
-            "Approved prior training or independent-holdout manifest; repeat for "
-            "every protected hard-negative set."
-        ),
-    )
+    parser.add_argument("--protected-hard-negative-registry")
     parser.add_argument("--batch-date")
     parser.add_argument("--sequence-start", type=int)
     parser.add_argument("--sequence-end", type=int)
@@ -983,7 +1097,7 @@ def main() -> None:
         forbidden = (
             args.user_authorization,
             args.output_dir,
-            args.protected_hard_negative_manifest,
+            args.protected_hard_negative_registry,
             args.batch_date,
             args.sequence_start,
             args.sequence_end,
@@ -995,12 +1109,34 @@ def main() -> None:
         result = verify_authorization_record(
             Path(args.verify_authorization).resolve()
         )
+    elif args.verify_protected_registry:
+        forbidden = (
+            args.user_authorization,
+            args.output_dir,
+            args.protected_hard_negative_registry,
+            args.batch_date,
+            args.sequence_start,
+            args.sequence_end,
+        )
+        if any(value is not None for value in forbidden):
+            raise ValueError(
+                "--verify-protected-registry cannot be combined with creation arguments"
+            )
+        registry, manifests, records = load_protected_registry(
+            args.verify_protected_registry
+        )
+        result = {
+            "ok": True,
+            "protectedHardNegativeRegistry": registry,
+            "manifestCount": len(manifests),
+            "protectedRecordCount": len(records),
+        }
     else:
         required = {
             "--user-authorization": args.user_authorization,
             "--output-dir": args.output_dir,
-            "--protected-hard-negative-manifest": (
-                args.protected_hard_negative_manifest
+            "--protected-hard-negative-registry": (
+                args.protected_hard_negative_registry
             ),
             "--batch-date": args.batch_date,
             "--sequence-start": args.sequence_start,
