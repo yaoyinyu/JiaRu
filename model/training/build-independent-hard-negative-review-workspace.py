@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import csv
 import hashlib
+import importlib.util
 import json
 import re
 from datetime import datetime, timezone
@@ -20,12 +21,13 @@ from pathlib import Path
 from typing import Any
 
 from PIL import Image, ImageDraw, ImageFont, UnidentifiedImageError
+from _protected_role_evidence import validate_protected_role_documents
 
 
 IMAGE_SUFFIXES = {".jpg", ".jpeg", ".png", ".webp"}
 SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 FILE_PATTERN = re.compile(
-    r"^hard_negative_independent_\d{8}_(?P<sequence>\d{3})_"
+    r"^hard_negative_independent_(?P<date>\d{8})_(?P<sequence>\d{3})_"
     r"(?P<family>[a-z0-9_]+)_(?P<variant>\d{2})\.(?P<suffix>png|jpe?g|webp)$",
     re.IGNORECASE,
 )
@@ -68,6 +70,21 @@ def read_json(path: Path, label: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{label} must contain an object: {path}")
     return value
+
+
+def load_freeze_recorder() -> Any:
+    path = Path(__file__).with_name(
+        "record-independent-hard-negative-authorization.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "independent_holdout_freeze_recorder",
+        path,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load independent holdout freeze recorder")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
 
 def require_sha256(value: Any, label: str) -> str:
@@ -134,9 +151,15 @@ def validate_authorization(
     ):
         raise ValueError("authorization is not a confirmed candidate-only A decision")
     authorized_uses = list(authorization.get("authorizedUses") or [])
-    for required in ("commercial-model-training", "long-term-regression"):
-        if required not in authorized_uses:
-            raise ValueError(f"authorization does not include {required}")
+    if "long-term-regression" not in authorized_uses:
+        raise ValueError("authorization does not include long-term-regression")
+    if not {
+        "commercial-model-training",
+        "independent-release-test",
+    }.intersection(authorized_uses):
+        raise ValueError(
+            "authorization includes neither commercial training nor independent holdout use"
+        )
     if authorization.get("qualityConstraint") != "authorization-does-not-relax-quality-gates":
         raise ValueError("authorization does not preserve the quality gate")
     if (
@@ -234,6 +257,7 @@ def main() -> None:
     parser.add_argument("--train-index", required=True)
     parser.add_argument("--val-index", required=True)
     parser.add_argument("--frozen-test-manifest", required=True)
+    parser.add_argument("--freeze-manifest")
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
@@ -248,6 +272,18 @@ def main() -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
 
     authorization, authorization_entries = validate_authorization(authorization_path)
+    authorized_uses = set(authorization.get("authorizedUses") or [])
+    if {
+        "independent-release-test",
+        "commercial-model-training",
+    }.issubset(authorized_uses):
+        raise ValueError(
+            "authorization cannot mix independent holdout and commercial training uses"
+        )
+    independent_holdout = (
+        "independent-release-test" in authorized_uses
+        and "commercial-model-training" not in authorized_uses
+    )
     audit = read_json(machine_audit_path, "machine audit")
     records = audit.get("records")
     if (
@@ -272,15 +308,65 @@ def main() -> None:
     ):
         raise ValueError("machine audit and authorization file coverage differ")
 
+    freeze_input: dict[str, Any] | None = None
+    if independent_holdout:
+        if not args.freeze_manifest:
+            raise ValueError(
+                "independent holdout review requires --freeze-manifest"
+            )
+        freeze_path = Path(args.freeze_manifest).resolve()
+        freeze_verification = load_freeze_recorder().verify_freeze_manifest(
+            freeze_path
+        )
+        if (
+            Path(str(freeze_verification.get("machineAudit") or "")).resolve()
+            != machine_audit_path
+            or Path(
+                str(freeze_verification.get("authorizationRecord") or "")
+            ).resolve()
+            != authorization_path
+            or freeze_verification.get("imageCount") != len(authorization_entries)
+        ):
+            raise ValueError(
+                "freeze manifest does not bind the selected audit and authorization"
+            )
+        freeze_input = {
+            "path": str(freeze_path),
+            "sha256": sha256_file(freeze_path),
+            "batchIdentitySha256": freeze_verification["batchIdentitySha256"],
+            "candidateWeights": freeze_verification["candidateWeights"],
+            "candidateWeightsSha256": freeze_verification[
+                "candidateWeightsSha256"
+            ],
+            "candidateThresholdReport": freeze_verification[
+                "candidateThresholdReport"
+            ],
+            "candidateThresholdReportSha256": freeze_verification[
+                "candidateThresholdReportSha256"
+            ],
+            "candidateScoreThreshold": freeze_verification[
+                "candidateScoreThreshold"
+            ],
+        }
+    elif args.freeze_manifest:
+        raise ValueError(
+            "--freeze-manifest is reserved for independent-holdout authorization"
+        )
+
     protected_paths = {
         "train": Path(args.train_index).resolve(),
         "val": Path(args.val_index).resolve(),
         "frozenTest": Path(args.frozen_test_manifest).resolve(),
     }
+    protected_documents = {
+        role: read_json(path, f"{role} evidence")
+        for role, path in protected_paths.items()
+    }
+    validate_protected_role_documents(protected_paths, protected_documents)
     protected_inputs: dict[str, dict[str, str]] = {}
     protected_identities: dict[str, dict[str, set[str]]] = {}
     for role, path in protected_paths.items():
-        document = read_json(path, f"{role} evidence")
+        document = protected_documents[role]
         protected_inputs[role] = {"path": str(path), "sha256": sha256_file(path)}
         protected_identities[role] = collect_identity_values(document)
 
@@ -310,7 +396,8 @@ def main() -> None:
             raise ValueError(f"{file_name}: current dimensions differ from machine audit")
 
         family = match.group("family").lower()
-        source_group = f"ai-hard-negative-independent-2026-07-24:{family}"
+        batch_date = match.group("date")
+        source_group = f"ai-hard-negative-independent-{batch_date}:{family}"
         source_groups.add(source_group)
         matches: dict[str, int] = {}
         for role, identities in protected_identities.items():
@@ -380,6 +467,7 @@ def main() -> None:
                 "sha256": sha256_file(machine_audit_path),
             },
             "protectedRoles": protected_inputs,
+            **({"freezeManifest": freeze_input} if freeze_input else {}),
         },
         "policy": {
             "aiOriginDoesNotRelaxQualityGate": True,

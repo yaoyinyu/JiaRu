@@ -19,8 +19,10 @@
 - `convert-annotations.ts`：把原始 polygon JSON 转成 YOLO segmentation 标签
 - `materialize-training-dataset.ts`：把 raw 图片和转换后的标签物化为 Ultralytics 标准 train / val / test 目录
 - `build-independent-hard-negative-review-workspace.py`：从A授权和机器审计构建逐图原分辨率审核工作区；生成1:1像素审核页，并在审核前证明与train、val、冻结test零身份重合
+- `record-independent-hard-negative-authorization.py`：在任何候选模型推理前原子冻结100张以上新来源困难负样本；固定拒绝精确/感知近重复、符号链接和宽泛授权，并把候选权重及规范val阈值深验报告一起锁定
 - `finalize-independent-hard-negative-review.py`：重放授权、图片、审核页、受保护角色和逐图决定，输出候选清单；任何原图或证据漂移都会拒绝
 - `finalize-reviewed-hard-negative-manifest.py`：把一个或多个已完成原分辨率审核的hard negative候选批次终结为schema v2清单；不足100张时只输出不可训练HOLD，达到门槛后才输出可供规范物化器消费的批准清单
+- `finalize-reviewed-independent-hard-negative-holdout.py`：独立留出专用终结器；深度重放冻结与逐图终审，达到100张后只开放发布评估/长期回归，始终保持`trainingUse=prohibited`
 - `audit-phase1-readiness.ts`：检查是否达到 Phase 1 的数据量与测试覆盖门槛
 - `plan-phase1-collection.ts`：把 Phase 1 readiness 缺口翻译成下一批补样本计划
 - `generate-first-batch-checklist.ts`：把当前 readiness/collection 结果翻译成首批真实数据执行清单
@@ -69,10 +71,15 @@ node --no-warnings --experimental-strip-types model/training/split-dataset.ts
 node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 node --no-warnings --experimental-strip-types model/training/convert-annotations.ts
 node --no-warnings --experimental-strip-types model/training/materialize-training-dataset.ts
-python model/training/build-independent-hard-negative-review-workspace.py --authorization C:/path/to/authorization-A-v1.json --machine-audit C:/path/to/machine-audit.json --train-index C:/path/to/training-truth-index-v1.json --val-index C:/path/to/validation-truth-index-v1.json --frozen-test-manifest C:/path/to/frozen-test-manifest.json --output-dir C:/path/to/hard-negative-review-workspace
+python model/training/record-independent-hard-negative-authorization.py --source-root C:/path/to/post-train-holdout --user-authorization C:/path/to/pre-existing-user-authorization.json --candidate-weights C:/path/to/best.pt --candidate-threshold-report C:/path/to/formal-val-threshold.json --batch-date 20260724 --sequence-start 161 --sequence-end 270
+python model/training/record-independent-hard-negative-authorization.py --verify-freeze C:/path/to/post-train-holdout/_independent_holdout_freeze_v1/freeze-manifest-v1.json
+python model/training/build-independent-hard-negative-review-workspace.py --authorization C:/path/to/post-train-holdout/_independent_holdout_freeze_v1/authorization-record-A-v1.json --machine-audit C:/path/to/post-train-holdout/_independent_holdout_freeze_v1/machine-audit-v1.json --freeze-manifest C:/path/to/post-train-holdout/_independent_holdout_freeze_v1/freeze-manifest-v1.json --train-index C:/path/to/training-truth-index-v1.json --val-index C:/path/to/validation-truth-index-v1.json --frozen-test-manifest C:/path/to/frozen-test-manifest.json --output-dir C:/path/to/hard-negative-review-workspace
 python model/training/finalize-independent-hard-negative-review.py --workspace C:/path/to/hard-negative-review-workspace/review-workspace-v1.json --decisions C:/path/to/review-decisions-completed-v1.csv --output-dir C:/path/to/hard-negative-review-finalized
 python model/training/finalize-reviewed-hard-negative-manifest.py --candidate-manifest C:/path/to/hard-negative-candidate-manifest.json --output C:/path/to/hard-negative-formalization.json
 python model/training/finalize-reviewed-hard-negative-manifest.py --verify-report C:/path/to/approved-hard-negative-manifest.json
+python model/training/finalize-reviewed-independent-hard-negative-holdout.py --candidate-manifest C:/path/to/hard-negative-candidate-manifest.json --output C:/path/to/approved-independent-holdout.json
+python model/training/finalize-reviewed-independent-hard-negative-holdout.py --verify-report C:/path/to/approved-independent-holdout.json
+python model/training/audit-hard-negative-watermark-shortcut.py --weights C:/path/to/best.pt --hard-negative-manifest C:/path/to/approved-independent-holdout.json --output C:/path/to/independent-holdout-audit.json --artifacts-dir C:/path/to/independent-holdout-artifacts --dataset-role independent-holdout --deployment-confidence 0.45
 node --no-warnings --experimental-strip-types model/training/audit-phase1-readiness.ts
 node --no-warnings --experimental-strip-types model/training/plan-phase1-collection.ts
 node --no-warnings --experimental-strip-types model/training/generate-first-batch-checklist.ts
@@ -137,12 +144,14 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
 
 ### Hard negative 正式终结门
 
-独立AI困难负样本必须先经过两段审核，再进入既有schema v2终结器：
+独立AI困难负样本必须先完成冻结、逐图审核和角色专用终结：
 
-1. `build-independent-hard-negative-review-workspace.py`逐文件复验A授权、机器审计、图片SHA-256、尺寸与完整解码，并与当前train、val、冻结test证据按文件名、图片SHA-256和`sourceGroup`复核零重合。
-2. 审核人员只能在绑定的1:1像素审核页和原图上填写另一份完成版CSV；禁止覆盖工作区中的空白模板，因为模板SHA-256属于工作区契约。
-3. `finalize-independent-hard-negative-review.py`再次重放所有输入和审核页哈希。`pass`必须有审核说明且不得带缺陷码；`exclude`必须给出受控缺陷码。输出仍为候选、`trainingUse=prohibited`。
-4. `finalize-reviewed-hard-negative-manifest.py`最后从当前证据重放候选清单；达到100张才生成schema v2批准清单。批准只允许后续角色物化，不代表模型发布通过。
+1. `record-independent-hard-negative-authorization.py`先在任何候选模型推理前冻结不少于100张的精确批次身份；授权文件必须预先存在且`sourceRoot`精确等于批次根。正式下限、dHash256距离12近重复门、固定证据目录、日期和连续序号均不可由CLI降低或改写；命名、完整解码、最短边、精确/感知重复、符号链接、当前SHA-256任一失败均不会留下最终证据。候选权重和规范val阈值报告在同一次原子冻结中深度重放并锁定。
+2. `build-independent-hard-negative-review-workspace.py`逐文件复验A授权、机器审计、图片SHA-256、尺寸与完整解码，并与当前train、val、冻结test证据按文件名、图片SHA-256和`sourceGroup`复核零重合。
+3. 审核人员只能在绑定的1:1像素审核页和原图上填写另一份完成版CSV；禁止覆盖工作区中的空白模板，因为模板SHA-256属于工作区契约。
+4. `finalize-independent-hard-negative-review.py`再次重放所有输入和审核页哈希。`pass`必须有审核说明且不得带缺陷码；`exclude`必须给出受控缺陷码。输出仍为候选、`trainingUse=prohibited`。
+5. 训练负样本使用`finalize-reviewed-hard-negative-manifest.py`；独立留出必须使用`finalize-reviewed-independent-hard-negative-holdout.py`。后者达到100张才生成schema v2独立留出清单，只允许发布评估与长期回归，始终禁止训练。
+6. `audit-hard-negative-watermark-shortcut.py --dataset-role independent-holdout`会再次深验留出清单、冻结证据、权重和预冻结阈值；正式门固定要求三种变体零误检、零检测数差异，CLI不能放宽。
 
 若某批图片已经被当前模型用于误检筛选，并且筛选结果将影响训练选择或返修，该批只能进入训练/诊断角色，不能继续作为下一候选的未见独立发布留出。下一版发布留出必须在训练方案与样本角色冻结后从新来源另建。
 
