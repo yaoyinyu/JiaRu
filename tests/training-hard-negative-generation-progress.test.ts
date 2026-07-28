@@ -16,6 +16,9 @@ import { deflateSync } from "node:zlib";
 const auditor = path.resolve(
   "model/training/audit-training-hard-negative-generation-progress.py",
 );
+const authorizationBuilder = path.resolve(
+  "model/training/build-training-hard-negative-user-authorization.py",
+);
 const python = process.env.PYTHON ?? "python";
 
 const canonical = (value: unknown): string => {
@@ -312,6 +315,133 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
   assert.equal(report.nextMissing, null);
   assert.equal(report.trainingUse, "prohibited");
   assert.equal(report.authorizationStatus, "missing");
+
+  const requiredConfirmationText =
+    "允许将 candidate3-training-v1 最终冻结的精确文件清单用于商业模型训练和长期回归；不用于独立发布测试；授权不放宽质量门。";
+  const requestedItems = report.items.map(
+    (entry: {
+      sequence: number;
+      expectedFileName: string;
+      sha256: string;
+      dhash256: string;
+      width: number;
+      height: number;
+      promptId: string;
+      promptFamily: string;
+      promptVariant: number;
+    }) => ({
+      sequence: entry.sequence,
+      relativePath: entry.expectedFileName,
+      sha256: entry.sha256,
+      dhash256: entry.dhash256,
+      width: entry.width,
+      height: entry.height,
+      promptId: entry.promptId,
+      promptFamily: entry.promptFamily,
+      promptVariant: entry.promptVariant,
+    }),
+  );
+  const request = path.join(item.root, "exact-authorization-request.json");
+  writeJson(request, {
+    schemaVersion: 1,
+    ok: false,
+    status: "HOLD",
+    decision: "awaiting_exact_user_confirmation",
+    role: "training-hard-negative-candidate",
+    trainingUse: "prohibited",
+    authorizationStatus: "pending-user-confirmation",
+    sourceRoot: path.resolve(item.sourceRoot),
+    scopeIncludesDescendants: false,
+    inputs: {
+      generationProgressReport: {
+        path: path.resolve(output),
+        sha256: shaFile(output),
+      },
+      generationPlan: report.inputs.generationPlan,
+      protectedHardNegativeRegistry:
+        report.inputs.protectedHardNegativeRegistry,
+      itemsCurrentSha256: report.itemsCurrentSha256,
+    },
+    summary: {
+      requestedFileCount: 160,
+      machinePassed: 160,
+      originalResolutionVisualReviewApproved: 0,
+      trainingApproved: 0,
+    },
+    requestedUses: [
+      "commercial-model-training",
+      "long-term-regression",
+      "model-diagnostic-evaluation",
+      "data-quality-review",
+    ],
+    excludedUses: ["independent-release-test"],
+    qualityConstraint: "authorization-does-not-relax-quality-gates",
+    roleConstraint:
+      "authorization-does-not-assign-train-validation-or-holdout-role",
+    requiredConfirmationText,
+    requestedRelativePaths: requestedItems.map(
+      (entry: { relativePath: string }) => entry.relativePath,
+    ),
+    requestedItems,
+  });
+  const authorization = path.join(item.root, "user-authorization.json");
+  const threadId = "019f4ca0-a894-7b63-8ec9-c286885a5a22";
+  const creation = spawnSync(
+    python,
+    [
+      authorizationBuilder,
+      "--authorization-request",
+      request,
+      "--user-message",
+      requiredConfirmationText,
+      "--thread-id",
+      threadId,
+      "--decision-id",
+      `goal-thread/${threadId}/training-authorization/2026-07-28`,
+      "--output",
+      authorization,
+    ],
+    { encoding: "utf8" },
+  );
+  assert.equal(creation.status, 0, creation.stderr);
+  const authorizationRecord = JSON.parse(readFileSync(authorization, "utf8"));
+  assert.equal(authorizationRecord.ok, true);
+  assert.equal(authorizationRecord.currentTrainingUse, "prohibited");
+  assert.equal(authorizationRecord.authorizedRelativePaths.length, 160);
+  assert.equal(
+    authorizationRecord.authorizedRelativePathsSha256,
+    canonicalSha(authorizationRecord.authorizedRelativePaths),
+  );
+  assert.equal(
+    authorizationRecord.authorizationEvidence.userMessageSha256,
+    createHash("sha256").update(requiredConfirmationText).digest("hex"),
+  );
+  const verification = spawnSync(
+    python,
+    [authorizationBuilder, "--verify-authorization", authorization],
+    { encoding: "utf8" },
+  );
+  assert.equal(verification.status, 0, verification.stderr);
+
+  const overwrite = spawnSync(
+    python,
+    [
+      authorizationBuilder,
+      "--authorization-request",
+      request,
+      "--user-message",
+      requiredConfirmationText,
+      "--thread-id",
+      threadId,
+      "--decision-id",
+      `goal-thread/${threadId}/training-authorization/2026-07-28`,
+      "--output",
+      authorization,
+    ],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(overwrite.status, 0);
+  assert.match(overwrite.stderr, /refusing to overwrite existing output/);
 });
 
 test("previous report permits growth but rejects a completed image hash drift", () => {
