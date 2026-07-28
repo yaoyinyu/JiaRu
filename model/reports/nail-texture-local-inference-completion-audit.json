@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-28T19:16:59.992Z",
+  "generatedAt": "2026-07-28T20:57:44.953Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 376,
-    "passMarkerCount": 368,
+    "progressMarkerCount": 381,
+    "passMarkerCount": 373,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -797,8 +797,28 @@
           "text": "完成候选5第六个`furniture_hardware_knob`提示族051—060的逐图独立生成、生成阶段可见初筛和增量机器审计；当前60/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`cbd2442c…94cb`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
         },
         {
+          "checked": true,
+          "text": "完成候选5第七个`hair_clip_oval`提示族061—070的逐图独立生成、生成阶段可见初筛和增量机器审计；当前70/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`51298758…1da1`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第八个`hair_clip_elongated`提示族071—080的逐图独立生成、生成阶段可见初筛和增量机器审计；当前80/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`ee12dfce…f4d8`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第九个`hair_clip_reflective`提示族081—090的逐图独立生成、生成阶段可见初筛和增量机器审计；当前90/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`2554d58d…4d40`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第十个`jewelry_cabochon`提示族091—100的逐图独立生成、生成阶段可见初筛和增量机器审计；首版091因同一胸针正反双物体展示被质量门拒绝，重生成后10张均通过。当前100/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`634950b7…4b1c`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第十一个`jewelry_setting`提示族101—110的逐图独立生成、生成阶段可见初筛和增量机器审计；首版103因链条越出画面被完整性质量门拒绝，去除链条并重生成后10张均通过。当前110/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`7ff01682…0dcc`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
           "checked": false,
-          "text": "补齐候选5剩余100张（序号061—160），完成全批生成阶段初筛、160/160机器审计、最终精确文件清单商业训练授权、正式原分辨率终审、schema v2批准、训练物化与GPU输入深审；上述门未清零前不得训练。"
+          "text": "补齐候选5剩余50张（序号111—160），完成全批生成阶段初筛、160/160机器审计、最终精确文件清单商业训练授权、正式原分辨率终审、schema v2批准、训练物化与GPU输入深审；上述门未清零前不得训练。"
         },
         {
           "checked": true,
@@ -922,9 +942,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 376,
-      "uniqueMarkerCount": 376,
-      "passMarkerCount": 368,
+      "markerCount": 381,
+      "uniqueMarkerCount": 381,
+      "passMarkerCount": 373,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
