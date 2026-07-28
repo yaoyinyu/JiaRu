@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "decision": "nail_texture_completion_evidence_profile",
   "candidate": {
-    "weightsSha256": "e46968b798462abdd4369e2cb3b3fa60f9bd2066885fb25d3e70f2d50e373882",
-    "deploymentScoreThreshold": 0.45
+    "weightsSha256": "2bde970213ce7b931652f213688d1b31ffee4c75dc77235bf5105346abe4af3f",
+    "deploymentScoreThreshold": 0.35
   },
   "evidence": {
     "releaseTestSnapshot": {
@@ -11,16 +11,16 @@
       "sha256": "b3baa41c913548ed1513e7e22457fcc2bf4f1f99826ab9db1033e41e521823c6"
     },
     "releaseTestQuality": {
-      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-24-v2/frozen-release-test-100-quality-report-v1.json",
-      "sha256": "b2b7167dbff98f71407962bee0dafa684dbd834fe3499fd6fbc454b703b0c16e"
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-28-v4-interpolation-sweep/alpha-040/frozen-release-test-100-quality-report-v1.json",
+      "sha256": "f4432c3c57431edf2fe8d4aa908092ccd9ea8ddbf1609f27f44eff8ed5211115"
     },
     "hardNegativeAudit": {
-      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-24-v2/post-train-independent-holdout-v1/hard-negative-watermark-audit-v1.json",
-      "sha256": "8fc8693683e584c90e69264e18bd4a0204937ed3a336477a3ba1144039df64e5"
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-28-v4-interpolation-sweep/alpha-040/post-train-independent-holdout-v1/hard-negative-watermark-audit-v1.json",
+      "sha256": "96eee1eb599b6cec46a1cc861f2f1e51239501a099fd0e07da9c359a57e7a10b"
     },
     "bestMetrics": {
-      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-24-v2/eval100-512-v1/metrics.json",
-      "sha256": "d6240635ba3665403440c9b3da4c54239f6382122389fad47b5f348c52e71d8e"
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-28-v4-interpolation-sweep/alpha-040/eval100-512-v1/metrics.json",
+      "sha256": "a1f231b0676891e15d82f62abf51b4b0ca0d145f545d53b96d55f5e2a4735e7d"
     }
   }
 }
