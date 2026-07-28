@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-28T17:47:34.028Z",
+  "generatedAt": "2026-07-28T19:16:59.992Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 372,
-    "passMarkerCount": 364,
+    "progressMarkerCount": 376,
+    "passMarkerCount": 368,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -781,8 +781,24 @@
           "text": "完成候选5第二个`fish_lure_elongated`提示族011—020的逐图独立生成、生成阶段可见初筛和增量机器审计；当前20/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`80e63509…353c`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
         },
         {
+          "checked": true,
+          "text": "完成候选5第三个`fish_lure_hooked`提示族021—030的逐图独立生成、生成阶段可见初筛和增量机器审计；当前30/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`89fd4981…682d`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第四个`furniture_hardware_oval`提示族031—040的逐图独立生成、生成阶段可见初筛和增量机器审计；当前40/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`0cbcd922…0b14`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第五个`furniture_hardware_plate`提示族041—050的逐图独立生成、生成阶段可见初筛和增量机器审计；当前50/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`cb67d021…9ca1`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第六个`furniture_hardware_knob`提示族051—060的逐图独立生成、生成阶段可见初筛和增量机器审计；当前60/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`cbd2442c…94cb`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
           "checked": false,
-          "text": "补齐候选5剩余140张（序号021—160），完成全批生成阶段初筛、160/160机器审计、最终精确文件清单商业训练授权、正式原分辨率终审、schema v2批准、训练物化与GPU输入深审；上述门未清零前不得训练。"
+          "text": "补齐候选5剩余100张（序号061—160），完成全批生成阶段初筛、160/160机器审计、最终精确文件清单商业训练授权、正式原分辨率终审、schema v2批准、训练物化与GPU输入深审；上述门未清零前不得训练。"
         },
         {
           "checked": true,
@@ -906,9 +922,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 372,
-      "uniqueMarkerCount": 372,
-      "passMarkerCount": 364,
+      "markerCount": 376,
+      "uniqueMarkerCount": 376,
+      "passMarkerCount": 368,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
