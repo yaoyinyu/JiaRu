@@ -132,6 +132,21 @@ def load_training_authorization_recorder() -> ModuleType:
     return module
 
 
+def load_exact_authorization_builder() -> ModuleType:
+    script = Path(__file__).with_name(
+        "build-independent-hard-negative-user-authorization.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "independent_holdout_exact_authorization_builder",
+        script,
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load exact independent holdout authorization builder")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def difference_hash(image: Image.Image, size: int = 16) -> str:
     grayscale = image.convert("L").resize(
         (size + 1, size),
@@ -220,7 +235,7 @@ def validate_user_authorization(
 ) -> tuple[dict[str, Any], list[str]]:
     authorization = read_json(path, "user authorization source")
     if (
-        authorization.get("schemaVersion") != 1
+        authorization.get("schemaVersion") not in {1, 2}
         or authorization.get("ok") is not True
         or authorization.get("decision")
         != "authorized_for_independent_holdout_evaluation"
@@ -277,7 +292,50 @@ def validate_user_authorization(
         raise ValueError(
             "user authorization sourceRoot must exactly match the frozen batch root"
         )
+    if authorization.get("schemaVersion") == 2:
+        verified = load_exact_authorization_builder().verify_authorization(path)
+        if (
+            verified.get("ok") is not True
+            or verified.get("sourceRoot") != str(source_root)
+            or verified.get("currentTrainingUse") != "prohibited"
+            or authorization.get("scopeIncludesDescendants") is not False
+            or authorization.get("excludedUses") != ["commercial-model-training"]
+            or authorization.get("roleConstraint")
+            != "authorization-does-not-assign-train-validation-or-holdout-role"
+        ):
+            raise ValueError("schema-v2 exact authorization verification failed")
     return authorization, authorized_uses
+
+
+def validate_exact_authorized_items(
+    authorization: dict[str, Any],
+    records: list[dict[str, Any]],
+    batch_date: str,
+    sequence_start: int,
+    sequence_end: int,
+) -> None:
+    if authorization.get("schemaVersion") != 2:
+        return
+    exact_batch = authorization.get("exactBatch")
+    authorized_items = authorization.get("authorizedItems")
+    records_sha256 = canonical_sha256(records)
+    if (
+        not isinstance(exact_batch, dict)
+        or not isinstance(authorized_items, list)
+        or exact_batch
+        != {
+            "sequenceStart": sequence_start,
+            "sequenceEnd": sequence_end,
+            "imageCount": len(records),
+            "recordsSha256": records_sha256,
+        }
+        or authorization.get("authorizedItemsSha256") != records_sha256
+        or authorized_items != records
+        or any(str(item.get("batchDate") or "") != batch_date for item in records)
+    ):
+        raise ValueError(
+            "current batch differs from the exact file list authorized by the user"
+        )
 
 
 def enumerate_batch(
@@ -892,6 +950,13 @@ def main() -> None:
             f"pairs={len(near_duplicate_pairs)}"
         )
     protected_cross_check = reject_protected_overlaps(records, protected_records)
+    validate_exact_authorized_items(
+        user_authorization,
+        records,
+        batch_date,
+        sequence_start,
+        sequence_end,
+    )
 
     generated_at = datetime.now(timezone.utc).isoformat()
     weights_sha256 = sha256_file(candidate_weights)
@@ -1111,6 +1176,13 @@ def main() -> None:
         cross_check_before_commit = reject_protected_overlaps(
             records_before_commit,
             protected_before_commit,
+        )
+        validate_exact_authorized_items(
+            user_authorization,
+            records_before_commit,
+            batch_date,
+            sequence_start,
+            sequence_end,
         )
         if (
             records_before_commit != records
