@@ -48,6 +48,7 @@ FILE_PATTERN = re.compile(
     re.IGNORECASE,
 )
 DATE_PATTERN = re.compile(r"^\d{8}$")
+SHA256_PATTERN = re.compile(r"^[a-f0-9]{64}$")
 REQUIRED_AUTHORIZED_USES = {
     "independent-release-test",
     "long-term-regression",
@@ -833,6 +834,8 @@ def main() -> None:
     parser.add_argument("--user-authorization")
     parser.add_argument("--candidate-weights")
     parser.add_argument("--candidate-threshold-report")
+    parser.add_argument("--expected-candidate-weights-sha256")
+    parser.add_argument("--expected-score-threshold", type=float)
     parser.add_argument("--protected-hard-negative-registry")
     parser.add_argument("--batch-date")
     parser.add_argument("--sequence-start", type=int)
@@ -845,6 +848,8 @@ def main() -> None:
             args.user_authorization,
             args.candidate_weights,
             args.candidate_threshold_report,
+            args.expected_candidate_weights_sha256,
+            args.expected_score_threshold,
             args.protected_hard_negative_registry,
             args.batch_date,
             args.sequence_start,
@@ -915,6 +920,34 @@ def main() -> None:
         candidate_threshold_report,
         candidate_weights,
     )
+    weights_sha256 = sha256_file(candidate_weights)
+    expected_weights_sha256 = str(
+        args.expected_candidate_weights_sha256 or ""
+    )
+    if expected_weights_sha256:
+        if not SHA256_PATTERN.fullmatch(expected_weights_sha256):
+            raise ValueError(
+                "--expected-candidate-weights-sha256 must be a lowercase SHA-256"
+            )
+        if weights_sha256 != expected_weights_sha256:
+            raise ValueError(
+                "candidate weights do not match "
+                "--expected-candidate-weights-sha256"
+            )
+    if args.expected_score_threshold is not None:
+        expected_score_threshold = float(args.expected_score_threshold)
+        if not 0 < expected_score_threshold < 1:
+            raise ValueError("--expected-score-threshold must be between 0 and 1")
+        if (
+            abs(
+                float(threshold_verification["scoreThreshold"])
+                - expected_score_threshold
+            )
+            > 1e-12
+        ):
+            raise ValueError(
+                "candidate threshold does not match --expected-score-threshold"
+            )
     training_recorder = load_training_authorization_recorder()
     (
         registry_binding,
@@ -959,7 +992,6 @@ def main() -> None:
     )
 
     generated_at = datetime.now(timezone.utc).isoformat()
-    weights_sha256 = sha256_file(candidate_weights)
     records_sha256 = canonical_sha256(records)
     dimension_histogram = Counter(
         f"{item['width']}x{item['height']}" for item in records
