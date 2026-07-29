@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-29T10:13:34.744Z",
+  "generatedAt": "2026-07-29T10:37:42.089Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 388,
-    "passMarkerCount": 380,
+    "progressMarkerCount": 390,
+    "passMarkerCount": 381,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -118,6 +118,12 @@
         "evidence": "第二候选因独立留出7/5/6张误检被否决，第三候选因规范val30联合门失败被否决；第四候选虽过val30和冻结test100，但在新100张独立留出上三变体误检3/2/3张，零误检门失败。生产manifest、共享阈值和正式ONNX保持不变；下一候选还须使用隔离且获训练授权的新证据重新训练，并依次完成val、冻结test、另一份全新未见留出、Beta、移动真机和回滚门"
       },
       {
+        "id": "USER-CANDIDATE5-TRAINING-AUTH-04",
+        "task": "按schema v2精确文本授权candidate5最终冻结160张训练负样本",
+        "status": "⏭ USER INPUT",
+        "evidence": "请求包`4a47e126…27fd`绑定`candidate5-training-v2`、160张和`requestedItemsSha256=67e8b519…3b80`。用户现有回复只明确商业训练与长期回归，未绑定摘要且未确认请求中的模型诊断评估、数据质量审核，因此没有登记授权。若只希望授权前两项，需明确选择窄范围后重建请求；在任一精确请求被逐字确认前，本批继续`trainingUse=prohibited`，正式终审、物化和GPU训练均不启动"
+      },
+      {
         "id": "USER-FAILURE-01",
         "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
         "status": "⏭ USER INPUT",
@@ -144,6 +150,10 @@
         {
           "checked": true,
           "text": "明确图片是否允许用于内部训练、商业发布训练和回归测试。（首批 22 张、300 张 AI 图和新增 113 张均已确认）"
+        },
+        {
+          "checked": false,
+          "text": "按schema v2唯一确认文本授权`candidate5-training-v2`最终冻结160张精确文件清单（`requestedItemsSha256=67e8b519…3b80`）的明确用途；当前回复未绑定清单摘要且用途范围不完整，未登记授权。"
         },
         {
           "checked": false,
@@ -841,6 +851,10 @@
           "text": "将训练困难负样本授权链升级为schema v2：确认文本必须同时绑定候选ID、160张数量、`requestedItemsSha256`和商业训练/长期回归/模型诊断/数据质量审核四种用途；请求与授权构建器拒绝额外字段、非法ID、文本或清单漂移，正式A记录器深度重放请求、进度报告、计划、registry和当前文件。历史schema v1只读兼容，不得用于新candidate5请求。"
         },
         {
+          "checked": true,
+          "text": "补强候选5增量生成进度的前序报告链深验：每个父报告必须逐项匹配160项计划身份、sourcePath、状态与元数据合同，重新推导summary、familyCounts、nextMissing、READY/HOLD决定和issueCodes，并绑定同一计划、registry及受保护记录摘要；存在更早祖先时递归校验路径/SHA-256、拒绝环和已完成图片跨代漂移。篡改汇总或提示身份后即使重算items摘要也不得生成子报告；真实20级candidate5链仍能重放通过。"
+        },
+        {
           "checked": false,
           "text": "等待用户按schema v2精确请求文本授权`candidate5-training-v2`最终冻结160张清单及其四种明确用途；授权后再执行正式A授权建账、原分辨率终审、schema v2批准、训练物化与GPU输入深审。授权、质量和输入门未清零前不得训练，也不得将本批改作独立发布测试。"
         },
@@ -970,9 +984,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 388,
-      "uniqueMarkerCount": 388,
-      "passMarkerCount": 380,
+      "markerCount": 390,
+      "uniqueMarkerCount": 390,
+      "passMarkerCount": 381,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1017,6 +1031,12 @@
           "task": "正式模型候选发布",
           "status": "🔴 HOLD（第四候选已拒绝）",
           "evidence": "第二候选因独立留出7/5/6张误检被否决，第三候选因规范val30联合门失败被否决；第四候选虽过val30和冻结test100，但在新100张独立留出上三变体误检3/2/3张，零误检门失败。生产manifest、共享阈值和正式ONNX保持不变；下一候选还须使用隔离且获训练授权的新证据重新训练，并依次完成val、冻结test、另一份全新未见留出、Beta、移动真机和回滚门"
+        },
+        {
+          "id": "USER-CANDIDATE5-TRAINING-AUTH-04",
+          "task": "按schema v2精确文本授权candidate5最终冻结160张训练负样本",
+          "status": "⏭ USER INPUT",
+          "evidence": "请求包`4a47e126…27fd`绑定`candidate5-training-v2`、160张和`requestedItemsSha256=67e8b519…3b80`。用户现有回复只明确商业训练与长期回归，未绑定摘要且未确认请求中的模型诊断评估、数据质量审核，因此没有登记授权。若只希望授权前两项，需明确选择窄范围后重建请求；在任一精确请求被逐字确认前，本批继续`trainingUse=prohibited`，正式终审、物化和GPU训练均不启动"
         },
         {
           "id": "USER-FAILURE-01",
@@ -1233,7 +1253,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "8 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, REL-T2-CANDIDATE, USER-FAILURE-01."
+      "summary": "9 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, REL-T2-CANDIDATE, USER-CANDIDATE5-TRAINING-AUTH-04, USER-FAILURE-01."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
