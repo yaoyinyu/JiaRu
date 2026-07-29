@@ -28,7 +28,7 @@ let thresholdEvidence:
   | undefined;
 
 function getThresholdEvidence() {
-  thresholdEvidence ??= createFormalThresholdEvidence(0.45);
+  thresholdEvidence ??= createFormalThresholdEvidence(0.5);
   return thresholdEvidence;
 }
 
@@ -58,6 +58,7 @@ function makeProtectedRegistry(
   options: {
     sourceIdentityCollision?: boolean;
     exactCollisionImage?: string;
+    exactCollisionRole?: "training" | "holdout";
     perceptualCollisionImage?: string;
   } = {},
 ) {
@@ -68,7 +69,11 @@ function makeProtectedRegistry(
       `hard_negative_${role}_20260723_${role === "training" ? "101" : "201"}_` +
       `protected_${role}_01.png`;
     const imagePath = path.join(root, "protected", role, fileName);
-    if (index === 0 && options.exactCollisionImage) {
+    const registryRole = role === "training" ? "training" : "holdout";
+    if (
+      options.exactCollisionImage &&
+      (options.exactCollisionRole ?? "training") === registryRole
+    ) {
       mkdirSync(path.dirname(imagePath), { recursive: true });
       writeFileSync(imagePath, readFileSync(options.exactCollisionImage));
     } else if (index === 0 && options.perceptualCollisionImage) {
@@ -213,6 +218,10 @@ function runRecorder(
       item.weights,
       "--candidate-threshold-report",
       item.thresholdReport,
+      "--expected-candidate-weights-sha256",
+      shaFile(item.weights),
+      "--expected-score-threshold",
+      String(item.scoreThreshold),
       ...registryArgs,
       "--batch-date",
       "20260724",
@@ -264,7 +273,7 @@ test("atomically freezes a pre-authorized recursive 100-image batch", () => {
   assert.equal(freeze.trainingUse, "prohibited");
   assert.equal(freeze.batchIdentity.sequenceStart, 161);
   assert.equal(freeze.batchIdentity.sequenceEnd, 260);
-  assert.equal(freeze.batchIdentity.candidateScoreThreshold, 0.45);
+  assert.equal(freeze.batchIdentity.candidateScoreThreshold, 0.5);
   assert.equal(
     freeze.inputs.protectedHardNegativeRegistry.sha256,
     shaFile(item.protectedRegistry.registry),
@@ -293,7 +302,7 @@ test("atomically freezes a pre-authorized recursive 100-image batch", () => {
   );
   assert.equal(verified.status, 0, verified.stderr);
   assert.equal(JSON.parse(verified.stdout).imageCount, 100);
-  assert.equal(JSON.parse(verified.stdout).candidateScoreThreshold, 0.45);
+  assert.equal(JSON.parse(verified.stdout).candidateScoreThreshold, 0.5);
   assert.equal(
     JSON.parse(verified.stdout).protectedHardNegativeRegistry.sha256,
     shaFile(item.protectedRegistry.registry),
@@ -357,6 +366,93 @@ test("rejects exact SHA-256 overlap with protected training evidence", () => {
   const result = runRecorder(item, { registry: protectedRegistry.registry });
   assert.notEqual(result.status, 0);
   assert.match(result.stderr, /exactly duplicates a protected hard negative/);
+  assert.equal(existsSync(path.join(item.images, freezeDirectory)), false);
+});
+
+test("rejects reuse of an old independent holdout protected by the registry", () => {
+  const item = makeBatch();
+  const candidate = path.join(
+    item.images,
+    "shard-a",
+    "hard_negative_independent_20260724_161_fixture_family_01.png",
+  );
+  const protectedRegistry = makeProtectedRegistry(item.root, {
+    exactCollisionImage: candidate,
+    exactCollisionRole: "holdout",
+  });
+  const result = runRecorder(item, { registry: protectedRegistry.registry });
+  assert.notEqual(result.status, 0);
+  assert.match(result.stderr, /exactly duplicates a protected hard negative/);
+  assert.equal(existsSync(path.join(item.images, freezeDirectory)), false);
+});
+
+test("rejects an operator-declared candidate identity mismatch before freezing", () => {
+  const item = makeBatch();
+  const wrongWeights = spawnSync(
+    python,
+    [
+      recorder,
+      "--source-root",
+      item.images,
+      "--user-authorization",
+      item.authorization,
+      "--candidate-weights",
+      item.weights,
+      "--candidate-threshold-report",
+      item.thresholdReport,
+      "--expected-candidate-weights-sha256",
+      "0".repeat(64),
+      "--expected-score-threshold",
+      "0.50",
+      "--protected-hard-negative-registry",
+      item.protectedRegistry.registry,
+      "--batch-date",
+      "20260724",
+      "--sequence-start",
+      "161",
+      "--sequence-end",
+      "260",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(wrongWeights.status, 0);
+  assert.match(
+    wrongWeights.stderr,
+    /candidate weights do not match --expected-candidate-weights-sha256/,
+  );
+
+  const wrongThreshold = spawnSync(
+    python,
+    [
+      recorder,
+      "--source-root",
+      item.images,
+      "--user-authorization",
+      item.authorization,
+      "--candidate-weights",
+      item.weights,
+      "--candidate-threshold-report",
+      item.thresholdReport,
+      "--expected-candidate-weights-sha256",
+      shaFile(item.weights),
+      "--expected-score-threshold",
+      "0.35",
+      "--protected-hard-negative-registry",
+      item.protectedRegistry.registry,
+      "--batch-date",
+      "20260724",
+      "--sequence-start",
+      "161",
+      "--sequence-end",
+      "260",
+    ],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(wrongThreshold.status, 0);
+  assert.match(
+    wrongThreshold.stderr,
+    /candidate threshold does not match --expected-score-threshold/,
+  );
   assert.equal(existsSync(path.join(item.images, freezeDirectory)), false);
 });
 
