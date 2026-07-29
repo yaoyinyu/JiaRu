@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.255
+> 文档版本：v1.1.257
 >
 > 基线日期：2026-07-12
 >
@@ -130,6 +130,7 @@ AI 生图：文字描述 -> POST /api/generate-ai -> 外部图像 API -> 远程�
 | 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞 | 第五候选权重SHA-256为`26daf742…a56`，规范val30部署512 box/mask mAP50为0.8873/0.8552并校准阈值0.50；冻结test100的full/core/stress为0.9569/0.9561、0.9591/0.9660、0.9525/0.9265，正式质量报告`8fa2161b…f8f3`深验通过并决定`accept_candidate_release`。该决定只通过正样本离线质量门；全新独立困难负样本三变体、Beta、移动真机和发布资产门仍未通过，因此不得导出生产ONNX、登记或写入生产manifest |
 | 数据集治理 | `model/datasets/nail-texture-v1` | 进行中 | 正式训练集仍为409图、2142个mask，split=300/46/63。`candidate3-training-v1`终审145张训练负样本保持商业训练授权。新独立发布留出100张261—360已取得精确四用途授权并明确禁止商业训练；schema v2授权`29dba26f…82fe`、原子freeze `56493d94…a3e3`、1:1原分辨率终审100/100和批准清单`c0ea6eb1…cd9e`均深验通过。candidate4已消费该批作独立测试，故该100张及其派生变体永久保持`trainingUse=prohibited`，不得转入下一候选训练或再次冒充未见留出 |
 | 候选5训练负样本 | `build-candidate5-hard-negative-generation-plan.py`、训练授权/终审/物化链、Git外`2026_7_29_candidate5_training_v2` | 已完成（160/160训练输入） | 用户已按schema v2精确文本授权160张及四项用途，排除独立发布测试且不放宽质量门；A记录`de1b73b…0b16`、批准清单`fe68c361…164a`均深验通过。40张1:1审核页完成160/160原分辨率终审，0排除；物化为train260（100正样本/521 mask+160空标签负样本）、val30/144 mask、test0，物化`9974b871…3d73`与GPU输入审计`6734942d…f590`通过。本批只用于训练/回归/诊断/质量审核，永不充当独立发布测试 |
+| 候选5训练后独立留出 | Git外`2026_7_29_candidate5_post_train_holdout_v1_candidates`、`2026_7_29_candidate5_post_train_holdout_plan_v1.json` | 已暂停（51/120盲候选） | 计划按10个家族各生成12张，再只按原分辨率源图质量选每族10张；截至2026-07-30实存有效候选51张：肉质叶、种荚/翅果、软胶囊/泡罩各12张，花瓣/苞片10张，移液枪头/微量管5张，另5个家族0张。尚缺69张盲候选；现有51张只经过生成阶段交互式可见初筛，未形成正式机器审计或1:1原分辨率终审PASS。未对本批运行candidate5推理，未按模型输出挑图，未形成最终100张精确授权、原子freeze、批准清单或三变体审计；全批继续`trainingUse=prohibited`，不得视为独立发布证据 |
 | 训练真值历史增量 | 外部`training-truth-index-v1.json` | 历史记录 | v1.1.167曾形成79张唯一图片/416个完整mask的中间快照；该数量已被下一行“训练真值当前权威快照”的100张/521 mask替代，不得再作为当前训练准备度依据 |
 | 训练真值当前权威快照 | 外部工作区根目录`training-truth-index-v1.json` | 已完成（本轮候选输入） | 101个批准报告归并为100张唯一图片/521个完整mask，2个历史拒绝报告、1个冗余报告、0冲突，索引SHA-256为`13f606b547c32d2b8f34651f55e1bca1e826bf3ac13bdcdca345a1cef267f125`。最低100张train正样本门已达到；来源隔离val30张/144 mask及正式困难负样本100张均已通过候选物化和GPU前输入深审。该结论只说明本轮训练输入可用，不解除负样本独立留出、水印消融、Beta或生产发布门。权威索引位于审核工作区根目录；`final/training-truth-index-v1.json`为字节一致镜像 |
 | 验证真值当前快照 | 外部`val-annotation-workspace-v1/validation-truth-index-v1.json` | 已完成 | v1.1.189：30个批准报告归并为30张唯一图片/144个完整mask、0拒绝、0冗余、0冲突，索引SHA-256为`2ccde9420141e5e67a9696959cc18e78aaee808ba29b592670990967bdc4b92d`。批次014—018严格排除裁断、遮挡或甲数错误源图，透明甲尖和全部附着装饰均经整图与逐甲2×复核；所有polygon合法且同图严格零交叠。规范val-only数据集物化为30图/30 annotation/30 label/144 mask、train/test均0、孤儿0，物化报告SHA-256为`200b087b…b1776`。来源隔离审计对当前train 100张和冻结test 67张重新读取、复算身份，文件名、图片SHA-256和来源组均零重叠，报告SHA-256为`7372d14d…f6479e`。最终审计SHA-256为`5152dc52…66a3a`，决定`approved_as_calibration_truth`、`calibrationTruthEligible=true`，同时保持`trainingUse=prohibited` |
@@ -514,7 +515,7 @@ disposeAllTextures(bitmaps): void
 
 核心版本：`nail-texture-dataset/v1`。标注以多边形 mask 为主，可转换为 YOLO segmentation 格式。必须维护素材来源、授权、哈希、审核状态、数据切分和负样本信息。
 
-候选训练困难负样本必须先经`record-training-hard-negative-authorization.py`建立精确授权与机器审计：只接受显式相对路径白名单，授权用途必须同时包含商业模型训练和长期回归并排除独立发布测试；图片最短边固定不少于768像素，序号连续且新批文件名前缀必须为training。`--protected-hard-negative-registry`为唯一受保护集合入口，registry固定schema v1、decision、每份manifest的path/SHA-256/role、entriesSha256及training/holdout计数，创建和授权重放都不再接受调用方自由漏传manifest。当前权威registry已升级为Git外`审核工作区/protected-hard-negative-registry-v2.json`，SHA-256为`527a76d3…f8fc`，在原3份training与1份失败holdout基础上单调追加candidate4的100张独立留出，形成5份manifest/468条保护记录；新增留出由此在候选5训练链中被技术性禁止回流。历史清单中的`hard_negative_ai_*`、training清单旧`hard_negative_independent_*`和`nail_*`仅在受保护侧按manifest decision解释，sourceGroup会移除角色片段并统一日期；新候选自身不获得旧命名兼容。记录器逐图重算SHA-256、规范sourceIdentity和dHash256，距离不大于12的感知重复拒绝，授权与机器清单始终保持`trainingUse=prohibited`。`build-independent-hard-negative-review-workspace.py`在training角色下调用记录器只读深度重放，在independent角色下继续重放冻结记录器；两种角色均核对所选授权/机器清单路径、SHA-256和图片数，强制授权用途与新批文件前缀一致，并采用staging与原子替换生成工作区，覆盖失败时恢复旧目录，禁止半成品或旧审核页混入。
+候选训练困难负样本必须先经`record-training-hard-negative-authorization.py`建立精确授权与机器审计：只接受显式相对路径白名单，授权用途必须同时包含商业模型训练和长期回归并排除独立发布测试；图片最短边固定不少于768像素，序号连续且新批文件名前缀必须为training。`--protected-hard-negative-registry`为唯一受保护集合入口，registry固定schema v1、decision、每份manifest的path/SHA-256/role、entriesSha256及training/holdout计数，创建和授权重放都不再接受调用方自由漏传manifest。当前权威registry为Git外`审核工作区/protected-hard-negative-registry-v3.json`，SHA-256为`9627a3c2…30bc`；其6份manifest（training 4、holdout 2）当前哈希全部匹配，合计728条原始引用按图片SHA-256规范去重为628条唯一保护记录，另100条为完全一致的历史重复引用。v3在原v2的candidate4独立留出保护基础上追加candidate5的160张训练清单，因此candidate4编号261—360、candidate5训练160张及其他历史training/holdout均被技术性禁止改换角色或复用为本轮新独立留出。历史清单中的`hard_negative_ai_*`、training清单旧`hard_negative_independent_*`和`nail_*`仅在受保护侧按manifest decision解释，sourceGroup会移除角色片段并统一日期；新候选自身不获得旧命名兼容。记录器逐图重算SHA-256、规范sourceIdentity和dHash256，距离不大于12的感知重复拒绝，授权与机器清单始终保持`trainingUse=prohibited`。`build-independent-hard-negative-review-workspace.py`在training角色下调用记录器只读深度重放，在independent角色下继续重放冻结记录器；两种角色均核对所选授权/机器清单路径、SHA-256和图片数，强制授权用途与新批文件前缀一致，并采用staging与原子替换生成工作区，覆盖失败时恢复旧目录，禁止半成品或旧审核页混入。
 
 第三候选160项外部计划已全部补齐。`candidate3-training-v1-progress-160.json`只读深验得到160通过、0缺失、0失败、0未知，报告SHA-256为`4251378c…ae7`，逐项当前摘要为`ef99b63c…a3e`。授权请求包`candidate3-training-v1-exact-authorization-request.json`逐项冻结相对路径和当前图片SHA-256，包SHA-256为`3ffdfce3…899`。用户随后按精确清单授权商业模型训练与长期回归、明确禁止独立发布测试且不放宽质量门；授权记录及当前160张文件深度重放通过。正式原分辨率终审通过145张、因主体裁断或不完整排除15张，schema v2批准145张/61来源组；只有这145张进入第三候选训练，且其训练角色不得改写为独立发布留出。
 
@@ -1131,7 +1132,21 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 
 截至v1.1.253，用户已用schema v2确定性文本精确授权candidate5-training-v2的160张清单及商业训练、长期回归、模型诊断评估和数据质量审核四项用途，明确排除独立发布测试且不放宽质量门。A记录`de1b73b…0b16`与机器审计深验通过；40张1:1审核页完成160/160原分辨率终审、0排除，schema v2批准清单`fe68c361…164a`。规范物化为train260/val30/test0，物化`9974b871…3d73`和GPU输入审计`6734942d…f590`通过。RTX 4060训练早停于16轮、最佳epoch=1，权重`26daf742…a56`；规范val30部署512为0.8873/0.8552并校准阈值0.50，冻结test100的full/core/stress为0.9569/0.9561、0.9591/0.9660、0.9525/0.9265，正式质量报告`8fa2161b…f8f3`深验并决定`accept_candidate_release`。该决定仅表示正样本离线质量门通过；正式发布仍缺训练后全新未见独立困难负样本不少于100张的三变体零误检/零delta证据、真实用户失败案例、Android手机/平板、iPhone/iPad真机、Beta人工质量门、生产ONNX及双批准版本回滚资产。candidate4编号261—360和本轮160张训练集均不得充当该新留出，生产manifest与共享阈值保持不变。完成度profile因此仍保留最后一条具备完整独立留出证据的第四候选链，不得把第五候选的正样本质量报告与第四候选的负样本审计拼接；正式审计为392个唯一标记/383 PASS、14门4通过/10 HOLD，报告`a129dd09…75ad`。
 
-### 11.2 未完成或占位能力
+### 11.2 暂停交接快照（2026-07-30）
+
+本节是停止当前会话前的权威恢复点，不代表新增模型、数据授权或发布证据。
+
+1. **仓库与源码状态**：当前分支为`master`，HEAD与`origin/master`均为`2b2cb991a430dc6e5be095dc54a641665b0133b6`；仅有一个worktree `E:/AI Project/Codex/JiaRu`，交接审计开始时暂存区和工作区均为空。HEAD只修改`docs/technical-whitepaper.md`和`dev-log/2026-07-29.md`。纹理识别源码仍位于`src/lib/nail-texture-recognition/`，本次未改源码。生产manifest SHA-256为`1e1d0765…3366`，仍声明历史640输入的`nail-texture-seg-v1.onnx`，但该ONNX当前不存在；第五候选没有导出、登记或部署。完成度报告SHA-256为`a129dd09…75ad`，仍是392个标记/383 PASS、14门4 PASS/10 HOLD。
+2. **已完成状态**：candidate5训练输入160/160、GPU训练、val30阈值0.50校准和冻结test100正样本质量门均完成；权重仍为`26daf742…a56`。这只完成候选训练与正样本离线质量，不是正式模型发布完成。
+3. **暂停中的独立留出**：盲生成计划`2026_7_29_candidate5_post_train_holdout_plan_v1.json` SHA-256为`6d0d4935…d147`，绑定registry v3 `9627a3c2…30bc`、candidate5权重及阈值0.50。实存有效候选51/120，剩余69张；没有candidate5推理、模型输出选图、最终100张授权、freeze、正式1:1终审或三变体报告。交互式可见初筛不得写成正式PASS。
+4. **暂停原因与边界**：用户报告Codex运行期间`C:\Users\YaoYinyu\.codex`体积过大且持续高磁盘读写，并要求先暂停。该现象在本交接审计中只作为operator report登记；为避免扩大I/O，本次没有扫描`.codex/sessions`、没有诊断根因、没有清理任何会话文件。素材生成代理均已停止，本轮未启动训练、推理、生成、测试、构建、提交或推送。
+5. **阻塞项**：最近门为补齐并严格筛选新独立留出、获得最终100张精确授权、原子冻结、逐图原分辨率终审和部署512三变体零误检/零delta；完整发布另缺用户真实失败案例、Android手机/平板与iPhone/iPad真机、至少100张Beta人工质量报告、生产ONNX/浏览器协议、正式注册及双批准版本回滚证据。任何一项不得由旧留出、训练集、历史高分或聊天确认替代。
+6. **恢复后的下一步（本次不执行）**：先以磁盘实际文件为准从51/120恢复盲生成，补花瓣/苞片2张、实验室耗材7张及其余5个家族各12张，共69张；再在禁止candidate5推理的前提下仅按源图质量选定100张并完成机器预审。随后请求用户对精确100张清单授权，执行原子freeze、100张1:1终审、批准清单及原图/裁角/模糊角标三变体审计。若严格门通过，再进入ONNX、浏览器、注册/回滚、真机与Beta；若失败，只能另建与该留出隔离且获训练授权的新样本训练下一候选，失败留出永远禁止训练。
+7. **新对话接手约束**：新会话必须先读取`AGENTS.md`、本白皮书及`dev-log/2026-07-30.md`，再只读复核Git/worktree、计划、registry和磁盘候选实数；首条进度回复须明确基线是否仍为51/120。只有基线一致或已按当前证据纠正文档后才可继续。恢复时不得提前运行candidate5推理、不得按模型输出选图、不得把交互式初筛写成正式PASS；默认不启用子智能体或高并发，除非用户重新授权并确认磁盘I/O风险可接受。
+
+原先只存在于聊天、现已在本节落盘但仍未形成机器证据的信息包括：用户对`.codex`异常I/O的观察；51张候选的逐图交互式可见初筛；生成代理被中断且无独立机器检查点；以及最终100张尚未选定、未授权。除这些已明确登记的非正式证据外，本次审计未发现仍只存在于聊天而未落盘的项目关键状态。
+
+### 11.3 未完成或占位能力
 
 1. 真实灵感图库与内容后台；
 2. 用户账户、云端项目保存、跨设备同步；
@@ -1167,7 +1182,9 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 ## 13. 版本与变更记录
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
+| 2026-07-30 | v1.1.257 | 整理可直接复制到新对话的接手指令：要求接手者先读项目规则、白皮书v1.1.257和7月30日交接日志，先只读复核51/120、Git/worktree、计划与registry，再从69张盲候选缺口恢复；继续禁止提前candidate5推理、模型输出选图、质量门降级、默认子智能体高并发及代理提交/推送。该任务只固化交接方法，不改变候选数量、模型、数据角色、接口、生产manifest、共享阈值或发布HOLD。 | 新会话交接、恢复约束、质量门、文档治理 |
 | --- | --- | --- | --- |
+| 2026-07-30 | v1.1.256 | 执行停止会话前交接审计：读取项目规则、白皮书及最近三份既有开发日志，核验当前源码、单一master worktree、HEAD与origin/master一致且审计起点工作区干净；确认生产manifest仍指向缺失的历史ONNX，candidate5未部署。以Git外实存文件纠正独立留出快照为51/120、尚缺69张，并登记计划`6d0d4935…d147`、registry v3 `9627a3c2…30bc`及6份manifest/628条唯一保护记录。新增暂停交接、阻塞项、恢复顺序和原聊天信息落盘说明；未启动训练、推理、生成、测试或构建，不改变接口、生产manifest、共享阈值和发布HOLD。 | 会话交接、candidate5独立留出、保护registry、发布HOLD、文档治理 |
 | 2026-07-29 | v1.1.255 | 复核第五候选训练后发布距离：GPU训练、规范val30校准及冻结test100正样本质量门均已完成，生产发布仍由全新未见独立困难负样本三变体、移动真机、Beta和ONNX/注册/回滚证据阻断。按冻结的120张盲候选计划并行生成，状态快照为45/120张有效候选已落盘、3个提示家族12/12完成并通过生成阶段可见初筛，另2个家族生成中；尚未运行candidate5推理，亦未建立最终100张授权或freeze。本次为进度复核，不改变接口、生产manifest、共享阈值或发布HOLD。 | candidate5独立留出、发布距离、文档治理、发布HOLD |
 | 2026-07-29 | v1.1.254 | 深度重放candidate4独立留出的schema v2授权、原子freeze、100张批准清单及registry v2，确认编号261—360已消费且被468条保护记录中的holdout角色阻止复用。独立留出冻结器新增预期权重SHA-256和预期阈值断言；candidate5后续冻结必须显式绑定`26daf742…a56`与`0.50`，错误旧候选组合在落盘前拒绝。专项14/14通过；本轮未生成图片、未建立新授权或freeze，candidate5新100张留出继续待建，生产HOLD不变 | candidate5独立留出、候选身份绑定、旧留出防复用、发布HOLD |
 | 2026-07-29 | v1.1.253 | 完成candidate5-training-v2精确授权、160/160原分辨率终审、schema v2批准、train260/val30/test0物化与GPU输入深审；RTX 4060训练得到权重`26daf742…a56`，val30校准阈值0.50，冻结test100部署512 full/core/stress质量门通过，正式报告`8fa2161b…f8f3`深验并决定`accept_candidate_release`。该PASS仅覆盖离线正样本质量；仍须另建未见独立负样本100张三变体门，并完成真机、失败案例、Beta、ONNX、注册与双版本回滚。完成度392标记/383 PASS、14门4通过/10 HOLD，报告`a129dd09…75ad`；全量测试700/700、生产构建、468文件编码审计和差异检查通过，生产manifest及共享阈值未变，代理未提交或推送Git | candidate5授权、原分辨率审核、训练输入、GPU训练、阈值校准、冻结测试、发布HOLD |
