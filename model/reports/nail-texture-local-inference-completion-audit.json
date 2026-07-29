@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-29T08:00:21.864Z",
+  "generatedAt": "2026-07-29T09:18:04.220Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 383,
-    "passMarkerCount": 375,
+    "progressMarkerCount": 386,
+    "passMarkerCount": 378,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -825,8 +825,20 @@
           "text": "完成候选5第十三个`cosmetic_tool`提示族121—130的逐图独立生成、生成阶段可见初筛和增量机器审计；10张均为非美甲用途的面部、眉睫工具或化妆收纳配件，完整且无手部/甲面。当前130/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`d6cc9cb2…5269`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
         },
         {
+          "checked": true,
+          "text": "完成候选5第十四个`plastic_glossy`提示族131—140的逐图独立生成、生成阶段可见初筛和增量机器审计；10张均为功能结构明确的高光塑料止扣、夹具、挂扣、瓶盖或包装配件，完整且无手部/甲面。当前140/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`3c3c0d17…22a9`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第十五个`stone_elongated`提示族141—150的逐图独立生成、生成阶段可见初筛和增量机器审计；10张均为厚实且用途结构明确的抛光矿石、石质/树脂家具件、扣具或家居配件，完整且无手部/甲面。147首版因错误形成四槽被拒并重生成双槽终版。当前150/160全部通过解码、768像素最短边、固定命名、批内SHA/dHash及registry v2隔离，0失败、0未知，报告SHA-256为`3254c588…35c3`。该项仍只证明生成与机器隔离门，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "完成候选5第十六个`mixed_visual_confuser`提示族151—160的逐图独立生成、双人可见初筛和160/160机器审计；10张均为全新非美甲场景组合，目标主体完整清晰、无手部/甲面、文字水印或裁切。最终报告160通过、0缺失、0失败、0未知，SHA-256为`9aa129a1…25c3`；精确授权请求包逐项冻结160个当前文件，SHA-256为`a71188d8…5d56`。该项仍只证明生成、机器隔离和授权请求准备完成，未授予商业训练资格。"
+        },
+        {
           "checked": false,
-          "text": "补齐候选5剩余30张（序号131—160），完成全批生成阶段初筛、160/160机器审计、最终精确文件清单商业训练授权、正式原分辨率终审、schema v2批准、训练物化与GPU输入深审；上述门未清零前不得训练。"
+          "text": "等待用户按精确请求文本授权`candidate5-training-v2`最终冻结清单用于商业模型训练和长期回归；授权后再执行正式A授权建账、原分辨率终审、schema v2批准、训练物化与GPU输入深审。授权、质量和输入门未清零前不得训练，也不得将本批改作独立发布测试。"
         },
         {
           "checked": true,
@@ -950,9 +962,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 383,
-      "uniqueMarkerCount": 383,
-      "passMarkerCount": 375,
+      "markerCount": 386,
+      "uniqueMarkerCount": 386,
+      "passMarkerCount": 378,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [

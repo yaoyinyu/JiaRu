@@ -26,6 +26,8 @@ async function createManifest(modelDir: string, version: string, sizeBytes = 102
         task: "segment",
         backendPreferences: ["webgpu", "wasm"],
         modelFile,
+        modelSizeBytes: sizeBytes,
+        sha256: sha256Buffer(modelBuffer),
         labels: ["nail_texture"],
       },
       null,
@@ -37,7 +39,11 @@ async function createManifest(modelDir: string, version: string, sizeBytes = 102
   return { manifestPath, modelFile, modelPath: path.join(modelDir, modelFile), sha256: sha256Buffer(modelBuffer), sizeBytes };
 }
 
-async function registerRelease(manifestPath: string, registryPath: string) {
+async function registerRelease(
+  manifestPath: string,
+  registryPath: string,
+  setCurrent = true,
+) {
   return execFileAsync(
     process.execPath,
     [
@@ -48,10 +54,57 @@ async function registerRelease(manifestPath: string, registryPath: string) {
       manifestPath,
       "--registry",
       registryPath,
+      "--set-current",
+      String(setCurrent),
     ],
     { cwd: path.resolve(".") }
   );
 }
+
+test("first formal release can pre-register an approved fallback before activating a distinct version", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-registry-bootstrap-"));
+  const modelDir = path.join(root, "public", "models", "nail-texture-seg");
+  await mkdir(modelDir, { recursive: true });
+  const registryPath = path.join(modelDir, "release-registry.json");
+
+  const fallback = await createManifest(modelDir, "nail-texture-seg-bootstrap-fallback", 1024);
+  await registerRelease(fallback.manifestPath, registryPath, false);
+  const fallbackRegistry = JSON.parse(await readFile(registryPath, "utf8")) as {
+    currentVersion: string | null;
+    releases: Array<{ version: string }>;
+  };
+  assert.equal(fallbackRegistry.currentVersion, null);
+  assert.deepEqual(
+    fallbackRegistry.releases.map((release) => release.version),
+    ["nail-texture-seg-bootstrap-fallback"],
+  );
+
+  const active = await createManifest(modelDir, "nail-texture-seg-bootstrap-active", 2048);
+  await registerRelease(active.manifestPath, registryPath, true);
+  const { stdout } = await execFileAsync(
+    process.execPath,
+    [
+      "--no-warnings",
+      "--experimental-strip-types",
+      "scripts/audit-release-rollback.ts",
+      "--registry",
+      registryPath,
+      "--manifest",
+      active.manifestPath,
+    ],
+    { cwd: path.resolve(".") },
+  );
+  const rollback = JSON.parse(stdout) as {
+    ok: boolean;
+    currentVersion: string;
+    rollbackCandidates: string[];
+  };
+  assert.equal(rollback.ok, true);
+  assert.equal(rollback.currentVersion, "nail-texture-seg-bootstrap-active");
+  assert.deepEqual(rollback.rollbackCandidates, [
+    "nail-texture-seg-bootstrap-fallback",
+  ]);
+});
 
 test("register-model-release snapshots manifest and updates registry current version", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-release-registry-register-"));
