@@ -1,7 +1,7 @@
 # Release 治理流水线
 
-版本：v1.4
-日期：2026-07-04
+版本：v1.5
+日期：2026-07-29
 
 `run-release-governance-pipeline.ts` 把 Phase 5 后半段的治理动作串成统一入口：
 
@@ -103,6 +103,17 @@ node --no-warnings --experimental-strip-types scripts/run-release-governance-pip
 - 当前 manifest 是否与 registry 的 `currentVersion` 一致。
 
 如果 promotion 成功但回滚审计失败，`release-governance-pipeline-report.json` 会整体 `ok: false`，避免发布链路进入“已经升级但不可验证回滚”的危险状态。
+
+### 首个正式发布的回滚启动方式
+
+空 registry 不能用一个版本同时满足“当前版本”和“非当前回滚候选”两种身份。首个正式发布必须准备两个彼此不同、且分别通过全部发布门的真实版本：
+
+1. 先用 `register-model-release.ts --set-current false` 登记 fallback，不把它切为当前版本；
+2. 再登记并激活另一个独立批准版本；
+3. 执行 `audit-release-rollback.ts`，深验两个版本的 manifest、模型文件、`modelSizeBytes`、SHA-256 和当前版本一致性；
+4. 只有审计确认至少一个完整的非当前候选后，首发回滚门才通过。
+
+禁止使用已被质量门拒绝的候选、synthetic/smoke 模型、同一模型的重复登记或缺失正式证据的占位资产充当 fallback。`--set-current false` 只控制登记时是否激活，不降低模型质量、来源隔离、设备、Beta 或完整性门。
 
 治理总报告会包含：
 
