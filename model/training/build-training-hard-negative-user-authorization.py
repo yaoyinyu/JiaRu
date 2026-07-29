@@ -36,6 +36,29 @@ EXPECTED_REQUEST_USES = [
 EXPECTED_EXCLUDED_USES = ["independent-release-test"]
 QUALITY_CONSTRAINT = "authorization-does-not-relax-quality-gates"
 ROLE_CONSTRAINT = "authorization-does-not-assign-train-validation-or-holdout-role"
+CANDIDATE_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{1,127}$")
+REQUEST_V2_KEYS = {
+    "schemaVersion",
+    "ok",
+    "status",
+    "decision",
+    "role",
+    "trainingUse",
+    "authorizationStatus",
+    "candidateId",
+    "sourceRoot",
+    "scopeIncludesDescendants",
+    "inputs",
+    "summary",
+    "requestedUses",
+    "excludedUses",
+    "qualityConstraint",
+    "roleConstraint",
+    "requestedItemsSha256",
+    "requiredConfirmationText",
+    "requestedRelativePaths",
+    "requestedItems",
+}
 FILE_ATTRIBUTE_REPARSE_POINT = 0x0400
 
 
@@ -148,14 +171,33 @@ def expected_request_item(progress_item: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def build_required_confirmation_text(
+    candidate_id: str,
+    requested_file_count: int,
+    requested_items_sha256: str,
+) -> str:
+    if not CANDIDATE_ID_PATTERN.fullmatch(candidate_id):
+        raise ValueError("candidateId is invalid")
+    if requested_file_count != EXPECTED_COUNT:
+        raise ValueError("requested file count must be exactly 160")
+    if not SHA256_PATTERN.fullmatch(requested_items_sha256):
+        raise ValueError("requestedItemsSha256 is invalid")
+    return (
+        f"允许将 {candidate_id} 最终冻结的{requested_file_count}张精确文件清单"
+        f"（requestedItemsSha256={requested_items_sha256}）用于商业模型训练、长期回归、"
+        "模型诊断评估和数据质量审核；不用于独立发布测试；授权不放宽质量门。"
+    )
+
+
 def validate_request(
     request_path: Path,
     *,
     expected_user_message: str | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     request = read_json(request_path, "exact authorization request")
+    schema_version = request.get("schemaVersion")
     if (
-        request.get("schemaVersion") != 1
+        schema_version not in {1, 2}
         or request.get("ok") is not False
         or request.get("status") != "HOLD"
         or request.get("decision") != "awaiting_exact_user_confirmation"
@@ -169,9 +211,17 @@ def validate_request(
         or request.get("excludedUses") != EXPECTED_EXCLUDED_USES
     ):
         raise ValueError("exact authorization request contract is invalid")
+    if schema_version == 2 and set(request) != REQUEST_V2_KEYS:
+        raise ValueError(
+            "exact authorization request v2 fields are not exact: "
+            f"missing={sorted(REQUEST_V2_KEYS - set(request))}, "
+            f"extra={sorted(set(request) - REQUEST_V2_KEYS)}"
+        )
 
     required_text = str(request.get("requiredConfirmationText") or "")
-    if not required_text or (
+    if not required_text:
+        raise ValueError("requiredConfirmationText is missing")
+    if schema_version == 1 and (
         expected_user_message is not None and expected_user_message != required_text
     ):
         raise ValueError("user message does not exactly match requiredConfirmationText")
@@ -289,6 +339,23 @@ def validate_request(
         raise ValueError("requestedRelativePaths differ from requestedItems")
     if len({str(item["sha256"]) for item in raw_items}) != EXPECTED_COUNT:
         raise ValueError("requestedItems contains duplicate image SHA-256 values")
+    requested_items_sha256 = canonical_sha256(raw_items)
+    candidate_id: str | None = None
+    if schema_version == 2:
+        candidate_id = str(request.get("candidateId") or "")
+        if not CANDIDATE_ID_PATTERN.fullmatch(candidate_id):
+            raise ValueError("exact authorization request candidateId is invalid")
+        if request.get("requestedItemsSha256") != requested_items_sha256:
+            raise ValueError("exact authorization request requestedItemsSha256 drift")
+        expected_confirmation = build_required_confirmation_text(
+            candidate_id,
+            EXPECTED_COUNT,
+            requested_items_sha256,
+        )
+        if required_text != expected_confirmation:
+            raise ValueError("requiredConfirmationText does not match the v2 template")
+        if expected_user_message is not None and expected_user_message != required_text:
+            raise ValueError("user message does not exactly match requiredConfirmationText")
 
     summary = request.get("summary")
     if summary != {
@@ -302,10 +369,12 @@ def validate_request(
         "requestPath": str(request_path),
         "requestSha256": sha256_file(request_path),
         "sourceRoot": str(source_root),
+        "schemaVersion": schema_version,
+        "candidateId": candidate_id,
         "requiredConfirmationText": required_text,
         "relativePaths": relative_paths,
         "relativePathsSha256": canonical_sha256(relative_paths),
-        "requestedItemsSha256": canonical_sha256(raw_items),
+        "requestedItemsSha256": requested_items_sha256,
         "progressReport": progress_binding,
         "generationPlan": plan_binding,
         "protectedHardNegativeRegistry": registry_binding,
@@ -327,14 +396,19 @@ def build_authorization(
         request_path,
         expected_user_message=user_message,
     )
-    return {
-        "schemaVersion": 1,
+    schema_version = int(binding["schemaVersion"])
+    result = {
+        "schemaVersion": schema_version,
         "ok": True,
         "decision": "authorized_for_training_hard_negative_review",
         "confirmedBy": "workspace-user",
         "confirmationNote": user_message,
         "authorizationEvidence": {
-            "kind": "codex-user-message",
+            "kind": (
+                "operator-attested-codex-user-message"
+                if schema_version == 2
+                else "codex-user-message"
+            ),
             "threadId": thread_id,
             "decisionId": decision_id,
             "userMessageText": user_message,
@@ -370,6 +444,13 @@ def build_authorization(
         },
         "currentTrainingUse": "prohibited",
     }
+    if schema_version == 2:
+        result["candidateId"] = binding["candidateId"]
+        result["requestedItemsSha256"] = binding["requestedItemsSha256"]
+        result["authorizationEvidence"]["attestationScope"] = (
+            "operator-attested; deep replayable but not host-cryptographically-signed"
+        )
+    return result
 
 
 def verify_authorization(path: Path) -> dict[str, Any]:

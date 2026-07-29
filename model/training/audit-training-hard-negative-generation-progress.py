@@ -694,18 +694,27 @@ def validate_output_path(
 
 
 def write_atomic_json(path: Path, value: dict[str, Any]) -> None:
+    payload = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
     temporary = path.parent / f".{path.name}.staging-{os.getpid()}-{uuid.uuid4().hex}"
     try:
-        temporary.write_text(
-            json.dumps(value, ensure_ascii=False, indent=2) + "\n",
-            encoding="utf-8",
-        )
-        if path.exists():
-            raise ValueError(f"refusing to overwrite existing output: {path}")
-        os.replace(temporary, path)
+        with temporary.open("xb") as stream:
+            stream.write(payload)
+            stream.flush()
+            os.fsync(stream.fileno())
+        try:
+            os.link(temporary, path)
+        except FileExistsError as error:
+            raise ValueError(f"refusing to overwrite existing output: {path}") from error
+        except OSError as error:
+            if path.exists():
+                raise ValueError(
+                    f"refusing to overwrite existing output: {path}"
+                ) from error
+            raise ValueError(
+                f"cannot atomically publish generation progress report: {path}: {error}"
+            ) from error
     finally:
-        if temporary.exists():
-            temporary.unlink()
+        temporary.unlink(missing_ok=True)
 
 
 def main() -> None:

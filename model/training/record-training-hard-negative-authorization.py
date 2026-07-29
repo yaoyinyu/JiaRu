@@ -15,10 +15,12 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 import re
 import shutil
+import sys
 import uuid
 from collections import Counter
 from datetime import datetime, timezone
@@ -52,6 +54,12 @@ REQUIRED_AUTHORIZED_USES = {
     "long-term-regression",
 }
 PROHIBITED_AUTHORIZED_USE = "independent-release-test"
+EXACT_AUTHORIZED_USES = [
+    "commercial-model-training",
+    "long-term-regression",
+    "model-diagnostic-evaluation",
+    "data-quality-review",
+]
 FILE_ATTRIBUTE_REPARSE_POINT = 0x0400
 
 
@@ -81,6 +89,22 @@ def read_json(path: Path, label: str) -> dict[str, Any]:
     if not isinstance(value, dict):
         raise ValueError(f"{label} must contain an object: {path}")
     return value
+
+
+def load_user_authorization_module() -> Any:
+    module_path = Path(__file__).with_name(
+        "build-training-hard-negative-user-authorization.py"
+    )
+    spec = importlib.util.spec_from_file_location(
+        "jiaru_training_hard_negative_user_authorization_verifier",
+        module_path,
+    )
+    if spec is None or spec.loader is None:
+        raise ValueError("cannot load training user-authorization verifier")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
 
 
 def write_json(path: Path, value: dict[str, Any]) -> None:
@@ -194,8 +218,9 @@ def validate_user_authorization(
     source_root: Path,
 ) -> tuple[dict[str, Any], list[str], list[str]]:
     authorization = read_json(path, "user authorization source")
+    schema_version = authorization.get("schemaVersion")
     if (
-        authorization.get("schemaVersion") != 1
+        schema_version not in {1, 2}
         or authorization.get("ok") is not True
         or authorization.get("decision")
         != "authorized_for_training_hard_negative_review"
@@ -218,7 +243,12 @@ def validate_user_authorization(
     evidence_thread_id = str(evidence.get("threadId") or "").strip()
     evidence_decision_id = str(evidence.get("decisionId") or "").strip()
     if (
-        evidence.get("kind") != "codex-user-message"
+        evidence.get("kind")
+        != (
+            "operator-attested-codex-user-message"
+            if schema_version == 2
+            else "codex-user-message"
+        )
         or evidence_text != confirmation_note
         or evidence.get("userMessageSha256")
         != hashlib.sha256(evidence_text.encode("utf-8")).hexdigest()
@@ -229,6 +259,13 @@ def validate_user_authorization(
         raise ValueError(
             "user authorization source does not bind a traceable user-message decision"
         )
+    if schema_version == 2:
+        verification = load_user_authorization_module().verify_authorization(path)
+        if (
+            verification.get("ok") is not True
+            or verification.get("currentTrainingUse") != "prohibited"
+        ):
+            raise ValueError("user authorization source v2 deep replay failed")
 
     try:
         authorized_root = Path(str(authorization.get("sourceRoot") or "")).resolve(
@@ -252,7 +289,9 @@ def validate_user_authorization(
             if str(value).strip()
         }
     )
-    if not REQUIRED_AUTHORIZED_USES.issubset(authorized_uses):
+    if schema_version == 2 and authorized_uses != sorted(EXACT_AUTHORIZED_USES):
+        raise ValueError("authorizedUses must exactly match the v2 confirmed uses")
+    if schema_version == 1 and not REQUIRED_AUTHORIZED_USES.issubset(authorized_uses):
         raise ValueError(
             "authorizedUses must include commercial-model-training and long-term-regression"
         )
@@ -260,6 +299,11 @@ def validate_user_authorization(
         raise ValueError(
             "authorizedUses must exclude independent-release-test for training batches"
         )
+    if schema_version == 2 and (
+        authorization.get("excludedUses") != [PROHIBITED_AUTHORIZED_USE]
+        or authorization.get("currentTrainingUse") != "prohibited"
+    ):
+        raise ValueError("v2 authorization use exclusions or training state drift")
 
     raw_paths = authorization.get("authorizedRelativePaths")
     if not isinstance(raw_paths, list) or not raw_paths:
