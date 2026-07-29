@@ -49,6 +49,17 @@ PLAN_ITEM_KEYS = {
     "role",
     "trainingUse",
 }
+REPORT_ITEM_KEYS = PLAN_ITEM_KEYS | {
+    "sourcePath",
+    "state",
+    "issueCodes",
+    "sha256",
+    "width",
+    "height",
+    "format",
+    "bytes",
+    "dhash256",
+}
 REPORT_KEYS = {
     "schemaVersion",
     "generatedAt",
@@ -463,14 +474,86 @@ def inspect_pool(
     return current_items, unknown_files, issues
 
 
+def derive_report_aggregates(
+    items: list[dict[str, Any]],
+    unknown_files: list[dict[str, Any]],
+) -> tuple[
+    bool,
+    dict[str, int],
+    dict[str, dict[str, int]],
+    dict[str, Any] | None,
+]:
+    present = sum(item["state"] != "missing" for item in items)
+    missing = sum(item["state"] == "missing" for item in items)
+    passed = sum(item["state"] == "passed" for item in items)
+    failed = sum(item["state"] == "failed" for item in items) + len(unknown_files)
+    ready = (
+        present == EXPECTED_COUNT
+        and missing == 0
+        and failed == 0
+        and passed == EXPECTED_COUNT
+    )
+    summary = {
+        "expected": EXPECTED_COUNT,
+        "present": present,
+        "missing": missing,
+        "passed": passed,
+        "failed": failed,
+        "unknown": len(unknown_files),
+    }
+    family_counts: dict[str, dict[str, int]] = {}
+    for family in sorted({str(item["promptFamily"]) for item in items}):
+        members = [item for item in items if item["promptFamily"] == family]
+        family_counts[family] = {
+            "expected": len(members),
+            "present": sum(item["state"] != "missing" for item in members),
+            "missing": sum(item["state"] == "missing" for item in members),
+            "passed": sum(item["state"] == "passed" for item in members),
+            "failed": sum(item["state"] == "failed" for item in members),
+        }
+    next_missing_item = next(
+        (item for item in items if item["state"] == "missing"),
+        None,
+    )
+    next_missing = (
+        {
+            "sequence": next_missing_item["sequence"],
+            "expectedFileName": next_missing_item["expectedFileName"],
+            "promptId": next_missing_item["promptId"],
+            "promptFamily": next_missing_item["promptFamily"],
+            "promptVariant": next_missing_item["promptVariant"],
+        }
+        if next_missing_item is not None
+        else None
+    )
+    return ready, summary, family_counts, next_missing
+
+
 def validate_previous_report(
     previous_path: Path,
+    plan: dict[str, Any],
     plan_binding: dict[str, Any],
+    registry_binding: dict[str, Any],
+    protected_records_sha256: str,
     source_root: Path,
+    visited: set[Path] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    visited = set() if visited is None else set(visited)
+    canonical_previous_path = previous_path.resolve(strict=True)
+    if canonical_previous_path in visited:
+        raise ValueError("previous report chain contains a cycle")
+    visited.add(canonical_previous_path)
     previous = read_json(previous_path, "previous generation progress report")
     if set(previous) != REPORT_KEYS:
         raise ValueError("previous report fields are not exact")
+    try:
+        generated_at = datetime.fromisoformat(
+            str(previous.get("generatedAt") or "").replace("Z", "+00:00")
+        )
+    except ValueError as error:
+        raise ValueError("previous report generatedAt is invalid") from error
+    if generated_at.tzinfo is None:
+        raise ValueError("previous report generatedAt must include a timezone")
     if (
         previous.get("schemaVersion") != 1
         or previous.get("role") != "training-candidate"
@@ -482,11 +565,166 @@ def validate_previous_report(
     ):
         raise ValueError("previous report contract or items hash is invalid")
     inputs = previous.get("inputs")
-    if not isinstance(inputs, dict) or inputs.get("generationPlan") != plan_binding:
-        raise ValueError("previous report generation plan binding drift")
+    if not isinstance(inputs, dict) or set(inputs) != {
+        "generationPlan",
+        "protectedHardNegativeRegistry",
+        "protectedRecordsSha256",
+        "previousReport",
+    }:
+        raise ValueError("previous report input bindings are invalid")
+    if (
+        inputs.get("generationPlan") != plan_binding
+        or inputs.get("protectedHardNegativeRegistry") != registry_binding
+        or inputs.get("protectedRecordsSha256") != protected_records_sha256
+    ):
+        raise ValueError("previous report plan or registry binding drift")
     items = previous.get("items")
     if not isinstance(items, list) or len(items) != EXPECTED_COUNT:
         raise ValueError("previous report item set is invalid")
+    issue_codes_by_sequence: dict[int, set[str]] = defaultdict(set)
+    issues = previous.get("issues")
+    if not isinstance(issues, list):
+        raise ValueError("previous report issues are invalid")
+    for issue_index, issue in enumerate(issues, start=1):
+        if not isinstance(issue, dict):
+            raise ValueError(f"previous report issue {issue_index} is invalid")
+        allowed_keys = {"code", "message", "sequences", "files"}
+        if not {"code", "message"}.issubset(issue) or not set(issue) <= allowed_keys:
+            raise ValueError(f"previous report issue {issue_index} fields are invalid")
+        code = str(issue.get("code") or "")
+        message = str(issue.get("message") or "")
+        if not code or not message:
+            raise ValueError(f"previous report issue {issue_index} is incomplete")
+        sequences = issue.get("sequences", [])
+        if not isinstance(sequences, list) or sequences != sorted(set(sequences)):
+            raise ValueError(f"previous report issue {issue_index} sequences are invalid")
+        for sequence in sequences:
+            if not isinstance(sequence, int) or isinstance(sequence, bool) or not 1 <= sequence <= EXPECTED_COUNT:
+                raise ValueError(f"previous report issue {issue_index} sequence is invalid")
+            issue_codes_by_sequence[sequence].add(code)
+        files = issue.get("files", [])
+        if not isinstance(files, list) or files != sorted(set(files), key=str.casefold):
+            raise ValueError(f"previous report issue {issue_index} files are invalid")
+
+    for index, (item, planned) in enumerate(zip(items, plan["items"]), start=1):
+        if not isinstance(item, dict) or set(item) != REPORT_ITEM_KEYS:
+            raise ValueError(f"previous report item {index:03d} fields are invalid")
+        for key in PLAN_ITEM_KEYS:
+            if item.get(key) != planned.get(key):
+                raise ValueError(
+                    f"previous report item {index:03d} plan identity drift: {key}"
+                )
+        expected_path = str(source_root / str(planned["expectedFileName"]))
+        if item.get("sourcePath") != expected_path:
+            raise ValueError(f"previous report item {index:03d} source path drift")
+        state = item.get("state")
+        if state not in {"missing", "passed", "failed"}:
+            raise ValueError(f"previous report item {index:03d} state is invalid")
+        issue_codes = item.get("issueCodes")
+        if (
+            not isinstance(issue_codes, list)
+            or issue_codes != sorted(set(issue_codes))
+            or set(issue_codes) != issue_codes_by_sequence[index]
+        ):
+            raise ValueError(f"previous report item {index:03d} issue codes drift")
+        metadata = [
+            item.get("sha256"),
+            item.get("width"),
+            item.get("height"),
+            item.get("format"),
+            item.get("bytes"),
+            item.get("dhash256"),
+        ]
+        if state == "missing":
+            if issue_codes or any(value is not None for value in metadata):
+                raise ValueError(f"previous report missing item {index:03d} has evidence")
+        elif state == "passed":
+            if issue_codes:
+                raise ValueError(f"previous report passed item {index:03d} has issues")
+            if (
+                not SHA256_PATTERN.fullmatch(str(item.get("sha256") or ""))
+                or not SHA256_PATTERN.fullmatch(str(item.get("dhash256") or ""))
+                or not isinstance(item.get("width"), int)
+                or isinstance(item.get("width"), bool)
+                or not isinstance(item.get("height"), int)
+                or isinstance(item.get("height"), bool)
+                or min(int(item["width"]), int(item["height"])) < MINIMUM_SIDE
+                or not isinstance(item.get("format"), str)
+                or not item.get("format")
+                or not isinstance(item.get("bytes"), int)
+                or isinstance(item.get("bytes"), bool)
+                or int(item["bytes"]) <= 0
+            ):
+                raise ValueError(f"previous report passed item {index:03d} metadata is invalid")
+        elif not issue_codes:
+            raise ValueError(f"previous report failed item {index:03d} lacks an issue")
+
+    unknown_files = previous.get("unknownFiles")
+    if not isinstance(unknown_files, list):
+        raise ValueError("previous report unknown files are invalid")
+    seen_unknown_names: set[str] = set()
+    for index, unknown in enumerate(unknown_files, start=1):
+        if not isinstance(unknown, dict) or set(unknown) != {"name", "path", "reason"}:
+            raise ValueError(f"previous report unknown file {index} fields are invalid")
+        name = str(unknown.get("name") or "")
+        if not name or name.casefold() in seen_unknown_names:
+            raise ValueError(f"previous report unknown file {index} name is invalid")
+        seen_unknown_names.add(name.casefold())
+        if unknown.get("path") != str((source_root / name).absolute()):
+            raise ValueError(f"previous report unknown file {index} path drift")
+        if not str(unknown.get("reason") or ""):
+            raise ValueError(f"previous report unknown file {index} reason is invalid")
+
+    ready, summary, family_counts, next_missing = derive_report_aggregates(
+        items,
+        unknown_files,
+    )
+    expected_status = "READY" if ready else "HOLD"
+    expected_decision = (
+        "ready_to_request_exact_user_authorization"
+        if ready
+        else "hold_generation_incomplete_or_machine_gate_failed"
+    )
+    if (
+        previous.get("ok") is not ready
+        or previous.get("status") != expected_status
+        or previous.get("decision") != expected_decision
+        or previous.get("constraints")
+        != {
+            "expectedCount": EXPECTED_COUNT,
+            "minimumSide": MINIMUM_SIDE,
+            "nearDuplicateThreshold": NEAR_DUPLICATE_DISTANCE,
+            "unknownEntriesAllowed": False,
+            "linksOrReparsePointsAllowed": False,
+        }
+        or previous.get("summary") != summary
+        or previous.get("familyCounts") != family_counts
+        or previous.get("nextMissing") != next_missing
+    ):
+        raise ValueError("previous report derived summary or decision drift")
+
+    ancestor_binding = inputs.get("previousReport")
+    if ancestor_binding is not None:
+        if not isinstance(ancestor_binding, dict) or set(ancestor_binding) != {"path", "sha256"}:
+            raise ValueError("previous report ancestor binding is invalid")
+        ancestor_path = require_plain_file(
+            str(ancestor_binding.get("path") or ""),
+            "ancestor generation progress report",
+        )
+        if ancestor_path == canonical_previous_path:
+            raise ValueError("previous report cannot bind itself as an ancestor")
+        if sha256_file(ancestor_path) != ancestor_binding.get("sha256"):
+            raise ValueError("previous report ancestor SHA-256 drift")
+        ancestor, _ = validate_previous_report(
+            ancestor_path,
+            plan,
+            plan_binding,
+            registry_binding,
+            protected_records_sha256,
+            source_root,
+            visited,
+        )
+        enforce_completed_file_stability(ancestor, items)
     return previous, {
         "path": str(previous_path),
         "sha256": sha256_file(previous_path),
@@ -527,12 +765,16 @@ def build_report(
         selected_source_root,
     )
     plan_binding = {"path": str(plan_path), "sha256": sha256_file(plan_path)}
+    protected_records_sha256 = canonical_sha256(protected_records)
     previous: dict[str, Any] | None = None
     previous_binding: dict[str, Any] | None = None
     if previous_path is not None:
         previous, previous_binding = validate_previous_report(
             previous_path,
+            plan,
             plan_binding,
+            registry_binding,
+            protected_records_sha256,
             source_root,
         )
     items, unknown_files, issues = inspect_pool(
@@ -543,43 +785,16 @@ def build_report(
     )
     enforce_completed_file_stability(previous, items)
 
-    present = sum(item["state"] != "missing" for item in items)
-    missing = sum(item["state"] == "missing" for item in items)
-    passed = sum(item["state"] == "passed" for item in items)
-    failed = sum(item["state"] == "failed" for item in items) + len(unknown_files)
-    ready = present == EXPECTED_COUNT and missing == 0 and failed == 0 and passed == EXPECTED_COUNT
+    ready, summary, family_counts, next_missing = derive_report_aggregates(
+        items,
+        unknown_files,
+    )
     decision = (
         "ready_to_request_exact_user_authorization"
         if ready
         else "hold_generation_incomplete_or_machine_gate_failed"
     )
 
-    family_counts: dict[str, dict[str, int]] = {}
-    families = sorted({str(item["promptFamily"]) for item in items})
-    for family in families:
-        members = [item for item in items if item["promptFamily"] == family]
-        family_counts[family] = {
-            "expected": len(members),
-            "present": sum(item["state"] != "missing" for item in members),
-            "missing": sum(item["state"] == "missing" for item in members),
-            "passed": sum(item["state"] == "passed" for item in members),
-            "failed": sum(item["state"] == "failed" for item in members),
-        }
-    next_missing_item = next(
-        (item for item in items if item["state"] == "missing"),
-        None,
-    )
-    next_missing = (
-        {
-            "sequence": next_missing_item["sequence"],
-            "expectedFileName": next_missing_item["expectedFileName"],
-            "promptId": next_missing_item["promptId"],
-            "promptFamily": next_missing_item["promptFamily"],
-            "promptVariant": next_missing_item["promptVariant"],
-        }
-        if next_missing_item is not None
-        else None
-    )
     report = {
         "schemaVersion": 1,
         "generatedAt": generated_at or datetime.now(timezone.utc).isoformat(),
@@ -593,7 +808,7 @@ def build_report(
         "inputs": {
             "generationPlan": plan_binding,
             "protectedHardNegativeRegistry": registry_binding,
-            "protectedRecordsSha256": canonical_sha256(protected_records),
+            "protectedRecordsSha256": protected_records_sha256,
             "previousReport": previous_binding,
         },
         "constraints": {
@@ -603,14 +818,7 @@ def build_report(
             "unknownEntriesAllowed": False,
             "linksOrReparsePointsAllowed": False,
         },
-        "summary": {
-            "expected": EXPECTED_COUNT,
-            "present": present,
-            "missing": missing,
-            "passed": passed,
-            "failed": failed,
-            "unknown": len(unknown_files),
-        },
+        "summary": summary,
         "nextMissing": next_missing,
         "familyCounts": family_counts,
         "itemsCurrentSha256": canonical_sha256(items),

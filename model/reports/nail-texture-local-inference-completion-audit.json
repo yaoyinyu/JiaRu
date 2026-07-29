@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-29T09:18:04.220Z",
+  "generatedAt": "2026-07-29T10:13:34.744Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 386,
-    "passMarkerCount": 378,
+    "progressMarkerCount": 388,
+    "passMarkerCount": 380,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -834,11 +834,15 @@
         },
         {
           "checked": true,
-          "text": "完成候选5第十六个`mixed_visual_confuser`提示族151—160的逐图独立生成、双人可见初筛和160/160机器审计；10张均为全新非美甲场景组合，目标主体完整清晰、无手部/甲面、文字水印或裁切。最终报告160通过、0缺失、0失败、0未知，SHA-256为`9aa129a1…25c3`；精确授权请求包逐项冻结160个当前文件，SHA-256为`a71188d8…5d56`。该项仍只证明生成、机器隔离和授权请求准备完成，未授予商业训练资格。"
+          "text": "完成候选5第十六个`mixed_visual_confuser`提示族151—160的逐图独立生成、双人可见初筛和160/160机器审计；10张均为全新非美甲场景组合，目标主体完整清晰、无手部/甲面、文字水印或裁切。最终报告160通过、0缺失、0失败、0未知，SHA-256为`9aa129a1…25c3`；schema v2精确授权请求包逐项冻结160个当前文件、清单摘要及四项用途，SHA-256为`4a47e126…27fd`。该项仍只证明生成、机器隔离和授权请求准备完成，未授予商业训练资格。"
+        },
+        {
+          "checked": true,
+          "text": "将训练困难负样本授权链升级为schema v2：确认文本必须同时绑定候选ID、160张数量、`requestedItemsSha256`和商业训练/长期回归/模型诊断/数据质量审核四种用途；请求与授权构建器拒绝额外字段、非法ID、文本或清单漂移，正式A记录器深度重放请求、进度报告、计划、registry和当前文件。历史schema v1只读兼容，不得用于新candidate5请求。"
         },
         {
           "checked": false,
-          "text": "等待用户按精确请求文本授权`candidate5-training-v2`最终冻结清单用于商业模型训练和长期回归；授权后再执行正式A授权建账、原分辨率终审、schema v2批准、训练物化与GPU输入深审。授权、质量和输入门未清零前不得训练，也不得将本批改作独立发布测试。"
+          "text": "等待用户按schema v2精确请求文本授权`candidate5-training-v2`最终冻结160张清单及其四种明确用途；授权后再执行正式A授权建账、原分辨率终审、schema v2批准、训练物化与GPU输入深审。授权、质量和输入门未清零前不得训练，也不得将本批改作独立发布测试。"
         },
         {
           "checked": true,
@@ -955,6 +959,10 @@
         {
           "checked": true,
           "text": "修复发布治理回归夹具与当前回滚完整性契约的偏差；测试manifest使用真实模型字节动态填写`modelSizeBytes`和SHA-256，不降低生产深审逻辑。发布治理与训练发布编排专项27/27、全量串行630/630通过。"
+        },
+        {
+          "checked": true,
+          "text": "固化首个正式发布的双批准版本回滚启动策略：先将一个独立通过完整发布质量门的版本以`--set-current false`注册为非当前fallback，再注册并激活另一个不同版本；正式回滚审计仍要求两个manifest/模型字节完整、SHA/体积匹配且至少一个非当前候选。禁止用synthetic、smoke、已拒绝候选或同一模型重复登记绕过回滚门。"
         }
       ],
       "malformedRows": [],
@@ -962,9 +970,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 386,
-      "uniqueMarkerCount": 386,
-      "passMarkerCount": 378,
+      "markerCount": 388,
+      "uniqueMarkerCount": 388,
+      "passMarkerCount": 380,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [

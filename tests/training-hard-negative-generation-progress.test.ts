@@ -627,6 +627,47 @@ test("previous report permits growth but rejects a completed image hash drift", 
   const first = path.join(item.root, "progress-001.json");
   assert.equal(runAudit(item, first).status, 0);
 
+  const firstRecord = JSON.parse(readFileSync(first, "utf8"));
+  const forgedSummary = path.join(item.root, "progress-001-forged-summary.json");
+  writeJson(forgedSummary, {
+    ...firstRecord,
+    summary: { ...firstRecord.summary, passed: 0 },
+  });
+  const forgedSummaryGrowth = runAudit(
+    item,
+    path.join(item.root, "progress-forged-summary-child.json"),
+    forgedSummary,
+  );
+  assert.notEqual(forgedSummaryGrowth.status, 0);
+  assert.match(
+    forgedSummaryGrowth.stderr,
+    /previous report derived summary or decision drift/,
+  );
+  assert.equal(
+    existsSync(path.join(item.root, "progress-forged-summary-child.json")),
+    false,
+  );
+
+  const forgedIdentity = path.join(item.root, "progress-001-forged-identity.json");
+  const forgedItems = structuredClone(firstRecord.items);
+  forgedItems[0].promptId = "forged.prompt.identity";
+  writeJson(forgedIdentity, {
+    ...firstRecord,
+    items: forgedItems,
+    itemsCurrentSha256: canonicalSha(forgedItems),
+  });
+  const forgedIdentityGrowth = runAudit(
+    item,
+    path.join(item.root, "progress-forged-identity-child.json"),
+    forgedIdentity,
+  );
+  assert.notEqual(forgedIdentityGrowth.status, 0);
+  assert.match(forgedIdentityGrowth.stderr, /plan identity drift/);
+  assert.equal(
+    existsSync(path.join(item.root, "progress-forged-identity-child.json")),
+    false,
+  );
+
   addImage(item, 2, 3102);
   const second = path.join(item.root, "progress-002.json");
   const growth = runAudit(item, second, first);
