@@ -181,7 +181,8 @@ function createLowContrastNudeCloseup(nailCount: number) {
         if (normalized > 1.12) continue;
         const offset = (y * width + x) * 4;
         const boundary = normalized >= 0.92;
-        const highlight = !boundary && Math.abs(localX + nail.rx * 0.25) < 2;
+        const highlight =
+          !boundary && Math.hypot(localX + nail.rx * 0.25, localY + nail.ry * 0.2) < 3;
         data[offset] = boundary ? 171 : highlight ? 212 : 188;
         data[offset + 1] = boundary ? 127 : highlight ? 190 : 155;
         data[offset + 2] = boundary ? 118 : highlight ? 184 : 148;
@@ -271,7 +272,7 @@ test("partial closeup detector keeps five nails surrounded by dry textured skin"
   });
 
   const result = detectPartialCloseupNails(source);
-  assert.equal(result.candidates.length, 5, JSON.stringify(result.diagnostics));
+  assert.equal(result.candidates.length, 5);
   assert.ok(result.candidates.every((candidate) => candidate.suggestedFinger === null));
   assert.ok(
     result.candidates.every((candidate) =>
@@ -290,7 +291,7 @@ test("partial closeup detector refuses a lone ambiguous painted object", () => {
 test("partial closeup detector finds a coherent chain of skin-toned nude nails", () => {
   const result = detectPartialCloseupNails(createLowContrastNudeCloseup(5));
 
-  assert.equal(result.candidates.length, 5);
+  assert.equal(result.candidates.length, 5, JSON.stringify(result.diagnostics));
   assert.ok(
     result.candidates.every((candidate) =>
       candidate.warnings?.includes("partial_closeup_low_contrast_boundary")
