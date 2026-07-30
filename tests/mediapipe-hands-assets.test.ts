@@ -44,4 +44,5 @@ test("static image detection and live AR do not depend on a MediaPipe CDN", asyn
     assert.doesNotMatch(source, /cdn\.jsdelivr\.net.*mediapipe\/hands/);
     assert.match(source, /resolveMediaPipeHandsAsset/);
   }
+  assert.match(arSource, /modelComplexity:\s*1/);
 });
