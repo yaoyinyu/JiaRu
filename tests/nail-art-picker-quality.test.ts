@@ -38,9 +38,22 @@ test("presentRecognitionWarning maps known runtime warnings to readable text", (
     !presentRecognitionWarning("worker_timeout_used_main_thread").includes(
       "worker_timeout_used_main_thread"
     )
-  );  assert.equal(
+  );
+  assert.equal(
     presentRecognitionWarning("unknown_warning_code"),
-    "识别提示：unknown_warning_code"
+    "识别遇到未分类提示，请人工检查甲面区域。"
+  );
+  assert.equal(
+    presentRecognitionWarning("fallback_candidates_hidden_manual_selection_required"),
+    "正式识别模型暂不可用；为避免误选衣物或背景，规则候选已隐藏。请直接在图片上逐个点击完整甲面。"
+  );
+  assert.equal(
+    presentRecognitionWarning("model_unavailable_used_mediapipe_geometry"),
+    "精细甲面模型暂不可用，已改用手部关键点自动定位；请快速检查边界后提取。"
+  );
+  assert.equal(
+    presentRecognitionWarning("mediapipe_hand_detection_failed"),
+    "手部关键点自动定位启动失败，请刷新页面后重试；仍失败时可继续手动添加。"
   );
 });
 
@@ -48,6 +61,10 @@ test("presentCandidateWarning maps debug low-score candidates to readable text",
   assert.equal(
     presentCandidateWarning("low_score_debug_candidate").message,
     "这是调试模式保留的低分候选，默认流程会隐藏。"
+  );
+  assert.equal(
+    presentCandidateWarning("mediapipe_geometry_detection").message,
+    "已根据手部关键点自动定位甲面；如边界有偏差，可直接拖动或微调。"
   );
 });
 

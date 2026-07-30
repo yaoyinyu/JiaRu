@@ -11,7 +11,7 @@
     ↓
 [POST /api/generate-ai]  ← 服务端，持有 API Key
     ↓
-[OpenAI DALL-E 3 API]    ← 图像生成
+[Agnes Image 2.1 Flash API] ← 图像生成
     ↓
 [返回 image URL]
     ↓
@@ -22,7 +22,7 @@
 
 1. **服务端 API 路由**：API Key 只存在服务端 `.env.local`，前端永远拿不到
 2. **Prompt 工程**：用户输入 + 美甲场景词后缀，确保生成结果与美甲相关
-3. **图片返回方式**：DALL-E 3 返回 URL，前端直接显示；保存时通过 canvas 转 blob 下载
+3. **图片返回方式**：Agnes返回URL，前端直接显示；保存时通过fetch转blob下载
 
 ## 3. 任务分解（含验收标准）
 
@@ -33,7 +33,7 @@
 **实现要点**:
 - POST 请求，body: `{ prompt: string }`
 - 校验 prompt 非空，长度 1-500
-- 调用 OpenAI Images API（DALL-E 3, 1024x1024, standard quality）
+- 调用Agnes Images API（`agnes-image-2.1-flash`、1024x1024、URL输出）
 - prompt 加后缀：`", nail art design on fingernails, manicure, close-up, beautiful"`
 - 返回 `{ imageUrl: string }`
 - 错误处理：
@@ -79,16 +79,16 @@
 - 真实 `.env.local` 不提交（已在 .gitignore 中）
 
 **验收标准**:
-- [ ] `.env.local.example` 含 `OPENAI_API_KEY=your-key-here`
+- [x] `.env.local.example`含`AGNES_API_KEY=your-key-here`、基础地址和模型ID占位配置
 - [ ] README 或文档说明如何配置
 
 ## 4. 风险与缓解
 
 | 风险 | 缓解 |
 |------|------|
-| 用户无 OpenAI API Key | 代码写好但运行时检测无 Key 返回友好错误 |
+| 用户无Agnes API Key | 运行时检测无Key并返回友好错误 |
 | 生成结果与美甲无关 | Prompt 后缀强制关联 |
-| API 超时 | 30s 超时，前端显示重试按钮 |
+| API 超时或繁忙 | 180秒总超时；503按1/2/4秒指数退避，前端显示重试按钮 |
 | 成本控制 | 每次生成都消耗 API 额度，未来可加限流 |
 
 ## 5. 未来扩展

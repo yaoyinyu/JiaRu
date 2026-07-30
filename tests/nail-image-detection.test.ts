@@ -27,6 +27,10 @@ test("reference nail-art image detection matches reusable fixture", async () => 
 
   assert.equal(result.backend, "fallback");
   assert.equal(result.candidates.length, fixture.expected.candidateCount);
+  assert.ok(
+    result.candidates.every((candidate) => candidate.confidence === "low"),
+    "unverified saliency fallback candidates must never be presented as high confidence"
+  );
 
   const comparison = compareDetectedRegionsToFixture(result.candidates, fixture.truthRegions);
   assert.equal(comparison.matchedTruthCount, fixture.truthRegions.length);

@@ -1,0 +1,103 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  AgnesImageApiError,
+  generateAgnesImage,
+  getAgnesImageConfig,
+} from "../src/lib/agnes-image-api.ts";
+
+test("Agnes 配置拒绝缺失密钥", () => {
+  assert.throws(
+    () => getAgnesImageConfig({}),
+    (error: unknown) =>
+      error instanceof AgnesImageApiError && error.statusCode === 503
+  );
+});
+
+test("Agnes 图像请求遵循 Image 2.1 Flash 协议", async () => {
+  let requestedUrl = "";
+  let requestedInit: RequestInit | undefined;
+  const fetchImpl = async (input: string | URL | Request, init?: RequestInit) => {
+    requestedUrl = String(input);
+    requestedInit = init;
+    return new Response(
+      JSON.stringify({ data: [{ url: "https://images.example/design.png" }] }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  };
+
+  const result = await generateAgnesImage("pink chrome manicure", {
+    env: {
+      AGNES_API_KEY: "test-secret",
+      AGNES_API_BASE_URL: "https://apihub.agnes-ai.cn/v1/",
+      AGNES_IMAGE_MODEL: "agnes-image-2.1-flash",
+    },
+    fetchImpl: fetchImpl as typeof fetch,
+  });
+
+  assert.equal(
+    requestedUrl,
+    "https://apihub.agnes-ai.cn/v1/images/generations"
+  );
+  assert.equal(
+    new Headers(requestedInit?.headers).get("Authorization"),
+    "Bearer test-secret"
+  );
+  const body = JSON.parse(String(requestedInit?.body));
+  assert.deepEqual(body, {
+    model: "agnes-image-2.1-flash",
+    prompt: "pink chrome manicure",
+    size: "1024x1024",
+    extra_body: { response_format: "url" },
+  });
+  assert.equal("image" in body, false);
+  assert.equal("response_format" in body, false);
+  assert.deepEqual(result, {
+    imageUrl: "https://images.example/design.png",
+    model: "agnes-image-2.1-flash",
+  });
+});
+
+test("Agnes 503 响应按指数退避重试", async () => {
+  let attempts = 0;
+  const fetchImpl = async () => {
+    attempts += 1;
+    if (attempts < 3) {
+      return new Response("busy", { status: 503 });
+    }
+    return new Response(
+      JSON.stringify({ data: [{ url: "https://images.example/retry.png" }] }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  };
+
+  const result = await generateAgnesImage("retry manicure", {
+    env: { AGNES_API_KEY: "test-secret" },
+    fetchImpl: fetchImpl as typeof fetch,
+    retryDelayMs: 0,
+  });
+
+  assert.equal(attempts, 3);
+  assert.equal(result.imageUrl, "https://images.example/retry.png");
+});
+
+test("Agnes 401 响应不会泄露供应商正文", async () => {
+  const fetchImpl = async () =>
+    new Response(JSON.stringify({ error: { message: "secret detail" } }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+
+  await assert.rejects(
+    () =>
+      generateAgnesImage("unauthorized manicure", {
+        env: { AGNES_API_KEY: "bad-secret" },
+        fetchImpl: fetchImpl as typeof fetch,
+      }),
+    (error: unknown) =>
+      error instanceof AgnesImageApiError &&
+      error.statusCode === 401 &&
+      error.message === "Agnes API Key 无效"
+  );
+});

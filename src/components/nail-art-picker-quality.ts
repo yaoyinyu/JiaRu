@@ -55,7 +55,11 @@ const CANDIDATE_WARNING_MESSAGES: Record<string, NailArtPickerWarningPresentatio
   },
   mediapipe_geometry_detection: {
     severity: "info",
-    message: "该候选主要来自几何估计，建议人工复核。",
+    message: "已根据手部关键点自动定位甲面；如边界有偏差，可直接拖动或微调。",
+  },
+  mediapipe_orientation_ambiguous: {
+    severity: "warning",
+    message: "手部朝向不够明确，建议确认自动定位是否覆盖完整甲面。",
   },
   low_score_debug_candidate: {
     severity: "info",
@@ -66,11 +70,24 @@ const CANDIDATE_WARNING_MESSAGES: Record<string, NailArtPickerWarningPresentatio
 const RECOGNITION_WARNING_MESSAGES: Record<string, string> = {
   no_candidates_detected: "没有检测到可用的美甲候选区域。",
   worker_unavailable_used_main_thread: "当前环境未启用 Worker，已回退到主线程识别。",
-  worker_timeout_used_main_thread: "Worker recognition timed out; fallback recognition was used.",  model_runtime_unavailable_on_server: "当前环境无法直接加载模型运行时，已回退到规则识别。",
+  worker_timeout_used_main_thread: "后台识别超时，已切换到主线程处理。",
+  model_runtime_unavailable_on_server: "当前环境无法直接加载模型运行时，已回退到规则识别。",
   no_supported_model_backend: "浏览器没有可用的模型推理后端，已回退到规则识别。",
   onnx_runtime_not_loaded: "模型运行时尚未就绪，已回退到规则识别。",
   onnx_session_init_failed: "模型会话初始化失败，已回退到规则识别。",
   recognition_cancelled_by_user: "自动识别已取消，你可以继续手动添加和调整区域。",
+  model_unavailable_used_mediapipe_geometry:
+    "精细甲面模型暂不可用，已改用手部关键点自动定位；请快速检查边界后提取。",
+  mediapipe_no_hand_detected:
+    "图片中没有检测到完整手部，请换用五指清晰可见的照片，或手动添加甲面。",
+  mediapipe_palm_facing:
+    "检测到手心朝向；请上传手背和甲面清晰可见的照片。",
+  mediapipe_no_nail_geometry:
+    "检测到了手部，但没有形成可靠的甲面区域，请手动添加或更换照片。",
+  mediapipe_hand_detection_failed:
+    "手部关键点自动定位启动失败，请刷新页面后重试；仍失败时可继续手动添加。",
+  fallback_candidates_hidden_manual_selection_required:
+    "正式识别模型暂不可用；为避免误选衣物或背景，规则候选已隐藏。请直接在图片上逐个点击完整甲面。",
 };
 
 const RECOGNITION_WARNING_PREFIX_MESSAGES: Array<[prefix: string, message: string]> = [
@@ -88,7 +105,7 @@ export function presentCandidateWarning(warning: string): NailArtPickerWarningPr
   return (
     CANDIDATE_WARNING_MESSAGES[warning] ?? {
       severity: "warning",
-      message: `候选存在未分类问题：${warning}`,
+      message: "当前候选存在未分类问题，请人工检查位置、角度和大小。",
     }
   );
 }
@@ -100,7 +117,7 @@ export function presentRecognitionWarning(warning: string): string {
   const prefixMessage = RECOGNITION_WARNING_PREFIX_MESSAGES.find(([prefix]) =>
     warning.startsWith(prefix)
   )?.[1];
-  return prefixMessage ?? `识别提示：${warning}`;
+  return prefixMessage ?? "识别遇到未分类提示，请人工检查甲面区域。";
 }
 
 export function regionNeedsReview(region: NailArtPickerQualityRegionLike): boolean {

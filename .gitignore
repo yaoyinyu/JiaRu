@@ -81,6 +81,7 @@ model/exports/
 /runs/
 /review-temp/
 /.playwright-cli/
+/output/playwright/
 
 # task-local release-test media snapshots (canonical copies live outside the repo)
 /辅助材料/real-release-test-2026-07-22/

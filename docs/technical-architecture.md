@@ -10,7 +10,7 @@
 | UI交互 | Canvas API | — | 涂色编辑器 + AR 指甲贴图 |
 | 手部追踪 | MediaPipe Hands (Tasks Vision) | — | AR模式，21 关键点 3D 检测 |
 | 3D渲染 | Three.js | — | AR模式（预留） |
-| AI生成 | OpenAI DALL-E 3 API | — | AI模式（Phase 2） |
+| AI生成 | Agnes Image 2.1 Flash API | — | AI模式（Phase 2） |
 | 部署 | Vercel | — | 免费托管+HTTPS |
 
 ## 2. 架构图
@@ -28,7 +28,7 @@
 │     Next.js API Routes (后端)       │
 │  ┌──────────────────────────────┐   │
 │  │  /api/generate-ai            │   │
-│  │  → OpenAI DALL-E 3           │   │
+│  │  → Agnes Image 2.1 Flash     │   │
 │  └──────────────────────────────┘   │
 ├─────────────────────────────────────┤
 │            Vercel 部署              │
@@ -49,7 +49,7 @@
 ### AI 生成流程（需后端）
 ```
 用户输入描述 → 前端POST /api/generate-ai
-→ API Route调用OpenAI → 返回图片URL
+→ API Route调用Agnes → 返回图片URL
 → 前端展示 → 可保存/分享
 （仅传文本，不传照片）
 ```
@@ -74,10 +74,10 @@
 | `/` | 首页/功能引导 | ✅ Phase 1 |
 | `/editor` | 涂色编辑器 | ✅ Phase 1 |
 | `/gallery` | 预设图库 | ✅ Phase 1 |
-| `/ai-generate` | AI生成（占位） | 📌 Phase 2 |
+| `/ai-generate` | AI生成 | 🚧 已接入模型，待真实生成验收 |
 | `/ar-tryon` | AR实时试戴 | 🚧 Phase 3 开发中 |
 | `/privacy` | 隐私政策 | ✅ Phase 1 |
-| `/api/generate-ai` | AI生成API | 📌 Phase 2 |
+| `/api/generate-ai` | AI生成API | 🚧 已接入模型，待真实生成验收 |
 
 ---
 
@@ -104,7 +104,7 @@
 3. 🔶 纹理贴合度验证
 
 **未完成：**
-1. ❌ AI 模块（5% 占位）
+1. ❌ AI真实生成质量、成本与内容安全验收
 2. ❌ 3D AR 试戴
 3. ❌ 部署上线
 
@@ -249,4 +249,3 @@ z 缩放 = clamp(1 - TIP.z × 0.6, 0.7, 1.5)
 - [ ] 逐指独立判定混合状态正确（待真机验证）
 - [ ] 纹理与指甲位置对齐（待真机验证）
 - [ ] 帧率达到 15fps+
-

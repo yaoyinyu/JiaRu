@@ -188,8 +188,8 @@ JiaRu/
 - 10 种预设风格（甜美风/欧美风/日系/极简/复古/节日/水墨/几何/花草/金属）
 - 每风格 50 段独立中文场景提示词，点击轮转填入
 - 用户输入 1–500 字符 + 自动附加美甲场景后缀
-- 后端 API Route → DALL·E 3（需 `OPENAI_API_KEY`）
-- 30 秒超时（AbortController）
+- 后端 API Route → Agnes Image 2.1 Flash（需 `AGNES_API_KEY`）
+- 180 秒总超时（AbortController），503 按 1/2/4 秒指数退避重试
 - 仅发送文字描述，不发送用户原图
 
 ### 🧠 浏览器端纹理识别（进行中）
@@ -208,7 +208,9 @@ JiaRu/
 
 | 变量 | 说明 | 必须 |
 | --- | --- | :---: |
-| `OPENAI_API_KEY` | OpenAI API 密钥（DALL·E 3 生图） | AI 生成功能需要 |
+| `AGNES_API_KEY` | Agnes API 密钥（仅服务端读取） | AI 生成功能需要 |
+| `AGNES_API_BASE_URL` | Agnes API 基础地址 | 否（默认 `https://apihub.agnes-ai.com/v1`） |
+| `AGNES_IMAGE_MODEL` | Agnes 图片模型 ID | 否（默认 `agnes-image-2.1-flash`） |
 | `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL` | 浏览器端纹理模型 manifest 路径 | 否（有默认值） |
 
 ```powershell
@@ -321,5 +323,5 @@ copy .env.local.example .env.local
 | 手部关键点 | MediaPipe Hands | 浏览器端，CDN 加载 |
 | 纹理推理 | ONNX Runtime Web | 1.27.0（WebGPU/WASM） |
 | 3D | Three.js | 0.184.0（已安装，未使用） |
-| AI 生图 | OpenAI DALL·E 3 | 服务端 API |
+| AI 生图 | Agnes Image 2.1 Flash | 服务端 API |
 | 部署 | Vercel | 待配置 |

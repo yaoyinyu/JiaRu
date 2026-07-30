@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
 import {
+  adjustNailGeometry,
   computeNailGeometry,
   NAIL_DIPS,
   NAIL_PIPS,
@@ -8,6 +9,7 @@ import {
   smoothAngle,
   type NailGeometry,
 } from "@/lib/nail-geometry";
+import { resolveMediaPipeHandsAsset } from "@/lib/mediapipe-hands-assets";
 import {
   calculateCoverVideoLayout,
   calculateViewportAspectRatio,
@@ -108,14 +110,26 @@ interface Props {
   nailTextures?: (ImageBitmap | null)[];
   /** 渲染模式：color | texture */
   mode?: "color" | "texture";
+  /** 甲面整体缩放，1为校准后的默认尺寸。 */
+  nailScale?: number;
+  /** 沿甲面长轴移动；正值向指根，单位为默认甲面长度。 */
+  nailOffset?: number;
 }
 
-export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
+export function ArView({
+  nailColors,
+  nailTextures,
+  mode = "color",
+  nailScale = 1,
+  nailOffset = 0,
+}: Props) {
   const vref = useRef<HTMLVideoElement>(null);
   const cref = useRef<HTMLCanvasElement>(null);
   const colRef = useRef(nailColors);
   const texRef = useRef(nailTextures);
   const modeRef = useRef(mode);
+  const nailScaleRef = useRef(nailScale);
+  const nailOffsetRef = useRef(nailOffset);
   const [status, setStatus] = useState("init"); // init|loading|ready|error
   const [statusMsg, setStatusMsg] = useState("初始化...");
   const [handCnt, setHandCnt] = useState(-1); // -1=未检测, 0=无手, N=有手
@@ -620,8 +634,13 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
       geometryLandmarks[TIPS[f]] = s.tip;
       geometryLandmarks[DIPS[f]] = s.dip;
       if (rawPip) geometryLandmarks[PIPS[f]] = s.pip;
-      const measured = computeNailGeometry(geometryLandmarks, f, w, h);
-      if (!measured) continue;
+      const rawGeometry = computeNailGeometry(geometryLandmarks, f, w, h);
+      if (!rawGeometry) continue;
+      const measured = adjustNailGeometry(
+        rawGeometry,
+        nailScaleRef.current,
+        nailOffsetRef.current
+      );
 
       const previous = geometrySmoothRef.current[f];
       const movement = previous
@@ -732,6 +751,14 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
   useEffect(() => {
     modeRef.current = mode;
   }, [mode]);
+
+  useEffect(() => {
+    nailScaleRef.current = nailScale;
+  }, [nailScale]);
+
+  useEffect(() => {
+    nailOffsetRef.current = nailOffset;
+  }, [nailOffset]);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -933,7 +960,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
 
         if (!window.Hands) {
           await loadScript(
-            "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js",
+            resolveMediaPipeHandsAsset("hands.js"),
             "hands.js"
           );
         } else {
@@ -956,8 +983,7 @@ export function ArView({ nailColors, nailTextures, mode = "color" }: Props) {
         log("6/7 创建 Hands 实例...");
 
         handsInst = new H({
-          locateFile: (f: string) =>
-            "https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/" + f,
+          locateFile: resolveMediaPipeHandsAsset,
         });
         handsInst.setOptions({
           maxNumHands: 1,
