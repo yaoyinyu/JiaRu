@@ -6,8 +6,15 @@ interface PreparedCloseupImage {
   height: number;
   scale: number;
   grayscale: Float32Array;
+  red: Uint8Array;
+  green: Uint8Array;
+  blue: Uint8Array;
   painted: Uint8Array;
+  skin: Uint8Array;
   smoothSkin: Uint8Array;
+  handSupport: Uint8Array;
+  handCenterX: number;
+  handCenterY: number;
 }
 
 interface Component {
@@ -24,9 +31,51 @@ interface Component {
   sumXY: number;
   sumGray: number;
   sumGraySquared: number;
+  sumRed: number;
+  sumGreen: number;
+  sumBlue: number;
 }
 
-const MAX_ANALYSIS_DIMENSION = 480;
+export type PartialCloseupRejectionReason =
+  | "touches_edge"
+  | "area_too_small"
+  | "area_too_large"
+  | "short_axis_too_small"
+  | "long_axis_too_large"
+  | "aspect_ratio_too_large"
+  | "fill_too_low"
+  | "flat_mid_tone"
+  | "outside_hand_support"
+  | "raw_skin_ring_too_low"
+  | "local_color_contrast_too_low";
+
+export interface PartialCloseupDetectionDiagnostics {
+  analysisWidth: number;
+  analysisHeight: number;
+  componentCount: number;
+  acceptedComponentCount: number;
+  selectedCandidateCount: number;
+  rejectionCounts: Partial<Record<PartialCloseupRejectionReason, number>>;
+}
+
+export interface PartialCloseupDetectionResult {
+  candidates: NailTextureCandidate[];
+  diagnostics: PartialCloseupDetectionDiagnostics;
+}
+
+interface RingEvidence {
+  rawSkinRatio: number;
+  smoothSkinRatio: number;
+  handSupportRatio: number;
+  colorDistance: number;
+}
+
+interface ComponentEvaluation {
+  candidate: NailTextureCandidate | null;
+  rejectionReasons: PartialCloseupRejectionReason[];
+}
+
+const MAX_ANALYSIS_DIMENSION = 640;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -39,15 +88,20 @@ function normalizeNailAngle(angle: number): number {
   return result;
 }
 
-function closeBinaryMask(mask: Uint8Array, width: number, height: number): Uint8Array {
+function dilateBinaryMask(
+  mask: Uint8Array,
+  width: number,
+  height: number,
+  radius = 1
+): Uint8Array {
   const dilated = new Uint8Array(mask.length);
   for (let y = 0; y < height; y += 1) {
     for (let x = 0; x < width; x += 1) {
       let value = 0;
-      for (let dy = -1; dy <= 1 && value === 0; dy += 1) {
+      for (let dy = -radius; dy <= radius && value === 0; dy += 1) {
         const ny = y + dy;
         if (ny < 0 || ny >= height) continue;
-        for (let dx = -1; dx <= 1; dx += 1) {
+        for (let dx = -radius; dx <= radius; dx += 1) {
           const nx = x + dx;
           if (nx >= 0 && nx < width && mask[ny * width + nx]) {
             value = 1;
@@ -58,23 +112,93 @@ function closeBinaryMask(mask: Uint8Array, width: number, height: number): Uint8
       dilated[y * width + x] = value;
     }
   }
+  return dilated;
+}
 
-  const closed = new Uint8Array(mask.length);
-  for (let y = 1; y < height - 1; y += 1) {
-    for (let x = 1; x < width - 1; x += 1) {
+function erodeBinaryMask(
+  mask: Uint8Array,
+  width: number,
+  height: number,
+  radius = 1
+): Uint8Array {
+  const eroded = new Uint8Array(mask.length);
+  for (let y = radius; y < height - radius; y += 1) {
+    for (let x = radius; x < width - radius; x += 1) {
       let value = 1;
-      for (let dy = -1; dy <= 1 && value === 1; dy += 1) {
-        for (let dx = -1; dx <= 1; dx += 1) {
-          if (!dilated[(y + dy) * width + x + dx]) {
+      for (let dy = -radius; dy <= radius && value === 1; dy += 1) {
+        for (let dx = -radius; dx <= radius; dx += 1) {
+          if (!mask[(y + dy) * width + x + dx]) {
             value = 0;
             break;
           }
         }
       }
-      closed[y * width + x] = value;
+      eroded[y * width + x] = value;
     }
   }
-  return closed;
+  return eroded;
+}
+
+function openBinaryMask(mask: Uint8Array, width: number, height: number): Uint8Array {
+  return dilateBinaryMask(erodeBinaryMask(mask, width, height), width, height);
+}
+
+function closeBinaryMask(mask: Uint8Array, width: number, height: number): Uint8Array {
+  return erodeBinaryMask(dilateBinaryMask(mask, width, height), width, height);
+}
+
+function findLargestMaskComponent(
+  mask: Uint8Array,
+  width: number,
+  height: number
+): { mask: Uint8Array; centerX: number; centerY: number } {
+  const visited = new Uint8Array(mask.length);
+  const queue = new Int32Array(mask.length);
+  let largest: number[] = [];
+
+  for (let start = 0; start < mask.length; start += 1) {
+    if (!mask[start] || visited[start]) continue;
+    let head = 0;
+    let tail = 0;
+    const pixels: number[] = [];
+    queue[tail++] = start;
+    visited[start] = 1;
+    while (head < tail) {
+      const index = queue[head++];
+      pixels.push(index);
+      const x = index % width;
+      const y = Math.floor(index / width);
+      for (let dy = -1; dy <= 1; dy += 1) {
+        const ny = y + dy;
+        if (ny < 0 || ny >= height) continue;
+        for (let dx = -1; dx <= 1; dx += 1) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = x + dx;
+          if (nx < 0 || nx >= width) continue;
+          const neighbor = ny * width + nx;
+          if (mask[neighbor] && !visited[neighbor]) {
+            visited[neighbor] = 1;
+            queue[tail++] = neighbor;
+          }
+        }
+      }
+    }
+    if (pixels.length > largest.length) largest = pixels;
+  }
+
+  const support = new Uint8Array(mask.length);
+  let sumX = 0;
+  let sumY = 0;
+  for (const index of largest) {
+    support[index] = 1;
+    sumX += index % width;
+    sumY += Math.floor(index / width);
+  }
+  return {
+    mask: support,
+    centerX: largest.length > 0 ? sumX / largest.length : width / 2,
+    centerY: largest.length > 0 ? sumY / largest.length : height / 2,
+  };
 }
 
 function prepareCloseupImage(source: ImagePixels): PreparedCloseupImage {
@@ -85,6 +209,9 @@ function prepareCloseupImage(source: ImagePixels): PreparedCloseupImage {
   const width = Math.max(1, Math.round(source.width * scale));
   const height = Math.max(1, Math.round(source.height * scale));
   const grayscale = new Float32Array(width * height);
+  const red = new Uint8Array(width * height);
+  const green = new Uint8Array(width * height);
+  const blue = new Uint8Array(width * height);
   const skin = new Uint8Array(width * height);
   const painted = new Uint8Array(width * height);
 
@@ -116,6 +243,9 @@ function prepareCloseupImage(source: ImagePixels): PreparedCloseupImage {
           colorSaturation < 0.35);
       const index = y * width + x;
       grayscale[index] = gray;
+      red[index] = r;
+      green[index] = g;
+      blue[index] = b;
       skin[index] = isSkin ? 1 : 0;
       painted[index] = !isSkin && gray < 225 ? 1 : 0;
     }
@@ -150,18 +280,27 @@ function prepareCloseupImage(source: ImagePixels): PreparedCloseupImage {
     }
   }
 
+  const hand = findLargestMaskComponent(skin, width, height);
+
   return {
     width,
     height,
     scale,
     grayscale,
-    painted: closeBinaryMask(painted, width, height),
+    red,
+    green,
+    blue,
+    painted: closeBinaryMask(openBinaryMask(painted, width, height), width, height),
+    skin,
     smoothSkin,
+    handSupport: hand.mask,
+    handCenterX: hand.centerX,
+    handCenterY: hand.centerY,
   };
 }
 
 function collectComponents(analysis: PreparedCloseupImage): Component[] {
-  const { width, height, grayscale, painted } = analysis;
+  const { width, height, grayscale, red, green, blue, painted } = analysis;
   const visited = new Uint8Array(painted.length);
   const queue = new Int32Array(painted.length);
   const components: Component[] = [];
@@ -186,6 +325,9 @@ function collectComponents(analysis: PreparedCloseupImage): Component[] {
       sumXY: 0,
       sumGray: 0,
       sumGraySquared: 0,
+      sumRed: 0,
+      sumGreen: 0,
+      sumBlue: 0,
     };
 
     while (head < tail) {
@@ -206,6 +348,9 @@ function collectComponents(analysis: PreparedCloseupImage): Component[] {
       component.sumXY += x * y;
       component.sumGray += gray;
       component.sumGraySquared += gray * gray;
+      component.sumRed += red[index];
+      component.sumGreen += green[index];
+      component.sumBlue += blue[index];
 
       for (let dy = -1; dy <= 1; dy += 1) {
         const ny = y + dy;
@@ -227,11 +372,11 @@ function collectComponents(analysis: PreparedCloseupImage): Component[] {
   return components;
 }
 
-function directSmoothSkinRatio(
+function collectRingEvidence(
   component: Component,
   analysis: PreparedCloseupImage
-): number {
-  const { width, height, smoothSkin } = analysis;
+): RingEvidence {
+  const { width, height, red, green, blue, skin, smoothSkin, handSupport } = analysis;
   const direct = new Uint8Array(width * height);
   for (const index of component.pixels) {
     const x = index % width;
@@ -248,20 +393,45 @@ function directSmoothSkinRatio(
   for (const index of component.pixels) direct[index] = 0;
 
   let surrounding = 0;
-  let skin = 0;
+  let rawSkin = 0;
+  let smooth = 0;
+  let support = 0;
+  let ringRed = 0;
+  let ringGreen = 0;
+  let ringBlue = 0;
   for (let index = 0; index < direct.length; index += 1) {
     if (!direct[index]) continue;
     surrounding += 1;
-    skin += smoothSkin[index];
+    rawSkin += skin[index];
+    smooth += smoothSkin[index];
+    support += handSupport[index];
+    if (skin[index]) {
+      ringRed += red[index];
+      ringGreen += green[index];
+      ringBlue += blue[index];
+    }
   }
-  return surrounding > 0 ? skin / surrounding : 0;
+  const componentRed = component.sumRed / component.area;
+  const componentGreen = component.sumGreen / component.area;
+  const componentBlue = component.sumBlue / component.area;
+  const skinCount = Math.max(1, rawSkin);
+  const deltaRed = componentRed - ringRed / skinCount;
+  const deltaGreen = componentGreen - ringGreen / skinCount;
+  const deltaBlue = componentBlue - ringBlue / skinCount;
+  return {
+    rawSkinRatio: surrounding > 0 ? rawSkin / surrounding : 0,
+    smoothSkinRatio: surrounding > 0 ? smooth / surrounding : 0,
+    handSupportRatio: surrounding > 0 ? support / surrounding : 0,
+    colorDistance:
+      Math.hypot(deltaRed, deltaGreen, deltaBlue) / Math.sqrt(3),
+  };
 }
 
 function componentToCandidate(
   component: Component,
   analysis: PreparedCloseupImage,
   index: number
-): NailTextureCandidate | null {
+): ComponentEvaluation {
   const { width, height, scale } = analysis;
   const imageArea = width * height;
   const maxDimension = Math.max(width, height);
@@ -271,20 +441,22 @@ function componentToCandidate(
   const longer = Math.max(boxWidth, boxHeight);
   const fill = component.area / (boxWidth * boxHeight);
   const areaRatio = component.area / imageArea;
+  const rejectionReasons: PartialCloseupRejectionReason[] = [];
   if (
     component.minX <= 1 ||
     component.minY <= 1 ||
     component.maxX >= width - 2 ||
-    component.maxY >= height - 2 ||
-    areaRatio < 0.0033 ||
-    areaRatio > 0.035 ||
-    shorter < maxDimension * 0.035 ||
-    longer > maxDimension * 0.24 ||
-    longer / Math.max(1, shorter) > 3.2 ||
-    fill < 0.32
-  ) {
-    return null;
+    component.maxY >= height - 2
+  ) rejectionReasons.push("touches_edge");
+  if (areaRatio < 0.0033) rejectionReasons.push("area_too_small");
+  if (areaRatio > 0.035) rejectionReasons.push("area_too_large");
+  if (shorter < maxDimension * 0.035) rejectionReasons.push("short_axis_too_small");
+  if (longer > maxDimension * 0.24) rejectionReasons.push("long_axis_too_large");
+  if (longer / Math.max(1, shorter) > 3.2) {
+    rejectionReasons.push("aspect_ratio_too_large");
   }
+  if (fill < 0.32) rejectionReasons.push("fill_too_low");
+  if (rejectionReasons.length > 0) return { candidate: null, rejectionReasons };
 
   const cx = component.sumX / component.area;
   const cy = component.sumY / component.area;
@@ -319,30 +491,40 @@ function componentToCandidate(
   );
   const grayStandardDeviation = Math.sqrt(grayVariance);
   if (meanGray >= 55 && grayStandardDeviation < 18) {
-    return null;
+    return { candidate: null, rejectionReasons: ["flat_mid_tone"] };
   }
-  const nearbySkin = directSmoothSkinRatio(component, analysis);
-  if (nearbySkin < 0.24) {
-    return null;
-  }
+  const ring = collectRingEvidence(component, analysis);
+  if (ring.handSupportRatio < 0.38) rejectionReasons.push("outside_hand_support");
+  if (ring.rawSkinRatio < 0.52) rejectionReasons.push("raw_skin_ring_too_low");
+  if (ring.colorDistance < 18) rejectionReasons.push("local_color_contrast_too_low");
+  if (rejectionReasons.length > 0) return { candidate: null, rejectionReasons };
 
   const inverseScale = 1 / scale;
   return {
-    id: `partial-closeup-${index}`,
-    cx: cx * inverseScale,
-    cy: cy * inverseScale,
-    angle: normalizeNailAngle(majorAxis - Math.PI / 2),
-    length:
-      clamp(componentLength * 1.12, maxDimension * 0.065, maxDimension * 0.24) *
-      inverseScale,
-    width:
-      clamp(componentWidth * 1.18, maxDimension * 0.035, maxDimension * 0.16) *
-      inverseScale,
-    score: areaRatio * nearbySkin * (1 + Math.min(1, grayStandardDeviation / 32)),
-    confidence: "low",
-    source: "partial-closeup",
-    suggestedFinger: null,
-    warnings: ["partial_closeup_color_detection"],
+    candidate: {
+      id: `partial-closeup-${index}`,
+      cx: cx * inverseScale,
+      cy: cy * inverseScale,
+      angle: normalizeNailAngle(majorAxis - Math.PI / 2),
+      length:
+        clamp(componentLength * 1.12, maxDimension * 0.065, maxDimension * 0.24) *
+        inverseScale,
+      width:
+        clamp(componentWidth * 1.18, maxDimension * 0.035, maxDimension * 0.16) *
+        inverseScale,
+      score:
+        areaRatio *
+        (0.5 * ring.rawSkinRatio +
+          0.3 * ring.handSupportRatio +
+          0.2 * ring.smoothSkinRatio) *
+        (1 + Math.min(1, ring.colorDistance / 48)) *
+        (1 + Math.min(1, grayStandardDeviation / 32)),
+      confidence: "low",
+      source: "partial-closeup",
+      suggestedFinger: null,
+      warnings: ["partial_closeup_color_detection"],
+    },
+    rejectionReasons: [],
   };
 }
 
@@ -385,17 +567,102 @@ function selectCoherentCandidateCluster(
   })[0] ?? [];
 }
 
+export function assignPartialCloseupCandidateFingers(
+  candidates: NailTextureCandidate[],
+  handCenterX: number,
+  handCenterY: number
+): NailTextureCandidate[] {
+  if (candidates.length !== 5) {
+    return [...candidates]
+      .sort((a, b) => a.cx + a.cy * 0.12 - (b.cx + b.cy * 0.12))
+      .map((candidate, index) => ({ ...candidate, suggestedFinger: index }));
+  }
+
+  const angular = candidates
+    .map((candidate) => ({
+      candidate,
+      angle:
+        (Math.atan2(candidate.cy - handCenterY, candidate.cx - handCenterX) +
+          Math.PI * 2) %
+        (Math.PI * 2),
+    }))
+    .sort((a, b) => a.angle - b.angle);
+  let largestGap = Number.NEGATIVE_INFINITY;
+  let start = 0;
+  for (let index = 0; index < angular.length; index += 1) {
+    const current = angular[index].angle;
+    const next =
+      angular[(index + 1) % angular.length].angle +
+      (index === angular.length - 1 ? Math.PI * 2 : 0);
+    const gap = next - current;
+    if (gap > largestGap) {
+      largestGap = gap;
+      start = (index + 1) % angular.length;
+    }
+  }
+  const ordered = angular.map(
+    (_, offset) => angular[(start + offset) % angular.length].candidate
+  );
+  const first = ordered[0];
+  const last = ordered[ordered.length - 1];
+  const firstNeighborGap = Math.hypot(
+    first.cx - ordered[1].cx,
+    first.cy - ordered[1].cy
+  );
+  const lastNeighborGap = Math.hypot(
+    last.cx - ordered[ordered.length - 2].cx,
+    last.cy - ordered[ordered.length - 2].cy
+  );
+  const firstThumbScore = first.width * 1.35 + firstNeighborGap * 0.35;
+  const lastThumbScore = last.width * 1.35 + lastNeighborGap * 0.35;
+  if (lastThumbScore > firstThumbScore) ordered.reverse();
+  const thumbScoreMargin =
+    Math.abs(firstThumbScore - lastThumbScore) /
+    Math.max(firstThumbScore, lastThumbScore, 1);
+  if (thumbScoreMargin < 0.02) {
+    return ordered.map((candidate) => ({
+      ...candidate,
+      confidence: "low",
+      suggestedFinger: null,
+      warnings: [...(candidate.warnings ?? []), "partial_closeup_finger_order_ambiguous"],
+    }));
+  }
+  return ordered.map((candidate, index) => ({ ...candidate, suggestedFinger: index }));
+}
+
 /**
  * 保守定位局部近景中的已上色甲面。该路径只作为完整手部几何失败后的候选生成器；
- * 返回 2 至 5 个相互独立、紧邻平滑皮肤的大连通区域，否则拒绝自动展示。
+ * 返回 2 至 5 个相互独立、由同一手部肤色邻域支持的大连通区域，否则拒绝自动展示。
  */
-export function detectPartialCloseupNailCandidates(
+export function detectPartialCloseupNails(
   source: ImagePixels
-): NailTextureCandidate[] {
-  if (source.width < 64 || source.height < 64) return [];
+): PartialCloseupDetectionResult {
+  if (source.width < 64 || source.height < 64) {
+    return {
+      candidates: [],
+      diagnostics: {
+        analysisWidth: source.width,
+        analysisHeight: source.height,
+        componentCount: 0,
+        acceptedComponentCount: 0,
+        selectedCandidateCount: 0,
+        rejectionCounts: {},
+      },
+    };
+  }
   const analysis = prepareCloseupImage(source);
-  const candidates = collectComponents(analysis)
-    .map((component, index) => componentToCandidate(component, analysis, index))
+  const components = collectComponents(analysis);
+  const evaluations = components.map((component, index) =>
+    componentToCandidate(component, analysis, index)
+  );
+  const rejectionCounts: Partial<Record<PartialCloseupRejectionReason, number>> = {};
+  for (const evaluation of evaluations) {
+    for (const reason of evaluation.rejectionReasons) {
+      rejectionCounts[reason] = (rejectionCounts[reason] ?? 0) + 1;
+    }
+  }
+  const candidates = evaluations
+    .map((evaluation) => evaluation.candidate)
     .filter((candidate): candidate is NailTextureCandidate => candidate !== null);
   const coherentCandidates = selectCoherentCandidateCluster(
     candidates,
@@ -404,13 +671,32 @@ export function detectPartialCloseupNailCandidates(
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
 
-  if (coherentCandidates.length < 2) return [];
+  const diagnostics: PartialCloseupDetectionDiagnostics = {
+    analysisWidth: analysis.width,
+    analysisHeight: analysis.height,
+    componentCount: components.length,
+    acceptedComponentCount: candidates.length,
+    selectedCandidateCount: coherentCandidates.length >= 2 ? coherentCandidates.length : 0,
+    rejectionCounts,
+  };
+  if (coherentCandidates.length < 2) return { candidates: [], diagnostics };
   const confidence = coherentCandidates.length >= 4 ? "medium" : "low";
-  return coherentCandidates
-    .sort((a, b) => a.cx + a.cy * 0.12 - (b.cx + b.cy * 0.12))
-    .map((candidate, index) => ({
+  const ordered = assignPartialCloseupCandidateFingers(
+    coherentCandidates,
+    analysis.handCenterX / analysis.scale,
+    analysis.handCenterY / analysis.scale
+  );
+  return {
+    candidates: ordered.map((candidate) => ({
       ...candidate,
-      confidence,
-      suggestedFinger: index,
-    }));
+      confidence: candidate.suggestedFinger == null ? "low" : confidence,
+    })),
+    diagnostics,
+  };
+}
+
+export function detectPartialCloseupNailCandidates(
+  source: ImagePixels
+): NailTextureCandidate[] {
+  return detectPartialCloseupNails(source).candidates;
 }
