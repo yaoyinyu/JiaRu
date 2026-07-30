@@ -2,8 +2,8 @@
   "schemaVersion": 1,
   "decision": "nail_texture_completion_evidence_profile",
   "candidate": {
-    "weightsSha256": "2bde970213ce7b931652f213688d1b31ffee4c75dc77235bf5105346abe4af3f",
-    "deploymentScoreThreshold": 0.35
+    "weightsSha256": "26daf742ce83a9d740a786114cfec481051e6f86574ba1c43428f75e5db4ca56",
+    "deploymentScoreThreshold": 0.5
   },
   "evidence": {
     "releaseTestSnapshot": {
@@ -11,16 +11,16 @@
       "sha256": "b3baa41c913548ed1513e7e22457fcc2bf4f1f99826ab9db1033e41e521823c6"
     },
     "releaseTestQuality": {
-      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-28-v4-interpolation-sweep/alpha-040/frozen-release-test-100-quality-report-v1.json",
-      "sha256": "f4432c3c57431edf2fe8d4aa908092ccd9ea8ddbf1609f27f44eff8ed5211115"
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-29-v5/frozen-release-test-100-quality-report-v1.json",
+      "sha256": "8fa2161b79a5700524ee34b1a26cb2a80e0443cf81fe753d89d9f0391e87f8f3"
     },
     "hardNegativeAudit": {
-      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-28-v4-interpolation-sweep/alpha-040/post-train-independent-holdout-v1/hard-negative-watermark-audit-v1.json",
-      "sha256": "96eee1eb599b6cec46a1cc861f2f1e51239501a099fd0e07da9c359a57e7a10b"
+      "path": "E:/AI Project/Codex/JiaRu_image/困难负样本/独立发布留出/2026_7_30_candidate5_post_train_holdout_v1_review/candidate5-independent-hard-negative-triple-variant-audit-v1.json",
+      "sha256": "9cb13d1f611ecc1ef05501a96da7bcdf850abf4c391dfb4208099589dbc38016"
     },
     "bestMetrics": {
-      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-28-v4-interpolation-sweep/alpha-040/eval100-512-v1/metrics.json",
-      "sha256": "a1f231b0676891e15d82f62abf51b4b0ca0d145f545d53b96d55f5e2a4735e7d"
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate-2026-07-29-v5/eval100-512-v1/metrics.json",
+      "sha256": "aed1cec840013fcab35eb6cdfdd105dec139a16da24e0cdc1d5969f861583aeb"
     }
   }
 }
