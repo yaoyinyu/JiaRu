@@ -65,6 +65,10 @@ const CANDIDATE_WARNING_MESSAGES: Record<string, NailArtPickerWarningPresentatio
     severity: "info",
     message: "已自动定位甲面；如边界有偏差，可直接拖动或微调。",
   },
+  partial_closeup_low_contrast_boundary: {
+    severity: "warning",
+    message: "裸色或半透明甲面已按甲缘自动定位，请检查每个边界后再提取。",
+  },
   low_score_debug_candidate: {
     severity: "info",
     message: "这是调试模式保留的低分候选，默认流程会隐藏。",

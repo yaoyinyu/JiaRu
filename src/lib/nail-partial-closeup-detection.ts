@@ -47,7 +47,13 @@ export type PartialCloseupRejectionReason =
   | "flat_mid_tone"
   | "outside_hand_support"
   | "raw_skin_ring_too_low"
-  | "local_color_contrast_too_low";
+  | "local_color_contrast_too_low"
+  | "low_contrast_inside_skin_too_low"
+  | "low_contrast_skin_ring_too_low"
+  | "low_contrast_hand_support_too_low"
+  | "low_contrast_inside_too_dark"
+  | "low_contrast_inside_too_textured"
+  | "low_contrast_boundary_gradient_too_low";
 
 export interface PartialCloseupDetectionDiagnostics {
   analysisWidth: number;
@@ -56,6 +62,11 @@ export interface PartialCloseupDetectionDiagnostics {
   acceptedComponentCount: number;
   selectedCandidateCount: number;
   rejectionCounts: Partial<Record<PartialCloseupRejectionReason, number>>;
+  strategy: "painted-color" | "low-contrast-boundary" | null;
+  lowContrastComponentCount: number;
+  lowContrastAcceptedComponentCount: number;
+  lowContrastSelectedCandidateCount: number;
+  lowContrastRejectionCounts: Partial<Record<PartialCloseupRejectionReason, number>>;
 }
 
 export interface PartialCloseupDetectionResult {
@@ -143,8 +154,18 @@ function openBinaryMask(mask: Uint8Array, width: number, height: number): Uint8A
   return dilateBinaryMask(erodeBinaryMask(mask, width, height), width, height);
 }
 
-function closeBinaryMask(mask: Uint8Array, width: number, height: number): Uint8Array {
-  return erodeBinaryMask(dilateBinaryMask(mask, width, height), width, height);
+function closeBinaryMask(
+  mask: Uint8Array,
+  width: number,
+  height: number,
+  radius = 1
+): Uint8Array {
+  return erodeBinaryMask(
+    dilateBinaryMask(mask, width, height, radius),
+    width,
+    height,
+    radius
+  );
 }
 
 function findLargestMaskComponent(
@@ -299,14 +320,17 @@ function prepareCloseupImage(source: ImagePixels): PreparedCloseupImage {
   };
 }
 
-function collectComponents(analysis: PreparedCloseupImage): Component[] {
-  const { width, height, grayscale, red, green, blue, painted } = analysis;
-  const visited = new Uint8Array(painted.length);
-  const queue = new Int32Array(painted.length);
+function collectMaskComponents(
+  mask: Uint8Array,
+  analysis: PreparedCloseupImage
+): Component[] {
+  const { width, height, grayscale, red, green, blue } = analysis;
+  const visited = new Uint8Array(mask.length);
+  const queue = new Int32Array(mask.length);
   const components: Component[] = [];
 
-  for (let start = 0; start < painted.length; start += 1) {
-    if (!painted[start] || visited[start]) continue;
+  for (let start = 0; start < mask.length; start += 1) {
+    if (!mask[start] || visited[start]) continue;
     let head = 0;
     let tail = 0;
     queue[tail++] = start;
@@ -360,7 +384,7 @@ function collectComponents(analysis: PreparedCloseupImage): Component[] {
           const nx = x + dx;
           if (nx < 0 || nx >= width) continue;
           const neighbor = ny * width + nx;
-          if (painted[neighbor] && !visited[neighbor]) {
+          if (mask[neighbor] && !visited[neighbor]) {
             visited[neighbor] = 1;
             queue[tail++] = neighbor;
           }
@@ -370,6 +394,10 @@ function collectComponents(analysis: PreparedCloseupImage): Component[] {
     components.push(component);
   }
   return components;
+}
+
+function collectComponents(analysis: PreparedCloseupImage): Component[] {
+  return collectMaskComponents(analysis.painted, analysis);
 }
 
 function collectRingEvidence(
@@ -528,19 +556,234 @@ function componentToCandidate(
   };
 }
 
-function selectCoherentCandidateCluster(
+interface LowContrastBoundaryResult {
+  candidates: NailTextureCandidate[];
+  componentCount: number;
+  acceptedComponentCount: number;
+  rejectionCounts: Partial<Record<PartialCloseupRejectionReason, number>>;
+}
+
+function blurGrayscale(
+  grayscale: Float32Array,
+  width: number,
+  height: number
+): Float32Array {
+  const kernel = [1 / 16, 4 / 16, 6 / 16, 4 / 16, 1 / 16];
+  const horizontal = new Float32Array(grayscale.length);
+  const blurred = new Float32Array(grayscale.length);
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let value = 0;
+      for (let offset = -2; offset <= 2; offset += 1) {
+        const sampleX = clamp(x + offset, 0, width - 1);
+        value += grayscale[y * width + sampleX] * kernel[offset + 2];
+      }
+      horizontal[y * width + x] = value;
+    }
+  }
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      let value = 0;
+      for (let offset = -2; offset <= 2; offset += 1) {
+        const sampleY = clamp(y + offset, 0, height - 1);
+        value += horizontal[sampleY * width + x] * kernel[offset + 2];
+      }
+      blurred[y * width + x] = value;
+    }
+  }
+  return blurred;
+}
+
+function computeSobelMagnitude(
+  grayscale: Float32Array,
+  width: number,
+  height: number
+): Float32Array {
+  const blurred = blurGrayscale(grayscale, width, height);
+  const magnitude = new Float32Array(grayscale.length);
+  for (let y = 1; y < height - 1; y += 1) {
+    for (let x = 1; x < width - 1; x += 1) {
+      const topLeft = blurred[(y - 1) * width + x - 1];
+      const top = blurred[(y - 1) * width + x];
+      const topRight = blurred[(y - 1) * width + x + 1];
+      const left = blurred[y * width + x - 1];
+      const right = blurred[y * width + x + 1];
+      const bottomLeft = blurred[(y + 1) * width + x - 1];
+      const bottom = blurred[(y + 1) * width + x];
+      const bottomRight = blurred[(y + 1) * width + x + 1];
+      const gradientX =
+        -topLeft - 2 * left - bottomLeft + topRight + 2 * right + bottomRight;
+      const gradientY =
+        -topLeft - 2 * top - topRight + bottomLeft + 2 * bottom + bottomRight;
+      magnitude[y * width + x] = Math.hypot(gradientX, gradientY);
+    }
+  }
+  return magnitude;
+}
+
+function lowContrastComponentToCandidate(
+  component: Component,
+  analysis: PreparedCloseupImage,
+  edgeMagnitude: Float32Array,
+  thresholdIndex: number,
+  componentIndex: number
+): ComponentEvaluation {
+  const { width, height, scale, grayscale, skin, handSupport } = analysis;
+  const imageArea = width * height;
+  const maxDimension = Math.max(width, height);
+  const boxWidth = component.maxX - component.minX + 1;
+  const boxHeight = component.maxY - component.minY + 1;
+  const shorter = Math.min(boxWidth, boxHeight);
+  const longer = Math.max(boxWidth, boxHeight);
+  const fill = component.area / (boxWidth * boxHeight);
+  const areaRatio = component.area / imageArea;
+  const rejectionReasons: PartialCloseupRejectionReason[] = [];
+  if (
+    component.minX <= 1 ||
+    component.minY <= 1 ||
+    component.maxX >= width - 2 ||
+    component.maxY >= height - 2
+  ) rejectionReasons.push("touches_edge");
+  if (areaRatio < 0.0014) rejectionReasons.push("area_too_small");
+  if (areaRatio > 0.015) rejectionReasons.push("area_too_large");
+  if (shorter < maxDimension * 0.034) rejectionReasons.push("short_axis_too_small");
+  if (longer > maxDimension * 0.18) rejectionReasons.push("long_axis_too_large");
+  if (longer / Math.max(1, shorter) > 2.7) {
+    rejectionReasons.push("aspect_ratio_too_large");
+  }
+  if (fill < 0.34) rejectionReasons.push("fill_too_low");
+  if (rejectionReasons.length > 0) return { candidate: null, rejectionReasons };
+
+  const meanGray = component.sumGray / component.area;
+  const grayVariance = Math.max(
+    0,
+    component.sumGraySquared / component.area - meanGray * meanGray
+  );
+  const grayStandardDeviation = Math.sqrt(grayVariance);
+  let insideSkin = 0;
+  const componentMask = new Uint8Array(width * height);
+  for (const pixel of component.pixels) {
+    componentMask[pixel] = 1;
+    insideSkin += skin[pixel];
+  }
+  const ringMask = dilateBinaryMask(componentMask, width, height, 4);
+  let ringPixels = 0;
+  let ringSkin = 0;
+  let ringSupport = 0;
+  let ringGradient = 0;
+  for (let index = 0; index < ringMask.length; index += 1) {
+    if (!ringMask[index] || componentMask[index]) continue;
+    ringPixels += 1;
+    ringSkin += skin[index];
+    ringSupport += handSupport[index];
+    ringGradient += edgeMagnitude[index];
+  }
+  const insideSkinRatio = insideSkin / component.area;
+  const ringSkinRatio = ringPixels > 0 ? ringSkin / ringPixels : 0;
+  const ringSupportRatio = ringPixels > 0 ? ringSupport / ringPixels : 0;
+  const meanRingGradient = ringPixels > 0 ? ringGradient / ringPixels : 0;
+  if (insideSkinRatio < 0.88) {
+    rejectionReasons.push("low_contrast_inside_skin_too_low");
+  }
+  if (ringSkinRatio < 0.82) rejectionReasons.push("low_contrast_skin_ring_too_low");
+  if (ringSupportRatio < 0.72) {
+    rejectionReasons.push("low_contrast_hand_support_too_low");
+  }
+  if (meanGray < 90) rejectionReasons.push("low_contrast_inside_too_dark");
+  if (grayStandardDeviation > 15) {
+    rejectionReasons.push("low_contrast_inside_too_textured");
+  }
+  if (meanRingGradient < 36) {
+    rejectionReasons.push("low_contrast_boundary_gradient_too_low");
+  }
+  if (rejectionReasons.length > 0) return { candidate: null, rejectionReasons };
+
+  const cx = component.sumX / component.area;
+  const cy = component.sumY / component.area;
+  const varianceX = component.sumXX / component.area - cx * cx;
+  const varianceY = component.sumYY / component.area - cy * cy;
+  const covariance = component.sumXY / component.area - cx * cy;
+  const majorAxis = 0.5 * Math.atan2(2 * covariance, varianceX - varianceY);
+  const cos = Math.cos(majorAxis);
+  const sin = Math.sin(majorAxis);
+  let minAlong = Number.POSITIVE_INFINITY;
+  let maxAlong = Number.NEGATIVE_INFINITY;
+  let minAcross = Number.POSITIVE_INFINITY;
+  let maxAcross = Number.NEGATIVE_INFINITY;
+  for (const pixel of component.pixels) {
+    const x = pixel % width;
+    const y = Math.floor(pixel / width);
+    const dx = x - cx;
+    const dy = y - cy;
+    const along = dx * cos + dy * sin;
+    const across = -dx * sin + dy * cos;
+    minAlong = Math.min(minAlong, along);
+    maxAlong = Math.max(maxAlong, along);
+    minAcross = Math.min(minAcross, across);
+    maxAcross = Math.max(maxAcross, across);
+  }
+  const inverseScale = 1 / scale;
+  const componentLength = maxAlong - minAlong + 1;
+  const componentWidth = maxAcross - minAcross + 1;
+  return {
+    candidate: {
+      id: `partial-closeup-low-contrast-${thresholdIndex}-${componentIndex}`,
+      cx: cx * inverseScale,
+      cy: cy * inverseScale,
+      angle: normalizeNailAngle(majorAxis - Math.PI / 2),
+      length:
+        clamp(componentLength * 1.25, maxDimension * 0.055, maxDimension * 0.2) *
+        inverseScale,
+      width:
+        clamp(componentWidth * 1.45, maxDimension * 0.034, maxDimension * 0.15) *
+        inverseScale,
+      score:
+        areaRatio *
+        (1 + meanRingGradient / 64) *
+        (0.5 * insideSkinRatio + 0.3 * ringSkinRatio + 0.2 * ringSupportRatio),
+      confidence: "low",
+      source: "partial-closeup",
+      suggestedFinger: null,
+      warnings: ["partial_closeup_low_contrast_boundary"],
+    },
+    rejectionReasons: [],
+  };
+}
+
+function mergeLowContrastCandidates(
+  candidates: NailTextureCandidate[],
+  maxDimension: number
+): NailTextureCandidate[] {
+  const merged: NailTextureCandidate[] = [];
+  for (const candidate of [...candidates].sort((a, b) => b.score - a.score)) {
+    const duplicateIndex = merged.findIndex(
+      (existing) =>
+        Math.hypot(existing.cx - candidate.cx, existing.cy - candidate.cy) <=
+        maxDimension * 0.055
+    );
+    if (duplicateIndex < 0) {
+      merged.push(candidate);
+      continue;
+    }
+    const existing = merged[duplicateIndex];
+    if (candidate.length * candidate.width > existing.length * existing.width) {
+      merged[duplicateIndex] = candidate;
+    }
+  }
+  return merged;
+}
+
+function collectCandidateClusters(
   candidates: NailTextureCandidate[],
   maxDistance: number
-): NailTextureCandidate[] {
+): NailTextureCandidate[][] {
   const visited = new Uint8Array(candidates.length);
   const clusters: NailTextureCandidate[][] = [];
-
   for (let start = 0; start < candidates.length; start += 1) {
     if (visited[start]) continue;
     const queue = [start];
     visited[start] = 1;
     const cluster: NailTextureCandidate[] = [];
-
     while (queue.length > 0) {
       const currentIndex = queue.shift();
       if (currentIndex == null) break;
@@ -557,14 +800,76 @@ function selectCoherentCandidateCluster(
     }
     clusters.push(cluster);
   }
-
   return clusters.sort((a, b) => {
     if (b.length !== a.length) return b.length - a.length;
     return (
       b.reduce((sum, candidate) => sum + candidate.score, 0) -
       a.reduce((sum, candidate) => sum + candidate.score, 0)
     );
-  })[0] ?? [];
+  });
+}
+
+function detectLowContrastBoundaryCandidates(
+  analysis: PreparedCloseupImage,
+  sourceMaxDimension: number
+): LowContrastBoundaryResult {
+  const { width, height, grayscale } = analysis;
+  const edgeMagnitude = computeSobelMagnitude(grayscale, width, height);
+  const evaluations: ComponentEvaluation[] = [];
+  let componentCount = 0;
+  for (const [thresholdIndex, threshold] of [22, 24].entries()) {
+    const edgeMask = new Uint8Array(edgeMagnitude.length);
+    for (let index = 0; index < edgeMask.length; index += 1) {
+      edgeMask[index] = edgeMagnitude[index] > threshold ? 1 : 0;
+    }
+    const closedEdgeMask = closeBinaryMask(edgeMask, width, height, 2);
+    const interiorMask = new Uint8Array(closedEdgeMask.length);
+    for (let index = 0; index < interiorMask.length; index += 1) {
+      interiorMask[index] = closedEdgeMask[index] ? 0 : 1;
+    }
+    const components = collectMaskComponents(interiorMask, analysis);
+    componentCount += components.length;
+    evaluations.push(
+      ...components.map((component, componentIndex) =>
+        lowContrastComponentToCandidate(
+          component,
+          analysis,
+          edgeMagnitude,
+          thresholdIndex,
+          componentIndex
+        )
+      )
+    );
+  }
+
+  const rejectionCounts: Partial<Record<PartialCloseupRejectionReason, number>> = {};
+  for (const evaluation of evaluations) {
+    for (const reason of evaluation.rejectionReasons) {
+      rejectionCounts[reason] = (rejectionCounts[reason] ?? 0) + 1;
+    }
+  }
+  const accepted = evaluations
+    .map((evaluation) => evaluation.candidate)
+    .filter((candidate): candidate is NailTextureCandidate => candidate !== null);
+  const merged = mergeLowContrastCandidates(accepted, sourceMaxDimension);
+  const clusters = collectCandidateClusters(merged, sourceMaxDimension * 0.21);
+  const best = clusters[0] ?? [];
+  const competing = clusters[1] ?? [];
+  const selected =
+    best.length >= 4 && best.length <= 5 && competing.length < 4 ? best : [];
+  return {
+    candidates: selected,
+    componentCount,
+    acceptedComponentCount: merged.length,
+    rejectionCounts,
+  };
+}
+
+function selectCoherentCandidateCluster(
+  candidates: NailTextureCandidate[],
+  maxDistance: number
+): NailTextureCandidate[] {
+  return collectCandidateClusters(candidates, maxDistance)[0] ?? [];
 }
 
 export function assignPartialCloseupCandidateFingers(
@@ -647,6 +952,11 @@ export function detectPartialCloseupNails(
         acceptedComponentCount: 0,
         selectedCandidateCount: 0,
         rejectionCounts: {},
+        strategy: null,
+        lowContrastComponentCount: 0,
+        lowContrastAcceptedComponentCount: 0,
+        lowContrastSelectedCandidateCount: 0,
+        lowContrastRejectionCounts: {},
       },
     };
   }
@@ -671,18 +981,45 @@ export function detectPartialCloseupNails(
     .sort((a, b) => b.score - a.score)
     .slice(0, 5);
 
+  let finalCandidates = coherentCandidates.length >= 2 ? coherentCandidates : [];
+  let strategy: PartialCloseupDetectionDiagnostics["strategy"] =
+    finalCandidates.length >= 2 ? "painted-color" : null;
+  let lowContrastComponentCount = 0;
+  let lowContrastAcceptedComponentCount = 0;
+  let lowContrastRejectionCounts: Partial<
+    Record<PartialCloseupRejectionReason, number>
+  > = {};
+  if (finalCandidates.length < 2) {
+    const lowContrast = detectLowContrastBoundaryCandidates(
+      analysis,
+      Math.max(source.width, source.height)
+    );
+    finalCandidates = lowContrast.candidates;
+    lowContrastComponentCount = lowContrast.componentCount;
+    lowContrastAcceptedComponentCount = lowContrast.acceptedComponentCount;
+    lowContrastRejectionCounts = lowContrast.rejectionCounts;
+    if (finalCandidates.length >= 4) strategy = "low-contrast-boundary";
+  }
   const diagnostics: PartialCloseupDetectionDiagnostics = {
     analysisWidth: analysis.width,
     analysisHeight: analysis.height,
     componentCount: components.length,
     acceptedComponentCount: candidates.length,
-    selectedCandidateCount: coherentCandidates.length >= 2 ? coherentCandidates.length : 0,
+    selectedCandidateCount: finalCandidates.length,
     rejectionCounts,
+    strategy,
+    lowContrastComponentCount,
+    lowContrastAcceptedComponentCount,
+    lowContrastSelectedCandidateCount:
+      strategy === "low-contrast-boundary" ? finalCandidates.length : 0,
+    lowContrastRejectionCounts,
   };
-  if (coherentCandidates.length < 2) return { candidates: [], diagnostics };
-  const confidence = coherentCandidates.length >= 4 ? "medium" : "low";
+  if (finalCandidates.length < 2) return { candidates: [], diagnostics };
+  const confidence = strategy === "painted-color" && finalCandidates.length >= 4
+    ? "medium"
+    : "low";
   const ordered = assignPartialCloseupCandidateFingers(
-    coherentCandidates,
+    finalCandidates,
     analysis.handCenterX / analysis.scale,
     analysis.handCenterY / analysis.scale
   );
