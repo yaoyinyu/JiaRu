@@ -3,6 +3,7 @@ import type {
   NailTextureCandidateSource,
   NailTextureModelBackend,
 } from "./nail-texture-recognition/types.ts";
+import type { PartialCloseupDetectionDiagnostics } from "./nail-partial-closeup-detection.ts";
 
 export interface NailDebugSampleCandidate {
   id: string;
@@ -35,6 +36,7 @@ export interface NailDebugSampleDetectionSummary {
   maxCandidates?: number;
   workerTimeoutMs?: number;
   includeLowConfidenceCandidates?: boolean;
+  partialCloseupDiagnostics?: PartialCloseupDetectionDiagnostics;
   warnings: string[];
 }
 
@@ -56,6 +58,7 @@ export interface NailDebugSampleRecord {
     includeLowConfidenceCandidates?: boolean;
   };
   warnings: string[];
+  partialCloseupDiagnostics?: PartialCloseupDetectionDiagnostics;
   originalCandidates: NailDebugSampleCandidate[];
   correctedCandidates: NailDebugSampleCandidate[];
   createdAt: string;
@@ -155,6 +158,7 @@ export function createLocalNailDebugSample(args: {
           }
         : undefined,
     warnings: summary?.warnings ?? [],
+    partialCloseupDiagnostics: summary?.partialCloseupDiagnostics,
     originalCandidates: args.originalRegions.map(toNailDebugSampleCandidate),
     correctedCandidates: args.correctedRegions.map(toNailDebugSampleCandidate),
     createdAt,

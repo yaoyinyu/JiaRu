@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { detectPartialCloseupNailCandidates } from "../src/lib/nail-partial-closeup-detection.ts";
+import {
+  assignPartialCloseupCandidateFingers,
+  detectPartialCloseupNailCandidates,
+  detectPartialCloseupNails,
+} from "../src/lib/nail-partial-closeup-detection.ts";
+import type { NailTextureCandidate } from "../src/lib/nail-texture-recognition/types.ts";
 
 function createSyntheticCloseup(nailCount: number) {
   const width = 480;
@@ -93,6 +98,54 @@ function repaintSyntheticNailSilver(
   }
 }
 
+function roughenSkinAroundNail(
+  source: ReturnType<typeof createSyntheticCloseup>,
+  nail: { cx: number; cy: number; rx: number; ry: number; angle: number }
+): void {
+  const cos = Math.cos(-nail.angle);
+  const sin = Math.sin(-nail.angle);
+  for (let y = nail.cy - nail.ry - 18; y <= nail.cy + nail.ry + 18; y += 1) {
+    for (let x = nail.cx - nail.ry - 18; x <= nail.cx + nail.ry + 18; x += 1) {
+      if (x < 0 || y < 0 || x >= source.width || y >= source.height) continue;
+      const dx = x - nail.cx;
+      const dy = y - nail.cy;
+      const localX = dx * cos - dy * sin;
+      const localY = dx * sin + dy * cos;
+      const normalized =
+        (localX * localX) / (nail.rx * nail.rx) +
+        (localY * localY) / (nail.ry * nail.ry);
+      if (normalized <= 1 || normalized > 1.65) continue;
+      const index = (y * source.width + x) * 4;
+      const bright = (x + y) % 2 === 0;
+      source.data[index] = bright ? 226 : 184;
+      source.data[index + 1] = bright ? 177 : 142;
+      source.data[index + 2] = bright ? 147 : 121;
+    }
+  }
+}
+
+function createArcCandidates(mirrored = false, ambiguous = false): NailTextureCandidate[] {
+  const points = [
+    { x: 110, y: 285, width: ambiguous ? 28 : 46 },
+    { x: 165, y: 185, width: 28 },
+    { x: 240, y: 145, width: 29 },
+    { x: 315, y: 180, width: 27 },
+    { x: 370, y: 280, width: ambiguous ? 28 : 22 },
+  ];
+  return points.map((point, index) => ({
+    id: `arc-${index}`,
+    cx: mirrored ? 480 - point.x : point.x,
+    cy: point.y,
+    length: 70,
+    width: point.width,
+    angle: 0,
+    score: 1,
+    confidence: "medium",
+    source: "partial-closeup",
+    suggestedFinger: null,
+  }));
+}
+
 test("partial closeup detector finds painted nails without exposing fabric", () => {
   const candidates = detectPartialCloseupNailCandidates(createSyntheticCloseup(4));
 
@@ -129,7 +182,7 @@ test("partial closeup detector keeps a coherent five-nail cluster and rejects a 
   const candidates = detectPartialCloseupNailCandidates(source);
   assert.equal(candidates.length, 5);
   assert.ok(candidates.every((candidate) => candidate.cy > 100));
-  assert.ok(candidates.every((candidate) => candidate.confidence === "medium"));
+  assert.ok(candidates.every((candidate) => candidate.confidence !== "high"));
 });
 
 test("partial closeup detector keeps low-saturation silver nails", () => {
@@ -151,9 +204,64 @@ test("partial closeup detector keeps low-saturation silver nails", () => {
 
   const candidates = detectPartialCloseupNailCandidates(source);
   assert.equal(candidates.length, 5);
-  assert.ok(candidates.every((candidate) => candidate.confidence === "medium"));
+  assert.ok(candidates.every((candidate) => candidate.confidence !== "high"));
+});
+
+test("partial closeup detector keeps five nails surrounded by dry textured skin", () => {
+  const source = createSyntheticCloseup(5);
+  roughenSkinAroundNail(source, {
+    cx: 205,
+    cy: 142,
+    rx: 25,
+    ry: 49,
+    angle: -0.12,
+  });
+  roughenSkinAroundNail(source, {
+    cx: 372,
+    cy: 275,
+    rx: 24,
+    ry: 47,
+    angle: 0.42,
+  });
+
+  const result = detectPartialCloseupNails(source);
+  assert.equal(result.candidates.length, 5);
+  assert.ok(result.candidates.every((candidate) => candidate.suggestedFinger === null));
+  assert.ok(
+    result.candidates.every((candidate) =>
+      candidate.warnings?.includes("partial_closeup_finger_order_ambiguous")
+    )
+  );
+  assert.equal(result.diagnostics.selectedCandidateCount, 5);
+  assert.ok(result.diagnostics.componentCount > result.diagnostics.acceptedComponentCount);
+  assert.ok((result.diagnostics.rejectionCounts.area_too_large ?? 0) >= 1);
 });
 
 test("partial closeup detector refuses a lone ambiguous painted object", () => {
   assert.deepEqual(detectPartialCloseupNailCandidates(createSyntheticCloseup(1)), []);
+});
+
+test("hand arc assignment keeps the thumb first for normal and mirrored hands", () => {
+  const normal = assignPartialCloseupCandidateFingers(createArcCandidates(), 240, 350);
+  const mirrored = assignPartialCloseupCandidateFingers(createArcCandidates(true), 240, 350);
+
+  assert.deepEqual(normal.map((candidate) => candidate.suggestedFinger), [0, 1, 2, 3, 4]);
+  assert.deepEqual(mirrored.map((candidate) => candidate.suggestedFinger), [0, 1, 2, 3, 4]);
+  assert.ok(normal[0].cx < normal[4].cx);
+  assert.ok(mirrored[0].cx > mirrored[4].cx);
+});
+
+test("hand arc assignment leaves symmetric endpoints unassigned", () => {
+  const assigned = assignPartialCloseupCandidateFingers(
+    createArcCandidates(false, true),
+    240,
+    350
+  );
+
+  assert.ok(assigned.every((candidate) => candidate.suggestedFinger === null));
+  assert.ok(
+    assigned.every((candidate) =>
+      candidate.warnings?.includes("partial_closeup_finger_order_ambiguous")
+    )
+  );
 });

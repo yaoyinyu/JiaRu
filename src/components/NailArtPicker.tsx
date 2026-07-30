@@ -14,7 +14,10 @@ import {
   remapNailTextureCandidatesToOriginal,
 } from "@/lib/nail-texture-recognition/input-scaling";
 import { detectNailsFromHandImage } from "@/lib/nail-hand-geometry-detection";
-import { detectPartialCloseupNailCandidates } from "@/lib/nail-partial-closeup-detection";
+import {
+  detectPartialCloseupNails,
+  type PartialCloseupDetectionDiagnostics,
+} from "@/lib/nail-partial-closeup-detection";
 import {
   createLocalNailDebugSample,
   createNailDebugSampleFilename,
@@ -57,6 +60,7 @@ interface DetectionSummary {
   workerElapsedMs?: number;
   maxCandidates: number;
   workerTimeoutMs: number;
+  partialCloseupDiagnostics?: PartialCloseupDetectionDiagnostics;
   warnings: string[];
 }
 
@@ -274,6 +278,7 @@ async function computeImageDetectedNailRegions(
   const detectionWarnings = [...result.warnings];
   let handGeometryRegions: NailRegion[] = [];
   let partialCloseupRegions: NailRegion[] = [];
+  let partialCloseupDiagnostics: PartialCloseupDetectionDiagnostics | undefined;
   if (fallbackUsed) {
     try {
       const handDetection = await detectNailsFromHandImage(image, { signal });
@@ -297,8 +302,10 @@ async function computeImageDetectedNailRegions(
     }
   }
   if (fallbackUsed && handGeometryRegions.length === 0) {
+    const partialDetection = detectPartialCloseupNails(imageData);
+    partialCloseupDiagnostics = partialDetection.diagnostics;
     const partialCandidates = remapNailTextureCandidatesToOriginal(
-      detectPartialCloseupNailCandidates(imageData),
+      partialDetection.candidates,
       {
         scaleX: imageData.width / originalWidth,
         scaleY: imageData.height / originalHeight,
@@ -352,6 +359,7 @@ async function computeImageDetectedNailRegions(
       workerElapsedMs: result.workerElapsedMs,
       maxCandidates: 10,
       workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
+      partialCloseupDiagnostics,
       warnings: detectionWarnings,
     },
   };

@@ -68,6 +68,14 @@ test("createLocalNailDebugSample preserves source and runtime summary metadata",
       maxCandidates: 10,
       workerTimeoutMs: 15000,
       includeLowConfidenceCandidates: true,
+      partialCloseupDiagnostics: {
+        analysisWidth: 480,
+        analysisHeight: 320,
+        componentCount: 12,
+        acceptedComponentCount: 5,
+        selectedCandidateCount: 5,
+        rejectionCounts: { area_too_large: 1 },
+      },
       warnings: ["candidate_count_capped"],
     },
     originalRegions: [
@@ -110,6 +118,14 @@ test("createLocalNailDebugSample preserves source and runtime summary metadata",
     includeLowConfidenceCandidates: true,
   });
   assert.deepEqual(record.warnings, ["candidate_count_capped"]);
+  assert.deepEqual(record.partialCloseupDiagnostics, {
+    analysisWidth: 480,
+    analysisHeight: 320,
+    componentCount: 12,
+    acceptedComponentCount: 5,
+    selectedCandidateCount: 5,
+    rejectionCounts: { area_too_large: 1 },
+  });
   assert.equal(record.imageId, "local-debug-2026-06-30T12-34-56.000Z");
   assert.deepEqual(record.image, {
     width: 860,
