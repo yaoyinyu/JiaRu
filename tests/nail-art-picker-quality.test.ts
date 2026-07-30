@@ -55,6 +55,10 @@ test("presentRecognitionWarning maps known runtime warnings to readable text", (
     presentRecognitionWarning("mediapipe_hand_detection_failed"),
     "手部关键点自动定位启动失败，请刷新页面后重试；仍失败时可继续手动添加。"
   );
+  assert.equal(
+    presentRecognitionWarning("model_unavailable_used_partial_closeup"),
+    "精细甲面模型和完整手部定位暂不可用，已改用局部近景自动定位；请快速检查边界后提取。"
+  );
 });
 
 test("presentCandidateWarning maps debug low-score candidates to readable text", () => {
@@ -66,6 +70,11 @@ test("presentCandidateWarning maps debug low-score candidates to readable text",
     presentCandidateWarning("mediapipe_geometry_detection").message,
     "已根据手部关键点自动定位甲面；如边界有偏差，可直接拖动或微调。"
   );
+  assert.equal(
+    presentCandidateWarning("partial_closeup_color_detection").message,
+    "已自动定位甲面；如边界有偏差，可直接拖动或微调。"
+  );
+  assert.equal(presentCandidateWarning("partial_closeup_color_detection").severity, "info");
 });
 
 test("regionNeedsReview becomes true for low confidence warnings or extraction quality failures", () => {
@@ -73,6 +82,10 @@ test("regionNeedsReview becomes true for low confidence warnings or extraction q
   assert.equal(regionNeedsReview({ confidence: "medium" }), false);
   assert.equal(regionNeedsReview({ confidence: "low" }), true);
   assert.equal(regionNeedsReview({ confidence: "high", warnings: ["highlight_hotspots"] }), true);
+  assert.equal(
+    regionNeedsReview({ confidence: "medium", warnings: ["partial_closeup_color_detection"] }),
+    false
+  );
   assert.equal(
     regionNeedsReview({
       confidence: "high",
@@ -100,6 +113,17 @@ test("summarizeRegionQuality keeps medium confidence distinct from low confidenc
 
   assert.equal(summary.severity, "ok");
   assert.equal(summary.messages.length, 0);
+});
+
+test("summarizeRegionQuality keeps partial closeup guidance informational", () => {
+  const summary = summarizeRegionQuality({
+    confidence: "medium",
+    warnings: ["partial_closeup_color_detection"],
+  });
+
+  assert.equal(summary.severity, "ok");
+  assert.equal(summary.title, "当前候选已自动定位");
+  assert.deepEqual(summary.messages, ["已自动定位甲面；如边界有偏差，可直接拖动或微调。"]);
 });
 
 test("summarizeRegionQuality dedupes user-facing review messages", () => {

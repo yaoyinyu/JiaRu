@@ -14,6 +14,7 @@ import {
   remapNailTextureCandidatesToOriginal,
 } from "@/lib/nail-texture-recognition/input-scaling";
 import { detectNailsFromHandImage } from "@/lib/nail-hand-geometry-detection";
+import { detectPartialCloseupNailCandidates } from "@/lib/nail-partial-closeup-detection";
 import {
   createLocalNailDebugSample,
   createNailDebugSampleFilename,
@@ -49,6 +50,7 @@ interface NailRegion {
 interface DetectionSummary {
   backend: "model" | "fallback";
   assistedByHandGeometry?: boolean;
+  assistedByPartialCloseup?: boolean;
   modelVersion?: string;
   modelBackend?: "webgpu" | "wasm" | "fallback";
   elapsedMs: number;
@@ -84,6 +86,7 @@ const SOURCE_LABELS: Record<NonNullable<NailRegion["source"]>, string> = {
   saliency: "规则候选",
   manual: "手动添加",
   mediapipe: "手部几何",
+  "partial-closeup": "局部近景",
 };
 const MAX_CANVAS_DIM = 800;
 const MAX_DETECTION_DIM = 800;
@@ -94,6 +97,28 @@ const MIN_NAIL_SIZE = 15;
 const BORDER_COLOR = "#22c55e";
 const SELECTED_COLOR = "#ec4899";
 const HANDLE_BG = "#ffffff";
+
+const PARTIAL_CLOSEUP_HIDDEN_WARNING_CODES = new Set([
+  "worker_unavailable_used_main_thread",
+  "worker_timeout_used_main_thread",
+  "model_runtime_unavailable_on_server",
+  "no_supported_model_backend",
+  "onnx_runtime_not_loaded",
+  "onnx_session_init_failed",
+  "onnx_session_or_tensor_unavailable",
+  "model_outputs_empty_used_fallback",
+  "model_unavailable_used_partial_closeup",
+  "mediapipe_no_hand_detected",
+  "mediapipe_no_nail_geometry",
+  "mediapipe_hand_detection_failed",
+]);
+
+function isPartialCloseupInfrastructureWarning(warning: string): boolean {
+  if (PARTIAL_CLOSEUP_HIDDEN_WARNING_CODES.has(warning)) return true;
+  return ["model_manifest_error", "model_inference_error", "onnx_session_init_failed"].some(
+    (prefix) => warning.startsWith(prefix)
+  );
+}
 
 function nextId(): string {
   return `nail-${Math.random().toString(36).slice(2, 10)}`;
@@ -248,6 +273,7 @@ async function computeImageDetectedNailRegions(
   const fallbackUsed = result.backend === "fallback";
   const detectionWarnings = [...result.warnings];
   let handGeometryRegions: NailRegion[] = [];
+  let partialCloseupRegions: NailRegion[] = [];
   if (fallbackUsed) {
     try {
       const handDetection = await detectNailsFromHandImage(image, { signal });
@@ -271,12 +297,46 @@ async function computeImageDetectedNailRegions(
     }
   }
   if (fallbackUsed && handGeometryRegions.length === 0) {
-    detectionWarnings.push("fallback_candidates_hidden_manual_selection_required");
+    const partialCandidates = remapNailTextureCandidatesToOriginal(
+      detectPartialCloseupNailCandidates(imageData),
+      {
+        scaleX: imageData.width / originalWidth,
+        scaleY: imageData.height / originalHeight,
+      },
+      originalWidth,
+      originalHeight
+    );
+    partialCloseupRegions = partialCandidates.map((candidate) => ({
+      id: candidate.id,
+      cx: candidate.cx,
+      cy: candidate.cy,
+      angle: candidate.angle,
+      nl: candidate.length,
+      nw: candidate.width,
+      assignedFinger: candidate.suggestedFinger,
+      confidence: candidate.confidence,
+      source: candidate.source,
+      warnings: [...(candidate.warnings ?? [])],
+    }));
+    if (partialCloseupRegions.length > 0) {
+      const obsoleteWarnings = new Set([
+        "mediapipe_no_hand_detected",
+        "mediapipe_no_nail_geometry",
+      ]);
+      for (let index = detectionWarnings.length - 1; index >= 0; index -= 1) {
+        if (obsoleteWarnings.has(detectionWarnings[index])) detectionWarnings.splice(index, 1);
+      }
+      detectionWarnings.push("model_unavailable_used_partial_closeup");
+    } else {
+      detectionWarnings.push("fallback_candidates_hidden_manual_selection_required");
+    }
   }
 
-  const regions = fallbackUsed ? handGeometryRegions : modelOrRuleRegions;
+  const assistedRegions =
+    handGeometryRegions.length > 0 ? handGeometryRegions : partialCloseupRegions;
+  const regions = fallbackUsed ? assistedRegions : modelOrRuleRegions;
   const originalRegions = fallbackUsed
-    ? [...modelOrRuleRegions, ...handGeometryRegions]
+    ? [...modelOrRuleRegions, ...assistedRegions]
     : modelOrRuleRegions;
 
   return {
@@ -285,6 +345,7 @@ async function computeImageDetectedNailRegions(
     summary: {
       backend: result.backend,
       assistedByHandGeometry: fallbackUsed && handGeometryRegions.length > 0,
+      assistedByPartialCloseup: fallbackUsed && partialCloseupRegions.length > 0,
       modelVersion: result.modelVersion,
       modelBackend: result.modelInfo?.backend,
       elapsedMs: result.elapsedMs,
@@ -325,7 +386,17 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
     selectedRegion?.extractionDiagnostics
   );
   const detectionWarningMessages = useMemo(
-    () => [...new Set(detectionSummary?.warnings.map(presentRecognitionWarning) ?? [])],
+    () => [
+      ...new Set(
+        (detectionSummary?.warnings ?? [])
+          .filter(
+            (warning) =>
+              !detectionSummary?.assistedByPartialCloseup ||
+              !isPartialCloseupInfrastructureWarning(warning)
+          )
+          .map(presentRecognitionWarning)
+      ),
+    ],
     [detectionSummary]
   );
   const hasRegionsNeedingReview = regions.some((region) => regionNeedsReview(region));
@@ -814,6 +885,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                 <span className="rounded-full bg-white px-2 py-1">
                   {detectionSummary.assistedByHandGeometry
                     ? "手部自动定位"
+                    : detectionSummary.assistedByPartialCloseup
+                      ? "局部近景自动定位"
                     : BACKEND_LABELS[detectionSummary.backend]}
                   {detectionSummary.modelBackend
                     ? ` / ${MODEL_BACKEND_LABELS[detectionSummary.modelBackend]}`
@@ -837,11 +910,21 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                 ))}
               </ul>
             )}
-            {hasRegionsNeedingReview && (
+            {detectionSummary?.assistedByPartialCloseup ? (
+              regions.length >= 4 ? (
+                <div className="rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
+                  已自动定位 {regions.length} 个甲面，可直接提取；如边界有偏差可点击调整。
+                </div>
+              ) : (
+                <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                  已自动定位 {regions.length} 个甲面；如照片中还有未框选甲面，请点击图片补充。
+                </div>
+              )
+            ) : hasRegionsNeedingReview ? (
               <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
                 部分区域需要检查位置、角度或大小后再提取。
               </div>
-            )}
+            ) : null}
             {error && (
               <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</div>
             )}
@@ -901,9 +984,11 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                                 : "bg-emerald-100 text-emerald-700"
                             }`}
                           >
-                            {region.confidence
-                              ? CONFIDENCE_LABELS[region.confidence]
-                              : "手动"}
+                            {region.source === "partial-closeup"
+                              ? "已定位"
+                              : region.confidence
+                                ? CONFIDENCE_LABELS[region.confidence]
+                                : "手动"}
                           </span>
                         </div>
                         <div className="mt-1 text-xs text-slate-500">

@@ -42,8 +42,10 @@ test("NailArtPicker keeps user-facing labels UTF-8 clean and fully Chinese", asy
 
 test("AR try-on exposes Chinese nail fit controls", async () => {
   const source = await readFile(arPagePath, "utf8");
-  assert.match(source, /甲面贴合微调/);
-  assert.match(source, /aria-label="甲面大小"/);
+  assert.match(source, /逐指校准/);
+  assert.match(source, /甲面长度/);
+  assert.match(source, /甲面宽度/);
   assert.match(source, /aria-label="甲面位置"/);
-  assert.match(source, /恢复默认/);
+  assert.match(source, /重置本指/);
+  assert.match(source, /重置全部/);
 });

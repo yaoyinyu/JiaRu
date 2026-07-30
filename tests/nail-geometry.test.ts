@@ -3,11 +3,35 @@ import test from "node:test";
 import {
   adjustNailGeometry,
   computeNailGeometry,
+  createNailAffineTransform,
   mapGeometryScale,
   NAIL_DIPS,
+  NAIL_PIPS,
   NAIL_TIPS,
   type NailLandmark,
 } from "../src/lib/nail-geometry.ts";
+
+function perspectiveLandmarks({
+  tipY = 0.25,
+  tipZ = 0,
+  indexMcpZ = 0,
+  pinkyMcpZ = 0,
+}: {
+  tipY?: number;
+  tipZ?: number;
+  indexMcpZ?: number;
+  pinkyMcpZ?: number;
+} = {}): NailLandmark[] {
+  const points = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.5, z: 0 }));
+  points[0] = { x: 0.5, y: 0.78, z: 0 };
+  points[5] = { x: 0.38, y: 0.58, z: indexMcpZ };
+  points[9] = { x: 0.5, y: 0.54, z: 0 };
+  points[17] = { x: 0.62, y: 0.58, z: pinkyMcpZ };
+  points[NAIL_PIPS[2]] = { x: 0.5, y: 0.45, z: 0 };
+  points[NAIL_DIPS[2]] = { x: 0.5, y: 0.35, z: 0 };
+  points[NAIL_TIPS[2]] = { x: 0.5, y: tipY, z: tipZ };
+  return points;
+}
 
 function landmarksForDirection(dx: number, dy: number): NailLandmark[] {
   const points = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.5, z: 0 }));
@@ -79,4 +103,66 @@ test("display geometry maps back to original pixels without drift", () => {
     width: 90,
     angle: 0.7,
   });
+});
+
+test("depth-aware fit keeps nail width when the fingertip points toward the camera", () => {
+  const geometry = computeNailGeometry(
+    perspectiveLandmarks({ tipY: 0.31, tipZ: -0.05 }),
+    2,
+    800,
+    600,
+    { zScale: 800 },
+  );
+  assert.ok(geometry);
+  const projectedOnlyWidth = Math.abs(0.31 - 0.35) * 600 * 0.54;
+  assert.ok(
+    geometry.width > projectedOnlyWidth * 1.7,
+    `expected depth-aware width, got ${geometry.width}`,
+  );
+  assert.ok(geometry.length < geometry.width);
+});
+
+test("rolled hand produces a non-orthogonal transverse axis and narrower nail", () => {
+  const frontal = computeNailGeometry(perspectiveLandmarks(), 2, 800, 600, { zScale: 800 });
+  const rolled = computeNailGeometry(
+    perspectiveLandmarks({ indexMcpZ: -0.08, pinkyMcpZ: 0.08 }),
+    2,
+    800,
+    600,
+    { zScale: 800 },
+  );
+  assert.ok(frontal && rolled);
+  assert.ok(rolled.width < frontal.width * 0.9);
+  assert.notEqual(rolled.transverseAngle, undefined);
+  const orthogonalError = Math.abs(
+    Math.cos((rolled.transverseAngle ?? rolled.angle) - rolled.angle),
+  );
+  assert.ok(orthogonalError > 0.02, `expected perspective shear, got ${orthogonalError}`);
+});
+
+test("affine transform keeps local nail tip aligned with the fingertip axis", () => {
+  const geometry = computeNailGeometry(
+    perspectiveLandmarks({ indexMcpZ: -0.08, pinkyMcpZ: 0.08 }),
+    2,
+    800,
+    600,
+    { zScale: 800 },
+  );
+  assert.ok(geometry);
+  const matrix = createNailAffineTransform(geometry);
+  const tipVector = { x: -matrix.c, y: -matrix.d };
+  const expected = directionFromAngle(geometry.angle);
+  assert.ok(Math.abs(tipVector.x - expected.x) < 1e-9);
+  assert.ok(Math.abs(tipVector.y - expected.y) < 1e-9);
+});
+
+test("per-finger calibration adjusts length and width independently", () => {
+  const adjusted = adjustNailGeometry(
+    { cx: 100, cy: 100, length: 40, width: 20, angle: 0 },
+    1.25,
+    0,
+    0.8,
+  );
+  assert.equal(adjusted.length, 50);
+  assert.equal(adjusted.width, 16);
 });

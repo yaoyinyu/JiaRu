@@ -61,6 +61,10 @@ const CANDIDATE_WARNING_MESSAGES: Record<string, NailArtPickerWarningPresentatio
     severity: "warning",
     message: "手部朝向不够明确，建议确认自动定位是否覆盖完整甲面。",
   },
+  partial_closeup_color_detection: {
+    severity: "info",
+    message: "已自动定位甲面；如边界有偏差，可直接拖动或微调。",
+  },
   low_score_debug_candidate: {
     severity: "info",
     message: "这是调试模式保留的低分候选，默认流程会隐藏。",
@@ -78,6 +82,8 @@ const RECOGNITION_WARNING_MESSAGES: Record<string, string> = {
   recognition_cancelled_by_user: "自动识别已取消，你可以继续手动添加和调整区域。",
   model_unavailable_used_mediapipe_geometry:
     "精细甲面模型暂不可用，已改用手部关键点自动定位；请快速检查边界后提取。",
+  model_unavailable_used_partial_closeup:
+    "精细甲面模型和完整手部定位暂不可用，已改用局部近景自动定位；请快速检查边界后提取。",
   mediapipe_no_hand_detected:
     "图片中没有检测到完整手部，请换用五指清晰可见的照片，或手动添加甲面。",
   mediapipe_palm_facing:
@@ -122,7 +128,13 @@ export function presentRecognitionWarning(warning: string): string {
 
 export function regionNeedsReview(region: NailArtPickerQualityRegionLike): boolean {
   if (region.confidence === "low") return true;
-  if ((region.warnings?.length ?? 0) > 0) return true;
+  if (
+    (region.warnings ?? []).some(
+      (warning) => presentCandidateWarning(warning).severity === "warning"
+    )
+  ) {
+    return true;
+  }
   return Boolean(region.extractionDiagnostics && !region.extractionDiagnostics.quality.ok);
 }
 
@@ -168,31 +180,35 @@ export function summarizeRegionQuality(
   region: NailArtPickerQualityRegionLike
 ): NailArtPickerRegionQualitySummary {
   const messages: string[] = [];
+  let needsReview = region.confidence === "low";
 
   if (region.confidence === "low") {
     messages.push("当前候选置信度偏低，建议检查位置、角度和大小。");
   }
 
   for (const warning of region.warnings ?? []) {
-    messages.push(presentCandidateWarning(warning).message);
+    const presentation = presentCandidateWarning(warning);
+    messages.push(presentation.message);
+    if (presentation.severity === "warning") needsReview = true;
   }
 
   if (region.extractionDiagnostics && !region.extractionDiagnostics.quality.ok) {
+    needsReview = true;
     for (const warning of region.extractionDiagnostics.quality.warnings) {
       messages.push(presentCandidateWarning(warning).message);
     }
   }
 
   const deduped = dedupeMessages(messages);
-  return deduped.length
+  return needsReview
     ? {
         severity: "review",
         title: "建议复核当前候选",
         messages: deduped,
       }
-    : {
+      : {
         severity: "ok",
-        title: "当前候选状态良好",
-        messages: [],
+        title: "当前候选已自动定位",
+        messages: deduped,
       };
 }

@@ -3,7 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { AppShell } from "@/components/AppShell";
-import { ArView } from "@/components/ArView";
+import { ArView, type NailFitAdjustment } from "@/components/ArView";
 import { PRESET_COLORS } from "@/lib/utils";
 import { disposeAllTextures } from "@/lib/texture";
 import type { NailAssignment } from "@/components/NailArtPicker";
@@ -18,6 +18,15 @@ const NailArtPicker = dynamic(() => import("@/components/NailArtPicker"), {
 });
 
 const FINGER_NAMES = ["拇指", "食指", "中指", "无名指", "小指"];
+const DEFAULT_NAIL_FIT: NailFitAdjustment = {
+  lengthScale: 1,
+  widthScale: 1,
+  rootOffset: 0,
+};
+
+function createDefaultNailFits(): NailFitAdjustment[] {
+  return Array.from({ length: 5 }, () => ({ ...DEFAULT_NAIL_FIT }));
+}
 
 export default function ArTryonPage() {
   const [nailColors, setNailColors] = useState([
@@ -28,8 +37,7 @@ export default function ArTryonPage() {
   ]);
   const [activeFinger, setActiveFinger] = useState(0);
   const [mode, setMode] = useState<"color" | "texture">("color");
-  const [nailFitScale, setNailFitScale] = useState(1);
-  const [nailFitOffset, setNailFitOffset] = useState(0);
+  const [nailFits, setNailFits] = useState<NailFitAdjustment[]>(createDefaultNailFits);
   const [showCropper, setShowCropper] = useState(false);
   const [showNailPicker, setShowNailPicker] = useState(false);
   const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
@@ -48,6 +56,13 @@ export default function ArTryonPage() {
   }, [uploadedPhotoUrl]);
 
   const hasAnyTexture = nailTextures.some((texture) => texture != null);
+  const activeNailFit = nailFits[activeFinger] ?? DEFAULT_NAIL_FIT;
+
+  const updateActiveNailFit = (patch: Partial<NailFitAdjustment>) => {
+    setNailFits((current) => current.map((fit, index) => (
+      index === activeFinger ? { ...fit, ...patch } : fit
+    )));
+  };
 
   useEffect(() => {
     return () => {
@@ -203,8 +218,7 @@ export default function ArTryonPage() {
             nailColors={nailColors}
             nailTextures={nailTextures}
             mode={mode}
-            nailScale={nailFitScale}
-            nailOffset={nailFitOffset}
+            nailAdjustments={nailFits}
           />
         </section>
         <aside className="rounded-[28px] border border-white/80 bg-white/68 p-5 shadow-[0_22px_65px_rgba(91,59,74,.09)] backdrop-blur-2xl xl:sticky xl:top-24">
@@ -238,31 +252,57 @@ export default function ArTryonPage() {
 
           <div className="mb-4 rounded-2xl border border-pink-100 bg-white/70 p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-medium text-[#665C61]">甲面贴合微调</span>
-              <button
-                type="button"
-                onClick={() => {
-                  setNailFitScale(1);
-                  setNailFitOffset(0);
-                }}
-                className="text-[11px] text-[#CF6F99] hover:text-[#B85C86]"
-              >
-                恢复默认
-              </button>
+              <span className="text-xs font-medium text-[#665C61]">
+                {FINGER_NAMES[activeFinger]}逐指校准
+              </span>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => updateActiveNailFit(DEFAULT_NAIL_FIT)}
+                  className="text-[11px] text-[#CF6F99] hover:text-[#B85C86]"
+                >
+                  重置本指
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setNailFits(createDefaultNailFits())}
+                  className="text-[11px] text-gray-400 hover:text-gray-600"
+                >
+                  重置全部
+                </button>
+              </div>
             </div>
             <label className="grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">
-              <span>大小</span>
+              <span>长度</span>
               <input
-                aria-label="甲面大小"
+                aria-label={`${FINGER_NAMES[activeFinger]}甲面长度`}
                 type="range"
                 min="75"
                 max="140"
                 step="1"
-                value={Math.round(nailFitScale * 100)}
-                onChange={(event) => setNailFitScale(Number(event.target.value) / 100)}
+                value={Math.round(activeNailFit.lengthScale * 100)}
+                onChange={(event) => updateActiveNailFit({
+                  lengthScale: Number(event.target.value) / 100,
+                })}
                 className="accent-[#D4749D]"
               />
-              <span className="text-right">{Math.round(nailFitScale * 100)}%</span>
+              <span className="text-right">{Math.round(activeNailFit.lengthScale * 100)}%</span>
+            </label>
+            <label className="mt-2 grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">
+              <span>宽度</span>
+              <input
+                aria-label={`${FINGER_NAMES[activeFinger]}甲面宽度`}
+                type="range"
+                min="70"
+                max="145"
+                step="1"
+                value={Math.round(activeNailFit.widthScale * 100)}
+                onChange={(event) => updateActiveNailFit({
+                  widthScale: Number(event.target.value) / 100,
+                })}
+                className="accent-[#D4749D]"
+              />
+              <span className="text-right">{Math.round(activeNailFit.widthScale * 100)}%</span>
             </label>
             <label className="mt-2 grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">
               <span>位置</span>
@@ -272,16 +312,18 @@ export default function ArTryonPage() {
                 min="-20"
                 max="20"
                 step="1"
-                value={Math.round(nailFitOffset * 100)}
-                onChange={(event) => setNailFitOffset(Number(event.target.value) / 100)}
+                value={Math.round(activeNailFit.rootOffset * 100)}
+                onChange={(event) => updateActiveNailFit({
+                  rootOffset: Number(event.target.value) / 100,
+                })}
                 className="accent-[#D4749D]"
               />
               <span className="text-right">
-                {nailFitOffset === 0
+                {activeNailFit.rootOffset === 0
                   ? "居中"
-                  : nailFitOffset > 0
-                    ? `指根${Math.round(nailFitOffset * 100)}`
-                    : `甲尖${Math.round(-nailFitOffset * 100)}`}
+                  : activeNailFit.rootOffset > 0
+                    ? `指根${Math.round(activeNailFit.rootOffset * 100)}`
+                    : `甲尖${Math.round(-activeNailFit.rootOffset * 100)}`}
               </span>
             </label>
           </div>

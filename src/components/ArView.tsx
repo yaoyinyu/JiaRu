@@ -3,6 +3,7 @@ import { useRef, useEffect, useState } from "react";
 import {
   adjustNailGeometry,
   computeNailGeometry,
+  createNailAffineTransform,
   NAIL_DIPS,
   NAIL_PIPS,
   NAIL_TIPS,
@@ -27,7 +28,7 @@ const DIPS = NAIL_DIPS;
 const PIPS = NAIL_PIPS;
 
 // 指数移动平均平滑因子
-const EMA_ALPHA = 0.45;
+const EMA_ALPHA = 0.66;
 const EMA_ALPHA_PALM = 0.3; // 朝向深度差平滑（更保守）
 
 const OUT_OF_FRAME_THRESHOLD = 0.1;   // x/y 超出 [0.1, 0.9] = 出画面
@@ -114,6 +115,14 @@ interface Props {
   nailScale?: number;
   /** 沿甲面长轴移动；正值向指根，单位为默认甲面长度。 */
   nailOffset?: number;
+  /** 可选的逐指校准；存在时覆盖对应的全局缩放与偏移。 */
+  nailAdjustments?: readonly NailFitAdjustment[];
+}
+
+export interface NailFitAdjustment {
+  lengthScale: number;
+  widthScale: number;
+  rootOffset: number;
 }
 
 export function ArView({
@@ -122,6 +131,7 @@ export function ArView({
   mode = "color",
   nailScale = 1,
   nailOffset = 0,
+  nailAdjustments,
 }: Props) {
   const vref = useRef<HTMLVideoElement>(null);
   const cref = useRef<HTMLCanvasElement>(null);
@@ -130,6 +140,7 @@ export function ArView({
   const modeRef = useRef(mode);
   const nailScaleRef = useRef(nailScale);
   const nailOffsetRef = useRef(nailOffset);
+  const nailAdjustmentsRef = useRef(nailAdjustments);
   const [status, setStatus] = useState("init"); // init|loading|ready|error
   const [statusMsg, setStatusMsg] = useState("初始化...");
   const [handCnt, setHandCnt] = useState(-1); // -1=未检测, 0=无手, N=有手
@@ -236,6 +247,22 @@ export function ArView({
       hw - tipNarrow, -hl
     );
     ctx.closePath();
+  }
+
+  /** 应用长轴与横轴独立的仿射变换，支持侧转甲面的透视剪切。 */
+  function applyNailGeometryTransform(
+    ctx: CanvasRenderingContext2D,
+    geometry: NailGeometry,
+  ) {
+    const matrix = createNailAffineTransform(geometry);
+    ctx.transform(
+      matrix.a,
+      matrix.b,
+      matrix.c,
+      matrix.d,
+      matrix.e,
+      matrix.f,
+    );
   }
 
   /**
@@ -596,7 +623,8 @@ export function ArView({
     currentMode: string,
     w: number,
     h: number,
-    video: HTMLVideoElement
+    video: HTMLVideoElement,
+    zScale: number,
   ) {
     for (let f = 0; f < 5; f++) {
       const rawTip = lm[TIPS[f]];
@@ -634,19 +662,27 @@ export function ArView({
       geometryLandmarks[TIPS[f]] = s.tip;
       geometryLandmarks[DIPS[f]] = s.dip;
       if (rawPip) geometryLandmarks[PIPS[f]] = s.pip;
-      const rawGeometry = computeNailGeometry(geometryLandmarks, f, w, h);
+      const rawGeometry = computeNailGeometry(
+        geometryLandmarks,
+        f,
+        w,
+        h,
+        { zScale },
+      );
       if (!rawGeometry) continue;
+      const fingerAdjustment = nailAdjustmentsRef.current?.[f];
       const measured = adjustNailGeometry(
         rawGeometry,
-        nailScaleRef.current,
-        nailOffsetRef.current
+        fingerAdjustment?.lengthScale ?? nailScaleRef.current,
+        fingerAdjustment?.rootOffset ?? nailOffsetRef.current,
+        fingerAdjustment?.widthScale ?? nailScaleRef.current,
       );
 
       const previous = geometrySmoothRef.current[f];
       const movement = previous
         ? Math.hypot(measured.cx - previous.cx, measured.cy - previous.cy)
         : Number.POSITIVE_INFINITY;
-      const alpha = movement > measured.width * 0.35 ? 0.62 : 0.34;
+      const alpha = movement > measured.width * 0.22 ? 0.82 : 0.55;
       const geometry = previous
         ? {
             cx: ema(previous.cx, measured.cx, alpha),
@@ -654,19 +690,23 @@ export function ArView({
             length: ema(previous.length, measured.length, alpha),
             width: ema(previous.width, measured.width, alpha),
             angle: smoothAngle(previous.angle, measured.angle, alpha),
+            transverseAngle: smoothAngle(
+              previous.transverseAngle ?? previous.angle,
+              measured.transverseAngle ?? measured.angle,
+              alpha,
+            ),
           }
         : measured;
       geometrySmoothRef.current[f] = geometry;
 
-      const { cx, cy, length: nl, width: nw, angle: a } = geometry;
+      const { cx, cy, length: nl, width: nw } = geometry;
 
       // ── 环境光照采样 ──
       const env = sampleEnvLight(video, cx, cy, w, h);
 
       // ── 第一层：底色/纹理（带柱面曲率变形）──
       ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(a);
+      applyNailGeometryTransform(ctx, geometry);
 
       const tex = currentMode === "texture" ? textures?.[f] : null;
 
@@ -687,15 +727,13 @@ export function ArView({
 
       // ── 第二层：材质细节（菲涅尔 + 颗粒 + 暗角）──
       ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(a);
+      applyNailGeometryTransform(ctx, geometry);
       drawMaterialDetails(ctx, nl, nw, env.brightness, f);
       ctx.restore();
 
       // ── 第三层：镜面高光 ──
       ctx.save();
-      ctx.translate(cx, cy);
-      ctx.rotate(a);
+      applyNailGeometryTransform(ctx, geometry);
       drawSpecularHighlight(ctx, nl, nw, env.brightness, f);
       ctx.restore();
     }
@@ -759,6 +797,10 @@ export function ArView({
   useEffect(() => {
     nailOffsetRef.current = nailOffset;
   }, [nailOffset]);
+
+  useEffect(() => {
+    nailAdjustmentsRef.current = nailAdjustments;
+  }, [nailAdjustments]);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -987,7 +1029,7 @@ export function ArView({
         });
         handsInst.setOptions({
           maxNumHands: 1,
-          modelComplexity: 0,
+          modelComplexity: 1,
           minDetectionConfidence: 0.5,
           minTrackingConfidence: 0.5,
         });
@@ -1075,7 +1117,8 @@ export function ArView({
               if (renderNails) {
                 paintNails(
                   ctx, lm, colRef.current, texRef.current,
-                  modeRef.current, cvs.width, cvs.height, video
+                  modeRef.current, cvs.width, cvs.height, video,
+                  vw * scale,
                 );
               }
 
@@ -1095,6 +1138,12 @@ export function ArView({
             orientationRef.current = "none";
             orientationCandidateRef.current = { orientation: "ambiguous", frames: 0 };
             palmDepthSmoothRef.current = NaN;
+            geometrySmoothRef.current = Array.from({ length: 5 }, () => null);
+            smoothRef.current = Array.from({ length: 5 }, () => ({
+              tip: { x: NaN, y: NaN, z: NaN },
+              dip: { x: NaN, y: NaN, z: NaN },
+              pip: { x: NaN, y: NaN, z: NaN },
+            }));
             setOrientation("none");
             updateFingerVisibility([false, false, false, false, false]);
           }

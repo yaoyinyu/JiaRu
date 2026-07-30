@@ -33,6 +33,7 @@ export type NailTextureCandidateConfidence = "high" | "medium" | "low";
 export type NailTextureCandidateSource =
   | "model"
   | "mediapipe"
+  | "partial-closeup"
   | "saliency"
   | "manual";
 
