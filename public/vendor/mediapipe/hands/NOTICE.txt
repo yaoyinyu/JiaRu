@@ -1,0 +1,9 @@
+MediaPipe Hands 0.4.1675469240
+
+Copyright Google LLC.
+Licensed under the Apache License, Version 2.0.
+Package source: https://www.npmjs.com/package/@mediapipe/hands
+License: https://www.apache.org/licenses/LICENSE-2.0
+
+These browser runtime assets are copied byte-for-byte from the locked
+@mediapipe/hands npm dependency so JiaRu can serve them from the same origin.

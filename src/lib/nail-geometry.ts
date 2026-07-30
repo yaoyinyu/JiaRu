@@ -15,9 +15,11 @@ export interface NailGeometry {
 export const NAIL_TIPS = [4, 8, 12, 16, 20] as const;
 export const NAIL_DIPS = [3, 7, 11, 15, 19] as const;
 export const NAIL_PIPS = [2, 6, 10, 14, 18] as const;
-export const NAIL_OFFSET_RATIOS = [0.22, 0.28, 0.28, 0.26, 0.24] as const;
-export const NAIL_LENGTH_RATIOS = [0.5, 0.55, 0.58, 0.54, 0.48] as const;
-export const NAIL_WIDTH_RATIOS = [0.52, 0.48, 0.46, 0.44, 0.36] as const;
+// MediaPipe TIP→DIP 是远端指骨长度。以下比例按真实甲面通常覆盖远端指骨
+// 约 2/3 的视觉关系校正，避免旧参数在高清摄像头下呈现为指尖小圆点。
+export const NAIL_OFFSET_RATIOS = [0.3, 0.34, 0.34, 0.33, 0.31] as const;
+export const NAIL_LENGTH_RATIOS = [0.68, 0.72, 0.74, 0.7, 0.64] as const;
+export const NAIL_WIDTH_RATIOS = [0.62, 0.56, 0.54, 0.52, 0.45] as const;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
@@ -80,6 +82,25 @@ export function mapGeometryScale(geometry: NailGeometry, scale: number): NailGeo
     cy: geometry.cy * scale,
     length: geometry.length * scale,
     width: geometry.width * scale,
+    angle: geometry.angle,
+  };
+}
+
+/** 应用用户级贴合微调；正 offset 沿甲面长轴向指根移动。 */
+export function adjustNailGeometry(
+  geometry: NailGeometry,
+  scale: number,
+  rootOffset: number
+): NailGeometry {
+  const safeScale = clamp(scale, 0.75, 1.4);
+  const safeOffset = clamp(rootOffset, -0.2, 0.2);
+  const rootDirectionX = -Math.sin(geometry.angle);
+  const rootDirectionY = Math.cos(geometry.angle);
+  return {
+    cx: geometry.cx + rootDirectionX * geometry.length * safeOffset,
+    cy: geometry.cy + rootDirectionY * geometry.length * safeOffset,
+    length: geometry.length * safeScale,
+    width: geometry.width * safeScale,
     angle: geometry.angle,
   };
 }

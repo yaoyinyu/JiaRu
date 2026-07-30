@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  adjustNailGeometry,
   computeNailGeometry,
   mapGeometryScale,
   NAIL_DIPS,
@@ -43,6 +44,29 @@ test("normalized landmarks produce an in-bounds canvas candidate", () => {
   assert.ok(geometry.cy >= 0 && geometry.cy <= 600);
   assert.ok(geometry.length > 0 && geometry.length < 600);
   assert.ok(geometry.width > 0 && geometry.width < 800);
+});
+
+test("calibrated middle-finger geometry covers the distal nail surface", () => {
+  const geometry = computeNailGeometry(landmarksForDirection(0, -0.1), 2, 800, 600);
+  assert.ok(geometry);
+  assert.ok(Math.abs(geometry.length - 44.4) < 0.001);
+  assert.ok(Math.abs(geometry.width - 32.4) < 0.001);
+  assert.ok(Math.abs(geometry.cy - 260.4) < 0.001);
+});
+
+test("fit adjustment scales around the center and moves toward the nail root", () => {
+  const adjusted = adjustNailGeometry(
+    { cx: 100, cy: 100, length: 40, width: 20, angle: 0 },
+    1.25,
+    0.1
+  );
+  assert.deepEqual(adjusted, {
+    cx: 100,
+    cy: 104,
+    length: 50,
+    width: 25,
+    angle: 0,
+  });
 });
 
 test("display geometry maps back to original pixels without drift", () => {

@@ -32,7 +32,8 @@ export function recognizeNailTexturesWithFallback(
     width: region.width,
     angle: region.angle,
     score: region.score,
-    confidence: region.confidence,
+    // 规则显著性分数没有经过真实甲面数据校准，不能向界面声明为高置信。
+    confidence: "low",
     source: "saliency",
     suggestedFinger: inferredFingers[index] ?? null,
   }));

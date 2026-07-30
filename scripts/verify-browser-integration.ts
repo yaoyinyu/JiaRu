@@ -122,6 +122,12 @@ const packageJson = JSON.parse(await readFile(options.packageJsonPath, "utf8")) 
 };
 const onnxRuntimeWebVersion =
   packageJson.dependencies?.["onnxruntime-web"] ?? packageJson.devDependencies?.["onnxruntime-web"] ?? null;
+const pickerPreservesRecognitionWarnings =
+  /warnings:\s*(?:result\.warnings|\[\s*\.\.\.result\.warnings\s*\])/.test(pickerSource) ||
+  hasAll(pickerSource, [
+    /const\s+detectionWarnings\s*=\s*\[\s*\.\.\.result\.warnings\s*\]/,
+    /warnings:\s*detectionWarnings/,
+  ]);
 
 const contractChecks = [
   {
@@ -154,7 +160,7 @@ const contractChecks = [
   },
   {
     name: "picker_surfaces_detection_summary",
-    ok: hasAll(
+    ok: pickerPreservesRecognitionWarnings && hasAll(
       pickerSource,
       [
         /backend:\s*result\.backend/,
@@ -162,7 +168,6 @@ const contractChecks = [
         /modelBackend:\s*result\.modelInfo\?\.backend/,
         /elapsedMs:\s*result\.elapsedMs/,
         /workerElapsedMs:\s*result\.workerElapsedMs/,
-        /warnings:\s*(?:result\.warnings|\[\s*\.\.\.result\.warnings\s*\])/,
       ]
     ),
   },

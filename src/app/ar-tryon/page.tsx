@@ -28,6 +28,8 @@ export default function ArTryonPage() {
   ]);
   const [activeFinger, setActiveFinger] = useState(0);
   const [mode, setMode] = useState<"color" | "texture">("color");
+  const [nailFitScale, setNailFitScale] = useState(1);
+  const [nailFitOffset, setNailFitOffset] = useState(0);
   const [showCropper, setShowCropper] = useState(false);
   const [showNailPicker, setShowNailPicker] = useState(false);
   const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
@@ -191,17 +193,23 @@ export default function ArTryonPage() {
   return (
     <AppShell
       wide
-      eyebrow="Live Try-on"
+      eyebrow="实时试戴"
       title="让每一次抬手，都提前看见效果"
       description="实时追踪手部动作，让颜色与纹理自然贴合指甲。所有摄像头画面都只在本地内存中处理。"
     >
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
         <section className="overflow-hidden rounded-[30px] border border-white/80 bg-white/55 p-3 shadow-[0_26px_80px_rgba(71,49,60,.12)] backdrop-blur-2xl sm:p-5">
-          <ArView nailColors={nailColors} nailTextures={nailTextures} mode={mode} />
+          <ArView
+            nailColors={nailColors}
+            nailTextures={nailTextures}
+            mode={mode}
+            nailScale={nailFitScale}
+            nailOffset={nailFitOffset}
+          />
         </section>
         <aside className="rounded-[28px] border border-white/80 bg-white/68 p-5 shadow-[0_22px_65px_rgba(91,59,74,.09)] backdrop-blur-2xl xl:sticky xl:top-24">
           <div className="mb-5">
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#CF6F99]">Style controls</p>
+            <p className="text-xs font-semibold tracking-[.16em] text-[#CF6F99]">试戴控制</p>
             <h2 className="mt-1 text-lg font-semibold text-[#4A4447]">试戴设置</h2>
           </div>
         <div className="w-full">
@@ -226,6 +234,56 @@ export default function ArTryonPage() {
             >
               🖼️ 纹理
             </button>
+          </div>
+
+          <div className="mb-4 rounded-2xl border border-pink-100 bg-white/70 p-3">
+            <div className="mb-2 flex items-center justify-between">
+              <span className="text-xs font-medium text-[#665C61]">甲面贴合微调</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setNailFitScale(1);
+                  setNailFitOffset(0);
+                }}
+                className="text-[11px] text-[#CF6F99] hover:text-[#B85C86]"
+              >
+                恢复默认
+              </button>
+            </div>
+            <label className="grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">
+              <span>大小</span>
+              <input
+                aria-label="甲面大小"
+                type="range"
+                min="75"
+                max="140"
+                step="1"
+                value={Math.round(nailFitScale * 100)}
+                onChange={(event) => setNailFitScale(Number(event.target.value) / 100)}
+                className="accent-[#D4749D]"
+              />
+              <span className="text-right">{Math.round(nailFitScale * 100)}%</span>
+            </label>
+            <label className="mt-2 grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">
+              <span>位置</span>
+              <input
+                aria-label="甲面位置"
+                type="range"
+                min="-20"
+                max="20"
+                step="1"
+                value={Math.round(nailFitOffset * 100)}
+                onChange={(event) => setNailFitOffset(Number(event.target.value) / 100)}
+                className="accent-[#D4749D]"
+              />
+              <span className="text-right">
+                {nailFitOffset === 0
+                  ? "居中"
+                  : nailFitOffset > 0
+                    ? `指根${Math.round(nailFitOffset * 100)}`
+                    : `甲尖${Math.round(-nailFitOffset * 100)}`}
+              </span>
+            </label>
           </div>
 
           <div className="mb-3 flex justify-center gap-2">

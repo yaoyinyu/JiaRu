@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import {
+  AgnesImageApiError,
+  generateAgnesImage,
+} from "@/lib/agnes-image-api";
+
+export const maxDuration = 300;
 
 /**
  * POST /api/generate-ai
  * Body: { prompt: string }
  * Returns: { imageUrl: string } | { error: string }
  *
- * 使用 OpenAI DALL-E 3 生成美甲效果图。
+ * 使用 Agnes Image 2.1 Flash 生成美甲效果图。
  * API Key 从服务端环境变量读取，前端永远拿不到。
  */
 export async function POST(req: NextRequest) {
@@ -30,85 +36,18 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── 3. 检查 API Key ──
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey || apiKey === "your-key-here") {
-    return NextResponse.json(
-      { error: "服务器未配置 OPENAI_API_KEY，请联系管理员" },
-      { status: 503 }
-    );
-  }
-
-  // ── 4. 构造美甲专用 prompt ──
+  // ── 3. 构造美甲专用 prompt ──
   const enhancedPrompt = `${prompt}, nail art design on fingernails, manicure, close-up hand photo, beautiful, high detail`;
 
-  // ── 5. 调用 OpenAI Images API (DALL-E 3) ──
+  // ── 4. 调用 Agnes Images API ──
   try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30_000);
-
-    const resp = await fetch("https://api.openai.com/v1/images/generations", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model: "dall-e-3",
-        prompt: enhancedPrompt,
-        n: 1,
-        size: "1024x1024",
-        quality: "standard",
-      }),
-      signal: controller.signal,
-    });
-
-    clearTimeout(timeout);
-
-    if (!resp.ok) {
-      const errText = await resp.text();
-      let errMsg: string;
-      try {
-        const errJson = JSON.parse(errText);
-        errMsg = errJson?.error?.message || errText;
-      } catch {
-        errMsg = errText;
-      }
-
-      if (resp.status === 401) {
-        return NextResponse.json(
-          { error: "OpenAI API Key 无效" },
-          { status: 401 }
-        );
-      }
-      if (resp.status === 429) {
-        return NextResponse.json(
-          { error: "API 调用频率过高，请稍后再试" },
-          { status: 429 }
-        );
-      }
-      return NextResponse.json(
-        { error: `OpenAI API 错误: ${errMsg}` },
-        { status: 502 }
-      );
-    }
-
-    const data = await resp.json();
-    const imageUrl: string | undefined = data?.data?.[0]?.url;
-
-    if (!imageUrl) {
-      return NextResponse.json(
-        { error: "API 返回数据格式异常" },
-        { status: 502 }
-      );
-    }
-
+    const { imageUrl } = await generateAgnesImage(enhancedPrompt);
     return NextResponse.json({ imageUrl });
   } catch (err) {
-    if (err instanceof Error && err.name === "AbortError") {
+    if (err instanceof AgnesImageApiError) {
       return NextResponse.json(
-        { error: "请求超时（30s），请重试" },
-        { status: 504 }
+        { error: err.message },
+        { status: err.statusCode }
       );
     }
     const msg = err instanceof Error ? err.message : String(err);
