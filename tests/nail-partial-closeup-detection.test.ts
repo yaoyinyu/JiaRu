@@ -146,6 +146,52 @@ function createArcCandidates(mirrored = false, ambiguous = false): NailTextureCa
   }));
 }
 
+function createLowContrastNudeCloseup(nailCount: number) {
+  const width = 480;
+  const height = 480;
+  const data = new Uint8ClampedArray(width * height * 4);
+  for (let index = 0; index < width * height; index += 1) {
+    data[index * 4] = 205;
+    data[index * 4 + 1] = 164;
+    data[index * 4 + 2] = 142;
+    data[index * 4 + 3] = 255;
+  }
+
+  const nails = [
+    { cx: 102, cy: 112, rx: 21, ry: 37, angle: -0.65 },
+    { cx: 170, cy: 155, rx: 22, ry: 39, angle: -0.35 },
+    { cx: 234, cy: 213, rx: 23, ry: 41, angle: -0.08 },
+    { cx: 294, cy: 275, rx: 22, ry: 38, angle: 0.28 },
+    { cx: 350, cy: 338, rx: 20, ry: 34, angle: 0.58 },
+  ];
+
+  for (const nail of nails.slice(0, nailCount)) {
+    const cos = Math.cos(-nail.angle);
+    const sin = Math.sin(-nail.angle);
+    for (let y = nail.cy - nail.ry - 4; y <= nail.cy + nail.ry + 4; y += 1) {
+      for (let x = nail.cx - nail.ry - 4; x <= nail.cx + nail.ry + 4; x += 1) {
+        if (x < 0 || y < 0 || x >= width || y >= height) continue;
+        const dx = x - nail.cx;
+        const dy = y - nail.cy;
+        const localX = dx * cos - dy * sin;
+        const localY = dx * sin + dy * cos;
+        const normalized =
+          (localX * localX) / (nail.rx * nail.rx) +
+          (localY * localY) / (nail.ry * nail.ry);
+        if (normalized > 1.12) continue;
+        const offset = (y * width + x) * 4;
+        const boundary = normalized >= 0.92;
+        const highlight = !boundary && Math.abs(localX + nail.rx * 0.25) < 2;
+        data[offset] = boundary ? 171 : highlight ? 212 : 188;
+        data[offset + 1] = boundary ? 127 : highlight ? 190 : 155;
+        data[offset + 2] = boundary ? 118 : highlight ? 184 : 148;
+      }
+    }
+  }
+
+  return { width, height, data };
+}
+
 test("partial closeup detector finds painted nails without exposing fabric", () => {
   const candidates = detectPartialCloseupNailCandidates(createSyntheticCloseup(4));
 
@@ -225,7 +271,7 @@ test("partial closeup detector keeps five nails surrounded by dry textured skin"
   });
 
   const result = detectPartialCloseupNails(source);
-  assert.equal(result.candidates.length, 5);
+  assert.equal(result.candidates.length, 5, JSON.stringify(result.diagnostics));
   assert.ok(result.candidates.every((candidate) => candidate.suggestedFinger === null));
   assert.ok(
     result.candidates.every((candidate) =>
@@ -239,6 +285,27 @@ test("partial closeup detector keeps five nails surrounded by dry textured skin"
 
 test("partial closeup detector refuses a lone ambiguous painted object", () => {
   assert.deepEqual(detectPartialCloseupNailCandidates(createSyntheticCloseup(1)), []);
+});
+
+test("partial closeup detector finds a coherent chain of skin-toned nude nails", () => {
+  const result = detectPartialCloseupNails(createLowContrastNudeCloseup(5));
+
+  assert.equal(result.candidates.length, 5);
+  assert.ok(
+    result.candidates.every((candidate) =>
+      candidate.warnings?.includes("partial_closeup_low_contrast_boundary")
+    )
+  );
+  assert.equal(result.diagnostics.strategy, "low-contrast-boundary");
+  assert.equal(result.diagnostics.lowContrastSelectedCandidateCount, 5);
+});
+
+test("partial closeup detector hides fewer than four skin-toned boundary regions", () => {
+  const result = detectPartialCloseupNails(createLowContrastNudeCloseup(3));
+
+  assert.deepEqual(result.candidates, []);
+  assert.notEqual(result.diagnostics.strategy, "low-contrast-boundary");
+  assert.equal(result.diagnostics.lowContrastSelectedCandidateCount, 0);
 });
 
 test("hand arc assignment keeps the thumb first for normal and mirrored hands", () => {
