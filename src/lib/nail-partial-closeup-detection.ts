@@ -628,7 +628,7 @@ function lowContrastComponentToCandidate(
   thresholdIndex: number,
   componentIndex: number
 ): ComponentEvaluation {
-  const { width, height, scale, grayscale, skin, handSupport } = analysis;
+  const { width, height, scale, skin, handSupport } = analysis;
   const imageArea = width * height;
   const maxDimension = Math.max(width, height);
   const boxWidth = component.maxX - component.minX + 1;
