@@ -116,7 +116,7 @@ def require_empty_directory(path_value: str) -> Path:
         if not source_root.is_dir():
             raise ValueError("source root must be a directory")
         if any(source_root.iterdir()):
-            raise ValueError("source root must be empty before candidate5 generation")
+            raise ValueError("source root must be empty before training-candidate generation")
         return source_root
     parent = selected.parent
     if not parent.is_dir():
