@@ -168,7 +168,8 @@ def build_report(args: argparse.Namespace) -> dict[str, Any]:
                 "sourceScreeningDecision": "keep-for-annotation",
                 "sourceScreeningNote": item.get("note") or "",
                 "candidateRole": "positive-reinforcement-candidate",
-                "originalResolutionReview": "pending-reconfirmation",
+                "sourceQualityReview": "passed-for-annotation-candidate",
+                "completeMaskReview": "not-started",
                 "exactTrainingAuthorization": "missing",
                 "trainingUse": "prohibited",
             }

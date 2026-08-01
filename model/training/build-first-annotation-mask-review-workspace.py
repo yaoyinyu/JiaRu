@@ -91,7 +91,11 @@ def main() -> None:
     prelabel_audit = read_json(prelabel_audit_path)
     sam_report = read_json(sam_report_path)
     geometry_audit = read_json(geometry_audit_path)
-    if workspace.get("ok") is not True or workspace.get("decision") != "annotation_workspace_ready_candidate_only":
+    allowed_workspace_decisions = {
+        "annotation_workspace_ready_candidate_only",
+        "positive_reinforcement_annotation_workspace_ready_candidate_only",
+    }
+    if workspace.get("ok") is not True or workspace.get("decision") not in allowed_workspace_decisions:
         errors.append("a passing candidate-only annotation workspace is required")
     if prelabel_audit.get("ok") is not True or prelabel_audit.get("decision") != "prelabel_candidate_audit_pass_original_resolution_review_required":
         errors.append("a passing candidate-only prelabel audit is required")
@@ -129,11 +133,12 @@ def main() -> None:
     for prelabel_row in prelabel_rows:
         file_name = prelabel_row["fileName"]
         item = workspace_items[file_name]
+        item_sha256 = item.get("sha256") or item.get("imageSha256")
         sam_output = sam_outputs.get(file_name, {})
         image_path = Path(str(item.get("workspacePath", ""))).resolve()
         annotation_path = Path(str(sam_output.get("annotationPath", ""))).resolve()
         overlay_path = Path(str(sam_output.get("overlayPath", ""))).resolve()
-        if not image_path.is_file() or sha256_file(image_path) != item.get("sha256"):
+        if not image_path.is_file() or sha256_file(image_path) != item_sha256:
             errors.append(f"workspace image is missing or changed: {file_name}")
         require_file(annotation_path, f"annotation for {file_name}", errors)
         require_file(overlay_path, f"overlay for {file_name}", errors)
@@ -154,7 +159,7 @@ def main() -> None:
         reason_codes = sorted({reason for row in suspect_rows for reason in row.get("reasons", [])})
         row = {
             "fileName": file_name,
-            "sha256": item.get("sha256"),
+            "sha256": item_sha256,
             "sourceGroup": item.get("sourceGroup"),
             "expectedFullyVisibleNails": int(item.get("expectedFullyVisibleNails") or 0),
             "candidateCount": candidate_count,

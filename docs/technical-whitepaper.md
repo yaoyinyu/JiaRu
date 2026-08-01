@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.278
+> 文档版本：v1.1.280
 >
 > 基线日期：2026-07-12
 >
@@ -132,6 +132,7 @@ AI 生图：文字描述 -> POST /api/generate-ai -> 外部图像 API -> 远程�
 | 候选5训练负样本 | `build-candidate5-hard-negative-generation-plan.py`、训练授权/终审/物化链、Git外`2026_7_29_candidate5_training_v2` | 已完成（160/160训练输入） | 用户已按schema v2精确文本授权160张及四项用途，排除独立发布测试且不放宽质量门；A记录`de1b73b…0b16`、批准清单`fe68c361…164a`均深验通过。40张1:1审核页完成160/160原分辨率终审，0排除；物化为train260（100正样本/521 mask+160空标签负样本）、val30/144 mask、test0，物化`9974b871…3d73`与GPU输入审计`6734942d…f590`通过。本批只用于训练/回归/诊断/质量审核，永不充当独立发布测试 |
 | 候选5训练后独立留出 | Git外`2026_7_30_candidate5_post_train_holdout_v1`及同名`_review` | 审计完成（candidate5拒绝） | 用户已逐字授权编号361—460的100张精确文件清单，schema v2授权、A记录、原子freeze、registry v3隔离预审、25页1:1终审100/100及批准清单`c7af362a…17ed`均深验通过；冻结和批准前未运行candidate5推理。首次部署512、阈值0.50三变体报告`9cb13d1f…8016`深验通过，但原图3张/5检测、裁右下12%为4张/4检测、模糊右下角为3张/6检测，检测数delta=1/1，严格门失败。误检涉及软胶囊395、种荚388及实验室耗材405/407/410；牙科家族未触发部署阈值误检。整批已以holdout角色追加到registry v4，永久禁止训练、删图规避或再次充当未见留出 |
 | 候选6训练负样本 | `build-candidate6-hard-negative-generation-plan.py`、Git外`2026_7_31_candidate6_training_plan_v1`与`2026_7_31_candidate6_training_v1` | 暂停（10/160，先补正式识别门） | 新计划从candidate5拒绝报告和registry v4深验提取5张误检、3个失败家族，只生成全新来源训练候选，不复制361—460。首族001—010已通过生成机器门，但全批继续`trainingUse=prohibited`、`authorizationStatus=missing`。鉴于产品第一目标是完整识别美甲，剩余150张生成暂停；先建立逐图完整甲面召回、重复/污染和像素mask可提取性的正样本强门，并规划新来源、精确商业训练授权的正样本补强。三变体零误检/零delta门保持不变，不运行candidate5/6推理或训练 |
+| 候选6正样本补强 | `record-positive-reinforcement-authorization.py`、`build-positive-reinforcement-annotation-workspace.py`及Git外`positive-reinforcement-annotation-workspace-v1` | 进行中（已授权，首分片20/20返修） | 用户已对`requestedItemsSha256=1cdf2825…5bfe`的160张/76组/971枚可见甲面作精确商业训练授权，授权记录`67a17f2d…1b93`深验通过。来源组原子工作区`e5638332…45b`完整物化160张；仅使用非正式辅助模型`real-prelabel-v3`生成954个候选，再由SAM2.1 large生成954个候选polygon。机器几何仅630通过/324可疑，不能替代视觉门；原分辨率审核工作区含8分片/80页。首分片20张逐页复核均为`rework`、0 PASS/0 exclude，定稿`5a8e4625…145f`，所以当前训练真值仍为0张，全部继续`trainingUse=prohibited`；禁止训练、val调参、冻结test推理、导出或部署 |
 | 训练真值历史增量 | 外部`training-truth-index-v1.json` | 历史记录 | v1.1.167曾形成79张唯一图片/416个完整mask的中间快照；该数量已被下一行“训练真值当前权威快照”的100张/521 mask替代，不得再作为当前训练准备度依据 |
 | 训练真值当前权威快照 | 外部工作区根目录`training-truth-index-v1.json` | 已完成（本轮候选输入） | 101个批准报告归并为100张唯一图片/521个完整mask，2个历史拒绝报告、1个冗余报告、0冲突，索引SHA-256为`13f606b547c32d2b8f34651f55e1bca1e826bf3ac13bdcdca345a1cef267f125`。最低100张train正样本门已达到；来源隔离val30张/144 mask及正式困难负样本100张均已通过候选物化和GPU前输入深审。该结论只说明本轮训练输入可用，不解除负样本独立留出、水印消融、Beta或生产发布门。权威索引位于审核工作区根目录；`final/training-truth-index-v1.json`为字节一致镜像 |
 | 验证真值当前快照 | 外部`val-annotation-workspace-v1/validation-truth-index-v1.json` | 已完成 | v1.1.189：30个批准报告归并为30张唯一图片/144个完整mask、0拒绝、0冗余、0冲突，索引SHA-256为`2ccde9420141e5e67a9696959cc18e78aaee808ba29b592670990967bdc4b92d`。批次014—018严格排除裁断、遮挡或甲数错误源图，透明甲尖和全部附着装饰均经整图与逐甲2×复核；所有polygon合法且同图严格零交叠。规范val-only数据集物化为30图/30 annotation/30 label/144 mask、train/test均0、孤儿0，物化报告SHA-256为`200b087b…b1776`。来源隔离审计对当前train 100张和冻结test 67张重新读取、复算身份，文件名、图片SHA-256和来源组均零重叠，报告SHA-256为`7372d14d…f6479e`。最终审计SHA-256为`5152dc52…66a3a`，决定`approved_as_calibration_truth`、`calibrationTruthEligible=true`，同时保持`trainingUse=prohibited` |
@@ -887,7 +888,7 @@ v1.1.179把最终真值终结和唯一索引扩展为角色感知模式。val终
 | 数据盘点 | `audit-image-corpus.py`、`audit-labels.ts`、`audit-phase1-readiness.ts`；平铺语料统一归入`.`根桶，避免把文件名误计为一级目录 |
 | 实拍候选intake、授权、审核工作区与分配 | `build-real-material-candidate-intake.py`、`authorize-real-material-candidate-intake.py`、`build-real-material-review-workspace.py`、`audit-real-material-exclusive-assignment.py`；逐图复核哈希/尺寸、稳定分组并按来源组原子分片，A/B/C授权绑定原证据；未审核条目禁止训练，最终审核必须全覆盖且训练、val、独立发布测试按来源组互斥 |
 | 数据准备 | `convert-annotations.ts`、`split-dataset.ts`、`materialize-training-dataset.ts` |
-| 辅助标注 | `sam-assisted-nail-annotation.py` |
+| 辅助标注 | `generate-yolo-prelabels.py`、`sam-assisted-nail-annotation.py`；正样本补强另使用`record-positive-reinforcement-authorization.py`、`build-positive-reinforcement-annotation-workspace.py`、`build-first-annotation-mask-review-decisions.py`与首轮/返修终结器。辅助模型和SAM输出始终是候选，逐甲原分辨率审核及最终真值审计前禁止训练 |
 | 审核区域提取 | `extract-reviewed-image-regions.py` |
 | 审核区域替换合并 | `merge-reviewed-region-reports.py`；按父图替换错误派生区域，强制父哈希和稳定来源组一致，并物化无重复父项的新版聚合区域包 |
 | 发布测试派生区域intake | `build-release-test-region-intake.py`；继承发布测试/长期回归授权，禁止训练，校验stress父项、父子哈希、派生文件和一父一主区域 |
@@ -1261,6 +1262,8 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-08-01 | v1.1.280 | 登记用户对candidate6正样本补强精确160张清单的商业训练授权：授权记录`67a17f2d…1b93`绑定request `758f31a9…7527`与requestedItems摘要`1cdf2825…5bfe`并完整重放。来源组原子工作区`e5638332…45b`物化160张/76组/971枚预期甲面，160项均为硬链接且继续禁止训练。明确不使用已拒绝candidate5，改用非正式辅助ONNX `280a2ff…b4b8`生成954候选；机器审核覆盖率0.858908、58张少候选、40张计数相等、62张多候选、46对疑似重复。SAM2.1 large生成954 polygon、0错误，几何630 pass/324 suspect；审核工作区`0b6a76d4…46b`含8分片/80页。首分片20张原分辨率逐页复核为20 rework/0 pass/0 exclude，定稿`5a8e4625…145f`，没有任何训练真值晋级。新增身份绑定审核决定构建器；训练、val校准、冻结test推理、导出、登记、部署均未执行，产品继续HOLD。 | 精确训练授权、正样本辅助标注、完整甲面审核、训练前HOLD、发布治理 |
+| 2026-08-01 | v1.1.279 | 建立识别优先正样本补强的可重放库存与精确授权请求。库存器绑定1166张源图筛选、批次A授权、当前train100/val30/冻结test100，按来源组原子隔离和图片SHA-256扣除既有角色；565张可标候选中排除232张后得到333张/77组，逐图复核当前文件SHA-256、授权身份、尺寸和完整解码，报告`2ff4b931…0999`可重放。授权请求按1—4、5、6—9、10枚完整可见甲面分层并限制每来源组最多3张，形成160张/76组/971枚可见甲面，request `758f31a9…7527`、requestedItems摘要`1cdf2825…5bfe`。现有A授权只作为批次准入证据，本轮仍要求用户对精确160张清单再次授权；完整mask逐甲终审未开始，授权及终审前全部禁止训练。两工具Python 3.13编译及真实报告重放通过；完成度审计刷新为397标记/388 PASS、14门4通过/10 HOLD，新增授权标记诚实列为第9个未完成项。未运行模型推理、训练、freeze、导出、登记或部署。 | 正样本来源隔离、精确授权、完整甲面覆盖、训练前HOLD |
 | 2026-08-01 | v1.1.278 | 实施识别优先方案第一项机器证据门：新增`build-positive-recognition-quality-report.py`，绑定冻结snapshot、evaluation materialization、逐预测制品索引、候选权重和固定阈值，逐图重算polygon IoU匹配、漏甲、完整mask、重复、额外候选及预测拓扑；真值无效立即拒绝，预测拓扑无效只允许确定性诊断修复且强制HOLD，报告支持全输入哈希重放。candidate5在test100/554 mask、部署512、阈值0.50下为464匹配、90漏甲、423完整mask、8重复、23额外、23拓扑无效；49图漏甲，直接可提取39图，报告`0411bab4…6571`决定HOLD并成功重放。专项3/3、全量串行732/732、Next.js生产构建、编码与差异检查通过；完成度刷新为396标记/388 PASS、14门4通过/10 HOLD。该结果不复活candidate5、不按test调参，下一步转向新来源且精确商业训练授权的正样本补强。 | 正样本逐实例识别门、完整mask、候选5诊断、训练数据方向、测试、发布HOLD |
 | 2026-08-01 | v1.1.277 | 将下一候选路线调整为“识别美甲优先”：磁盘复核再次确认生产manifest所指ONNX不存在，网页当前只能fallback；candidate5虽通过冻结test100总体mAP门但已被独立困难负样本拒绝，不能部署。恢复方案升级v1.4，固定每枚完整可见甲面恰好一个完整像素mask、主手空间一致簇、fallback不计正式成功，并要求先建立可重放逐实例正样本识别报告，再补新来源且精确商业训练授权的正样本、val30冻结阈值/后处理、test100逐图质量门。candidate6剩余150张负样本生成暂停，现有10张继续禁止训练；全新未见负样本三变体零误检/零delta、真机、Beta、ONNX及回滚门均不降低。 | 正式识别主目标、正样本质量门、数据授权顺序、candidate6暂停、前端接入、发布HOLD |
 | 2026-08-01 | v1.1.276 | 启动candidate6全新训练负样本链：新增构建器，从candidate5独立留出拒绝报告、权重身份与registry v4深验提取软胶囊、种荚和实验耗材3个真实失败家族，固定16家族×10张且不复制已消费holdout的160项计划。计划`136b5868…7b49`、items摘要`d49afd16…eecd`；首个`softgel_blister_single`家族001—010使用内置imagegen逐张独立生成并完成生成阶段可见初筛，机器报告`5d31cb40…4f30`为10通过、150缺失、0失败/未知。所有图片继续禁止训练、未获授权且未做正式原分辨率终审；未运行模型推理、训练、导出或部署，candidate5拒绝、生产manifest与产品HOLD不变。同步修正§8.1权威registry为v4。 | candidate6数据计划、生成隔离门、训练授权边界、数据治理、发布HOLD |

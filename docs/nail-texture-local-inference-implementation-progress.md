@@ -456,6 +456,8 @@ npm.cmd run build
 | `REL-T1-ROLLBACK-FIXTURE-INTEGRITY-002` | 发布治理回滚完整性回归夹具与当前manifest契约对齐 | ✅ PASS | 两组治理测试夹具在写入候选模型后动态填写真实`modelSizeBytes`与SHA-256，满足当前回滚深审要求；未降低生产校验逻辑。发布治理与训练发布编排专项27/27、全量串行630/630通过，原10项夹具型失败清零 |
 | `M2-T3-HARD-NEGATIVE-CANDIDATE6-PLAN-GENERATION-011` | candidate6失败类型计划与首个软胶囊单泡罩家族生成 | ✅ PASS（计划/生成机器门） | 新构建器深验candidate5拒绝报告、权重、5张失败记录、3个失败家族及registry v4保护项，固定16家族×10张的160项全新训练候选，计划`136b5868…7b49`、items摘要`d49afd16…eecd`。001—010逐图独立生成并完成生成阶段可见初筛；报告`5d31cb40…4f30`为10通过、150缺失、0失败/未知。该标记不代表正式原分辨率PASS或训练授权；全批继续禁止训练，未运行候选推理 |
 | `M2-T3-RECOGNITION-FIRST-CONTRACT-012` | 下一候选逐图完整甲面识别合同与candidate5基线 | ✅ PASS（工程门，candidate5诊断HOLD） | 新构建器绑定部署512、权重、阈值、冻结test100、物化真值和逐预测mask，重算IoU匹配、漏甲、完整mask、重复、额外候选与预测拓扑，并支持哈希重放。candidate5阈值0.50为464/554匹配、90漏甲、423完整mask、49图漏甲、39图直接可提取、8重复、23额外和23无效mask；报告`0411bab4…6571`正确HOLD。阈值未按test调整；下一步补新来源且精确授权的正样本 |
+| `M2-T3-RECOGNITION-POSITIVE-AUTH-013` | 来源隔离正样本库存与160张精确商业训练授权 | ✅ PASS（授权身份门） | 用户已对request `758f31a9…7527`、requestedItems摘要`1cdf2825…5bfe`的160张/76组/971枚甲面作精确商业训练授权；记录`67a17f2d…1b93`深验重放通过。该PASS只解除清单授权阻断，不批准mask或训练物化，全部仍禁止训练 |
+| `M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-014` | candidate6正样本完整甲面mask候选与原分辨率审核 | 🟡 IN PROGRESS | 原子工作区`e5638332…45b`物化160张；非正式辅助模型与SAM生成954个候选polygon，几何630 pass/324 suspect。8分片/80页审核工作区中，首分片20张已逐页复核并定稿为20 rework/0 pass/0 exclude（`5a8e4625…145f`）；当前正式训练真值0张，余7分片和全部返修待完成 |
 | `REL-T2-CANDIDATE` | 正式模型候选发布 | 🔴 HOLD（candidate5已拒绝，识别优先合同待实现） | candidate5虽过规范val30和冻结test100总体mAP门，仍因新100张独立留出三变体误检3/4/3张而拒绝，且生产ONNX不存在。candidate6负样本仅10/160并暂停；先实现逐图完整甲面召回、重复/污染和像素mask可提取性报告，再补新来源且精确商业训练授权的正样本并训练下一候选。生产manifest、共享阈值保持不变；通过正样本门后仍须完成另一份全新未见留出、真机、Beta、生产ONNX和双版本回滚 |
 
 ## 当前总体验收

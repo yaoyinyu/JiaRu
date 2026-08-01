@@ -39,7 +39,11 @@ def main() -> None:
     workspace = json.loads(workspace_path.read_text(encoding="utf-8"))
     prelabel = json.loads(prelabel_path.read_text(encoding="utf-8"))
     audit = json.loads(audit_path.read_text(encoding="utf-8"))
-    if workspace.get("ok") is not True or workspace.get("decision") != "annotation_workspace_ready_candidate_only":
+    allowed_workspace_decisions = {
+        "annotation_workspace_ready_candidate_only",
+        "positive_reinforcement_annotation_workspace_ready_candidate_only",
+    }
+    if workspace.get("ok") is not True or workspace.get("decision") not in allowed_workspace_decisions:
         raise ValueError("annotation workspace must pass")
     if prelabel.get("ok") is not True or prelabel.get("decision") != "candidate_only_not_training_truth":
         raise ValueError("YOLO prelabel report must pass and remain candidate-only")
@@ -82,7 +86,7 @@ def main() -> None:
         images.append(
             {
                 "fileName": file_name,
-                "sha256": workspace_item["sha256"],
+                "sha256": workspace_item.get("sha256") or workspace_item["imageSha256"],
                 "sourceGroup": workspace_item["sourceGroup"],
                 "expectedFullyVisibleNails": workspace_item.get("expectedFullyVisibleNails"),
                 "boxes": boxes,

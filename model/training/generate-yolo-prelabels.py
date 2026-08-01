@@ -29,6 +29,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--imgsz", type=int, default=512)
     parser.add_argument("--device", default="0")
     parser.add_argument("--max-det", type=int, default=12)
+    parser.add_argument("--batch", type=int, default=1)
     parser.add_argument("--dry-run", action="store_true")
     return parser
 
@@ -47,7 +48,11 @@ def load_image_entries(
     if workspace_manifest:
         manifest_path = Path(workspace_manifest).resolve()
         manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-        if manifest.get("ok") is not True or manifest.get("decision") != "annotation_workspace_ready_candidate_only":
+        allowed_decisions = {
+            "annotation_workspace_ready_candidate_only",
+            "positive_reinforcement_annotation_workspace_ready_candidate_only",
+        }
+        if manifest.get("ok") is not True or manifest.get("decision") not in allowed_decisions:
             raise ValueError("workspace manifest must be a passing candidate-only annotation workspace")
         if Path(str(manifest.get("imageDir", ""))).resolve() != image_dir:
             raise ValueError("workspace manifest imageDir does not match --image-dir")
@@ -58,15 +63,17 @@ def load_image_entries(
         image_paths = []
         for file_name in sorted(by_file):
             item = by_file[file_name]
+            image_sha256 = item.get("sha256") or item.get("imageSha256")
             image_path = (image_dir / file_name).resolve()
             if image_path.parent != image_dir or not image_path.is_file():
                 raise ValueError(f"workspace image is missing or unsafe: {file_name}")
-            if sha256_file(image_path) != item.get("sha256"):
+            if sha256_file(image_path) != image_sha256:
                 raise ValueError(f"workspace image hash changed: {file_name}")
             if not str(item.get("sourceGroup", "")).strip():
                 raise ValueError(f"workspace image sourceGroup is empty: {file_name}")
             if item.get("trainingUse") != "prohibited" or item.get("annotationTruthStatus") != "not-started":
                 raise ValueError(f"workspace image has unsafe eligibility state: {file_name}")
+            item["sha256"] = image_sha256
             image_paths.append(image_path)
         return image_paths, by_file, manifest_path
     if not source_group or not source_group.strip():
@@ -110,6 +117,8 @@ def main() -> None:
     )
     if not image_paths:
         raise RuntimeError(f"no supported images found in {image_dir}")
+    if args.batch < 1:
+        raise ValueError("--batch must be positive")
 
     model_path = Path(args.model).resolve()
     if not model_path.is_file():
@@ -139,17 +148,32 @@ def main() -> None:
         return
 
     model = YOLO(str(model_path))
-    results = model.predict(
-        source=[str(path) for path in image_paths],
-        conf=args.conf,
-        iou=args.iou,
-        imgsz=args.imgsz,
-        device=args.device,
-        max_det=args.max_det,
-        retina_masks=True,
-        stream=True,
-        verbose=False,
-    )
+    predict_kwargs = {
+        "conf": args.conf,
+        "iou": args.iou,
+        "imgsz": args.imgsz,
+        "device": args.device,
+        "max_det": args.max_det,
+        "retina_masks": True,
+        "verbose": False,
+    }
+
+    def serial_results():
+        for path in image_paths:
+            values = model.predict(source=str(path), stream=False, batch=1, **predict_kwargs)
+            if len(values) != 1:
+                raise RuntimeError(f"expected one prediction result for {path}, got {len(values)}")
+            yield values[0]
+
+    if args.batch == 1:
+        results = serial_results()
+    else:
+        results = model.predict(
+            source=[str(path) for path in image_paths],
+            batch=args.batch,
+            stream=True,
+            **predict_kwargs,
+        )
 
     items = []
     total_candidates = 0
@@ -184,6 +208,7 @@ def main() -> None:
         annotation_path.write_text(json.dumps({
             "version": "nail-texture-dataset/v1",
             "decision": "candidate_only_not_training_truth",
+            "trainingUse": "prohibited",
             "image": {
                 "id": image_path.stem,
                 "fileName": image_path.name,
@@ -220,7 +245,13 @@ def main() -> None:
         "sourceGroup": args.source_group,
         "workspaceManifest": str(manifest_path) if manifest_path else None,
         "workspaceManifestSha256": sha256_file(manifest_path) if manifest_path else None,
-        "settings": {"conf": args.conf, "iou": args.iou, "imgsz": args.imgsz, "maxDet": args.max_det},
+        "settings": {
+            "conf": args.conf,
+            "iou": args.iou,
+            "imgsz": args.imgsz,
+            "maxDet": args.max_det,
+            "batch": args.batch,
+        },
         "imageCount": len(items),
         "imagesWithCandidates": sum(1 for item in items if item["candidateCount"] > 0),
         "imagesWithoutCandidates": sum(1 for item in items if item["candidateCount"] == 0),
@@ -230,6 +261,8 @@ def main() -> None:
             for count in sorted({item["candidateCount"] for item in items})
         },
         "items": items,
+        "trainingUse": "prohibited",
+        "originalResolutionReviewRequired": True,
     }
     report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
     print(json.dumps({key: report[key] for key in ("ok", "decision", "imageCount", "imagesWithCandidates", "imagesWithoutCandidates", "totalCandidates", "candidateCountHistogram")}, ensure_ascii=False, indent=2))
