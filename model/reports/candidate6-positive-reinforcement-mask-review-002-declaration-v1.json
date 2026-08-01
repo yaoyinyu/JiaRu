@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "shardIndex": 2,
+  "originalResolutionReviewCompleted": true,
+  "reviewedPageSha256s": [
+    "4fe203c542db7abcb5de81d95d88993a3517995790fdf4a4170f3329b110d1cc",
+    "65bcee919c175b54674de36790729d4a83fb173deca16d260e18652e920f7ea3",
+    "8f28168c7014654102b114c644185e25105af9b9f2879a906833b7d52357003d",
+    "580d340804253c26f970d68246f204dc4ec11c70885ce19dc10c67e5e5f17720",
+    "1cae0d4b8ac0884c92b419523c76245fb2b8b60b327d3560592dbc28d36668b4",
+    "59a484f74576bfd43d9ec05466c0ac10ee5a79b63f31a8a86d3977efe80454a9",
+    "a5712311af0fc68513eebd15f2f775ec8671b2696fd0e3469e503e563e32e34f",
+    "81f5ababeddef9b6f7b99addea8e90627bdd511c06c1c088e0108bdab7afa395",
+    "297cb4dcf555b827e060ffc02ae74fd3ee276f673ce6817bcc607348f5df43a3",
+    "b382e013a65ed92c99f735f973210a0a5f2238c40f0a32287061de0f2d780727"
+  ],
+  "items": [
+    {"fileName":"nail_00524_69b12fc3000000002a038010_0.jpg","reviewStatus":"rework","issueCodes":["missing-nails","invalid-mask-topology"],"note":"仅检出6/9且候选拓扑无效，须逐甲重建。"},
+    {"fileName":"nail_00526_69b12fc3000000002a038010_2.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","background-contamination"],"note":"候选11/10，含背景或重复区域。"},
+    {"fileName":"nail_00439_69df89090000000021039a37_2.jpg","reviewStatus":"rework","issueCodes":["missing-nails","boundary-contamination"],"note":"仅检出2/5，候选落在手掌和饰物。"},
+    {"fileName":"nail_00463_69b0305b000000000600ecc6_3.jpg","reviewStatus":"rework","issueCodes":["missing-nails","background-contamination"],"note":"仅检出1/4且候选误落头发耳饰区域。"},
+    {"fileName":"nail_00464_69b0305b000000000600ecc6_4.jpg","reviewStatus":"rework","issueCodes":["missing-nails","background-contamination"],"note":"仅检出3/5，包含头发和衣物污染。"},
+    {"fileName":"nail_00470_69b0305b000000000600ecc6_10.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","invalid-mask-topology","background-contamination"],"note":"候选8/5且多处落在头发、衣物或手指。"},
+    {"fileName":"nail_00555_68dbbbe80000000005033d1e_4.jpg","reviewStatus":"rework","issueCodes":["missing-nails","background-contamination"],"note":"仅检出2/5，候选未覆盖实际完整甲面。"},
+    {"fileName":"nail_00553_68dbbbe80000000005033d1e_2.jpg","reviewStatus":"rework","issueCodes":["missing-nails","background-contamination"],"note":"仅检出3/4，候选误落眼镜和衣袖。"},
+    {"fileName":"nail_00551_68dbbbe80000000005033d1e_0.jpg","reviewStatus":"rework","issueCodes":["boundary-contamination","partial-mask"],"note":"数量虽为5/5，但候选大面积吞入整指和手掌。"},
+    {"fileName":"nail_00804_68835b9c0000000020018599_0.jpg","reviewStatus":"rework","issueCodes":["missing-nails","boundary-contamination"],"note":"仅检出2/5且候选包含手指皮肤。"},
+    {"fileName":"nail_00806_68835b9c0000000020018599_2.jpg","reviewStatus":"rework","issueCodes":["missing-nails","background-contamination","boundary-contamination"],"note":"数量虽为5/5，但存在衣袖假阳性且甲面边界不完整。"},
+    {"fileName":"nail_01161_69857209000000002801ed45_0.jpg","reviewStatus":"rework","issueCodes":["missing-nails","boundary-contamination"],"note":"仅检出2/5且候选吞入手指。"},
+    {"fileName":"nail_01163_69857209000000002801ed45_2.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","invalid-mask-topology","boundary-contamination"],"note":"候选8/5，存在重复和整指污染。"},
+    {"fileName":"nail_01187_68ecb7a400000000030221bc_0.jpg","reviewStatus":"rework","issueCodes":["missing-nails"],"note":"仅检出1/4，须逐甲补全。"},
+    {"fileName":"nail_01189_68ecb7a400000000030221bc_2.jpg","reviewStatus":"rework","issueCodes":["missing-nails","boundary-contamination"],"note":"仅检出3/5且候选吞入手指。"},
+    {"fileName":"nail_01202_68d128b9000000001003c909_2.jpg","reviewStatus":"rework","issueCodes":["missing-nails","boundary-contamination"],"note":"仅检出2/5且边界含皮肤。"},
+    {"fileName":"nail_01204_68d128b9000000001003c909_4.jpg","reviewStatus":"rework","issueCodes":["missing-nails","overlapping-masks","boundary-contamination"],"note":"仅检出4/5且候选交叠、吞入手指。"},
+    {"fileName":"nail_00578_69469bf9000000001f009f29_4.jpg","reviewStatus":"rework","issueCodes":["missing-nails","overlapping-masks","boundary-contamination"],"note":"仅检出2/4且候选相互交叠并吞入皮肤。"},
+    {"fileName":"nail_00579_69469bf9000000001f009f29_5.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","overlapping-masks","boundary-contamination"],"note":"候选6/5且存在交叠和皮肤污染。"},
+    {"fileName":"nail_00639_6a07f23f000000003502f048_1.jpg","reviewStatus":"rework","issueCodes":["missing-nails","overlapping-masks","boundary-contamination"],"note":"仅检出8/10且候选交叠、包含整指。"}
+  ]
+}
