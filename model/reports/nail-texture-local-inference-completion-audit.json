@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-07-30T20:00:38.366Z",
+  "generatedAt": "2026-08-01T07:19:10.807Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 394,
-    "passMarkerCount": 386,
+    "progressMarkerCount": 396,
+    "passMarkerCount": 388,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -114,8 +114,8 @@
       {
         "id": "REL-T2-CANDIDATE",
         "task": "正式模型候选发布",
-        "status": "🔴 HOLD（candidate5已拒绝）",
-        "evidence": "第二候选因独立留出7/5/6张误检被否决，第三候选因规范val30联合门失败被否决，第四候选因新独立留出3/2/3张误检被否决；candidate5虽过规范val30和冻结test100，仍在另一批训练后新100张独立留出上产生3/4/3张误检、5/4/6个检测及1/1 delta，零误检/零delta门失败。生产manifest、共享阈值和正式ONNX保持不变；下一候选须使用隔离且获商业训练授权的新负样本重新训练，并在训练后再建另一份全新未见留出"
+        "status": "🔴 HOLD（candidate5已拒绝，识别优先合同待实现）",
+        "evidence": "candidate5虽过规范val30和冻结test100总体mAP门，仍因新100张独立留出三变体误检3/4/3张而拒绝，且生产ONNX不存在。candidate6负样本仅10/160并暂停；先实现逐图完整甲面召回、重复/污染和像素mask可提取性报告，再补新来源且精确商业训练授权的正样本并训练下一候选。生产manifest、共享阈值保持不变；通过正样本门后仍须完成另一份全新未见留出、真机、Beta、生产ONNX和双版本回滚"
       },
       {
         "id": "USER-FAILURE-01",
@@ -858,7 +858,15 @@
         },
         {
           "checked": true,
+          "text": "建立candidate6与candidate5已消费留出强隔离的160项训练负样本计划并完成首个`softgel_blister_single`家族001—010；`build-candidate6-hard-negative-generation-plan.py`深验candidate5权重`26daf742…a56`、独立留出报告`9cb13d1f…8016`、5张失败记录、软胶囊/种荚/实验耗材3个失败家族及registry v4中的holdout保护项，固定16家族×10张且不复制361—460。计划SHA-256为`136b5868…7b49`、items摘要`d49afd16…eecd`；首族10张逐图独立生成并经可见初筛，增量审计`5d31cb40…4f30`确认10通过、150缺失、0失败/未知。该项只证明计划、生成阶段和机器隔离门；全部继续`trainingUse=prohibited`、`authorizationStatus=missing`，正式原分辨率终审、精确商业训练授权和模型训练均未开始。"
+        },
+        {
+          "checked": true,
           "text": "完成第五候选GPU训练、规范val30阈值校准和冻结test100正式质量门；权重`26daf742…a56`，阈值0.50，部署512全量box/mask mAP50=0.9569/0.9561，core=0.9591/0.9660，stress=0.9525/0.9265；质量报告`8fa2161b…f8f3`深验PASS。该PASS不覆盖独立困难负样本、Beta、真机或生产资产门。"
+        },
+        {
+          "checked": true,
+          "text": "完成识别优先方案v1.4的实施前复审及首个逐实例机器门：生产ONNX缺失使网页只能fallback，candidate5已拒绝且不可部署。新报告绑定冻结test100、物化、逐预测制品、权重和阈值，重算完整甲面匹配、漏甲、完整mask、重复、额外候选与拓扑；candidate5部署512/阈值0.50仅匹配464/554、漏90枚，49图漏甲，仅39图直接可提取，8重复、23额外、23无效预测mask，报告`0411bab4…6571`正确HOLD并可重放。下一候选须补新来源、精确商业训练授权的正样本；主手簇与阈值仍只能在train/val冻结，负样本、真机、Beta、ONNX及回滚门不降低。"
         },
         {
           "checked": false,
@@ -990,9 +998,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 394,
-      "uniqueMarkerCount": 394,
-      "passMarkerCount": 386,
+      "markerCount": 396,
+      "uniqueMarkerCount": 396,
+      "passMarkerCount": 388,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1035,8 +1043,8 @@
         {
           "id": "REL-T2-CANDIDATE",
           "task": "正式模型候选发布",
-          "status": "🔴 HOLD（candidate5已拒绝）",
-          "evidence": "第二候选因独立留出7/5/6张误检被否决，第三候选因规范val30联合门失败被否决，第四候选因新独立留出3/2/3张误检被否决；candidate5虽过规范val30和冻结test100，仍在另一批训练后新100张独立留出上产生3/4/3张误检、5/4/6个检测及1/1 delta，零误检/零delta门失败。生产manifest、共享阈值和正式ONNX保持不变；下一候选须使用隔离且获商业训练授权的新负样本重新训练，并在训练后再建另一份全新未见留出"
+          "status": "🔴 HOLD（candidate5已拒绝，识别优先合同待实现）",
+          "evidence": "candidate5虽过规范val30和冻结test100总体mAP门，仍因新100张独立留出三变体误检3/4/3张而拒绝，且生产ONNX不存在。candidate6负样本仅10/160并暂停；先实现逐图完整甲面召回、重复/污染和像素mask可提取性报告，再补新来源且精确商业训练授权的正样本并训练下一候选。生产manifest、共享阈值保持不变；通过正样本门后仍须完成另一份全新未见留出、真机、Beta、生产ONNX和双版本回滚"
         },
         {
           "id": "USER-FAILURE-01",
