@@ -157,6 +157,7 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
 3. 新批文件必须使用`hard_negative_training_YYYYMMDD_NNN_family_VV`，序号在声明区间内连续，最短边不少于768像素。旧`hard_negative_ai_*`、`hard_negative_independent_*`或`nail_*`命名只允许在registry绑定的历史受保护清单中兼容，不能用于新训练批次。
    - 生成阶段先固定160项计划，再用`audit-training-hard-negative-generation-progress.py`记录可恢复快照。允许缺图时输出诚实`HOLD`与下一缺口；补图时绑定`--previous-report`可增长但不可修改既有图片。即使160/160机器通过，也只会进入“可请求精确用户授权”，不会自动授予训练资格。
    - 若上一候选由独立困难负样本审计否决，先用`build-candidate5-hard-negative-generation-plan.py`深验拒绝报告与当前受保护registry，固定160项新训练候选及失败类型简报。该工具只生成计划；必须先把刚冻结的失败独立留出单调追加到registry，计划才会把它作为受保护证据，绝不允许回流训练。
+   - candidate5被编号361—460独立留出否决后，使用`build-candidate6-hard-negative-generation-plan.py`深验candidate5权重、拒绝报告的逐图三变体计数、失败家族和registry v4中的holdout保护项，再固定candidate6的16家族×10张全新计划。该工具同样不复制留出、不生成图片、不授权训练；所有计划项保持`trainingUse=prohibited`和`authorizationStatus=missing`，直到160/160机器门、原分辨率终审和schema v2精确用户授权分别完成。
 4. 授权记录和机器清单不会直接赋予训练资格；两者始终为candidate-only、`trainingUse=prohibited`。审核工作区会调用记录器做只读深度重放，并采用staging与原子替换，防止半成品或旧页面混入。
 5. 每张图仍须通过原分辨率视觉终审；AI来源不降低清晰度、完整主体、真人甲面排除、无水印捷径和目标域标准。达到100张批准项后，才可由`finalize-reviewed-hard-negative-manifest.py`生成训练可消费的schema v2清单。
 
