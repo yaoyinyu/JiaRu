@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "shardIndex": 8,
+  "originalResolutionReviewCompleted": true,
+  "reviewedPageSha256s": [
+    "f7773a66d552a4008a2b89b96c2a5276d0ed7bb95efe93f0b486db2d6149405b",
+    "cac007d1d09b6b83b95ef289c228ebb6054b3ff603369250cbfc06b62cfb57a3",
+    "82797bc422810b253906bb4f3b0b8400093d8d4f93cbc72398ebf2220d4d7ad1",
+    "40323bed3157fb4ea7d50881578b8499190a7f8dc4a1f5b719ab900855b055b3",
+    "f4a88148b38f882f0a4ec3d617b54464eac1e1b578bc77909198a76ba7b44856",
+    "039dad3b3ac5a09210ba351376e9a63f7e367da67a2dbd8feccd3a99b0ad20f7",
+    "b7e21529817e7b385a735a4665f049f5611420bb6d291c8e3492603f2cdfab06",
+    "ea1af7000b2e4a49568e452497d32240971bfc4afe11b8a13660f9bde53a5721",
+    "98cfc0259750c0fc2e8f0ac0d81ffb50677c9c427dcdaf45affc636b1c970a02",
+    "aadbd54dda480b91d0cd2707b9391551a6ff5eedbba57d5c76aa9311fc4496c6"
+  ],
+  "items": [
+    {"fileName":"nail_00730_6a4db574000000000f005735_1.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","overlapping-masks"],"note":"候选6/5，存在重复且相互交叠的甲面区域。"},
+    {"fileName":"nail_00731_6a4db574000000000f005735_2.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","background-contamination"],"note":"候选11/10，右侧存在明显背景假阳性。"},
+    {"fileName":"nail_00853_6915b7d6000000001b025abd_2.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","overlapping-masks","boundary-contamination"],"note":"候选6/5，包含整指或背景污染且候选交叠。"},
+    {"fileName":"nail_00851_6915b7d6000000001b025abd_0.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","background-contamination"],"note":"候选5/4，底部存在额外背景区域。"},
+    {"fileName":"nail_01315_6a47e0e7000000000f0177d9_8.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","overlapping-masks","boundary-contamination"],"note":"候选12/10，存在重复、交叠及整指污染。"},
+    {"fileName":"nail_01310_6a47e0e7000000000f0177d9_3.jpg","reviewStatus":"pass","issueCodes":[],"note":"原分辨率复核确认5个完整甲面各有且仅有一个完整mask。"},
+    {"fileName":"nail_00327_69fedf6800000000350299d3_2.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","overlapping-masks","background-contamination","boundary-contamination"],"note":"候选12/10，包含界面图标、整指和交叠区域。"},
+    {"fileName":"nail_01136_6a099d1c000000000803dd1a_5.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","overlapping-masks","boundary-contamination"],"note":"候选8/5，多处重复交叠并吞入手指。"},
+    {"fileName":"nail_01134_6a099d1c000000000803dd1a_3.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","background-contamination"],"note":"候选6/5，中央黑色区域为额外假阳性。"},
+    {"fileName":"nail_01141_6a099d1c000000000803dd1a_10.jpg","reviewStatus":"pass","issueCodes":[],"note":"原分辨率复核确认唯一完整甲面mask边界完整且无污染。"},
+    {"fileName":"nail_01157_68d8a7c20000000013007ebf_2.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","background-contamination"],"note":"候选5/4，右下界面标记被误作甲面。"},
+    {"fileName":"nail_01159_68d8a7c20000000013007ebf_4.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","background-contamination","boundary-contamination"],"note":"候选6/5，含大面积手部和背景假阳性。"},
+    {"fileName":"nail_01207_69a023f7000000001a026a73_2.jpg","reviewStatus":"rework","issueCodes":["duplicate-or-extra-masks","boundary-contamination","background-contamination"],"note":"候选5/4，包含手掌、整指和衣袖污染。"},
+    {"fileName":"nail_01205_69a023f7000000001a026a73_0.jpg","reviewStatus":"pass","issueCodes":[],"note":"原分辨率复核确认唯一正面完整甲面mask边界完整且无污染。"},
+    {"fileName":"nail_00380_6a3a96410000000020038856_2.jpg","reviewStatus":"rework","issueCodes":["boundary-contamination"],"note":"数量虽为4/4，但左侧候选明显吞入手指皮肤。"},
+    {"fileName":"nail_00686_6a2712750000000035023333_0.jpg","reviewStatus":"rework","issueCodes":["boundary-contamination"],"note":"数量虽为5/5，但左上候选包含大面积手指皮肤。"},
+    {"fileName":"nail_00818_694d2f15000000001f004278_0.jpg","reviewStatus":"pass","issueCodes":[],"note":"原分辨率复核确认唯一完整长甲mask覆盖完整且无皮肤污染。"},
+    {"fileName":"nail_00820_694d2f15000000001f004278_3.jpg","reviewStatus":"rework","issueCodes":["missing-nails","background-contamination"],"note":"数量虽为5/5，但左下候选落在饰物而非应标甲面。"},
+    {"fileName":"nail_01208_69612793000000001a02b640_0.jpg","reviewStatus":"rework","issueCodes":["boundary-contamination"],"note":"数量虽为5/5，但多处候选吞入整指和皮肤。"},
+    {"fileName":"nail_01212_69612793000000001a02b640_4.jpg","reviewStatus":"pass","issueCodes":[],"note":"原分辨率复核确认5个完整甲面各有且仅有一个完整mask。"}
+  ]
+}
