@@ -60,10 +60,16 @@ def main() -> None:
     workspace = json.loads(workspace_path.read_text(encoding="utf-8"))
     prelabel = json.loads(prelabel_path.read_text(encoding="utf-8"))
     errors: list[str] = []
-    if workspace.get("ok") is not True or workspace.get("decision") != "annotation_workspace_ready_candidate_only":
+    allowed_workspace_decisions = {
+        "annotation_workspace_ready_candidate_only",
+        "positive_reinforcement_annotation_workspace_ready_candidate_only",
+    }
+    if workspace.get("ok") is not True or workspace.get("decision") not in allowed_workspace_decisions:
         errors.append("annotation workspace must pass")
     if prelabel.get("ok") is not True or prelabel.get("decision") != "candidate_only_not_training_truth":
         errors.append("YOLO prelabel report must be candidate-only and pass")
+    if prelabel.get("trainingUse") != "prohibited" or prelabel.get("originalResolutionReviewRequired") is not True:
+        errors.append("YOLO prelabel report does not preserve candidate-only review gates")
     if prelabel.get("workspaceManifestSha256") != sha256_file(workspace_path):
         errors.append("YOLO prelabel report does not bind the current workspace")
 
@@ -90,7 +96,8 @@ def main() -> None:
         capped_candidates += min(expected, candidate_count)
         item_errors: list[str] = []
         item_warnings: list[str] = []
-        if prelabel_item.get("sha256") != workspace_item.get("sha256"):
+        workspace_sha = workspace_item.get("sha256") or workspace_item.get("imageSha256")
+        if prelabel_item.get("sha256") != workspace_sha:
             item_errors.append("image-sha-mismatch")
         if prelabel_item.get("sourceGroup") != workspace_item.get("sourceGroup"):
             item_errors.append("source-group-mismatch")
@@ -104,6 +111,8 @@ def main() -> None:
             annotations = annotation.get("annotations", [])
             if annotation.get("decision") != "candidate_only_not_training_truth":
                 item_errors.append("unsafe-annotation-decision")
+            if annotation.get("trainingUse") != "prohibited":
+                item_errors.append("unsafe-annotation-training-use")
             if image.get("fileName") != file_name or image.get("sourceGroup") != workspace_item.get("sourceGroup"):
                 item_errors.append("annotation-identity-mismatch")
             width, height = int(image.get("width", 0)), int(image.get("height", 0))
@@ -141,7 +150,7 @@ def main() -> None:
         rows.append(
             {
                 "fileName": file_name,
-                "sha256": workspace_item.get("sha256"),
+                "sha256": workspace_sha,
                 "sourceGroup": workspace_item.get("sourceGroup"),
                 "expectedFullyVisibleNails": expected,
                 "candidateCount": candidate_count,

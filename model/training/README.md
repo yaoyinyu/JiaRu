@@ -159,6 +159,10 @@ node --no-warnings --experimental-strip-types model/training/run-phase1-intake-p
    - 若上一候选由独立困难负样本审计否决，先用`build-candidate5-hard-negative-generation-plan.py`深验拒绝报告与当前受保护registry，固定160项新训练候选及失败类型简报。该工具只生成计划；必须先把刚冻结的失败独立留出单调追加到registry，计划才会把它作为受保护证据，绝不允许回流训练。
    - candidate5被编号361—460独立留出否决后，使用`build-candidate6-hard-negative-generation-plan.py`深验candidate5权重、拒绝报告的逐图三变体计数、失败家族和registry v4中的holdout保护项，再固定candidate6的16家族×10张全新计划。该工具同样不复制留出、不生成图片、不授权训练；所有计划项保持`trainingUse=prohibited`和`authorizationStatus=missing`，直到160/160机器门、原分辨率终审和schema v2精确用户授权分别完成。
    - `build-positive-recognition-quality-report.py`把冻结正样本的总体mAP拆为逐图/逐甲强门：绑定snapshot、evaluation materialization、预测制品、权重和规范阈值，重算匹配、漏甲、完整mask、重复、额外候选及预测拓扑；`--verify-report`重放全部输入。该工具只评估冻结证据，禁止据此调整阈值或把test图片回流训练。
+   - `build-positive-reinforcement-candidate-inventory.py`从已完成源图筛选中扣除当前train/val/冻结test的全部来源组和图片哈希，再逐图重放授权身份、当前文件SHA-256、尺寸与完整解码；输出始终保持`trainingUse=prohibited`。
+   - `build-positive-reinforcement-authorization-request.py`从上述库存按完整可见甲面数量分层、限制单来源组入选数并形成160张精确商业训练授权请求。请求本身不批准mask，也不允许在用户授权和逐甲原分辨率完整mask终审前物化训练数据。
+   - `record-positive-reinforcement-authorization.py`逐字绑定用户确认文本、请求报告、库存和当前图片身份；`build-positive-reinforcement-annotation-workspace.py`只在授权深验通过后按来源组原子分片并物化候选工作区。两步都保持`trainingUse=prohibited`，授权PASS不等于mask PASS。
+   - `build-first-annotation-mask-review-decisions.py`把人工审核声明绑定到精确工作区、分片CSV、按序审核页哈希和图片身份，再交给`finalize-first-annotation-mask-review-shard.py`定稿。机器计数或SAM几何不能自动产生PASS；每张图必须实际查看绑定原分辨率审核页。
 4. 授权记录和机器清单不会直接赋予训练资格；两者始终为candidate-only、`trainingUse=prohibited`。审核工作区会调用记录器做只读深度重放，并采用staging与原子替换，防止半成品或旧页面混入。
 5. 每张图仍须通过原分辨率视觉终审；AI来源不降低清晰度、完整主体、真人甲面排除、无水印捷径和目标域标准。达到100张批准项后，才可由`finalize-reviewed-hard-negative-manifest.py`生成训练可消费的schema v2清单。
 
