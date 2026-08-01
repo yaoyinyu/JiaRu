@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-08-01T09:58:03.922Z",
+  "generatedAt": "2026-08-01T10:07:09.620Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -115,7 +115,7 @@
         "id": "M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-014",
         "task": "candidate6正样本完整甲面mask候选与原分辨率审核",
         "status": "🟡 IN PROGRESS",
-        "evidence": "8分片/80页、160/160张首轮原分辨率审核为13 pass、147 rework、0 exclude。首批返修终审4张/15 mask通过；第二批逐甲紧框仅1张/5 mask通过。对余下2张透明/低对比延长甲改用原分辨率人工多边形，10个polygon合法、零交叠、几何10/10，并通过两张整图及全部逐甲2倍源图/叠加裁片终审；两张各5 mask完成哈希绑定深度返修重放和最终真值审计。累计20张/76 mask，唯一索引`a1ae7baa…65e4`为0拒绝/冗余/冲突。其余返修及完整训练物化仍未完成，索引继续`trainingUse=prohibited-until-materialization-audit`"
+        "evidence": "8分片/80页、160/160张首轮原分辨率审核为13 pass、147 rework、0 exclude。首批返修终审4张/15 mask通过；第二批逐甲紧框仅1张/5 mask通过，两张透明低对比甲经人工多边形新增10 mask。后续`nail_00380…_2.jpg`的4枚粉色渐变甲以原分辨率人工polygon返修，4个polygon合法、零交叠、几何4/4，并通过整图与逐甲2倍源图/叠加裁片终审及深度真值审计。累计21张/80 mask，唯一索引`63c7a843…e05f`为0拒绝/冗余/冲突。其余返修及完整训练物化仍未完成，索引继续`trainingUse=prohibited-until-materialization-audit`"
       },
       {
         "id": "REL-T2-CANDIDATE",
@@ -1058,7 +1058,7 @@
           "id": "M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-014",
           "task": "candidate6正样本完整甲面mask候选与原分辨率审核",
           "status": "🟡 IN PROGRESS",
-          "evidence": "8分片/80页、160/160张首轮原分辨率审核为13 pass、147 rework、0 exclude。首批返修终审4张/15 mask通过；第二批逐甲紧框仅1张/5 mask通过。对余下2张透明/低对比延长甲改用原分辨率人工多边形，10个polygon合法、零交叠、几何10/10，并通过两张整图及全部逐甲2倍源图/叠加裁片终审；两张各5 mask完成哈希绑定深度返修重放和最终真值审计。累计20张/76 mask，唯一索引`a1ae7baa…65e4`为0拒绝/冗余/冲突。其余返修及完整训练物化仍未完成，索引继续`trainingUse=prohibited-until-materialization-audit`"
+          "evidence": "8分片/80页、160/160张首轮原分辨率审核为13 pass、147 rework、0 exclude。首批返修终审4张/15 mask通过；第二批逐甲紧框仅1张/5 mask通过，两张透明低对比甲经人工多边形新增10 mask。后续`nail_00380…_2.jpg`的4枚粉色渐变甲以原分辨率人工polygon返修，4个polygon合法、零交叠、几何4/4，并通过整图与逐甲2倍源图/叠加裁片终审及深度真值审计。累计21张/80 mask，唯一索引`63c7a843…e05f`为0拒绝/冗余/冲突。其余返修及完整训练物化仍未完成，索引继续`trainingUse=prohibited-until-materialization-audit`"
         },
         {
           "id": "REL-T2-CANDIDATE",
