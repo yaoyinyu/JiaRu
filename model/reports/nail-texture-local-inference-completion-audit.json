@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-08-08T17:37:02.717Z",
+  "generatedAt": "2026-08-08T18:16:14.879Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -112,10 +112,10 @@
         "evidence": "第二候选被独立留出误检否决，第三候选被规范val阈值联合门否决，第四候选被新独立留出3/2/3张误检否决，candidate5又被新留出3/4/3张误检否决；均未获准进入Beta。移动真机矩阵、用户失败案例、100张Beta人工直接可用率/污染率/修正成本证据仍缺，禁止promotion"
       },
       {
-        "id": "M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-035",
+        "id": "M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-036",
         "task": "candidate6正样本完整甲面mask候选与原分辨率审核",
         "status": "🟡 IN PROGRESS",
-        "evidence": "8分片/80页、160/160张首轮原分辨率审核为13 pass、147 rework、0 exclude。首批返修终审4张/15 mask通过；第二批逐甲紧框仅1张/5 mask通过，两张透明低对比甲经人工多边形新增10 mask；后续24张原分辨率人工/混合polygon新增109枚完整甲面，全部合法、零交叠、几何109/109，并通过整图与逐甲2倍终审及深度真值审计。batch022的重复身份返修仍不计数；batch023—035完成花纹/透明、裸粉长甲、侧视透明拇指、手链误检删除、失焦候选止损、附着钻饰及交叠止损。batch036对`nail_00774…_0.jpg`保留三枚已审甲面并补回被前景蝴蝶装饰甲部分遮挡的粉色长甲；首版交叠被构建器拒绝，按真实遮挡边界形成缺口后4/4合法、零交叠、几何4/4，整图和逐甲2倍确认甲面及附着装饰完整且无皮肤、衣物、背景、水印或重复污染。权威与重放现为51张/220 mask、0拒绝/冗余/冲突、SHA-256 `34cb56c9…9714`。正样本水印仅在遮挡/触碰甲面或损害清晰完整性时排除；困难负样本水印消融门不变。其余109张尚未形成最终真值，完整训练物化仍未完成，索引继续`trainingUse=prohibited-until-materialization-audit`"
+        "evidence": "8分片/80页、160/160张首轮原分辨率审核为13 pass、147 rework、0 exclude。首批返修终审4张/15 mask通过；第二批逐甲紧框仅1张/5 mask通过，两张透明低对比甲经人工多边形新增10 mask；后续25张原分辨率人工/混合polygon新增114枚完整甲面，全部合法、零交叠、几何114/114，并通过整图与逐甲2倍终审及深度真值审计。batch022的重复身份返修仍不计数；batch023—036完成花纹/透明、裸粉长甲、侧视透明拇指、手链误检删除、失焦候选止损、附着钻饰、遮挡补回及交叠止损。batch037先拒绝被大面积遮挡、需猜测隐藏边界的`nail_01161…_0.jpg`，改选同来源组五甲完整清晰的`nail_01163…_2.jpg`；删除3个重复、整指或皮肤污染候选，保留4个完整mask并以人工polygon替换无效拓扑豹纹甲。终版5/5合法、零交叠、几何5/5，整图及逐甲2倍确认无皮肤、毛衣、背景、水印、重复或无效拓扑污染。权威与重放现为52张/225 mask、0拒绝/冗余/冲突、SHA-256 `487976b7…4b10`。正样本水印仅在遮挡/触碰甲面或损害清晰完整性时排除；困难负样本水印消融门不变。其余108张尚未形成最终真值，完整训练物化仍未完成，索引继续`trainingUse=prohibited-until-materialization-audit`"
       },
       {
         "id": "REL-T2-CANDIDATE",
@@ -1055,10 +1055,10 @@
           "evidence": "第二候选被独立留出误检否决，第三候选被规范val阈值联合门否决，第四候选被新独立留出3/2/3张误检否决，candidate5又被新留出3/4/3张误检否决；均未获准进入Beta。移动真机矩阵、用户失败案例、100张Beta人工直接可用率/污染率/修正成本证据仍缺，禁止promotion"
         },
         {
-          "id": "M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-035",
+          "id": "M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-036",
           "task": "candidate6正样本完整甲面mask候选与原分辨率审核",
           "status": "🟡 IN PROGRESS",
-          "evidence": "8分片/80页、160/160张首轮原分辨率审核为13 pass、147 rework、0 exclude。首批返修终审4张/15 mask通过；第二批逐甲紧框仅1张/5 mask通过，两张透明低对比甲经人工多边形新增10 mask；后续24张原分辨率人工/混合polygon新增109枚完整甲面，全部合法、零交叠、几何109/109，并通过整图与逐甲2倍终审及深度真值审计。batch022的重复身份返修仍不计数；batch023—035完成花纹/透明、裸粉长甲、侧视透明拇指、手链误检删除、失焦候选止损、附着钻饰及交叠止损。batch036对`nail_00774…_0.jpg`保留三枚已审甲面并补回被前景蝴蝶装饰甲部分遮挡的粉色长甲；首版交叠被构建器拒绝，按真实遮挡边界形成缺口后4/4合法、零交叠、几何4/4，整图和逐甲2倍确认甲面及附着装饰完整且无皮肤、衣物、背景、水印或重复污染。权威与重放现为51张/220 mask、0拒绝/冗余/冲突、SHA-256 `34cb56c9…9714`。正样本水印仅在遮挡/触碰甲面或损害清晰完整性时排除；困难负样本水印消融门不变。其余109张尚未形成最终真值，完整训练物化仍未完成，索引继续`trainingUse=prohibited-until-materialization-audit`"
+          "evidence": "8分片/80页、160/160张首轮原分辨率审核为13 pass、147 rework、0 exclude。首批返修终审4张/15 mask通过；第二批逐甲紧框仅1张/5 mask通过，两张透明低对比甲经人工多边形新增10 mask；后续25张原分辨率人工/混合polygon新增114枚完整甲面，全部合法、零交叠、几何114/114，并通过整图与逐甲2倍终审及深度真值审计。batch022的重复身份返修仍不计数；batch023—036完成花纹/透明、裸粉长甲、侧视透明拇指、手链误检删除、失焦候选止损、附着钻饰、遮挡补回及交叠止损。batch037先拒绝被大面积遮挡、需猜测隐藏边界的`nail_01161…_0.jpg`，改选同来源组五甲完整清晰的`nail_01163…_2.jpg`；删除3个重复、整指或皮肤污染候选，保留4个完整mask并以人工polygon替换无效拓扑豹纹甲。终版5/5合法、零交叠、几何5/5，整图及逐甲2倍确认无皮肤、毛衣、背景、水印、重复或无效拓扑污染。权威与重放现为52张/225 mask、0拒绝/冗余/冲突、SHA-256 `487976b7…4b10`。正样本水印仅在遮挡/触碰甲面或损害清晰完整性时排除；困难负样本水印消融门不变。其余108张尚未形成最终真值，完整训练物化仍未完成，索引继续`trainingUse=prohibited-until-materialization-audit`"
         },
         {
           "id": "REL-T2-CANDIDATE",
@@ -1281,7 +1281,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "9 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-035, REL-T2-CANDIDATE, USER-FAILURE-01."
+      "summary": "9 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-036, REL-T2-CANDIDATE, USER-FAILURE-01."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
