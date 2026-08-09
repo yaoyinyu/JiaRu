@@ -31,6 +31,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Windows 下运行项目 npm 脚本必须显式使用 `npm.cmd`，禁止调用无扩展名的裸 `npm`；本机 `C:\Windows\System32\npm` 可能优先于 Node.js 安装目录并触发“选择应用打开”弹窗。
 - Windows 下执行项目 PowerShell 命令时优先显式使用 `C:\Program Files\PowerShell\7\pwsh.exe`；不要因宿主默认仍指向旧版 Windows PowerShell 而误判 PowerShell 7 未安装。
 - Windows 下运行`npm.cmd run audit:nail-texture-completion`前，必须把`C:\Users\YaoYinyu\AppData\Local\Programs\Python\Python313`显式置于当前进程`PATH`首位；该TypeScript审计会启动裸`python`子进程，本机Python 3.14缺少Pillow/Shapely时会造成与模型证据无关的假性深验失败。
+- PowerShell批量JSON解析检查必须先逐文件执行`Test-Path -PathType Leaf`并设置`$ErrorActionPreference='Stop'`；`Get-Content`的默认非终止错误可能被`try/catch`漏接，禁止在文件不存在时继续累加“解析通过”计数。
 - 未经用户在当前任务中明确要求，不执行 `git commit` 或 `git push`；完成修改与验证后仅保留本地工作区差异。
 - 父截图可用但派生区域选错时，应按父文件 SHA-256 和稳定 `sourceGroup` 替换旧区域，并保持一父图一派生区域；禁止把新旧区域重复计数，也不得因此误排除父图。
 - 验证集真值必须逐图通过原分辨率完整甲面审核；任一图片仍为返修或排除、存在未声明交叠、漏甲、重复、误标或污染时，整套 split 不得用于模型选择或阈值校准，基于该真值产生的高指标只能保留为历史诊断。
