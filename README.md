@@ -19,11 +19,21 @@
 | AI 美甲生图 | `/ai-generate` | 📌 | 文字描述 + 10 种风格提示词库（各 50 段） → DALL·E 3 生成 → 下载 |
 | 灵感图库 | `/gallery` | 📌 | SVG 占位素材浏览，后续接入真实内容后台 |
 | AR 纯色试戴 | `/ar-tryon` | 🚧 | 摄像头实时手部追踪 + 五指贴色 |
-| AR 纹理试戴 | `/ar-tryon` | 🚧 | 上传参考图 → 纹理识别/裁剪 → 柱面曲率变形贴合 |
+| AR 纹理试戴 | `/ar-tryon` | ⛔ | 上传参考图 → 美甲识别/mask 提取 → 纹理贴合；正式识别模型尚未发布 |
 | 独立 AR 演示 | `/ar-demo` | 📌 | 桥接外部 Python demo 的 iframe 占位 |
 | 隐私政策 | `/privacy` | 📌 | 静态说明页 |
 
-> ✅ 已完成 　 📌 待验证 　 🚧 核心完成待真机验收 　 ❌ 未开始
+> ✅ 已完成 　 📌 待验证 　 🚧 进行中 　 ⛔ 发布阻塞 　 ❌ 未开始
+
+### 正式美甲识别模型状态
+
+> **当前产品保持 HOLD。** 浏览器 Worker、WebGPU/WASM、候选排序、五指分配和 mask 纹理提取管线已经存在，但生产 ONNX 尚不存在；模型不可用时的规则 fallback 仅是降级辅助，不能表述为正式识别成功。
+
+- 已拒绝的 candidate5 不会部署或复用；它虽然通过 val30 和冻结 test100 正样本门，但在训练后全新100张困难负样本三变体审计中分别误检3/4/3张。
+- candidate6 正样本商业训练授权清单共160张/预计971枚甲面；截至技术白皮书 v1.1.363，已有77张/386个完整甲面通过原分辨率终审，尚余83张/预计585枚甲面。
+- 当前权威真值索引仍为`trainingUse=prohibited-until-materialization-audit`，因此尚未启动 candidate6 训练、val30阈值校准、冻结test100推理或生产模型导出。
+- candidate6 训练完成后，还必须另建不少于100张全新未见困难负样本，并在部署尺寸512下对原图、裁右下12%和模糊右下角三种变体同时达到误检图片数0、误检检测数0、相对原图delta 0。
+- 正式发布还需生产ONNX登记、真实浏览器回归、Android手机/平板、iPhone/iPad真机、至少100张Beta人工审核和双版本回滚验证。只有完成度审计返回`ok=true`且`decision=complete`才解除HOLD。
 
 ---
 
@@ -63,8 +73,8 @@ npm.cmd run start
 
 ```powershell
 npm.cmd run lint          # ESLint 检查
-npm.cmd run test          # 全量测试（当前 350+ 项）
-npm.cmd run audit:encoding # 文本文件编码审计（当前 407 个文件）
+npm.cmd run test           # 全量测试（当前 163 个测试文件，串行执行）
+npm.cmd run audit:encoding # 文本文件编码审计（当前 485 个文件）
 npm.cmd run build          # Next.js 生产构建
 ```
 
@@ -131,7 +141,7 @@ JiaRu/
 │       └── nail-texture-recognition.worker.ts  # Web Worker 入口
 │
 ├── model/                        # 模型训练与数据集
-│   ├── datasets/nail-texture-v1/ # 正式数据集（409 图/2142 mask）
+│   ├── datasets/nail-texture-v1/ # 基础正式集（409 图/2142 mask）
 │   ├── training/                 # 训练脚本、标注辅助、审计工具
 │   └── reports/                  # 审计报告
 │
@@ -192,15 +202,17 @@ JiaRu/
 - 180 秒总超时（AbortController），503 按 1/2/4 秒指数退避重试
 - 仅发送文字描述，不发送用户原图
 
-### 🧠 浏览器端纹理识别（进行中）
+### 🧠 浏览器端纹理识别（发布阻塞）
 
 完整浏览器端 ONNX Runtime Web 推理管线：
 - ONNX Runtime Web 推理（WebGPU 优先 → WASM 降级）
 - Web Worker 隔离（15 秒超时 + 自动 fallback）
 - 候选质量排序 + 五指分配 + mask 纹理提取
-- v6 候选的资产、浏览器协议和桌面性能证据有效
-- 旧冻结 67 张/384 mask 在部署 512 口径的 box/mask mAP50=0.8370/0.8313，未通过正式质量门
-- 新冻结发布测试集已扩展到 100 张/554 mask；尚未绑定新候选模型评估，生产模型继续阻塞
+- 浏览器运行时与既有桌面性能证据可继续复用，但它们不等同于生产识别模型已经发布
+- 冻结 test100 正样本集为100张/554 mask；它只能评估候选，不能用于阈值选择
+- candidate5 已被训练后全新困难负样本留出否决，禁止部署或改名复用
+- candidate6 正样本真值当前为77张/386 mask，剩余83张；完成训练物化审计前保持训练禁用
+- 正式模型不可用时可以进入规则降级或人工框选，但 UI 必须明确告知降级，不能显示为“模型识别成功”
 
 ---
 
@@ -227,7 +239,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.225 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.363 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
@@ -289,18 +301,24 @@ copy .env.local.example .env.local
 - [ ] 阈值实测调优
 - [ ] 3D AR 试戴（Three.js 已安装）
 
-### Phase 4: 纹理识别模型 🚧 训练与审核中
+### Phase 4: 纹理识别模型 ⛔ 正样本补强中，发布HOLD
 
 - [x] 浏览器端 ONNX Runtime Web 推理管线
 - [x] 正式数据集（409 图/2142 mask）
-- [x] v6 候选通过资产、浏览器协议和桌面性能门
+- [x] 浏览器Worker、WebGPU/WASM、候选后处理与mask提取管线
 - [x] 独立发布测试集冻结到 100 张/554 mask（核心 78 张、压力 22 张）
-- [ ] 改进部署 512 口径模型质量并重新通过冻结测试门
+- [x] candidate5完成训练、val30和冻结test100审计，但被训练后全新困难负样本留出否决
 - [x] 补足 33 张来源隔离的代表性发布测试图并完成逐甲真值终审
-- [x] 补齐第三候选160张机器计划并通过机器审计（当前160/160）
-- [ ] 用户确认冻结的160项精确授权清单，完成正式原分辨率终审至少100张合格后启动训练（当前批准0/100）
+- [x] candidate6正样本160张精确商业训练授权
+- [ ] candidate6完整甲面真值终审（当前77张/386 mask，剩余83张/预计585 mask）
+- [ ] 训练集物化与来源隔离审计后训练candidate6
+- [ ] 仅用来源隔离val30校准阈值，并通过冻结test100正样本门
+- [ ] 训练后另建、精确授权、原子冻结并终审不少于100张全新未见困难负样本
+- [ ] 部署512三变体达到误检图片0、误检检测0、相对原图delta 0
+- [ ] 导出并登记生产ONNX，接入`/ar-tryon`正式多纹理识别和像素级mask提取
 - [ ] 移动真机 WebGPU 性能验证
 - [ ] Beta 人工质量审核（100 张）
+- [ ] 两个独立批准版本的回滚验证与最终`ok=true / decision=complete`审计
 
 ### 待规划
 
