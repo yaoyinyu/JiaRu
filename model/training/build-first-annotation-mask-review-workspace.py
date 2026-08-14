@@ -56,7 +56,9 @@ def main() -> None:
     )
     parser.add_argument("--workspace-manifest", required=True)
     parser.add_argument("--prelabel-audit", required=True)
-    parser.add_argument("--sam-report", required=True)
+    candidate_group = parser.add_mutually_exclusive_group(required=True)
+    candidate_group.add_argument("--sam-report")
+    candidate_group.add_argument("--manual-report")
     parser.add_argument("--geometry-audit", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--target-shard-size", type=int, default=20)
@@ -70,7 +72,9 @@ def main() -> None:
 
     workspace_path = Path(args.workspace_manifest).resolve()
     prelabel_audit_path = Path(args.prelabel_audit).resolve()
-    sam_report_path = Path(args.sam_report).resolve()
+    candidate_report_key = "manualReport" if args.manual_report else "samReport"
+    candidate_report_path = Path(args.manual_report or args.sam_report).resolve()
+    manual_mode = candidate_report_key == "manualReport"
     geometry_audit_path = Path(args.geometry_audit).resolve()
     output_dir = Path(args.output_dir).resolve()
     if output_dir.exists() and any(output_dir.iterdir()):
@@ -80,7 +84,7 @@ def main() -> None:
     for path, label in (
         (workspace_path, "workspace manifest"),
         (prelabel_audit_path, "prelabel audit"),
-        (sam_report_path, "SAM report"),
+        (candidate_report_path, "candidate report"),
         (geometry_audit_path, "geometry audit"),
     ):
         require_file(path, label, errors)
@@ -89,7 +93,7 @@ def main() -> None:
 
     workspace = read_json(workspace_path)
     prelabel_audit = read_json(prelabel_audit_path)
-    sam_report = read_json(sam_report_path)
+    candidate_report = read_json(candidate_report_path)
     geometry_audit = read_json(geometry_audit_path)
     allowed_workspace_decisions = {
         "annotation_workspace_ready_candidate_only",
@@ -102,10 +106,18 @@ def main() -> None:
     bound_workspace_hash = prelabel_audit.get("inputs", {}).get("workspaceManifestSha256")
     if bound_workspace_hash != sha256_file(workspace_path):
         errors.append("prelabel audit does not bind the current workspace manifest")
-    if sam_report.get("ok") is not True or sam_report.get("decision") != "sam_candidate_only_not_training_truth":
-        errors.append("a complete candidate-only SAM report is required")
-    if sam_report.get("trainingUse") != "prohibited" or sam_report.get("originalResolutionReviewRequired") is not True:
-        errors.append("SAM report does not preserve the training prohibition and visual review gate")
+    if manual_mode:
+        if (
+            candidate_report.get("ok") is not True
+            or candidate_report.get("method") != "reviewed-hybrid-original-resolution-manual-polygon-repair"
+            or candidate_report.get("decision") != "candidate_only_not_training_or_test_truth"
+        ):
+            errors.append("a passing candidate-only manual polygon report is required")
+    else:
+        if candidate_report.get("ok") is not True or candidate_report.get("decision") != "sam_candidate_only_not_training_truth":
+            errors.append("a complete candidate-only SAM report is required")
+        if candidate_report.get("trainingUse") != "prohibited" or candidate_report.get("originalResolutionReviewRequired") is not True:
+            errors.append("SAM report does not preserve the training prohibition and visual review gate")
     if geometry_audit.get("decision") != "candidate_only_not_training_truth":
         errors.append("geometry audit must remain candidate-only")
 
@@ -118,7 +130,7 @@ def main() -> None:
             prelabel_rows = list(csv.DictReader(source))
 
     workspace_items = {str(item.get("fileName", "")): item for item in workspace.get("items", [])}
-    sam_outputs = {str(item.get("fileName", "")): item for item in sam_report.get("outputs", [])}
+    candidate_outputs = {str(item.get("fileName", "")): item for item in candidate_report.get("outputs", [])}
     geometry_by_file: dict[str, list[dict[str, Any]]] = defaultdict(list)
     for row in geometry_audit.get("rows", []):
         geometry_by_file[str(row.get("fileName", ""))].append(row)
@@ -126,31 +138,32 @@ def main() -> None:
         errors.append("workspace item count differs from its summary")
     if set(workspace_items) != {str(row.get("fileName", "")) for row in prelabel_rows}:
         errors.append("prelabel review CSV does not exactly cover the workspace")
-    if set(workspace_items) != set(sam_outputs):
-        errors.append("SAM outputs do not exactly cover the workspace")
+    if set(workspace_items) != set(candidate_outputs):
+        errors.append("candidate outputs do not exactly cover the workspace")
 
     rows: list[dict[str, Any]] = []
     for prelabel_row in prelabel_rows:
         file_name = prelabel_row["fileName"]
         item = workspace_items[file_name]
         item_sha256 = item.get("sha256") or item.get("imageSha256")
-        sam_output = sam_outputs.get(file_name, {})
+        candidate_output = candidate_outputs.get(file_name, {})
         image_path = Path(str(item.get("workspacePath", ""))).resolve()
-        annotation_path = Path(str(sam_output.get("annotationPath", ""))).resolve()
-        overlay_path = Path(str(sam_output.get("overlayPath", ""))).resolve()
+        annotation_path = Path(str(candidate_output.get("annotationPath", ""))).resolve()
+        overlay_path = Path(str(candidate_output.get("overlayPath", ""))).resolve()
         if not image_path.is_file() or sha256_file(image_path) != item_sha256:
             errors.append(f"workspace image is missing or changed: {file_name}")
         require_file(annotation_path, f"annotation for {file_name}", errors)
         require_file(overlay_path, f"overlay for {file_name}", errors)
-        if sam_output.get("sourceGroup") != item.get("sourceGroup"):
-            errors.append(f"SAM source group differs from workspace: {file_name}")
+        if candidate_output.get("sourceGroup") != item.get("sourceGroup"):
+            errors.append(f"candidate source group differs from workspace: {file_name}")
         annotation = read_json(annotation_path) if annotation_path.is_file() else {}
-        if annotation.get("trainingUse") != "prohibited" or annotation.get("decision") != "candidate_only_not_training_truth":
+        expected_annotation_decision = "candidate_only_not_training_or_test_truth" if manual_mode else "candidate_only_not_training_truth"
+        if annotation.get("trainingUse") != "prohibited" or annotation.get("decision") != expected_annotation_decision:
             errors.append(f"annotation is not safely candidate-only: {file_name}")
         if annotation.get("image", {}).get("fileName") != file_name or annotation.get("image", {}).get("sourceGroup") != item.get("sourceGroup"):
             errors.append(f"annotation image identity differs from workspace: {file_name}")
         geometry_rows = geometry_by_file.get(file_name, [])
-        candidate_count = int(sam_output.get("polygonCount", -1))
+        candidate_count = int(candidate_output.get("polygonCount", -1))
         if candidate_count != len(annotation.get("annotations", [])) or candidate_count != int(prelabel_row["candidateCount"]):
             errors.append(f"candidate count differs across evidence: {file_name}")
         if len(geometry_rows) != candidate_count:
@@ -239,7 +252,8 @@ def main() -> None:
             page_index = start // args.images_per_page + 1
             canvas = Image.new("RGB", (2200, 1900), "white")
             draw = ImageDraw.Draw(canvas)
-            draw.text((24, 16), f"Mask review shard {shard_index:03d} page {page_index:03d} | original left, SAM overlay right", fill="black", font=font)
+            candidate_label = "manual overlay" if manual_mode else "SAM overlay"
+            draw.text((24, 16), f"Mask review shard {shard_index:03d} page {page_index:03d} | original left, {candidate_label} right", fill="black", font=font)
             for offset, row in enumerate(shard_rows[start : start + args.images_per_page]):
                 y = 65 + offset * 900
                 original = contain(Path(str(workspace_items[row["fileName"]]["workspacePath"])), (1040, 760))
@@ -275,8 +289,8 @@ def main() -> None:
             "prelabelAuditSha256": sha256_file(prelabel_audit_path),
             "prelabelReviewCsv": str(review_csv_path),
             "prelabelReviewCsvSha256": sha256_file(review_csv_path),
-            "samReport": str(sam_report_path),
-            "samReportSha256": sha256_file(sam_report_path),
+            candidate_report_key: str(candidate_report_path),
+            f"{candidate_report_key}Sha256": sha256_file(candidate_report_path),
             "geometryAudit": str(geometry_audit_path),
             "geometryAuditSha256": sha256_file(geometry_audit_path),
         },
