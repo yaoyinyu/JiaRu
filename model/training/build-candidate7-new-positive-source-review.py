@@ -46,7 +46,9 @@ def main() -> int:
     assessment = load_json(args.assessment)
 
     errors: list[str] = []
-    rep_items = representatives.get("representatives", [])
+    rep_items = representatives.get("representatives")
+    if rep_items is None:
+        rep_items = representatives.get("items", [])
     auth_by_name = {item["fileName"]: item for item in authorized.get("entries", [])}
     c6_items = candidate6.get("authorizedItems", [])
     c6_groups = {item["sourceGroup"] for item in c6_items}
