@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate7_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00551_6918a8e8000000000503855e_4.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_new_positive_targeted_sam_v1\\annotations\\nail_00551_6918a8e8000000000503855e_4.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-40d82b21b4799fe1",
+      "nails": [
+        {"sourceIndex": 1},
+        {"sourceIndex": 2},
+        {"sourceIndex": 3},
+        {"sourceIndex": 4},
+        {
+          "polygon": [
+            {"x": 250, "y": 768},
+            {"x": 260, "y": 758},
+            {"x": 278, "y": 751},
+            {"x": 300, "y": 752},
+            {"x": 327, "y": 762},
+            {"x": 350, "y": 774},
+            {"x": 375, "y": 781},
+            {"x": 400, "y": 788},
+            {"x": 425, "y": 795},
+            {"x": 450, "y": 800},
+            {"x": 470, "y": 808},
+            {"x": 478, "y": 814},
+            {"x": 474, "y": 823},
+            {"x": 461, "y": 829},
+            {"x": 440, "y": 831},
+            {"x": 415, "y": 829},
+            {"x": 390, "y": 826},
+            {"x": 365, "y": 824},
+            {"x": 340, "y": 824},
+            {"x": 315, "y": 823},
+            {"x": 290, "y": 816},
+            {"x": 270, "y": 809},
+            {"x": 257, "y": 801},
+            {"x": 250, "y": 790}
+          ],
+          "attributes": {
+            "fingerHint": "thumb",
+            "shape": "long",
+            "quality": 4,
+            "occluded": false,
+            "artificialTip": true,
+            "reviewNote": "原分辨率补全横向透明长甲，从近端甲面连续覆盖至右侧透明甲尖。"
+          }
+        }
+      ]
+    }
+  ]
+}
