@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate7_repair_original_resolution_review_assessment",
+  "repairPromptsPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_new_positive_targeted_repair_prompts_v2.json",
+  "repairPromptsSha256": "bd1a9408a874dac3c82b2286978b393e9067ffa7500c98d325dfc292634eebf3",
+  "samReportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_new_positive_targeted_sam_v2\\sam-report.json",
+  "samReportSha256": "13ecc06030ca7ced06cc1edeb526c0ad052a2cd6bf6d8b8da1c8e5ceff8dee21",
+  "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_new_positive_targeted_sam_v2\\geometry\\sam-geometry-audit.json",
+  "geometryAuditSha256": "c38bc22a9a9e3ff9a1016d82de61bfc59d7073c8b0f64e3c7780b548743c0e9a",
+  "visualEvidencePath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_new_positive_targeted_sam_visual_evidence_v2\\report.json",
+  "visualEvidenceSha256": "ac53a06c68783ea4652771e8b5f4ff330551168d6fe81f3d8050395c26054205",
+  "contactSheetReportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_new_positive_targeted_sam_contact_sheets_v2\\report.json",
+  "contactSheetReportSha256": "2644ea8c1b0b8a166a88d40760e80a7c0a9c9545a5ed00ea0eadbb6958330812",
+  "originalResolutionReviewCompleted": true,
+  "trainingUse": "prohibited",
+  "passFiles": [
+    "nail_00425_68f5da79000000000703bbdf_3.jpg"
+  ],
+  "excludeFiles": {},
+  "reworkOverrides": {}
+}

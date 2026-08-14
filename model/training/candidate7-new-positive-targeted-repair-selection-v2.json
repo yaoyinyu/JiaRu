@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate7_selected_sam_repair_prompts",
+  "inputPromptsSha256": "d24040cf486aa218a91b7228c858fe2bfbd7c1d1f22a657f6792924f5babf199",
+  "trainingUse": "prohibited",
+  "items": [
+    {
+      "fileName": "nail_00425_68f5da79000000000703bbdf_3.jpg",
+      "keepPromptIndices": [1, 2, 4, 5],
+      "addBoxes": [[0.328, 0.356, 0.392, 0.386]],
+      "note": "保留四枚已通过甲面，针对拇指甲尖重新设置紧框，使提示中心落入完整可见甲面。"
+    }
+  ]
+}

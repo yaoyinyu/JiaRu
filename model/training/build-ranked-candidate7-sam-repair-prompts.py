@@ -48,6 +48,7 @@ def main() -> None:
     parser.add_argument("--prelabel-report", required=True)
     parser.add_argument("--prelabel-audit", required=True)
     parser.add_argument("--mask-review-reports", nargs="+", required=True)
+    parser.add_argument("--manual-completions")
     parser.add_argument("--padding", type=float, default=0.02)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
@@ -59,6 +60,7 @@ def main() -> None:
     audit_path = Path(args.prelabel_audit).resolve()
     output_path = Path(args.output).resolve()
     review_paths = [Path(path).resolve() for path in args.mask_review_reports]
+    manual_path = Path(args.manual_completions).resolve() if args.manual_completions else None
     workspace = read_json(workspace_path)
     prelabel = read_json(prelabel_path)
     audit = read_json(audit_path)
@@ -137,6 +139,87 @@ def main() -> None:
             }
         )
 
+    if manual_path is not None:
+        manual = read_json(manual_path)
+        if manual.get("schemaVersion") != 1 or manual.get("decision") != "candidate7_manual_candidate_completion":
+            raise ValueError("manual completion manifest has an unsupported contract")
+        manual_inputs = manual.get("inputs", {})
+        expected_bindings = {
+            "workspaceManifestSha256": sha256_file(workspace_path),
+            "prelabelReportSha256": sha256_file(prelabel_path),
+            "prelabelAuditSha256": sha256_file(audit_path),
+        }
+        for key, value in expected_bindings.items():
+            if manual_inputs.get(key) != value:
+                raise ValueError(f"manual completion manifest does not bind {key}")
+        manual_items = manual.get("items", [])
+        if not isinstance(manual_items, list):
+            raise ValueError("manual completion items must be a list")
+        manual_by_file: dict[str, dict[str, Any]] = {}
+        for item in manual_items:
+            file_name = str(item.get("fileName", ""))
+            if not file_name or file_name in manual_by_file:
+                raise ValueError(f"duplicate or empty manual completion identity: {file_name}")
+            manual_by_file[file_name] = item
+        unresolved_files = {str(item["fileName"]) for item in unresolved}
+        if set(manual_by_file) != unresolved_files:
+            raise ValueError("manual completions must exactly cover unresolved images")
+
+        manually_completed: list[dict[str, Any]] = []
+        for unresolved_item in unresolved:
+            file_name = str(unresolved_item["fileName"])
+            item = manual_by_file[file_name]
+            workspace_item = workspace_items[file_name]
+            expected = int(workspace_item["expectedFullyVisibleNails"])
+            annotation_path = Path(str(prelabel_items[file_name]["annotationPath"])).resolve()
+            annotation = read_json(annotation_path)
+            if annotation.get("image", {}).get("fileName") != file_name:
+                raise ValueError(f"manual completion annotation identity differs: {file_name}")
+            candidates = list(annotation.get("annotations", []))
+            keep_indices = item.get("keepCandidateIndices", [])
+            add_boxes = item.get("addBoxes", [])
+            if (
+                not isinstance(keep_indices, list)
+                or any(not isinstance(index, int) for index in keep_indices)
+                or len(set(keep_indices)) != len(keep_indices)
+                or any(index < 1 or index > len(candidates) for index in keep_indices)
+            ):
+                raise ValueError(f"invalid 1-based keepCandidateIndices: {file_name}")
+            if not isinstance(add_boxes, list):
+                raise ValueError(f"addBoxes must be a list: {file_name}")
+            for box in add_boxes:
+                if (
+                    not isinstance(box, list)
+                    or len(box) != 4
+                    or any(not isinstance(value, (int, float)) for value in box)
+                    or not (0 <= float(box[0]) < float(box[2]) <= 1)
+                    or not (0 <= float(box[1]) < float(box[3]) <= 1)
+                ):
+                    raise ValueError(f"invalid normalized manual box: {file_name}")
+            if len(keep_indices) + len(add_boxes) != expected:
+                raise ValueError(f"manual completion count differs from expected: {file_name}")
+            width = float(annotation["image"]["width"])
+            height = float(annotation["image"]["height"])
+            kept = [candidates[index - 1] for index in keep_indices]
+            boxes = [polygon_box(candidate, width, height, args.padding) for candidate in kept]
+            boxes.extend([[float(value) for value in box] for box in add_boxes])
+            manually_completed.append(
+                {
+                    "fileName": file_name,
+                    "sha256": workspace_item.get("sha256") or workspace_item["imageSha256"],
+                    "sourceGroup": workspace_item["sourceGroup"],
+                    "expectedFullyVisibleNails": expected,
+                    "boxes": boxes,
+                    "promptModes": ["center-negative-corners"] * expected,
+                    "keptCandidateIndices": keep_indices,
+                    "manualAddedBoxCount": len(add_boxes),
+                    "selectionPolicy": "original_resolution_manual_completion_candidate_only",
+                    "note": str(item.get("note", "")),
+                }
+            )
+        images.extend(manually_completed)
+        unresolved = []
+
     document = {
         "schemaVersion": 1,
         "source": "candidate7-low-threshold-ranked-repair",
@@ -151,6 +234,11 @@ def main() -> None:
             "maskReviewReports": [
                 {"path": str(path), "sha256": sha256_file(path)} for path in review_paths
             ],
+            "manualCompletions": (
+                {"path": str(manual_path), "sha256": sha256_file(manual_path)}
+                if manual_path is not None
+                else None
+            ),
         },
         "paddingFraction": args.padding,
         "promptMode": "center-negative-corners",
