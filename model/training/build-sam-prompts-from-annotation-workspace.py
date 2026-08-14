@@ -42,6 +42,7 @@ def main() -> None:
     allowed_workspace_decisions = {
         "annotation_workspace_ready_candidate_only",
         "positive_reinforcement_annotation_workspace_ready_candidate_only",
+        "candidate7_annotation_workspace_ready_candidate_only",
     }
     if workspace.get("ok") is not True or workspace.get("decision") not in allowed_workspace_decisions:
         raise ValueError("annotation workspace must pass")
