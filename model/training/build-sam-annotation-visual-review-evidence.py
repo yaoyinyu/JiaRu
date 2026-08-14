@@ -99,8 +99,12 @@ def main() -> None:
     prompts = read_json(prompts_path)
     sam_report = read_json(sam_report_path)
     geometry = read_json(geometry_path)
-    if prompts.get("decision") != "sam_repair_candidate_only_not_test_truth":
-        raise ValueError("review requires candidate-only repair prompts")
+    allowed_prompt_decisions = {
+        "sam_repair_candidate_only_not_test_truth",
+        "sam_candidate_only_not_training_truth",
+    }
+    if prompts.get("decision") not in allowed_prompt_decisions:
+        raise ValueError("review requires candidate-only SAM prompts")
     if (
         sam_report.get("ok") is not True
         or sam_report.get("decision") != "sam_candidate_only_not_training_truth"

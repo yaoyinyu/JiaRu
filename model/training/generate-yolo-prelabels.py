@@ -51,6 +51,7 @@ def load_image_entries(
         allowed_decisions = {
             "annotation_workspace_ready_candidate_only",
             "positive_reinforcement_annotation_workspace_ready_candidate_only",
+            "candidate7_annotation_workspace_ready_candidate_only",
         }
         if manifest.get("ok") is not True or manifest.get("decision") not in allowed_decisions:
             raise ValueError("workspace manifest must be a passing candidate-only annotation workspace")
