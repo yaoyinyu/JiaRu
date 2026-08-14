@@ -59,3 +59,39 @@ test("first annotation mask review workspace binds candidates without approving 
   assert.match(csv, /reviewStatus,finalCompleteMaskCount/);
   assert.match(csv, /a\.jpg/);
 });
+
+test("first annotation mask review workspace accepts hashable manual polygon candidates", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "manual-mask-review-"));
+  const images = path.join(root, "images");
+  const annotations = path.join(root, "annotations");
+  const overlays = path.join(root, "overlays");
+  mkdirSync(images); mkdirSync(annotations); mkdirSync(overlays);
+  execFileSync("python", ["-c", `from PIL import Image; Image.new('RGB',(160,120),(210,170,150)).save(r'${path.join(images, "a.jpg")}'); Image.new('RGB',(160,120),(180,220,180)).save(r'${path.join(overlays, "a.png")}')`]);
+  const polygon = [{ x: 20, y: 20 }, { x: 50, y: 20 }, { x: 50, y: 60 }, { x: 20, y: 60 }];
+  const annotationPath = path.join(annotations, "a.json");
+  writeFileSync(annotationPath, JSON.stringify({
+    version: "nail-texture-dataset/v1", decision: "candidate_only_not_training_or_test_truth",
+    trainingUse: "prohibited", image: { fileName: "a.jpg", width: 160, height: 120, sourceGroup: "g1", negative: false },
+    annotations: [{ id: "n1", polygon }],
+  }));
+  const item = { fileName: "a.jpg", workspacePath: path.join(images, "a.jpg"), sha256: hash(path.join(images, "a.jpg")), sourceGroup: "g1", expectedFullyVisibleNails: 1 };
+  const workspace = path.join(root, "workspace.json");
+  writeFileSync(workspace, JSON.stringify({ ok: true, decision: "annotation_workspace_ready_candidate_only", counts: { images: 1 }, items: [item] }));
+  const reviewCsv = path.join(root, "prelabel-review.csv");
+  writeFileSync(reviewCsv, `fileName,sha256,sourceGroup,expectedFullyVisibleNails,candidateCount,countDelta,reviewPriority,machineGeometryStatus,machineIssueCodes,reviewStatus,note\na.jpg,${item.sha256},g1,1,1,0,low-exact,pass,,,\n`);
+  const prelabel = path.join(root, "prelabel.json");
+  writeFileSync(prelabel, JSON.stringify({ ok: true, decision: "prelabel_candidate_audit_pass_original_resolution_review_required", inputs: { workspaceManifestSha256: hash(workspace), reviewCsv, reviewCsvSha256: hash(reviewCsv) } }));
+  const manual = path.join(root, "manual.json");
+  writeFileSync(manual, JSON.stringify({ ok: true, method: "reviewed-hybrid-original-resolution-manual-polygon-repair", decision: "candidate_only_not_training_or_test_truth", outputs: [
+    { fileName: "a.jpg", annotationPath, overlayPath: path.join(overlays, "a.png"), polygonCount: 1, validPolygonCount: 1, pairwiseOverlapCount: 0, sourceGroup: "g1" },
+  ] }));
+  const geometry = path.join(root, "geometry.json");
+  writeFileSync(geometry, JSON.stringify({ decision: "candidate_only_not_training_truth", rows: [{ fileName: "a.jpg", nailIndex: 1, status: "pass", reasons: [] }] }));
+  const output = path.join(root, "output");
+  const result = spawnSync("python", [script, "--workspace-manifest", workspace, "--prelabel-audit", prelabel, "--manual-report", manual, "--geometry-audit", geometry, "--output-dir", output], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const report = JSON.parse(readFileSync(path.join(output, "mask-review-workspace-report.json"), "utf8"));
+  assert.equal(report.inputs.manualReport, manual);
+  assert.equal(report.inputs.manualReportSha256, hash(manual));
+  assert.equal(report.counts.images, 1);
+});
