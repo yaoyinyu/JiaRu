@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00165_69ea40e0000000001f031000_13.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 7, 8, 9],
+      "addBoxes": [
+        [0.356, 0.338, 0.425, 0.456],
+        [0.398, 0.366, 0.456, 0.456]
+      ],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [
+        [[0.373, 0.350], [0.383, 0.382], [0.397, 0.418], [0.405, 0.444]],
+        [[0.424, 0.378], [0.438, 0.404], [0.448, 0.435]]
+      ],
+      "addNegativePoints": [
+        [[0.442, 0.405]],
+        [[0.390, 0.399]]
+      ],
+      "reviewReason": "清退吞入整根手指的重复候选，并把顶部相邻的格纹长甲与右侧粉色长甲拆成两个独立甲面；其余八枚已逐甲原分辨率复核。"
+    }
+  ]
+}

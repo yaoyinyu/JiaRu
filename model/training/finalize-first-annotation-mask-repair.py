@@ -80,12 +80,15 @@ def main() -> None:
         errors.append("only an initial rework item may enter repair finalization")
 
     prompt_item = next((item for item in prompts.get("images", []) if item.get("fileName") == file_name), None)
-    expected_prompt_decision = (
-        "candidate_only_not_training_or_test_truth"
+    expected_prompt_decisions = (
+        {"candidate_only_not_training_or_test_truth"}
         if manual_mode
-        else "sam_repair_candidate_only_not_test_truth"
+        else {
+            "sam_repair_candidate_only_not_test_truth",
+            "sam_candidate_only_not_training_truth",
+        }
     )
-    if prompts.get("decision") != expected_prompt_decision or prompt_item is None:
+    if prompts.get("decision") not in expected_prompt_decisions or prompt_item is None:
         errors.append("repair prompts must contain the requested candidate-only image")
     candidate_output = next(
         (item for item in candidate_report_data.get("outputs", []) if item.get("fileName") == file_name),

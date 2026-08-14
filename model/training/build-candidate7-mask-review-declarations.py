@@ -149,7 +149,10 @@ def main() -> None:
                 items.append(
                     {
                         "fileName": file_name,
+                        "sha256": row["sha256"],
+                        "sourceGroup": row["sourceGroup"],
                         "reviewStatus": "pass",
+                        "finalCompleteMaskCount": int(row["expectedFullyVisibleNails"]),
                         "issueCodes": [],
                         "note": "原分辨率逐甲审核通过；候选数、完整可见甲面数和几何证据一致。",
                     }
@@ -160,7 +163,10 @@ def main() -> None:
             items.append(
                 {
                     "fileName": file_name,
+                    "sha256": row["sha256"],
+                    "sourceGroup": row["sourceGroup"],
                     "reviewStatus": "rework",
+                    "finalCompleteMaskCount": None,
                     "issueCodes": issue_codes,
                     "note": str(
                         override.get(
@@ -177,6 +183,11 @@ def main() -> None:
             "assessmentPath": str(assessment_path),
             "assessmentSha256": sha256_file(assessment_path),
             "shardIndex": shard_index,
+            "shardSha256": next(
+                str(shard["sha256"])
+                for shard in workspace.get("shards", [])
+                if int(shard["index"]) == shard_index
+            ),
             "originalResolutionReviewCompleted": True,
             "reviewedPageSha256s": [str(page["sha256"]) for page in pages],
             "trainingUse": "prohibited",

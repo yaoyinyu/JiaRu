@@ -10,6 +10,7 @@ without the separate original-resolution review decision.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from copy import deepcopy
 from pathlib import Path
@@ -17,6 +18,14 @@ from typing import Any
 
 from PIL import Image, ImageDraw
 from shapely.geometry import Polygon
+
+
+def sha256_file(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as source:
+        for chunk in iter(lambda: source.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
 
 
 def parser() -> argparse.ArgumentParser:
@@ -127,6 +136,10 @@ def process_item(
     image_root, annotation_root = roots[lane]
     image_path = safe_file(image_root, file_name)
     annotation_path = safe_file(annotation_root, f"{Path(file_name).stem}.json")
+    if item.get("imageSha256") and item["imageSha256"] != sha256_file(image_path):
+        raise ValueError("image SHA-256 differs from the reviewed manifest")
+    if item.get("annotationSha256") and item["annotationSha256"] != sha256_file(annotation_path):
+        raise ValueError("annotation SHA-256 differs from the reviewed manifest")
     document = json.loads(annotation_path.read_text(encoding="utf-8"))
     with Image.open(image_path) as image:
         size = image.size
@@ -244,6 +257,9 @@ def process_item(
     return {
         "lane": lane,
         "fileName": file_name,
+        "imageSha256": sha256_file(image_path),
+        "inputAnnotationSha256": sha256_file(annotation_path),
+        "outputAnnotationSha256": sha256_file(output_path),
         "sourceGroup": metadata.get("sourceGroup"),
         "annotationPath": str(output_path.resolve()),
         "overlayPath": str(overlay_path.resolve()),
