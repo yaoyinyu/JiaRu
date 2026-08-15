@@ -19,6 +19,7 @@ const eslintConfig = defineConfig([
     "dev-log/**",
     "scripts/**",
     "public/vendor/**",
+    "辅助材料/**",
   ]),
 ]);
 

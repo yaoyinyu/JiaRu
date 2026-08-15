@@ -1,8 +1,8 @@
 # candidate7 正式美甲识别模型训练计划
 
-> 状态：严格新增真值60张/387 mask，完整mask重审与新来源补足进行中；距80张仍缺20张，禁止训练
+> 状态：严格真值80张/487 mask已达成固定目标（旧真实33张/237 mask+新正样本47张/250 mask），待精确授权与物化审计，禁止训练
 >
-> 日期：2026-08-14
+> 日期：2026-08-15
 >
 > 依据：candidate6 冻结 test100 逐实例报告 `ad261df409649fa09c44ef5492def9efd5ef403af52992ec5f4a7bd7a2fc99a9` 与失败画像 `53d5c735f3746f3c1400317afce4ba14f210069fd7ac0d81802f1d61dbe071d7`
 
@@ -53,6 +53,6 @@ candidate6 已证明继续补强正样本能提高实例召回，但未解决整
 
 90/90张源图审核现已完成：保留64张、排除26张，保留图共524枚完整可见甲面。五份分片报告均深度重放通过；SHA-256依次为`971362427bda54634ed6f2236d9eb231ec5ebbf893bd5d7a2febe717ddc8c99c`、`9ba425a1f213362600a04a838048c703cd5851dcd290ccbca12960a9ad84ae98`、`ad9d8743a4f4fa232f080ab08548f325698ce9ca66f0a5ac4d531e52e9ef9a8c`、`99019b9088c461864ceb9a05c4021b5332e625ee3504ab1b30df2af674458dff`和`54f28be25ffa2ebe198005de7212a4eae2a38e45ba21f879e704261ec9bfab7d`。
 
-截至2026-08-14本阶段，旧真实严格真值33张/237 mask与全新正样本严格真值27张/150 mask合计60张/387 mask；新正样本索引SHA-256为`6689abb247da5b9ee289cc22b77340b313fc9b967c2ea136a1291773ea933693`。距新增不少于80张的固定目标仍缺20张。下一动作不是放宽门或复活失败源，而是继续逐甲完整mask重建并补充隔离新来源；通过源图门仍只代表完整mask重审候选，不得直接计为训练真值。全部严格真值在candidate7精确授权与物化审计前仍保持`trainingUse=prohibited`。
+截至2026-08-15本阶段，旧真实严格真值33张/237 mask与`2026_8_14_candidate7_new_positive_training_truths_v1`新正样本严格真值47张/250 mask合计80张/487 mask，两索引均为`approved_unique_training_truth_index`、0拒绝/冗余/冲突且按文件名零重叠；新增不少于80张的固定目标按严格真值已达成。下一动作不是放宽门或复活失败源，而是形成candidate7精确训练清单、取得商业训练授权并完成物化输入审计；通过源图门仍只代表完整mask重审候选，不得直接计为训练真值。全部严格真值在candidate7精确授权与物化审计前仍保持`trainingUse=prohibited`。
 
 重审入口报告SHA-256为`5f93e82b1b81f849b50e868921a71bac94d45ad8ef0641c34f36858ff274d8ed`，精确items SHA-256为`71d84a322a7f673a336256167ea3dfa858fd5703a096d5d08d58e007e8b561a3`。该入口及联系表不授予candidate7训练使用权；全批保持`trainingUse=prohibited`，待源图与完整mask终审后再形成精确授权清单。
