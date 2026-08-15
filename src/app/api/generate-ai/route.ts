@@ -3,6 +3,7 @@ import {
   AgnesImageApiError,
   generateAgnesImage,
 } from "@/lib/agnes-image-api";
+import { assembleAiImagePrompt } from "@/lib/ai-hand-anatomy-prompt";
 
 export const maxDuration = 300;
 
@@ -29,15 +30,15 @@ export async function POST(req: NextRequest) {
   if (!prompt) {
     return NextResponse.json({ error: "请输入描述文字" }, { status: 400 });
   }
-  if (prompt.length > 500) {
+  if (prompt.length > 520) {
     return NextResponse.json(
-      { error: "描述文字不能超过 500 字符" },
+      { error: "描述文字不能超过 520 字符" },
       { status: 400 }
     );
   }
 
-  // ── 3. 构造美甲专用 prompt ──
-  const enhancedPrompt = `${prompt}, nail art design on fingernails, manicure, close-up hand photo, beautiful, high detail`;
+  // ── 3. 构造美甲专用 prompt（用户提示词 → 场景后缀 → 隐藏系统提示词）──
+  const enhancedPrompt = assembleAiImagePrompt(prompt);
 
   // ── 4. 调用 Agnes Images API ──
   try {
