@@ -133,7 +133,7 @@ export default function Home() {
             <div className={styles.footerLinkGroup}>
               <span className={styles.footerLinkTitle}>支持</span>
               <Link href="/privacy" className={styles.footerLink}>隐私政策</Link>
-              <a href="mailto:hello@jiaru.app" className={styles.footerLink}>联系我们</a>
+              <a href="mailto:3181484805@qq.com" className={styles.footerLink}>联系我们</a>
             </div>
           </div>
         </div>
