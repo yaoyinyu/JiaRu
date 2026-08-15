@@ -12,16 +12,21 @@ export default function AiGeneratePage() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Track which prompt index to show next for each style label.
-  const styleIndices = useRef<Record<string, number>>({});
+  // Track the last shown prompt index for each style label to avoid immediate repeats.
+  const lastIndices = useRef<Record<string, number>>({});
 
   const handleStyleClick = useCallback((label: string) => {
     const group = AI_STYLE_PROMPTS.find((g) => g.label === label);
-    if (!group) return;
-    const currentIdx = styleIndices.current[label] ?? 0;
-    const nextIdx = (currentIdx + 1) % group.prompts.length;
-    styleIndices.current[label] = nextIdx;
-    setPrompt(group.prompts[currentIdx]);
+    if (!group || group.prompts.length === 0) return;
+    const count = group.prompts.length;
+    const lastIdx = lastIndices.current[label];
+    let idx = Math.floor(Math.random() * count);
+    // Avoid showing the exact same prompt twice in a row for the same style.
+    if (count > 1 && idx === lastIdx) {
+      idx = (idx + 1) % count;
+    }
+    lastIndices.current[label] = idx;
+    setPrompt(group.prompts[idx]);
   }, []);
 
   const handleGenerate = async () => {
@@ -64,9 +69,9 @@ export default function AiGeneratePage() {
         <section className="p-5 sm:p-8">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#CF6F99]">Creative brief</p>
-            <span className="text-[11px] text-[#B1A7AC]">{prompt.length}/500</span>
+            <span className="text-[11px] text-[#B1A7AC]">{prompt.length}/520</span>
           </div>
-          <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节……" maxLength={500} className="mt-4 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-white/75 p-4 text-sm leading-7 text-[#544C50] outline-none transition placeholder:text-[#BEB4B9] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
+          <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节……" maxLength={520} className="mt-4 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-white/75 p-4 text-sm leading-7 text-[#544C50] outline-none transition placeholder:text-[#BEB4B9] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
           <p className="mt-5 text-xs font-medium text-[#7F767B]">从一个风格开始</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {AI_STYLE_PROMPTS.map((group) => <button key={group.label} onClick={() => handleStyleClick(group.label)} className="rounded-full border border-pink-100 bg-pink-50/65 px-3 py-2 text-xs text-[#B96A8C] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm">{group.label}</button>)}
