@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00262_69afa8c6000000000601df0f_6.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "reviewReason": "保留五个完整甲面，删除戒指饰品误候选。"
+    },
+    {
+      "fileName": "nail_00659_6a367df9000000001c026c6c_8.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "reviewReason": "保留五个完整甲面，删除侧视甲下皮肤误候选。"
+    },
+    {
+      "fileName": "nail_01087_69a5ad16000000002303ba31_2.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "reviewReason": "保留五个完整甲面，删除戒指误候选。"
+    },
+    {
+      "fileName": "nail_01137_6a099d1c000000000803dd1a_6.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5],
+      "addBoxes": [],
+      "reviewReason": "保留五个完整甲面，删除同一银色长甲上的重复候选。"
+    },
+    {
+      "fileName": "nail_00466_69b0305b000000000600ecc6_6.jpg",
+      "keepPromptIndices": [1, 2, 3, 4],
+      "addBoxes": [[0.325, 0.205, 0.405, 0.300]],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [[[0.355, 0.225], [0.365, 0.255], [0.375, 0.282]]],
+      "addNegativePoints": [[[0.415, 0.250], [0.315, 0.250], [0.390, 0.310]]],
+      "reviewReason": "保留四个正视甲面，针对顶部侧视长甲用沿甲尖至甲根的多正点和邻近皮肤负点重建。"
+    },
+    {
+      "fileName": "nail_00585_69e472a000000000220272cb_4.jpg",
+      "keepPromptIndices": [1, 2, 3],
+      "addBoxes": [[0.345, 0.405, 0.445, 0.535], [0.755, 0.610, 0.875, 0.695]],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [[[0.375, 0.430], [0.395, 0.470], [0.410, 0.510]], [[0.790, 0.635], [0.825, 0.655], [0.855, 0.670]]],
+      "addNegativePoints": [[[0.335, 0.470], [0.455, 0.470]], [[0.745, 0.665], [0.885, 0.660]]],
+      "reviewReason": "保留三个通过甲面，重建存在皮肤污染及边界缺失的两个透明低对比甲面。"
+    },
+    {
+      "fileName": "nail_00586_69e472a000000000220272cb_5.jpg",
+      "keepPromptIndices": [2, 3, 4, 5],
+      "addBoxes": [[0.250, 0.370, 0.350, 0.475]],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [[[0.275, 0.395], [0.300, 0.425], [0.325, 0.455]]],
+      "addNegativePoints": [[[0.240, 0.420], [0.360, 0.420], [0.300, 0.485]]],
+      "reviewReason": "保留四个通过甲面，重建顶部边界欠完整的低对比甲面。"
+    },
+    {
+      "fileName": "nail_01101_68bbdec4000000001d00c6c1_4.jpg",
+      "keepPromptIndices": [2, 3, 4],
+      "addBoxes": [[0.405, 0.405, 0.545, 0.505], [0.325, 0.250, 0.445, 0.345]],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [[[0.435, 0.430], [0.470, 0.455], [0.510, 0.485]], [[0.350, 0.275], [0.385, 0.295], [0.420, 0.320]]],
+      "addNegativePoints": [[[0.395, 0.455], [0.555, 0.455]], [[0.315, 0.300], [0.455, 0.300], [0.390, 0.355]]],
+      "reviewReason": "保留三个通过甲面，重建图案孔洞甲面和侧视透明长甲。"
+    },
+    {
+      "fileName": "nail_01133_6a099d1c000000000803dd1a_2.jpg",
+      "keepPromptIndices": [3, 4],
+      "addBoxes": [[0.285, 0.365, 0.420, 0.595], [0.525, 0.465, 0.770, 0.675], [0.095, 0.580, 0.425, 0.705]],
+      "addPromptModes": ["box-center", "box-center", "box-center"],
+      "addPositivePoints": [[[0.325, 0.405], [0.350, 0.485], [0.380, 0.565]], [[0.575, 0.510], [0.640, 0.570], [0.720, 0.640]], [[0.145, 0.625], [0.255, 0.650], [0.385, 0.675]]],
+      "addNegativePoints": [[[0.275, 0.480], [0.430, 0.480]], [[0.515, 0.575], [0.780, 0.575]], [[0.085, 0.650], [0.435, 0.650]]],
+      "reviewReason": "保留两个通过甲面，重建立体装饰附近出现缺口的三个完整长甲。"
+    },
+    {
+      "fileName": "nail_01135_6a099d1c000000000803dd1a_4.jpg",
+      "keepPromptIndices": [1, 2, 4, 5],
+      "addBoxes": [[0.715, 0.485, 0.910, 0.620]],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [[[0.755, 0.525], [0.805, 0.555], [0.865, 0.590]]],
+      "addNegativePoints": [[[0.705, 0.555], [0.920, 0.555], [0.830, 0.635]]],
+      "reviewReason": "保留四个通过甲面，重建被重复候选分裂并污染皮肤的侧向长甲。"
+    }
+  ]
+}
