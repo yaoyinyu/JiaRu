@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
+import { AmbientMotion } from "@/components/AmbientMotion";
 import styles from "./page.module.css";
 
 type Feature = {
@@ -83,13 +84,14 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <div className={styles.ambientLayer} aria-hidden="true">
-        <span className={`${styles.ambientBlob} ${styles.ambientA}`} />
-        <span className={`${styles.ambientBlob} ${styles.ambientB}`} />
-        <span className={`${styles.ambientBlob} ${styles.ambientC}`} />
-        <span className={`${styles.ambientBlob} ${styles.ambientD}`} />
-        <span className={`${styles.ambientBlob} ${styles.ambientE}`} />
+        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientA}`} />
+        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientB}`} />
+        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientC}`} />
+        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientD}`} />
+        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientE}`} />
       </div>
       <div className={styles.frostGlass} aria-hidden="true" />
+      <AmbientMotion />
 
       <Header />
 

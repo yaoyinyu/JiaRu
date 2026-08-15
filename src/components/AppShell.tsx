@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Header } from "./Header";
+import { AmbientMotion } from "./AmbientMotion";
 import styles from "./AppShell.module.css";
 
 type AppShellProps = { eyebrow: string; title: string; description: string; children: ReactNode; wide?: boolean };
@@ -8,10 +9,14 @@ export function AppShell({ eyebrow, title, description, children, wide = false }
   return (
     <div className={styles.shell}>
       <div className={styles.ambient} aria-hidden="true">
-        <span className={styles.pink} />
-        <span className={styles.purple} />
-        <span className={styles.gold} />
+        <span data-ambient-blob className={styles.pink} />
+        <span data-ambient-blob className={styles.purple} />
+        <span data-ambient-blob className={styles.gold} />
+        <span data-ambient-blob className={styles.rose} />
+        <span data-ambient-blob className={styles.white} />
       </div>
+      <div className={styles.frostGlass} aria-hidden="true" />
+      <AmbientMotion />
       <Header />
       <main className={`${styles.main} ${wide ? styles.wide : ""}`}>
         <header className={styles.pageHeader}>
