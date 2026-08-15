@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00585_69e472a000000000220272cb_4.jpg",
+  "sha256": "8f95e475fcdd925a6574ac05bb7bffcd45c56fc78832a2f9337786fc25bba673",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-780c5aa8aa982ce2",
+  "initialShardFinalSha256": "b423e665766214199a4a9e349a9dfc0c21649e1ae261898f534f4d7a95e45f6e",
+  "repairPromptsSha256": "e0f6559884b818ca7a0d20807a52cba4e41799498a7c0eb8e0e6f67a2fe66d0c",
+  "manualReportSha256": "1626e3c8b80c7b612fdf793e66fafd4e155d2a574491df81cd9d5d1f65feceb0",
+  "geometryAuditSha256": "fb124601bc2f6174c8f08c1205d0d9365405d417f7d2e6393c5f3ae4df07e7b8",
+  "annotationSha256": "5357b9741a7da14646d9bf2b38287792a2e5a4ee2cdfa3470f846df994646889",
+  "reviewedOverlaySha256": "d2f3b139eefbd9321e201297fe827b3aff8711ec51cf3c5a4a0a65fce944d383",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "原分辨率逐甲终审通过：五枚可见甲面各有一个完整polygon；第四枚候选仅执行显式拓扑修复，复核后边界仍贴合完整甲面；全图零重复、零皮肤及背景污染。",
+  "trainingUse": "prohibited"
+}

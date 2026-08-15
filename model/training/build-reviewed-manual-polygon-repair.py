@@ -16,6 +16,7 @@ from typing import Any
 
 from PIL import Image, ImageDraw
 from shapely.geometry import Polygon
+from shapely.validation import make_valid
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -71,6 +72,42 @@ def validate_polygons(annotations: list[dict[str, Any]]) -> list[Polygon]:
                     f"nails {first_index + 1} and {second_index + 1} overlap by {overlap:.4f} pixels"
                 )
     return shapes
+
+
+def repair_invalid_source_polygon(
+    raw: Any,
+    width: int,
+    height: int,
+) -> list[dict[str, float]]:
+    """Repair a retained machine polygon only when the manifest opts in.
+
+    The repair merely resolves self-intersections and keeps the largest polygon
+    component. It remains a review candidate and must pass the same original-
+    resolution visual gate as every manual polygon.
+    """
+    points = normalize_points(raw, width, height)
+    shape = Polygon([(point["x"], point["y"]) for point in points])
+    if shape.is_valid:
+        return points
+    repaired = make_valid(shape)
+
+    def polygon_components(geometry: Any) -> list[Polygon]:
+        if isinstance(geometry, Polygon):
+            return [geometry]
+        components: list[Polygon] = []
+        for child in getattr(geometry, "geoms", []):
+            components.extend(polygon_components(child))
+        return components
+
+    components = [component for component in polygon_components(repaired) if component.area > 1]
+    if not components:
+        raise ValueError("invalid source polygon could not be repaired to one non-empty polygon")
+    repaired = max(components, key=lambda geometry: geometry.area)
+    return normalize_points(
+        [{"x": x, "y": y} for x, y in list(repaired.exterior.coords)[:-1]],
+        width,
+        height,
+    )
 
 
 def draw_overlay(image_path: Path, annotations: list[dict[str, Any]], output_path: Path) -> None:
@@ -167,8 +204,15 @@ def build_item(
             if source_index < 1 or source_index > len(source_annotations):
                 raise ValueError(f"nail {index} sourceIndex is out of range")
             annotation = deepcopy(source_annotations[source_index - 1])
-            annotation["polygon"] = normalize_points(annotation.get("polygon"), width, height)
-            annotation.setdefault("attributes", {})["repairDisposition"] = "retained-reviewed-source-polygon"
+            if nail.get("repairInvalidSourcePolygon") is True:
+                annotation["polygon"] = repair_invalid_source_polygon(
+                    annotation.get("polygon"), width, height
+                )
+                disposition = "retained-reviewed-source-polygon-topology-repaired"
+            else:
+                annotation["polygon"] = normalize_points(annotation.get("polygon"), width, height)
+                disposition = "retained-reviewed-source-polygon"
+            annotation.setdefault("attributes", {})["repairDisposition"] = disposition
             retained_count += 1
         else:
             annotation = {

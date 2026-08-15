@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_01087_69a5ad16000000002303ba31_2.jpg",
+  "sha256": "caae81b3842b80b1e8aff77d1cf131f6b4824a059b6a728c9f976dde32bc6f89",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-047f033b38876e10",
+  "initialShardFinalSha256": "b14f8594ad3bb9c98a633db346e5c5031b04522220a039c3be9adf9644e31452",
+  "repairPromptsSha256": "e0f6559884b818ca7a0d20807a52cba4e41799498a7c0eb8e0e6f67a2fe66d0c",
+  "manualReportSha256": "1626e3c8b80c7b612fdf793e66fafd4e155d2a574491df81cd9d5d1f65feceb0",
+  "geometryAuditSha256": "fb124601bc2f6174c8f08c1205d0d9365405d417f7d2e6393c5f3ae4df07e7b8",
+  "annotationSha256": "77cc0cac5b1f733134cee2e11615ef0c83b50fc0e105ceb5bb8d48c26a9bbe15",
+  "reviewedOverlaySha256": "fa5b4a7e943105671c8b14bc2fa592cab1cbe97a7d57a5c1aa69e67e468b5a46",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "原分辨率逐甲终审通过：五枚透明低对比甲面均完整覆盖，戒指候选已剔除；全图一甲一polygon、零交叠、零皮肤及饰品污染。",
+  "trainingUse": "prohibited"
+}

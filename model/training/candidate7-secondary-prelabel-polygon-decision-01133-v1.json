@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_01133_6a099d1c000000000803dd1a_2.jpg",
+  "sha256": "b4add838403f2445bb22c6af42ab6764de55e49946d9d03e063f39330f9d3622",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-71cc779a7ffb18ac",
+  "initialShardFinalSha256": "b14f8594ad3bb9c98a633db346e5c5031b04522220a039c3be9adf9644e31452",
+  "repairPromptsSha256": "e0f6559884b818ca7a0d20807a52cba4e41799498a7c0eb8e0e6f67a2fe66d0c",
+  "manualReportSha256": "1626e3c8b80c7b612fdf793e66fafd4e155d2a574491df81cd9d5d1f65feceb0",
+  "geometryAuditSha256": "fb124601bc2f6174c8f08c1205d0d9365405d417f7d2e6393c5f3ae4df07e7b8",
+  "annotationSha256": "ffb70f2b3ef5da0f17cff83e9d269cd0c897fb3673ba800233ae7fccaa64ac9d",
+  "reviewedOverlaySha256": "4c14760675c34b8f914cefce607a831cc197811b65e9808f83a8b8394ec2f9a0",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "原分辨率逐甲终审通过：五枚长甲的透明甲尖、立体装饰及完整可见甲面连续覆盖；第二枚候选显式修复拓扑后仍与真实边界一致，零交叠和污染。",
+  "trainingUse": "prohibited"
+}

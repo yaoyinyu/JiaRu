@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_01101_68bbdec4000000001d00c6c1_4.jpg",
+  "sha256": "a937b54559454d01c3486b0b933b1188514c74e24d6e4ba68e236b71303eebdf",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-81c675f34d7940bf",
+  "initialShardFinalSha256": "b423e665766214199a4a9e349a9dfc0c21649e1ae261898f534f4d7a95e45f6e",
+  "repairPromptsSha256": "e0f6559884b818ca7a0d20807a52cba4e41799498a7c0eb8e0e6f67a2fe66d0c",
+  "manualReportSha256": "1626e3c8b80c7b612fdf793e66fafd4e155d2a574491df81cd9d5d1f65feceb0",
+  "geometryAuditSha256": "fb124601bc2f6174c8f08c1205d0d9365405d417f7d2e6393c5f3ae4df07e7b8",
+  "annotationSha256": "d4613b0ed6cf5d1f79f48aa237f8961fb1411fd3fc7f2007a76845a3be1ce341",
+  "reviewedOverlaySha256": "58d4fd92d14afaa4ef4babd679bb9fa73619aa44d31b22aeccfed7ece8fe0f27",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "原分辨率逐甲终审通过：五枚不同角度甲面均覆盖至可见甲尖和甲根，蝴蝶结图案未造成孔洞或分裂；零重复、零交叠、零皮肤污染。",
+  "trainingUse": "prohibited"
+}

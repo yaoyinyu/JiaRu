@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate7_repair_original_resolution_review_assessment",
+  "repairPromptsPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_secondary_targeted_repair_v1\\prompts.json",
+  "repairPromptsSha256": "a3d64bd75016a599782eb3c22648db3e6b12a1682f9d6442e09c9962885a13e1",
+  "samReportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_secondary_targeted_repair_v1\\sam-report.json",
+  "samReportSha256": "e54c04c714cc95f36fa984e13e9f2631c87ba0b6147c3cfce183ab118bc0b3ac",
+  "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_secondary_targeted_geometry_v1\\sam-geometry-audit.json",
+  "geometryAuditSha256": "80b23f39460764bcc11d049d116f8f9ee7c3c2d3dc42ee15af33dccbdedf123b",
+  "visualEvidencePath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_secondary_targeted_visual_v1\\report.json",
+  "visualEvidenceSha256": "20256b1381f6438f392b870790211506184b47a5def37cd355e7bc963c16d8c6",
+  "contactSheetReportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_14_candidate7_secondary_targeted_contact_sheets_v1\\report.json",
+  "contactSheetReportSha256": "57e28dc3b4214b97570c6b6854a99e6d7418260b2690fe5b229c532c883d8cd7",
+  "originalResolutionReviewCompleted": true,
+  "trainingUse": "prohibited",
+  "passFiles": [
+    "nail_00262_69afa8c6000000000601df0f_6.jpg",
+    "nail_00586_69e472a000000000220272cb_5.jpg",
+    "nail_00659_6a367df9000000001c026c6c_8.jpg",
+    "nail_01137_6a099d1c000000000803dd1a_6.jpg"
+  ],
+  "excludeFiles": {},
+  "reworkOverrides": {
+    "nail_00466_69b0305b000000000600ecc6_6.jpg": {"issueCodes": ["side_view_skin_merge"], "note": "侧视甲面仍合并指尖皮肤，转人工多边形。"},
+    "nail_00585_69e472a000000000220272cb_4.jpg": {"issueCodes": ["skin_contamination", "incomplete_boundary"], "note": "两个低对比甲面返修仍有皮肤污染和边界缺失。"},
+    "nail_01087_69a5ad16000000002303ba31_2.jpg": {"issueCodes": ["transparent_nail_skin_merge"], "note": "透明侧视甲面仍合并皮肤，禁止通过。"},
+    "nail_01101_68bbdec4000000001d00c6c1_4.jpg": {"issueCodes": ["side_view_skin_merge"], "note": "侧视透明长甲返修仍大面积合并皮肤。"},
+    "nail_01133_6a099d1c000000000803dd1a_2.jpg": {"issueCodes": ["polygon_overlap", "incomplete_boundary"], "note": "几何审计存在多边形相交，且装饰附近边界仍不完整。"},
+    "nail_01135_6a099d1c000000000803dd1a_4.jpg": {"issueCodes": ["side_view_skin_merge"], "note": "侧向长甲返修仍合并相邻手指皮肤。"}
+  }
+}
