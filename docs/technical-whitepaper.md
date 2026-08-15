@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.428
+> 文档版本：v1.1.429
 >
 > 基线日期：2026-07-12
 >
@@ -1306,6 +1306,7 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-08-15 | v1.1.429 | 用户授权提交工作区并清理根目录遗留。ESLint配置新增`辅助材料/**`忽略项，避免全量lint扫描外部证据资产目录；删除7个已被Git跟踪的根目录垃圾文件：`({i`（脚本报错日志残留）及`_build-check.ps1`/`_build2.ps1`/`_lint-check.ps1`/`_lint2.ps1`/`_npm-install.ps1`/`_npm-uninstall.ps1`（早期调试残留，内容指向已废弃的`E:\AI Project\ClaudeCode\JiaRu`路径）。辅助材料目录1321个审计证据JSON、.archive归档、.playwright-cli及根目录大模型权重均未动（按用户要求不迁移大文件）。分两个提交：`3645eae`（candidate7 secondary预标注polygon返修truth 043—047与`repairInvalidSourcePolygon`拓扑修复）、`507e6f9`（80张/487 mask事实文档同步与根目录清理）。工作区干净、未push。lint验证待后台结果；未运行训练、推理、val/test、导出、登记或部署，正式模型继续HOLD。 | ESLint忽略辅助材料、根目录垃圾清理、工作区提交、无接口变化 |
 | 2026-08-15 | v1.1.428 | 全面扫描诊断：以机器可读权威索引为最新事实，确认candidate7严格真值已达80张固定目标。旧真实索引33张/237 mask与`2026_8_14_candidate7_new_positive_training_truths_v1`新正样本索引47张/250 mask均为`approved_unique_training_truth_index`、0拒绝/冗余/冲突，按`fileName`交叉零重叠，合计80张/487 mask；新正样本相对v1.1.427的27张/150 mask新增20张/100 mask（seq 028—047，含旧真实返修项转正及seq 043—047五张secondary预标注polygon返修），truth-043—047于2026-08-14 16:22生成、索引16:23:35更新。全部80张仍`trainingUse=prohibited-until-materialization-audit`，精确训练授权、物化输入与GPU启动未形成，正式模型继续HOLD。同时核对生产manifest仍为`nail-texture-seg-v1`未变、AGNES_API_KEY已配置、完成度审计`ok=false`/`decision=hold`；工作区保留`build-reviewed-manual-polygon-repair.py`未提交修改与9个candidate7-secondary JSON，未执行Git提交/推送。 | candidate7、80张目标达成、权威索引、文档同步、训练禁用 |
 | 2026-08-14 | v1.1.427 | 继续推进candidate7新正样本完整mask终审并新增3张/20 mask严格真值。`nail_00425…_3.jpg`以4个已审提示加1个拇指紧框完成5/5；透明低对比`nail_01158…_3.jpg`经失败box候选后改用逐甲紧框与轴向多正点完成5/5；双手`nail_00165…_13.jpg`清退整指重复候选，拆分相邻格纹/粉色长甲并对7.8788像素交叠作原分辨率人工边界校正，终版10/10合法、零交叠、几何全通过。新正样本索引为27张/150 mask、0拒绝/冗余/冲突，SHA-256 `6689abb2…3693`；叠加旧真实33张/237 mask后candidate7严格总量为60张/387 mask，距80张仍缺20张。`00473/01316`因原图实际完整甲数与冻结预期不符、`01007`补甲候选吞入皮肤均未计数；失败版本保持隔离。所有新增真值继续`trainingUse=prohibited`，未取得candidate7精确训练授权，未物化、训练、val/test、导出、登记或部署。 | candidate7、透明低对比甲、相邻甲拆分、人工拓扑、严格真值、训练禁用 |
 | 2026-08-14 | v1.1.426 | 推进candidate7新正样本完整mask终审。41张/274甲源图候选经初轮SAM审核得到7张直接通过、34张返修；32张低阈值排序返修经原分辨率叠加图和逐甲2倍证据审核为16通过/16返修，决定报告`1958d71c…8ab8`。随后对4张易清退假阳性项执行一开始提示选择与紧框补充，仅长甲配饰图`nail_01286…_8.jpg`通过，透明横向甲局部mask、香水瓶遮挡/污染和侧视甲交叠3张继续返修，决定报告`0de8f723…db6f`。最终新正样本真值索引为24张/130 mask、0拒绝/冗余/冲突，SHA-256 `9826fe3e…6e69`；加上旧真实33张/237 mask，candidate7严格总量为57张/367 mask，另20张旧返修项不计数，距80张仍缺23张。所有新增项继续`trainingUse=prohibited-until-materialization-audit`，未授权、训练、val/test、导出、登记或部署。 | candidate7、新正样本、SAM返修、原分辨率终审、严格真值、训练禁用 |
