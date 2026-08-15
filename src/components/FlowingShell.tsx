@@ -1,6 +1,7 @@
 "use client";
 
 import { Header } from "@/components/Header";
+import { AmbientMotion } from "@/components/AmbientMotion";
 
 interface FlowingShellProps {
   children: React.ReactNode;
@@ -16,13 +17,14 @@ export function FlowingShell({
   return (
     <div className="relative min-h-dvh overflow-hidden bg-gradient-to-b from-[#fff5f7] to-white text-[#4a4a4a]">
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="flowing-ambient-blob flowing-amb-a" />
-        <div className="flowing-ambient-blob flowing-amb-b" />
-        <div className="flowing-ambient-blob flowing-amb-c" />
-        <div className="flowing-ambient-blob flowing-amb-d" />
-        <div className="flowing-ambient-blob flowing-amb-e" />
+        <div data-ambient-blob className="flowing-ambient-blob flowing-amb-a" />
+        <div data-ambient-blob className="flowing-ambient-blob flowing-amb-b" />
+        <div data-ambient-blob className="flowing-ambient-blob flowing-amb-c" />
+        <div data-ambient-blob className="flowing-ambient-blob flowing-amb-d" />
+        <div data-ambient-blob className="flowing-ambient-blob flowing-amb-e" />
         <div className="absolute inset-0 bg-white/30 backdrop-blur-[50px] backdrop-saturate-[1.3]" />
       </div>
+      <AmbientMotion />
 
       <Header />
 
@@ -34,46 +36,53 @@ export function FlowingShell({
         .flowing-ambient-blob {
           position: absolute;
           border-radius: 9999px;
-          filter: blur(90px);
-          opacity: 0.48;
+          opacity: 0.78;
           animation-timing-function: ease-in-out;
           animation-iteration-count: infinite;
-          will-change: transform, border-radius;
+          will-change: transform;
+          transform: translateZ(0);
         }
-        .flowing-amb-a { width: 720px; height: 720px; left: 48%; top: -30%; background: #e8a0bf; animation: flowing-amb-1 20s infinite; }
-        .flowing-amb-b { width: 560px; height: 560px; left: 2%; top: 45%; background: #a694e4; animation: flowing-amb-2 24s infinite; }
-        .flowing-amb-c { width: 440px; height: 440px; left: 64%; top: 40%; background: #ffd278; animation: flowing-amb-3 18s infinite; }
-        .flowing-amb-d { width: 620px; height: 620px; left: 14%; top: -6%; background: #ffb4c8; animation: flowing-amb-4 26s infinite; }
-        .flowing-amb-e { width: 500px; height: 500px; left: 30%; top: 35%; background: #fff0f5; animation: flowing-amb-5 22s infinite; }
+        .flowing-amb-a { width: 750px; height: 750px; left: 45%; top: -30%; background: radial-gradient(circle, rgba(232,160,191,.65) 0%, rgba(232,160,191,.28) 42%, rgba(232,160,191,0) 72%); animation: flowing-amb-1 20s infinite; }
+        .flowing-amb-b { width: 580px; height: 580px; left: 5%; top: 45%; background: radial-gradient(circle, rgba(166,148,228,.65) 0%, rgba(166,148,228,.28) 42%, rgba(166,148,228,0) 72%); animation: flowing-amb-2 24s infinite; }
+        .flowing-amb-c { width: 460px; height: 460px; left: 60%; top: 42%; background: radial-gradient(circle, rgba(255,210,120,.65) 0%, rgba(255,210,120,.28) 42%, rgba(255,210,120,0) 72%); animation: flowing-amb-3 18s infinite; }
+        .flowing-amb-d { width: 640px; height: 640px; left: 15%; top: -5%; background: radial-gradient(circle, rgba(255,180,200,.65) 0%, rgba(255,180,200,.28) 42%, rgba(255,180,200,0) 72%); animation: flowing-amb-4 26s infinite; }
+        .flowing-amb-e { width: 520px; height: 520px; left: 30%; top: 35%; background: radial-gradient(circle, rgba(255,240,245,.65) 0%, rgba(255,240,245,.28) 42%, rgba(255,240,245,0) 72%); animation: flowing-amb-5 22s infinite; }
         @keyframes flowing-amb-1 {
-          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
-          20% { transform: translate(-130px,90px) scale(1.35,0.55) rotate(15deg); border-radius: 35% 65% 58% 42%; }
-          40% { transform: translate(80px,-180px) scale(0.5,1.6) rotate(-12deg); border-radius: 68% 32% 40% 60%; }
-          60% { transform: translate(-160px,-70px) scale(1.25,0.7) rotate(22deg); border-radius: 42% 58% 65% 35%; }
-          80% { transform: translate(50px,140px) scale(0.6,1.45) rotate(-18deg); border-radius: 60% 40% 35% 65%; }
+          0%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+          15% { transform: translate(-160px, 110px) scale(1.5, .5) rotate(18deg); }
+          30% { transform: translate(100px, -200px) scale(.45, 1.7) rotate(-16deg); }
+          45% { transform: translate(-190px, -90px) scale(1.4, .62) rotate(26deg); }
+          60% { transform: translate(60px, 160px) scale(.55, 1.6) rotate(-22deg); }
+          75% { transform: translate(120px, -50px) scale(1.25, 1.25) rotate(10deg); }
+          90% { transform: translate(-90px, 60px) scale(.75, .68) rotate(-8deg); }
         }
         @keyframes flowing-amb-2 {
-          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
-          25% { transform: translate(140px,-100px) scale(0.55,1.5) rotate(-20deg); border-radius: 62% 38% 45% 55%; }
-          50% { transform: translate(-120px,130px) scale(1.45,0.55) rotate(14deg); border-radius: 38% 62% 60% 40%; }
-          75% { transform: translate(60px,-80px) scale(0.8,1.25) rotate(-8deg); border-radius: 55% 45% 38% 62%; }
+          0%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+          20% { transform: translate(170px, -120px) scale(.5, 1.65) rotate(-25deg); }
+          40% { transform: translate(-150px, 160px) scale(1.6, .5) rotate(18deg); }
+          60% { transform: translate(70px, -100px) scale(.7, 1.35) rotate(-10deg); }
+          80% { transform: translate(-100px, -140px) scale(1.35, .8) rotate(20deg); }
         }
         @keyframes flowing-amb-3 {
-          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
-          25% { transform: translate(-110px,110px) scale(1.4,0.5) rotate(18deg); border-radius: 40% 60% 55% 45%; }
-          50% { transform: translate(70px,-150px) scale(0.5,1.55) rotate(-15deg); border-radius: 65% 35% 42% 58%; }
-          75% { transform: translate(130px,60px) scale(1.15,1.3) rotate(6deg); border-radius: 50% 50% 60% 40%; }
+          0%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+          16% { transform: translate(-140px, 130px) scale(1.55, .45) rotate(22deg); }
+          33% { transform: translate(90px, -170px) scale(.45, 1.7) rotate(-18deg); }
+          50% { transform: translate(160px, 70px) scale(1.3, 1.35) rotate(8deg); }
+          66% { transform: translate(-100px, -80px) scale(.6, 1) rotate(-30deg); }
+          83% { transform: translate(-50px, 120px) scale(1.2, .72) rotate(12deg); }
         }
         @keyframes flowing-amb-4 {
-          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
-          25% { transform: translate(100px,-130px) scale(0.55,1.5) rotate(-22deg); border-radius: 60% 40% 48% 52%; }
-          50% { transform: translate(-140px,80px) scale(1.5,0.55) rotate(20deg); border-radius: 35% 65% 58% 42%; }
-          75% { transform: translate(-50px,-100px) scale(0.75,1.2) rotate(-6deg); border-radius: 52% 48% 40% 60%; }
+          0%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+          20% { transform: translate(120px, -160px) scale(.5, 1.6) rotate(-28deg); }
+          40% { transform: translate(-170px, 100px) scale(1.65, .5) rotate(24deg); }
+          60% { transform: translate(-60px, -120px) scale(.68, 1.45) rotate(-8deg); }
+          80% { transform: translate(100px, 90px) scale(1.35, .72) rotate(-18deg); }
         }
         @keyframes flowing-amb-5 {
-          0%, 100% { transform: translate(0,0) scale(1) rotate(0deg); border-radius: 50%; }
-          33% { transform: translate(-100px,-90px) scale(1.3,0.6) rotate(-10deg); border-radius: 42% 58% 55% 45%; }
-          66% { transform: translate(90px,100px) scale(0.55,1.45) rotate(12deg); border-radius: 62% 38% 40% 60%; }
+          0%, 100% { transform: translate(0, 0) scale(1) rotate(0); }
+          25% { transform: translate(-130px, -110px) scale(1.45, .5) rotate(-12deg); }
+          50% { transform: translate(110px, 120px) scale(.5, 1.6) rotate(15deg); }
+          75% { transform: translate(-70px, 60px) scale(1.05, 1.2) rotate(-9deg); }
         }
         @media (prefers-reduced-motion: reduce) {
           .flowing-ambient-blob { animation: none; }
