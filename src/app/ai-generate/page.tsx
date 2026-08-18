@@ -79,7 +79,7 @@ export default function AiGeneratePage() {
           <button onClick={handleGenerate} disabled={status === "loading" || !prompt.trim()} className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#C96591] text-sm font-semibold text-white shadow-[0_12px_28px_rgba(207,111,153,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(207,111,153,.32)] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40">
             {status === "loading" ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />正在生成设计</> : <>生成我的美甲设计 <span aria-hidden="true">✦</span></>}
           </button>
-          <p className="mt-4 text-center text-[11px] text-[#AAA1A6]">只发送文字描述，不会发送你的照片</p>
+          <p className="mt-4 text-center text-[11px] text-[#AAA1A6]">AI 生图只发送文字描述，不会发送你的照片；「用户改进计划」可在隐私页管理</p>
         </section>
         <section className="relative flex min-h-[390px] items-center justify-center border-t border-white/80 bg-[radial-gradient(circle_at_35%_25%,rgba(238,176,204,.55),transparent_40%),radial-gradient(circle_at_75%_75%,rgba(255,213,146,.48),transparent_42%),linear-gradient(145deg,#fff8fb,#faf6ff)] p-5 lg:border-l lg:border-t-0 sm:p-8">
           {status === "success" && imageUrl ? (

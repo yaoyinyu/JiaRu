@@ -142,7 +142,7 @@ export default function Home() {
         <div className={styles.footerDivider} />
         <div className={styles.footerBottom}>
           <span>© 2026 甲如 JiaRu. 保留所有权利。</span>
-          <span>照片在本地处理，不上传至服务器</span>
+          <span>数据默认本地处理，改进计划可随时关闭</span>
         </div>
       </footer>
     </div>

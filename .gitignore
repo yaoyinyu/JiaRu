@@ -25,6 +25,7 @@
 *.pem
 certificates/
 backup_ar_working/
+.backup-*/
 1f65f04cdd5df509463a03fb17d8ea03.jpg
 
 # debug

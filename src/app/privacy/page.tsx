@@ -1,21 +1,22 @@
 import { AppShell } from "@/components/AppShell";
+import { ImprovementProgramToggle } from "@/components/ImprovementProgramToggle";
 
 const principleSections = [
-  { number: "01", icon: "shield", title: "本地优先", text: "「甲如」将隐私放在首位：照片、摄像头画面与识别计算尽可能在浏览器本地完成，让你的个人内容留在自己的设备上。" },
-  { number: "02", icon: "cloud-off", title: "不上传照片", text: "你上传或拍摄的任何照片都不会被发送到「甲如」服务器，也不会被存储、分析或用于任何训练。" },
-  { number: "03", icon: "eye-off", title: "不追踪", text: "我们不使用 Cookie 追踪、不采集使用统计、没有用户账户体系，也没有云同步。你的使用行为不归我们所有。" },
+  { number: "01", icon: "shield", title: "本地优先", text: "「甲如」默认在浏览器本地完成照片、摄像头画面与识别计算的处理，让你的个人内容留在自己的设备上。" },
+  { number: "02", icon: "cloud-off", title: "数据由你掌控", text: "我们提供「用户改进计划」开关（默认开启，见下方）：开启期间，手部照片等数据可能被用于改进产品效果；你可以随时关闭，关闭后不再上传任何数据。" },
+  { number: "03", icon: "eye-off", title: "不追踪", text: "我们不使用 Cookie 追踪你的使用行为，没有广告追踪，也没有用户账户体系。改进计划收集的数据仅用于产品改进，不会被用于广告或出售。" },
 ];
 
 const featureSections = [
-  { number: "04", icon: "brush", title: "图片试色", badge: "数据：不出设备", text: "在试色编辑器中，上传的照片只在浏览器本地完成校验、解码与 Canvas 涂色；满意的结果由你主动点击「保存」下载到设备，整个过程不经过任何服务器。" },
+  { number: "04", icon: "brush", title: "图片试色", badge: "数据：默认本地", text: "在试色编辑器中，上传的照片默认只在浏览器本地完成校验、解码与 Canvas 涂色；满意的结果由你主动点击「保存」下载到设备。若你开启「用户改进计划」，手部照片可能被上传用于改进产品。" },
   { number: "05", icon: "sparkles", title: "AI 生图", badge: "数据：仅文字 → 第三方", text: "AI 生成只发送你输入或选择的文字描述，绝不发送照片。服务端会把这段文字转发给第三方图像生成服务（Agnes AI），生成结果由你的浏览器直接访问第三方图片地址；请勿在描述中输入身份证号、电话等个人信息。" },
-  { number: "06", icon: "camera", title: "AR 实时预览", badge: "数据：仅内存", text: "AR 模式中摄像头画面仅在浏览器内存中实时处理（手部关键点检测与指甲绘制），不录制、不存储、不上传。AR 预览不提供保存功能，关闭页面后画面即消失。" },
-  { number: "07", icon: "search", title: "自动识别与图库", badge: "数据：不出设备", text: "美甲纹理的自动识别与参考图定位均在浏览器本地完成，参考图不会被上传。灵感图库当前为内置素材，不涉及个人数据。" },
+  { number: "06", icon: "camera", title: "AR 实时预览", badge: "数据：默认仅内存", text: "AR 模式中摄像头画面默认仅在浏览器内存中实时处理（手部关键点检测与指甲绘制），不录制、不存储。若你开启「用户改进计划」，手部画面可能被上传用于改进产品。AR 预览不提供保存功能，关闭页面后画面即消失。" },
+  { number: "07", icon: "search", title: "自动识别与图库", badge: "数据：默认本地", text: "美甲纹理的自动识别与参考图定位默认均在浏览器本地完成。灵感图库当前为内置素材，不涉及个人数据。" },
 ];
 
 const otherSections = [
-  { number: "08", icon: "link", title: "第三方服务", text: "除 AI 生图依赖第三方图像生成服务外，「甲如」不接入任何广告、统计或分析 SDK。第三方仅收到你输入的描述文字，无法获取你的照片或摄像头画面。" },
-  { number: "09", icon: "shield-check", title: "你的权利", text: "由于服务器不保存任何照片或个人信息，你的数据天然不会离开设备，无需申请删除。如对任何数据流向有疑问，欢迎随时联系我们。" },
+  { number: "08", icon: "link", title: "第三方服务", text: "除 AI 生图依赖第三方图像生成服务外，「甲如」不接入任何广告、统计或分析 SDK。第三方仅收到你输入的描述文字，无法获取你的照片或摄像头画面。改进计划收集的数据仅用于产品改进，不会被出售。" },
+  { number: "09", icon: "shield-check", title: "你的权利", text: "你可以随时关闭下方的「用户改进计划」开关——关闭后所有处理回到浏览器本地，不再上传任何数据。已上传的数据如需删除，欢迎随时联系我们。" },
   { number: "10", icon: "file-text", title: "政策更新", text: "本页会随功能变化及时更新，更新日期见页面底部。涉及数据流向的重大变化会在本页显著说明。" },
 ];
 
@@ -144,13 +145,15 @@ function GroupHeader({ text }: { text: string }) {
 
 export default function PrivacyPage() {
   return (
-    <AppShell eyebrow="Privacy by Design" title="你的照片，始终属于你" description="透明说明每一项数据如何流动。我们的原则很简单：能在本地完成的处理，就不离开你的设备。">
+    <AppShell eyebrow="Privacy by Design" title="你的照片，始终属于你" description="透明说明每一项数据如何流动。默认本地处理，改进计划默认开启、可随时关闭。">
       <GroupHeader text="核心原则" />
       <div className="grid gap-4 md:grid-cols-3">
         {principleSections.map((section) => (
           <SectionCard key={section.number} {...section} />
         ))}
       </div>
+      <GroupHeader text="用户改进计划" />
+      <ImprovementProgramToggle />
       <GroupHeader text="各功能的数据流向" />
       <div className="grid gap-4 md:grid-cols-2">
         {featureSections.map((section) => (

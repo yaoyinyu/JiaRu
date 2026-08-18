@@ -60,7 +60,7 @@ export default function EditorPage() {
               <li className="flex gap-3"><span className="text-[#D4749D]">02</span><span>逐个选择手指，可为每一指搭配不同颜色</span></li>
               <li className="flex gap-3"><span className="text-[#D4749D]">03</span><span>用撤销与重置随时回退，满意后保存到本地</span></li>
             </ul>
-            <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#9A7C89]">🔒 本地优先：照片不会离开你的设备</div>
+            <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#9A7C89]">🔒 本地优先：照片默认不会上传；「用户改进计划」可在隐私页关闭</div>
           </aside>
         </div>
       ) : (
