@@ -470,7 +470,7 @@ export default function ArTryonPage() {
         )}
 
         <div className="mx-auto mt-5 grid w-full max-w-3xl gap-3 text-center sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl">🔒 摄像头画面仅在内存中处理，不录制，也不会上传。</div>
+          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl">🔒 摄像头画面默认仅在内存中处理，不录制；「用户改进计划」可在隐私页关闭</div>
           <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl">💡 首次加载大约需要 5-10 秒，建议在光线充足的环境使用。</div>
         </div>
     </AppShell>
