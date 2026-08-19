@@ -11,6 +11,7 @@ import {
   type NailGeometry,
 } from "@/lib/nail-geometry";
 import { resolveMediaPipeHandsAsset } from "@/lib/mediapipe-hands-assets";
+import { Icon } from "@/components/Icon";
 import {
   calculateCoverVideoLayout,
   calculateViewportAspectRatio,
@@ -849,13 +850,13 @@ export function ArView({
         if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
           setStatus("error");
           setStatusMsg("浏览器不支持摄像头 API，请使用 Chrome 或 Safari");
-          log("❌ navigator.mediaDevices 不可用");
+          log("× navigator.mediaDevices 不可用");
           return;
         }
         if (!window.isSecureContext) {
           setStatus("error");
           setStatusMsg("摄像头需要 localhost 或 HTTPS 环境，请使用 http://localhost:3000/ar-tryon 打开");
-          log("❌ 当前页面不是安全上下文");
+          log("× 当前页面不是安全上下文");
           return;
         }
         try {
@@ -863,7 +864,7 @@ export function ArView({
           if (permission?.state === "denied") {
             setStatus("error");
             setStatusMsg("摄像头权限已被浏览器拒绝。请点击地址栏左侧权限图标，将摄像头改为允许后刷新。");
-            log("❌ 浏览器摄像头权限状态为 denied");
+            log("× 浏览器摄像头权限状态为 denied");
             return;
           }
         } catch {
@@ -881,7 +882,7 @@ export function ArView({
         if (!video) {
           setStatus("error");
           setStatusMsg("视频元素未初始化");
-          log("❌ video ref 为空");
+          log("× video ref 为空");
           return;
         }
 
@@ -919,7 +920,7 @@ export function ArView({
               });
             } catch (camErr3) {
               const msg = camErr3 instanceof Error ? camErr3.message : String(camErr3);
-              log("❌ 摄像头获取失败: " + msg);
+              log("× 摄像头获取失败: " + msg);
               setStatus("error");
               if (msg.includes("Permission") || msg.includes("permission") || msg.includes("denied") || msg.includes("NotAllowed")) {
                 setStatusMsg("摄像头权限被拒绝。请在浏览器设置 → 权限中允许摄像头访问");
@@ -939,7 +940,7 @@ export function ArView({
           return;
         }
         mediaStream = stream;
-        log("  摄像头获取成功 ✅");
+        log("  摄像头获取成功 √");
 
         // 绑定流到 video 元素
         video.srcObject = stream;
@@ -950,7 +951,7 @@ export function ArView({
           }, 10000);
           video.onloadedmetadata = () => {
             clearTimeout(timeout);
-            log("  视频就绪 " + video.videoWidth + "x" + video.videoHeight + " ✅");
+            log("  视频就绪 " + video.videoWidth + "x" + video.videoHeight + " √");
             resolve();
           };
           video.onerror = () => {
@@ -959,7 +960,7 @@ export function ArView({
           };
         });
         await video.play().catch((e) => {
-          log("  ⚠️ video.play() 警告: " + (e instanceof Error ? e.message : String(e)));
+          log("  ! video.play() 警告: " + (e instanceof Error ? e.message : String(e)));
         });
         // 额外等待一帧确保 video 真正开始播放
         await new Promise<void>((resolve) => {
@@ -970,7 +971,7 @@ export function ArView({
             setTimeout(resolve, 2000); // fallback
           }
         });
-        log("  视频播放中 readyState=" + video.readyState + " ✅");
+        log("  视频播放中 readyState=" + video.readyState + " √");
         if (dead) return;
 
         // camera_utils.js 不再需要（改用原生 getUserMedia + RAF）
@@ -989,7 +990,7 @@ export function ArView({
             }, scriptTimeout);
             script.onload = () => {
               clearTimeout(timer);
-              log("  " + name + " 加载完成 ✅");
+              log("  " + name + " 加载完成 √");
               resolve();
             };
             script.onerror = () => {
@@ -1006,7 +1007,7 @@ export function ArView({
             "hands.js"
           );
         } else {
-          log("  hands.js 已加载，跳过重复加载 ✅");
+          log("  hands.js 已加载，跳过重复加载 √");
         }
         if (dead) return;
 
@@ -1015,10 +1016,10 @@ export function ArView({
         if (!H) {
           setStatus("error");
           setStatusMsg("摄像头已启动，但手部识别模块未加载。请检查网络后重试。");
-          log("❌ Hands 未注册到 window");
+          log("× Hands 未注册到 window");
           return;
         }
-        log("  Hands ✅");
+        log("  Hands √");
 
         // ── 步骤6: 创建 Hands 实例 ──
         setStatusMsg("初始化手部识别...");
@@ -1177,10 +1178,10 @@ export function ArView({
         // ── 步骤7: 就绪 ──
         setStatus("ready");
         setStatusMsg("就绪");
-        log("系统就绪 ✅");
+        log("系统就绪 √");
       } catch (err) {
         const m = err instanceof Error ? err.message : String(err);
-        log("❌ " + m);
+        log("× " + m);
         if (!dead) {
           setStatus("error");
           setStatusMsg(m.includes("permission") || m.includes("权限") ? "摄像头权限被拒绝" : m.slice(0, 60));
@@ -1234,7 +1235,7 @@ export function ArView({
             className="px-8 py-4 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full text-lg font-bold shadow-lg active:scale-95 transition-transform"
             style={{ touchAction: "manipulation", minHeight: "60px" }}
           >
-            📷 开启摄像头
+            <span className="inline-flex items-center gap-2"><Icon name="camera" className="h-5 w-5" />开启摄像头</span>
           </button>
           <p className="text-xs text-gray-300 mt-4 px-6 text-center max-w-xs">
             点击后浏览器会请求摄像头权限，请允许
@@ -1256,9 +1257,9 @@ export function ArView({
             <p
               key={i}
               className={`text-[9px] font-mono leading-tight mb-0.5 ${
-                d.includes("❌")
+                d.includes("×")
                   ? "text-red-300"
-                  : d.includes("✅")
+                  : d.includes("√")
                     ? "text-green-300"
                     : d.includes("首次")
                       ? "text-yellow-200"
@@ -1274,7 +1275,7 @@ export function ArView({
       {/* 非 ready 遮罩 */}
       {userStarted && status !== "ready" && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-black/70 text-white">
-          <span className="text-4xl mb-3">&#9203;</span>
+          <span className="mb-3 inline-block h-10 w-10 animate-spin rounded-full border-4 border-white/25 border-t-white" aria-hidden="true" />
           <p className="text-sm px-6 text-center">{statusMsg}</p>
           {status === "error" && (
             <div className="mt-4 flex flex-col items-center gap-2 px-6 text-center">
@@ -1314,7 +1315,7 @@ export function ArView({
                 : "bg-black/40 text-white/60 border-white/20 hover:bg-black/50"
               }`}
           >
-            🔄 {handFlip ? "已反转" : "反转手"}
+            <span className="inline-flex items-center gap-1"><Icon name="refresh" className="h-3.5 w-3.5" />{handFlip ? "已反转" : "反转手"}</span>
           </button>
         </div>
       )}
@@ -1334,7 +1335,7 @@ export function ArView({
                       : "text-gray-300 bg-gray-800/40"
                 }`}
               >
-                {orientationPresentation.icon}{" "}
+                <Icon name="hand" className="mr-1 inline h-3.5 w-3.5 align-[-2px]" />
                 {handLabel ? handLabel + " · " : ""}
                 {orientationPresentation.label}
               </span>

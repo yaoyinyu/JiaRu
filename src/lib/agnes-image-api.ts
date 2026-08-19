@@ -14,6 +14,10 @@ type GenerateAgnesImageOptions = {
   timeoutMs?: number;
   maxAttempts?: number;
   retryDelayMs?: number;
+  /** 可选图生图输入：Data URI（data:image/...;base64,...）。提供后走 image-to-image。 */
+  imageDataUri?: string;
+  /** 可选输出宽高比（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9），与 size "1K" 搭配。 */
+  ratio?: string;
 };
 
 type AgnesImageConfig = {
@@ -100,6 +104,20 @@ export async function generateAgnesImage(
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
+  const extraBody: Record<string, unknown> = { response_format: "url" };
+  if (options.imageDataUri) {
+    extraBody.image = [options.imageDataUri];
+  }
+  const requestBody: Record<string, unknown> = {
+    model: config.model,
+    prompt,
+    size: options.imageDataUri && options.ratio ? "1K" : DEFAULT_AGNES_IMAGE_SIZE,
+    extra_body: extraBody,
+  };
+  if (options.imageDataUri && options.ratio) {
+    requestBody.ratio = options.ratio;
+  }
+
   try {
     for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       const response = await fetchImpl(endpoint, {
@@ -108,14 +126,7 @@ export async function generateAgnesImage(
           "Content-Type": "application/json",
           Authorization: `Bearer ${config.apiKey}`,
         },
-        body: JSON.stringify({
-          model: config.model,
-          prompt,
-          size: DEFAULT_AGNES_IMAGE_SIZE,
-          extra_body: {
-            response_format: "url",
-          },
-        }),
+        body: JSON.stringify(requestBody),
         signal: controller.signal,
       });
 

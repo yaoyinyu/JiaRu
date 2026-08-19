@@ -9,6 +9,9 @@
 .action:hover,.action:focus-visible { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(207,111,153,.3),inset 0 1px 0 rgba(255,255,255,.4); }
 .actionActive { box-shadow: 0 0 0 3px rgba(255,255,255,.8),0 8px 20px rgba(207,111,153,.25); }
 .actionShort { display: none; }
-.brand:focus-visible,.nav a:focus-visible,.action:focus-visible { outline: 3px solid rgba(212,116,157,.35); outline-offset: 3px; }
-@media (max-width:700px) { .header{padding:8px 12px 0}.inner{height:56px;padding-left:12px;border-radius:18px}.nav{display:none}.action{height:38px;padding:0 13px}.actionFull{display:none}.actionShort{display:inline} }
-@media (prefers-reduced-motion:reduce) { .nav a,.action{transition-duration:.01ms} }
+.actions { display: flex; align-items: center; gap: 8px; }
+.account { display: flex; height: 42px; padding: 0 14px; border-radius: 14px; align-items: center; border: 1px solid rgba(212,116,157,.22); background: rgba(255,255,255,.6); color: #cf6f99; font-size: 13px; font-weight: 600; text-decoration: none; transition: transform .2s ease,background .2s ease,box-shadow .2s ease; }
+.account:hover,.account:focus-visible { background: rgba(255,238,245,.85); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(207,111,153,.14); }
+.brand:focus-visible,.nav a:focus-visible,.action:focus-visible,.account:focus-visible { outline: 3px solid rgba(212,116,157,.35); outline-offset: 3px; }
+@media (max-width:700px) { .header{padding:8px 12px 0}.inner{height:56px;padding-left:12px;border-radius:18px}.nav{display:none}.action{height:38px;padding:0 13px}.actionFull{display:none}.actionShort{display:inline}.account{height:38px;padding:0 12px} }
+@media (prefers-reduced-motion:reduce) { .nav a,.action,.account{transition-duration:.01ms} }

@@ -2,7 +2,6 @@ export type HandOrientation = "dorsum" | "palm" | "ambiguous" | "none";
 
 export interface HandOrientationPresentation {
   label: "手背" | "手心" | "侧手" | "";
-  icon: "🖐️" | "✋" | "🤚" | "";
   tone: "dorsum" | "palm" | "neutral";
 }
 
@@ -186,12 +185,12 @@ export function getHandOrientationPresentation(
 ): HandOrientationPresentation {
   switch (orientation) {
     case "dorsum":
-      return { label: "手背", icon: "🖐️", tone: "dorsum" };
+      return { label: "手背", tone: "dorsum" };
     case "palm":
-      return { label: "手心", icon: "✋", tone: "palm" };
+      return { label: "手心", tone: "palm" };
     case "ambiguous":
-      return { label: "侧手", icon: "🤚", tone: "neutral" };
+      return { label: "侧手", tone: "neutral" };
     default:
-      return { label: "", icon: "", tone: "neutral" };
+      return { label: "", tone: "neutral" };
   }
 }

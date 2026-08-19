@@ -3,6 +3,7 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { AppShell } from "@/components/AppShell";
+import { Icon } from "@/components/Icon";
 import { ArView, type NailFitAdjustment } from "@/components/ArView";
 import { PRESET_COLORS } from "@/lib/utils";
 import { disposeAllTextures } from "@/lib/texture";
@@ -236,7 +237,7 @@ export default function ArTryonPage() {
                   : "text-gray-400"
               }`}
             >
-              🎨 纯色
+              <span className="inline-flex items-center justify-center gap-1.5"><Icon name="palette" className="h-4 w-4" />纯色</span>
             </button>
             <button
               onClick={() => setMode("texture")}
@@ -246,7 +247,7 @@ export default function ArTryonPage() {
                   : "text-gray-400"
               }`}
             >
-              🖼️ 纹理
+              <span className="inline-flex items-center justify-center gap-1.5"><Icon name="image" className="h-4 w-4" />纹理</span>
             </button>
           </div>
 
@@ -372,7 +373,7 @@ export default function ArTryonPage() {
 
               <div className="flex justify-center gap-2">
                 <label className="cursor-pointer rounded-full bg-pink-50 px-3 py-1.5 text-xs text-[#E8A0BF] transition-colors hover:bg-pink-100">
-                  📷 上传美甲照片
+                  <span className="inline-flex items-center justify-center gap-1.5"><Icon name="camera" className="h-4 w-4" />上传美甲照片</span>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -382,7 +383,7 @@ export default function ArTryonPage() {
                   />
                 </label>
                 <label className="cursor-pointer rounded-full bg-purple-50 px-3 py-1.5 text-xs text-purple-500 transition-colors hover:bg-purple-100">
-                  ✨ 多纹理提取
+                  <span className="inline-flex items-center justify-center gap-1.5"><Icon name="sparkles" className="h-4 w-4" />多纹理提取</span>
                   <input
                     type="file"
                     accept="image/png,image/jpeg,image/webp"
@@ -470,8 +471,8 @@ export default function ArTryonPage() {
         )}
 
         <div className="mx-auto mt-5 grid w-full max-w-3xl gap-3 text-center sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl">🔒 摄像头画面默认仅在内存中处理，不录制；「用户改进计划」可在隐私页关闭</div>
-          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl">💡 首次加载大约需要 5-10 秒，建议在光线充足的环境使用。</div>
+          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl"><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />摄像头画面默认仅在内存中处理，不录制；「用户改进计划」可在隐私页关闭</div>
+          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl"><Icon name="lightbulb" className="mr-1.5 inline h-4 w-4 align-[-3px]" />首次加载大约需要 5-10 秒，建议在光线充足的环境使用。</div>
         </div>
     </AppShell>
   );

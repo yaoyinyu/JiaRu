@@ -10,7 +10,6 @@ import {
 test("palm detector state is presented as 手心", () => {
   assert.deepEqual(getHandOrientationPresentation("palm"), {
     label: "手心",
-    icon: "✋",
     tone: "palm",
   });
 });
@@ -18,7 +17,6 @@ test("palm detector state is presented as 手心", () => {
 test("dorsum detector state is presented as 手背", () => {
   assert.deepEqual(getHandOrientationPresentation("dorsum"), {
     label: "手背",
-    icon: "🖐️",
     tone: "dorsum",
   });
 });

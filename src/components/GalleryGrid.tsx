@@ -1,6 +1,7 @@
 import { GALLERY_IMAGES } from "@/lib/utils";
 import Link from "next/link";
 import Image from "next/image";
+import { Icon } from "@/components/Icon";
 
 export function GalleryGrid() {
   return (
@@ -13,7 +14,7 @@ export function GalleryGrid() {
           </div>
           <div className="flex items-center justify-between gap-2 p-3.5 sm:p-4">
             <div className="min-w-0"><p className="truncate text-sm font-medium text-[#554D51]">{item.name}</p><p className="mt-1 text-[10px] text-[#A49A9F]">点击进入试色</p></div>
-            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-pink-50 text-xs text-[#C96690] transition group-hover:bg-[#D4749D] group-hover:text-white">↗</span>
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-pink-50 text-xs text-[#C96690] transition group-hover:bg-[#D4749D] group-hover:text-white"><Icon name="arrow-up-right" className="h-4 w-4" /></span>
           </div>
         </Link>
       ))}

@@ -31,3 +31,57 @@ body {
   background-color: #E8A0BF;
   color: white;
 }
+
+/* AI 生成页：右侧展示区柔和 shimmer 加载效果 */
+@keyframes jiaru-shimmer-sweep {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(320%); }
+}
+
+.shimmer-sweep {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -80%;
+  width: 80%;
+  background: linear-gradient(100deg, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.24) 28%, rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0.24) 72%, rgba(255, 255, 255, 0) 100%);
+  animation: jiaru-shimmer-sweep 3.6s ease-in-out infinite, jiaru-sweep-fade-in 0.9s ease-out both;
+  will-change: transform;
+}
+
+@keyframes jiaru-sweep-fade-in {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@keyframes jiaru-shimmer-spark {
+  0%, 100% { opacity: 0.45; transform: scale(0.92) rotate(-10deg); }
+  50% { opacity: 1; transform: scale(1.08) rotate(8deg); }
+}
+
+.shimmer-spark {
+  display: inline-block;
+  animation: jiaru-shimmer-spark 2.8s ease-in-out infinite;
+}
+
+/* AI 生成页：状态切换与页面进入的柔和淡入上移过渡 */
+@keyframes jiaru-fade-in-up {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in-up {
+  animation: jiaru-fade-in-up 0.45s ease-out both;
+}
+
+.fade-in-up-slow {
+  animation-duration: 0.65s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer-sweep,
+  .shimmer-spark,
+  .fade-in-up {
+    animation: none;
+  }
+}
