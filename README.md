@@ -21,6 +21,7 @@
 | AR 纯色试戴 | `/ar-tryon` | 🚧 | 摄像头实时手部追踪 + 五指贴色 |
 | AR 纹理试戴 | `/ar-tryon` | ⛔ | 上传参考图 → 美甲识别/mask 提取 → 纹理贴合；正式识别模型尚未发布 |
 | 独立 AR 演示 | `/ar-demo` | 📌 | 桥接外部 Python demo 的 iframe 占位 |
+| 登录/账号 | `/login`、`/account` | ✅ | 手机号+验证码登录即注册、微信 OAuth 登录；账号页管理档案、登录方式、改进计划偏好（初始版已落地，商户/云同步后续规划） |
 | 隐私政策 | `/privacy` | ✅ | 完整静态说明页：核心原则（本地优先/数据由你掌控/不追踪）+ 用户改进计划开关（默认开启，可关闭）+ 各功能数据流向（试色/AI/AR/识别）+ 第三方服务与用户权利；法律合规审核仍待外部 |
 
 > ✅ 已完成 　 📌 待验证 　 🚧 进行中 　 ⛔ 发布阻塞 　 ❌ 未开始
@@ -98,7 +99,11 @@ JiaRu/
 │   │   ├── ar-tryon/page.tsx     # AR 实时试戴
 │   │   ├── ar-demo/page.tsx      # 独立 AR 演示桥接
 │   │   ├── privacy/page.tsx      # 隐私政策
-│   │   └── api/generate-ai/route.ts  # AI 生图 API
+│   │   ├── login/page.tsx        # 登录页（手机号+验证码 / 微信）
+│   │   ├── account/page.tsx      # 账号页（档案/登录方式/改进计划/退出）
+│   │   ├── api/generate-ai/route.ts  # AI 生图 API
+│   │   ├── api/auth/             # 认证 API（验证码/人机验证/微信 OAuth/登出/绑手机）
+│   │   └── api/me/               # 账号 API（档案/登录方式/改进计划偏好）
 │   │
 │   ├── components/               # 可复用组件
 │   │   ├── ArView.tsx            # AR 核心：摄像头 + MediaPipe + 指甲绘制（~1150 行）
@@ -110,11 +115,14 @@ JiaRu/
 │   │   ├── GalleryGrid.tsx       # 图库网格
 │   │   ├── Header.tsx            # 顶部导航
 │   │   ├── AppShell.tsx          # 页面壳（导航 + 页脚）
+│   │   ├── Icon.tsx              # 内联 SVG 矢量图标组件（15 个图标）
 │   │   └── FlowingShell.tsx      # 流式布局壳
 │   │
 │   ├── lib/                      # 工具与核心逻辑
 │   │   ├── utils.ts              # 通用工具（颜色、图片、AI 风格名称等）
 │   │   ├── ai-style-prompts.ts   # AI 生图风格提示词库（10 风格 × 50 段）
+│   │   ├── ai-hand-anatomy-prompt.ts  # AI 生图两套系统提示词（文生图/图生图互斥）
+│   │   ├── agnes-image-api.ts    # Agnes 图像 API 客户端（文生图/图生图）
 │   │   ├── texture.ts            # 纹理处理（裁剪、缩放、释放）
 │   │   ├── ar-hand-orientation.ts # AR 手部朝向检测（4 传感器融合）
 │   │   ├── ar-video-layout.ts    # 视频自适应布局（cover 裁切）
@@ -125,6 +133,7 @@ JiaRu/
 │   │   ├── nail-texture-dataset.ts    # 纹理数据集工具
 │   │   ├── nail-texture-debug-sample.ts    # 调试样本
 │   │   ├── nail-texture-debug-priority.ts  # 调试优先级
+│   │   ├── auth/                 # 用户认证库（SQLite/JWT/图形验证码/短信/微信 OAuth/登录即注册）
 │   │   └── nail-texture-recognition/     # 浏览器端美甲纹理识别子系统
 │   │       ├── index.ts          # 公共 barrel（Worker/主线程入口）
 │   │       ├── recognize.ts      # 主识别流程
@@ -207,6 +216,15 @@ JiaRu/
 - 180 秒总超时（AbortController），503 按 1/2/4 秒指数退避重试
 - 仅发送文字描述；只有上传参考图时图片才发送给第三方（仅用于本次生成，不存储）
 
+### 👤 用户系统（初始注册登录已落地）
+
+- **登录即注册**：手机号+验证码或微信扫码，任一方式首次验证通过即自动创建账号并绑定
+- 手机号+验证码：发送前需通过自研 SVG 图形验证码（人机验证），60 秒节流 / 单日 10 条 / 尝试 5 次锁定；未配置短信服务商时进入开发模式（接口返回 devCode 仅供本地联调）
+- 微信 OAuth：`GET /api/auth/oauth/wechat` 授权跳转 + `/callback` 回调登录，state 存 httpOnly Cookie 防 CSRF；首次登录须在 `/account` 补绑手机号；未配置 `WECHAT_APP_ID/SECRET` 时按钮显示「未配置」
+- 认证实现：自研 HS256 JWT（access 2h + refresh 30d）+ SQLite 会话表（可踢下线），数据库 `data/jiaru-user.db`（Node 内置 `node:sqlite`，生产换 Postgres 时仅替换 `src/lib/auth/db.ts` 边界）
+- `/account` 账号页：档案查看、登录方式管理（解绑，至少保留一种）、账号级「用户改进计划」偏好（与 `/privacy` 开关联动）、退出登录
+- 完整设计见 [`docs/user-system-plan.md`](docs/user-system-plan.md)（v0.2）；商户体系、云端作品/配额、注销导出为后续 Phase 1 项
+
 ### 🧠 浏览器端纹理识别（发布阻塞）
 
 完整浏览器端 ONNX Runtime Web 推理管线：
@@ -230,6 +248,10 @@ JiaRu/
 | `AGNES_API_BASE_URL` | Agnes API 基础地址 | 否（默认 `https://apihub.agnes-ai.com/v1`） |
 | `AGNES_IMAGE_MODEL` | Agnes 图片模型 ID | 否（默认 `agnes-image-2.1-flash`） |
 | `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL` | 浏览器端纹理模型 manifest 路径 | 否（有默认值） |
+| `JWT_SECRET` | JWT 签名密钥（生产必须 ≥16 位随机字符串；未配置时本地开发用内置回退密钥，生产构建直接报错） | 用户系统生产必需 |
+| `JIARU_DB_PATH` | 用户数据库文件路径 | 否（默认 `<项目根>/data/jiaru-user.db`） |
+| `SMS_PROVIDER` | 短信服务商（留空进入开发模式，验证码经接口返回仅供本地联调；生产留空会拒绝发送） | 生产短信必需 |
+| `WECHAT_APP_ID` / `WECHAT_APP_SECRET` | 微信开放平台「网站应用」OAuth 2.0 凭证（需认证企业主体） | 微信登录需要 |
 
 ```powershell
 # 复制模板
@@ -250,6 +272,7 @@ copy .env.local.example .env.local
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
 | [开发规范](docs/coding-standards.md) | 代码风格、命名规范、工作流程 |
+| [用户管理系统文档](docs/user-system-plan.md) | 角色权限/资源/配额/流程/API/合规/分阶段路线（v0.2，初始注册登录已实现） |
 
 ### AR 专项文档
 
@@ -279,9 +302,10 @@ copy .env.local.example .env.local
 | AR 试戴 | 摄像头帧默认仅存内存，不录制 |
 | AI 生图 | 默认仅发送文字描述到服务端；上传参考图时该图片也会发送（仅用于本次生成） |
 | 纹理识别 | 浏览器 Worker 本地推理 |
-| 用户改进计划 | 开关默认开启：手部照片等数据可能被上传用于产品改进；关闭后不再上传任何数据（开关位于 `/privacy`） |
+| 用户改进计划 | 开关默认开启：手部照片等数据可能被上传用于产品改进；关闭后不再上传任何数据（开关位于 `/privacy`，登录用户可在 `/account` 同步） |
+| 用户系统 | 登录信息（手机号/微信身份、JWT 会话）仅存服务端数据库，用于登录与账号管理；核心功能不登录也可用，账号数据不出售 |
 
-完整说明见 [`/privacy`](http://localhost:3000/privacy)（最后更新 2026-08-19）。AI 生图会把你的文字描述转发给第三方图像生成服务（Agnes AI）；只有当你上传参考图时，该图片才会被发送并仅用于本次生成、不用于训练或存储。生成结果由浏览器直接访问第三方图片地址；描述中请勿输入身份证号、电话等个人信息。项目不使用 Cookie 追踪、无广告追踪、无账户体系，联系邮箱 `3181484805@qq.com`。
+完整说明见 [`/privacy`](http://localhost:3000/privacy)（最后更新 2026-08-19）。AI 生图会把你的文字描述转发给第三方图像生成服务（Agnes AI）；只有当你上传参考图时，该图片才会被发送并仅用于本次生成、不用于训练或存储。生成结果由浏览器直接访问第三方图片地址；描述中请勿输入身份证号、电话等个人信息。项目不使用 Cookie 追踪、无广告追踪，联系邮箱 `3181484805@qq.com`。
 
 ---
 
@@ -336,7 +360,7 @@ copy .env.local.example .env.local
 
 - [ ] Vercel 部署 + 域名绑定
 - [ ] 真实灵感图库与内容后台
-- [ ] 用户账户、云同步
+- [ ] 用户系统 Phase 1 剩余项：商户体系、云端作品/收藏/历史、AI 配额、注销导出、游客数据合并
 - [ ] 正式 API 鉴权、限流、内容安全
 - [ ] ArView.tsx 拆分（1150 行 → 多模块）
 

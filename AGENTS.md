@@ -33,6 +33,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Windows 下运行`npm.cmd run audit:nail-texture-completion`前，必须把`C:\Users\YaoYinyu\AppData\Local\Programs\Python\Python313`显式置于当前进程`PATH`首位；该TypeScript审计会启动裸`python`子进程，本机Python 3.14缺少Pillow/Shapely时会造成与模型证据无关的假性深验失败。
 - PowerShell批量JSON解析检查必须先逐文件执行`Test-Path -PathType Leaf`并设置`$ErrorActionPreference='Stop'`；`Get-Content`的默认非终止错误可能被`try/catch`漏接，禁止在文件不存在时继续累加“解析通过”计数。
 - 未经用户在当前任务中明确要求，不执行 `git commit` 或 `git push`；完成修改与验证后仅保留本地工作区差异。
+- 每次执行 `git commit`/`git push` 前，必须检查并同步更新 `README.md` 中与本次改动对应的部分（功能概览表、项目结构、核心特性详解、环境变量表、文档索引、隐私与数据、路线图等），随提交一并推送；不得在 README 缺失或过期时提交推送。
 - 父截图可用但派生区域选错时，应按父文件 SHA-256 和稳定 `sourceGroup` 替换旧区域，并保持一父图一派生区域；禁止把新旧区域重复计数，也不得因此误排除父图。
 - 验证集真值必须逐图通过原分辨率完整甲面审核；任一图片仍为返修或排除、存在未声明交叠、漏甲、重复、误标或污染时，整套 split 不得用于模型选择或阈值校准，基于该真值产生的高指标只能保留为历史诊断。
 - 模型`scoreThreshold`只能使用来源隔离且未进入train/test的`val`证据校准；冻结test、发布测试及其派生物禁止参与阈值选择。验证集少于30张、存在需修复真值polygon或未通过召回/误检/候选数门时，只能输出诊断阈值，禁止写入候选或生产manifest。
