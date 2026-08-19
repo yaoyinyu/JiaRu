@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Icon } from "@/components/Icon";
 import styles from "./Header.module.css";
 
 const navigation = [
@@ -31,11 +32,16 @@ export function Header() {
             );
           })}
         </nav>
-        <Link href="/editor" className={`${styles.action} ${pathname === "/editor" ? styles.actionActive : ""}`}>
-          <span className={styles.actionFull}>上传试色</span>
-          <span className={styles.actionShort}>试色</span>
-          <span aria-hidden="true">↗</span>
-        </Link>
+        <div className={styles.actions}>
+          <Link href="/account" className={styles.account} aria-label="登录或账号中心">
+            <span>登录</span>
+          </Link>
+          <Link href="/editor" className={`${styles.action} ${pathname === "/editor" ? styles.actionActive : ""}`}>
+            <span className={styles.actionFull}>上传试色</span>
+            <span className={styles.actionShort}>试色</span>
+            <span aria-hidden="true"><Icon name="arrow-up-right" className="h-3 w-3" /></span>
+          </Link>
+        </div>
       </div>
     </header>
   );

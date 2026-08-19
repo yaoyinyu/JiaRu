@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { AppShell } from "@/components/AppShell";
+import { Icon } from "@/components/Icon";
 import { UploadButton } from "@/components/UploadButton";
 import { NailCanvas } from "@/components/NailCanvas";
 import { ColorPalette } from "@/components/ColorPalette";
@@ -53,14 +54,14 @@ export default function EditorPage() {
             )}
           </section>
           <aside className="rounded-[28px] border border-white/75 bg-white/55 p-6 shadow-[0_20px_60px_rgba(116,73,92,.07)] backdrop-blur-xl">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-100 to-purple-100 text-xl">✦</span>
+            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-100 to-purple-100"><Icon name="sparkles" className="h-5 w-5 text-[#B95F87]" /></span>
             <h2 className="mt-5 text-lg font-semibold text-[#4A4447]">获得更自然的效果</h2>
             <ul className="mt-4 space-y-3 text-sm leading-6 text-[#90878C]">
               <li className="flex gap-3"><span className="text-[#D4749D]">01</span><span>选择光线均匀、手指清晰的正面照片</span></li>
               <li className="flex gap-3"><span className="text-[#D4749D]">02</span><span>逐个选择手指，可为每一指搭配不同颜色</span></li>
               <li className="flex gap-3"><span className="text-[#D4749D]">03</span><span>用撤销与重置随时回退，满意后保存到本地</span></li>
             </ul>
-            <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#9A7C89]">🔒 本地优先：照片默认不会上传；「用户改进计划」可在隐私页关闭</div>
+            <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#9A7C89]"><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />本地优先：照片默认不会上传；「用户改进计划」可在隐私页关闭</div>
           </aside>
         </div>
       ) : (

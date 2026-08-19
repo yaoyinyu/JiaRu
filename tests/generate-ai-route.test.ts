@@ -16,16 +16,37 @@ const ROUTE_SOURCE = resolve(
 test("generate-ai route imports and calls the prompt assembler (hidden system prompt wired in)", () => {
   const source = readFileSync(ROUTE_SOURCE, "utf-8");
   assert.ok(
-    source.includes('import { assembleAiImagePrompt } from "@/lib/ai-hand-anatomy-prompt"'),
-    "route must import assembleAiImagePrompt"
+    source.includes('from "@/lib/ai-hand-anatomy-prompt"'),
+    "route must import prompt assemblers from ai-hand-anatomy-prompt"
   );
   assert.ok(
-    source.includes("const enhancedPrompt = assembleAiImagePrompt(prompt)"),
-    "route must call assembleAiImagePrompt(prompt)"
+    source.includes("assembleAiImagePrompt") &&
+      source.includes("assembleAiImageEditPrompt"),
+    "route must import both text-to-image and image-to-image assemblers"
+  );
+  assert.ok(
+    source.includes("image\n    ? assembleAiImageEditPrompt(prompt)\n    : assembleAiImagePrompt(prompt)"),
+    "route must pick image-edit assembler when a reference image is present"
   );
   assert.ok(
     !source.includes("const enhancedPrompt = `${prompt},"),
     "route must no longer use the old inline suffix template"
+  );
+});
+
+test("generate-ai route validates optional reference image and ratio", () => {
+  const source = readFileSync(ROUTE_SOURCE, "utf-8");
+  assert.ok(
+    source.includes("IMAGE_DATA_URI_PATTERN"),
+    "route must validate the image Data URI prefix"
+  );
+  assert.ok(
+    source.includes("ALLOWED_RATIOS"),
+    "route must whitelist allowed ratios"
+  );
+  assert.ok(
+    source.includes("imageDataUri: image || undefined"),
+    "route must forward the image to the Agnes client"
   );
 });
 

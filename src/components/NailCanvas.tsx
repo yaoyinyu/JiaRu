@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState, useEffect } from "react";
+import { Icon } from "@/components/Icon";
 
 interface Point {
   x: number;
@@ -211,20 +212,20 @@ export function NailCanvas({
           disabled={history.length < 2}
           className="h-12 flex-1 rounded-2xl border border-pink-100 bg-white/80 text-sm font-medium text-[#71676C] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
         >
-          ↩ 撤销
+          <span className="inline-flex items-center justify-center gap-1.5"><Icon name="undo" className="h-4 w-4" />撤销</span>
         </button>
         <button
           onClick={handleReset}
           disabled={history.length < 2}
           className="h-12 flex-1 rounded-2xl border border-pink-100 bg-white/80 text-sm font-medium text-[#71676C] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
         >
-          ↺ 重置
+          <span className="inline-flex items-center justify-center gap-1.5"><Icon name="reset" className="h-4 w-4" />重置</span>
         </button>
         <button
           onClick={handleSave}
           className="h-12 flex-1 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#C96591] text-sm font-medium text-white shadow-[0_10px_22px_rgba(207,111,153,.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(207,111,153,.3)] active:scale-95"
         >
-          💾 保存
+          <span className="inline-flex items-center justify-center gap-1.5"><Icon name="save" className="h-4 w-4" />保存</span>
         </button>
       </div>
     </div>

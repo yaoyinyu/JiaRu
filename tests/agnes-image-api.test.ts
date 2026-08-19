@@ -101,3 +101,60 @@ test("Agnes 401 响应不会泄露供应商正文", async () => {
       error.message === "Agnes API Key 无效"
   );
 });
+
+test("Agnes 图生图请求携带 Data URI 图片与 ratio", async () => {
+  let requestedInit: RequestInit | undefined;
+  const fetchImpl = async (_input: string | URL | Request, init?: RequestInit) => {
+    requestedInit = init;
+    return new Response(
+      JSON.stringify({ data: [{ url: "https://images.example/hand.png" }] }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  };
+
+  const dataUri = "data:image/jpeg;base64,/9j/4AAQSkZJRg==";
+  const result = await generateAgnesImage("银色亮片美甲", {
+    env: { AGNES_API_KEY: "test-secret" },
+    fetchImpl: fetchImpl as typeof fetch,
+    imageDataUri: dataUri,
+    ratio: "3:4",
+  });
+
+  const body = JSON.parse(String(requestedInit?.body));
+  assert.deepEqual(body, {
+    model: "agnes-image-2.1-flash",
+    prompt: "银色亮片美甲",
+    size: "1K",
+    ratio: "3:4",
+    extra_body: {
+      image: [dataUri],
+      response_format: "url",
+    },
+  });
+  assert.equal(result.imageUrl, "https://images.example/hand.png");
+});
+
+test("Agnes 图生图不传 ratio 时保持旧尺寸格式", async () => {
+  let requestedInit: RequestInit | undefined;
+  const fetchImpl = async (_input: string | URL | Request, init?: RequestInit) => {
+    requestedInit = init;
+    return new Response(
+      JSON.stringify({ data: [{ url: "https://images.example/hand2.png" }] }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  };
+
+  await generateAgnesImage("简约美甲", {
+    env: { AGNES_API_KEY: "test-secret" },
+    fetchImpl: fetchImpl as typeof fetch,
+    imageDataUri: "data:image/png;base64,AAAA",
+  });
+
+  const body = JSON.parse(String(requestedInit?.body));
+  assert.equal(body.size, "1024x1024");
+  assert.equal("ratio" in body, false);
+  assert.deepEqual(body.extra_body, {
+    image: ["data:image/png;base64,AAAA"],
+    response_format: "url",
+  });
+});

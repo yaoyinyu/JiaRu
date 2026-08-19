@@ -337,7 +337,7 @@ export default function TextureCropper({
       <div className="flex-1 flex items-center justify-center overflow-hidden bg-[#222]">
         {loading && (
           <div className="absolute z-10 flex items-center gap-2 text-white/70">
-            <span className="animate-spin text-lg">⏳</span>
+            <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" />
             <span>加载中...</span>
           </div>
         )}
@@ -382,7 +382,7 @@ export default function TextureCropper({
         >
           {loadingTexture ? (
             <span className="flex items-center gap-1">
-              <span className="animate-spin">⏳</span> 提取中
+              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" /> 提取中
             </span>
           ) : (
             "确认使用"
