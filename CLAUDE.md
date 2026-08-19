@@ -28,6 +28,7 @@
 | [docs/palm-orientation-review.md](docs/palm-orientation-review.md) | 朝向检测评审 — 早期方案评审记录 |
 | [docs/nail-art-picker.md](docs/nail-art-picker.md) | 指甲纹理分配器 — 上传图→MediaPipe→5 指分配 |
 | [docs/nail-auto-detection.md](docs/nail-auto-detection.md) | 指甲自动检测 — 纹理自动分配流程 |
+| [docs/user-system-plan.md](docs/user-system-plan.md) | 用户管理系统初步技术文档 — 角色权限/资源/配额/流程/API/合规/分阶段路线（v0.2；初始注册登录已实现，完整 Phase 1 规划中） |
 
 ### 开发日志
 | 文件 | 说明 |

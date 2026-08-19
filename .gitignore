@@ -118,3 +118,6 @@ model/exports/
 # python cache
 __pycache__/
 *.pyc
+
+# 用户系统本地数据库（生产使用 Postgres，本地 SQLite 不入库）
+/data/
