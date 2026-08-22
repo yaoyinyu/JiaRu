@@ -212,6 +212,24 @@ test("materializes and deeply verifies a hash-bound core/stress evaluation-only 
   assert.equal(verified.filesSha256, report.files_sha256);
 });
 
+test("accepts canonical sources-isolation rows without imagePath", () => {
+  const item = fixture();
+  const canonicalImage = path.join(item.dataset, "images", "train", "training.png");
+  mkdirSync(path.dirname(canonicalImage), { recursive: true });
+  writeFileSync(canonicalImage, readFileSync(path.join(item.dataset, "images", "raw", "training.png")));
+  writeFileSync(item.sources, [
+    "fileName,role,split,sourceGroup,imageSha256",
+    `training.png,positive,train,training-group,${sha(readFileSync(canonicalImage))}`,
+  ].join("\n"));
+
+  execFileSync("python", item.args, { stdio: "pipe" });
+  const report = JSON.parse(readFileSync(item.report, "utf8"));
+  assert.equal(report.ok, true);
+  assert.equal(report.sourceIsolation.fileNameOverlap.length, 0);
+  assert.equal(report.sourceIsolation.exactImageHashOverlap.length, 0);
+  assert.equal(report.inputs.trainingSources.path, item.sources);
+});
+
 test("rejects training identity overlap and leaves no partial output/report", () => {
   const item = fixture();
   const frozenImage = path.join(item.snapshot, "images", "core", "core.png");

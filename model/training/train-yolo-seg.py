@@ -147,6 +147,37 @@ def remove_ultralytics_label_caches(dataset_root: Path) -> list[str]:
     return removed
 
 
+def install_read_only_ultralytics_image_check() -> None:
+    """阻止Ultralytics在扫描时原地重编码已哈希绑定的JPEG。
+
+    Pillow能够完整解码但缺少EOI字节的历史JPEG会被Ultralytics默认的
+    ``check_image``自动另存为quality=100。候选数据集是可重放证据，训练器
+    只能读取它；是否可解码已由输入深审负责，扫描阶段不得改变任何图片字节。
+    """
+
+    from PIL import Image
+    from ultralytics.data import utils as data_utils
+
+    def check_image_read_only(im_file: str) -> tuple[str, tuple[int, int]]:
+        with Image.open(im_file) as image:
+            image.verify()
+        with Image.open(im_file) as image:
+            image.load()
+            shape = (int(image.height), int(image.width))
+            image_format = str(image.format or "").lower()
+        if shape[0] <= 9 or shape[1] <= 9:
+            raise AssertionError(f"image size {shape} <10 pixels")
+        if image_format not in data_utils.IMG_FORMATS:
+            raise AssertionError(f"Invalid image format {image_format}")
+        return "", shape
+
+    data_utils.check_image = check_image_read_only
+    # verify_image通过其定义模块的globals查找check_image；显式断言避免未来
+    # Ultralytics版本改变导入方式后静默恢复成写入行为。
+    if data_utils.verify_image.__globals__.get("check_image") is not check_image_read_only:
+        raise RuntimeError("failed to install read-only Ultralytics image verifier")
+
+
 def main() -> None:
     args = build_parser().parse_args()
     batch = parse_batch(args.batch)
@@ -233,6 +264,7 @@ def main() -> None:
         return
 
     ultralytics = ensure_python_dependency("ultralytics", "pip install ultralytics")
+    install_read_only_ultralytics_image_check()
     write_resolved_dataset_yaml(runtime_dataset_yaml, config)
     model = ultralytics.YOLO(args.model)
     output_dir.mkdir(parents=True, exist_ok=True)

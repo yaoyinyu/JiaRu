@@ -1,9 +1,9 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-07-29
+更新日期：2026-08-22
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
-> **当前最高优先级（2026-08-13）：** 全力完成高质量正式美甲识别模型并达到可发布状态。立即主线为candidate6剩余54张正样本完整甲面真值终审；整批物化和来源隔离审计通过前禁止训练。随后依次执行candidate6训练、val30阈值校准、冻结test100、训练后全新困难负样本三变体零误检审计、生产ONNX、浏览器/移动真机/Beta和双版本回滚验收。AI美甲生图已验收，除阻断性故障外不占用本主线。
+> **当前最高优先级（2026-08-22）：** candidate7已完成200张/1123 mask正样本+160困难负样本训练、A/B val30选择和一次性冻结test100，但逐实例门仅440/554匹配、397个完整mask、57/100图漏甲、29/100图可直接提取，候选已否决。立即主线转为candidate8全新来源定向补强整图多甲召回和完整mask。项目图像与本机计算资源已有standing商业授权，不再等待逐批授权；所有角色隔离、原分辨率、val30、冻结test100、独立困难负样本、浏览器/真机/Beta和发布门继续严格执行。
 
 ## 标记规则
 
@@ -141,6 +141,7 @@ npm.cmd run build
 | `M2-T3-TRAINING-AUTHORIZATION-V2-039` | 训练困难负样本精确授权语义、清单摘要与正式A记录深度重放 | ✅ PASS（工程门，仍待用户确认） | schema v2请求显式绑定`candidateId`、160张、`requestedItemsSha256`和商业训练/长期回归/模型诊断/数据质量审核四种用途，确认文本由验证器确定性重建；授权源标记为operator-attested并绑定任务消息，正式记录器在创建目录前调用授权构建器深验请求、进度、计划、registry及当前160项，拒绝手写JSON、额外字段、非法ID、文本/用途/摘要/图片漂移。请求包`4a47e126…27fd`深验通过，旧candidate5 v1请求已删除；授权/进度专项17/17通过，历史schema v1只读兼容 |
 | `REL-T2-FIRST-RELEASE-ROLLBACK-BOOTSTRAP-040` | 首个正式发布的双批准版本回滚启动策略 | ✅ PASS（工程策略门，尚无可发布资产） | 现有注册器以`--set-current false`先登记独立通过完整发布门的fallback版本，再登记并激活不同active版本；回滚审计继续要求两个版本的manifest快照、模型文件、SHA-256、体积和运行时契约完整，至少一个非当前候选。新增真实命令链测试确认空registry可安全形成active+fallback并通过回滚深验；禁止synthetic/smoke、已拒绝候选或同一模型重复登记。回滚专项15/15通过；当前没有任何合格正式模型，故这只是解除首次发布流程死锁，不生成生产资产 |
 | `M2-T3-CANDIDATE5-PREVIOUS-REPORT-CHAIN-041` | 候选5增量生成前序报告递归深验与防篡改 | ✅ PASS（工程证据门，仍未授权训练） | `audit-training-hard-negative-generation-progress.py`不再只核对父报告顶层字段和items摘要，而是逐项匹配160项计划身份、路径、状态、issueCodes及passed元数据，重新推导汇总、家族计数、下一缺口与READY/HOLD决定，并递归验证祖先路径/SHA-256、同一计划/registry/受保护记录摘要、无环和已完成图片跨代稳定性。专项6/6通过，新增篡改summary、篡改promptId并重算items摘要两类拒绝；Git外160张、20级真实链`9aa129a1…25c3`按新逻辑重放通过，继续`trainingUse=prohibited` |
+| `M2-T3-CANDIDATE7-FORMAL-TRAINING-045` | 候选7组合真值、A/B训练、val30选择与冻结test100逐实例门 | ✅ PASS（流程完成，候选否决） | standing授权下将candidate6基线120张/636 mask、旧真实33张/237 mask和新增47张/250 mask合并为200张/1123 mask，另含160训练负样本；规范train360/val30/test0物化及输入深审通过。A续训权重`567ac8b9…e355`，B高容量权重`d616ab6d…6983`；仅用val30选择A和阈值0.70。一次性冻结test100总体mask mAP50=0.95168，但逐实例报告为440/554匹配、397完整mask、114漏甲、11重复、52额外、53无效预测mask，57图漏甲、29图可直接提取，决定`hold_positive_recognition_gate`。测试画像禁止训练/调参，candidate7未进入独立负样本、ONNX、登记或部署 |
 | `M2-T3-CANDIDATE5-FORMAL-TRAINING-042` | 候选5精确授权、160张终审、训练物化、GPU训练、val校准与冻结test100质量门 | ✅ PASS（候选离线质量门） | schema v2精确授权及A记录深验通过；160/160原分辨率终审、0排除，批准清单`fe68c361…164a`。train260/val30/test0物化`9974b871…3d73`与输入审计`6734942d…f590`通过；RTX 4060训练权重`26daf742…a56`，val30阈值0.50，冻结test100部署512 full/core/stress box/mask mAP50分别为0.9569/0.9561、0.9591/0.9660、0.9525/0.9265，正式质量报告`8fa2161b…f8f3`深验PASS。尚未通过全新独立困难负样本、真机、Beta或生产资产门 |
 | `M2-T3-CANDIDATE5-INDEPENDENT-HOLDOUT-043` | 候选5训练后全新未见独立困难负样本留出 | ✅ PASS（审计完成，候选拒绝） | 编号361—460共100张在任何candidate5推理前完成精确授权、原子freeze、registry v3隔离预审、25页1:1原分辨率终审100/100和批准清单`c7af362a…17ed`。首次部署512、阈值0.50三变体审计为原图3张/5检测、裁角4张/4检测、模糊角标3张/6检测，delta=1/1，报告`9cb13d1f…8016`深验后决定HOLD。任务的冻结与审计闭环已完成，但候选质量门失败；整批已追加到registry v4，永久禁止训练或再次充当未见留出 |
 | `M2-T3-CANDIDATE5-INDEPENDENT-FREEZE-GUARD-044` | 候选5新独立留出冻结的目标候选防误用与旧留出复用拒绝 | ✅ PASS（工程门，未生成新素材） | 独立留出冻结器新增`--expected-candidate-weights-sha256`和`--expected-score-threshold`断言，正式candidate5调用必须分别声明`26daf742…a56`与`0.50`；与当前深验权重或规范阈值不一致时在创建staging/最终freeze前拒绝。真实candidate4授权`29dba26f…82fe`、freeze`56493d94…a3e3`、批准清单`c0ea6eb1…cd9e`和registry v2`527a76d3…f8fc`完成深度重放；专项14/14确认registry中的历史holdout不能精确复用。该PASS只补齐冻结工程保护，不代表新100张已生成、授权、终审或推理通过 |

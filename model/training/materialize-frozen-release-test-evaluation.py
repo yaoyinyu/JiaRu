@@ -130,22 +130,40 @@ def training_evidence(
         group = require_nonempty_text(
             row.get("sourceGroup"), f"training source row {row_index} sourceGroup"
         )
-        image_ref = require_nonempty_text(
-            row.get("imagePath"), f"training source row {row_index} imagePath"
+        file_name = safe_file_name(
+            row.get("fileName"), f"training source row {row_index} fileName"
         )
-        image_path = Path(image_ref)
-        if not image_path.is_absolute():
-            image_path = (dataset_root / image_path).resolve()
+        image_ref = str(row.get("imagePath") or "").strip()
+        if image_ref:
+            image_path = Path(image_ref)
+            if not image_path.is_absolute():
+                image_path = (dataset_root / image_path).resolve()
+            else:
+                image_path = image_path.resolve()
         else:
-            image_path = image_path.resolve()
+            # 规范候选数据集的sources-isolation.csv刻意只保存稳定身份，
+            # 图片位置由split/fileName确定；它与旧sources.csv的imagePath
+            # 语义等价，但不得把缺失路径静默回退到任意搜索结果。
+            split = require_nonempty_text(
+                row.get("split"), f"training source row {row_index} split"
+            )
+            if split not in {"train", "val", "test"}:
+                raise ValueError(
+                    f"Unsupported training source row {row_index} split: {split}"
+                )
+            image_path = (dataset_root / "images" / split / file_name).resolve()
+            if not is_within(image_path, dataset_root):
+                raise ValueError(
+                    f"Training source row {row_index} image escapes dataset root"
+                )
         if not image_path.is_file():
             raise FileNotFoundError(
                 f"Training source image is missing at row {row_index}: {image_path}"
             )
-        file_name = safe_file_name(
-            row.get("fileName") or image_path.name,
-            f"training source row {row_index} fileName",
-        )
+        if image_path.name != file_name:
+            raise ValueError(
+                f"Training source row {row_index} imagePath/fileName mismatch"
+            )
         image_sha256 = sha256_path(image_path)
         declared_hash = str(row.get("imageSha256") or "").strip()
         if declared_hash and require_sha256(
