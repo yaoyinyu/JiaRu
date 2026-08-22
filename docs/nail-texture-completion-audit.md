@@ -31,6 +31,8 @@ model/reports/nail-texture-local-inference-completion-audit.json
 - 生产manifest、ONNX大小和SHA-256一致性。
 - 当前版本以及至少一个历史版本的回滚注册、模型完整性和审计结果。
 
+自2026-08-22起，项目范围内图像与本机计算资源由`model/training/project-commercial-resource-authorization-v1.json`提供standing商业授权，完成度审计不再把“逐批等待用户确认”作为独立发布门。该变化只移除人工暂停：数据集readiness与用途角色仍须由机器证据判定，val、冻结test、已消费holdout及其派生物/父来源仍禁止训练；原分辨率完整甲面、独立未见留出、三变体零误检、浏览器、真机、Beta、产品质量与回滚门继续全部要求真实PASS。
+
 ## 外部证据格式
 
 无需手写下列JSON。先复制可填写模板：
