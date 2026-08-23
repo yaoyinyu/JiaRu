@@ -8,6 +8,9 @@ export interface RankNailTextureCandidatesOptions {
   imageHeight: number;
   maxCandidates?: number;
   duplicateOverlapThreshold?: number;
+  duplicateMaskIouThreshold?: number;
+  duplicateMaskContainmentThreshold?: number;
+  duplicateMaskScoreTolerance?: number;
   includeLowConfidenceCandidates?: boolean;
   scoreThreshold?: number;
   sourceImage?: {
@@ -15,6 +18,13 @@ export interface RankNailTextureCandidatesOptions {
     height: number;
     data: ArrayLike<number>;
   };
+}
+
+interface MaskOverlapMetrics {
+  intersectionOverUnion: number;
+  smallerMaskContainment: number;
+  leftArea: number;
+  rightArea: number;
 }
 
 export interface NailTextureCandidateAssessment {
@@ -169,6 +179,95 @@ function suppressDuplicateCandidates(
   return kept;
 }
 
+function measureMaskOverlap(
+  left: NailTextureCandidate,
+  right: NailTextureCandidate
+): MaskOverlapMetrics | null {
+  const leftMask = left.mask;
+  const rightMask = right.mask;
+  if (!leftMask || !rightMask) return null;
+  if (
+    leftMask.width !== rightMask.width ||
+    leftMask.height !== rightMask.height ||
+    leftMask.originX !== rightMask.originX ||
+    leftMask.originY !== rightMask.originY ||
+    Math.abs(leftMask.scale - rightMask.scale) > 1e-6 ||
+    leftMask.data.length !== rightMask.data.length
+  ) {
+    return null;
+  }
+
+  let leftArea = 0;
+  let rightArea = 0;
+  let intersection = 0;
+  for (let index = 0; index < leftMask.data.length; index++) {
+    const inLeft = leftMask.data[index] !== 0;
+    const inRight = rightMask.data[index] !== 0;
+    if (inLeft) leftArea++;
+    if (inRight) rightArea++;
+    if (inLeft && inRight) intersection++;
+  }
+
+  if (leftArea === 0 || rightArea === 0 || intersection === 0) {
+    return {
+      intersectionOverUnion: 0,
+      smallerMaskContainment: 0,
+      leftArea,
+      rightArea,
+    };
+  }
+
+  const union = leftArea + rightArea - intersection;
+  return {
+    intersectionOverUnion: intersection / union,
+    smallerMaskContainment: intersection / Math.min(leftArea, rightArea),
+    leftArea,
+    rightArea,
+  };
+}
+
+function suppressDuplicateMaskCandidates(
+  candidates: NailTextureCandidate[],
+  iouThreshold: number,
+  containmentThreshold: number,
+  scoreTolerance: number
+): NailTextureCandidate[] {
+  const useIou = iouThreshold > 0 && iouThreshold <= 1;
+  const useContainment = containmentThreshold > 0 && containmentThreshold <= 1;
+  if (!useIou && !useContainment) return candidates;
+
+  const kept: NailTextureCandidate[] = [];
+  for (const candidate of candidates) {
+    let duplicateIndex = -1;
+    let duplicateMetrics: MaskOverlapMetrics | null = null;
+    for (let index = 0; index < kept.length; index++) {
+      const metrics = measureMaskOverlap(candidate, kept[index]);
+      if (!metrics) continue;
+      if (
+        (useIou && metrics.intersectionOverUnion >= iouThreshold) ||
+        (useContainment && metrics.smallerMaskContainment >= containmentThreshold)
+      ) {
+        duplicateIndex = index;
+        duplicateMetrics = metrics;
+        break;
+      }
+    }
+
+    if (duplicateIndex < 0 || !duplicateMetrics) {
+      kept.push(candidate);
+      continue;
+    }
+
+    const selected = kept[duplicateIndex];
+    const candidateIsMoreComplete = duplicateMetrics.leftArea > duplicateMetrics.rightArea;
+    const candidateScoreIsClose = candidate.score + Math.max(0, scoreTolerance) >= selected.score;
+    if (candidateIsMoreComplete && candidateScoreIsClose) {
+      kept[duplicateIndex] = candidate;
+    }
+  }
+  return kept;
+}
+
 export function assessNailTextureCandidate(
   candidate: NailTextureCandidate,
   options: Pick<RankNailTextureCandidatesOptions, "imageWidth" | "imageHeight" | "sourceImage">
@@ -207,6 +306,10 @@ export function rankNailTextureCandidates(
 ): NailTextureCandidate[] {
   const maxCandidates = options.maxCandidates ?? 10;
   const duplicateOverlapThreshold = options.duplicateOverlapThreshold ?? 0.55;
+  const duplicateMaskIouThreshold = options.duplicateMaskIouThreshold ?? 0.6;
+  const duplicateMaskContainmentThreshold =
+    options.duplicateMaskContainmentThreshold ?? 0.85;
+  const duplicateMaskScoreTolerance = options.duplicateMaskScoreTolerance ?? 0.12;
   const includeLowConfidenceCandidates = options.includeLowConfidenceCandidates ?? false;
   const scoreThreshold = options.scoreThreshold ?? 0.35;
 
@@ -230,7 +333,14 @@ export function rankNailTextureCandidates(
     )
     .sort((a, b) => b.score - a.score);
 
-  return suppressDuplicateCandidates(scored, duplicateOverlapThreshold)
+  const maskSuppressed = suppressDuplicateMaskCandidates(
+    scored,
+    duplicateMaskIouThreshold,
+    duplicateMaskContainmentThreshold,
+    duplicateMaskScoreTolerance
+  );
+
+  return suppressDuplicateCandidates(maskSuppressed, duplicateOverlapThreshold)
     .slice(0, maxCandidates)
     .sort((a, b) => a.cx - b.cx);
 }

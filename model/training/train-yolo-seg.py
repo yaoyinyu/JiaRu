@@ -29,6 +29,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--patience", type=int, default=20)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--workers", type=int, default=8)
+    parser.add_argument("--optimizer", default="auto")
+    parser.add_argument("--lr0", type=float, default=None)
+    parser.add_argument("--freeze", type=int, default=None)
     parser.add_argument("--run-name", default="nail-texture-seg-v1")
     parser.add_argument("--candidate-mode", action="store_true", help="Require a deeply replayed candidate-input audit and mark this run as a release-candidate training attempt")
     parser.add_argument("--candidate-input-report", default="", help="Approved report from audit-candidate-training-input.py")
@@ -212,6 +215,9 @@ def main() -> None:
         "patience": args.patience,
         "device": args.device,
         "workers": args.workers,
+        "optimizer": args.optimizer,
+        "lr0": args.lr0,
+        "freeze": args.freeze,
         "run_name": args.run_name,
         "output_dir": str(output_dir),
         "run_dir": str(resolve_training_run_dir(output_dir, args.run_name)),
@@ -268,6 +274,13 @@ def main() -> None:
     write_resolved_dataset_yaml(runtime_dataset_yaml, config)
     model = ultralytics.YOLO(args.model)
     output_dir.mkdir(parents=True, exist_ok=True)
+    train_options = {
+        "optimizer": args.optimizer,
+    }
+    if args.lr0 is not None:
+        train_options["lr0"] = args.lr0
+    if args.freeze is not None:
+        train_options["freeze"] = args.freeze
     results = model.train(
         data=str(runtime_dataset_yaml),
         task="segment",
@@ -279,6 +292,7 @@ def main() -> None:
         workers=args.workers,
         project=str(output_dir),
         name=args.run_name,
+        **train_options,
     )
     results_dir = Path(getattr(results, "save_dir", output_dir)).resolve()
     actual_best_weights_path = results_dir / "weights" / "best.pt"

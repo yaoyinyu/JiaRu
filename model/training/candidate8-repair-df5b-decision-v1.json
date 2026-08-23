@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+  "sha256": "55ed3b7c90ab8ac2e79c08424d6b05968dfe2bb1c065070bc424a3a1191cd565",
+  "sourceGroup": "real-user-authorized-2026-07-11",
+  "initialShardFinalSha256": "8596d312b9a4f91d053cc3ac65cbbf35024a9517e56b9db40b840f74ab7cd59c",
+  "repairPromptsSha256": "21289765bbf000c8264c69cecc4dc04bdc91f1fbdf02054df833f1ba9fee16fc",
+  "manualReportSha256": "669be58a586af9a4bb3a1323df72f8217a8985e5faacb06f2b3d7abdaa510f43",
+  "geometryAuditSha256": "6ac6244f7aa6ea120f4e0d19331f99562d583a95b5895487a14065302e9988de",
+  "annotationSha256": "de6e78dcb3b5e46658f180685c2fff05d57549bbb69531e7d0962ccab2f8e3af",
+  "reviewedOverlaySha256": "ed20005482dc4b20f1712fe4ea1e4e1737131009ed0d734d4fac8447579257f6",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 8,
+  "correctedExpectedFullyVisibleNails": 8,
+  "expectedCountCorrectionReason": "原分辨率逐甲复核确认上下手部各露出4枚完整甲面，共8枚；其余两个自动候选分别是Logo心形和中央丝绸背景。",
+  "issueCodes": [],
+  "note": "原分辨率复核纠正库存期望数：画面仅有8枚完整可见甲面；删除Logo心形和中央丝绸背景误检，沿左下拇指真实甲板人工重画。8枚polygon合法且严格零交叠，无丝绸、Logo、皮肤、重复或交叠污染。",
+  "trainingUse": "prohibited"
+}

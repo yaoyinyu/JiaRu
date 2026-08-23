@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "decision": "human_reviewed_prompt_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 6, 7, 8],
+      "addBoxes": [[0.874, 0.215, 0.974, 0.445]],
+      "addPromptModes": ["box-center"],
+      "addPositivePoints": [[[0.930, 0.250], [0.930, 0.325], [0.930, 0.405]]],
+      "addNegativePoints": [[[0.862, 0.325], [0.985, 0.325]]],
+      "reviewReason": "删除右下丝绸误检和只覆盖右侧甲尖纹理的局部候选，保留8枚完整甲面，并重建右侧最后一枚完整裸粉甲板。"
+    },
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 6, 7, 8],
+      "addBoxes": [[0.235, 0.700, 0.525, 0.875], [0.500, 0.805, 0.770, 0.970]],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [
+        [[0.300, 0.775], [0.390, 0.790], [0.480, 0.820]],
+        [[0.555, 0.920], [0.640, 0.875], [0.720, 0.835]]
+      ],
+      "addNegativePoints": [
+        [[0.215, 0.790], [0.545, 0.790]],
+        [[0.490, 0.780], [0.785, 0.900]]
+      ],
+      "reviewReason": "删除同甲重复与皮肤区域候选，保留8枚完整甲面，补回下方左侧横向拇指和右下侧向长甲。"
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 6, 7, 8],
+      "addBoxes": [[0.755, 0.165, 0.895, 0.365], [0.095, 0.475, 0.245, 0.640]],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [
+        [[0.820, 0.205], [0.825, 0.270], [0.825, 0.335]],
+        [[0.125, 0.535], [0.170, 0.555], [0.220, 0.580]]
+      ],
+      "addNegativePoints": [
+        [[0.745, 0.265], [0.905, 0.265]],
+        [[0.085, 0.550], [0.255, 0.550]]
+      ],
+      "reviewReason": "删除同甲局部重复与手部皮肤误检，保留8枚完整甲面，补回右上拇指和左下横向拇指完整甲板。"
+    },
+    {
+      "fileName": "-2023-08-06-14.45.11_116187332364cf4188268a1-1022x1024.jpg",
+      "keepPromptIndices": [1, 2, 3, 4, 5, 6, 7, 8],
+      "addBoxes": [[0.820, 0.040, 0.965, 0.220], [0.240, 0.500, 0.390, 0.690]],
+      "addPromptModes": ["box-center", "box-center"],
+      "addPositivePoints": [
+        [[0.890, 0.075], [0.890, 0.130], [0.890, 0.190]],
+        [[0.300, 0.535], [0.315, 0.595], [0.325, 0.655]]
+      ],
+      "addNegativePoints": [
+        [[0.805, 0.130], [0.978, 0.130]],
+        [[0.225, 0.595], [0.405, 0.595]]
+      ],
+      "reviewReason": "删除两个落在同一装饰局部的重复候选，保留8枚完整甲面，补回右上与左下两枚未上色但完整可见的自然甲。"
+    }
+  ]
+}

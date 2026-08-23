@@ -240,7 +240,22 @@ def main() -> None:
     status = str(decision.get("reviewStatus", ""))
     issue_codes = decision.get("issueCodes", [])
     final_count = decision.get("finalCompleteMaskCount")
-    expected_count = int(initial_item.get("expectedFullyVisibleNails", 0)) if initial_item else 0
+    initial_expected_count = int(initial_item.get("expectedFullyVisibleNails", 0)) if initial_item else 0
+    corrected_expected_count = decision.get("correctedExpectedFullyVisibleNails")
+    correction_reason = decision.get("expectedCountCorrectionReason")
+    expected_count = initial_expected_count
+    if corrected_expected_count is not None:
+        if (
+            not isinstance(corrected_expected_count, int)
+            or isinstance(corrected_expected_count, bool)
+            or corrected_expected_count <= 0
+            or corrected_expected_count == initial_expected_count
+        ):
+            errors.append("correctedExpectedFullyVisibleNails must be a positive integer different from the initial count")
+        elif not isinstance(correction_reason, str) or not correction_reason.strip():
+            errors.append("expected-count correction requires a non-empty original-resolution review reason")
+        else:
+            expected_count = corrected_expected_count
     polygon_count = len(annotation.get("annotations", [])) if annotation else 0
     prompt_count = len(prompt_item.get("boxes", [])) if prompt_item else 0
     geometry_rows = [row for row in geometry.get("rows", []) if row.get("fileName") == file_name]
@@ -297,6 +312,8 @@ def main() -> None:
             "sha256": initial_item["sha256"],
             "sourceGroup": initial_item["sourceGroup"],
             "expectedFullyVisibleNails": expected_count,
+            "initialExpectedFullyVisibleNails": initial_expected_count,
+            "expectedCountCorrectionReason": correction_reason.strip() if isinstance(correction_reason, str) else None,
             "promptCount": prompt_count,
             "polygonCount": polygon_count,
             "geometryPass": len(geometry_rows) - geometry_suspects,

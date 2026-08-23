@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate8_remaining_rework_excluded_after_original_resolution_review",
+  "trainingUse": "prohibited",
+  "policy": {
+    "qualityGateNotRelaxed": true,
+    "failedCandidatesNotCounted": true,
+    "excludeInsteadOfApproximateManualBoundary": true
+  },
+  "items": [
+    {
+      "fileName": "d91d43318c1f87f3c3118f42de25de57.jpg",
+      "sha256": "e8f219768407151b1864ed611e15353797a207d77d7d8efe337133eee911b89b",
+      "sourceGroup": "real-user-authorized-2026-07-11",
+      "status": "excluded",
+      "issueCodes": ["multi-hand-overlap", "source-overexposure", "decoration-occludes-nail-boundary", "sam-repair-skin-contamination"],
+      "note": "双手拥挤交叠且强曝光，大钻与皮肤遮蔽多枚甲根/侧缘；追加SAM仍吞入衣袖与皮肤，无法高置信形成逐甲完整边界。"
+    },
+    {
+      "fileName": "e0bd54d05d6cdad6e2adedb784be875c.jpg",
+      "sha256": "310560921afa80afed347edadabba19c7ad7c5c3104ca65208a3ae7a77bcf041",
+      "sourceGroup": "real-user-authorized-2026-07-11",
+      "status": "excluded",
+      "issueCodes": ["multi-hand-overlap", "missing-complete-nail", "partial-decoration-mask", "sam-repair-skin-contamination"],
+      "note": "双手交叠场景漏掉两枚完整甲面，现有候选含局部钻饰与皮肤；追加SAM未能恢复稳定完整边界。"
+    },
+    {
+      "fileName": "8c4793356e5af0d460bc7967919fd6ba.jpg",
+      "sha256": "c06ba33fe94b1dbeb0d07c653064d78a1675621c7b75899d28511d06e4ef71e7",
+      "sourceGroup": "real-user-authorized-2026-07-11",
+      "status": "excluded",
+      "issueCodes": ["source-overexposure", "large-gem-occlusion", "mask-skin-contamination", "partial-decoration-mask"],
+      "note": "多枚甲面被大钻与强反光覆盖，自动候选追随饰件或吞入皮肤；真实甲板边界不足以支持高质量人工polygon。"
+    },
+    {
+      "fileName": "d59b3facac1d4ce8507d1de491a583d6.jpg",
+      "sha256": "18c4ff06d58611c68003cff86be12420e6129353f520350ce6cf971c09e6cc42",
+      "sourceGroup": "real-user-authorized-2026-07-11",
+      "status": "excluded",
+      "issueCodes": ["source-overexposure", "large-gem-occlusion", "incomplete-mask", "partial-decoration-mask"],
+      "note": "大钻与高光系统性遮挡甲板，至少两枚候选仅覆盖饰件；原图无法可靠恢复完整甲面边界。"
+    },
+    {
+      "fileName": "ec02f0d2830587d57caadd728bdebe82.jpg",
+      "sha256": "3a8c47ba2bc7f99ff786c71a9dddafd2d5d489ec51d3ff912945239744456dca",
+      "sourceGroup": "real-user-authorized-2026-07-11",
+      "status": "excluded",
+      "issueCodes": ["multi-hand-overlap", "source-overexposure", "large-gem-occlusion", "irregular-mask-boundary"],
+      "note": "双手拥挤、强曝光并有大钻遮挡，多枚候选边界锯齿或含皮肤；继续近似人工描边会降低训练真值质量。"
+    }
+  ],
+  "counts": {
+    "excluded": 5,
+    "promoted": 0
+  }
+}

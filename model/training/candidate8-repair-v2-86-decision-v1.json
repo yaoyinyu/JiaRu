@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "fileName": "v2-86e189d04394c241ff4e93469c448ae1_1440w.jpg",
+  "sha256": "b8638ede6154a27ad570b1047ec91a31a72f5accdcfa93aaf19e6fef1280bea3",
+  "sourceGroup": "real-reference-2026-07-12-batch-02:other",
+  "initialShardFinalSha256": "90cc94e8367ae08c87902ba00a2ab1457de21f1414aa85232c77c7ed6ed309f1",
+  "repairPromptsSha256": "5bb921d7f556e5f9ccd2f7c4019ef81af63309a6bc5f9ad34fd21ca2715ddf53",
+  "manualReportSha256": "6bfd919d48832c88e2f3ffabda5e1fbbfd1384d4c6543ce055588ad17b9b6522",
+  "geometryAuditSha256": "0096378fce7a2bf50c170fcbafb578d5474a1d0d3477a9e7e2e47b45b6568517",
+  "annotationSha256": "f664a0a165469aa74b7c3ecfd6d9e7463e591460ddd4a3b285eed7fa7d5a6a82",
+  "reviewedOverlaySha256": "e15b2e3eaf2c413182e0a8bbf1d77f54ed5dcbedf1b63cf5d84e25b7c579b0b4",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 10,
+  "issueCodes": [],
+  "note": "原分辨率确认双手10枚甲面完整；保留8枚已审polygon，人工重画上方相邻两枚棕金长甲，排除皮肤与针织袖口。终版10/10合法、严格零交叠、几何10/10。",
+  "trainingUse": "prohibited"
+}

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate8_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate8_ranked_sam_v1\\annotations\\f5e4fc362a7b4115cbf3607d22d87e72.json",
+      "sourceGroup": "real-user-authorized-2026-07-11",
+      "nails": [
+        {"sourceIndex": 1}, {"sourceIndex": 2}, {"sourceIndex": 3},
+        {"sourceIndex": 4}, {"sourceIndex": 5}, {"sourceIndex": 6},
+        {"sourceIndex": 7}, {"sourceIndex": 9}
+      ]
+    },
+    {
+      "fileName": "v2-1b1a4ea6882d93553824910f95c98866_1440w.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate8_ranked_sam_v1\\annotations\\v2-1b1a4ea6882d93553824910f95c98866_1440w.json",
+      "sourceGroup": "real-reference-2026-07-12-batch-02:other",
+      "nails": [
+        {"sourceIndex": 1}, {"sourceIndex": 2}, {"sourceIndex": 3},
+        {"sourceIndex": 4}, {"sourceIndex": 5}, {"sourceIndex": 6},
+        {"sourceIndex": 7}, {"sourceIndex": 9}, {"sourceIndex": 10}
+      ]
+    }
+  ]
+}

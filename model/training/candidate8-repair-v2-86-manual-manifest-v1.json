@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate8_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "v2-86e189d04394c241ff4e93469c448ae1_1440w.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate8_ranked_sam_v1\\annotations\\v2-86e189d04394c241ff4e93469c448ae1_1440w.json",
+      "sourceGroup": "real-reference-2026-07-12-batch-02:other",
+      "nails": [
+        {"sourceIndex": 1}, {"sourceIndex": 2}, {"sourceIndex": 3},
+        {"sourceIndex": 4}, {"sourceIndex": 5}, {"sourceIndex": 6},
+        {"sourceIndex": 7}, {"sourceIndex": 9},
+        {
+          "polygon": [
+            {"x": 590, "y": 360}, {"x": 605, "y": 343},
+            {"x": 630, "y": 337}, {"x": 665, "y": 342},
+            {"x": 700, "y": 356}, {"x": 726, "y": 375},
+            {"x": 735, "y": 395}, {"x": 730, "y": 411},
+            {"x": 710, "y": 421}, {"x": 680, "y": 425},
+            {"x": 645, "y": 422}, {"x": 615, "y": 412},
+            {"x": 595, "y": 396}, {"x": 585, "y": 378}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画上方棕金长甲的平滑甲板边界，排除相邻手指皮肤。"}
+        },
+        {
+          "polygon": [
+            {"x": 690, "y": 438}, {"x": 710, "y": 423},
+            {"x": 750, "y": 416}, {"x": 800, "y": 418},
+            {"x": 845, "y": 432}, {"x": 875, "y": 450},
+            {"x": 887, "y": 470}, {"x": 882, "y": 490},
+            {"x": 862, "y": 509}, {"x": 830, "y": 520},
+            {"x": 790, "y": 523}, {"x": 750, "y": 515},
+            {"x": 720, "y": 500}, {"x": 698, "y": 482},
+            {"x": 684, "y": 461}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画下方棕金长甲的平滑甲板边界，排除相邻皮肤和针织袖口。"}
+        }
+      ]
+    }
+  ]
+}

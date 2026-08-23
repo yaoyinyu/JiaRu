@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 2,
+  "fileName": "aaa6fab381af1c61b619a9807d52a1f0.jpg",
+  "sha256": "9785c6e6972defc273647828ae12b4e8138f37583a4ab1596bfe01d751a85f39",
+  "sourceGroup": "real-user-authorized-2026-07-11",
+  "initialShardFinalSha256": "8596d312b9a4f91d053cc3ac65cbbf35024a9517e56b9db40b840f74ab7cd59c",
+  "repairPromptsSha256": "7d6fb245b37002dc22dd72e56af3c5aecc245a7daef98d9d07cbe44dab12cd1b",
+  "samReportSha256": "92152a0d999154ffa1034f268fc12724ea692060ef1e70e622d0726b6887b2ba",
+  "geometryAuditSha256": "dea9dcd197072ee9c5557cfe69d7f5cc9ae2262daec99ded3b8e55acafcc3d36",
+  "visualEvidenceSha256": "0c9fc91cf50ca7cdb29d1c080cb4b8d7f38df1582ca658cad392f1bf37aa8acf",
+  "annotationSha256": "3b1a652a95eeec3ead48a8b9121e089d6d5f50284ce0dd848c2778bd687bbd38",
+  "reviewedOverlaySha256": "cde69fc288da1fa480d4e3535afb9ccdab79eb5a2df96a46970f2c64b42ae5e1",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 9,
+  "correctedExpectedFullyVisibleNails": 9,
+  "expectedCountCorrectionReason": "原分辨率逐甲复核确认左手5枚、右手4枚完整可见甲面，共9枚；原第10候选为右下丝绸背景。",
+  "issueCodes": [],
+  "note": "删除右下丝绸误检和右侧仅覆盖纹理的局部候选，重建右侧完整裸粉甲板；9枚甲面均由唯一完整mask覆盖，几何9/9且同图零交叠。"
+}
