@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "fileName": "9a0c13d0485ade01a084dbfeff865d99.jpg",
+  "sha256": "93fc4b8a2f405f838b5eb7b94d5c23ce68f4c39e789d755a6253218425ff7539",
+  "sourceGroup": "real-user-authorized-2026-07-11",
+  "initialShardFinalSha256": "8596d312b9a4f91d053cc3ac65cbbf35024a9517e56b9db40b840f74ab7cd59c",
+  "repairPromptsSha256": "9e855b524798b62b9bdc3301e4cd485d57602fe164910673afd73097ba75dedc",
+  "manualReportSha256": "cdfe96a97c7abe5b8b7b19f3537cfcbbc09c1a90b2d624e01cc326e58dcf3d1a",
+  "geometryAuditSha256": "5a501ad112ada23e4ec20d33cc167caf9447c6c8cfdd8799944f5e1fa0c93162",
+  "annotationSha256": "78afa7b9812921c74decc947c67cfbfa1e5d5a160b358f579df80b2792521a70",
+  "reviewedOverlaySha256": "f4cd5a6876a309b513ebdce53acd8da3b83db8cc3e26fd5748f0d2213cd62a58",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 10,
+  "issueCodes": [],
+  "note": "原分辨率确认10枚甲面完整；保留9枚已审polygon，并沿真实相邻遮挡边界裁开第10枚银白长甲。终版10/10合法、严格零交叠、几何10/10。",
+  "trainingUse": "prohibited"
+}

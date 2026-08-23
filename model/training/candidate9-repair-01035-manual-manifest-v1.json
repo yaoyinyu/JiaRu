@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_01035_6a2e5f990000000035030cd3_16.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01035_6a2e5f990000000035030cd3_16.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-d70098e5668376bc",
+      "nails": [
+        { "sourceIndex": 1 },
+        {
+          "polygon": [
+            { "x": 693, "y": 767 }, { "x": 666, "y": 778 }, { "x": 632, "y": 806 },
+            { "x": 627, "y": 816 }, { "x": 603, "y": 880 }, { "x": 600, "y": 902 },
+            { "x": 605, "y": 927 }, { "x": 617, "y": 935 }, { "x": 645, "y": 925 },
+            { "x": 668, "y": 903 }, { "x": 724, "y": 827 }, { "x": 729, "y": 811 },
+            { "x": 726, "y": 789 }, { "x": 710, "y": 774 }
+          ],
+          "attributes": {
+            "fingerHint": "unknown", "shape": "long-almond", "quality": 4,
+            "occluded": false, "artificialTip": true,
+            "reviewNote": "原分辨率沿银粉长杏仁甲完整甲板平滑重画，排除高光与亮片造成的折阶。"
+          }
+        },
+        { "sourceIndex": 3 }, { "sourceIndex": 4 }, { "sourceIndex": 5 }
+      ]
+    }
+  ]
+}

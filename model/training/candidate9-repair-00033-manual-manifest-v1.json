@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00033_6a38ff66000000001603daea_11.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_00033_6a38ff66000000001603daea_11.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ef82fbecb041e103",
+      "nails": [
+        { "sourceIndex": 1 }, { "sourceIndex": 2 }, { "sourceIndex": 3 }, { "sourceIndex": 4 },
+        {
+          "polygon": [
+            { "x": 325, "y": 928 }, { "x": 331, "y": 941 }, { "x": 320, "y": 972 },
+            { "x": 302, "y": 1007 }, { "x": 275, "y": 1019 }, { "x": 244, "y": 1026 },
+            { "x": 139, "y": 1025 }, { "x": 108, "y": 1015 }, { "x": 92, "y": 997 },
+            { "x": 91, "y": 977 }, { "x": 102, "y": 959 }, { "x": 125, "y": 944 },
+            { "x": 155, "y": 934 }, { "x": 220, "y": 930 }, { "x": 280, "y": 925 }
+          ],
+          "attributes": {
+            "fingerHint": "unknown", "shape": "side-view-long-square", "quality": 4,
+            "occluded": false, "artificialTip": true,
+            "reviewNote": "原分辨率沿侧视拇指完整透明甲板平滑重画，排除根部钻饰造成的外凸和凹口。"
+          }
+        }
+      ]
+    }
+  ]
+}

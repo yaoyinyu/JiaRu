@@ -74,7 +74,7 @@ test("mask repair finalizer binds visual evidence and never grants training trut
 test("mask repair finalizer accepts hash-bound reviewed manual polygons without granting truth", () => {
   const root = mkdtempSync(path.join(tmpdir(), "final-manual-mask-repair-"));
   const initial = path.join(root, "initial.json");
-  writeFileSync(initial, JSON.stringify({ ok: true, decision: "mask_review_shard_complete_final_truth_audit_still_required", items: [{ fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", expectedFullyVisibleNails: 1, reviewStatus: "rework" }] }));
+  writeFileSync(initial, JSON.stringify({ ok: true, decision: "mask_review_shard_complete_final_truth_audit_still_required", items: [{ fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", expectedFullyVisibleNails: 2, reviewStatus: "rework" }] }));
   const prompts = path.join(root, "prompts.json");
   writeFileSync(prompts, JSON.stringify({ decision: "candidate_only_not_training_or_test_truth", images: [{ fileName: "a.jpg", sourceGroup: "g1", boxes: [[0.1, 0.1, 0.2, 0.2]] }] }));
   const annotation = path.join(root, "a.json");
@@ -85,7 +85,7 @@ test("mask repair finalizer accepts hash-bound reviewed manual polygons without 
   const geometry = path.join(root, "geometry.json");
   writeFileSync(geometry, JSON.stringify({ rows: [{ fileName: "a.jpg", status: "pass" }] }));
   const decision = path.join(root, "decision.json");
-  writeFileSync(decision, JSON.stringify({ schemaVersion: 1, fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", initialShardFinalSha256: hash(initial), repairPromptsSha256: hash(prompts), manualReportSha256: hash(manual), geometryAuditSha256: hash(geometry), annotationSha256: hash(annotation), reviewedOverlaySha256: hash(overlay), reviewStatus: "pass", finalCompleteMaskCount: 1, issueCodes: [] }));
+  writeFileSync(decision, JSON.stringify({ schemaVersion: 1, fileName: "a.jpg", sha256: "image-hash", sourceGroup: "g1", initialShardFinalSha256: hash(initial), repairPromptsSha256: hash(prompts), manualReportSha256: hash(manual), geometryAuditSha256: hash(geometry), annotationSha256: hash(annotation), reviewedOverlaySha256: hash(overlay), reviewStatus: "pass", finalCompleteMaskCount: 1, correctedExpectedFullyVisibleNails: 1, expectedCountCorrectionReason: "原分辨率复核确认只有一枚完整可见甲面。", issueCodes: [] }));
   const output = path.join(root, "output.json");
   const args = [script, "--initial-shard-final", initial, "--file-name", "a.jpg", "--repair-prompts", prompts, "--manual-report", manual, "--geometry-audit", geometry, "--decision", decision, "--output", output];
   const run = spawnSync("python", args, { encoding: "utf8" });
@@ -94,5 +94,7 @@ test("mask repair finalizer accepts hash-bound reviewed manual polygons without 
   assert.equal(report.item.reviewStatus, "pass");
   assert.equal(report.item.repairEvidenceType, "manual-polygon");
   assert.equal(report.item.trainingUse, "prohibited");
+  assert.equal(report.item.initialExpectedFullyVisibleNails, 2);
+  assert.equal(report.item.expectedFullyVisibleNails, 1);
   assert.equal(report.inputs.manualReportSha256, hash(manual));
 });

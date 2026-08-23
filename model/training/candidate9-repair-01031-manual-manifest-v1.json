@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_01031_6a2e5f990000000035030cd3_12.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01031_6a2e5f990000000035030cd3_12.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-d70098e5668376bc",
+      "nails": [
+        { "sourceIndex": 1 }, { "sourceIndex": 2 }, { "sourceIndex": 3 }, { "sourceIndex": 4 },
+        {
+          "polygon": [
+            { "x": 422, "y": 563 }, { "x": 434, "y": 565 }, { "x": 438, "y": 577 },
+            { "x": 429, "y": 602 }, { "x": 416, "y": 628 }, { "x": 407, "y": 646 },
+            { "x": 395, "y": 655 }, { "x": 366, "y": 655 }, { "x": 349, "y": 650 },
+            { "x": 335, "y": 641 }, { "x": 344, "y": 627 }, { "x": 359, "y": 607 },
+            { "x": 376, "y": 591 }, { "x": 395, "y": 576 }
+          ],
+          "attributes": {
+            "fingerHint": "unknown", "shape": "side-view-long-almond", "quality": 4,
+            "occluded": false, "artificialTip": true,
+            "reviewNote": "原分辨率沿侧视拇指完整可见粉色甲板平滑重画，清除旧mask锯齿凹口。"
+          }
+        }
+      ]
+    }
+  ]
+}

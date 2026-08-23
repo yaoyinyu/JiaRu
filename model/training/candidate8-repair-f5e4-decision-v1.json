@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "fileName": "f5e4fc362a7b4115cbf3607d22d87e72.jpg",
+  "sha256": "8224b6887510fda0189c27e8781b6f6330440f11a15314076121748ab9fc3536",
+  "sourceGroup": "real-user-authorized-2026-07-11",
+  "initialShardFinalSha256": "8596d312b9a4f91d053cc3ac65cbbf35024a9517e56b9db40b840f74ab7cd59c",
+  "repairPromptsSha256": "6e02eb2e38beb96f61f1ed9e9553084c624b23be841748e9c5ff75f575299026",
+  "manualReportSha256": "dea8392e48fc98d4ce20d553d628aee6af596067105d8d0e78fe24738f79e78b",
+  "geometryAuditSha256": "c510576b95084ed7741c2c3339179f0e01679c5e1737f2025c6371a2099671a6",
+  "annotationSha256": "b0bd8c6ef843d1700cc7706658fd2e3babe930654b5228f8dcc154de3d54a915",
+  "reviewedOverlaySha256": "e27a7e490b3f0f810a22b8746833beddc5914d53000423d624f460f73433f2c2",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 8,
+  "correctedExpectedFullyVisibleNails": 8,
+  "expectedCountCorrectionReason": "原分辨率逐甲复核确认左右手各4枚完整可见甲面，共8枚；原第8候选只覆盖第9候选甲尖钻饰，原第10候选重复覆盖同一甲面上半部。",
+  "issueCodes": [],
+  "note": "删除局部钻饰与重复候选，保留8枚唯一完整甲面mask；终版polygon合法、同图零交叠、几何8/8。",
+  "trainingUse": "prohibited"
+}

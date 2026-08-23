@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_01030_6a2e5f990000000035030cd3_11.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01030_6a2e5f990000000035030cd3_11.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-d70098e5668376bc",
+      "nails": [
+        {
+          "polygon": [
+            { "x": 540, "y": 567 }, { "x": 529, "y": 568 }, { "x": 519, "y": 576 },
+            { "x": 515, "y": 603 }, { "x": 531, "y": 640 }, { "x": 558, "y": 676 },
+            { "x": 566, "y": 682 }, { "x": 579, "y": 682 }, { "x": 588, "y": 676 },
+            { "x": 590, "y": 663 }, { "x": 578, "y": 613 }, { "x": 556, "y": 575 }
+          ],
+          "attributes": {
+            "fingerHint": "unknown", "shape": "long-almond", "quality": 4,
+            "occluded": false, "artificialTip": true,
+            "reviewNote": "原分辨率沿粉蓝长甲完整甲板平滑重画，星形与波点仅作为甲内纹理。"
+          }
+        },
+        { "sourceIndex": 2 }, { "sourceIndex": 3 }, { "sourceIndex": 4 }, { "sourceIndex": 5 }
+      ]
+    }
+  ]
+}

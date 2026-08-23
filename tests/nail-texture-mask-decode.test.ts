@@ -70,3 +70,73 @@ test("postprocessNailTextureDetections crops decoded masks to the candidate box"
   assert.equal(candidate.mask?.height, 4);
   assert.equal(foreground, 4);
 });
+
+test("postprocess suppresses a contained partial mask and keeps the more complete nail mask", () => {
+  const preprocess = {
+    inputSize: 8,
+    originalWidth: 800,
+    originalHeight: 800,
+    scaleX: 100,
+    scaleY: 100,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 8, 8] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      boxes: {
+        dims: [1, 3, 6],
+        data: new Float32Array([
+          2, 4, 0.8, 0.8, 0.96, 5,
+          2, 4, 2, 2, 0.9, 5,
+          6, 4, 1, 2, 0.88, 5,
+        ]),
+      },
+      proto: {
+        dims: [1, 1, 16, 16],
+        data: new Float32Array(16 * 16).fill(1),
+      },
+    },
+    preprocess
+  );
+
+  assert.equal(candidates.length, 2);
+  const left = candidates.find((candidate) => candidate.cx < 400);
+  const right = candidates.find((candidate) => candidate.cx > 400);
+  assert.ok(left);
+  assert.ok(right);
+  assert.equal(left.width, 200);
+  assert.equal(left.length, 200);
+  assert.equal(right.width, 100);
+});
+
+test("postprocess does not merge disjoint masks from adjacent nails", () => {
+  const preprocess = {
+    inputSize: 8,
+    originalWidth: 800,
+    originalHeight: 800,
+    scaleX: 100,
+    scaleY: 100,
+    tensorData: new Float32Array(),
+    tensorShape: [1, 3, 8, 8] as [1, 3, number, number],
+  };
+
+  const candidates = postprocessNailTextureDetections(
+    {
+      boxes: {
+        dims: [1, 2, 6],
+        data: new Float32Array([
+          2, 4, 1.2, 2, 0.92, 5,
+          4, 4, 1.2, 2, 0.9, 5,
+        ]),
+      },
+      proto: {
+        dims: [1, 1, 16, 16],
+        data: new Float32Array(16 * 16).fill(1),
+      },
+    },
+    preprocess
+  );
+
+  assert.equal(candidates.length, 2);
+});

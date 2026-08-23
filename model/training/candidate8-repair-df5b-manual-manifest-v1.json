@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate8_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "df5b39c10a2185218d507bfd6a9f26df.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate8_watermark_pair_repair_v1\\annotations\\df5b39c10a2185218d507bfd6a9f26df.json",
+      "sourceGroup": "real-user-authorized-2026-07-11",
+      "nails": [
+        {"sourceIndex": 1},
+        {"sourceIndex": 2},
+        {"sourceIndex": 3},
+        {"sourceIndex": 4},
+        {"sourceIndex": 5},
+        {"sourceIndex": 6},
+        {"sourceIndex": 7},
+        {
+          "polygon": [
+            {"x": 224, "y": 845},
+            {"x": 250, "y": 840},
+            {"x": 282, "y": 843},
+            {"x": 297, "y": 853},
+            {"x": 303, "y": 870},
+            {"x": 301, "y": 900},
+            {"x": 297, "y": 930},
+            {"x": 292, "y": 960},
+            {"x": 292, "y": 990},
+            {"x": 312, "y": 1035},
+            {"x": 322, "y": 1075},
+            {"x": 309, "y": 1110},
+            {"x": 288, "y": 1133},
+            {"x": 262, "y": 1138},
+            {"x": 241, "y": 1122},
+            {"x": 229, "y": 1093},
+            {"x": 219, "y": 1055},
+            {"x": 211, "y": 1010},
+            {"x": 205, "y": 965},
+            {"x": 202, "y": 920},
+            {"x": 203, "y": 885},
+            {"x": 211, "y": 858}
+          ],
+          "attributes": {
+            "fingerHint": "thumb",
+            "shape": "long",
+            "quality": 4,
+            "occluded": false,
+            "artificialTip": true,
+            "reviewNote": "原分辨率沿左下拇指真实长甲甲根、双侧缘和圆形甲尖重画；甲板内钻饰保留，丝绸与指腹排除。"
+          }
+        }
+      ]
+    }
+  ]
+}

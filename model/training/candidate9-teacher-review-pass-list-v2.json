@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "reviewedBy": "GPT-5.6 Sol semantic teacher",
+  "decision": "candidate9_teacher_review_pass_list_original_resolution",
+  "policy": {
+    "contactSheetsAreNavigationOnly": true,
+    "sourceOverlayAnd2xCropsReviewed": true,
+    "unlistedItemsRemainRework": true,
+    "trainingUse": "prohibited-until-materialization-audit"
+  },
+  "passFiles": [
+    "nail_00025_6a38ff66000000001603daea_3.jpg",
+    "nail_00027_6a38ff66000000001603daea_5.jpg",
+    "nail_00151_6a3e8f4e0000000006037630_7.jpg",
+    "nail_00151_6a3e8f4e0000000006037630_8.jpg",
+    "nail_00158_69ea40e0000000001f031000_6.jpg",
+    "nail_00443_69eb035b000000001f004cec_2.jpg",
+    "nail_00451_69eb035b000000001f004cec_8.jpg",
+    "nail_00587_69e472a000000000220272cb_6.jpg",
+    "nail_00592_69e472a000000000220272cb_11.jpg",
+    "nail_01160_68d8a7c20000000013007ebf_5.jpg",
+    "nail_01313_6a47e0e7000000000f0177d9_6.jpg",
+    "nail_01318_6a47e0e7000000000f0177d9_11.jpg"
+  ]
+}
