@@ -1,0 +1,6 @@
+{
+  "schemaVersion":1,"decision":"candidate9_original_resolution_manual_polygon_repair_candidate_only","trainingUse":"prohibited",
+  "images":[{"fileName":"nail_01140_6a099d1c000000000803dd1a_9.jpg","sourceAnnotationPath":"E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_24_candidate9_repair_01140_manual_v1\\annotations\\nail_01140_6a099d1c000000000803dd1a_9.json","sourceGroup":"real-material-2026-07-14-candidate-v1:note-71cc779a7ffb18ac","nails":[
+    {"sourceIndex":1},{"sourceIndex":2},{"sourceIndex":3},{"sourceIndex":4},
+    {"polygon":[{"x":190,"y":944},{"x":194,"y":923},{"x":207,"y":907},{"x":229,"y":898},{"x":258,"y":895},{"x":293,"y":900},{"x":332,"y":909},{"x":371,"y":920},{"x":408,"y":932},{"x":438,"y":943},{"x":459,"y":952},{"x":465,"y":960},{"x":455,"y":969},{"x":432,"y":978},{"x":400,"y":988},{"x":363,"y":997},{"x":323,"y":1004},{"x":283,"y":1006},{"x":247,"y":1002},{"x":220,"y":993},{"x":201,"y":979},{"x":192,"y":961}],"attributes":{"fingerHint":"thumb","shape":"side-view-long-almond","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"v2覆盖从甲根到右侧完整自由缘的整片拇指长甲；旧v1仅覆盖饰件附近，明确不计入。"}}
+  ]}]}

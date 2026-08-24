@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [{
+    "fileName": "nail_00412_69c7475f000000002101357f_2.jpg",
+    "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_00412_69c7475f000000002101357f_2.json",
+    "sourceGroup": "real-material-2026-07-14-candidate-v1:note-5219f19cf3235c0a",
+    "nails": [
+      {"polygon":[{"x":651,"y":391},{"x":646,"y":379},{"x":651,"y":364},{"x":667,"y":344},{"x":691,"y":322},{"x":719,"y":303},{"x":748,"y":291},{"x":775,"y":289},{"x":791,"y":298},{"x":797,"y":311},{"x":793,"y":326},{"x":776,"y":346},{"x":751,"y":366},{"x":721,"y":383},{"x":691,"y":395},{"x":667,"y":397}],"attributes":{"fingerHint":"ring","shape":"long-stiletto","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"沿大钻遮挡前后真实甲板趋势重画，外凸钻饰不扩张mask。"}},
+      {"polygon":[{"x":322,"y":334},{"x":316,"y":324},{"x":319,"y":309},{"x":334,"y":283},{"x":355,"y":256},{"x":382,"y":231},{"x":406,"y":218},{"x":422,"y":220},{"x":431,"y":231},{"x":431,"y":245},{"x":417,"y":270},{"x":393,"y":297},{"x":366,"y":321},{"x":342,"y":335}],"attributes":{"fingerHint":"index","shape":"long-stiletto","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"覆盖透明甲根至银色尖端的完整连续甲板，平滑旧mask折阶。"}},
+      {"polygon":[{"x":552,"y":361},{"x":546,"y":350},{"x":551,"y":335},{"x":568,"y":314},{"x":594,"y":292},{"x":624,"y":273},{"x":654,"y":260},{"x":681,"y":257},{"x":699,"y":263},{"x":706,"y":275},{"x":701,"y":289},{"x":681,"y":309},{"x":653,"y":329},{"x":621,"y":347},{"x":589,"y":359},{"x":566,"y":364}],"attributes":{"fingerHint":"middle","shape":"long-stiletto","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"覆盖完整透明长甲和银色尖端，清除甲根尖尾。"}},
+      {"polygon":[{"x":710,"y":539},{"x":703,"y":527},{"x":708,"y":510},{"x":726,"y":487},{"x":752,"y":465},{"x":783,"y":447},{"x":817,"y":434},{"x":846,"y":430},{"x":865,"y":437},{"x":871,"y":450},{"x":866,"y":466},{"x":846,"y":486},{"x":818,"y":505},{"x":786,"y":523},{"x":753,"y":535},{"x":728,"y":542}],"attributes":{"fingerHint":"pinky","shape":"long-stiletto","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"按透明甲根、双侧缘和银色尖端重画完整小指甲板。"}},
+      {"polygon":[{"x":548,"y":802},{"x":540,"y":790},{"x":543,"y":774},{"x":558,"y":753},{"x":581,"y":734},{"x":608,"y":719},{"x":635,"y":708},{"x":659,"y":703},{"x":675,"y":708},{"x":682,"y":719},{"x":678,"y":732},{"x":662,"y":750},{"x":639,"y":768},{"x":612,"y":783},{"x":585,"y":795},{"x":562,"y":803}],"attributes":{"fingerHint":"thumb","shape":"side-view-long-stiletto","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"补齐旧候选遗漏的透明拇指甲根和装饰承载面，外伸钻饰不进入mask。"}}
+    ]
+  }]
+}

@@ -1,0 +1,7 @@
+{
+  "schemaVersion":1,"decision":"candidate9_original_resolution_manual_polygon_repair_candidate_only","trainingUse":"prohibited",
+  "images":[{"fileName":"nail_01139_6a099d1c000000000803dd1a_8.jpg","sourceAnnotationPath":"E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01139_6a099d1c000000000803dd1a_8.json","sourceGroup":"real-material-2026-07-14-candidate-v1:note-71cc779a7ffb18ac","nails":[
+    {"sourceIndex":1},
+    {"polygon":[{"x":548,"y":562},{"x":566,"y":564},{"x":581,"y":574},{"x":590,"y":592},{"x":592,"y":618},{"x":588,"y":650},{"x":579,"y":688},{"x":568,"y":728},{"x":557,"y":764},{"x":545,"y":796},{"x":532,"y":811},{"x":520,"y":797},{"x":514,"y":768},{"x":509,"y":730},{"x":507,"y":689},{"x":508,"y":647},{"x":512,"y":609},{"x":520,"y":581},{"x":532,"y":566}],"attributes":{"fingerHint":"middle","shape":"long-stiletto","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"补齐旧mask遗漏的白色长甲尖，按完整甲板连续轮廓重画。"}},
+    {"sourceIndex":3},{"sourceIndex":4},{"sourceIndex":5}
+  ]}]}

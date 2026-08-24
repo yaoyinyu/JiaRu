@@ -1,0 +1,6 @@
+{
+  "schemaVersion":1,"decision":"candidate9_original_resolution_manual_polygon_repair_candidate_only","trainingUse":"prohibited",
+  "images":[{"fileName":"nail_01140_6a099d1c000000000803dd1a_9.jpg","sourceAnnotationPath":"E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01140_6a099d1c000000000803dd1a_9.json","sourceGroup":"real-material-2026-07-14-candidate-v1:note-71cc779a7ffb18ac","nails":[
+    {"sourceIndex":1},{"sourceIndex":2},{"sourceIndex":3},{"sourceIndex":4},
+    {"polygon":[{"x":191,"y":930},{"x":194,"y":914},{"x":207,"y":901},{"x":228,"y":895},{"x":255,"y":895},{"x":286,"y":900},{"x":320,"y":909},{"x":352,"y":922},{"x":379,"y":935},{"x":393,"y":946},{"x":386,"y":958},{"x":367,"y":968},{"x":339,"y":974},{"x":307,"y":975},{"x":274,"y":970},{"x":243,"y":961},{"x":216,"y":949},{"x":198,"y":939}],"attributes":{"fingerHint":"thumb","shape":"side-view-long-almond","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"按拇指完整甲板重画，移除旧mask跟随立体行星饰件形成的锯齿并补齐自由缘。"}}
+  ]}]}

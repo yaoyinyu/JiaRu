@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [{
+    "fileName": "nail_01032_6a2e5f990000000035030cd3_13.jpg",
+    "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01032_6a2e5f990000000035030cd3_13.json",
+    "sourceGroup": "real-material-2026-07-14-candidate-v1:note-d70098e5668376bc",
+    "nails": [
+      { "sourceIndex": 1 },
+      { "polygon": [{"x":295,"y":547},{"x":316,"y":542},{"x":339,"y":547},{"x":361,"y":561},{"x":385,"y":582},{"x":410,"y":605},{"x":429,"y":628},{"x":435,"y":646},{"x":430,"y":660},{"x":418,"y":669},{"x":401,"y":670},{"x":379,"y":663},{"x":351,"y":649},{"x":322,"y":631},{"x":298,"y":610},{"x":280,"y":588},{"x":269,"y":569},{"x":272,"y":555}], "attributes": {"fingerHint":"thumb","shape":"long-almond","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"沿十字饰件下方真实连续甲板重画拇指；外伸金属饰件不扩张甲面边界。"} },
+      { "polygon": [{"x":641,"y":599},{"x":658,"y":603},{"x":670,"y":612},{"x":676,"y":625},{"x":674,"y":640},{"x":661,"y":657},{"x":638,"y":674},{"x":607,"y":687},{"x":571,"y":698},{"x":542,"y":700},{"x":525,"y":693},{"x":520,"y":682},{"x":524,"y":669},{"x":539,"y":653},{"x":560,"y":635},{"x":586,"y":617},{"x":613,"y":604}], "attributes": {"fingerHint":"ring","shape":"long-almond","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"沿十字饰件遮挡前后可见甲板趋势恢复平滑轮廓；外伸金属饰件不进入mask。"} },
+      { "sourceIndex": 4 },
+      { "sourceIndex": 5 }
+    ]
+  }]
+}
