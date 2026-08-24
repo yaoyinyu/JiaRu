@@ -1,0 +1,6 @@
+{
+  "schemaVersion":1,"decision":"candidate9_original_resolution_manual_polygon_repair_candidate_only","trainingUse":"prohibited",
+  "images":[{"fileName":"nail_00451_69eb035b000000001f004cec_6.jpg","sourceAnnotationPath":"E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_00451_69eb035b000000001f004cec_6.json","sourceGroup":"real-material-2026-07-14-candidate-v1:note-ded298b5c7a61aa4","nails":[
+    {"sourceIndex":1},{"sourceIndex":2},{"sourceIndex":3},{"sourceIndex":4},
+    {"polygon":[{"x":176,"y":900},{"x":190,"y":900},{"x":201,"y":911},{"x":206,"y":929},{"x":207,"y":950},{"x":204,"y":972},{"x":198,"y":992},{"x":189,"y":1006},{"x":179,"y":1010},{"x":169,"y":1002},{"x":163,"y":985},{"x":159,"y":964},{"x":159,"y":941},{"x":162,"y":920},{"x":167,"y":906}],"attributes":{"fingerHint":"thumb","shape":"long-square","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"补回规则/SAM漏掉的左侧完整拇指甲，替换旧第5项头发误标。"}}
+  ]}]}

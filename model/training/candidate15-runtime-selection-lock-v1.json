@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate15_val30_primary_recall_superior_locked_ready_for_single_frozen_test100_diagnostic",
+  "selectionRole": "val30-only",
+  "trainingUse": "prohibited",
+  "model": {
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-08-24-v15\\candidate15-teacher-curriculum-v15\\weights\\best.pt",
+    "sha256": "f538a27bdba5bd838fb9e01fb32aa460eb546083c930afc486baa77ead24544d",
+    "inputSize": 512,
+    "scoreThreshold": 0.5
+  },
+  "postprocess": {
+    "duplicateMaskIouThreshold": 0.6,
+    "duplicateMaskContainmentThreshold": 0.85,
+    "duplicateMaskScoreTolerance": 0.12,
+    "sourcePath": "E:\\AI Project\\Codex\\JiaRu\\src\\lib\\nail-texture-recognition\\quality.ts",
+    "sourceSha256": "78ce25bd1dcd99cd4ce7e9f95ed432cfa3eacfe6d0a0df655ddccc214b413f4d"
+  },
+  "val30": {
+    "calibrationPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-08-24-v15\\formal-val30-score-threshold-calibration-v1.json",
+    "calibrationSha256": "85f8133a591ea929f1f01844eb1b237b0cacee67c1c539e4dc7545f4da2587ac",
+    "metricsPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-08-24-v15\\formal-val30-512-v1\\metrics.json",
+    "metricsSha256": "de92a0a68694d4b3197472f8cbf1af2d296d76a411b150cc31820a058be9b35e",
+    "artifactIndexPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate-2026-08-24-v15\\formal-val30-512-v1\\artifacts\\evaluation-artifacts.json",
+    "artifactIndexSha256": "5636003b1a3ea99bfd4192ec84766032ec41d092e5d7adf4163eeba2b82c5cad",
+    "matched": 124,
+    "missed": 20,
+    "falsePositives": 29,
+    "recallAtIou50": 0.8611111111111112,
+    "f1AtIou50": 0.8350168350168351,
+    "primaryRecallBaseline": {
+      "candidate": "candidate11",
+      "matched": 122,
+      "missed": 22,
+      "recallAtIou50": 0.8472222222222222
+    }
+  },
+  "trainingInput": {
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_24_candidate15_training_input_v1\\candidate15-candidate-training-input-audit-v2.json",
+    "sha256": "3902b9fdb3d186967072139c0d10490880df14767ad40f05f37063d2325f3c00"
+  },
+  "rules": {
+    "selectionPrimaryObjective": "complete_nail_recall",
+    "test100UsedForSelection": false,
+    "test100MayRunOnceAfterThisLock": true,
+    "test100MayNotChangeModelThresholdOrPostprocess": true,
+    "productionPromotion": false
+  }
+}

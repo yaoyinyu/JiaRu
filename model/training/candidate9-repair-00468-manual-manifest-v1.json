@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [{
+    "fileName": "nail_00468_69b0305b000000000600ecc6_8.jpg",
+    "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_00468_69b0305b000000000600ecc6_8.json",
+    "sourceGroup": "real-material-2026-07-14-candidate-v1:note-7b5ffc2157337536",
+    "nails": [
+      {"sourceIndex": 1},
+      {"sourceIndex": 2},
+      {"sourceIndex": 3},
+      {"sourceIndex": 4},
+      {"polygon":[{"x":315,"y":381},{"x":316,"y":369},{"x":327,"y":352},{"x":344,"y":334},{"x":363,"y":315},{"x":383,"y":294},{"x":405,"y":275},{"x":421,"y":268},{"x":425,"y":277},{"x":422,"y":291},{"x":413,"y":309},{"x":401,"y":327},{"x":385,"y":344},{"x":368,"y":360},{"x":350,"y":374},{"x":333,"y":383}],"attributes":{"fingerHint":"thumb","shape":"side-view-long-almond","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"沿侧视拇指完整甲板平滑重画，移除旧mask在甲根处吞入皮肤的尖刺。"}}
+    ]
+  }]
+}

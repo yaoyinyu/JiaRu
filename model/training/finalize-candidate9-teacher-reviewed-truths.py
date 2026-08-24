@@ -69,6 +69,7 @@ def main() -> None:
     parser.add_argument("--geometry-audit", required=True, type=Path)
     parser.add_argument("--visual-evidence", required=True, type=Path)
     parser.add_argument("--pass-list", required=True, type=Path)
+    parser.add_argument("--additional-pass-list", type=Path, action="append", default=[])
     parser.add_argument("--output-dir", required=True, type=Path)
     args = parser.parse_args()
     paths = {name: Path(value).resolve() for name, value in {
@@ -79,6 +80,8 @@ def main() -> None:
         "visual": args.visual_evidence,
         "passList": args.pass_list,
     }.items()}
+    for index, additional_path in enumerate(args.additional_pass_list, start=1):
+        paths[f"additionalPassList{index:03d}"] = additional_path.resolve()
     output_dir = args.output_dir.resolve()
     if output_dir.exists():
         raise ValueError(f"输出目录已存在：{output_dir}")
@@ -88,6 +91,11 @@ def main() -> None:
     geometry = read_json(paths["geometry"], "几何审计")
     visual = read_json(paths["visual"], "视觉证据")
     pass_list = read_json(paths["passList"], "教师PASS清单")
+    additional_pass_lists = [
+        read_json(path, f"追加教师PASS清单{index}")
+        for index, (name, path) in enumerate(paths.items(), start=1)
+        if name.startswith("additionalPassList")
+    ]
     if (
         workspace.get("ok") is not True
         or workspace.get("decision") != "candidate9_annotation_workspace_ready_candidate_only"
@@ -106,6 +114,24 @@ def main() -> None:
         or pass_list.get("policy", {}).get("sourceOverlayAnd2xCropsReviewed") is not True
     ):
         raise ValueError("candidate9教师审核输入状态不安全")
+    for additional_pass_list in additional_pass_lists:
+        if (
+            additional_pass_list.get("decision")
+            != "candidate9_teacher_review_pass_list_original_resolution_addendum"
+            or additional_pass_list.get("reviewedBy") != pass_list.get("reviewedBy")
+            or additional_pass_list.get("policy", {}).get("sourceOverlayAnd2xCropsReviewed") is not True
+            or additional_pass_list.get("policy", {}).get("unlistedItemsRemainRework") is not True
+        ):
+            raise ValueError("追加教师PASS清单状态不安全")
+        pass_list["passFiles"] = list(pass_list.get("passFiles") or []) + list(
+            additional_pass_list.get("passFiles") or []
+        )
+        merged_repair_evidence = dict(pass_list.get("repairEvidence") or {})
+        additional_repairs = additional_pass_list.get("repairEvidence") or {}
+        if set(merged_repair_evidence).intersection(additional_repairs):
+            raise ValueError("追加教师PASS清单重复覆盖既有返修证据")
+        merged_repair_evidence.update(additional_repairs)
+        pass_list["repairEvidence"] = merged_repair_evidence
     if prompts.get("inputs", {}).get("workspaceManifestSha256") != sha256_file(paths["workspace"]):
         raise ValueError("SAM提示未绑定当前工作区")
     visual_inputs = visual.get("inputs") or {}
@@ -140,11 +166,25 @@ def main() -> None:
             source = workspace_items[file_name]
             evidence = visual_items[file_name]
             decision = "pass" if file_name in set(passed) else "rework"
+            repair = repair_evidence.get(file_name)
+            source_expected = int(source["expectedFullyVisibleNails"])
+            expected = source_expected
+            expected_count_corrected = False
+            correction_reason: str | None = None
+            if repair is not None and "expectedFullyVisibleNailsOverride" in repair:
+                expected = int(repair["expectedFullyVisibleNailsOverride"])
+                correction_reason = str(repair.get("expectedCountCorrectionReason") or "").strip()
+                if not 0 < expected < source_expected or not correction_reason:
+                    raise ValueError(f"{file_name}完整可见甲面数修正缺少安全依据")
+                expected_count_corrected = True
             reviewed.append({
                 "fileName": file_name,
                 "imageSha256": source["imageSha256"],
                 "sourceGroup": source["sourceGroup"],
-                "expectedFullyVisibleNails": source["expectedFullyVisibleNails"],
+                "expectedFullyVisibleNails": expected,
+                "workspaceExpectedFullyVisibleNails": source_expected,
+                "expectedCountCorrected": expected_count_corrected,
+                "expectedCountCorrectionReason": correction_reason,
                 "candidateMaskCount": evidence["polygonCount"],
                 "geometrySuspectCount": evidence["geometrySuspectCount"],
                 "decision": decision,
@@ -152,7 +192,6 @@ def main() -> None:
             })
             if decision != "pass":
                 continue
-            expected = int(source["expectedFullyVisibleNails"])
             image_path = bound_path(evidence, "imagePath", "imageSha256", f"{file_name}源图")
             visual_review_path = paths["visual"]
             visual_review_sha256 = sha256_file(paths["visual"])
@@ -161,7 +200,6 @@ def main() -> None:
             repair_geometry_sha256: str | None = None
             repair_visual_files: list[dict[str, str]] = []
             if file_name in repair_evidence:
-                repair = repair_evidence[file_name]
                 if not isinstance(repair, dict):
                     raise ValueError(f"{file_name}返修证据不是对象")
                 repair_report_path = Path(str(repair.get("reportPath") or "")).resolve()
@@ -176,20 +214,32 @@ def main() -> None:
                 repair_report = read_json(repair_report_path, f"{file_name}返修报告")
                 repair_geometry = read_json(repair_geometry_path, f"{file_name}返修几何审计")
                 outputs = [item for item in repair_report.get("outputs", []) if item.get("fileName") == file_name]
-                summary = repair_geometry.get("summary") or {}
-                geometry_pass = sum(int(item.get("pass", 0)) for item in summary.values() if isinstance(item, dict))
-                geometry_suspect = sum(int(item.get("suspect", 0)) for item in summary.values() if isinstance(item, dict))
-                geometry_missing = sum(int(item.get("missing", 0)) for item in summary.values() if isinstance(item, dict))
+                repair_geometry_rows = [
+                    row
+                    for row in repair_geometry.get("rows", [])
+                    if row.get("fileName") == file_name
+                ]
+                geometry_pass = sum(row.get("status") == "pass" for row in repair_geometry_rows)
+                geometry_suspect = sum(row.get("status") == "suspect" for row in repair_geometry_rows)
+                geometry_missing = expected - len(repair_geometry_rows)
                 if (
                     repair_report.get("ok") is not True
                     or repair_report.get("decision") != "candidate_only_not_training_or_test_truth"
-                    or repair_report.get("completedCount") != 1
+                    or int(repair_report.get("completedCount", -1))
+                    != int(repair_report.get("imageCount", -2))
+                    or int(repair_report.get("imageCount", 0)) < 1
                     or repair_report.get("errors") != []
                     or len(outputs) != 1
                     or outputs[0].get("polygonCount") != expected
                     or outputs[0].get("validPolygonCount") != expected
                     or outputs[0].get("pairwiseOverlapCount") != 0
-                    or int(outputs[0].get("manualPolygonCount", 0)) < 1
+                    or (
+                        int(outputs[0].get("manualPolygonCount", 0)) < 1
+                        and not (
+                            expected_count_corrected
+                            and int(outputs[0].get("retainedPolygonCount", 0)) == expected
+                        )
+                    )
                     or geometry_pass != expected
                     or geometry_suspect != 0
                     or geometry_missing != 0
@@ -264,6 +314,9 @@ def main() -> None:
                     "sha256": source["imageSha256"],
                     "sourceGroup": source["sourceGroup"],
                     "completeMaskCount": expected,
+                    "workspaceExpectedFullyVisibleNails": source_expected,
+                    "expectedCountCorrected": expected_count_corrected,
+                    "expectedCountCorrectionReason": correction_reason,
                     "invalidPolygonCount": 0,
                     "overlapPairCount": 0,
                     "annotationTruthStatus": "approved-as-training-truth-candidate",

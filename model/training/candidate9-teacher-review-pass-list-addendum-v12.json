@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "reviewedBy": "GPT-5.6 Sol semantic teacher",
+  "decision": "candidate9_teacher_review_pass_list_original_resolution_addendum",
+  "policy": {
+    "contactSheetsAreNavigationOnly": true,
+    "sourceOverlayAnd2xCropsReviewed": true,
+    "unlistedItemsRemainRework": true,
+    "trainingUse": "prohibited-until-materialization-audit"
+  },
+  "passFiles": [
+    "nail_00267_69afa8c6000000000601df0f_11.jpg",
+    "nail_00591_69e472a000000000220272cb_10.jpg",
+    "nail_01093_69a5ad16000000002303ba31_8.jpg"
+  ],
+  "repairEvidence": {
+    "nail_00267_69afa8c6000000000601df0f_11.jpg": {
+      "reportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_24_candidate15_retained_subsets_v2\\repair-report.json",
+      "reportSha256": "8fdfc1f146a45ccacd426e2e85594fba25f023f65188fe65231f4414b2c86818",
+      "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_24_candidate15_retained_subsets_v2\\geometry-audit.json",
+      "geometryAuditSha256": "80f0a241115cced51a2d1679d0b4c9c11bad49267f5321e2b6df4c5efb872d87",
+      "expectedFullyVisibleNailsOverride": 9,
+      "expectedCountCorrectionReason": "原分辨率整图与逐甲双图复核确认交叠双手仅9枚甲面完整可见；初始第10候选位于两指之间的白色背景，删除假候选后9枚完整甲面均通过。"
+    },
+    "nail_00591_69e472a000000000220272cb_10.jpg": {
+      "reportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_24_candidate15_retained_subsets_v2\\repair-report.json",
+      "reportSha256": "8fdfc1f146a45ccacd426e2e85594fba25f023f65188fe65231f4414b2c86818",
+      "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_24_candidate15_retained_subsets_v2\\geometry-audit.json",
+      "geometryAuditSha256": "80f0a241115cced51a2d1679d0b4c9c11bad49267f5321e2b6df4c5efb872d87",
+      "expectedFullyVisibleNailsOverride": 9,
+      "expectedCountCorrectionReason": "原分辨率整图与逐甲双图复核确认后方手有一枚甲面被交叠手指完全遮挡；初始第10候选位于袖口亮区，删除假候选后9枚完整甲面均通过。"
+    }
+  }
+}

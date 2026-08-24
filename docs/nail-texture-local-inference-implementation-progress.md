@@ -1,9 +1,9 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-08-22
+更新日期：2026-08-24
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
-> **当前最高优先级（2026-08-22）：** candidate8 nano已完成训练、val30阈值0.55校准和冻结test100；逐实例召回提升至0.870、漏甲降至72，但完整mask比例0.776、40/100图漏甲，仍被正式门否决。高容量分支仅用val30比较后淘汰。下一步集中增加来源隔离的新正样本完整真值；独立困难负样本、浏览器/真机/Beta和发布门继续严格执行。
+> **当前最高优先级（2026-08-24）：** candidate15已用37张/234 mask强教师增量完成训练；部署512的val30在阈值0.50达到124/144匹配、20漏检，召回0.86111，首次超过candidate11。锁定参数后冻结test100为496/554匹配、441完整mask、58漏甲、33额外候选，仍未通过正式识别门。下一步继续按val30匿名难例扩充来源隔离train真值，禁止test100反调或回流；独立困难负样本、浏览器/真机/Beta和发布门继续严格执行。
 
 ## 标记规则
 
@@ -566,6 +566,10 @@ npm.cmd run build
 | 标记 ID | 任务 | 状态 | 审核证据 |
 | --- | --- | --- | --- |
 | `M2-T3-CANDIDATE9-TEACHER-STUDENT-001` | GPT-5.6 Sol语义审核、轻量定位、SAM2.1 large像素候选与端侧学生训练合同 | 🟡 IN PROGRESS（candidate11冻结test100 HOLD） | 第二轮教师真值已收敛为21张/130 mask，相对首轮新增10张/55 mask并覆盖四类难例；合并训练真值231张/1340 mask，加160负样本后规范train391/val30/test0且输入深审PASS。candidate10因AdamW自动学习率0.002在val30退化而提前否决。candidate11以AdamW 0.0002、冻结前10层训练，权重`e7e462bf…c4ea`；仅用val30锁定部署512、阈值0.50和后处理0.60/0.85/0.12，召回0.84722、F1=0.83562。固定参数冻结test100总体mask mAP50=0.96167，但逐实例493/554匹配、436完整mask、61漏甲、19重复、30额外、22无效，37图漏甲、42图可直接提取，报告`77ca3342…d1386`决定HOLD。下一轮必须增加原分辨率难例真值并在val30比较更强表征，禁止test100反向调参或回流训练；standing授权不改变角色隔离和发布门。 |
+| `M2-T3-CANDIDATE12-CAPACITY-001` | 同一深审输入下YOLO11s-seg容量对照 | ❌ VAL REJECT（未运行test100） | 复用train391/val30/test0输入，从旧高容量最佳权重启动，AdamW 0.0002、冻结前10层训练36 epochs，最佳epoch16，权重`b5881962…8c91`。部署512正式val30的box/mask mAP50为0.90315/0.82577；阈值报告`b866bf03…1b0d`为`no_threshold_meets_validation_constraints`，没有manifest阈值。该分支在val阶段终止，证明当前不能只靠放大学生容量解决；下一动作回到train角色原分辨率难例真值扩充，禁止同输入继续做超参排列或消费test100。 |
+| `M2-T3-CANDIDATE13-EXPANDED-TRUTH-001` | 扩展教师真值规范物化与nano重训 | ❌ VAL REJECT（未运行test100） | 教师真值v11最终30张/180 mask、45张返修，规范摘要`633e4f86…ab9f`；相对candidate11输入新增9张/50 mask。`00451…_6`整图与`01126`错误人工v2均被原分辨率视觉门排除。合并为240张/1390 mask正样本及160负样本，train400/val30/test0、0 orphan，输入深审`6dfea016…5bb`PASS。candidate13权重`09a85a1c…78ae`；正式512 val30虽mask mAP50=0.85802，但0.50阈值仅121匹配、23漏检、26误检、召回0.84028、F1=0.83162，低于candidate11主召回门，故止于val。 |
+| `M2-T3-CANDIDATE14-CONTINUATION-001` | 从candidate11最优检查点吸收新增50枚教师真值 | ❌ VAL REJECT（未运行test100） | 使用同一train400输入，从candidate11权重以AdamW 0.0001、冻结前10层、640、自动batch11、CUDA0、8 workers训练；第20轮早停，最佳第5轮，权重`7a76ac5c…8e4d`。正式512 val30的box/mask mAP50=0.92200/0.86000，阈值0.50深验报告`a5e00241…6dd`PASS，但逐实例仍为121匹配、23漏检、26误检、召回0.84028、F1=0.83162，未优于candidate11。未建立选择锁、未消费test100。下一动作固定为按val30抽象漏检类型补充来源隔离train真值，不再做同输入无目标超参排列。 |
+| `M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001` | GPT-5.6 Sol匿名失败画像、严格真值增量与学生继续训练 | 🔴 HOLD（val优胜；冻结test100识别门失败） | 匿名val画像`e95c794f…f49f`不含图片身份且禁止训练；原分辨率审核将教师真值扩至37张/234 mask，v14摘要`8457eee0…c3`，新增7张/54 mask。合并为247张/1444 mask正样本+160负样本，train407/val30/test0，输入深审`3902b9fd…c00`PASS。candidate15从candidate11以AdamW 0.00005、冻结前10层训练，28轮早停、最佳第8轮，权重`f538a27b…44d`。正式512 val30阈值0.50为124匹配、20漏检、29误检、召回0.86111，按完整甲面召回主门超过candidate11并锁定。固定参数冻结test100为496/554匹配、441完整mask、58漏甲、21重复、33额外、25无效，37图漏甲、40图可直接提取，继续HOLD；不得导出、登记、部署或用test100选样/调参。 |
 
 # 2026-08-14 candidate6 训练真值增量
 

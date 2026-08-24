@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-08-13T16:22:24.003Z",
+  "generatedAt": "2026-08-24T07:57:11.968Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 431,
-    "passMarkerCount": 422,
+    "progressMarkerCount": 438,
+    "passMarkerCount": 424,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -84,8 +84,8 @@
       {
         "id": "M2-T3-VISION-ANNOTATION",
         "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
-        "status": "🟡 IN PROGRESS",
-        "evidence": "正式集409图/2142 mask不变；外部首批train100张/521个完整mask、来源隔离val30张/144 mask和冻结test100张/554 mask均已完成原分辨率终审。第三候选困难负样本不含正样本polygon，160张正式终审后145张批准、15张因裁断/不完整排除并已用于本轮训练；Beta失败样本仍待未来合格候选补充"
+        "status": "✅ CANDIDATE8 INPUT READY",
+        "evidence": "candidate8的31张全新隔离源图最终形成10张/87 mask真值、19张质量排除、2张隔离；合并训练正样本210张/1210 mask并通过物化与角色隔离审计，已进入candidate8训练。Beta失败样本待未来合格候选补充"
       },
       {
         "id": "M2-T3-HARD-NEGATIVE-V3-TRAINING-010",
@@ -120,14 +120,44 @@
       {
         "id": "REL-T2-CANDIDATE",
         "task": "正式模型候选发布",
-        "status": "🔴 HOLD（candidate5已拒绝，识别优先合同待实现）",
-        "evidence": "candidate5虽过规范val30和冻结test100总体mAP门，仍因新100张独立留出三变体误检3/4/3张而拒绝，且生产ONNX不存在。candidate6负样本仅10/160并暂停；先实现逐图完整甲面召回、重复/污染和像素mask可提取性报告，再补新来源且精确商业训练授权的正样本并训练下一候选。生产manifest、共享阈值保持不变；通过正样本门后仍须完成另一份全新未见留出、真机、Beta、生产ONNX和双版本回滚"
+        "status": "🔴 HOLD（candidate6逐实例门失败；candidate7严格真值补强中）",
+        "evidence": "candidate6冻结test100逐实例报告仅491/554匹配、漏63，41/100图漏甲，另有18重复、30额外候选和29无效mask，仅38/100图直接可提取，故正式否决。candidate7现有旧真实33张/237 mask与新正样本47张/250 mask，严格合计80张/487 mask，不少于80张的固定目标按权威机器索引已达成；新正样本索引（`2026_8_14_candidate7_new_positive_training_truths_v1`）与旧真实索引均`approved_unique_training_truth_index`、0拒绝/冗余/冲突且按文件名零重叠。未通过原分辨率门、存在应见甲数冲突或皮肤污染的版本不计数，全批在精确授权和物化审计前禁训。生产manifest和共享阈值不变；通过正样本门后仍须全新独立负样本、真机、Beta、生产ONNX和双版本回滚。"
       },
       {
         "id": "USER-FAILURE-01",
         "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
         "status": "⏭ USER INPUT",
         "evidence": "hard negative 与失败类型优化"
+      },
+      {
+        "id": "M2-T3-CANDIDATE9-TEACHER-STUDENT-001",
+        "task": "GPT-5.6 Sol语义审核、轻量定位、SAM2.1 large像素候选与端侧学生训练合同",
+        "status": "🟡 IN PROGRESS（candidate11冻结test100 HOLD）",
+        "evidence": "第二轮教师真值已收敛为21张/130 mask，相对首轮新增10张/55 mask并覆盖四类难例；合并训练真值231张/1340 mask，加160负样本后规范train391/val30/test0且输入深审PASS。candidate10因AdamW自动学习率0.002在val30退化而提前否决。candidate11以AdamW 0.0002、冻结前10层训练，权重`e7e462bf…c4ea`；仅用val30锁定部署512、阈值0.50和后处理0.60/0.85/0.12，召回0.84722、F1=0.83562。固定参数冻结test100总体mask mAP50=0.96167，但逐实例493/554匹配、436完整mask、61漏甲、19重复、30额外、22无效，37图漏甲、42图可直接提取，报告`77ca3342…d1386`决定HOLD。下一轮必须增加原分辨率难例真值并在val30比较更强表征，禁止test100反向调参或回流训练；standing授权不改变角色隔离和发布门。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE12-CAPACITY-001",
+        "task": "同一深审输入下YOLO11s-seg容量对照",
+        "status": "❌ VAL REJECT（未运行test100）",
+        "evidence": "复用train391/val30/test0输入，从旧高容量最佳权重启动，AdamW 0.0002、冻结前10层训练36 epochs，最佳epoch16，权重`b5881962…8c91`。部署512正式val30的box/mask mAP50为0.90315/0.82577；阈值报告`b866bf03…1b0d`为`no_threshold_meets_validation_constraints`，没有manifest阈值。该分支在val阶段终止，证明当前不能只靠放大学生容量解决；下一动作回到train角色原分辨率难例真值扩充，禁止同输入继续做超参排列或消费test100。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE13-EXPANDED-TRUTH-001",
+        "task": "扩展教师真值规范物化与nano重训",
+        "status": "❌ VAL REJECT（未运行test100）",
+        "evidence": "教师真值v11最终30张/180 mask、45张返修，规范摘要`633e4f86…ab9f`；相对candidate11输入新增9张/50 mask。`00451…_6`整图与`01126`错误人工v2均被原分辨率视觉门排除。合并为240张/1390 mask正样本及160负样本，train400/val30/test0、0 orphan，输入深审`6dfea016…5bb`PASS。candidate13权重`09a85a1c…78ae`；正式512 val30虽mask mAP50=0.85802，但0.50阈值仅121匹配、23漏检、26误检、召回0.84028、F1=0.83162，低于candidate11主召回门，故止于val。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE14-CONTINUATION-001",
+        "task": "从candidate11最优检查点吸收新增50枚教师真值",
+        "status": "❌ VAL REJECT（未运行test100）",
+        "evidence": "使用同一train400输入，从candidate11权重以AdamW 0.0001、冻结前10层、640、自动batch11、CUDA0、8 workers训练；第20轮早停，最佳第5轮，权重`7a76ac5c…8e4d`。正式512 val30的box/mask mAP50=0.92200/0.86000，阈值0.50深验报告`a5e00241…6dd`PASS，但逐实例仍为121匹配、23漏检、26误检、召回0.84028、F1=0.83162，未优于candidate11。未建立选择锁、未消费test100。下一动作固定为按val30抽象漏检类型补充来源隔离train真值，不再做同输入无目标超参排列。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001",
+        "task": "GPT-5.6 Sol匿名失败画像、严格真值增量与学生继续训练",
+        "status": "🔴 HOLD（val优胜；冻结test100识别门失败）",
+        "evidence": "匿名val画像`e95c794f…f49f`不含图片身份且禁止训练；原分辨率审核将教师真值扩至37张/234 mask，v14摘要`8457eee0…c3`，新增7张/54 mask。合并为247张/1444 mask正样本+160负样本，train407/val30/test0，输入深审`3902b9fd…c00`PASS。candidate15从candidate11以AdamW 0.00005、冻结前10层训练，28轮早停、最佳第8轮，权重`f538a27b…44d`。正式512 val30阈值0.50为124匹配、20漏检、29误检、召回0.86111，按完整甲面召回主门超过candidate11并锁定。固定参数冻结test100为496/554匹配、441完整mask、58漏甲、21重复、33额外、25无效，37图漏甲、40图可直接提取，继续HOLD；不得导出、登记、部署或用test100选样/调参。"
       }
     ]
   },
@@ -1012,9 +1042,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 431,
-      "uniqueMarkerCount": 431,
-      "passMarkerCount": 422,
+      "markerCount": 438,
+      "uniqueMarkerCount": 438,
+      "passMarkerCount": 424,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1027,8 +1057,8 @@
         {
           "id": "M2-T3-VISION-ANNOTATION",
           "task": "识图提示 + SAM2/YOLO 辅助重建真实甲面多边形",
-          "status": "🟡 IN PROGRESS",
-          "evidence": "正式集409图/2142 mask不变；外部首批train100张/521个完整mask、来源隔离val30张/144 mask和冻结test100张/554 mask均已完成原分辨率终审。第三候选困难负样本不含正样本polygon，160张正式终审后145张批准、15张因裁断/不完整排除并已用于本轮训练；Beta失败样本仍待未来合格候选补充"
+          "status": "✅ CANDIDATE8 INPUT READY",
+          "evidence": "candidate8的31张全新隔离源图最终形成10张/87 mask真值、19张质量排除、2张隔离；合并训练正样本210张/1210 mask并通过物化与角色隔离审计，已进入candidate8训练。Beta失败样本待未来合格候选补充"
         },
         {
           "id": "M2-T3-HARD-NEGATIVE-V3-TRAINING-010",
@@ -1063,14 +1093,44 @@
         {
           "id": "REL-T2-CANDIDATE",
           "task": "正式模型候选发布",
-          "status": "🔴 HOLD（candidate5已拒绝，识别优先合同待实现）",
-          "evidence": "candidate5虽过规范val30和冻结test100总体mAP门，仍因新100张独立留出三变体误检3/4/3张而拒绝，且生产ONNX不存在。candidate6负样本仅10/160并暂停；先实现逐图完整甲面召回、重复/污染和像素mask可提取性报告，再补新来源且精确商业训练授权的正样本并训练下一候选。生产manifest、共享阈值保持不变；通过正样本门后仍须完成另一份全新未见留出、真机、Beta、生产ONNX和双版本回滚"
+          "status": "🔴 HOLD（candidate6逐实例门失败；candidate7严格真值补强中）",
+          "evidence": "candidate6冻结test100逐实例报告仅491/554匹配、漏63，41/100图漏甲，另有18重复、30额外候选和29无效mask，仅38/100图直接可提取，故正式否决。candidate7现有旧真实33张/237 mask与新正样本47张/250 mask，严格合计80张/487 mask，不少于80张的固定目标按权威机器索引已达成；新正样本索引（`2026_8_14_candidate7_new_positive_training_truths_v1`）与旧真实索引均`approved_unique_training_truth_index`、0拒绝/冗余/冲突且按文件名零重叠。未通过原分辨率门、存在应见甲数冲突或皮肤污染的版本不计数，全批在精确授权和物化审计前禁训。生产manifest和共享阈值不变；通过正样本门后仍须全新独立负样本、真机、Beta、生产ONNX和双版本回滚。"
         },
         {
           "id": "USER-FAILURE-01",
           "task": "提供实际用户常见失败图片，如遮挡、镜面高光、复杂背景和异形甲",
           "status": "⏭ USER INPUT",
           "evidence": "hard negative 与失败类型优化"
+        },
+        {
+          "id": "M2-T3-CANDIDATE9-TEACHER-STUDENT-001",
+          "task": "GPT-5.6 Sol语义审核、轻量定位、SAM2.1 large像素候选与端侧学生训练合同",
+          "status": "🟡 IN PROGRESS（candidate11冻结test100 HOLD）",
+          "evidence": "第二轮教师真值已收敛为21张/130 mask，相对首轮新增10张/55 mask并覆盖四类难例；合并训练真值231张/1340 mask，加160负样本后规范train391/val30/test0且输入深审PASS。candidate10因AdamW自动学习率0.002在val30退化而提前否决。candidate11以AdamW 0.0002、冻结前10层训练，权重`e7e462bf…c4ea`；仅用val30锁定部署512、阈值0.50和后处理0.60/0.85/0.12，召回0.84722、F1=0.83562。固定参数冻结test100总体mask mAP50=0.96167，但逐实例493/554匹配、436完整mask、61漏甲、19重复、30额外、22无效，37图漏甲、42图可直接提取，报告`77ca3342…d1386`决定HOLD。下一轮必须增加原分辨率难例真值并在val30比较更强表征，禁止test100反向调参或回流训练；standing授权不改变角色隔离和发布门。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE12-CAPACITY-001",
+          "task": "同一深审输入下YOLO11s-seg容量对照",
+          "status": "❌ VAL REJECT（未运行test100）",
+          "evidence": "复用train391/val30/test0输入，从旧高容量最佳权重启动，AdamW 0.0002、冻结前10层训练36 epochs，最佳epoch16，权重`b5881962…8c91`。部署512正式val30的box/mask mAP50为0.90315/0.82577；阈值报告`b866bf03…1b0d`为`no_threshold_meets_validation_constraints`，没有manifest阈值。该分支在val阶段终止，证明当前不能只靠放大学生容量解决；下一动作回到train角色原分辨率难例真值扩充，禁止同输入继续做超参排列或消费test100。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE13-EXPANDED-TRUTH-001",
+          "task": "扩展教师真值规范物化与nano重训",
+          "status": "❌ VAL REJECT（未运行test100）",
+          "evidence": "教师真值v11最终30张/180 mask、45张返修，规范摘要`633e4f86…ab9f`；相对candidate11输入新增9张/50 mask。`00451…_6`整图与`01126`错误人工v2均被原分辨率视觉门排除。合并为240张/1390 mask正样本及160负样本，train400/val30/test0、0 orphan，输入深审`6dfea016…5bb`PASS。candidate13权重`09a85a1c…78ae`；正式512 val30虽mask mAP50=0.85802，但0.50阈值仅121匹配、23漏检、26误检、召回0.84028、F1=0.83162，低于candidate11主召回门，故止于val。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE14-CONTINUATION-001",
+          "task": "从candidate11最优检查点吸收新增50枚教师真值",
+          "status": "❌ VAL REJECT（未运行test100）",
+          "evidence": "使用同一train400输入，从candidate11权重以AdamW 0.0001、冻结前10层、640、自动batch11、CUDA0、8 workers训练；第20轮早停，最佳第5轮，权重`7a76ac5c…8e4d`。正式512 val30的box/mask mAP50=0.92200/0.86000，阈值0.50深验报告`a5e00241…6dd`PASS，但逐实例仍为121匹配、23漏检、26误检、召回0.84028、F1=0.83162，未优于candidate11。未建立选择锁、未消费test100。下一动作固定为按val30抽象漏检类型补充来源隔离train真值，不再做同输入无目标超参排列。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001",
+          "task": "GPT-5.6 Sol匿名失败画像、严格真值增量与学生继续训练",
+          "status": "🔴 HOLD（val优胜；冻结test100识别门失败）",
+          "evidence": "匿名val画像`e95c794f…f49f`不含图片身份且禁止训练；原分辨率审核将教师真值扩至37张/234 mask，v14摘要`8457eee0…c3`，新增7张/54 mask。合并为247张/1444 mask正样本+160负样本，train407/val30/test0，输入深审`3902b9fd…c00`PASS。candidate15从candidate11以AdamW 0.00005、冻结前10层训练，28轮早停、最佳第8轮，权重`f538a27b…44d`。正式512 val30阈值0.50为124匹配、20漏检、29误检、召回0.86111，按完整甲面召回主门超过candidate11并锁定。固定参数冻结test100为496/554匹配、441完整mask、58漏甲、21重复、33额外、25无效，37图漏甲、40图可直接提取，继续HOLD；不得导出、登记、部署或用test100选样/调参。"
         }
       ]
     },
@@ -1281,7 +1341,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "9 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01."
+      "summary": "14 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
