@@ -35,6 +35,8 @@ test("train script dry-run resolves dataset and hyperparameters", async () => {
   assert.equal(result.class_count, 1);
   assert.equal(result.imgsz, 640);
   assert.equal(result.batch, -1);
+  assert.equal(result.mosaic, 1);
+  assert.equal(result.close_mosaic, 10);
   assert.match(String(result.runtime_dataset_yaml), /resolved-dataset\.yaml$/);
   assert.match(String(result.best_weights_path), /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+nail-texture-seg-v1[\\/]+weights[\\/]+best\.pt$/);
   assert.equal(result.training_intent, "experiment");
@@ -47,6 +49,85 @@ test("train script normalizes automatic and fractional batch settings", async ()
   const fractional = await runPython("model/training/train-yolo-seg.py", ["--dry-run", "--batch", "0.7"]);
   assert.equal(automatic.batch, -1);
   assert.equal(fractional.batch, 0.7);
+});
+
+test("train script freezes boundary-preserving mosaic settings", async () => {
+  const result = await runPython("model/training/train-yolo-seg.py", [
+    "--dry-run",
+    "--mosaic", "0",
+    "--close-mosaic", "0",
+  ]);
+  assert.equal(result.mosaic, 0);
+  assert.equal(result.close_mosaic, 0);
+});
+
+test("checkpoint interpolation creates a hash-bound student artifact", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-checkpoint-interpolation-"));
+  const base = path.join(root, "base.pt");
+  const candidate = path.join(root, "candidate.pt");
+  const output = path.join(root, "interpolated.pt");
+  const report = path.join(root, "report.json");
+  const makeCheckpoints = [
+    "import sys, torch",
+    "from torch import nn",
+    "base = nn.Sequential(nn.Linear(2, 2, bias=False))",
+    "candidate = nn.Sequential(nn.Linear(2, 2, bias=False))",
+    "base[0].weight.data.fill_(0.0)",
+    "candidate[0].weight.data.fill_(2.0)",
+    "torch.save({'model': base}, sys.argv[1])",
+    "torch.save({'model': candidate}, sys.argv[2])",
+  ].join("; ");
+  await execFileAsync("python", ["-c", makeCheckpoints, base, candidate]);
+  const result = await runPython("model/training/interpolate-yolo-checkpoints.py", [
+    "--base", base,
+    "--candidate", candidate,
+    "--alpha", "0.25",
+    "--output", output,
+    "--report", report,
+  ]);
+  assert.equal(result.ok, true);
+  assert.equal(result.alpha, 0.25);
+  assert.equal((result.structure as { stateTensorCount: number }).stateTensorCount, 1);
+  assert.equal((result.output as { sha256: string }).sha256.length, 64);
+  const verify = [
+    "import sys, torch",
+    "checkpoint = torch.load(sys.argv[1], map_location='cpu', weights_only=False)",
+    "print(float(checkpoint['model'][0].weight.mean()))",
+  ].join("; ");
+  const { stdout } = await execFileAsync("python", ["-c", verify, output]);
+  assert.equal(Number(stdout.trim()), 0.5);
+});
+
+test("train script freezes a local multi-signal distillation contract", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-distillation-plan-"));
+  const student = path.join(root, "student.pt");
+  const teacher = path.join(root, "teacher.pt");
+  await writeFile(student, "student-checkpoint", "utf8");
+  await writeFile(teacher, "teacher-checkpoint", "utf8");
+  const result = await runPython("model/training/train-yolo-seg.py", [
+    "--dry-run",
+    "--model", student,
+    "--distill-model", teacher,
+    "--distill-weight", "1.25",
+    "--distill-temperature", "2.5",
+    "--distill-topk", "16",
+  ]);
+  const distillation = result.distillation as {
+    teacher: { sha256: string };
+    studentBase: { sha256: string };
+    contract: { temperature: number; feature_weight: number; topk_anchors: number; signals: string[] };
+  };
+  assert.notEqual(distillation.teacher.sha256, distillation.studentBase.sha256);
+  assert.equal(distillation.contract.temperature, 2.5);
+  assert.equal(distillation.contract.feature_weight, 1.25);
+  assert.equal(distillation.contract.topk_anchors, 16);
+  assert.deepEqual(distillation.contract.signals, [
+    "teacher-score-weighted-neck-features",
+    "bernoulli-soft-class-probabilities",
+    "distribution-focal-box-logits",
+    "anchor-aligned-soft-instance-masks",
+    "soft-mask-boundary-gradients",
+  ]);
 });
 
 

@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate17_direct_medium_val30_primary_recall_superior_locked_ready_for_single_frozen_test100_diagnostic",
+  "selectionRole": "val30-only",
+  "trainingUse": "prohibited",
+  "model": {
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-teacher-2026-08-24-v2\\teacher16-medium-clean-base-v2\\weights\\best.pt",
+    "sha256": "46b8af324d4e2db949051b7ad69abf48ec1131d65dc7e522f16db810a5b85087",
+    "bytes": 45169257,
+    "architecture": "yolo11m-seg",
+    "roleClarification": "directly-trained-medium-deployment-candidate-not-a-required-distillation-teacher",
+    "inputSize": 512,
+    "scoreThreshold": 0.5
+  },
+  "postprocess": {
+    "duplicateMaskIouThreshold": 0.6,
+    "duplicateMaskContainmentThreshold": 0.85,
+    "duplicateMaskScoreTolerance": 0.12,
+    "sourcePath": "E:\\AI Project\\Codex\\JiaRu\\src\\lib\\nail-texture-recognition\\quality.ts",
+    "sourceSha256": "78ce25bd1dcd99cd4ce7e9f95ed432cfa3eacfe6d0a0df655ddccc214b413f4d"
+  },
+  "val30": {
+    "calibrationPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-teacher-2026-08-24-v2\\formal-val30-score-threshold-calibration-v1.json",
+    "calibrationSha256": "7a3144caabfa854200e77079374492f500983c67c04f1e2426d16bbec860062c",
+    "metricsPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-teacher-2026-08-24-v2\\formal-val30-canonical-512-v1\\metrics.json",
+    "metricsSha256": "12fa67ec622d68a749b391ae99fd36f5287888fea2bd718d324444c1b961a989",
+    "artifactIndexPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-teacher-2026-08-24-v2\\formal-val30-canonical-512-v1\\artifacts\\evaluation-artifacts.json",
+    "artifactIndexSha256": "3861dc1d872c14af45b8439b0ec823213cf8226b6f324e259fe7f0a95ba32e59",
+    "matched": 127,
+    "missed": 17,
+    "falsePositives": 28,
+    "recallAtIou50": 0.8819444444444444,
+    "f1AtIou50": 0.8494983277591973,
+    "primaryRecallBaseline": {
+      "candidate": "candidate15",
+      "matched": 124,
+      "missed": 20,
+      "falsePositives": 29,
+      "recallAtIou50": 0.8611111111111112,
+      "f1AtIou50": 0.8350168350168351
+    }
+  },
+  "trainingInput": {
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_24_candidate15_training_input_v1\\candidate15-candidate-training-input-audit-v2.json",
+    "sha256": "3902b9fdb3d186967072139c0d10490880df14767ad40f05f37063d2325f3c00"
+  },
+  "rules": {
+    "selectionPrimaryObjective": "complete_nail_recall",
+    "selectedWithoutFrozenTestEvidence": true,
+    "test100UsedForSelection": false,
+    "test100MayRunOnceAfterThisLock": true,
+    "test100MayNotChangeModelThresholdOrPostprocess": true,
+    "browserSizeAndLatencyRemainSeparateDeploymentGates": true,
+    "productionPromotion": false
+  }
+}

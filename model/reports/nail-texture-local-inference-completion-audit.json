@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-08-24T07:57:11.968Z",
+  "generatedAt": "2026-08-24T18:00:51.207Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,7 +72,7 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 438,
+    "progressMarkerCount": 444,
     "passMarkerCount": 424,
     "incompleteProgressMarkers": [
       {
@@ -158,6 +158,42 @@
         "task": "GPT-5.6 Sol匿名失败画像、严格真值增量与学生继续训练",
         "status": "🔴 HOLD（val优胜；冻结test100识别门失败）",
         "evidence": "匿名val画像`e95c794f…f49f`不含图片身份且禁止训练；原分辨率审核将教师真值扩至37张/234 mask，v14摘要`8457eee0…c3`，新增7张/54 mask。合并为247张/1444 mask正样本+160负样本，train407/val30/test0，输入深审`3902b9fd…c00`PASS。candidate15从candidate11以AdamW 0.00005、冻结前10层训练，28轮早停、最佳第8轮，权重`f538a27b…44d`。正式512 val30阈值0.50为124匹配、20漏检、29误检、召回0.86111，按完整甲面召回主门超过candidate11并锁定。固定参数冻结test100为496/554匹配、441完整mask、58漏甲、21重复、33额外、25无效，37图漏甲、40图可直接提取，继续HOLD；不得导出、登记、部署或用test100选样/调参。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001",
+        "task": "OpenAI强教师链路、本地可微教师资格与YOLO11n多信号蒸馏",
+        "status": "❌ FAIL（受控对照完成；学生val30否决）",
+        "evidence": "旧YOLO11s教师在512 val30无合格阈值；改用官方YOLO11m-seg干净基座训练27轮、最佳第7轮，权重`46b8af32…5087`（45169257 bytes）。规范512 val30阈值0.50为127/144匹配、17漏检、28误检，recall/F1=0.88194/0.84950，报告`7a3144ca…062c`深验PASS，证明教师相对candidate15有可迁移优势。1轮烟测确认`dis_loss`参与GPU反向传播后，首版固定合同YOLO11n学生训练24轮早停，权重`fc91e603…18e18`；部署512 mask mAP50=0.840，但阈值扫描无合格点，candidate16在val阶段否决，未运行test100、导出或部署。直接训练的candidate15继续作为学生基线；教师不进入网页，后续以新增硬真值的直接学生为主线，蒸馏仅保留为可选受控实验。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE17-DIRECT-MEDIUM-001",
+        "task": "直接YOLO11m部署候选登记、val30锁定与冻结test100识别门",
+        "status": "❌ FAIL（识别召回子门通过；完整性/唯一性门失败）",
+        "evidence": "将直接以批准硬真值训练的`46b8af32…5087`不可变权重从实验教师角色登记为candidate17直接中型候选；选择锁只读取val30，512/0.50为127/144匹配、17漏检、28误检。冻结test100一次评估为570预测、503/554匹配、446完整mask、51漏甲、28重复、39额外、36无效，31图漏甲、42图可直接提取；实例召回0.90794首次通过0.90，但完整mask比例0.80505、缺甲图片率0.31及零重复/额外/无效门失败，报告深验保持`hold_positive_recognition_gate`。不导出、登记或部署；后续直接模型只能使用独立train角色新增真值，禁止test逐图反调。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE18-HARDCASE-DIRECT-001",
+        "task": "新增高价值完整甲面真值、直接微调与冻结test100识别门",
+        "status": "❌ FAIL（召回继续提升；完整性/唯一性门失败）",
+        "evidence": "原分辨率终审新增6张/53 mask，补强真值v21为43张/287 mask；合并后253张/1497 mask正样本+160困难负样本，train413/val30/test0输入深审PASS。candidate18从candidate17权重以AdamW 0.00005、冻结前10层、640直接微调36轮早停，`distillation=null`，权重`bbc10675…01ec`。只用val30锁定512/0.30：128/144匹配、16漏检、21误检，较candidate17同时改善。固定参数冻结test100为515/554匹配、461完整mask、39漏甲、14重复、25额外、22无效，22图漏甲、50图可直接提取；实例召回0.92960通过，但完整mask比例0.83213、缺甲图片率0.22及零重复/额外/无效门失败。报告深验为`hold_positive_recognition_gate`，不导出、登记、部署或用test反调。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE19-EXPANDED-DIRECT-001",
+        "task": "v22完整甲面真值、规范物化与直接微调",
+        "status": "❌ VAL REJECT（未运行test100）",
+        "evidence": "原分辨率终审新增7张/54 mask，把补强真值扩至50张/341 mask；合并为260张/1551 mask正样本及160负样本，train420/val30/test0、0 orphan，输入审计`7904382d…113bd`PASS。candidate19从candidate18权重直接训练24轮早停，`distillation=null`，权重`88d10257…123d`；512 val30在0.30仅126匹配、18漏检、28误检，校准决定`no_threshold_meets_validation_constraints`，未消费test100。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001",
+        "task": "低学习率、关闭mosaic的边界保持微调",
+        "status": "❌ VAL REJECT（未运行test100）",
+        "evidence": "训练CLI新增受审`--mosaic/--close-mosaic`并记录summary；candidate20以candidate18为基座、AdamW 1e-5、freeze10、mosaic0训练32轮，权重`aeba70af…9266`。512 val30在0.20为127匹配/17漏检但37误检，在0.30为126/18/26，仍无合格阈值；未锁定、未消费test100。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001",
+        "task": "同架构学生插值、val30锁定与冻结test100识别门",
+        "status": "❌ FAIL（当前最优；完整性/唯一性门失败）",
+        "evidence": "原子插值工具绑定candidate18/candidate20输入SHA、结构和输出；预注册四点后alpha0.60在512/0.40为128/144匹配、16漏检、19误检，较candidate18保持召回并降低2误检，校准`5bd2e984…d3b1`深验PASS，选择锁`1f575750…3d20`禁止test反调。重新物化冻结test100并对450个训练身份复验零来源交叠；唯一一次推理为519/554匹配、466完整mask、35漏甲、13重复、18额外、17无效、20图漏甲、53图可直接提取。实例召回0.93682通过，完整率0.84116、缺甲图率0.20和唯一性门失败；质量报告`5c36d83a…c2f4`只读重放一致。未导出、登记、部署或读取逐图失败反调。"
       }
     ]
   },
@@ -1042,8 +1078,8 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 438,
-      "uniqueMarkerCount": 438,
+      "markerCount": 444,
+      "uniqueMarkerCount": 444,
       "passMarkerCount": 424,
       "malformedRows": [],
       "duplicateMarkerIds": [],
@@ -1131,6 +1167,42 @@
           "task": "GPT-5.6 Sol匿名失败画像、严格真值增量与学生继续训练",
           "status": "🔴 HOLD（val优胜；冻结test100识别门失败）",
           "evidence": "匿名val画像`e95c794f…f49f`不含图片身份且禁止训练；原分辨率审核将教师真值扩至37张/234 mask，v14摘要`8457eee0…c3`，新增7张/54 mask。合并为247张/1444 mask正样本+160负样本，train407/val30/test0，输入深审`3902b9fd…c00`PASS。candidate15从candidate11以AdamW 0.00005、冻结前10层训练，28轮早停、最佳第8轮，权重`f538a27b…44d`。正式512 val30阈值0.50为124匹配、20漏检、29误检、召回0.86111，按完整甲面召回主门超过candidate11并锁定。固定参数冻结test100为496/554匹配、441完整mask、58漏甲、21重复、33额外、25无效，37图漏甲、40图可直接提取，继续HOLD；不得导出、登记、部署或用test100选样/调参。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001",
+          "task": "OpenAI强教师链路、本地可微教师资格与YOLO11n多信号蒸馏",
+          "status": "❌ FAIL（受控对照完成；学生val30否决）",
+          "evidence": "旧YOLO11s教师在512 val30无合格阈值；改用官方YOLO11m-seg干净基座训练27轮、最佳第7轮，权重`46b8af32…5087`（45169257 bytes）。规范512 val30阈值0.50为127/144匹配、17漏检、28误检，recall/F1=0.88194/0.84950，报告`7a3144ca…062c`深验PASS，证明教师相对candidate15有可迁移优势。1轮烟测确认`dis_loss`参与GPU反向传播后，首版固定合同YOLO11n学生训练24轮早停，权重`fc91e603…18e18`；部署512 mask mAP50=0.840，但阈值扫描无合格点，candidate16在val阶段否决，未运行test100、导出或部署。直接训练的candidate15继续作为学生基线；教师不进入网页，后续以新增硬真值的直接学生为主线，蒸馏仅保留为可选受控实验。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE17-DIRECT-MEDIUM-001",
+          "task": "直接YOLO11m部署候选登记、val30锁定与冻结test100识别门",
+          "status": "❌ FAIL（识别召回子门通过；完整性/唯一性门失败）",
+          "evidence": "将直接以批准硬真值训练的`46b8af32…5087`不可变权重从实验教师角色登记为candidate17直接中型候选；选择锁只读取val30，512/0.50为127/144匹配、17漏检、28误检。冻结test100一次评估为570预测、503/554匹配、446完整mask、51漏甲、28重复、39额外、36无效，31图漏甲、42图可直接提取；实例召回0.90794首次通过0.90，但完整mask比例0.80505、缺甲图片率0.31及零重复/额外/无效门失败，报告深验保持`hold_positive_recognition_gate`。不导出、登记或部署；后续直接模型只能使用独立train角色新增真值，禁止test逐图反调。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE18-HARDCASE-DIRECT-001",
+          "task": "新增高价值完整甲面真值、直接微调与冻结test100识别门",
+          "status": "❌ FAIL（召回继续提升；完整性/唯一性门失败）",
+          "evidence": "原分辨率终审新增6张/53 mask，补强真值v21为43张/287 mask；合并后253张/1497 mask正样本+160困难负样本，train413/val30/test0输入深审PASS。candidate18从candidate17权重以AdamW 0.00005、冻结前10层、640直接微调36轮早停，`distillation=null`，权重`bbc10675…01ec`。只用val30锁定512/0.30：128/144匹配、16漏检、21误检，较candidate17同时改善。固定参数冻结test100为515/554匹配、461完整mask、39漏甲、14重复、25额外、22无效，22图漏甲、50图可直接提取；实例召回0.92960通过，但完整mask比例0.83213、缺甲图片率0.22及零重复/额外/无效门失败。报告深验为`hold_positive_recognition_gate`，不导出、登记、部署或用test反调。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE19-EXPANDED-DIRECT-001",
+          "task": "v22完整甲面真值、规范物化与直接微调",
+          "status": "❌ VAL REJECT（未运行test100）",
+          "evidence": "原分辨率终审新增7张/54 mask，把补强真值扩至50张/341 mask；合并为260张/1551 mask正样本及160负样本，train420/val30/test0、0 orphan，输入审计`7904382d…113bd`PASS。candidate19从candidate18权重直接训练24轮早停，`distillation=null`，权重`88d10257…123d`；512 val30在0.30仅126匹配、18漏检、28误检，校准决定`no_threshold_meets_validation_constraints`，未消费test100。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001",
+          "task": "低学习率、关闭mosaic的边界保持微调",
+          "status": "❌ VAL REJECT（未运行test100）",
+          "evidence": "训练CLI新增受审`--mosaic/--close-mosaic`并记录summary；candidate20以candidate18为基座、AdamW 1e-5、freeze10、mosaic0训练32轮，权重`aeba70af…9266`。512 val30在0.20为127匹配/17漏检但37误检，在0.30为126/18/26，仍无合格阈值；未锁定、未消费test100。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001",
+          "task": "同架构学生插值、val30锁定与冻结test100识别门",
+          "status": "❌ FAIL（当前最优；完整性/唯一性门失败）",
+          "evidence": "原子插值工具绑定candidate18/candidate20输入SHA、结构和输出；预注册四点后alpha0.60在512/0.40为128/144匹配、16漏检、19误检，较candidate18保持召回并降低2误检，校准`5bd2e984…d3b1`深验PASS，选择锁`1f575750…3d20`禁止test反调。重新物化冻结test100并对450个训练身份复验零来源交叠；唯一一次推理为519/554匹配、466完整mask、35漏甲、13重复、18额外、17无效、20图漏甲、53图可直接提取。实例召回0.93682通过，完整率0.84116、缺甲图率0.20和唯一性门失败；质量报告`5c36d83a…c2f4`只读重放一致。未导出、登记、部署或读取逐图失败反调。"
         }
       ]
     },
@@ -1341,7 +1413,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "14 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001."
+      "summary": "20 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
