@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_complete_nail_surface_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_01150_69fc77a3000000003601de33_0.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01150_69fc77a3000000003601de33_0.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e93f7138b4ef9059",
+      "nails": [
+        {"sourceIndex": 1},
+        {"sourceIndex": 2},
+        {"sourceIndex": 3},
+        {
+          "polygon": [
+            {"x": 276, "y": 707}, {"x": 290, "y": 699}, {"x": 307, "y": 698},
+            {"x": 324, "y": 703}, {"x": 339, "y": 713}, {"x": 348, "y": 726},
+            {"x": 352, "y": 740}, {"x": 351, "y": 753}, {"x": 344, "y": 764},
+            {"x": 332, "y": 770}, {"x": 317, "y": 769}, {"x": 301, "y": 765},
+            {"x": 285, "y": 757}, {"x": 274, "y": 747}, {"x": 269, "y": 735},
+            {"x": 269, "y": 721}
+          ]
+        },
+        {"sourceIndex": 5},
+        {"sourceIndex": 6},
+        {"sourceIndex": 7},
+        {"sourceIndex": 8},
+        {"sourceIndex": 9},
+        {"sourceIndex": 10}
+      ]
+    }
+  ]
+}

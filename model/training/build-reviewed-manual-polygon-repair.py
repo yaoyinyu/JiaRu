@@ -110,6 +110,66 @@ def repair_invalid_source_polygon(
     )
 
 
+def smooth_source_polygon(
+    raw: Any,
+    width: int,
+    height: int,
+    radius_pixels: float,
+) -> list[dict[str, float]]:
+    """Close small SAM notches while keeping the result review-only.
+
+    This is a candidate-generation operation for decoration-following or
+    stair-stepped contours. It cannot promote a polygon and therefore still
+    requires the same original-resolution whole-image and per-nail review.
+    """
+    radius = float(radius_pixels)
+    if radius <= 0 or radius > min(width, height) * 0.1:
+        raise ValueError("smoothRadiusPixels must be positive and at most 10% of the short side")
+    points = normalize_points(raw, width, height)
+    shape = Polygon([(point["x"], point["y"]) for point in points])
+    if not shape.is_valid or shape.area <= 1:
+        raise ValueError("source polygon must be valid before smoothing")
+    smoothed = shape.buffer(radius).buffer(-radius)
+    components = [
+        component
+        for component in ([smoothed] if isinstance(smoothed, Polygon) else list(smoothed.geoms))
+        if isinstance(component, Polygon) and component.area > 1
+    ]
+    if not components:
+        raise ValueError("source polygon smoothing produced no non-empty polygon")
+    result = max(components, key=lambda geometry: geometry.area)
+    return normalize_points(
+        [{"x": x, "y": y} for x, y in list(result.exterior.coords)[:-1]],
+        width,
+        height,
+    )
+
+
+def convex_hull_source_polygon(
+    raw: Any,
+    width: int,
+    height: int,
+) -> list[dict[str, float]]:
+    """Fill deep decoration-following concavities for convex nail plates.
+
+    The manifest must opt in nail by nail. The hull remains a review candidate,
+    never an automatic truth decision, because a non-convex real nail boundary
+    could otherwise introduce skin near the cuticle or side walls.
+    """
+    points = normalize_points(raw, width, height)
+    shape = Polygon([(point["x"], point["y"]) for point in points])
+    if not shape.is_valid or shape.area <= 1:
+        raise ValueError("source polygon must be valid before convex-hull repair")
+    hull = shape.convex_hull
+    if not isinstance(hull, Polygon) or hull.area <= 1:
+        raise ValueError("source polygon convex hull is not a non-empty polygon")
+    return normalize_points(
+        [{"x": x, "y": y} for x, y in list(hull.exterior.coords)[:-1]],
+        width,
+        height,
+    )
+
+
 def draw_overlay(image_path: Path, annotations: list[dict[str, Any]], output_path: Path) -> None:
     with Image.open(image_path) as source:
         overlay = source.convert("RGB")
@@ -192,6 +252,8 @@ def build_item(
 
     annotations: list[dict[str, Any]] = []
     retained_count = 0
+    smoothed_count = 0
+    convex_hull_count = 0
     manual_count = 0
     source_annotations = source.get("annotations", [])
     for index, nail in enumerate(item.get("nails", []), start=1):
@@ -204,11 +266,36 @@ def build_item(
             if source_index < 1 or source_index > len(source_annotations):
                 raise ValueError(f"nail {index} sourceIndex is out of range")
             annotation = deepcopy(source_annotations[source_index - 1])
+            smooth_radius = nail.get("smoothRadiusPixels")
+            use_convex_hull = nail.get("convexHullSourcePolygon") is True
+            source_transform_count = sum(
+                [
+                    nail.get("repairInvalidSourcePolygon") is True,
+                    smooth_radius is not None,
+                    use_convex_hull,
+                ]
+            )
+            if source_transform_count > 1:
+                raise ValueError(
+                    f"nail {index} can use only one source-polygon transform"
+                )
             if nail.get("repairInvalidSourcePolygon") is True:
                 annotation["polygon"] = repair_invalid_source_polygon(
                     annotation.get("polygon"), width, height
                 )
                 disposition = "retained-reviewed-source-polygon-topology-repaired"
+            elif smooth_radius is not None:
+                annotation["polygon"] = smooth_source_polygon(
+                    annotation.get("polygon"), width, height, float(smooth_radius)
+                )
+                disposition = "review-candidate-source-polygon-morphological-closing"
+                smoothed_count += 1
+            elif use_convex_hull:
+                annotation["polygon"] = convex_hull_source_polygon(
+                    annotation.get("polygon"), width, height
+                )
+                disposition = "review-candidate-source-polygon-convex-hull"
+                convex_hull_count += 1
             else:
                 annotation["polygon"] = normalize_points(annotation.get("polygon"), width, height)
                 disposition = "retained-reviewed-source-polygon"
@@ -275,6 +362,8 @@ def build_item(
         "overlayPath": str(overlay_path.resolve()),
         "polygonCount": len(annotations),
         "retainedPolygonCount": retained_count,
+        "smoothedPolygonCount": smoothed_count,
+        "convexHullPolygonCount": convex_hull_count,
         "manualPolygonCount": manual_count,
         "validPolygonCount": len(shapes),
         "pairwiseOverlapCount": 0,
@@ -330,6 +419,8 @@ def main() -> None:
         "completedCount": len(outputs),
         "polygonCount": sum(item["polygonCount"] for item in outputs),
         "retainedPolygonCount": sum(item["retainedPolygonCount"] for item in outputs),
+        "smoothedPolygonCount": sum(item["smoothedPolygonCount"] for item in outputs),
+        "convexHullPolygonCount": sum(item["convexHullPolygonCount"] for item in outputs),
         "manualPolygonCount": sum(item["manualPolygonCount"] for item in outputs),
         "pairwiseOverlapCount": 0 if outputs else None,
         "geometryPromptsPath": str(prompts_path) if prompts_path is not None else None,

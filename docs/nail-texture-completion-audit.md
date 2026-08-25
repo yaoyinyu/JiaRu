@@ -43,6 +43,14 @@ candidate12已完成同一输入下的容量对照：YOLO11s-seg低学习率冻�
 
 candidate15把上述策略落实为匿名失败画像和可核验真值增量：val30画像只保留完整漏检、定位失败、宽/侧视、小面积、贴边和狭长等聚合类别，不含图片身份且明确`trainingUse=prohibited`；教师真值扩展至37张/234 mask，训练输入为247张/1444 mask正样本、160负样本、val30/test0并通过深审。candidate15在部署512、阈值0.50的val30达到124/144匹配、20漏检、29误检，按“完整甲面召回优先”超过candidate11后才锁定并消费一次冻结test100。固定参数结果虽改善到496/554匹配、441完整mask和58漏甲，但仍有21重复、33额外、25无效预测，37%图片漏甲且仅40%图片可直接提取，因此正式门继续HOLD。下一轮不得读取或披露test100逐图身份来选样，不得把其预测、标签或派生物回流训练；只能继续依据val30匿名类别扩充来源隔离train真值，再产生新的val优胜学生。
 
+candidate16采用新的五段教师链路：GPT-5.6 Sol负责语义审查，OpenAI官方`gpt-image-2`只负责生成/编辑来源隔离的train候选，SAM2.1 large负责像素候选，通过部署512 val30资格门的本地较大YOLO负责可微软目标，YOLO11n负责浏览器部署。OpenAI图像生成结果、SAM候选、教师logit或特征本身都不能填写发布PASS；只有原分辨率终审硬真值和最终候选独立生成的val30、冻结test100、全新困难负样本、浏览器、真机、Beta与回滚证据可进入正式gate。官方YOLO11m-seg干净基座训练得到的权重在512 val30阈值0.50达到127/144匹配、17漏检、28误检；首版多信号YOLO11n学生没有阈值满足同一val30联合约束，因此candidate16保持FAIL。该YOLO11m权重本身由批准硬真值直接训练并可独立推理，故candidate17另以哈希绑定选择锁将其登记为直接部署候选，而非把“教师PASS”转换成“蒸馏PASS”；冻结test100虽以503/554匹配、0.90794实例召回首次通过召回子门，但完整mask、缺甲图片、重复、额外候选及无效mask门仍失败。审计固定：教师不是训练或网页前置条件，较大直接模型仍必须独立通过浏览器体积、延迟、内存和全部发布门。
+
+2026-08-24完成candidate17直接中型模型冻结test100验证后，机器重放确认门禁继续生效：总计440个进度标记、424个PASS、16个非PASS，14个正式门中4个通过/10个失败；`M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001`继续记录蒸馏学生val30失败，新增`M2-T3-CANDIDATE17-DIRECT-MEDIUM-001`记录直接模型只通过实例召回子门、完整性与唯一性门仍失败。报告SHA-256为`0e46dd55549d55d080fc51b183e24bbc3ae8a1539da399db663bd9240472cc7e`，`ok=false`、`decision=hold`符合预期，既没有把教师资格PASS错误晋升为蒸馏PASS，也没有把candidate17的召回子门PASS误写成正式发布PASS。
+
+candidate18继续沿直接训练主线推进：43张/287 mask补强真值合并后形成train413/val30/test0深审输入，YOLO11m从candidate17权重直接微调且`distillation=null`。val30在召回不低于0.88的主约束下锁定512/0.30，为128/144匹配、16漏检、21误检；冻结test100一次诊断为515/554匹配、461完整mask、39漏甲、14重复、25额外、22无效，22图漏甲、50图可直接提取。完成度审计必须把`M2-T3-CANDIDATE18-HARDCASE-DIRECT-001`保持为非PASS：0.92960实例召回只通过子门，0.83213完整mask比例、0.22缺甲图率和零重复/额外/无效门仍失败；不得因相对candidate17改善而导出、登记或部署。
+
+2026-08-25收口重放共读取441个进度标记、424个PASS和17个非PASS，14个正式门仍为4通过/10失败，`ok=false`、`decision=hold`；报告SHA-256为`5f42f0912f236992c76b228134292375042f201c030081e3660c011daf5d31e7`。该结果确认candidate18提升未绕过独立困难负样本、移动真机、Beta、生产资产和回滚门。
+
 自2026-08-22起，项目范围内图像与本机计算资源由`model/training/project-commercial-resource-authorization-v1.json`提供standing商业授权，完成度审计不再把“逐批等待用户确认”作为独立发布门。该变化只移除人工暂停：数据集readiness与用途角色仍须由机器证据判定，val、冻结test、已消费holdout及其派生物/父来源仍禁止训练；原分辨率完整甲面、独立未见留出、三变体零误检、浏览器、真机、Beta、产品质量与回滚门继续全部要求真实PASS。
 
 ## 外部证据格式
@@ -199,3 +207,14 @@ node --no-warnings --experimental-strip-types scripts/audit-release-rollback.ts 
 ## 发布顺序
 
 外部证据全部通过后，先重新训练/评估并确认候选通过冻结快照和正式产品质量门，再执行promotion、生产资产完整性验证、回滚审计和浏览器回归。只有v2的13个正式gate全部通过、全部进度标记均为PASS，且最终返回`ok=true`、`decision=complete`，才能把实施目标标记为完成。
+
+## candidate19—21 当前完成度结论（2026-08-25）
+
+| 证据 | 结论 | 完成度影响 |
+| --- | --- | --- |
+| candidate19输入深审 | PASS：train420/val30/test0，260张正样本/1551 mask、160张困难负样本，角色与冻结test100来源隔离 | 只证明候选训练输入合格，不解除发布门 |
+| candidate19/20 val30 | 两者均为`no_threshold_meets_validation_constraints`，未运行test100 | 正确在val阶段淘汰，不计正式识别PASS |
+| candidate21 val30选择锁 | PASS：alpha0.60单学生权重`1eea8742…fae7`，512/0.40为128匹配、16漏检、19误检；锁禁止test反调 | 允许一次冻结test100诊断，不允许导出/部署 |
+| candidate21冻结test100 | FAIL：519/554匹配、466完整mask、35漏甲、13重复、18额外、17无效、20图漏甲；召回0.93682通过，完整率0.84116、缺甲图率0.20和唯一性门失败 | `M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001`保持非PASS；正式模型、生产资产、浏览器、真机、Beta和回滚门均不得晋升 |
+
+candidate21冻结测试已经消费。完成度审计不得把相对candidate18的聚合改善解释为正式识别通过，也不得用逐图测试结果驱动下一训练集、阈值或后处理。当前Goal继续保持`ok=false`、`decision=hold`，只有后续独立train真值迭代通过全部正式门才可变更。

@@ -77,3 +77,59 @@ test("reviewed manual polygon repair rejects overlapping nail polygons", () => {
   assert.equal(report.ok, false);
   assert.match(report.errors.join("\n"), /overlap/);
 });
+
+test("reviewed manual polygon repair can close a decoration-following source notch without promoting truth", () => {
+  const item = fixture();
+  const sourcePath = path.join(item.root, "source.json");
+  const source = JSON.parse(readFileSync(sourcePath, "utf8"));
+  source.annotations[0].polygon = [
+    { x: 10, y: 10 }, { x: 30, y: 10 }, { x: 30, y: 30 },
+    { x: 22, y: 30 }, { x: 22, y: 18 }, { x: 18, y: 18 },
+    { x: 18, y: 30 }, { x: 10, y: 30 },
+  ];
+  writeFileSync(sourcePath, JSON.stringify(source));
+  const manifest = JSON.parse(readFileSync(item.manifestPath, "utf8"));
+  manifest.images[0].nails[0] = { sourceIndex: 1, smoothRadiusPixels: 5 };
+  writeFileSync(item.manifestPath, JSON.stringify(manifest));
+
+  execFileSync("python", args(item));
+  const report = JSON.parse(readFileSync(item.reportPath, "utf8"));
+  assert.equal(report.ok, true);
+  assert.equal(report.smoothedPolygonCount, 1);
+  const annotation = JSON.parse(readFileSync(path.join(item.annotationDir, "sample.json"), "utf8"));
+  assert.equal(annotation.trainingUse, "prohibited");
+  assert.equal(annotation.originalResolutionReviewRequired, true);
+  assert.equal(
+    annotation.annotations[0].attributes.repairDisposition,
+    "review-candidate-source-polygon-morphological-closing",
+  );
+  assert.ok(annotation.annotations[0].polygon.length > source.annotations[0].polygon.length);
+});
+
+test("reviewed manual polygon repair can build a review-only convex hull for a convex nail plate", () => {
+  const item = fixture();
+  const sourcePath = path.join(item.root, "source.json");
+  const source = JSON.parse(readFileSync(sourcePath, "utf8"));
+  source.annotations[0].polygon = [
+    { x: 10, y: 10 }, { x: 30, y: 10 }, { x: 30, y: 30 },
+    { x: 22, y: 30 }, { x: 22, y: 18 }, { x: 18, y: 18 },
+    { x: 18, y: 30 }, { x: 10, y: 30 },
+  ];
+  writeFileSync(sourcePath, JSON.stringify(source));
+  const manifest = JSON.parse(readFileSync(item.manifestPath, "utf8"));
+  manifest.images[0].nails[0] = { sourceIndex: 1, convexHullSourcePolygon: true };
+  writeFileSync(item.manifestPath, JSON.stringify(manifest));
+
+  execFileSync("python", args(item));
+  const report = JSON.parse(readFileSync(item.reportPath, "utf8"));
+  assert.equal(report.ok, true);
+  assert.equal(report.convexHullPolygonCount, 1);
+  const annotation = JSON.parse(readFileSync(path.join(item.annotationDir, "sample.json"), "utf8"));
+  assert.equal(annotation.trainingUse, "prohibited");
+  assert.equal(annotation.originalResolutionReviewRequired, true);
+  assert.equal(
+    annotation.annotations[0].attributes.repairDisposition,
+    "review-candidate-source-polygon-convex-hull",
+  );
+  assert.equal(annotation.annotations[0].polygon.length, 4);
+});

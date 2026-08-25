@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00243_6a2b9a3e000000002100b029_2.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_00243_6a2b9a3e000000002100b029_2.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-8131761fde0f2374",
+      "nails": [
+        {"sourceIndex": 1}, {"sourceIndex": 2}, {"sourceIndex": 3}, {"sourceIndex": 4},
+        {"sourceIndex": 5}, {"sourceIndex": 6}, {"sourceIndex": 7}, {"sourceIndex": 8},
+        {
+          "polygon": [
+            {"x": 349, "y": 160}, {"x": 353, "y": 143}, {"x": 363, "y": 122},
+            {"x": 378, "y": 102}, {"x": 394, "y": 94}, {"x": 409, "y": 101},
+            {"x": 418, "y": 117}, {"x": 418, "y": 136}, {"x": 409, "y": 154},
+            {"x": 395, "y": 169}, {"x": 377, "y": 180}, {"x": 361, "y": 176}
+          ],
+          "attributes": {"fingerHint": "thumb", "shape": "long-almond", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "补回左上侧向透明延长拇指甲，清退原第9项位于手指皮肤的假阳性。"}
+        },
+        {
+          "polygon": [
+            {"x": 567, "y": 160}, {"x": 559, "y": 146}, {"x": 558, "y": 129},
+            {"x": 563, "y": 110}, {"x": 575, "y": 97}, {"x": 590, "y": 94},
+            {"x": 606, "y": 101}, {"x": 618, "y": 116}, {"x": 625, "y": 134},
+            {"x": 621, "y": 151}, {"x": 609, "y": 166}, {"x": 592, "y": 177},
+            {"x": 577, "y": 173}
+          ],
+          "attributes": {"fingerHint": "thumb", "shape": "long-almond", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "补回右上侧向透明延长拇指甲，清退原第10项位于左下背景边缘的假阳性。"}
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_complete_nail_surface_candidate_only_v1",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_01317_6a47e0e7000000000f0177d9_10.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01317_6a47e0e7000000000f0177d9_10.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-92e0e0f033258b04",
+      "nails": [
+        {"sourceIndex": 1},
+        {"sourceIndex": 2},
+        {"sourceIndex": 3},
+        {"sourceIndex": 4},
+        {"sourceIndex": 5},
+        {"sourceIndex": 6},
+        {"sourceIndex": 7},
+        {"sourceIndex": 8}
+      ]
+    }
+  ]
+}

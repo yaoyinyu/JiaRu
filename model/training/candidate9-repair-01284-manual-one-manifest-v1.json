@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_01284_6a27df6f00000000070219cc_6.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01284_6a27df6f00000000070219cc_6.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-437e22567d230c50",
+      "nails": [
+        {"sourceIndex": 1},
+        {"sourceIndex": 2},
+        {"sourceIndex": 4},
+        {
+          "polygon": [
+            {"x": 554, "y": 913}, {"x": 559, "y": 898}, {"x": 574, "y": 898},
+            {"x": 594, "y": 910}, {"x": 617, "y": 929}, {"x": 640, "y": 950},
+            {"x": 657, "y": 971}, {"x": 665, "y": 990}, {"x": 659, "y": 1002},
+            {"x": 645, "y": 1005}, {"x": 626, "y": 994}, {"x": 603, "y": 977},
+            {"x": 580, "y": 956}, {"x": 562, "y": 934}
+          ],
+          "attributes": {"fingerHint": "pinky", "shape": "long-coffin", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画右下完整透明延长甲，清退原第3项覆盖两根手指和大面积皮肤的错误候选。"}
+        }
+      ]
+    }
+  ]
+}

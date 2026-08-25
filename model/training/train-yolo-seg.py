@@ -32,6 +32,26 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--optimizer", default="auto")
     parser.add_argument("--lr0", type=float, default=None)
     parser.add_argument("--freeze", type=int, default=None)
+    parser.add_argument(
+        "--mosaic",
+        type=float,
+        default=1.0,
+        help="Ultralytics mosaic augmentation probability; use 0 for boundary-preserving fine-tuning",
+    )
+    parser.add_argument(
+        "--close-mosaic",
+        type=int,
+        default=10,
+        help="Disable mosaic for the final N epochs; use 0 when mosaic is already disabled",
+    )
+    parser.add_argument("--distill-model", default="", help="Local larger YOLO segmentation teacher checkpoint")
+    parser.add_argument("--distill-weight", type=float, default=1.0, help="Teacher-score-weighted neck feature loss weight")
+    parser.add_argument("--distill-temperature", type=float, default=2.0)
+    parser.add_argument("--distill-soft-score-weight", type=float, default=0.25)
+    parser.add_argument("--distill-box-weight", type=float, default=0.25)
+    parser.add_argument("--distill-mask-weight", type=float, default=0.50)
+    parser.add_argument("--distill-boundary-weight", type=float, default=0.25)
+    parser.add_argument("--distill-topk", type=int, default=24)
     parser.add_argument("--run-name", default="nail-texture-seg-v1")
     parser.add_argument("--candidate-mode", action="store_true", help="Require a deeply replayed candidate-input audit and mark this run as a release-candidate training attempt")
     parser.add_argument("--candidate-input-report", default="", help="Approved report from audit-candidate-training-input.py")
@@ -62,6 +82,41 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def resolve_distillation_evidence(args: argparse.Namespace) -> dict[str, object] | None:
+    """验证教师/学生身份并冻结多信号蒸馏合同。"""
+
+    if not args.distill_model:
+        return None
+    teacher = Path(args.distill_model).resolve()
+    student = Path(args.model).resolve()
+    if not teacher.is_file():
+        raise ValueError("--distill-model must be an existing local checkpoint")
+    if not student.is_file():
+        raise ValueError("distillation requires --model to be an existing local student checkpoint")
+    teacher_sha = sha256(teacher)
+    student_sha = sha256(student)
+    if teacher_sha == student_sha:
+        raise ValueError("distillation teacher and student checkpoints must differ")
+    from nail_texture_distillation import DistillationConfig, current_distillation_contract, configure_distillation
+
+    config = DistillationConfig(
+        temperature=args.distill_temperature,
+        feature_weight=args.distill_weight,
+        soft_score_weight=args.distill_soft_score_weight,
+        box_distribution_weight=args.distill_box_weight,
+        soft_mask_weight=args.distill_mask_weight,
+        boundary_weight=args.distill_boundary_weight,
+        topk_anchors=args.distill_topk,
+    )
+    configure_distillation(config)
+    return {
+        "teacher": {"path": str(teacher), "sha256": teacher_sha, "bytes": teacher.stat().st_size},
+        "studentBase": {"path": str(student), "sha256": student_sha, "bytes": student.stat().st_size},
+        "contract": current_distillation_contract(),
+        "teacherMustPassIsolatedValidationBeforeCandidateUse": True,
+    }
 
 
 def is_within(path: Path, root: Path) -> bool:
@@ -183,6 +238,10 @@ def install_read_only_ultralytics_image_check() -> None:
 
 def main() -> None:
     args = build_parser().parse_args()
+    if not 0.0 <= args.mosaic <= 1.0:
+        raise ValueError("--mosaic must be between 0 and 1")
+    if args.close_mosaic < 0:
+        raise ValueError("--close-mosaic must be non-negative")
     batch = parse_batch(args.batch)
     dataset_yaml = Path(args.dataset).resolve()
     output_dir = Path(args.output_dir).resolve()
@@ -195,6 +254,7 @@ def main() -> None:
     candidate_input_evidence = candidate_input_validation(
         args, dataset_yaml, output_dir
     )
+    distillation_evidence = resolve_distillation_evidence(args)
     runtime_dataset_yaml = output_dir / "resolved-dataset.yaml"
 
     summary = {
@@ -218,6 +278,9 @@ def main() -> None:
         "optimizer": args.optimizer,
         "lr0": args.lr0,
         "freeze": args.freeze,
+        "mosaic": args.mosaic,
+        "close_mosaic": args.close_mosaic,
+        "distillation": distillation_evidence,
         "run_name": args.run_name,
         "output_dir": str(output_dir),
         "run_dir": str(resolve_training_run_dir(output_dir, args.run_name)),
@@ -271,16 +334,27 @@ def main() -> None:
 
     ultralytics = ensure_python_dependency("ultralytics", "pip install ultralytics")
     install_read_only_ultralytics_image_check()
+    if distillation_evidence is not None:
+        import ultralytics.engine.trainer as ultralytics_trainer
+        from nail_texture_distillation import JiaRuSegmentationDistillationModel
+
+        # Trainer通过该符号构造包装模型；子类仍可被Ultralytics的保存/解包逻辑识别。
+        ultralytics_trainer.DistillationModel = JiaRuSegmentationDistillationModel
     write_resolved_dataset_yaml(runtime_dataset_yaml, config)
     model = ultralytics.YOLO(args.model)
     output_dir.mkdir(parents=True, exist_ok=True)
     train_options = {
         "optimizer": args.optimizer,
+        "mosaic": args.mosaic,
+        "close_mosaic": args.close_mosaic,
     }
     if args.lr0 is not None:
         train_options["lr0"] = args.lr0
     if args.freeze is not None:
         train_options["freeze"] = args.freeze
+    if distillation_evidence is not None:
+        train_options["distill_model"] = distillation_evidence["teacher"]["path"]
+        train_options["dis"] = args.distill_weight
     results = model.train(
         data=str(runtime_dataset_yaml),
         task="segment",
