@@ -1,0 +1,110 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00415_69c7475f000000002101357f_5.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_00415_69c7475f000000002101357f_5.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-5219f19cf3235c0a",
+      "nails": [
+        {
+          "polygon": [
+            {"x": 752, "y": 475}, {"x": 765, "y": 466}, {"x": 781, "y": 468}, {"x": 793, "y": 480},
+            {"x": 801, "y": 500}, {"x": 807, "y": 526}, {"x": 813, "y": 555}, {"x": 817, "y": 582},
+            {"x": 814, "y": 607}, {"x": 806, "y": 622}, {"x": 796, "y": 617}, {"x": 785, "y": 596},
+            {"x": 775, "y": 570}, {"x": 766, "y": 543}, {"x": 757, "y": 514}, {"x": 750, "y": 490}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画后手右侧长甲完整甲板，覆盖裸色甲床、银色延长段和完整尖端。"}
+        },
+        {
+          "polygon": [
+            {"x": 687, "y": 484}, {"x": 701, "y": 474}, {"x": 717, "y": 475}, {"x": 730, "y": 487},
+            {"x": 738, "y": 510}, {"x": 744, "y": 540}, {"x": 750, "y": 573}, {"x": 756, "y": 607},
+            {"x": 757, "y": 634}, {"x": 750, "y": 651}, {"x": 740, "y": 647}, {"x": 730, "y": 626},
+            {"x": 719, "y": 598}, {"x": 709, "y": 569}, {"x": 699, "y": 539}, {"x": 690, "y": 510}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画后手中右长甲完整甲板，去除旧候选的边界缺口。"}
+        },
+        {
+          "polygon": [
+            {"x": 620, "y": 505}, {"x": 633, "y": 494}, {"x": 650, "y": 496}, {"x": 663, "y": 510},
+            {"x": 670, "y": 534}, {"x": 673, "y": 565}, {"x": 674, "y": 598}, {"x": 672, "y": 626},
+            {"x": 665, "y": 648}, {"x": 655, "y": 654}, {"x": 646, "y": 643}, {"x": 638, "y": 621},
+            {"x": 631, "y": 593}, {"x": 625, "y": 564}, {"x": 619, "y": 534}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "把旧候选3和4的装饰碎片/整甲重复替换为一枚完整连续甲板。"}
+        },
+        {
+          "polygon": [
+            {"x": 540, "y": 529}, {"x": 552, "y": 519}, {"x": 568, "y": 520}, {"x": 581, "y": 532},
+            {"x": 589, "y": 553}, {"x": 596, "y": 580}, {"x": 604, "y": 607}, {"x": 612, "y": 631},
+            {"x": 612, "y": 649}, {"x": 603, "y": 660}, {"x": 593, "y": 651}, {"x": 582, "y": 632},
+            {"x": 572, "y": 609}, {"x": 561, "y": 584}, {"x": 551, "y": 559}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画后手左侧长甲完整甲板。"}
+        },
+        {
+          "polygon": [
+            {"x": 966, "y": 428}, {"x": 958, "y": 416}, {"x": 962, "y": 403}, {"x": 973, "y": 392},
+            {"x": 989, "y": 382}, {"x": 1007, "y": 375}, {"x": 1021, "y": 376}, {"x": 1028, "y": 386},
+            {"x": 1026, "y": 401}, {"x": 1016, "y": 421}, {"x": 1004, "y": 442}, {"x": 990, "y": 448},
+            {"x": 977, "y": 440}
+          ],
+          "attributes": {"fingerHint": "thumb", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画后手拇指完整甲板。"}
+        },
+        {
+          "polygon": [
+            {"x": 246, "y": 503}, {"x": 253, "y": 488}, {"x": 265, "y": 480}, {"x": 278, "y": 485},
+            {"x": 286, "y": 500}, {"x": 290, "y": 520}, {"x": 294, "y": 542}, {"x": 296, "y": 562},
+            {"x": 291, "y": 577}, {"x": 281, "y": 579}, {"x": 270, "y": 568}, {"x": 261, "y": 550},
+            {"x": 253, "y": 531}
+          ],
+          "attributes": {"fingerHint": "thumb", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "补回旧SAM漏掉的前手左侧拇指完整甲板。"}
+        },
+        {
+          "polygon": [
+            {"x": 326, "y": 647}, {"x": 341, "y": 648}, {"x": 353, "y": 657}, {"x": 361, "y": 673},
+            {"x": 366, "y": 692}, {"x": 368, "y": 711}, {"x": 364, "y": 730}, {"x": 354, "y": 747},
+            {"x": 341, "y": 762}, {"x": 326, "y": 776}, {"x": 311, "y": 788}, {"x": 297, "y": 796},
+            {"x": 285, "y": 795}, {"x": 277, "y": 786}, {"x": 279, "y": 776}, {"x": 289, "y": 763},
+            {"x": 301, "y": 749}, {"x": 311, "y": 734}, {"x": 319, "y": 716}, {"x": 323, "y": 696},
+            {"x": 323, "y": 674}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画前手左上斜向长甲完整甲板。"}
+        },
+        {
+          "polygon": [
+            {"x": 438, "y": 766}, {"x": 452, "y": 768}, {"x": 464, "y": 777}, {"x": 473, "y": 790},
+            {"x": 477, "y": 806}, {"x": 476, "y": 821}, {"x": 469, "y": 836}, {"x": 457, "y": 850},
+            {"x": 442, "y": 863}, {"x": 425, "y": 874}, {"x": 407, "y": 882}, {"x": 389, "y": 886},
+            {"x": 375, "y": 882}, {"x": 367, "y": 874}, {"x": 369, "y": 864}, {"x": 379, "y": 852},
+            {"x": 392, "y": 839}, {"x": 404, "y": 824}, {"x": 415, "y": 807}, {"x": 423, "y": 789},
+            {"x": 429, "y": 774}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画前手中部长甲完整甲板，覆盖装饰下连续甲面。"}
+        },
+        {
+          "polygon": [
+            {"x": 369, "y": 770}, {"x": 386, "y": 774}, {"x": 397, "y": 783}, {"x": 400, "y": 794},
+            {"x": 394, "y": 806}, {"x": 383, "y": 821}, {"x": 369, "y": 837}, {"x": 352, "y": 853},
+            {"x": 333, "y": 868}, {"x": 313, "y": 882}, {"x": 291, "y": 893}, {"x": 269, "y": 901},
+            {"x": 249, "y": 903}, {"x": 234, "y": 899}, {"x": 227, "y": 892}, {"x": 230, "y": 882},
+            {"x": 240, "y": 868}, {"x": 253, "y": 852}, {"x": 267, "y": 835}, {"x": 282, "y": 818},
+            {"x": 297, "y": 802}, {"x": 312, "y": 788}, {"x": 329, "y": 778}, {"x": 349, "y": 772}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "补回前手被旧候选漏掉的银色长甲，仅覆盖未被邻甲遮挡的完整可见甲板。"}
+        },
+        {
+          "polygon": [
+            {"x": 397, "y": 930}, {"x": 411, "y": 919}, {"x": 430, "y": 916}, {"x": 452, "y": 918},
+            {"x": 475, "y": 923}, {"x": 496, "y": 930}, {"x": 510, "y": 940}, {"x": 513, "y": 950},
+            {"x": 504, "y": 959}, {"x": 485, "y": 964}, {"x": 462, "y": 966}, {"x": 438, "y": 965},
+            {"x": 417, "y": 960}, {"x": 402, "y": 950}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-stiletto", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画前手底部横向完整甲板。"}
+        }
+      ]
+    }
+  ]
+}

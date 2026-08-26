@@ -1,0 +1,56 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00583_69e472a000000000220272cb_2.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_00583_69e472a000000000220272cb_2.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-780c5aa8aa982ce2",
+      "nails": [
+        {"sourceIndex": 1},
+        {"sourceIndex": 2},
+        {"sourceIndex": 3},
+        {"sourceIndex": 4},
+        {"sourceIndex": 5},
+        {"sourceIndex": 6},
+        {
+          "polygon": [
+            {"x": 466, "y": 319}, {"x": 470, "y": 306}, {"x": 482, "y": 297}, {"x": 499, "y": 294},
+            {"x": 516, "y": 297}, {"x": 531, "y": 304}, {"x": 542, "y": 315}, {"x": 546, "y": 326},
+            {"x": 540, "y": 336}, {"x": 527, "y": 340}, {"x": 511, "y": 340}, {"x": 494, "y": 337},
+            {"x": 478, "y": 330}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "short-round", "quality": 3, "occluded": false, "artificialTip": false, "reviewNote": "补回杯后上方完整自然甲面，沿清晰甲沟和自由缘绘制。"}
+        },
+        {
+          "polygon": [
+            {"x": 745, "y": 450}, {"x": 749, "y": 435}, {"x": 760, "y": 424}, {"x": 777, "y": 420},
+            {"x": 794, "y": 423}, {"x": 809, "y": 431}, {"x": 820, "y": 444}, {"x": 823, "y": 458},
+            {"x": 816, "y": 470}, {"x": 803, "y": 477}, {"x": 787, "y": 479}, {"x": 770, "y": 476},
+            {"x": 756, "y": 467}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "short-round", "quality": 3, "occluded": false, "artificialTip": false, "reviewNote": "补回杯后右上完整自然甲面，排除指腹和黑色背景。"}
+        },
+        {
+          "polygon": [
+            {"x": 210, "y": 1037}, {"x": 214, "y": 1022}, {"x": 225, "y": 1011}, {"x": 241, "y": 1007},
+            {"x": 259, "y": 1009}, {"x": 276, "y": 1015}, {"x": 291, "y": 1025}, {"x": 301, "y": 1038},
+            {"x": 304, "y": 1051}, {"x": 299, "y": 1064}, {"x": 287, "y": 1072}, {"x": 271, "y": 1075},
+            {"x": 253, "y": 1074}, {"x": 236, "y": 1069}, {"x": 222, "y": 1060}, {"x": 213, "y": 1049}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "short-square", "quality": 4, "occluded": false, "artificialTip": false, "reviewNote": "重画左下米白短甲完整甲板，覆盖裸色侧缘而非只取有色区域。"}
+        },
+        {
+          "polygon": [
+            {"x": 650, "y": 1252}, {"x": 654, "y": 1238}, {"x": 666, "y": 1228}, {"x": 682, "y": 1225},
+            {"x": 699, "y": 1228}, {"x": 714, "y": 1236}, {"x": 724, "y": 1248}, {"x": 727, "y": 1261},
+            {"x": 721, "y": 1273}, {"x": 708, "y": 1280}, {"x": 692, "y": 1282}, {"x": 675, "y": 1279},
+            {"x": 661, "y": 1270}, {"x": 652, "y": 1260}
+          ],
+          "attributes": {"fingerHint": "thumb", "shape": "short-round", "quality": 3, "occluded": false, "artificialTip": false, "reviewNote": "补回右下完整自然拇指甲面，确认甲缘未触及画面底边。"}
+        }
+      ]
+    }
+  ]
+}
