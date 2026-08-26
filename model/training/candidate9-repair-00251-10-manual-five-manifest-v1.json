@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00251_6a2b9a3e000000002100b029_10.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_00251_6a2b9a3e000000002100b029_10.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-8131761fde0f2374",
+      "nails": [
+        {
+          "polygon": [
+            {"x": 271, "y": 185}, {"x": 281, "y": 173}, {"x": 299, "y": 170},
+            {"x": 316, "y": 179}, {"x": 326, "y": 196}, {"x": 330, "y": 220},
+            {"x": 329, "y": 250}, {"x": 323, "y": 279}, {"x": 314, "y": 309},
+            {"x": 303, "y": 335}, {"x": 293, "y": 349}, {"x": 284, "y": 344},
+            {"x": 278, "y": 327}, {"x": 273, "y": 298}, {"x": 269, "y": 260},
+            {"x": 267, "y": 220}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-almond", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画左上长甲完整甲板，覆盖裸色甲床、透明延长段与完整甲尖。"}
+        },
+        {
+          "polygon": [
+            {"x": 407, "y": 218}, {"x": 419, "y": 205}, {"x": 438, "y": 201},
+            {"x": 458, "y": 207}, {"x": 478, "y": 221}, {"x": 489, "y": 243},
+            {"x": 491, "y": 270}, {"x": 485, "y": 302}, {"x": 473, "y": 333},
+            {"x": 458, "y": 359}, {"x": 445, "y": 371}, {"x": 434, "y": 366},
+            {"x": 424, "y": 347}, {"x": 416, "y": 320}, {"x": 409, "y": 286},
+            {"x": 403, "y": 249}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-almond", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画中上长甲完整甲板，旧SAM只覆盖有色甲床并漏透明自由缘。"}
+        },
+        {
+          "polygon": [
+            {"x": 519, "y": 346}, {"x": 527, "y": 334}, {"x": 541, "y": 329},
+            {"x": 553, "y": 334}, {"x": 559, "y": 346}, {"x": 557, "y": 359},
+            {"x": 546, "y": 374}, {"x": 532, "y": 392}, {"x": 518, "y": 414},
+            {"x": 504, "y": 435}, {"x": 489, "y": 454}, {"x": 473, "y": 468},
+            {"x": 458, "y": 477}, {"x": 447, "y": 476}, {"x": 440, "y": 468},
+            {"x": 445, "y": 457}, {"x": 456, "y": 441}, {"x": 468, "y": 421},
+            {"x": 481, "y": 400}, {"x": 494, "y": 379}, {"x": 507, "y": 358}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-almond", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画右上斜向长甲完整甲板，合并并替换旧SAM的两个局部碎片。"}
+        },
+        {
+          "polygon": [
+            {"x": 700, "y": 449}, {"x": 718, "y": 453}, {"x": 730, "y": 464},
+            {"x": 733, "y": 480}, {"x": 725, "y": 495}, {"x": 706, "y": 506},
+            {"x": 682, "y": 515}, {"x": 654, "y": 522}, {"x": 626, "y": 529},
+            {"x": 600, "y": 533}, {"x": 580, "y": 530}, {"x": 574, "y": 523},
+            {"x": 581, "y": 514}, {"x": 602, "y": 503}, {"x": 628, "y": 492},
+            {"x": 656, "y": 480}, {"x": 681, "y": 462}
+          ],
+          "attributes": {"fingerHint": "unknown", "shape": "long-almond", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "补回右侧横向完整长甲，原SAM没有形成对应完整甲面候选。"}
+        },
+        {
+          "polygon": [
+            {"x": 132, "y": 431}, {"x": 133, "y": 416}, {"x": 145, "y": 404},
+            {"x": 166, "y": 395}, {"x": 190, "y": 389}, {"x": 216, "y": 387},
+            {"x": 235, "y": 393}, {"x": 244, "y": 402}, {"x": 242, "y": 414},
+            {"x": 230, "y": 426}, {"x": 211, "y": 439}, {"x": 190, "y": 454},
+            {"x": 169, "y": 468}, {"x": 151, "y": 479}, {"x": 139, "y": 477},
+            {"x": 133, "y": 462}
+          ],
+          "attributes": {"fingerHint": "thumb", "shape": "long-almond", "quality": 4, "occluded": false, "artificialTip": true, "reviewNote": "重画左侧拇指完整甲板，沿透明长甲真实外缘而非珍珠装饰边界。"}
+        }
+      ]
+    }
+  ]
+}

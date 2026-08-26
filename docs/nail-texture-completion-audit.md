@@ -218,3 +218,16 @@ node --no-warnings --experimental-strip-types scripts/audit-release-rollback.ts 
 | candidate21冻结test100 | FAIL：519/554匹配、466完整mask、35漏甲、13重复、18额外、17无效、20图漏甲；召回0.93682通过，完整率0.84116、缺甲图率0.20和唯一性门失败 | `M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001`保持非PASS；正式模型、生产资产、浏览器、真机、Beta和回滚门均不得晋升 |
 
 candidate21冻结测试已经消费。完成度审计不得把相对candidate18的聚合改善解释为正式识别通过，也不得用逐图测试结果驱动下一训练集、阈值或后处理。当前Goal继续保持`ok=false`、`decision=hold`，只有后续独立train真值迭代通过全部正式门才可变更。
+
+## candidate22—23 当前完成度结论（2026-08-26）
+
+| 证据 | 结论 | 完成度影响 |
+| --- | --- | --- |
+| candidate22输入深审 | PASS：train425/val30/test0，265张正样本/1589 mask、160张困难负样本，0 orphan | 只证明候选训练输入合格，不解除发布门 |
+| candidate22训练 | PASS：直接学生、`distillation=null`、45轮早停，最佳权重`ec6aad80…25dc` | 只证明训练完成，不等于候选质量通过 |
+| candidate22 val30 | VAL REJECT：512/0.25为127匹配、17漏检、22误检，未超过candidate21的128/16/19 | 禁止建立选择锁、运行test100、导出或部署 |
+| candidate23四点插值 | VAL REJECT：alpha0.20保持128匹配但误检29；alpha0.40/0.60/0.80无合格阈值 | 预注册替换规则未满足；冻结test100保持未触碰 |
+
+candidate21仍是当前基线但其既有冻结test100质量门失败，产品继续HOLD。candidate22/23没有改变正式模型、生产manifest、浏览器、真机、Beta、困难负样本、ONNX或回滚门状态；完成度仍必须由机器审计返回`ok=true`且`decision=complete`才能解除。
+
+本阶段同步后的机器重放读取446个进度标记，其中424个PASS、22个非PASS；14个正式门4通过、10失败，返回`ok=false`、`decision=hold`。报告SHA-256为`b68211e7c8575432edd0fab3f06be982375486e4ac8e2956b764cd5e449f0e02`，与candidate22/23均在val阶段淘汰的结论一致。
