@@ -1059,3 +1059,12 @@ missingRate = GT 甲面中未被 predictedMask 覆盖的面积 / GT 甲面总面
 - [x] candidate21固定alpha0.60、输入512、阈值0.40及既有唯一性后处理；val30为128/144匹配、16漏检、19误检，较candidate18保持召回并减少2误检，选择锁禁止test反调。
 - [x] 锁定后唯一一次冻结test100为519/554匹配、466完整mask、35漏甲、13重复、18额外、17无效、20图漏甲、53图可直接提取；实例召回0.93682通过，但完整率0.84116、缺甲图率0.20和唯一性门失败。
 - [ ] candidate21不得导出、登记、部署或接入`/ar-tryon`正式模型路径；下一候选必须继续使用来源隔离train真值和val30选择，candidate21冻结test100已消费且禁止逐图错误驱动训练。
+
+## 24. candidate22—23 直接学生增量合同（2026-08-26）
+
+- [x] 将5张/38 mask新的原分辨率完整甲面真值并入补强索引，形成55张/379 mask；与candidate8合并为265张/1589 mask正样本，再加入160张困难负样本，规范物化train425/val30/test0且输入深审PASS。
+- [x] candidate22直接从candidate21初始化，固定`distillation=null`、640、100 epochs、patience20、自动batch、CUDA0、8 workers；实际45轮早停，最佳权重SHA-256为`ec6aad8010f11c7d9541d876be257187fa79112de0ec5546d37e95cb719c25dc`。
+- [x] 仅用规范val30在部署512校准；0.25为127/144匹配、17漏检、22误检，未超过candidate21的128/16/19，故不得运行冻结test100。
+- [x] 在评估前预注册candidate21↔candidate22的alpha0.20/0.40/0.60/0.80插值点及替换规则；alpha0.20保持128匹配但误检29，其余点无合格阈值，candidate23整组否决。
+- [ ] candidate21继续作为当前识别基线；下一候选必须扩大独立train角色完整甲面真值，不得从candidate21冻结test100、已消费holdout或val30逐图身份中挑训练样本。
+- [ ] candidate22/23均不得导出、登记、部署或接入`/ar-tryon`正式路径；完整发布范围、三变体零误检、浏览器、真机、Beta和回滚门保持不变。

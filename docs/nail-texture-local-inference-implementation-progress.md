@@ -597,3 +597,12 @@ Goal新技术链路已完成首轮受控验证：GPT-5.6 Sol、OpenAI官方`gpt-
 | `M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001` | 同架构学生插值、val30锁定与冻结test100识别门 | ❌ FAIL（当前最优；完整性/唯一性门失败） | 原子插值工具绑定candidate18/candidate20输入SHA、结构和输出；预注册四点后alpha0.60在512/0.40为128/144匹配、16漏检、19误检，较candidate18保持召回并降低2误检，校准`5bd2e984…d3b1`深验PASS，选择锁`1f575750…3d20`禁止test反调。重新物化冻结test100并对450个训练身份复验零来源交叠；唯一一次推理为519/554匹配、466完整mask、35漏甲、13重复、18额外、17无效、20图漏甲、53图可直接提取。实例召回0.93682通过，完整率0.84116、缺甲图率0.20和唯一性门失败；质量报告`5c36d83a…c2f4`只读重放一致。未导出、登记、部署或读取逐图失败反调。 |
 
 当前识别基线从candidate18推进到candidate21，但产品仍HOLD。下一轮继续从独立train角色补充可泛化完整甲面真值，并只用val30做模型/阈值选择；冻结test100、已消费holdout及其派生证据不得回流训练或再次参与选择。
+
+## 2026-08-26 candidate22—23 直接学生与插值对照
+
+| 标记 ID | 任务 | 状态 | 审核证据 |
+| --- | --- | --- | --- |
+| `M2-T3-CANDIDATE22-DIRECT-HARDCASE-001` | v27完整甲面真值、规范物化与直接学生训练 | ❌ VAL REJECT（未运行test100） | 原分辨率终审新增5张/38 mask，把补强真值扩至55张/379 mask；合并为265张/1589 mask正样本及160负样本，train425/val30/test0、0 orphan，输入审计`281c5641…31a`PASS。candidate22从candidate21直接训练，`distillation=null`，45轮早停，最佳权重`ec6aad80…25dc`；部署512 val30阈值0.25为127匹配、17漏检、22误检，低于candidate21。校准报告`9675767d…8449`只读深验通过，但不建立选择锁。 |
+| `M2-T3-CANDIDATE23-INTERPOLATION-001` | candidate21↔candidate22预注册权重插值 | ❌ VAL REJECT（未运行test100） | `candidate23-interpolation-plan-v1.json`在读取四点val结果前固定alpha0.20/0.40/0.60/0.80、部署512、val30及替换规则。四份权重均通过结构、输入/输出SHA深验；alpha0.20在0.30为128匹配、16漏检、29误检，未少于candidate21的19误检；alpha0.40/0.60/0.80均为`no_threshold_meets_validation_constraints`。整组未建立选择锁、未触碰test100、未导出或部署。 |
+
+当前基线保持candidate21。candidate22/23证明仅加入5张训练图并做同架构权重混合不足以提高“完整甲面召回+低误检”联合目标；下一动作是继续终审独立train候选，积累更大且覆盖透明、低对比、侧视、复杂装饰和多手场景的完整甲面真值后，再启动candidate24直接训练。
