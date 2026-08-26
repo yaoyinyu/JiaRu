@@ -33,6 +33,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - Windows 下运行`npm.cmd run audit:nail-texture-completion`前，必须把`C:\Users\YaoYinyu\AppData\Local\Programs\Python\Python313`显式置于当前进程`PATH`首位；该TypeScript审计会启动裸`python`子进程，本机Python 3.14缺少Pillow/Shapely时会造成与模型证据无关的假性深验失败。
 - PowerShell批量JSON解析检查必须先逐文件执行`Test-Path -PathType Leaf`并设置`$ErrorActionPreference='Stop'`；`Get-Content`的默认非终止错误可能被`try/catch`漏接，禁止在文件不存在时继续累加“解析通过”计数。
 - 未经用户在当前任务中明确要求，不执行 `git commit` 或 `git push`；完成修改与验证后仅保留本地工作区差异。
+- 用户明确要求执行`git commit`或`git push`时，提交标题、提交正文及面向用户的推送交付说明必须使用中文，以提高可读性；代码标识、命令、路径、哈希和第三方专有名词可保留原文。该规则不构成自动提交或推送授权。
 - 用户已对当前及后续由其置于本项目范围、可由Codex访问的全部图像资源与本机计算资源授予持续直接商业使用权；候选训练、训练启动和满足证据门后的原子freeze不再设置逐清单或逐次用户授权暂停点，机器授权记录仅用于追溯而不得成为等待门。该授权不改变train/val/test/holdout角色隔离，不允许已消费holdout或冻结测试回流训练，不放宽源图、完整mask、水印捷径消融、独立未见留出、三变体零误检、浏览器、真机、Beta或发布质量门；必须由用户或物理设备产生的真实外部审核证据仍不得伪造。
 - 每次执行 `git commit`/`git push` 前，必须检查并同步更新 `README.md` 中与本次改动对应的部分（功能概览表、项目结构、核心特性详解、环境变量表、文档索引、隐私与数据、路线图等），随提交一并推送；不得在 README 缺失或过期时提交推送。
 - 父截图可用但派生区域选错时，应按父文件 SHA-256 和稳定 `sourceGroup` 替换旧区域，并保持一父图一派生区域；禁止把新旧区域重复计数，也不得因此误排除父图。
