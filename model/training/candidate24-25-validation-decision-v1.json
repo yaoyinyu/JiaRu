@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-27",
+  "decision": "reject_candidate24_and_candidate25_keep_candidate21_baseline",
+  "productionPromotion": false,
+  "frozenTest100Consumed": false,
+  "exportAllowed": false,
+  "deploymentAllowed": false,
+  "baseline": {
+    "candidate": "candidate21",
+    "weightsSha256": "1eea87424ec6bdc431cfdeea18283c4e2168989b8ea2a018acfad3abb21ffae7",
+    "inputSize": 512,
+    "scoreThreshold": 0.4,
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 19
+  },
+  "candidate24": {
+    "trainingPlan": {
+      "path": "E:\\AI Project\\Codex\\JiaRu\\model\\training\\candidate24-direct-training-plan-v1.json",
+      "sha256": "566d9fcc46cfcd44cecefa1ebcc2a8b45795f45630968dbc945814a61fa1b04b"
+    },
+    "inputAudit": {
+      "path": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_27_candidate24_training_input_v1\\candidate24-candidate-training-input-audit-v1.json",
+      "sha256": "f94d927d539288d9f69678df088624edbc4b042a9825b5c2017bcf652428dc9b",
+      "decision": "approved_candidate_training_input"
+    },
+    "trainingSummary": {
+      "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate24-2026-08-27-v1\\train-summary.json",
+      "sha256": "a86f54120294241bb0349bef4a3978deeaf2f754052a28d6e79925d17859779b"
+    },
+    "weights": {
+      "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate24-2026-08-27-v1\\candidate24-low-lr-boundary-v1\\weights\\best.pt",
+      "sha256": "0c5feba72bd925cd88b1732f7bf9c45f75147050e9f689367ef5c58b40cdea46"
+    },
+    "validation": {
+      "report": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate24-2026-08-27-v1\\formal-val30-primary-recall-calibration-v1.json",
+      "reportSha256": "5e6271509a7db4a8a2b8b3b19d88a9852bf8df1a0b1c2cf8699501df1fd5cfe8",
+      "inputSize": 512,
+      "scoreThreshold": 0.25,
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 27,
+      "replacementRuleSatisfied": false
+    }
+  },
+  "candidate25": {
+    "interpolationPlan": {
+      "path": "E:\\AI Project\\Codex\\JiaRu\\model\\training\\candidate25-interpolation-plan-v1.json",
+      "sha256": "a1020e7b218716b17f97af910520164519429258405eae866a8c7b2693d0f72a"
+    },
+    "points": [
+      {
+        "alpha": 0.05,
+        "weightsSha256": "f7ea5cdc4c00923e75e844c7740cc4588d74206b36042db36cc3919cb18212df",
+        "reportSha256": "976f20355ed84edd1fc5e3059eaa90276f5b1777651cfc849c6d892788357fd3",
+        "selected": { "scoreThreshold": 0.45, "matched": 127, "missed": 17, "falsePositives": 17 },
+        "bestBaselineEquivalentPoint": { "scoreThreshold": 0.4, "matched": 128, "missed": 16, "falsePositives": 19 },
+        "replacementRuleSatisfied": false
+      },
+      {
+        "alpha": 0.1,
+        "weightsSha256": "86fed1ffc5ff8f215b5b6c886db5a26ee393e215f9f1d2a8630f14818696600d",
+        "reportSha256": "29bdc5a9bb4df662a9f9a3d7851d8467a83c87f808943449190447f33d9e4316",
+        "selected": { "scoreThreshold": 0.4, "matched": 127, "missed": 17, "falsePositives": 21 },
+        "replacementRuleSatisfied": false
+      },
+      {
+        "alpha": 0.15,
+        "weightsSha256": "7755e03f7dfc4a48d2a7d8e7c551c2649ae81cb0c8f5bdbb8fe3f753d20b2240",
+        "reportSha256": "7aa7a171777b002b329394ec1910bbc922ca128f13cb098fc911c23d4f7f261f",
+        "selected": { "scoreThreshold": 0.4, "matched": 127, "missed": 17, "falsePositives": 22 },
+        "replacementRuleSatisfied": false
+      },
+      {
+        "alpha": 0.2,
+        "weightsSha256": "e342da48bc6ff199d5b6f23ce7e0968515a25d418e139aae47e0a63fb0228233",
+        "reportSha256": "b528d7df57f0bd231cd30bde93fa6132bdb3b9d76c1d9844c99ff7b7adf33ffa",
+        "selected": { "scoreThreshold": 0.4, "matched": 127, "missed": 17, "falsePositives": 20 },
+        "replacementRuleSatisfied": false
+      }
+    ]
+  },
+  "nextAction": {
+    "strategy": "expand_source_isolated_training_hard_negatives_before_next_direct_student_candidate",
+    "reason": "candidate24 preserved baseline recall but added eight false positives; candidate25 could only match, not strictly improve, candidate21.",
+    "forbidden": [
+      "run_frozen_test100_for_candidate24_or_candidate25",
+      "export_or_deploy_candidate24_or_candidate25",
+      "select_training_images_from_frozen_test_or_release_holdout_predictions"
+    ]
+  }
+}

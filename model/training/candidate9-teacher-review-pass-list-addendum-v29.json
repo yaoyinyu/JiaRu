@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "reviewedBy": "GPT-5.6 Sol semantic teacher",
+  "decision": "candidate9_teacher_review_pass_list_original_resolution_addendum",
+  "policy": {
+    "contactSheetsAreNavigationOnly": true,
+    "sourceOverlayAnd2xCropsReviewed": true,
+    "unlistedItemsRemainRework": true,
+    "trainingUse": "prohibited-until-materialization-audit"
+  },
+  "passFiles": [
+    "nail_01110_69f400a800000000230078f5_8.jpg",
+    "nail_00583_69e472a000000000220272cb_2.jpg",
+    "nail_01014_6a4b4361000000001700be4e_7.jpg"
+  ],
+  "repairEvidence": {
+    "nail_01110_69f400a800000000230078f5_8.jpg": {
+      "reportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_27_candidate9_repair_01110_manual_five_v1\\repair-report.json",
+      "reportSha256": "97be2d843019a18d4587ed9807395339c26707818b6ea5d64f61603b8de1f903",
+      "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_27_candidate9_repair_01110_manual_five_v1\\geometry-audit.json",
+      "geometryAuditSha256": "2bdbfe498fdebf6fde34395c8dc586b74e8dc40b932d2a978702f342c6e3f0c7"
+    },
+    "nail_00583_69e472a000000000220272cb_2.jpg": {
+      "reportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_27_candidate9_repair_00583_hybrid_ten_v1\\repair-report.json",
+      "reportSha256": "1750eee9e5403489658a641f6c9213f3b50f8159cc798adbf7f69a8ceb2172bf",
+      "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_27_candidate9_repair_00583_hybrid_ten_v1\\geometry-audit.json",
+      "geometryAuditSha256": "cc3be648306c3d21107347c83df979f55c8461dccf7cabe7c0b3bb473974e793"
+    },
+    "nail_01014_6a4b4361000000001700be4e_7.jpg": {
+      "reportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_27_candidate9_repair_01014_hybrid_ten_v1\\repair-report.json",
+      "reportSha256": "513aa246783e3297138d575386d30127da653c4685984c82a9a5a23bddd40973",
+      "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_27_candidate9_repair_01014_hybrid_ten_v1\\geometry-audit.json",
+      "geometryAuditSha256": "771c2afbfd5bfffb0f92aed32a83fce58ab774397eb8bfdd43083282f241f500"
+    }
+  }
+}
