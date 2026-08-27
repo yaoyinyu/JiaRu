@@ -615,3 +615,14 @@ Goal新技术链路已完成首轮受控验证：GPT-5.6 Sol、OpenAI官方`gpt-
 | `M2-T3-CANDIDATE24-TRUTH-REPAIR-00415` | 多手银色长甲十甲返修 | ✅ PASS（单张增量；candidate24尚未开训） | 上游10候选含重复装饰/背景碎片并漏掉真实甲面；九甲人工候选虽合法、零交叠且几何9/9，仍被原分辨率门发现漏甲并隔离。十甲终版补回银色长甲，修复报告`855c53d9…05c0c`、几何报告`9db04118…8af36`，10/10合法、零交叠并完成整图与全部逐甲2×审核。补强真值v29为57张/394 mask，索引`77bd3daa…8e43`、摘要`fbd531cc…886a`，旧56张稳定身份零漂移。 |
 
 candidate24尚未物化或训练。本阶段累计新增2张/15 mask；继续积累一组规模足够、来源隔离且覆盖透明、低对比、侧视、复杂装饰和多手场景的train真值，再按既有val30联合门决定是否进入冻结test100，不因小批增量重复训练。
+
+## 2026-08-27 candidate24/25验证否决与训练困难负样本扩充
+
+| 标记 ID | 任务 | 状态 | 审核证据 |
+| --- | --- | --- | --- |
+| `M2-T3-CANDIDATE24-DIRECT-STUDENT-001` | 低学习率、无mosaic直接学生训练与val30替换判定 | ❌ VAL REJECT（未运行test100） | 规范输入审计`f94d927d…dc9b`为train430/val30/test0，其中270张正样本/1629 mask和160张困难负样本。candidate24从candidate21初始化，640、AdamW 1e-5、freeze10、mosaic0训练，最佳权重`0c5feba7…a56`。部署512 val30在0.25为128匹配、16漏检、27误检；召回虽与candidate21一致，但误检由19增至27，不满足预注册替换规则。统一决策`candidate24-25-validation-decision-v1.json`禁止test100、导出、登记和部署。 |
+| `M2-T3-CANDIDATE25-INTERPOLATION-001` | candidate21↔candidate24预注册小步权重插值 | ❌ VAL REJECT（未运行test100） | 在读取四点val结果前固定alpha0.05/0.10/0.15/0.20。alpha0.05选择点0.45为127/17/17，其完整扫描在0.40仅与candidate21打平为128/16/19；alpha0.10/0.15/0.20在0.40分别为127/17/21、127/17/22、127/17/20。四份校准报告与权重SHA均完成深验，但没有点严格改善预注册基线，故不建立选择锁、不触碰test100。 |
+| `M2-T3-CANDIDATE26-HARD-NEGATIVE-GENERATION-040` | 新来源训练困难负样本固定计划增量与递归机器快照 | ✅ PASS（40张生成/源图质量工程门；尚未授权训练） | 逐张原分辨率审核现有001—010及本轮新增011—040；5个生成失败版本因空泡破损、遮挡/粘连或数量不符被拒绝且未复制计数。递归快照`generation-progress-040-v1.json`绑定160项计划、registry v4、前序020/030链和磁盘字节，结果40/160通过、120缺失、0失败、0未知，前四个softgel家族各10/10；报告SHA-256 `7aa933c2…0fb8`、items摘要`171eeaa7…c963`。standing authorization只取消逐清单等待，正式审核/终结/物化前全批继续`trainingUse=prohibited`。 |
+| `M2-T3-CANDIDATE26-HARD-NEGATIVE-GENERATION-060` | 冻结计划身份纠错、samara/seed-pod两族补齐及递归快照 | ✅ PASS（60张生成/源图质量工程门；尚未物化训练） | 首轮十张种荚图错用041—050编号，`generation-progress-050-v1.json`正确报10个`UNKNOWN_SOURCE_ENTRY`且未计入通过。读取冻结计划后用精确清单无覆盖归位051—060，050-v2恢复50/160；再逐张原分辨率审核041—050 `samara_dry_clusters`，边缘裁断和机械重复版本拒绝且未复制。最终`generation-progress-060-v1.json`递归深验60通过、100缺失、0失败、0未知，六个家族各10/10；报告`4ceaa3df…cac3f0`、items摘要`c7e8e630…b898`。全批仍为`trainingUse=prohibited`。 |
+
+candidate21继续作为当前识别基线，但它既有冻结test100门仍失败，不能发布。下一精确缺口为061 `seed_capsule_translucent`；先完成固定160项训练困难负样本及正式原分辨率审核，再与现有正样本形成下一直接学生候选。不得读取冻结test100、已消费holdout或独立发布留出结果选样。

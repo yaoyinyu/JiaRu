@@ -239,3 +239,16 @@ candidate21仍是当前基线但其既有冻结test100质量门失败，产品�
 `00415…_5`九甲人工候选虽然多边形合法、零交叠且几何9/9通过，仍因原分辨率发现另一枚长甲漏标而被隔离；补回漏甲后的十甲终版才通过整图、逐甲2×、合法性、零交叠和几何10/10，并使v29达到57张/394 mask。完成度审计不得把中间版机器几何PASS视为正式训练真值，也不得在candidate24尚未物化、训练和通过val30前提升模型发布门。
 
 同步后的机器重放读取448个进度标记，其中426个PASS、22个非PASS；14个正式门4通过、10失败，继续返回`ok=false`、`decision=hold`。报告SHA-256为`2e01860c1d3a65107470006c3bb2b03e2bae06479e650ebfc1bf48801f0fb3e4`；两个candidate24真值标记都只确认训练数据通过，不改变模型与发布门。
+
+## candidate24/25验证与困难负样本扩充当前结论（2026-08-27）
+
+| 证据 | 结论 | 完成度影响 |
+| --- | --- | --- |
+| candidate24输入与训练 | PASS：train430/val30/test0，270张正样本/1629 mask、160张困难负样本，直接学生最佳权重`0c5feba7…a56` | 只证明训练输入与训练运行有效，不构成模型质量PASS |
+| candidate24部署512 val30 | VAL REJECT：阈值0.25为128匹配、16漏检、27误检；相对candidate21保持召回但多8个误检 | 违反预注册严格替换规则，禁止test100、导出、登记或部署 |
+| candidate25四点小步插值 | VAL REJECT：alpha0.05在阈值0.40最多与candidate21打平128/16/19，其余点均退化 | 没有严格改善，不建立选择锁，不消费test100 |
+| 下一训练困难负样本快照 | 60/160通过、100缺失、0失败、0未知；四个softgel家族、`samara_dry_clusters`、`seed_pod_glossy_macro`各10/10，报告`4ceaa3df…cac3f0` | 只通过生成与源图质量工程门，正式终审/终结/物化前继续训练禁用 |
+
+统一机器决策`model/training/candidate24-25-validation-decision-v1.json`明确candidate21仍是当前基线。candidate21既有冻结test100仍未通过完整mask比例、缺甲图片率和零重复/额外/无效门，因此正式模型、生产ONNX、浏览器、真机、Beta、独立困难负样本和回滚证据均不能晋升。冻结计划身份复核确认041—050为`samara_dry_clusters`、051—060为`seed_pod_glossy_macro`；错误编号曾被机器门以10个`UNKNOWN_SOURCE_ENTRY`拒绝，纠正后060-v1深验通过。下一阶段从061 `seed_capsule_translucent`继续扩充，且不得使用冻结test100、已消费holdout或发布留出的逐图预测选样。
+
+同步后的机器重放读取452个进度标记，其中428个PASS、24个非PASS；14个正式门仍为4通过、10失败，返回`ok=false`、`decision=hold`。审计报告SHA-256为`4c3e56d229d56c61d90186a9049e4c4202a6e362b803ee7b4865f9e1779c28d9`；新增困难负样本标记只证明60张生成/源图质量工程门通过，不改变生产资产、移动设备、Beta、正式产品质量和回滚门。

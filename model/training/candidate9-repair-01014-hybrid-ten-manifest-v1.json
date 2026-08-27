@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate9_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_01014_6a4b4361000000001700be4e_7.jpg",
+      "sourceAnnotationPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01014_6a4b4361000000001700be4e_7.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-92351fc22a2948c3",
+      "nails": [
+        {"sourceIndex": 1},
+        {"sourceIndex": 2},
+        {"sourceIndex": 4},
+        {"sourceIndex": 6},
+        {"sourceIndex": 7},
+        {"sourceIndex": 8},
+        {"sourceIndex": 10},
+        {
+          "polygon": [
+            {"x": 333, "y": 503}, {"x": 350, "y": 510}, {"x": 366, "y": 529}, {"x": 379, "y": 556},
+            {"x": 389, "y": 590}, {"x": 392, "y": 625}, {"x": 387, "y": 663}, {"x": 374, "y": 704},
+            {"x": 352, "y": 736}, {"x": 327, "y": 753}, {"x": 300, "y": 759}, {"x": 273, "y": 752},
+            {"x": 250, "y": 735}, {"x": 235, "y": 710}, {"x": 229, "y": 680}, {"x": 231, "y": 642},
+            {"x": 239, "y": 609}, {"x": 251, "y": 577}, {"x": 270, "y": 548}, {"x": 291, "y": 524},
+            {"x": 313, "y": 509}
+          ],
+          "attributes": {
+            "fingerHint": "thumb",
+            "shape": "almond",
+            "quality": 4,
+            "occluded": false,
+            "artificialTip": true,
+            "reviewNote": "重画左下蓝色蝴蝶结长甲完整甲板，覆盖白色甲根、蓝色主体与自由缘，但不沿突出甲缘的立体蝴蝶结扩张到皮肤。"
+          }
+        },
+        {
+          "polygon": [
+            {"x": 166, "y": 235}, {"x": 145, "y": 239}, {"x": 126, "y": 258}, {"x": 113, "y": 286},
+            {"x": 119, "y": 320}, {"x": 139, "y": 351}, {"x": 169, "y": 379}, {"x": 204, "y": 408},
+            {"x": 240, "y": 438}, {"x": 280, "y": 470}, {"x": 310, "y": 482}, {"x": 335, "y": 474},
+            {"x": 345, "y": 456}, {"x": 341, "y": 434}, {"x": 327, "y": 403}, {"x": 310, "y": 371},
+            {"x": 288, "y": 338}, {"x": 263, "y": 304}, {"x": 235, "y": 273}, {"x": 206, "y": 250},
+            {"x": 182, "y": 237}
+          ],
+          "attributes": {
+            "fingerHint": "thumb",
+            "shape": "almond",
+            "quality": 4,
+            "occluded": false,
+            "artificialTip": true,
+            "reviewNote": "重画左上白色月亮长甲完整甲面，补回原SAM遗漏的下半部和自由缘，排除周围皮肤。"
+          }
+        },
+        {
+          "polygon": [
+            {"x": 670, "y": 182}, {"x": 648, "y": 184}, {"x": 625, "y": 195}, {"x": 592, "y": 245},
+            {"x": 557, "y": 320}, {"x": 537, "y": 390}, {"x": 542, "y": 415}, {"x": 550, "y": 425},
+            {"x": 580, "y": 445}, {"x": 620, "y": 455}, {"x": 660, "y": 445}, {"x": 690, "y": 420},
+            {"x": 700, "y": 390}, {"x": 705, "y": 350},
+            {"x": 706, "y": 315}, {"x": 700, "y": 242}, {"x": 690, "y": 205}
+          ],
+          "attributes": {
+            "fingerHint": "middle",
+            "shape": "almond",
+            "quality": 4,
+            "occluded": false,
+            "artificialTip": true,
+            "reviewNote": "补回原SAM漏掉的上中白色星月长甲，沿完整甲沟与尖端绘制，排除两侧皮肤。"
+          }
+        }
+      ]
+    }
+  ]
+}
