@@ -5,9 +5,8 @@ Gate modes:
 - ``weighted`` (default, schema v2): structural gates (minimum images, instance
   recall, complete-mask ratio, missing-image rate, per-image model output) plus a
   single severity-weighted spurious-instance-rate gate. Replaces the legacy
-  zero-defect gates, which contradicted themselves by tolerating misses
-  (recall floor 0.90) while demanding zero duplicates/false positives/invalid
-  masks on a finite sample.
+  zero-defect gates, whose false-negative and false-positive risk budgets were
+  strongly asymmetric on a finite sample.
 - ``zero-defect`` (schema v1): legacy eight-gate semantics, byte-compatible with
   historical reports. Only intended for replaying schema v1 evidence via
   ``--verify-report``.
@@ -19,9 +18,7 @@ import argparse
 import hashlib
 import json
 import math
-import subprocess
 import sys
-import tempfile
 from pathlib import Path
 from typing import Any
 
@@ -40,6 +37,14 @@ SPURIOUS_WEIGHTS = {
     "duplicates": 1.0,
     "invalidPredictionMasks": 1.5,
     "falsePositives": 2.0,
+}
+
+FORMAL_CONTRACT = {
+    "minimumImages": 100,
+    "minimumInstanceRecall": 0.90,
+    "minimumCompleteMaskRatio": 0.85,
+    "maximumMissingImageRate": 0.10,
+    "maximumWeightedSpuriousRate": 0.02,
 }
 
 
@@ -245,7 +250,46 @@ def validate_lineage(
     return items, by_stem, output_dir, predictions
 
 
-def build(args: argparse.Namespace) -> dict[str, Any]:
+def validate_formal_build_contract(args: argparse.Namespace) -> None:
+    """Reject any public build contract weaker than the release floor.
+
+    Callers may tighten a gate, but cannot use CLI flags to create a formally
+    accepted report with fewer images or weaker quality thresholds. Legacy
+    schema-v1 reports are rebuilt only inside ``verify``.
+    """
+    if args.gate_mode != "weighted":
+        raise ValueError("zero-defect gate mode is replay-only; new reports must use weighted mode")
+    checks = (
+        (args.min_images >= FORMAL_CONTRACT["minimumImages"], "min-images cannot be below 100"),
+        (
+            args.min_instance_recall >= FORMAL_CONTRACT["minimumInstanceRecall"],
+            "min-instance-recall cannot be below 0.90",
+        ),
+        (
+            args.min_complete_mask_ratio >= FORMAL_CONTRACT["minimumCompleteMaskRatio"],
+            "min-complete-mask-ratio cannot be below 0.85",
+        ),
+        (
+            args.max_missing_image_rate <= FORMAL_CONTRACT["maximumMissingImageRate"],
+            "max-missing-image-rate cannot exceed 0.10",
+        ),
+        (
+            args.max_weighted_spurious_rate <= FORMAL_CONTRACT["maximumWeightedSpuriousRate"],
+            "max-weighted-spurious-rate cannot exceed 0.02",
+        ),
+    )
+    for valid, message in checks:
+        if not valid:
+            raise ValueError(message)
+
+
+def build(
+    args: argparse.Namespace,
+    *,
+    allow_legacy_replay: bool = False,
+) -> dict[str, Any]:
+    if not allow_legacy_replay:
+        validate_formal_build_contract(args)
     snapshot_path = require_path(args.snapshot_manifest, "snapshot-manifest")
     materialization_path = require_path(args.materialization_report, "materialization-report")
     artifact_path = require_path(args.artifact_index, "artifact-index")
@@ -423,35 +467,33 @@ def verify(report_path: Path) -> dict[str, Any]:
     weights = require_path(candidate.get("weights"), "weights")
     if sha256_path(weights) != candidate.get("weightsSha256"):
         raise ValueError("Recognition report weights drift")
-    command = [
-        sys.executable,
-        str(Path(__file__).resolve()),
-        "--snapshot-manifest", str(inputs["snapshotManifest"]),
-        "--materialization-report", str(inputs["materializationReport"]),
-        "--artifact-index", str(inputs["artifactIndex"]),
-        "--weights", str(weights),
-        "--score-threshold", str(contract["scoreThreshold"]),
-        "--min-images", str(contract["minimumImages"]),
-        "--min-instance-recall", str(contract["minimumInstanceRecall"]),
-        "--min-complete-mask-ratio", str(contract["minimumCompleteMaskRatio"]),
-        "--max-missing-image-rate", str(contract["maximumMissingImageRate"]),
-    ]
     schema_version = report.get("schemaVersion")
     if schema_version == 2:
-        command += [
-            "--gate-mode", "weighted",
-            "--max-weighted-spurious-rate", str(contract["maximumWeightedSpuriousRate"]),
-        ]
+        gate_mode = "weighted"
+        max_weighted_spurious_rate = float(contract["maximumWeightedSpuriousRate"])
+        allow_legacy_replay = False
     elif schema_version == 1:
-        command += ["--gate-mode", "zero-defect"]
+        gate_mode = "zero-defect"
+        max_weighted_spurious_rate = FORMAL_CONTRACT["maximumWeightedSpuriousRate"]
+        allow_legacy_replay = True
     else:
         raise ValueError(f"Unsupported recognition report schema version: {schema_version}")
-    with tempfile.TemporaryDirectory(prefix="positive-recognition-verify-") as directory:
-        output = Path(directory) / "report.json"
-        completed = subprocess.run([*command, "--output", str(output)], check=False)
-        if completed.returncode not in (0, 1):
-            raise ValueError(f"Recognition report replay failed with exit code {completed.returncode}")
-        rebuilt = load_object(output)
+    replay_args = argparse.Namespace(
+        snapshot_manifest=str(inputs["snapshotManifest"]),
+        materialization_report=str(inputs["materializationReport"]),
+        artifact_index=str(inputs["artifactIndex"]),
+        weights=str(weights),
+        score_threshold=float(contract["scoreThreshold"]),
+        output=None,
+        verify_report=None,
+        min_images=int(contract["minimumImages"]),
+        min_instance_recall=float(contract["minimumInstanceRecall"]),
+        min_complete_mask_ratio=float(contract["minimumCompleteMaskRatio"]),
+        max_missing_image_rate=float(contract["maximumMissingImageRate"]),
+        gate_mode=gate_mode,
+        max_weighted_spurious_rate=max_weighted_spurious_rate,
+    )
+    rebuilt = build(replay_args, allow_legacy_replay=allow_legacy_replay)
     if rebuilt != report:
         raise ValueError("Recognition report does not match replayed evidence")
     return report
