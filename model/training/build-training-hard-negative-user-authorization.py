@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
-"""Build a hash-bound user authorization source for a frozen training batch.
+"""Build a hash-bound authorization source for a frozen training batch.
 
 The command converts a previously frozen exact authorization request into the
 input contract consumed by ``record-training-hard-negative-authorization.py``.
-It never discovers files by scanning a directory and it never grants training
-eligibility: the resulting source only permits the listed files to enter the
-formal review workflow while ``trainingUse`` remains prohibited.
+New batches bind the project's standing commercial-resource authorization and
+do not pause for another itemized user message.  Historical schema v1/v2 user
+confirmations remain replayable.  The command never discovers files by scanning
+a directory and never grants training eligibility: the resulting source only
+permits the listed files to enter the formal review workflow while
+``trainingUse`` remains prohibited.
 """
 
 from __future__ import annotations
@@ -59,6 +62,14 @@ REQUEST_V2_KEYS = {
     "requestedRelativePaths",
     "requestedItems",
 }
+REQUEST_V3_KEYS = (REQUEST_V2_KEYS - {"requiredConfirmationText"})
+STANDING_AUTHORIZATION_DECISION = (
+    "standing_project_commercial_resource_authorization_granted"
+)
+STANDING_REQUEST_DECISION = (
+    "standing_project_authorization_bound_pending_quality_review"
+)
+STANDING_AUTHORIZATION_STATUS = "standing-project-authorization-applied"
 FILE_ATTRIBUTE_REPARSE_POINT = 0x0400
 
 
@@ -125,6 +136,51 @@ def require_plain_file(path_value: Any, expected_hash: Any, label: str) -> Path:
     if sha256_file(path) != expected:
         raise ValueError(f"{label} SHA-256 drift")
     return path
+
+
+def validate_standing_authorization(path: Path) -> dict[str, Any]:
+    authorization = read_json(path, "standing project authorization")
+    scope = authorization.get("scope")
+    role_restrictions = authorization.get("roleRestrictionsNotRelaxed")
+    quality_gates = authorization.get("qualityGatesNotRelaxed")
+    if (
+        authorization.get("schemaVersion") != 1
+        or authorization.get("decision") != STANDING_AUTHORIZATION_DECISION
+        or authorization.get("authorizedBy") != "user"
+        or not str(authorization.get("authorizationText") or "").strip()
+        or not isinstance(scope, dict)
+        or scope.get("projectScopedImageResources") != "commercial-use-permitted"
+        or scope.get("localComputeResources")
+        != "commercial-model-work-permitted"
+        or scope.get("futureUserPlacedProjectResources")
+        != "commercial-use-permitted-without-itemized-reauthorization"
+        or scope.get("itemizedTrainingAuthorizationRequired") is not False
+        or scope.get("trainingStartAuthorizationRequired") is not False
+        or not isinstance(role_restrictions, list)
+        or not {
+            "validation-remains-calibration-only",
+            "frozen-test-remains-training-prohibited",
+            "consumed-holdout-remains-training-prohibited",
+            "future-independent-holdout-must-be-unseen-and-source-isolated",
+        }.issubset(set(role_restrictions))
+        or not isinstance(quality_gates, list)
+        or not {
+            "original-resolution-source-review",
+            "watermark-shortcut-ablation",
+            "val30-threshold-calibration",
+            "frozen-test100-positive-recognition",
+            "new-unseen-independent-hard-negative-holdout",
+            "three-variant-zero-false-positive",
+            "completion-audit",
+        }.issubset(set(quality_gates))
+    ):
+        raise ValueError("standing project authorization contract is invalid")
+    return {
+        "path": str(path),
+        "sha256": sha256_file(path),
+        "decision": authorization["decision"],
+        "authorizedAt": authorization.get("authorizedAt"),
+    }
 
 
 def load_progress_module() -> Any:
@@ -197,13 +253,11 @@ def validate_request(
     request = read_json(request_path, "exact authorization request")
     schema_version = request.get("schemaVersion")
     if (
-        schema_version not in {1, 2}
+        schema_version not in {1, 2, 3}
         or request.get("ok") is not False
         or request.get("status") != "HOLD"
-        or request.get("decision") != "awaiting_exact_user_confirmation"
         or request.get("role") != "training-hard-negative-candidate"
         or request.get("trainingUse") != "prohibited"
-        or request.get("authorizationStatus") != "pending-user-confirmation"
         or request.get("scopeIncludesDescendants") is not False
         or request.get("qualityConstraint") != QUALITY_CONSTRAINT
         or request.get("roleConstraint") != ROLE_CONSTRAINT
@@ -211,15 +265,31 @@ def validate_request(
         or request.get("excludedUses") != EXPECTED_EXCLUDED_USES
     ):
         raise ValueError("exact authorization request contract is invalid")
+    if schema_version in {1, 2} and (
+        request.get("decision") != "awaiting_exact_user_confirmation"
+        or request.get("authorizationStatus") != "pending-user-confirmation"
+    ):
+        raise ValueError("legacy exact authorization request contract is invalid")
+    if schema_version == 3 and (
+        request.get("decision") != STANDING_REQUEST_DECISION
+        or request.get("authorizationStatus") != STANDING_AUTHORIZATION_STATUS
+    ):
+        raise ValueError("standing authorization request contract is invalid")
     if schema_version == 2 and set(request) != REQUEST_V2_KEYS:
         raise ValueError(
             "exact authorization request v2 fields are not exact: "
             f"missing={sorted(REQUEST_V2_KEYS - set(request))}, "
             f"extra={sorted(set(request) - REQUEST_V2_KEYS)}"
         )
+    if schema_version == 3 and set(request) != REQUEST_V3_KEYS:
+        raise ValueError(
+            "exact authorization request v3 fields are not exact: "
+            f"missing={sorted(REQUEST_V3_KEYS - set(request))}, "
+            f"extra={sorted(set(request) - REQUEST_V3_KEYS)}"
+        )
 
     required_text = str(request.get("requiredConfirmationText") or "")
-    if not required_text:
+    if schema_version in {1, 2} and not required_text:
         raise ValueError("requiredConfirmationText is missing")
     if schema_version == 1 and (
         expected_user_message is not None and expected_user_message != required_text
@@ -233,12 +303,15 @@ def validate_request(
     source_root = source_input.resolve(strict=True)
 
     inputs = request.get("inputs")
-    if not isinstance(inputs, dict) or set(inputs) != {
+    expected_input_keys = {
         "generationProgressReport",
         "generationPlan",
         "protectedHardNegativeRegistry",
         "itemsCurrentSha256",
-    }:
+    }
+    if schema_version == 3:
+        expected_input_keys.add("standingProjectAuthorization")
+    if not isinstance(inputs, dict) or set(inputs) != expected_input_keys:
         raise ValueError("exact authorization request inputs are invalid")
     progress_binding = inputs.get("generationProgressReport")
     plan_binding = inputs.get("generationPlan")
@@ -263,6 +336,19 @@ def validate_request(
         registry_binding.get("sha256"),
         "protected hard-negative registry",
     )
+    standing_binding = None
+    if schema_version == 3:
+        raw_standing_binding = inputs.get("standingProjectAuthorization")
+        if not isinstance(raw_standing_binding, dict):
+            raise ValueError("standing project authorization binding is missing")
+        standing_path = require_plain_file(
+            raw_standing_binding.get("path"),
+            raw_standing_binding.get("sha256"),
+            "standing project authorization",
+        )
+        standing_binding = validate_standing_authorization(standing_path)
+        if raw_standing_binding != standing_binding:
+            raise ValueError("standing project authorization metadata drift")
 
     progress_module = load_progress_module()
     progress_result = progress_module.verify_report(progress_path)
@@ -341,21 +427,24 @@ def validate_request(
         raise ValueError("requestedItems contains duplicate image SHA-256 values")
     requested_items_sha256 = canonical_sha256(raw_items)
     candidate_id: str | None = None
-    if schema_version == 2:
+    if schema_version in {2, 3}:
         candidate_id = str(request.get("candidateId") or "")
         if not CANDIDATE_ID_PATTERN.fullmatch(candidate_id):
             raise ValueError("exact authorization request candidateId is invalid")
         if request.get("requestedItemsSha256") != requested_items_sha256:
             raise ValueError("exact authorization request requestedItemsSha256 drift")
-        expected_confirmation = build_required_confirmation_text(
-            candidate_id,
-            EXPECTED_COUNT,
-            requested_items_sha256,
-        )
-        if required_text != expected_confirmation:
-            raise ValueError("requiredConfirmationText does not match the v2 template")
-        if expected_user_message is not None and expected_user_message != required_text:
-            raise ValueError("user message does not exactly match requiredConfirmationText")
+        if schema_version == 2:
+            expected_confirmation = build_required_confirmation_text(
+                candidate_id,
+                EXPECTED_COUNT,
+                requested_items_sha256,
+            )
+            if required_text != expected_confirmation:
+                raise ValueError("requiredConfirmationText does not match the v2 template")
+            if expected_user_message is not None and expected_user_message != required_text:
+                raise ValueError("user message does not exactly match requiredConfirmationText")
+        elif expected_user_message is not None:
+            raise ValueError("schema v3 does not accept an itemized user message")
 
     summary = request.get("summary")
     if summary != {
@@ -379,31 +468,32 @@ def validate_request(
         "generationPlan": plan_binding,
         "protectedHardNegativeRegistry": registry_binding,
         "itemsCurrentSha256": inputs["itemsCurrentSha256"],
+        "standingProjectAuthorization": standing_binding,
     }
 
 
 def build_authorization(
     request_path: Path,
-    user_message: str,
-    thread_id: str,
-    decision_id: str,
+    user_message: str | None = None,
+    thread_id: str | None = None,
+    decision_id: str | None = None,
 ) -> dict[str, Any]:
-    if not UUID_PATTERN.fullmatch(thread_id):
-        raise ValueError("--thread-id must be a lowercase UUID")
-    if not decision_id or thread_id not in decision_id:
-        raise ValueError("--decision-id must contain the selected thread ID")
-    _, binding = validate_request(
-        request_path,
-        expected_user_message=user_message,
-    )
-    schema_version = int(binding["schemaVersion"])
-    result = {
-        "schemaVersion": schema_version,
-        "ok": True,
-        "decision": "authorized_for_training_hard_negative_review",
-        "confirmedBy": "workspace-user",
-        "confirmationNote": user_message,
-        "authorizationEvidence": {
+    request_preview = read_json(request_path, "exact authorization request")
+    schema_version = int(request_preview.get("schemaVersion") or 0)
+    if schema_version in {1, 2}:
+        if not user_message or not thread_id or not decision_id:
+            raise ValueError("legacy requests require user message, thread ID, and decision ID")
+        if not UUID_PATTERN.fullmatch(thread_id):
+            raise ValueError("--thread-id must be a lowercase UUID")
+        if thread_id not in decision_id:
+            raise ValueError("--decision-id must contain the selected thread ID")
+        _, binding = validate_request(
+            request_path,
+            expected_user_message=user_message,
+        )
+        confirmed_by = "workspace-user"
+        confirmation_note = user_message
+        authorization_evidence = {
             "kind": (
                 "operator-attested-codex-user-message"
                 if schema_version == 2
@@ -415,7 +505,37 @@ def build_authorization(
             "userMessageSha256": hashlib.sha256(
                 user_message.encode("utf-8")
             ).hexdigest(),
-        },
+        }
+    elif schema_version == 3:
+        if any(value is not None for value in (user_message, thread_id, decision_id)):
+            raise ValueError("schema v3 does not accept itemized user confirmation arguments")
+        request, binding = validate_request(request_path)
+        standing_binding = binding.get("standingProjectAuthorization")
+        if not isinstance(standing_binding, dict):
+            raise ValueError("schema v3 standing authorization binding is missing")
+        standing_path = require_plain_file(
+            standing_binding.get("path"),
+            standing_binding.get("sha256"),
+            "standing project authorization",
+        )
+        standing = read_json(standing_path, "standing project authorization")
+        confirmed_by = "standing-project-authorization"
+        confirmation_note = str(standing["authorizationText"])
+        authorization_evidence = {
+            "kind": "standing-project-commercial-resource-authorization",
+            **standing_binding,
+            "candidateId": request["candidateId"],
+            "requestedItemsSha256": binding["requestedItemsSha256"],
+        }
+    else:
+        raise ValueError("unsupported exact authorization request schema")
+    result = {
+        "schemaVersion": schema_version,
+        "ok": True,
+        "decision": "authorized_for_training_hard_negative_review",
+        "confirmedBy": confirmed_by,
+        "confirmationNote": confirmation_note,
+        "authorizationEvidence": authorization_evidence,
         "sourceRoot": binding["sourceRoot"],
         "scopeIncludesDescendants": False,
         "authorizedUses": EXPECTED_REQUEST_USES,
@@ -444,9 +564,10 @@ def build_authorization(
         },
         "currentTrainingUse": "prohibited",
     }
-    if schema_version == 2:
+    if schema_version in {2, 3}:
         result["candidateId"] = binding["candidateId"]
         result["requestedItemsSha256"] = binding["requestedItemsSha256"]
+    if schema_version == 2:
         result["authorizationEvidence"]["attestationScope"] = (
             "operator-attested; deep replayable but not host-cryptographically-signed"
         )
@@ -467,12 +588,15 @@ def verify_authorization(path: Path) -> dict[str, Any]:
         request_binding.get("sha256"),
         "exact authorization request",
     )
-    expected = build_authorization(
-        request_path,
-        str(evidence.get("userMessageText") or ""),
-        str(evidence.get("threadId") or ""),
-        str(evidence.get("decisionId") or ""),
-    )
+    if authorization.get("schemaVersion") == 3:
+        expected = build_authorization(request_path)
+    else:
+        expected = build_authorization(
+            request_path,
+            str(evidence.get("userMessageText") or ""),
+            str(evidence.get("threadId") or ""),
+            str(evidence.get("decisionId") or ""),
+        )
     if authorization != expected:
         raise ValueError("user authorization source deep replay drift")
     return {
@@ -559,21 +683,25 @@ def main() -> None:
             path = Path(args.verify_authorization).absolute().resolve(strict=True)
             result = verify_authorization(path)
         else:
-            required = {
-                "--authorization-request": args.authorization_request,
-                "--user-message": args.user_message,
-                "--thread-id": args.thread_id,
-                "--decision-id": args.decision_id,
-                "--output": args.output,
-            }
-            missing = [name for name, value in required.items() if not value]
-            if missing:
-                raise ValueError(f"missing required arguments: {', '.join(missing)}")
-            request_input = Path(args.authorization_request).absolute()
+            request_input = Path(str(args.authorization_request or "")).absolute()
             if not request_input.is_file():
                 raise ValueError("exact authorization request is missing")
             reject_linked_ancestors(request_input, "exact authorization request")
             request_path = request_input.resolve(strict=True)
+            request = read_json(request_path, "exact authorization request")
+            required = {
+                "--authorization-request": args.authorization_request,
+                "--output": args.output,
+            }
+            if request.get("schemaVersion") in {1, 2}:
+                required.update({
+                    "--user-message": args.user_message,
+                    "--thread-id": args.thread_id,
+                    "--decision-id": args.decision_id,
+                })
+            missing = [name for name, value in required.items() if not value]
+            if missing:
+                raise ValueError(f"missing required arguments: {', '.join(missing)}")
             output = validate_output_path(args.output, request_path)
             authorization = build_authorization(
                 request_path,

@@ -19,7 +19,9 @@
 - `convert-annotations.ts`：把原始 polygon JSON 转成 YOLO segmentation 标签
 - `materialize-training-dataset.ts`：把 raw 图片和转换后的标签物化为 Ultralytics 标准 train / val / test 目录
 - `build-independent-hard-negative-review-workspace.py`：从A授权和机器审计构建逐图原分辨率审核工作区；生成1:1像素审核页，并在审核前证明与train、val、冻结test零身份重合
-- `record-training-hard-negative-authorization.py`：为候选训练负样本建立精确逐文件授权和机器审计；只接受权威受保护registry，固定新批training命名、768像素最短边、SHA-256、规范sourceIdentity与dHash256隔离，输出始终保持`trainingUse=prohibited`
+- `build-training-hard-negative-authorization-request.py`：从160/160深验进度冻结精确文件清单，并自动绑定`project-commercial-resource-authorization-v1.json`的standing商业授权；schema v3不再等待逐条用户确认
+- `build-training-hard-negative-user-authorization.py`：把schema v3精确清单转换为可深度重放的授权来源；历史schema v1/v2逐条确认仍只读兼容，新批次不接受重复逐项确认
+- `record-training-hard-negative-authorization.py`：为候选训练负样本建立精确逐文件授权追溯和机器审计；只接受权威受保护registry，固定新批training命名、768像素最短边、SHA-256、规范sourceIdentity与dHash256隔离，输出始终保持`trainingUse=prohibited`
 - `record-independent-hard-negative-authorization.py`：在任何候选模型推理前原子冻结100张以上新来源困难负样本；固定拒绝精确/感知近重复、符号链接和宽泛授权，并把候选权重及规范val阈值深验报告一起锁定
 - `finalize-independent-hard-negative-review.py`：重放授权、图片、审核页、受保护角色和逐图决定，输出候选清单；任何原图或证据漂移都会拒绝
 - `finalize-reviewed-hard-negative-manifest.py`：把一个或多个已完成原分辨率审核的hard negative候选批次终结为schema v2清单；不足100张时只输出不可训练HOLD，达到门槛后才输出可供规范物化器消费的批准清单
@@ -73,7 +75,9 @@ node --no-warnings --experimental-strip-types model/training/audit-labels.ts
 node --no-warnings --experimental-strip-types model/training/convert-annotations.ts
 node --no-warnings --experimental-strip-types model/training/materialize-training-dataset.ts
 python model/training/record-training-hard-negative-authorization.py --verify-protected-registry E:/path/to/protected-hard-negative-registry-v1.json
-python model/training/record-training-hard-negative-authorization.py --source-root C:/path/to/candidate3-training-v1 --user-authorization C:/path/to/candidate3-exact-authorization.json --output-dir C:/path/to/candidate3-training-authorization-v1 --protected-hard-negative-registry E:/path/to/protected-hard-negative-registry-v1.json --batch-date 20260726 --sequence-start 1 --sequence-end 160
+python model/training/build-training-hard-negative-authorization-request.py --generation-progress C:/path/to/generation-progress-160-v1.json --candidate-id candidate-next-training-v1 --output C:/path/to/candidate-next-exact-authorization-request-v3.json
+python model/training/build-training-hard-negative-user-authorization.py --authorization-request C:/path/to/candidate-next-exact-authorization-request-v3.json --output C:/path/to/candidate-next-standing-authorization-source-v3.json
+python model/training/record-training-hard-negative-authorization.py --source-root C:/path/to/candidate-next-training-v1 --authorization-source C:/path/to/candidate-next-standing-authorization-source-v3.json --output-dir C:/path/to/candidate-next-training-authorization-v1 --protected-hard-negative-registry E:/path/to/protected-hard-negative-registry-v1.json --batch-date 20260726 --sequence-start 1 --sequence-end 160
 python model/training/record-training-hard-negative-authorization.py --verify-authorization C:/path/to/candidate3-training-authorization-v1/authorization-record-A-v1.json
 python model/training/build-independent-hard-negative-review-workspace.py --authorization C:/path/to/candidate3-training-authorization-v1/authorization-record-A-v1.json --machine-audit C:/path/to/candidate3-training-authorization-v1/machine-audit-v1.json --train-index C:/path/to/training-truth-index-v1.json --val-index C:/path/to/validation-truth-index-v1.json --frozen-test-manifest C:/path/to/frozen-test-manifest.json --output-dir C:/path/to/candidate3-training-review-workspace
 python model/training/record-independent-hard-negative-authorization.py --source-root C:/path/to/post-train-holdout --user-authorization C:/path/to/pre-existing-user-authorization.json --candidate-weights C:/path/to/best.pt --candidate-threshold-report C:/path/to/formal-val-threshold.json --expected-candidate-weights-sha256 0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef --expected-score-threshold 0.50 --protected-hard-negative-registry E:/path/to/current-protected-hard-negative-registry.json --batch-date 20260724 --sequence-start 161 --sequence-end 270
