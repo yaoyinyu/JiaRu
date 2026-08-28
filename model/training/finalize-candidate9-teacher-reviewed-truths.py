@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""终结candidate9强教师首轮视觉审核；未列入PASS的图片全部保持返修。"""
+"""终结candidate9强教师视觉审核；仅显式PASS晋升，显式排除与返修分开记录。"""
 
 from __future__ import annotations
 
@@ -96,6 +96,8 @@ def main() -> None:
         for index, (name, path) in enumerate(paths.items(), start=1)
         if name.startswith("additionalPassList")
     ]
+    excluded_files: list[str] = []
+    exclusion_evidence: dict[str, dict[str, Any]] = {}
     if (
         workspace.get("ok") is not True
         or workspace.get("decision") != "candidate9_annotation_workspace_ready_candidate_only"
@@ -132,6 +134,27 @@ def main() -> None:
             raise ValueError("追加教师PASS清单重复覆盖既有返修证据")
         merged_repair_evidence.update(additional_repairs)
         pass_list["repairEvidence"] = merged_repair_evidence
+        additional_excluded = list(additional_pass_list.get("excludeFiles") or [])
+        additional_exclusion_evidence = additional_pass_list.get("exclusionEvidence") or {}
+        if not isinstance(additional_exclusion_evidence, dict):
+            raise ValueError("追加教师清单排除证据必须是对象")
+        if len(additional_excluded) != len(set(additional_excluded)):
+            raise ValueError("追加教师清单包含重复排除项")
+        if set(excluded_files).intersection(additional_excluded):
+            raise ValueError("追加教师清单重复覆盖既有排除项")
+        if set(additional_exclusion_evidence) != set(additional_excluded):
+            raise ValueError("追加教师清单排除证据必须完整覆盖排除项")
+        for file_name in additional_excluded:
+            evidence = additional_exclusion_evidence[file_name]
+            if (
+                not isinstance(evidence, dict)
+                or evidence.get("originalResolutionReviewed") is not True
+                or not str(evidence.get("reasonCode") or "").strip()
+                or not str(evidence.get("reason") or "").strip()
+            ):
+                raise ValueError(f"{file_name}排除证据不完整")
+        excluded_files.extend(additional_excluded)
+        exclusion_evidence.update(additional_exclusion_evidence)
     if prompts.get("inputs", {}).get("workspaceManifestSha256") != sha256_file(paths["workspace"]):
         raise ValueError("SAM提示未绑定当前工作区")
     visual_inputs = visual.get("inputs") or {}
@@ -150,6 +173,10 @@ def main() -> None:
     passed = list(pass_list.get("passFiles") or [])
     if len(passed) != len(set(passed)) or not set(passed).issubset(workspace_items):
         raise ValueError("教师PASS清单重复或越界")
+    if not set(excluded_files).issubset(workspace_items):
+        raise ValueError("教师排除清单越界")
+    if set(passed).intersection(excluded_files):
+        raise ValueError("同一图片不能同时PASS与排除")
     repair_evidence = pass_list.get("repairEvidence") or {}
     if not isinstance(repair_evidence, dict) or not set(repair_evidence).issubset(set(passed)):
         raise ValueError("返修证据必须是PASS项的文件名映射")
@@ -165,7 +192,13 @@ def main() -> None:
         for file_name in sorted(workspace_items):
             source = workspace_items[file_name]
             evidence = visual_items[file_name]
-            decision = "pass" if file_name in set(passed) else "rework"
+            decision = (
+                "pass"
+                if file_name in set(passed)
+                else "exclude"
+                if file_name in set(excluded_files)
+                else "rework"
+            )
             repair = repair_evidence.get(file_name)
             source_expected = int(source["expectedFullyVisibleNails"])
             expected = source_expected
@@ -188,6 +221,7 @@ def main() -> None:
                 "candidateMaskCount": evidence["polygonCount"],
                 "geometrySuspectCount": evidence["geometrySuspectCount"],
                 "decision": decision,
+                "exclusionEvidence": exclusion_evidence.get(file_name),
                 "trainingUse": "prohibited-until-materialization-audit",
             })
             if decision != "pass":
@@ -357,15 +391,32 @@ def main() -> None:
                 "uniqueImageCount": len(canonical_truths), "completeMaskCount": total_masks,
                 "redundantReportCount": 0, "redundantImageCount": 0, "conflictingImageCount": 0,
                 "sourceGroupCount": len({item["sourceGroup"] for item in canonical_truths}),
-                "reviewedImages": len(reviewed), "reworkImages": len(reviewed) - len(canonical_truths),
+                "reviewedImages": len(reviewed),
+                "excludedImages": len(excluded_files),
+                "reworkImages": len(reviewed) - len(canonical_truths) - len(excluded_files),
             },
             "canonicalTruthsSha256": canonical_sha256(canonical_truths),
             "canonicalTruths": canonical_truths,
+            "excludedItems": [
+                {
+                    "fileName": file_name,
+                    "imageSha256": workspace_items[file_name]["imageSha256"],
+                    "sourceGroup": workspace_items[file_name]["sourceGroup"],
+                    **exclusion_evidence[file_name],
+                }
+                for file_name in sorted(excluded_files)
+            ],
             "rejectedReports": [], "redundantReports": [], "conflicts": [], "errors": [],
         }
         (staging / "teacher-review.json").write_text(json.dumps({
             "schemaVersion": 1, "ok": True, "decision": "candidate9_teacher_review_complete",
-            "counts": {"reviewed": len(reviewed), "pass": len(canonical_truths), "rework": len(reviewed) - len(canonical_truths), "masks": total_masks},
+            "counts": {
+                "reviewed": len(reviewed),
+                "pass": len(canonical_truths),
+                "exclude": len(excluded_files),
+                "rework": len(reviewed) - len(canonical_truths) - len(excluded_files),
+                "masks": total_masks,
+            },
             "itemsSha256": canonical_sha256(reviewed), "items": reviewed,
             "trainingUse": "prohibited-until-materialization-audit", "errors": [],
         }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -374,7 +425,14 @@ def main() -> None:
     except Exception:
         shutil.rmtree(staging, ignore_errors=True)
         raise
-    print(json.dumps({"ok": True, "images": len(canonical_truths), "masks": total_masks, "rework": len(reviewed) - len(canonical_truths), "canonicalTruthsSha256": index["canonicalTruthsSha256"]}, ensure_ascii=False))
+    print(json.dumps({
+        "ok": True,
+        "images": len(canonical_truths),
+        "masks": total_masks,
+        "excluded": len(excluded_files),
+        "rework": len(reviewed) - len(canonical_truths) - len(excluded_files),
+        "canonicalTruthsSha256": index["canonicalTruthsSha256"],
+    }, ensure_ascii=False))
 
 
 if __name__ == "__main__":
