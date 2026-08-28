@@ -1,0 +1,613 @@
+
+> jiaru@0.1.0 test
+> node --no-warnings --experimental-strip-types --test --test-concurrency=1 tests/*.test.ts
+
+TAP version 13
+# Subtest: Agnes 配置拒绝缺失密钥
+ok 1 - Agnes 配置拒绝缺失密钥
+  ---
+  duration_ms: 0.7837
+  type: 'test'
+  ...
+# Subtest: Agnes 图像请求遵循 Image 2.1 Flash 协议
+ok 2 - Agnes 图像请求遵循 Image 2.1 Flash 协议
+  ---
+  duration_ms: 29.4306
+  type: 'test'
+  ...
+# Subtest: Agnes 503 响应按指数退避重试
+ok 3 - Agnes 503 响应按指数退避重试
+  ---
+  duration_ms: 3.0331
+  type: 'test'
+  ...
+# Subtest: Agnes 401 响应不会泄露供应商正文
+ok 4 - Agnes 401 响应不会泄露供应商正文
+  ---
+  duration_ms: 0.5108
+  type: 'test'
+  ...
+# Subtest: Agnes 图生图请求携带 Data URI 图片与 ratio
+ok 5 - Agnes 图生图请求携带 Data URI 图片与 ratio
+  ---
+  duration_ms: 0.3845
+  type: 'test'
+  ...
+# Subtest: Agnes 图生图不传 ratio 时保持旧尺寸格式
+ok 6 - Agnes 图生图不传 ratio 时保持旧尺寸格式
+  ---
+  duration_ms: 0.3502
+  type: 'test'
+  ...
+# Subtest: assembleAiImagePrompt orders prefix, user prompt, suffix, then hidden system prompt
+ok 7 - assembleAiImagePrompt orders prefix, user prompt, suffix, then hidden system prompt
+  ---
+  duration_ms: 0.5573
+  type: 'test'
+  ...
+# Subtest: assembleAiImagePrompt covers all hand defect constraints
+ok 8 - assembleAiImagePrompt covers all hand defect constraints
+  ---
+  duration_ms: 0.1935
+  type: 'test'
+  ...
+# Subtest: assembleAiImagePrompt is deterministic
+ok 9 - assembleAiImagePrompt is deterministic
+  ---
+  duration_ms: 0.0986
+  type: 'test'
+  ...
+# Subtest: assembleAiImageEditPrompt keeps reference image, changes only nails
+ok 10 - assembleAiImageEditPrompt keeps reference image, changes only nails
+  ---
+  duration_ms: 0.09
+  type: 'test'
+  ...
+# Subtest: IMAGE_EDIT_SYSTEM_PROMPT is a dedicated second system prompt for reference-image editing
+ok 11 - IMAGE_EDIT_SYSTEM_PROMPT is a dedicated second system prompt for reference-image editing
+  ---
+  duration_ms: 0.1691
+  type: 'test'
+  ...
+# Subtest: HAND_ANATOMY_SYSTEM_PROMPT covers the eight hand-fidelity dimensions
+ok 12 - HAND_ANATOMY_SYSTEM_PROMPT covers the eight hand-fidelity dimensions
+  ---
+  duration_ms: 0.0739
+  type: 'test'
+  ...
+# Subtest: 两套提示词互斥：系统按是否上传参考图仅启用其中一套，绝不同时发送
+ok 13 - 两套提示词互斥：系统按是否上传参考图仅启用其中一套，绝不同时发送
+  ---
+  duration_ms: 0.1129
+  type: 'test'
+  ...
+# Subtest: palm detector state is presented as 手心
+ok 14 - palm detector state is presented as 手心
+  ---
+  duration_ms: 1.0578
+  type: 'test'
+  ...
+# Subtest: dorsum detector state is presented as 手背
+ok 15 - dorsum detector state is presented as 手背
+  ---
+  duration_ms: 0.0879
+  type: 'test'
+  ...
+# Subtest: positive depth evidence classifies an open palm
+ok 16 - positive depth evidence classifies an open palm
+  ---
+  duration_ms: 0.1384
+  type: 'test'
+  ...
+# Subtest: negative depth evidence classifies the back of a hand
+ok 17 - negative depth evidence classifies the back of a hand
+  ---
+  duration_ms: 0.0728
+  type: 'test'
+  ...
+# Subtest: weak or conflicting depth evidence remains ambiguous
+ok 18 - weak or conflicting depth evidence remains ambiguous
+  ---
+  duration_ms: 0.0733
+  type: 'test'
+  ...
+# Subtest: raw handedness normalizes palm topology before display mirroring
+ok 19 - raw handedness normalizes palm topology before display mirroring
+  ---
+  duration_ms: 0.0609
+  type: 'test'
+  ...
+# Subtest: strong palm topology blocks nails even when depth is weak
+ok 20 - strong palm topology blocks nails even when depth is weak
+  ---
+  duration_ms: 0.1451
+  type: 'test'
+  ...
+# Subtest: strong dorsum topology renders nails despite misleading palm depth
+ok 21 - strong dorsum topology renders nails despite misleading palm depth
+  ---
+  duration_ms: 0.0638
+  type: 'test'
+  ...
+# Subtest: weak side topology still falls back to depth evidence
+ok 22 - weak side topology still falls back to depth evidence
+  ---
+  duration_ms: 0.1727
+  type: 'test'
+  ...
+# Subtest: same-ratio video scales to the frame without cropping
+ok 23 - same-ratio video scales to the frame without cropping
+  ---
+  duration_ms: 0.6004
+  type: 'test'
+  ...
+# Subtest: landscape video is center-cropped for a portrait frame without distortion
+ok 24 - landscape video is center-cropped for a portrait frame without distortion
+  ---
+  duration_ms: 0.1338
+  type: 'test'
+  ...
+# Subtest: portrait video is center-cropped vertically for a landscape frame
+ok 25 - portrait video is center-cropped vertically for a landscape frame
+  ---
+  duration_ms: 0.0731
+  type: 'test'
+  ...
+# Subtest: viewport ratio follows the actual webpage display area
+ok 26 - viewport ratio follows the actual webpage display area
+  ---
+  duration_ms: 0.0658
+  type: 'test'
+  ...
+# Subtest: invalid dimensions are rejected
+ok 27 - invalid dimensions are rejected
+  ---
+  duration_ms: 0.2459
+  type: 'test'
+  ...
+# Subtest: model metric assessment rejects mask regressions
+ok 28 - model metric assessment rejects mask regressions
+  ---
+  duration_ms: 172.0428
+  type: 'test'
+  ...
+# Subtest: model metric assessment enforces absolute release thresholds
+ok 29 - model metric assessment enforces absolute release thresholds
+  ---
+  duration_ms: 165.5251
+  type: 'test'
+  ...
+# Subtest: assisted annotation audit keeps machine candidates out of training truth
+ok 30 - assisted annotation audit keeps machine candidates out of training truth
+  ---
+  duration_ms: 2.4014
+  type: 'test'
+  ...
+# Subtest: approves a complete hash-bound 100/100/30 candidate input
+ok 31 - approves a complete hash-bound 100/100/30 candidate input
+  ---
+  duration_ms: 8319.3592
+  type: 'test'
+  ...
+# Subtest: accepts an external report copy while excluding the bound internal report from inventory
+ok 32 - accepts an external report copy while excluding the bound internal report from inventory
+  ---
+  duration_ms: 4250.4861
+  type: 'test'
+  ...
+# Subtest: does not allow CLI flags to lower the formal 100/100/30 gates
+ok 33 - does not allow CLI flags to lower the formal 100/100/30 gates
+  ---
+  duration_ms: 3076.986
+  type: 'test'
+  ...
+# Subtest: rejects a forged PASS whose hard-negative label is non-empty
+ok 34 - rejects a forged PASS whose hard-negative label is non-empty
+  ---
+  duration_ms: 3327.7235
+  type: 'test'
+  ...
+# Subtest: rejects a materialized hard negative whose bytes are not an image
+ok 35 - rejects a materialized hard negative whose bytes are not an image
+  ---
+  duration_ms: 3432.5444
+  type: 'test'
+  ...
+# Subtest: rejects a forged positive label that diverges from the approved annotation
+ok 36 - rejects a forged positive label that diverges from the approved annotation
+  ---
+  duration_ms: 3574.479
+  type: 'test'
+  ...
+# Subtest: rejects cross-role source-group leakage after independent recomputation
+ok 37 - rejects cross-role source-group leakage after independent recomputation
+  ---
+  duration_ms: 3362.6922
+  type: 'test'
+  ...
+# Subtest: rejects path traversal in the materialized file allow-list
+ok 38 - rejects path traversal in the materialized file allow-list
+  ---
+  duration_ms: 2678.8248
+  type: 'test'
+  ...
+# Subtest: detects an orphan even when a forged PASS adds it to datasetFiles
+ok 39 - detects an orphan even when a forged PASS adds it to datasetFiles
+  ---
+  duration_ms: 3802.3206
+  type: 'test'
+  ...
+# Subtest: refuses output overwrite and output inside the dataset without writing
+ok 40 - refuses output overwrite and output inside the dataset without writing
+  ---
+  duration_ms: 2995.1443
+  type: 'test'
+  ...
+# Subtest: exposes a successful deep-replay verifier for the training entrypoint
+ok 41 - exposes a successful deep-replay verifier for the training entrypoint
+  ---
+  duration_ms: 6029.358
+  type: 'test'
+  ...
+# Subtest: deep replay rejects a stored PASS after dataset drift
+ok 42 - deep replay rejects a stored PASS after dataset drift
+  ---
+  duration_ms: 4673.8912
+  type: 'test'
+  ...
+# Subtest: approves fully bound source-isolated candidate training validation
+ok 43 - approves fully bound source-isolated candidate training validation
+  ---
+  duration_ms: 488.1325
+  type: 'test'
+  ...
+# Subtest: rejects a validation source group that leaks into training
+ok 44 - rejects a validation source group that leaks into training
+  ---
+  duration_ms: 270.9262
+  type: 'test'
+  ...
+# Subtest: candidate training mode refuses missing or rejected evidence
+ok 45 - candidate training mode refuses missing or rejected evidence
+  ---
+  duration_ms: 338.0185
+  type: 'test'
+  ...
+# Subtest: approves source groups confined to one split
+ok 46 - approves source groups confined to one split
+  ---
+  duration_ms: 192.0492
+  type: 'test'
+  ...
+# Subtest: rejects a source group shared by train and validation
+ok 47 - rejects a source group shared by train and validation
+  ---
+  duration_ms: 172.5533
+  type: 'test'
+  ...
+# Subtest: audit-failure-classification passes for reviewed rows and writes a report
+ok 48 - audit-failure-classification passes for reviewed rows and writes a report
+  ---
+  duration_ms: 207.3623
+  type: 'test'
+  ...
+# Subtest: audit-failure-classification fails while template row is still the only evidence
+ok 49 - audit-failure-classification fails while template row is still the only evidence
+  ---
+  duration_ms: 168.6868
+  type: 'test'
+  ...
+# Subtest: audit-failure-classification fails invalid enum values and missing required fields
+ok 50 - audit-failure-classification fails invalid enum values and missing required fields
+  ---
+  duration_ms: 194.2026
+  type: 'test'
+  ...
+# Subtest: training truth index counts identical duplicate reports once
+ok 51 - training truth index counts identical duplicate reports once
+  ---
+  duration_ms: 182.0244
+  type: 'test'
+  ...
+# Subtest: training truth index rejects conflicting reports for the same image
+ok 52 - training truth index rejects conflicting reports for the same image
+  ---
+  duration_ms: 171.6781
+  type: 'test'
+  ...
+# Subtest: validation truth index accepts only validation reports and keeps training prohibited
+ok 53 - validation truth index accepts only validation reports and keeps training prohibited
+  ---
+  duration_ms: 190.6957
+  type: 'test'
+  ...
+# Subtest: release-test truth index rejects outer-only forged evidence
+ok 54 - release-test truth index rejects outer-only forged evidence
+  ---
+  duration_ms: 619.9848
+  type: 'test'
+  ...
+# Subtest: truth index rejects a directory containing only rejected reports
+ok 55 - truth index rejects a directory containing only rejected reports
+  ---
+  duration_ms: 169.6459
+  type: 'test'
+  ...
+# Subtest: truth index output cannot overwrite a finalized report
+ok 56 - truth index output cannot overwrite a finalized report
+  ---
+  duration_ms: 189.4859
+  type: 'test'
+  ...
+# Subtest: watermark audit builds deterministic variants with multiple workers
+ok 57 - watermark audit builds deterministic variants with multiple workers
+  ---
+  duration_ms: 774.183
+  type: 'test'
+  ...
+# Subtest: audit-image-corpus reports valid images and exact duplicates
+ok 58 - audit-image-corpus reports valid images and exact duplicates
+  ---
+  duration_ms: 204.2365
+  type: 'test'
+  ...
+# Subtest: completion audit v2 rejects forged, drifted, weak, and incomplete evidence
+    # Subtest: accepts a fully bound synthetic release evidence fixture
+    ok 1 - accepts a fully bound synthetic release evidence fixture
+      ---
+      duration_ms: 7402.6491
+      type: 'test'
+      ...
+    # Subtest: accepts a SHA-256-bound current evidence profile
+    ok 2 - accepts a SHA-256-bound current evidence profile
+      ---
+      duration_ms: 7423.7025
+      type: 'test'
+      ...
+    # Subtest: rejects evidence-profile hash drift before writing an audit
+    ok 3 - rejects evidence-profile hash drift before writing an audit
+      ---
+      duration_ms: 211.8002
+      type: 'test'
+      ...
+    # Subtest: rejects mixing a profile with protected evidence overrides
+    ok 4 - rejects mixing a profile with protected evidence overrides
+      ---
+      duration_ms: 206.8718
+      type: 'test'
+      ...
+    # Subtest: rejects a profile that mixes candidate identities
+    ok 5 - rejects a profile that mixes candidate identities
+      ---
+      duration_ms: 7393.1391
+      type: 'test'
+      ...
+    # Subtest: protects the evidence profile itself from output overwrite
+    ok 6 - protects the evidence profile itself from output overwrite
+      ---
+      duration_ms: 214.5426
+      type: 'test'
+      ...
+    # Subtest: package audit command pins the current evidence profile
+    ok 7 - package audit command pins the current evidence profile
+      ---
+      duration_ms: 6.9505
+      type: 'test'
+      ...
+    # Subtest: rejects training negatives even when their watermark audit is stable
+    ok 8 - rejects training negatives even when their watermark audit is stable
+      ---
+      duration_ms: 1422.4323
+      type: 'test'
+      ...
+    # Subtest: rejects forged hard-negative decisions and drifted variant evidence
+    ok 9 - rejects forged hard-negative decisions and drifted variant evidence
+      ---
+      duration_ms: 4864.2432
+      type: 'test'
+      ...
+    # Subtest: rejects a handwritten frozen quality PASS or decision drift
+    ok 10 - rejects a handwritten frozen quality PASS or decision drift
+      ---
+      duration_ms: 7414.8648
+      type: 'test'
+      ...
+    # Subtest: protects frozen quality transitive evidence from audit output overwrite
+    ok 11 - protects frozen quality transitive evidence from audit output overwrite
+      ---
+      duration_ms: 7351.6969
+      type: 'test'
+      ...
+    # Subtest: treats a non-PASS progress marker as a formal blocking gate
+    ok 12 - treats a non-PASS progress marker as a formal blocking gate
+      ---
+      duration_ms: 7411.9902
+      type: 'test'
+      ...
+    # Subtest: rejects an empty progress table instead of vacuously passing it
+    ok 13 - rejects an empty progress table instead of vacuously passing it
+      ---
+      duration_ms: 7435.6547
+      type: 'test'
+      ...
+    # Subtest: rejects missing checklist sections instead of treating empty arrays as complete
+    ok 14 - rejects missing checklist sections instead of treating empty arrays as complete
+      ---
+      duration_ms: 7334.9874
+      type: 'test'
+      ...
+    # Subtest: rejects malformed and duplicate checklist rows
+    ok 15 - rejects malformed and duplicate checklist rows
+      ---
+      duration_ms: 7359.7265
+      type: 'test'
+      ...
+    # Subtest: rejects a malformed marker row that would otherwise disappear from the audit
+    ok 16 - rejects a malformed marker row that would otherwise disappear from the audit
+      ---
+      duration_ms: 7659.1239
+      type: 'test'
+      ...
+    # Subtest: rejects duplicate PASS marker IDs instead of counting both
+    ok 17 - rejects duplicate PASS marker IDs instead of counting both
+      ---
+      duration_ms: 7382.0847
+      type: 'test'
+      ...
+    # Subtest: rejects forged outer product-quality PASS and snapshot drift
+    ok 18 - rejects forged outer product-quality PASS and snapshot drift
+      ---
+      duration_ms: 14877.9729
+      type: 'test'
+      ...
+    # Subtest: rejects a fully handwritten product-quality PASS without raw evidence
+    ok 19 - rejects a fully handwritten product-quality PASS without raw evidence
+      ---
+      duration_ms: 7538.6625
+      type: 'test'
+      ...
+    # Subtest: rejects product-quality evidence after the instance CSV drifts
+    ok 20 - rejects product-quality evidence after the instance CSV drifts
+      ---
+      duration_ms: 7420.0823
+      type: 'test'
+      ...
+    # Subtest: rejects product-quality evidence after the expected snapshot drifts
+    ok 21 - rejects product-quality evidence after the expected snapshot drifts
+      ---
+      duration_ms: 7494.5114
+      type: 'test'
+      ...
+    # Subtest: rejects a recomputed snapshot that reuses one image SHA under different names
+    ok 22 - rejects a recomputed snapshot that reuses one image SHA under different names
+      ---
+      duration_ms: 7434.1941
+      type: 'test'
+      ...
+    # Subtest: rejects rebinding to another internally valid snapshot path
+    ok 23 - rejects rebinding to another internally valid snapshot path
+      ---
+      duration_ms: 7963.4921
+      type: 'test'
+      ...
+    # Subtest: protects direct and transitive evidence files from --output overwrite
+        # Subtest: production manifest
+        ok 1 - production manifest
+          ---
+          duration_ms: 228.3701
+          type: 'test'
+          ...
+        # Subtest: existing hardlink alias
+        ok 2 - existing hardlink alias
+          ---
+          duration_ms: 207.8967
+          type: 'test'
+          ...
+        # Subtest: product instance CSV
+        ok 3 - product instance CSV
+          ---
+          duration_ms: 7379.3382
+          type: 'test'
+          ...
+        # Subtest: rollback candidate model
+        ok 4 - rollback candidate model
+          ---
+          duration_ms: 7416.7599
+          type: 'test'
+          ...
+        1..4
+    ok 24 - protects direct and transitive evidence files from --output overwrite
+      ---
+      duration_ms: 15242.5868
+      type: 'test'
+      ...
+    # Subtest: rejects directly-usable threshold or scenario evidence
+    ok 25 - rejects directly-usable threshold or scenario evidence
+      ---
+      duration_ms: 7684.9976
+      type: 'test'
+      ...
+    # Subtest: rejects contamination threshold or scenario evidence
+    ok 26 - rejects contamination threshold or scenario evidence
+      ---
+      duration_ms: 7462.6923
+      type: 'test'
+      ...
+    # Subtest: rejects rough-rectangle threshold or scenario evidence
+    ok 27 - rejects rough-rectangle threshold or scenario evidence
+      ---
+      duration_ms: 7443.8638
+      type: 'test'
+      ...
+    # Subtest: rejects pixel-leakage threshold or scenario evidence
+    ok 28 - rejects pixel-leakage threshold or scenario evidence
+      ---
+      duration_ms: 7354.3038
+      type: 'test'
+      ...
+    # Subtest: rejects missing-rate threshold or scenario evidence
+    ok 29 - rejects missing-rate threshold or scenario evidence
+      ---
+      duration_ms: 7321.9881
+      type: 'test'
+      ...
+    # Subtest: rejects self-relaxed-missing-ceiling threshold or scenario evidence
+    ok 30 - rejects self-relaxed-missing-ceiling threshold or scenario evidence
+      ---
+      duration_ms: 7442.216
+      type: 'test'
+      ...
+    # Subtest: rejects self-relaxed-regression-floor threshold or scenario evidence
+    ok 31 - rejects self-relaxed-regression-floor threshold or scenario evidence
+      ---
+      duration_ms: 7398.6802
+      type: 'test'
+      ...
+    # Subtest: rejects snapshot-image-count threshold or scenario evidence
+    ok 32 - rejects snapshot-image-count threshold or scenario evidence
+      ---
+      duration_ms: 7431.0963
+      type: 'test'
+      ...
+    # Subtest: rejects snapshot-instance-count threshold or scenario evidence
+    ok 33 - rejects snapshot-instance-count threshold or scenario evidence
+      ---
+      duration_ms: 7438.7522
+      type: 'test'
+      ...
+    # Subtest: rejects scenario-ok threshold or scenario evidence
+    ok 34 - rejects scenario-ok threshold or scenario evidence
+      ---
+      duration_ms: 7440.7777
+      type: 'test'
+      ...
+    # Subtest: rejects scenario-delta threshold or scenario evidence
+    ok 35 - rejects scenario-delta threshold or scenario evidence
+      ---
+      duration_ms: 7378.4406
+      type: 'test'
+      ...
+    # Subtest: rejects scenario-missing-dimension threshold or scenario evidence
+    ok 36 - rejects scenario-missing-dimension threshold or scenario evidence
+      ---
+      duration_ms: 7568.3538
+      type: 'test'
+      ...
+    # Subtest: rejects forged rollback PASS without verified release integrity
+    ok 37 - rejects forged rollback PASS without verified release integrity
+      ---
+      duration_ms: 7457.6433
+      type: 'test'
+      ...
+    # Subtest: rejects a fully hand-written rollback PASS when its bound registry does not exist
+    ok 38 - rejects a fully hand-written rollback PASS when its bound registry does not exist
+      ---
+      duration_ms: 7401.2384
+      type: 'test'
+      ...
+    # Subtest: rejects rollback evidence after the current model drifts
+    ok 39 - rejects rollback evidence after the current model drifts
+      ---
+      duration_ms: 7412.9402
+      type: 'test'
+      ...

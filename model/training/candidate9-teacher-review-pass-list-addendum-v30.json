@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "reviewedBy": "GPT-5.6 Sol semantic teacher",
+  "decision": "candidate9_teacher_review_pass_list_original_resolution_addendum",
+  "policy": {
+    "contactSheetsAreNavigationOnly": true,
+    "sourceOverlayAnd2xCropsReviewed": true,
+    "unlistedItemsRemainRework": true,
+    "trainingUse": "prohibited-until-materialization-audit"
+  },
+  "passFiles": [
+    "nail_01138_6a099d1c000000000803dd1a_7.jpg"
+  ],
+  "repairEvidence": {
+    "nail_01138_6a099d1c000000000803dd1a_7.jpg": {
+      "reportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_28_candidate28_repair_01138_manual_five_v1\\repair-report.json",
+      "reportSha256": "df3c382b3157c8140d5557ea57cffc62bd0c8a61930e723b46138e0b57b72620",
+      "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_28_candidate28_repair_01138_manual_five_v1\\geometry-audit.json",
+      "geometryAuditSha256": "0c498b1bee0cd59299be93c659dffc524f2f9556edcc50237e5d210222fd708e"
+    }
+  }
+}

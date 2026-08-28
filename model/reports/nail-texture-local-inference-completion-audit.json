@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-08-27T17:57:15.149Z",
+  "generatedAt": "2026-08-28T12:52:51.480Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 454,
-    "passMarkerCount": 430,
+    "progressMarkerCount": 458,
+    "passMarkerCount": 432,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -218,6 +218,18 @@
         "task": "candidate21↔candidate24预注册小步权重插值",
         "status": "❌ VAL REJECT（未运行test100）",
         "evidence": "在读取四点val结果前固定alpha0.05/0.10/0.15/0.20。alpha0.05选择点0.45为127/17/17，其完整扫描在0.40仅与candidate21打平为128/16/19；alpha0.10/0.15/0.20在0.40分别为127/17/21、127/17/22、127/17/20。四份校准报告与权重SHA均完成深验，但没有点严格改善预注册基线，故不建立选择锁、不触碰test100。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001",
+        "task": "train角色甲面候选复核器与val30联合选择",
+        "status": "❌ VAL REJECT（3种受限实现，未运行test100）",
+        "evidence": "为避免与candidate26困难负样本计划重号，实验改称candidate27。首版CNN、一对一候选标签CNN及手工特征复核器均无法在保持128匹配时把误检严格降到19以下；特征复核器同召回点仍有32误检。全部只读取train/val角色，未触碰冻结test100、未导出、登记或部署，复核器分支结束。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE28-TRUTH-01130-001",
+        "task": "超长透明甲漏甲、拆分和局部mask返修",
+        "status": "🟡 REWORK（候选，不计训练真值）",
+        "evidence": "原图有5枚完整可见长甲；旧SAM完全漏掉上方透明甲，把一枚甲拆为2个相交mask，并在另外两枚上只覆盖装饰/局部甲面。当前v2混合候选已补回漏甲并消除重复交叠，但原分辨率复核仍发现部分保留mask未覆盖完整透明甲尖/甲床，因此继续`trainingUse=prohibited`，不为赶进度写成PASS。"
       }
     ]
   },
@@ -1106,9 +1118,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 454,
-      "uniqueMarkerCount": 454,
-      "passMarkerCount": 430,
+      "markerCount": 458,
+      "uniqueMarkerCount": 458,
+      "passMarkerCount": 432,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1255,6 +1267,18 @@
           "task": "candidate21↔candidate24预注册小步权重插值",
           "status": "❌ VAL REJECT（未运行test100）",
           "evidence": "在读取四点val结果前固定alpha0.05/0.10/0.15/0.20。alpha0.05选择点0.45为127/17/17，其完整扫描在0.40仅与candidate21打平为128/16/19；alpha0.10/0.15/0.20在0.40分别为127/17/21、127/17/22、127/17/20。四份校准报告与权重SHA均完成深验，但没有点严格改善预注册基线，故不建立选择锁、不触碰test100。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001",
+          "task": "train角色甲面候选复核器与val30联合选择",
+          "status": "❌ VAL REJECT（3种受限实现，未运行test100）",
+          "evidence": "为避免与candidate26困难负样本计划重号，实验改称candidate27。首版CNN、一对一候选标签CNN及手工特征复核器均无法在保持128匹配时把误检严格降到19以下；特征复核器同召回点仍有32误检。全部只读取train/val角色，未触碰冻结test100、未导出、登记或部署，复核器分支结束。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE28-TRUTH-01130-001",
+          "task": "超长透明甲漏甲、拆分和局部mask返修",
+          "status": "🟡 REWORK（候选，不计训练真值）",
+          "evidence": "原图有5枚完整可见长甲；旧SAM完全漏掉上方透明甲，把一枚甲拆为2个相交mask，并在另外两枚上只覆盖装饰/局部甲面。当前v2混合候选已补回漏甲并消除重复交叠，但原分辨率复核仍发现部分保留mask未覆盖完整透明甲尖/甲床，因此继续`trainingUse=prohibited`，不为赶进度写成PASS。"
         }
       ]
     },
@@ -1309,11 +1333,9 @@
           "crop12": 1,
           "blur_corner": 1
         },
-        "deepVerificationOk": false
+        "deepVerificationOk": true
       },
-      "errors": [
-        "hard-negative watermark audit deep verification failed: Traceback (most recent call last):\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 660, in verify_report\r\n    replayed_deployment = predict(\r\n        model,\r\n    ...<3 lines>...\r\n        str(configuration.get(\"device\") or \"0\"),\r\n    )\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 710, in predict\r\n    results = model.predict(\r\n        source=[str(path) for path in image_paths],\r\n    ...<4 lines>...\r\n        stream=False,\r\n    )\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\engine\\model.py\", line 541, in predict\r\n    return self.predictor.predict_cli(source=source) if is_cli else self.predictor(source=source, stream=stream)\r\n                                                                    ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\engine\\predictor.py\", line 229, in __call__\r\n    return list(self.stream_inference(source, model, *args, **kwargs))  # merge list of Results into one\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\torch\\utils\\_contextlib.py\", line 40, in generator_context\r\n    response = gen.send(None)\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\engine\\predictor.py\", line 303, in stream_inference\r\n    self.setup_source(source if source is not None else self.args.source)\r\n    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\engine\\predictor.py\", line 260, in setup_source\r\n    self.dataset = load_inference_source(\r\n                   ~~~~~~~~~~~~~~~~~~~~~^\r\n        source=source,\r\n        ^^^^^^^^^^^^^^\r\n    ...<3 lines>...\r\n        channels=getattr(self.model, \"channels\", 3),\r\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\r\n    )\r\n    ^\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\data\\build.py\", line 465, in load_inference_source\r\n    dataset = LoadPilAndNumpy(source, channels=channels)\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\data\\loaders.py\", line 518, in __init__\r\n    self.im0 = [self._single_check(im, pil_flag) for im in im0]\r\n                ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\ultralytics\\data\\loaders.py\", line 535, in _single_check\r\n    im = np.asarray(im.convert(flag))\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PIL\\Image.py\", line 820, in __array_interface__\r\n    new[\"data\"] = self.tobytes()\r\n                  ~~~~~~~~~~~~^^\r\n  File \"C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\site-packages\\PIL\\Image.py\", line 904, in tobytes\r\n    return b\"\".join(output)\r\n           ~~~~~~~~^^^^^^^^\r\nMemoryError\r\n\r\nThe above exception was the direct cause of the following exception:\r\n\r\nTraceback (most recent call last):\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 947, in <module>\r\n    main()\r\n    ~~~~^^\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 768, in main\r\n    verification = verify_report(Path(args.verify_report).resolve())\r\n  File \"E:\\AI Project\\Codex\\JiaRu\\model\\training\\audit-hard-negative-watermark-shortcut.py\", line 675, in verify_report\r\n    raise ValueError(\r\n        f\"independent holdout inference replay failed: {error}\"\r\n    ) from error\r\nValueError: independent holdout inference replay failed:"
-      ]
+      "errors": []
     },
     "bestCandidateMetrics": {
       "ok": true,
@@ -1467,7 +1489,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "24 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001."
+      "summary": "26 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001, M2-T3-CANDIDATE28-TRUTH-01130-001."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",

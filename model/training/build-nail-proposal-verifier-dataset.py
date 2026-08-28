@@ -208,7 +208,7 @@ def main() -> None:
     model = YOLO(str(weights))
     crop_root = output / "crops"
     records: list[dict[str, Any]] = []
-    skipped_ambiguous = 0
+    duplicate_or_partial_negatives = 0
     skipped_empty = 0
     prediction_total = 0
 
@@ -252,20 +252,40 @@ def main() -> None:
         if len(masks) != len(scores):
             raise ValueError("prediction masks and scores differ")
         prediction_total += len(scores)
-        for index, (raw_mask, score) in enumerate(zip(masks, scores, strict=True)):
-            prediction_mask = resize_binary(raw_mask, width, height)
+        prediction_masks = [resize_binary(raw_mask, width, height) for raw_mask in masks]
+        overlaps_by_prediction = [
+            [mask_iou(prediction_mask, truth) for truth in truth_masks]
+            for prediction_mask in prediction_masks
+        ]
+        matched_predictions: set[int] = set()
+        used_truth: set[int] = set()
+        pairs = sorted(
+            (
+                (iou, prediction_index, truth_index)
+                for prediction_index, overlaps in enumerate(overlaps_by_prediction)
+                for truth_index, iou in enumerate(overlaps)
+            ),
+            reverse=True,
+        )
+        for iou, prediction_index, truth_index in pairs:
+            if iou < args.positive_iou:
+                break
+            if prediction_index in matched_predictions or truth_index in used_truth:
+                continue
+            matched_predictions.add(prediction_index)
+            used_truth.add(truth_index)
+
+        for index, (prediction_mask, score) in enumerate(
+            zip(prediction_masks, scores, strict=True)
+        ):
             if int(prediction_mask.sum()) == 0:
                 skipped_empty += 1
                 continue
-            overlaps = [mask_iou(prediction_mask, truth) for truth in truth_masks]
+            overlaps = overlaps_by_prediction[index]
             best_iou = max(overlaps, default=0.0)
-            if best_iou >= args.positive_iou:
-                label = 1
-            elif best_iou <= args.negative_iou:
-                label = 0
-            else:
-                skipped_ambiguous += 1
-                continue
+            label = 1 if index in matched_predictions else 0
+            if label == 0 and best_iou > args.negative_iou:
+                duplicate_or_partial_negatives += 1
             relative_crop = Path("crops") / str(label) / f"{image_path.stem}__p{index:03d}.png"
             crop_path = output / relative_crop
             crop_path.parent.mkdir(parents=True, exist_ok=True)
@@ -324,7 +344,8 @@ def main() -> None:
             "proposalIou": args.proposal_iou,
             "maxDet": args.max_det,
             "positiveIou": args.positive_iou,
-            "negativeIou": args.negative_iou,
+            "negativeIouDiagnosticBoundary": args.negative_iou,
+            "labelPolicy": "one-to-one-greedy-mask-iou-match-positive-all-unmatched-negative",
             "cropSize": args.crop_size,
             "cropChannels": "RGBA=RGB-context+proposal-mask",
             "contextScale": args.context_scale,
@@ -340,7 +361,7 @@ def main() -> None:
             "rawPredictions": prediction_total,
             "positiveProposals": positive_count,
             "negativeProposals": negative_count,
-            "skippedAmbiguous": skipped_ambiguous,
+            "duplicateOrPartialNegatives": duplicate_or_partial_negatives,
             "skippedEmpty": skipped_empty,
         },
         "rolePolicy": {
