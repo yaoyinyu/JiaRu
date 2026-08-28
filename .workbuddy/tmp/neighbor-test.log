@@ -1,0 +1,91 @@
+TAP version 13
+# Subtest: keeps the reviewed 67/384 snapshot compatible and rejects its deployment quality
+ok 1 - keeps the reviewed 67/384 snapshot compatible and rejects its deployment quality
+  ---
+  duration_ms: 1087.7859
+  type: 'test'
+  ...
+# Subtest: binds the 100/554 snapshot schema and never promotes when a 512 subset fails
+ok 2 - binds the 100/554 snapshot schema and never promotes when a 512 subset fails
+  ---
+  duration_ms: 254.1741
+  type: 'test'
+  ...
+# Subtest: rejects snapshot count drift instead of accepting a renamed population
+ok 3 - rejects snapshot count drift instead of accepting a renamed population
+  ---
+  duration_ms: 253.4281
+  type: 'test'
+  ...
+# Subtest: rejects assessment labels that do not describe the current snapshot
+ok 4 - rejects assessment labels that do not describe the current snapshot
+  ---
+  duration_ms: 255.5344
+  type: 'test'
+  ...
+# Subtest: rejects materialization snapshot-hash evidence drift
+ok 5 - rejects materialization snapshot-hash evidence drift
+  ---
+  duration_ms: 271.4955
+  type: 'test'
+  ...
+# Subtest: refuses direct-input and hard-link output aliases without changing evidence
+ok 6 - refuses direct-input and hard-link output aliases without changing evidence
+  ---
+  duration_ms: 496.076
+  type: 'test'
+  ...
+# Subtest: rejects a baseline that is not a verified deployment-512 test evaluation
+ok 7 - rejects a baseline that is not a verified deployment-512 test evaluation
+  ---
+  duration_ms: 268.6907
+  type: 'test'
+  ...
+# Subtest: rejects frozen subset metrics evaluated with different candidate weights
+ok 8 - rejects frozen subset metrics evaluated with different candidate weights
+  ---
+  duration_ms: 260.7206
+  type: 'test'
+  ...
+# Subtest: deep verification rejects a handwritten outer decision
+ok 9 - deep verification rejects a handwritten outer decision
+  ---
+  duration_ms: 855.4892
+  type: 'test'
+  ...
+# Subtest: deep verification rejects source metric drift after report creation
+ok 10 - deep verification rejects source metric drift after report creation
+  ---
+  duration_ms: 869.3201
+  type: 'test'
+  ...
+# Subtest: run-training-release-pipeline produces a dry-run orchestration report
+ok 11 - run-training-release-pipeline produces a dry-run orchestration report
+  ---
+  duration_ms: 17373.6775
+  type: 'test'
+  ...
+# Subtest: candidate mode requires all three lanes and forbids ambiguous split or reused datasets
+ok 12 - candidate mode requires all three lanes and forbids ambiguous split or reused datasets
+  ---
+  duration_ms: 604.8999
+  type: 'test'
+  ...
+# Subtest: candidate dry-run exposes the separated training, calibration, frozen-test, and export plan
+ok 13 - candidate dry-run exposes the separated training, calibration, frozen-test, and export plan
+  ---
+  duration_ms: 228.6707
+  type: 'test'
+  ...
+# Subtest: candidate mode rejects unbound skip and resume paths before any Python command
+ok 14 - candidate mode rejects unbound skip and resume paths before any Python command
+  ---
+  duration_ms: 652.8847
+  type: 'test'
+  ...
+# Subtest: run-training-release-pipeline can skip training environment preflight
+ok 15 - run-training-release-pipeline can skip training environment preflight
+  ---
+  duration_ms: 982.7777
+  type: 'test'
+  ...
