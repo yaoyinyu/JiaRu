@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "reviewedBy": "GPT-5.6 Sol semantic teacher",
+  "decision": "candidate9_teacher_review_pass_list_original_resolution_addendum",
+  "policy": {
+    "contactSheetsAreNavigationOnly": true,
+    "sourceOverlayAnd2xCropsReviewed": true,
+    "unlistedItemsRemainRework": true,
+    "trainingUse": "prohibited-until-materialization-audit"
+  },
+  "passFiles": [],
+  "repairEvidence": {},
+  "excludeFiles": [
+    "nail_00251_6a2b9a3e000000002100b029_6.jpg",
+    "nail_00469_69b0305b000000000600ecc6_9.jpg",
+    "nail_00471_69b0305b000000000600ecc6_11.jpg",
+    "nail_00552_68dbbbe80000000005033d1e_1.jpg",
+    "nail_00584_69e472a000000000220272cb_3.jpg",
+    "nail_00623_6a52545a0000000022008ca1_1.jpg",
+    "nail_00655_6a367df9000000001c026c6c_4.jpg",
+    "nail_01094_69a5ad16000000002303ba31_9.jpg"
+  ],
+  "exclusionEvidence": {
+    "nail_00251_6a2b9a3e000000002100b029_6.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "cropped-and-occluded-required-nails",
+      "reason": "左侧上方长甲甲根被画面边缘截断，中央左侧甲又被邻甲遮挡；旧SAM还漏掉下方完整甲，无法形成全图可靠完整甲面真值。"
+    },
+    "nail_00469_69b0305b000000000600ecc6_9.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "required-nail-cropped-by-image-edge",
+      "reason": "右上手最上方甲面与甲根触及并越出画面顶边，不能确认完整可见边界。"
+    },
+    "nail_00471_69b0305b000000000600ecc6_11.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "required-nail-cropped-by-image-edge",
+      "reason": "画面顶部另一个手指的甲面被顶边截断；其余五甲虽清晰，也不能以不完整源图作为全图训练真值。"
+    },
+    "nail_00552_68dbbbe80000000005033d1e_1.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "low-resolution-blur-and-false-candidate",
+      "reason": "远景人像中的甲面像素过小且发虚，无法稳定确认完整甲缘；第四个候选位于画面底部非甲区域。"
+    },
+    "nail_00584_69e472a000000000220272cb_3.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "required-nail-cropped-by-image-edge",
+      "reason": "左侧最外甲面被画面左边缘截断，旧候选仅覆盖其局部尖端，违反完整甲面源图门。"
+    },
+    "nail_00623_6a52545a0000000022008ca1_1.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "blurred-overlapping-hands-unreliable-boundary",
+      "reason": "双手远景交叠且整体明显模糊，透明水钻长甲与相邻手指、文字背景边界无法可靠确认。"
+    },
+    "nail_00655_6a367df9000000001c026c6c_4.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "multiple-required-nails-cropped-by-image-edge",
+      "reason": "左侧及底部多枚甲面被画面边缘截断，仅露局部甲面，整图不满足完整可见甲面要求。"
+    },
+    "nail_01094_69a5ad16000000002303ba31_9.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "required-nail-cropped-by-image-edge",
+      "reason": "最左侧薄荷色甲被画面左边缘截断，无法覆盖其完整甲根、侧缘与甲尖。"
+    }
+  }
+}
