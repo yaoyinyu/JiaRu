@@ -27,10 +27,11 @@ function fixture() {
   mkdirSync(path.join(artifactsDir, "labels"), { recursive: true });
   const polygon = "0 0.1 0.1 0.4 0.1 0.4 0.6 0.1 0.6";
   const prediction = `${polygon} 0.9\n`;
-  const items = ["a", "b"].map((stem) => ({ fileName: `${stem}.jpg`, maskCount: 1, trainingUse: "prohibited" }));
+  const stems = Array.from({ length: 100 }, (_, index) => String.fromCharCode(97 + Math.floor(index / 26)) + String.fromCharCode(97 + (index % 26)));
+  const items = stems.map((stem) => ({ fileName: `${stem}.jpg`, maskCount: 1, trainingUse: "prohibited" }));
   const snapshot = path.join(root, "snapshot.json");
   writeFileSync(snapshot, JSON.stringify({ trainingUse: "prohibited", itemsSha256: sha(items), items }));
-  const records = ["a", "b"].map((stem) => {
+  const records = stems.map((stem) => {
     const truthPath = path.join(outputDir, "labels", "test", "core", `${stem}.txt`);
     writeFileSync(truthPath, `${polygon}\n`);
     return { lane: "core", materializedFileName: `${stem}.jpg`, materializedLabel: `labels/test/core/${stem}.txt`, materializedLabelSha256: sha(readFileSync(truthPath)) };
@@ -46,7 +47,7 @@ function fixture() {
     recordsSha256: sha(records),
     records,
   }));
-  const predictionRecords = ["a", "b"].map((stem) => {
+  const predictionRecords = stems.map((stem) => {
     const predictionPath = path.join(artifactsDir, "labels", `${stem}.txt`);
     writeFileSync(predictionPath, prediction);
     return { stem, path: `labels/${stem}.txt`, sha256: sha(readFileSync(predictionPath)), prediction_count: 1 };
@@ -61,18 +62,18 @@ function fixture() {
 test("逐实例正样本识别报告可构建并重放", () => {
   const value = fixture();
   const output = path.join(value.root, "report.json");
-  execFileSync("python", [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--min-images", "2", "--output", output]);
+  execFileSync("python", [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--output", output]);
   const report = JSON.parse(readFileSync(output, "utf8"));
   assert.equal(report.schemaVersion, 2);
   assert.equal(report.ok, true);
   assert.equal(report.summary.weightedSpuriousRate, 0);
-  assert.equal(report.summary.directlyExtractableImages, 2);
+  assert.equal(report.summary.directlyExtractableImages, 100);
   execFileSync("python", [script, "--verify-report", output]);
 });
 
 test("漏甲会让识别强门保持HOLD", () => {
   const value = fixture();
-  const predictionPath = path.join(value.artifactsDir, "labels", "b.txt");
+  const predictionPath = path.join(value.artifactsDir, "labels", "ab.txt");
   writeFileSync(predictionPath, "");
   const artifact = JSON.parse(readFileSync(value.artifactIndex, "utf8"));
   artifact.prediction_records[1].sha256 = sha(readFileSync(predictionPath));
@@ -80,7 +81,7 @@ test("漏甲会让识别强门保持HOLD", () => {
   artifact.prediction_records_sha256 = sha(artifact.prediction_records);
   writeFileSync(value.artifactIndex, JSON.stringify(artifact));
   const output = path.join(value.root, "hold.json");
-  const result = spawnSync("python", [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--min-images", "2", "--output", output]);
+  const result = spawnSync("python", [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--output", output]);
   assert.equal(result.status, 1);
   const report = JSON.parse(readFileSync(output, "utf8"));
   assert.equal(report.decision, "hold_positive_recognition_gate");
@@ -92,14 +93,14 @@ test("漏甲会让识别强门保持HOLD", () => {
 
 test("拓扑无效预测按严重度计入加权门并HOLD", () => {
   const value = fixture();
-  const predictionPath = path.join(value.artifactsDir, "labels", "b.txt");
+  const predictionPath = path.join(value.artifactsDir, "labels", "ab.txt");
   writeFileSync(predictionPath, "0 0.1 0.1 0.4 0.6 0.1 0.6 0.4 0.1 0.9\n");
   const artifact = JSON.parse(readFileSync(value.artifactIndex, "utf8"));
   artifact.prediction_records[1].sha256 = sha(readFileSync(predictionPath));
   artifact.prediction_records_sha256 = sha(artifact.prediction_records);
   writeFileSync(value.artifactIndex, JSON.stringify(artifact));
   const output = path.join(value.root, "invalid.json");
-  const result = spawnSync("python", [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--min-images", "2", "--output", output]);
+  const result = spawnSync("python", [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--output", output]);
   assert.equal(result.status, 1);
   const report = JSON.parse(readFileSync(output, "utf8"));
   assert.equal(report.schemaVersion, 2);
@@ -112,25 +113,30 @@ test("拓扑无效预测按严重度计入加权门并HOLD", () => {
 test("预算内重复实例通过加权门且超预算HOLD", () => {
   const value = fixture();
   // 图a：正确预测 + 一个与真值 IoU≈0.2 的重复候选（低于匹配0.5、高于重复0.10）
-  const predictionPath = path.join(value.artifactsDir, "labels", "a.txt");
+  const predictionPath = path.join(value.artifactsDir, "labels", "aa.txt");
   writeFileSync(predictionPath, "0 0.1 0.1 0.4 0.1 0.4 0.6 0.1 0.6 0.9\n0 0.3 0.1 0.6 0.1 0.6 0.6 0.3 0.6 0.9\n");
   const artifact = JSON.parse(readFileSync(value.artifactIndex, "utf8"));
   artifact.prediction_records[0].sha256 = sha(readFileSync(predictionPath));
   artifact.prediction_records[0].prediction_count = 2;
   artifact.prediction_records_sha256 = sha(artifact.prediction_records);
   writeFileSync(value.artifactIndex, JSON.stringify(artifact));
-  const base = [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--min-images", "2"];
+  const base = [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5"];
   const passOutput = path.join(value.root, "pass.json");
-  execFileSync("python", [...base, "--max-weighted-spurious-rate", "0.5", "--output", passOutput]);
+  execFileSync("python", [...base, "--output", passOutput]);
   const passed = JSON.parse(readFileSync(passOutput, "utf8"));
   assert.equal(passed.ok, true);
   assert.equal(passed.decision, "accept_positive_recognition_gate");
   assert.equal(passed.summary.duplicates, 1);
-  assert.equal(passed.summary.weightedSpuriousRate, 0.5);
+  assert.equal(passed.summary.weightedSpuriousRate, 0.01);
   assert.equal(passed.gates.weightedSpuriousRate, true);
   assert.equal(passed.zeroDefectDiagnostics.zeroDuplicates, false);
   const verifyPass = spawnSync("python", [script, "--verify-report", passOutput]);
   assert.equal(verifyPass.status, 0);
+  writeFileSync(predictionPath, "0 0.1 0.1 0.4 0.1 0.4 0.6 0.1 0.6 0.9\n0 0.3 0.1 0.6 0.1 0.6 0.6 0.3 0.6 0.9\n0 0.31 0.1 0.61 0.1 0.61 0.6 0.31 0.6 0.9\n0 0.32 0.1 0.62 0.1 0.62 0.6 0.32 0.6 0.9\n");
+  artifact.prediction_records[0].sha256 = sha(readFileSync(predictionPath));
+  artifact.prediction_records[0].prediction_count = 4;
+  artifact.prediction_records_sha256 = sha(artifact.prediction_records);
+  writeFileSync(value.artifactIndex, JSON.stringify(artifact));
   const holdOutput = path.join(value.root, "hold.json");
   const held = spawnSync("python", [...base, "--output", holdOutput]);
   assert.equal(held.status, 1);
@@ -141,8 +147,17 @@ test("预算内重复实例通过加权门且超预算HOLD", () => {
 test("历史schema v1报告仍可按旧语义重放", () => {
   const value = fixture();
   const output = path.join(value.root, "legacy.json");
-  const result = spawnSync("python", [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--min-images", "2", "--gate-mode", "zero-defect", "--output", output]);
-  assert.equal(result.status, 0);
+  const publicBuild = spawnSync("python", [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5", "--gate-mode", "zero-defect", "--output", output]);
+  assert.equal(publicBuild.status, 2);
+  const internalReplayBuilder = [
+    "import argparse, importlib.util, json, pathlib, sys",
+    "spec=importlib.util.spec_from_file_location('quality', sys.argv[1])",
+    "module=importlib.util.module_from_spec(spec); spec.loader.exec_module(module)",
+    "args=argparse.Namespace(snapshot_manifest=sys.argv[2], materialization_report=sys.argv[3], artifact_index=sys.argv[4], weights=sys.argv[5], score_threshold=0.5, output=None, verify_report=None, min_images=100, min_instance_recall=0.90, min_complete_mask_ratio=0.85, max_missing_image_rate=0.10, gate_mode='zero-defect', max_weighted_spurious_rate=0.02)",
+    "report=module.build(args, allow_legacy_replay=True)",
+    "pathlib.Path(sys.argv[6]).write_text(json.dumps(report, ensure_ascii=False, indent=2)+'\\n', encoding='utf-8')",
+  ].join("; ");
+  execFileSync("python", ["-c", internalReplayBuilder, script, value.snapshot, value.materialization, value.artifactIndex, value.weights, output]);
   const report = JSON.parse(readFileSync(output, "utf8"));
   assert.equal(report.schemaVersion, 1);
   assert.equal(report.ok, true);
@@ -153,4 +168,29 @@ test("历史schema v1报告仍可按旧语义重放", () => {
   assert.equal(report.zeroDefectDiagnostics, undefined);
   const verify = spawnSync("python", [script, "--verify-report", output]);
   assert.equal(verify.status, 0);
+});
+
+test("正式质量门参数只能收紧不能放宽", () => {
+  const value = fixture();
+  const base = [script, "--snapshot-manifest", value.snapshot, "--materialization-report", value.materialization, "--artifact-index", value.artifactIndex, "--weights", value.weights, "--score-threshold", "0.5"];
+  const cases = [
+    ["--min-images", "99"],
+    ["--min-instance-recall", "0.89"],
+    ["--min-complete-mask-ratio", "0.84"],
+    ["--max-missing-image-rate", "0.11"],
+    ["--max-weighted-spurious-rate", "0.03"],
+  ];
+  for (const [flag, threshold] of cases) {
+    const output = path.join(value.root, `${flag.slice(2)}.json`);
+    const result = spawnSync("python", [...base, flag, threshold, "--output", output]);
+    assert.equal(result.status, 2, `${flag}=${threshold} should be rejected`);
+  }
+  const validOutput = path.join(value.root, "valid.json");
+  execFileSync("python", [...base, "--output", validOutput]);
+  const tampered = JSON.parse(readFileSync(validOutput, "utf8"));
+  tampered.deploymentContract.minimumImages = 99;
+  const tamperedOutput = path.join(value.root, "tampered.json");
+  writeFileSync(tamperedOutput, JSON.stringify(tampered));
+  const replay = spawnSync("python", [script, "--verify-report", tamperedOutput]);
+  assert.equal(replay.status, 2, "verification must reject a weakened self-reported contract");
 });
