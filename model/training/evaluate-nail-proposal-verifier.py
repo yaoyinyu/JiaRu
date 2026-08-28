@@ -13,6 +13,7 @@ import numpy as np
 import onnxruntime as ort
 
 from _instance_segmentation_metrics import match_instances, parse_yolo_polygons
+from nail_proposal_features import extract_proposal_features
 
 
 def sha256_file(path: Path) -> str:
@@ -48,7 +49,7 @@ def rasterize_polygon(polygon: Any, width: int, height: int) -> np.ndarray:
     return mask
 
 
-def proposal_tensor(rgb: np.ndarray, mask: np.ndarray, size: int = 96) -> np.ndarray:
+def proposal_rgba(rgb: np.ndarray, mask: np.ndarray, size: int = 96) -> np.ndarray:
     height, width = mask.shape
     ys, xs = np.nonzero(mask)
     if len(xs) == 0:
@@ -67,7 +68,11 @@ def proposal_tensor(rgb: np.ndarray, mask: np.ndarray, size: int = 96) -> np.nda
         (mask[y0:y1, x0:x1] * 255).astype(np.uint8),
         (size, size), interpolation=cv2.INTER_NEAREST,
     )
-    rgba = np.dstack([rgb_crop, mask_crop]).astype(np.float32) / 255.0
+    return np.dstack([rgb_crop, mask_crop]).astype(np.uint8)
+
+
+def proposal_tensor(rgb: np.ndarray, mask: np.ndarray, size: int = 96) -> np.ndarray:
+    rgba = proposal_rgba(rgb, mask, size).astype(np.float32) / 255.0
     mean = np.asarray([0.485, 0.456, 0.406, 0.0], dtype=np.float32)
     std = np.asarray([0.229, 0.224, 0.225, 1.0], dtype=np.float32)
     return ((rgba - mean) / std).transpose(2, 0, 1)
@@ -84,10 +89,11 @@ def verify_base_calibration(path: Path, weights: Path) -> None:
             sys.executable, str(script), "--verify-report", str(path),
             "--expected-weights", str(weights),
         ],
-        capture_output=True, text=True, encoding="utf-8",
+        capture_output=True,
     )
     if result.returncode != 0:
-        raise ValueError(f"base calibration deep replay failed: {result.stderr or result.stdout}")
+        detail = (result.stderr or result.stdout).decode(errors="replace")
+        raise ValueError(f"base calibration deep replay failed: {detail}")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -124,8 +130,13 @@ def main() -> None:
     training = json.loads(training_report_path.read_text(encoding="utf-8"))
     weights = Path(base["inputs"]["weights"]).resolve()
     verify_base_calibration(base_path, weights)
-    if training.get("decision") != "proposal_verifier_training_complete_requires_val30_joint_selection":
+    training_decision = training.get("decision")
+    if training_decision not in {
+        "proposal_verifier_training_complete_requires_val30_joint_selection",
+        "candidate27_feature_verifier_training_complete_requires_val30_joint_selection",
+    }:
         raise ValueError("verifier training report is not eligible for val selection")
+    verifier_kind = "feature-linear" if training_decision.startswith("candidate27_feature") else "rgba-cnn"
     corpus_path = Path(training["inputs"]["corpus"]).resolve()
     corpus = json.loads(corpus_path.read_text(encoding="utf-8"))
     if corpus.get("rolePolicy") != {
@@ -135,8 +146,9 @@ def main() -> None:
         "holdoutUsedForTraining": False,
     }:
         raise ValueError("verifier corpus role policy drifted")
-    onnx_path = Path(training["artifacts"]["onnx"]).resolve()
-    if sha256_file(onnx_path) != training["artifacts"]["onnxSha256"]:
+    model_record = training["model"] if verifier_kind == "feature-linear" else training["artifacts"]
+    onnx_path = Path(model_record["onnx"]).resolve()
+    if sha256_file(onnx_path) != model_record["onnxSha256"]:
         raise ValueError("verifier ONNX drifted")
 
     metrics_path = Path(base["inputs"]["metrics"]).resolve()
@@ -166,7 +178,8 @@ def main() -> None:
         )
         if prediction_path and sha256_file(prediction_path) != prediction_record["sha256"]:
             raise ValueError(f"validation prediction drift: {stem}")
-        bgr = cv2.imread(str(image_path), cv2.IMREAD_COLOR)
+        encoded = np.fromfile(image_path, dtype=np.uint8)
+        bgr = cv2.imdecode(encoded, cv2.IMREAD_COLOR)
         if bgr is None:
             raise ValueError(f"cannot decode validation image: {stem}")
         rgb = cv2.cvtColor(bgr, cv2.COLOR_BGR2RGB)
@@ -176,10 +189,18 @@ def main() -> None:
             parse_yolo_polygons(prediction_path, prediction=True)
             if prediction_path else []
         )
-        tensors = [
-            proposal_tensor(rgb, rasterize_polygon(item["polygon"], width, height))
-            for item in predictions
+        proposal_masks = [
+            rasterize_polygon(item["polygon"], width, height) for item in predictions
         ]
+        if verifier_kind == "feature-linear":
+            tensors = [
+                extract_proposal_features(
+                    proposal_rgba(rgb, mask), float(prediction["confidence"])
+                )
+                for mask, prediction in zip(proposal_masks, predictions, strict=True)
+            ]
+        else:
+            tensors = [proposal_tensor(rgb, mask) for mask in proposal_masks]
         scores: list[float] = []
         if tensors:
             logits = session.run(None, {input_name: np.stack(tensors).astype(np.float32)})[0]
@@ -250,8 +271,8 @@ def main() -> None:
         "schemaVersion": 1,
         "ok": selected is not None,
         "decision": (
-            "candidate26_proposal_verifier_val30_replacement_gate_pass"
-            if selected else "candidate26_proposal_verifier_val30_rejected"
+            "candidate27_proposal_verifier_val30_replacement_gate_pass"
+            if selected else "candidate27_proposal_verifier_val30_rejected"
         ),
         "productionPromotion": False,
         "frozenTest100Consumed": False,
@@ -264,6 +285,7 @@ def main() -> None:
             "trainingReportSha256": sha256_file(training_report_path),
             "verifierOnnx": str(onnx_path),
             "verifierOnnxSha256": sha256_file(onnx_path),
+            "verifierKind": verifier_kind,
             "valMetrics": str(metrics_path),
             "valMetricsSha256": sha256_file(metrics_path),
             "artifactIndex": str(artifact_index_path),

@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
-"""Build a replayable, per-instance positive nail recognition quality report."""
+"""Build a replayable, per-instance positive nail recognition quality report.
+
+Gate modes:
+- ``weighted`` (default, schema v2): structural gates (minimum images, instance
+  recall, complete-mask ratio, missing-image rate, per-image model output) plus a
+  single severity-weighted spurious-instance-rate gate. Replaces the legacy
+  zero-defect gates, which contradicted themselves by tolerating misses
+  (recall floor 0.90) while demanding zero duplicates/false positives/invalid
+  masks on a finite sample.
+- ``zero-defect`` (schema v1): legacy eight-gate semantics, byte-compatible with
+  historical reports. Only intended for replaying schema v1 evidence via
+  ``--verify-report``.
+"""
 
 from __future__ import annotations
 
@@ -20,6 +32,16 @@ from shapely.geometry import Polygon
 MATCH_IOU = 0.50
 COMPLETE_MASK_IOU = 0.75
 
+# Business-severity weights for spurious predictions (schema v2 weighted gate).
+# A false positive (background treated as a nail) is the worst product outcome;
+# an invalid prediction mask is unusable output; a duplicate is redundant but
+# still nail-related and is the mildest defect.
+SPURIOUS_WEIGHTS = {
+    "duplicates": 1.0,
+    "invalidPredictionMasks": 1.5,
+    "falsePositives": 2.0,
+}
+
 
 def parser() -> argparse.ArgumentParser:
     value = argparse.ArgumentParser(description="Audit complete visible-nail recognition per image.")
@@ -34,6 +56,20 @@ def parser() -> argparse.ArgumentParser:
     value.add_argument("--min-instance-recall", type=float, default=0.90)
     value.add_argument("--min-complete-mask-ratio", type=float, default=0.85)
     value.add_argument("--max-missing-image-rate", type=float, default=0.10)
+    value.add_argument(
+        "--gate-mode",
+        choices=("weighted", "zero-defect"),
+        default="weighted",
+        help="weighted: schema v2 severity-weighted spurious-rate gate (default); "
+        "zero-defect: legacy schema v1 all-zero gates for replaying historical reports",
+    )
+    value.add_argument(
+        "--max-weighted-spurious-rate",
+        type=float,
+        default=0.02,
+        help="weighted mode only: maximum allowed (1.0*duplicates + 1.5*invalid + "
+        "2.0*falsePositives) / truthCount",
+    )
     return value
 
 
@@ -217,6 +253,8 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     threshold = float(args.score_threshold)
     if not 0 < threshold < 1:
         raise ValueError("score-threshold must be between zero and one")
+    if not 0 <= args.max_weighted_spurious_rate <= 1:
+        raise ValueError("max-weighted-spurious-rate must be between zero and one")
     items, records, output_dir, predictions = validate_lineage(
         snapshot_path, materialization_path, artifact_path
     )
@@ -274,46 +312,90 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
     complete_mask_ratio = totals["completeMasks"] / totals["truth"] if totals["truth"] else 0.0
     missing_image_rate = missing_images / image_count if image_count else 1.0
     direct_rate = directly_extractable / image_count if image_count else 0.0
-    gates = {
+    weighted_spurious = (
+        SPURIOUS_WEIGHTS["duplicates"] * totals["duplicates"]
+        + SPURIOUS_WEIGHTS["invalidPredictionMasks"] * totals["invalidPredictionMasks"]
+        + SPURIOUS_WEIGHTS["falsePositives"] * totals["falsePositives"]
+    )
+    weighted_spurious_rate = weighted_spurious / totals["truth"] if totals["truth"] else 0.0
+    structural_gates = {
         "minimumImages": image_count >= args.min_images,
         "instanceRecall": instance_recall >= args.min_instance_recall,
         "completeMaskRatio": complete_mask_ratio >= args.min_complete_mask_ratio,
         "missingImageRate": missing_image_rate <= args.max_missing_image_rate,
-        "zeroDuplicates": totals["duplicates"] == 0,
-        "zeroFalsePositives": totals["falsePositives"] == 0,
-        "zeroInvalidPredictionMasks": totals["invalidPredictionMasks"] == 0,
-        "everyImageHasModelOutput": all(row["predictionCount"] > 0 for row in image_rows),
     }
+    every_image_has_output = all(row["predictionCount"] > 0 for row in image_rows)
+    base_summary = {
+        "images": image_count,
+        **totals,
+        "missingImages": missing_images,
+        "directlyExtractableImages": directly_extractable,
+        "instanceRecall": round(instance_recall, 8),
+        "completeMaskRatio": round(complete_mask_ratio, 8),
+        "missingImageRate": round(missing_image_rate, 8),
+        "directlyExtractableRate": round(direct_rate, 8),
+    }
+    base_contract = {
+        "imgsz": 512,
+        "scoreThreshold": threshold,
+        "matchIou": MATCH_IOU,
+        "completeMaskIou": COMPLETE_MASK_IOU,
+        "minimumImages": args.min_images,
+        "minimumInstanceRecall": args.min_instance_recall,
+        "minimumCompleteMaskRatio": args.min_complete_mask_ratio,
+        "maximumMissingImageRate": args.max_missing_image_rate,
+    }
+    if args.gate_mode == "weighted":
+        gates = {
+            **structural_gates,
+            "weightedSpuriousRate": weighted_spurious_rate <= args.max_weighted_spurious_rate,
+            "everyImageHasModelOutput": every_image_has_output,
+        }
+        schema_version = 2
+        contract = {
+            **base_contract,
+            "maximumWeightedSpuriousRate": args.max_weighted_spurious_rate,
+            "spuriousWeights": dict(SPURIOUS_WEIGHTS),
+        }
+        summary = {
+            **base_summary,
+            "weightedSpuriousInstances": round(weighted_spurious, 8),
+            "weightedSpuriousRate": round(weighted_spurious_rate, 8),
+        }
+        diagnostics = {
+            "zeroDefectDiagnostics": {
+                "zeroDuplicates": totals["duplicates"] == 0,
+                "zeroFalsePositives": totals["falsePositives"] == 0,
+                "zeroInvalidPredictionMasks": totals["invalidPredictionMasks"] == 0,
+            },
+        }
+    else:
+        gates = {
+            **structural_gates,
+            "zeroDuplicates": totals["duplicates"] == 0,
+            "zeroFalsePositives": totals["falsePositives"] == 0,
+            "zeroInvalidPredictionMasks": totals["invalidPredictionMasks"] == 0,
+            "everyImageHasModelOutput": every_image_has_output,
+        }
+        schema_version = 1
+        contract = {
+            **base_contract,
+            "zeroDuplicates": True,
+            "zeroFalsePositives": True,
+        }
+        summary = dict(base_summary)
+        diagnostics = {}
     ok = all(gates.values())
     return {
-        "schemaVersion": 1,
+        "schemaVersion": schema_version,
         "ok": ok,
         "decision": "accept_positive_recognition_gate" if ok else "hold_positive_recognition_gate",
         "trainingUse": "prohibited",
-        "deploymentContract": {
-            "imgsz": 512,
-            "scoreThreshold": threshold,
-            "matchIou": MATCH_IOU,
-            "completeMaskIou": COMPLETE_MASK_IOU,
-            "minimumImages": args.min_images,
-            "minimumInstanceRecall": args.min_instance_recall,
-            "minimumCompleteMaskRatio": args.min_complete_mask_ratio,
-            "maximumMissingImageRate": args.max_missing_image_rate,
-            "zeroDuplicates": True,
-            "zeroFalsePositives": True,
-        },
+        "deploymentContract": contract,
         "candidate": {"weights": str(weights_path), "weightsSha256": sha256_path(weights_path)},
-        "summary": {
-            "images": image_count,
-            **totals,
-            "missingImages": missing_images,
-            "directlyExtractableImages": directly_extractable,
-            "instanceRecall": round(instance_recall, 8),
-            "completeMaskRatio": round(complete_mask_ratio, 8),
-            "missingImageRate": round(missing_image_rate, 8),
-            "directlyExtractableRate": round(direct_rate, 8),
-        },
+        "summary": summary,
         "gates": gates,
+        **diagnostics,
         "itemsSha256": canonical_sha256(image_rows),
         "items": image_rows,
         "inputs": {
@@ -354,6 +436,16 @@ def verify(report_path: Path) -> dict[str, Any]:
         "--min-complete-mask-ratio", str(contract["minimumCompleteMaskRatio"]),
         "--max-missing-image-rate", str(contract["maximumMissingImageRate"]),
     ]
+    schema_version = report.get("schemaVersion")
+    if schema_version == 2:
+        command += [
+            "--gate-mode", "weighted",
+            "--max-weighted-spurious-rate", str(contract["maximumWeightedSpuriousRate"]),
+        ]
+    elif schema_version == 1:
+        command += ["--gate-mode", "zero-defect"]
+    else:
+        raise ValueError(f"Unsupported recognition report schema version: {schema_version}")
     with tempfile.TemporaryDirectory(prefix="positive-recognition-verify-") as directory:
         output = Path(directory) / "report.json"
         completed = subprocess.run([*command, "--output", str(output)], check=False)

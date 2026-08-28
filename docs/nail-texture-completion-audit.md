@@ -251,6 +251,14 @@ candidate21仍是当前基线但其既有冻结test100质量门失败，产品�
 | candidate25四点小步插值 | VAL REJECT：alpha0.05在阈值0.40最多与candidate21打平128/16/19，其余点均退化 | 没有严格改善，不建立选择锁，不消费test100 |
 | 下一训练困难负样本快照 | 70/160通过、90缺失、0失败、0未知；四个softgel家族、`samara_dry_clusters`、`seed_pod_glossy_macro`、`seed_capsule_translucent`各10/10，报告`214abb69…b8bdb` | 只通过生成与源图质量工程门，正式终审/终结/物化前继续训练禁用 |
 
-统一机器决策`model/training/candidate24-25-validation-decision-v1.json`明确candidate21仍是当前基线。candidate21既有冻结test100仍未通过完整mask比例、缺甲图片率和零重复/额外/无效门，因此正式模型、生产ONNX、浏览器、真机、Beta、独立困难负样本和回滚证据均不能晋升。冻结计划身份复核确认041—050为`samara_dry_clusters`、051—060为`seed_pod_glossy_macro`，本轮061—070 `seed_capsule_translucent`也已完成递归深验；下一阶段从071 `winged_seed_mixed_scale`继续扩充，且不得使用冻结test100、已消费holdout或发布留出的逐图预测选样。
+统一机器决策`model/training/candidate24-25-validation-decision-v1.json`明确candidate21仍是当前基线。candidate21既有冻结test100仍未通过完整mask比例、缺甲图片率和零重复/额外/无效门，因此正式模型、生产ONNX、浏览器、真机、Beta、独立困难负样本和回滚证据均不能晋升。冻结计划身份复核确认041—050为`samara_dry_clusters`、051—060为`seed_pod_glossy_macro`，本轮061—070 `seed_capsule_translucent`也已完成递归深验；原定从071继续扩充的安排已被下节2026-08-28“正样本识别优先”策略取代，且任何后续动作都不得使用冻结test100、已消费holdout或发布留出的逐图预测选样。
+
+## candidate27/28策略调整与正样本增量结论（2026-08-28）
+
+candidate27的三种候选复核器实现均止于val30：CNN、按父候选一对一标签的CNN和手工特征复核器都未能在保持128个匹配时把误检严格压到19以下，最好同召回点仍有32个误检。该分支未运行冻结test100，也没有导出、登记或部署，因此不增加任何正式门通过数。
+
+训练策略随后改为“美甲完整识别优先”。固定160项新困难负样本计划暂停在70/160，余下90张不再是下一训练前置；现有批准困难负样本仅按来源平衡、与模型输出无关的确定性规则取满足正式下限的有限子集。该调整只限制训练侧负类权重，不放宽训练后全新独立困难负样本三变体零误检/零delta发布门。
+
+`01138…_7`五个原分辨率人工polygon已通过整图和逐甲2×复核、几何5/5及同图零交叠，补强规范真值由60张/419 mask增至61张/424 mask，索引摘要`c6fafa89…a6ea1`。`01130…_10`的返修仍为候选：虽然已补回旧SAM漏掉的透明延长甲并消除同甲拆分交叠，但部分保留mask仍只覆盖装饰或局部甲面，故没有计入真值。candidate28尚未物化或训练；candidate21仍是失败状态的当前识别基线，正式完成度继续HOLD。
 
 同步schema v3 standing授权工程标记后的机器重放读取454个进度标记，其中430个PASS、24个非PASS；14个正式门仍为4通过、10失败，返回`ok=false`、`decision=hold`。审计报告SHA-256为`c302cfc879dd42b33d8d2275876ae924b213b23d6fdef9a36a9411e8cb65e56b`；新增授权标记只证明重复人工等待已移除且机器追溯有效，不改变70/160训练负样本数量、生产资产、移动设备、Beta、正式产品质量或回滚门。
