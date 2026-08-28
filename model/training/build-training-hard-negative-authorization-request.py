@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Build or verify an exact authorization request for a frozen training pool.
+"""Build or verify an exact authorization trace for a frozen training pool.
 
-This command is deliberately pre-authorization.  It freezes the exact files
-from a deeply verified 160-item generation-progress report, but it never grants
-training eligibility or replaces the user's explicit confirmation.
+The command freezes the exact files from a deeply verified 160-item generation
+progress report and binds the project's standing commercial authorization.
+It does not grant training eligibility: original-resolution review, protected
+role isolation, finalization, and materialization remain separate gates.
 """
 
 from __future__ import annotations
@@ -21,6 +22,9 @@ from typing import Any
 
 EXPECTED_COUNT = 160
 CANDIDATE_ID_PATTERN = re.compile(r"^[a-z0-9][a-z0-9._-]{1,127}$")
+DEFAULT_STANDING_AUTHORIZATION = Path(__file__).with_name(
+    "project-commercial-resource-authorization-v1.json"
+)
 
 
 def load_module(file_name: str, module_name: str) -> Any:
@@ -83,7 +87,11 @@ def write_json_atomic_exclusive(path: Path, value: dict[str, Any]) -> None:
         temporary.unlink(missing_ok=True)
 
 
-def build_request(progress_path: Path, candidate_id: str) -> dict[str, Any]:
+def build_request(
+    progress_path: Path,
+    candidate_id: str,
+    standing_authorization_path: Path,
+) -> dict[str, Any]:
     if not CANDIDATE_ID_PATTERN.fullmatch(candidate_id):
         raise ValueError(
             "candidate id must match ^[a-z0-9][a-z0-9._-]{1,127}$"
@@ -122,19 +130,17 @@ def build_request(progress_path: Path, candidate_id: str) -> dict[str, Any]:
         raise ValueError("generation progress must contain exactly 160 items")
     requested_items = [AUTHORIZATION.expected_request_item(item) for item in items]
     requested_items_sha256 = AUTHORIZATION.canonical_sha256(requested_items)
-    confirmation = AUTHORIZATION.build_required_confirmation_text(
-        candidate_id,
-        EXPECTED_COUNT,
-        requested_items_sha256,
+    standing_authorization = AUTHORIZATION.validate_standing_authorization(
+        standing_authorization_path
     )
     return {
-        "schemaVersion": 2,
+        "schemaVersion": 3,
         "ok": False,
         "status": "HOLD",
-        "decision": "awaiting_exact_user_confirmation",
+        "decision": AUTHORIZATION.STANDING_REQUEST_DECISION,
         "role": "training-hard-negative-candidate",
         "trainingUse": "prohibited",
-        "authorizationStatus": "pending-user-confirmation",
+        "authorizationStatus": AUTHORIZATION.STANDING_AUTHORIZATION_STATUS,
         "candidateId": candidate_id,
         "sourceRoot": str(source_root),
         "scopeIncludesDescendants": False,
@@ -146,6 +152,7 @@ def build_request(progress_path: Path, candidate_id: str) -> dict[str, Any]:
             "generationPlan": plan_binding,
             "protectedHardNegativeRegistry": registry_binding,
             "itemsCurrentSha256": progress["itemsCurrentSha256"],
+            "standingProjectAuthorization": standing_authorization,
         },
         "summary": {
             "requestedFileCount": EXPECTED_COUNT,
@@ -158,7 +165,6 @@ def build_request(progress_path: Path, candidate_id: str) -> dict[str, Any]:
         "qualityConstraint": AUTHORIZATION.QUALITY_CONSTRAINT,
         "roleConstraint": AUTHORIZATION.ROLE_CONSTRAINT,
         "requestedItemsSha256": requested_items_sha256,
-        "requiredConfirmationText": confirmation,
         "requestedRelativePaths": [item["relativePath"] for item in requested_items],
         "requestedItems": requested_items,
     }
@@ -177,7 +183,9 @@ def verify_request(path: Path) -> dict[str, Any]:
         "authorizationStatus": request["authorizationStatus"],
         "requestedFileCount": request["summary"]["requestedFileCount"],
         "requestedItemsSha256": binding["requestedItemsSha256"],
-        "requiredConfirmationText": request["requiredConfirmationText"],
+        "standingProjectAuthorization": binding.get(
+            "standingProjectAuthorization"
+        ),
     }
 
 
@@ -185,11 +193,17 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--generation-progress")
     parser.add_argument("--candidate-id")
+    parser.add_argument("--standing-project-authorization")
     parser.add_argument("--output")
     parser.add_argument("--verify-request")
     args = parser.parse_args()
     if args.verify_request:
-        if args.generation_progress or args.candidate_id or args.output:
+        if (
+            args.generation_progress
+            or args.candidate_id
+            or args.standing_project_authorization
+            or args.output
+        ):
             parser.error("--verify-request cannot be combined with build arguments")
     elif not all((args.generation_progress, args.candidate_id, args.output)):
         parser.error(
@@ -206,7 +220,16 @@ def main() -> int:
         else:
             progress_path = Path(args.generation_progress).resolve(strict=True)
             candidate_id = str(args.candidate_id).strip()
-            request = build_request(progress_path, candidate_id)
+            standing_input = Path(
+                args.standing_project_authorization
+                or DEFAULT_STANDING_AUTHORIZATION
+            ).absolute()
+            AUTHORIZATION.reject_linked_ancestors(
+                standing_input,
+                "standing project authorization",
+            )
+            standing_path = standing_input.resolve(strict=True)
+            request = build_request(progress_path, candidate_id, standing_path)
             source_root = Path(request["sourceRoot"]).resolve(strict=True)
             output_path = validate_output_path(args.output, source_root)
             write_json_atomic_exclusive(output_path, request)

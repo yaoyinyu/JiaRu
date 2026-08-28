@@ -232,12 +232,45 @@ function makeFixture() {
     itemsSha256: canonicalSha(planItems),
     items: planItems,
   });
+  const standingAuthorization = path.join(root, "standing-authorization.json");
+  writeJson(standingAuthorization, {
+    schemaVersion: 1,
+    decision: "standing_project_commercial_resource_authorization_granted",
+    authorizedAt: "2026-08-22",
+    authorizedBy: "user",
+    authorizationText: "项目范围图像和本机计算资源持续允许商业使用。",
+    scope: {
+      projectScopedImageResources: "commercial-use-permitted",
+      localComputeResources: "commercial-model-work-permitted",
+      futureUserPlacedProjectResources:
+        "commercial-use-permitted-without-itemized-reauthorization",
+      itemizedTrainingAuthorizationRequired: false,
+      trainingStartAuthorizationRequired: false,
+      atomicFreezeAuthorizationRequiredAfterEvidenceGates: false,
+    },
+    roleRestrictionsNotRelaxed: [
+      "validation-remains-calibration-only",
+      "frozen-test-remains-training-prohibited",
+      "consumed-holdout-remains-training-prohibited",
+      "future-independent-holdout-must-be-unseen-and-source-isolated",
+    ],
+    qualityGatesNotRelaxed: [
+      "original-resolution-source-review",
+      "watermark-shortcut-ablation",
+      "val30-threshold-calibration",
+      "frozen-test100-positive-recognition",
+      "new-unseen-independent-hard-negative-holdout",
+      "three-variant-zero-false-positive",
+      "completion-audit",
+    ],
+  });
   return {
     root,
     sourceRoot,
     registry,
     plan,
     planItems,
+    standingAuthorization,
     protectedTrainingImage: protectedTraining.imagePath,
   };
 }
@@ -325,7 +358,7 @@ test("partial pool produces a truthful HOLD with next missing and family counts"
   assert.equal(existsSync(rejectedRequest), false);
 });
 
-test("a machine-clean 160-item pool only becomes ready to request authorization", () => {
+test("a machine-clean 160-item pool binds standing authorization without another user pause", () => {
   const item = makeFixture();
   for (let sequence = 1; sequence <= 160; sequence++) {
     addImage(item, sequence, sequence + 2000);
@@ -353,6 +386,8 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
       output,
       "--candidate-id",
       "candidate3-training-v1",
+      "--standing-project-authorization",
+      item.standingAuthorization,
       "--output",
       request,
     ],
@@ -361,20 +396,26 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
   assert.equal(requestCreation.status, 0, requestCreation.stderr);
   const requestRecord = JSON.parse(readFileSync(request, "utf8"));
   const requestedItemsSha256 = canonicalSha(requestRecord.requestedItems);
-  const requiredConfirmationText =
-    "允许将 candidate3-training-v1 最终冻结的160张精确文件清单" +
-    `（requestedItemsSha256=${requestedItemsSha256}）用于商业模型训练、长期回归、` +
-    "模型诊断评估和数据质量审核；不用于独立发布测试；授权不放宽质量门。";
-  assert.equal(requestRecord.schemaVersion, 2);
+  assert.equal(requestRecord.schemaVersion, 3);
   assert.equal(requestRecord.ok, false);
   assert.equal(requestRecord.status, "HOLD");
-  assert.equal(requestRecord.decision, "awaiting_exact_user_confirmation");
+  assert.equal(
+    requestRecord.decision,
+    "standing_project_authorization_bound_pending_quality_review",
+  );
   assert.equal(requestRecord.trainingUse, "prohibited");
-  assert.equal(requestRecord.authorizationStatus, "pending-user-confirmation");
+  assert.equal(
+    requestRecord.authorizationStatus,
+    "standing-project-authorization-applied",
+  );
   assert.equal(requestRecord.candidateId, "candidate3-training-v1");
   assert.equal(requestRecord.scopeIncludesDescendants, false);
   assert.equal(requestRecord.requestedItemsSha256, requestedItemsSha256);
-  assert.equal(requestRecord.requiredConfirmationText, requiredConfirmationText);
+  assert.equal("requiredConfirmationText" in requestRecord, false);
+  assert.equal(
+    requestRecord.inputs.standingProjectAuthorization.sha256,
+    shaFile(item.standingAuthorization),
+  );
   assert.equal(requestRecord.requestedItems.length, 160);
   assert.equal(requestRecord.requestedRelativePaths.length, 160);
   assert.deepEqual(requestRecord.summary, {
@@ -423,18 +464,27 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
     requestedItemsSha256,
   );
 
-  const tamperedTextRequest = path.join(item.root, "tampered-text-request.json");
-  writeJson(tamperedTextRequest, {
+  const tamperedStandingRequest = path.join(
+    item.root,
+    "tampered-standing-request.json",
+  );
+  writeJson(tamperedStandingRequest, {
     ...requestRecord,
-    requiredConfirmationText: "同意",
+    inputs: {
+      ...requestRecord.inputs,
+      standingProjectAuthorization: {
+        ...requestRecord.inputs.standingProjectAuthorization,
+        sha256: "0".repeat(64),
+      },
+    },
   });
-  const tamperedTextVerification = spawnSync(
+  const tamperedStandingVerification = spawnSync(
     python,
-    [authorizationRequestBuilder, "--verify-request", tamperedTextRequest],
+    [authorizationRequestBuilder, "--verify-request", tamperedStandingRequest],
     { encoding: "utf8" },
   );
-  assert.notEqual(tamperedTextVerification.status, 0);
-  assert.match(tamperedTextVerification.stdout, /v2 template/);
+  assert.notEqual(tamperedStandingVerification.status, 0);
+  assert.match(tamperedStandingVerification.stdout, /SHA-256 drift/);
 
   const extraFieldRequest = path.join(item.root, "extra-field-request.json");
   writeJson(extraFieldRequest, { ...requestRecord, approved: true });
@@ -454,6 +504,8 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
       output,
       "--candidate-id",
       "candidate3-training-v1",
+      "--standing-project-authorization",
+      item.standingAuthorization,
       "--output",
       request,
     ],
@@ -472,6 +524,8 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
       output,
       "--candidate-id",
       "candidate5\ntraining-v2",
+      "--standing-project-authorization",
+      item.standingAuthorization,
       "--output",
       invalidCandidateRequest,
     ],
@@ -480,20 +534,50 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
   assert.notEqual(invalidCandidate.status, 0);
   assert.match(invalidCandidate.stdout, /candidate id must match/);
   assert.equal(existsSync(invalidCandidateRequest), false);
-  const authorization = path.join(item.root, "user-authorization.json");
-  const threadId = "019f4ca0-a894-7b63-8ec9-c286885a5a22";
+
+  const invalidStanding = path.join(item.root, "invalid-standing-authorization.json");
+  const standingRecord = JSON.parse(
+    readFileSync(item.standingAuthorization, "utf8"),
+  );
+  writeJson(invalidStanding, {
+    ...standingRecord,
+    roleRestrictionsNotRelaxed: standingRecord.roleRestrictionsNotRelaxed.filter(
+      (value: string) => value !== "frozen-test-remains-training-prohibited",
+    ),
+  });
+  const invalidStandingRequest = path.join(
+    item.root,
+    "invalid-standing-request.json",
+  );
+  const invalidStandingCreation = spawnSync(
+    python,
+    [
+      authorizationRequestBuilder,
+      "--generation-progress",
+      output,
+      "--candidate-id",
+      "candidate3-training-invalid-standing",
+      "--standing-project-authorization",
+      invalidStanding,
+      "--output",
+      invalidStandingRequest,
+    ],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(invalidStandingCreation.status, 0);
+  assert.match(
+    invalidStandingCreation.stdout,
+    /standing project authorization contract is invalid/,
+  );
+  assert.equal(existsSync(invalidStandingRequest), false);
+
+  const authorization = path.join(item.root, "standing-authorization-source.json");
   const creation = spawnSync(
     python,
     [
       authorizationBuilder,
       "--authorization-request",
       request,
-      "--user-message",
-      requiredConfirmationText,
-      "--thread-id",
-      threadId,
-      "--decision-id",
-      `goal-thread/${threadId}/training-authorization/2026-07-28`,
       "--output",
       authorization,
     ],
@@ -501,13 +585,13 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
   );
   assert.equal(creation.status, 0, creation.stderr);
   const authorizationRecord = JSON.parse(readFileSync(authorization, "utf8"));
-  assert.equal(authorizationRecord.schemaVersion, 2);
+  assert.equal(authorizationRecord.schemaVersion, 3);
   assert.equal(authorizationRecord.ok, true);
   assert.equal(authorizationRecord.candidateId, "candidate3-training-v1");
   assert.equal(authorizationRecord.requestedItemsSha256, requestedItemsSha256);
   assert.equal(
     authorizationRecord.authorizationEvidence.kind,
-    "operator-attested-codex-user-message",
+    "standing-project-commercial-resource-authorization",
   );
   assert.equal(authorizationRecord.currentTrainingUse, "prohibited");
   assert.equal(authorizationRecord.authorizedRelativePaths.length, 160);
@@ -516,8 +600,8 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
     canonicalSha(authorizationRecord.authorizedRelativePaths),
   );
   assert.equal(
-    authorizationRecord.authorizationEvidence.userMessageSha256,
-    createHash("sha256").update(requiredConfirmationText).digest("hex"),
+    authorizationRecord.authorizationEvidence.sha256,
+    shaFile(item.standingAuthorization),
   );
   const verification = spawnSync(
     python,
@@ -526,18 +610,35 @@ test("a machine-clean 160-item pool only becomes ready to request authorization"
   );
   assert.equal(verification.status, 0, verification.stderr);
 
-  const overwrite = spawnSync(
+  const redundantConfirmation = spawnSync(
     python,
     [
       authorizationBuilder,
       "--authorization-request",
       request,
       "--user-message",
-      requiredConfirmationText,
+      "不应接受重复逐项确认",
       "--thread-id",
-      threadId,
+      "019f4ca0-a894-7b63-8ec9-c286885a5a22",
       "--decision-id",
-      `goal-thread/${threadId}/training-authorization/2026-07-28`,
+      "goal-thread/019f4ca0-a894-7b63-8ec9-c286885a5a22/redundant",
+      "--output",
+      path.join(item.root, "redundant-confirmation.json"),
+    ],
+    { encoding: "utf8" },
+  );
+  assert.notEqual(redundantConfirmation.status, 0);
+  assert.match(
+    redundantConfirmation.stderr,
+    /schema v3 does not accept itemized user confirmation arguments/,
+  );
+
+  const overwrite = spawnSync(
+    python,
+    [
+      authorizationBuilder,
+      "--authorization-request",
+      request,
       "--output",
       authorization,
     ],

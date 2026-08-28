@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
-"""Record an exact, user-authorized training hard-negative batch.
+"""Record an exact, authorized training hard-negative batch.
 
-The command consumes a pre-existing user-authorization JSON document whose
+The command consumes a pre-existing authorization JSON document whose
 explicit relative-path allow-list is bound by SHA-256. It never scans the
 source root to infer authorization. Every selected image must follow one
 contiguous ``hard_negative_training_YYYYMMDD_NNN_family_NN`` sequence.
+
+New schema v3 evidence binds the project's standing commercial authorization;
+historical schema v1/v2 itemized confirmations remain replayable.
 
 The two outputs remain candidate-only and ``trainingUse=prohibited``. They are
 designed for direct consumption by
@@ -220,11 +223,10 @@ def validate_user_authorization(
     authorization = read_json(path, "user authorization source")
     schema_version = authorization.get("schemaVersion")
     if (
-        schema_version not in {1, 2}
+        schema_version not in {1, 2, 3}
         or authorization.get("ok") is not True
         or authorization.get("decision")
         != "authorized_for_training_hard_negative_review"
-        or authorization.get("confirmedBy") != "workspace-user"
         or authorization.get("qualityConstraint")
         != "authorization-does-not-relax-quality-gates"
         or authorization.get("roleConstraint")
@@ -239,27 +241,43 @@ def validate_user_authorization(
     evidence = authorization.get("authorizationEvidence")
     if not isinstance(evidence, dict):
         raise ValueError("user authorization source authorizationEvidence is missing")
-    evidence_text = str(evidence.get("userMessageText") or "").strip()
-    evidence_thread_id = str(evidence.get("threadId") or "").strip()
-    evidence_decision_id = str(evidence.get("decisionId") or "").strip()
-    if (
-        evidence.get("kind")
-        != (
-            "operator-attested-codex-user-message"
-            if schema_version == 2
-            else "codex-user-message"
+    if schema_version in {1, 2}:
+        evidence_text = str(evidence.get("userMessageText") or "").strip()
+        evidence_thread_id = str(evidence.get("threadId") or "").strip()
+        evidence_decision_id = str(evidence.get("decisionId") or "").strip()
+        if (
+            authorization.get("confirmedBy") != "workspace-user"
+            or evidence.get("kind")
+            != (
+                "operator-attested-codex-user-message"
+                if schema_version == 2
+                else "codex-user-message"
+            )
+            or evidence_text != confirmation_note
+            or evidence.get("userMessageSha256")
+            != hashlib.sha256(evidence_text.encode("utf-8")).hexdigest()
+            or not UUID_PATTERN.fullmatch(evidence_thread_id)
+            or not evidence_decision_id
+            or evidence_thread_id not in evidence_decision_id
+        ):
+            raise ValueError(
+                "user authorization source does not bind a traceable user-message decision"
+            )
+    elif (
+        authorization.get("confirmedBy") != "standing-project-authorization"
+        or evidence.get("kind")
+        != "standing-project-commercial-resource-authorization"
+        or evidence.get("decision")
+        != "standing_project_commercial_resource_authorization_granted"
+        or not SHA256_PATTERN.fullmatch(str(evidence.get("sha256") or ""))
+        or not SHA256_PATTERN.fullmatch(
+            str(evidence.get("requestedItemsSha256") or "")
         )
-        or evidence_text != confirmation_note
-        or evidence.get("userMessageSha256")
-        != hashlib.sha256(evidence_text.encode("utf-8")).hexdigest()
-        or not UUID_PATTERN.fullmatch(evidence_thread_id)
-        or not evidence_decision_id
-        or evidence_thread_id not in evidence_decision_id
     ):
         raise ValueError(
-            "user authorization source does not bind a traceable user-message decision"
+            "authorization source does not bind the standing project authorization"
         )
-    if schema_version == 2:
+    if schema_version in {2, 3}:
         verification = load_user_authorization_module().verify_authorization(path)
         if (
             verification.get("ok") is not True
@@ -289,8 +307,8 @@ def validate_user_authorization(
             if str(value).strip()
         }
     )
-    if schema_version == 2 and authorized_uses != sorted(EXACT_AUTHORIZED_USES):
-        raise ValueError("authorizedUses must exactly match the v2 confirmed uses")
+    if schema_version in {2, 3} and authorized_uses != sorted(EXACT_AUTHORIZED_USES):
+        raise ValueError("authorizedUses must exactly match the confirmed uses")
     if schema_version == 1 and not REQUIRED_AUTHORIZED_USES.issubset(authorized_uses):
         raise ValueError(
             "authorizedUses must include commercial-model-training and long-term-regression"
@@ -299,11 +317,11 @@ def validate_user_authorization(
         raise ValueError(
             "authorizedUses must exclude independent-release-test for training batches"
         )
-    if schema_version == 2 and (
+    if schema_version in {2, 3} and (
         authorization.get("excludedUses") != [PROHIBITED_AUTHORIZED_USE]
         or authorization.get("currentTrainingUse") != "prohibited"
     ):
-        raise ValueError("v2 authorization use exclusions or training state drift")
+        raise ValueError("authorization use exclusions or training state drift")
 
     raw_paths = authorization.get("authorizedRelativePaths")
     if not isinstance(raw_paths, list) or not raw_paths:
@@ -920,7 +938,7 @@ def create_evidence(args: argparse.Namespace) -> dict[str, Any]:
     except OSError as error:
         raise ValueError("source root is missing") from error
 
-    user_input = Path(args.user_authorization).absolute()
+    user_input = Path(args.authorization_source).absolute()
     if not user_input.is_file():
         raise ValueError("user authorization source is missing")
     reject_linked_ancestors(user_input, "user authorization source")
@@ -1028,7 +1046,7 @@ def create_evidence(args: argparse.Namespace) -> dict[str, Any]:
             "ok": True,
             "decision": "A",
             "status": "confirmed",
-            "confirmedBy": "workspace-user",
+            "confirmedBy": user_authorization["confirmedBy"],
             "confirmationNote": user_authorization["confirmationNote"],
             "sourceRoot": str(source_root),
             "sourceRootIdentity": (
@@ -1121,7 +1139,7 @@ def create_evidence(args: argparse.Namespace) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
-            "Record an exact user-authorized training hard-negative batch and "
+            "Record an exact authorized training hard-negative batch and "
             "machine audit."
         )
     )
@@ -1129,7 +1147,15 @@ def main() -> None:
     mode.add_argument("--source-root")
     mode.add_argument("--verify-authorization")
     mode.add_argument("--verify-protected-registry")
-    parser.add_argument("--user-authorization")
+    parser.add_argument(
+        "--authorization-source",
+        "--user-authorization",
+        dest="authorization_source",
+        help=(
+            "Hash-bound standing-authorization source; the historical "
+            "--user-authorization name remains accepted."
+        ),
+    )
     parser.add_argument("--output-dir")
     parser.add_argument("--protected-hard-negative-registry")
     parser.add_argument("--batch-date")
@@ -1139,7 +1165,7 @@ def main() -> None:
 
     if args.verify_authorization:
         forbidden = (
-            args.user_authorization,
+            args.authorization_source,
             args.output_dir,
             args.protected_hard_negative_registry,
             args.batch_date,
@@ -1155,7 +1181,7 @@ def main() -> None:
         )
     elif args.verify_protected_registry:
         forbidden = (
-            args.user_authorization,
+            args.authorization_source,
             args.output_dir,
             args.protected_hard_negative_registry,
             args.batch_date,
@@ -1177,7 +1203,7 @@ def main() -> None:
         }
     else:
         required = {
-            "--user-authorization": args.user_authorization,
+            "--authorization-source": args.authorization_source,
             "--output-dir": args.output_dir,
             "--protected-hard-negative-registry": (
                 args.protected_hard_negative_registry
