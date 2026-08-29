@@ -7,20 +7,19 @@ import {
   assembleAiImageEditPrompt,
   assembleAiImagePrompt,
 } from "@/lib/ai-hand-anatomy-prompt";
+import {
+  AI_IMAGE_RATIOS,
+  AI_IMAGE_SIZES,
+  DEFAULT_AI_IMAGE_RATIO,
+  DEFAULT_AI_IMAGE_SIZE,
+} from "@/lib/ai-image-size";
 
 export const maxDuration = 300;
 
-/** 允许的图生图宽高比白名单（Agnes size=1K + ratio）。 */
-const ALLOWED_RATIOS = new Set([
-  "1:1",
-  "3:4",
-  "4:3",
-  "16:9",
-  "9:16",
-  "2:3",
-  "3:2",
-  "21:9",
-]);
+/** 允许的画面比例白名单（来自 Agnes Image 2.1 Flash 技术文档）。 */
+const ALLOWED_RATIOS = new Set<string>(AI_IMAGE_RATIOS);
+/** 允许的输出尺寸档位白名单（1K/2K/3K/4K）。 */
+const ALLOWED_SIZES = new Set<string>(AI_IMAGE_SIZES);
 
 /** Data URI 图片白名单前缀（PNG/JPEG/WebP）。 */
 const IMAGE_DATA_URI_PATTERN = /^data:image\/(png|jpeg|jpg|webp);base64,/i;
@@ -30,18 +29,20 @@ const IMAGE_DATA_URI_MAX_LENGTH = 9_000_000;
 
 /**
  * POST /api/generate-ai
- * Body: { prompt: string, image?: string, ratio?: string }
+ * Body: { prompt: string, image?: string, ratio?: string, size?: string }
  * Returns: { imageUrl: string } | { error: string }
  *
  * 使用 Agnes Image 2.1 Flash 生成美甲效果图。
- * - 无 image：文生图（text-to-image），行为与历史版本完全一致。
+ * - 无 image：文生图（text-to-image）。
  * - 有 image（Data URI）：图生图（image-to-image），在参考图基础上绘制美甲，
  *   保持原图手部姿势与场景不变。
+ * - ratio：画面比例（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9），默认 1:1。
+ * - size：输出尺寸档位（1K/2K/3K/4K），默认 1K；与 ratio 组合决定最终像素尺寸。
  * API Key 从服务端环境变量读取，前端永远拿不到。
  */
 export async function POST(req: NextRequest) {
   // ── 1. 解析请求 ──
-  let body: { prompt?: unknown; image?: unknown; ratio?: unknown };
+  let body: { prompt?: unknown; image?: unknown; ratio?: unknown; size?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -77,10 +78,24 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const ratio = typeof body.ratio === "string" ? body.ratio.trim() : "";
-  if (ratio && !ALLOWED_RATIOS.has(ratio)) {
+  const ratio =
+    typeof body.ratio === "string" && body.ratio.trim()
+      ? body.ratio.trim()
+      : DEFAULT_AI_IMAGE_RATIO;
+  if (!ALLOWED_RATIOS.has(ratio)) {
     return NextResponse.json(
-      { error: "参考图宽高比参数无效" },
+      { error: "画面比例参数无效，请选择支持的宽高比" },
+      { status: 400 }
+    );
+  }
+
+  const size =
+    typeof body.size === "string" && body.size.trim()
+      ? body.size.trim()
+      : DEFAULT_AI_IMAGE_SIZE;
+  if (!ALLOWED_SIZES.has(size)) {
+    return NextResponse.json(
+      { error: "尺寸档位参数无效，请选择 1K/2K/3K/4K" },
       { status: 400 }
     );
   }
@@ -95,7 +110,8 @@ export async function POST(req: NextRequest) {
   try {
     const { imageUrl } = await generateAgnesImage(enhancedPrompt, {
       imageDataUri: image || undefined,
-      ratio: ratio || undefined,
+      ratio,
+      size,
     });
     return NextResponse.json({ imageUrl });
   } catch (err) {

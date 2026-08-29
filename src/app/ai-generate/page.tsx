@@ -4,26 +4,36 @@ import { useState, useRef, useCallback } from "react";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
 import { AI_STYLE_PROMPTS } from "@/lib/ai-style-prompts";
+import {
+  AI_IMAGE_RATIOS,
+  AI_IMAGE_SIZES,
+  resolveAiImageDimension,
+  type AiImageRatio,
+  type AiImageSize,
+} from "@/lib/ai-image-size";
 
 type Status = "idle" | "loading" | "success" | "error";
 
 const MAX_REFERENCE_FILE_SIZE = 10 * 1024 * 1024; // 10MB 原始文件上限
 const MAX_REFERENCE_EDGE = 1024; // 压缩后最长边
 
-/** 按原图宽高比就近映射到 Agnes 支持的 ratio 白名单。 */
-function pickReferenceRatio(width: number, height: number): string {
+/** 按原图宽高比就近映射到 Agnes 支持的 ratio 白名单（覆盖全部 8 种比例）。 */
+function pickReferenceRatio(width: number, height: number): AiImageRatio {
   const r = width / height;
-  if (r >= 1.7) return "16:9";
-  if (r >= 1.25) return "4:3";
-  if (r > 0.8) return "1:1";
-  if (r > 0.6) return "3:4";
+  if (r >= 2.0) return "21:9";
+  if (r >= 1.65) return "16:9";
+  if (r >= 1.4) return "3:2";
+  if (r >= 1.2) return "4:3";
+  if (r >= 0.95) return "1:1";
+  if (r >= 0.85) return "3:4";
+  if (r >= 0.7) return "2:3";
   return "9:16";
 }
 
 /** 压缩参考图到最长边 1024 并转 JPEG Data URI（透明底色填白）。 */
 function compressReferenceImage(img: HTMLImageElement): {
   dataUrl: string;
-  ratio: string;
+  ratio: AiImageRatio;
 } {
   const scale = Math.min(1, MAX_REFERENCE_EDGE / Math.max(img.naturalWidth, img.naturalHeight));
   const width = Math.max(1, Math.round(img.naturalWidth * scale));
@@ -48,8 +58,20 @@ export default function AiGeneratePage() {
   const [status, setStatus] = useState<Status>("idle");
   const [errorMsg, setErrorMsg] = useState("");
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
-  const [referenceRatio, setReferenceRatio] = useState<string | null>(null);
   const [referenceError, setReferenceError] = useState("");
+  const [ratio, setRatio] = useState<AiImageRatio>("1:1");
+  const [size, setSize] = useState<AiImageSize>("1K");
+
+  // 由「尺寸档位 + 画面比例」决定的最终输出像素尺寸（参考 Agnes 输出尺寸参考表）。
+  const resolvedDimension = resolveAiImageDimension(size, ratio);
+
+  /** 尺寸/比例选择 chip 的样式。 */
+  const chipClass = (active: boolean) =>
+    `rounded-full border px-3 py-1.5 text-xs transition ${
+      active
+        ? "border-pink-300 bg-pink-100 text-[#A4506F]"
+        : "border-pink-100 bg-pink-50/65 text-[#B96A8C] hover:bg-white"
+    }`;
 
   // Track the last shown prompt index for each style label to avoid immediate repeats.
   const lastIndices = useRef<Record<string, number>>({});
@@ -83,9 +105,10 @@ export default function AiGeneratePage() {
       const img = new Image();
       img.onload = () => {
         try {
-          const { dataUrl, ratio } = compressReferenceImage(img);
+          const { dataUrl, ratio: refRatio } = compressReferenceImage(img);
           setReferenceImage(dataUrl);
-          setReferenceRatio(ratio);
+          // 参考图上传时把画面比例就近设为图片自身比例（用户随后可在选择器中覆盖）。
+          setRatio(refRatio);
         } catch {
           setReferenceError("图片处理失败，请更换图片重试");
         }
@@ -99,7 +122,6 @@ export default function AiGeneratePage() {
 
   const removeReferenceImage = useCallback(() => {
     setReferenceImage(null);
-    setReferenceRatio(null);
     setReferenceError("");
   }, []);
 
@@ -115,7 +137,8 @@ export default function AiGeneratePage() {
         body: JSON.stringify({
           prompt,
           image: referenceImage ?? undefined,
-          ratio: referenceRatio ?? undefined,
+          ratio,
+          size,
         }),
       });
       const data = await resp.json();
@@ -146,7 +169,7 @@ export default function AiGeneratePage() {
   };
 
   return (
-    <AppShell eyebrow="AI Nail Atelier" title="把一句灵感，变成一套美甲设计" description="描述你脑海里的颜色、材质与情绪，AI 会为你生成独一无二的视觉参考。">
+    <AppShell shiftUp eyebrow="AI Nail Atelier" title="把一句灵感，变成一套美甲设计" description="描述你脑海里的颜色、材质与情绪，AI 会为你生成独一无二的视觉参考。">
       <div className="fade-in-up fade-in-up-slow grid overflow-hidden rounded-[30px] border border-white/80 bg-white/58 shadow-[0_28px_80px_rgba(116,73,92,.11)] backdrop-blur-2xl lg:grid-cols-[.9fr_1.1fr]">
         <section className="p-5 sm:p-8">
           <div className="flex items-center justify-between">
@@ -176,6 +199,25 @@ export default function AiGeneratePage() {
           <p className="mt-5 text-xs font-medium text-[#7F767B]">从一个风格开始</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {AI_STYLE_PROMPTS.map((group) => <button key={group.label} onClick={() => handleStyleClick(group.label)} className="rounded-full border border-pink-100 bg-pink-50/65 px-3 py-2 text-xs text-[#B96A8C] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm">{group.label}</button>)}
+          </div>
+          <div className="mt-5 space-y-4">
+            <div>
+              <p className="text-xs font-medium text-[#7F767B]">画面比例</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {AI_IMAGE_RATIOS.map((r) => (
+                  <button key={r} type="button" onClick={() => setRatio(r)} className={chipClass(ratio === r)}>{r}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-[#7F767B]">输出尺寸</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {AI_IMAGE_SIZES.map((s) => (
+                  <button key={s} type="button" onClick={() => setSize(s)} className={chipClass(size === s)}>{s}</button>
+                ))}
+              </div>
+            </div>
+            <p className="text-[11px] text-[#AAA1A6]">输出尺寸：{resolvedDimension.replace("x", " × ")}（{size} · {ratio}）</p>
           </div>
           <button onClick={handleGenerate} disabled={status === "loading" || !prompt.trim()} className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#C96591] text-sm font-semibold text-white shadow-[0_12px_28px_rgba(207,111,153,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(207,111,153,.32)] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40">
             {status === "loading" ? <span key="btn-loading" className="fade-in-up inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />正在生成设计</span> : <span key="btn-idle" className="fade-in-up inline-flex items-center gap-2">生成我的美甲设计 <span aria-hidden="true"><Icon name="sparkles" className="h-4 w-4" /></span></span>}

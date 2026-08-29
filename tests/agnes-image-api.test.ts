@@ -158,3 +158,52 @@ test("Agnes 图生图不传 ratio 时保持旧尺寸格式", async () => {
     response_format: "url",
   });
 });
+
+test("Agnes 支持用户指定的尺寸档位与画面比例（文生图）", async () => {
+  let requestedInit: RequestInit | undefined;
+  const fetchImpl = async (_input: string | URL | Request, init?: RequestInit) => {
+    requestedInit = init;
+    return new Response(
+      JSON.stringify({ data: [{ url: "https://images.example/wide.png" }] }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  };
+
+  const result = await generateAgnesImage("银河渐变长甲", {
+    env: { AGNES_API_KEY: "test-secret" },
+    fetchImpl: fetchImpl as typeof fetch,
+    size: "2K",
+    ratio: "16:9",
+  });
+
+  const body = JSON.parse(String(requestedInit?.body));
+  assert.deepEqual(body, {
+    model: "agnes-image-2.1-flash",
+    prompt: "银河渐变长甲",
+    size: "2K",
+    ratio: "16:9",
+    extra_body: { response_format: "url" },
+  });
+  assert.equal(result.imageUrl, "https://images.example/wide.png");
+});
+
+test("Agnes 提供尺寸档位但未提供比例时保持档位式 size", async () => {
+  let requestedInit: RequestInit | undefined;
+  const fetchImpl = async (_input: string | URL | Request, init?: RequestInit) => {
+    requestedInit = init;
+    return new Response(
+      JSON.stringify({ data: [{ url: "https://images.example/hi.png" }] }),
+      { status: 200, headers: { "Content-Type": "application/json" } }
+    );
+  };
+
+  await generateAgnesImage("高清美甲", {
+    env: { AGNES_API_KEY: "test-secret" },
+    fetchImpl: fetchImpl as typeof fetch,
+    size: "4K",
+  });
+
+  const body = JSON.parse(String(requestedInit?.body));
+  assert.equal(body.size, "4K");
+  assert.equal("ratio" in body, false);
+});

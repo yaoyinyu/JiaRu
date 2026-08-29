@@ -16,7 +16,9 @@ type GenerateAgnesImageOptions = {
   retryDelayMs?: number;
   /** 可选图生图输入：Data URI（data:image/...;base64,...）。提供后走 image-to-image。 */
   imageDataUri?: string;
-  /** 可选输出宽高比（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9），与 size "1K" 搭配。 */
+  /** 可选输出尺寸档位（1K/2K/3K/4K）。提供后走档位式 size 并与 ratio 搭配；未提供时保持历史精确尺寸行为。 */
+  size?: string;
+  /** 可选输出宽高比（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9）。 */
   ratio?: string;
 };
 
@@ -108,13 +110,16 @@ export async function generateAgnesImage(
   if (options.imageDataUri) {
     extraBody.image = [options.imageDataUri];
   }
+  // 优先使用用户指定的尺寸档位；仅提供 ratio 时回退到档位式 "1K"；
+  // 两者都未提供时保持历史精确尺寸行为（固定 1024x1024），保证向后兼容。
+  const size = options.size ?? (options.ratio ? "1K" : DEFAULT_AGNES_IMAGE_SIZE);
   const requestBody: Record<string, unknown> = {
     model: config.model,
     prompt,
-    size: options.imageDataUri && options.ratio ? "1K" : DEFAULT_AGNES_IMAGE_SIZE,
+    size,
     extra_body: extraBody,
   };
-  if (options.imageDataUri && options.ratio) {
+  if (options.ratio) {
     requestBody.ratio = options.ratio;
   }
 

@@ -209,6 +209,7 @@ export default function ArTryonPage() {
   return (
     <AppShell
       wide
+      shiftUp
       eyebrow="实时试戴"
       title="让每一次抬手，都提前看见效果"
       description="实时追踪手部动作，让颜色与纹理自然贴合指甲。所有摄像头画面都只在本地内存中处理。"

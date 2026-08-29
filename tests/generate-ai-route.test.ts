@@ -45,8 +45,20 @@ test("generate-ai route validates optional reference image and ratio", () => {
     "route must whitelist allowed ratios"
   );
   assert.ok(
+    source.includes("ALLOWED_SIZES"),
+    "route must whitelist allowed size tiers"
+  );
+  assert.ok(
     source.includes("imageDataUri: image || undefined"),
     "route must forward the image to the Agnes client"
+  );
+  assert.ok(
+    source.includes("ratio,\n      size,"),
+    "route must forward both ratio and size to the Agnes client"
+  );
+  assert.ok(
+    source.includes('from "@/lib/ai-image-size"'),
+    "route must import shared size/ratio definition"
   );
 });
 
