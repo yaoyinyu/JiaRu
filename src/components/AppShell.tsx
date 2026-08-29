@@ -3,9 +3,9 @@ import { Header } from "./Header";
 import { AmbientMotion } from "./AmbientMotion";
 import styles from "./AppShell.module.css";
 
-type AppShellProps = { eyebrow: string; title: string; description: string; children: ReactNode; wide?: boolean };
+type AppShellProps = { eyebrow: string; title: string; description: string; children: ReactNode; wide?: boolean; shiftUp?: boolean };
 
-export function AppShell({ eyebrow, title, description, children, wide = false }: AppShellProps) {
+export function AppShell({ eyebrow, title, description, children, wide = false, shiftUp = false }: AppShellProps) {
   return (
     <div className={styles.shell}>
       <div className={styles.ambient} aria-hidden="true">
@@ -18,7 +18,7 @@ export function AppShell({ eyebrow, title, description, children, wide = false }
       <div className={styles.frostGlass} aria-hidden="true" />
       <AmbientMotion />
       <Header />
-      <main className={`${styles.main} ${wide ? styles.wide : ""}`}>
+      <main className={`${styles.main} ${wide ? styles.wide : ""} ${shiftUp ? styles.shiftUp : ""}`}>
         <header className={styles.pageHeader}>
           <p className={styles.eyebrow}>{eyebrow}</p>
           <h1>{title}</h1>

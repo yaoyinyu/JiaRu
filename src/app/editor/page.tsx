@@ -39,6 +39,7 @@ export default function EditorPage() {
 
   return (
     <AppShell
+      shiftUp
       eyebrow="Photo Studio"
       title={imageUrl ? "在照片上试出你的心动甲色" : "上传一张照片，开始自由试色"}
       description="照片只在你的浏览器中处理。选择不同手指与颜色，像在真实甲片上一样轻松调整。"
