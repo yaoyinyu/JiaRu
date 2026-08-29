@@ -12,12 +12,15 @@
   "repairEvidence": {},
   "excludeFiles": [
     "nail_00251_6a2b9a3e000000002100b029_6.jpg",
+    "nail_00269_69afa8c6000000000601df0f_13.jpg",
     "nail_00469_69b0305b000000000600ecc6_9.jpg",
     "nail_00471_69b0305b000000000600ecc6_11.jpg",
     "nail_00552_68dbbbe80000000005033d1e_1.jpg",
     "nail_00584_69e472a000000000220272cb_3.jpg",
     "nail_00623_6a52545a0000000022008ca1_1.jpg",
     "nail_00655_6a367df9000000001c026c6c_4.jpg",
+    "nail_01015_6a4b4361000000001700be4e_8.jpg",
+    "nail_01016_6a4b4361000000001700be4e_9.jpg",
     "nail_01094_69a5ad16000000002303ba31_9.jpg"
   ],
   "exclusionEvidence": {
@@ -25,6 +28,11 @@
       "originalResolutionReviewed": true,
       "reasonCode": "cropped-and-occluded-required-nails",
       "reason": "左侧上方长甲甲根被画面边缘截断，中央左侧甲又被邻甲遮挡；旧SAM还漏掉下方完整甲，无法形成全图可靠完整甲面真值。"
+    },
+    "nail_00269_69afa8c6000000000601df0f_13.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "required-nail-occluded-partial-only",
+      "reason": "双手画面只有9枚完整甲面；第10枚拇指甲被前景食指遮挡，仅露局部尖端，不能作为完整甲面真值。"
     },
     "nail_00469_69b0305b000000000600ecc6_9.jpg": {
       "originalResolutionReviewed": true,
@@ -55,6 +63,16 @@
       "originalResolutionReviewed": true,
       "reasonCode": "multiple-required-nails-cropped-by-image-edge",
       "reason": "左侧及底部多枚甲面被画面边缘截断，仅露局部甲面，整图不满足完整可见甲面要求。"
+    },
+    "nail_01015_6a4b4361000000001700be4e_8.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "required-nail-cropped-by-image-edge",
+      "reason": "左上方花卉拇指甲被画面左边缘截断，无法确认完整甲缘；其余甲面清晰也不能覆盖该源图硬失败。"
+    },
+    "nail_01016_6a4b4361000000001700be4e_9.jpg": {
+      "originalResolutionReviewed": true,
+      "reasonCode": "required-nail-cropped-by-image-edge",
+      "reason": "左下方拇指甲被画面左边缘截断，旧候选亦只覆盖局部；整图不满足完整可见甲面门。"
     },
     "nail_01094_69a5ad16000000002303ba31_9.jpg": {
       "originalResolutionReviewed": true,
