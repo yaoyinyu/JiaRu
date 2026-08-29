@@ -44,6 +44,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=10,
         help="Disable mosaic for the final N epochs; use 0 when mosaic is already disabled",
     )
+    parser.add_argument(
+        "--mask-ratio",
+        type=int,
+        default=4,
+        help="Segmentation mask downsample ratio; use 1 for full-resolution boundary supervision",
+    )
+    parser.add_argument(
+        "--overlap-mask",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Whether overlapping instance masks are merged during training; use --no-overlap-mask to preserve per-nail boundaries",
+    )
     parser.add_argument("--distill-model", default="", help="Local larger YOLO segmentation teacher checkpoint")
     parser.add_argument("--distill-weight", type=float, default=1.0, help="Teacher-score-weighted neck feature loss weight")
     parser.add_argument("--distill-temperature", type=float, default=2.0)
@@ -242,6 +254,8 @@ def main() -> None:
         raise ValueError("--mosaic must be between 0 and 1")
     if args.close_mosaic < 0:
         raise ValueError("--close-mosaic must be non-negative")
+    if args.mask_ratio < 1:
+        raise ValueError("--mask-ratio must be at least 1")
     batch = parse_batch(args.batch)
     dataset_yaml = Path(args.dataset).resolve()
     output_dir = Path(args.output_dir).resolve()
@@ -280,6 +294,8 @@ def main() -> None:
         "freeze": args.freeze,
         "mosaic": args.mosaic,
         "close_mosaic": args.close_mosaic,
+        "mask_ratio": args.mask_ratio,
+        "overlap_mask": args.overlap_mask,
         "distillation": distillation_evidence,
         "run_name": args.run_name,
         "output_dir": str(output_dir),
@@ -347,6 +363,8 @@ def main() -> None:
         "optimizer": args.optimizer,
         "mosaic": args.mosaic,
         "close_mosaic": args.close_mosaic,
+        "mask_ratio": args.mask_ratio,
+        "overlap_mask": args.overlap_mask,
     }
     if args.lr0 is not None:
         train_options["lr0"] = args.lr0

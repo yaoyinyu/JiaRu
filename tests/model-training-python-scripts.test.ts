@@ -37,6 +37,8 @@ test("train script dry-run resolves dataset and hyperparameters", async () => {
   assert.equal(result.batch, -1);
   assert.equal(result.mosaic, 1);
   assert.equal(result.close_mosaic, 10);
+  assert.equal(result.mask_ratio, 4);
+  assert.equal(result.overlap_mask, true);
   assert.match(String(result.runtime_dataset_yaml), /resolved-dataset\.yaml$/);
   assert.match(String(result.best_weights_path), /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+nail-texture-seg-v1[\\/]+weights[\\/]+best\.pt$/);
   assert.equal(result.training_intent, "experiment");
@@ -51,14 +53,18 @@ test("train script normalizes automatic and fractional batch settings", async ()
   assert.equal(fractional.batch, 0.7);
 });
 
-test("train script freezes boundary-preserving mosaic settings", async () => {
+test("train script freezes full-resolution boundary-preserving settings", async () => {
   const result = await runPython("model/training/train-yolo-seg.py", [
     "--dry-run",
     "--mosaic", "0",
     "--close-mosaic", "0",
+    "--mask-ratio", "1",
+    "--no-overlap-mask",
   ]);
   assert.equal(result.mosaic, 0);
   assert.equal(result.close_mosaic, 0);
+  assert.equal(result.mask_ratio, 1);
+  assert.equal(result.overlap_mask, false);
 });
 
 test("checkpoint interpolation creates a hash-bound student artifact", async () => {
