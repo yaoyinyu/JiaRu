@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "reviewedBy": "GPT-5.6 Sol semantic teacher",
+  "decision": "candidate9_teacher_review_pass_list_original_resolution_addendum",
+  "policy": {
+    "contactSheetsAreNavigationOnly": true,
+    "sourceOverlayAnd2xCropsReviewed": true,
+    "unlistedItemsRemainRework": true,
+    "trainingUse": "prohibited-until-materialization-audit"
+  },
+  "passFiles": [
+    "nail_00167_69ea40e0000000001f031000_15.jpg"
+  ],
+  "repairEvidence": {
+    "nail_00167_69ea40e0000000001f031000_15.jpg": {
+      "reportPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_29_candidate28_repair_00167_manual_seven_v11\\repair-report.json",
+      "reportSha256": "a98cce5b285a5909ce3db68a0c8af257c494ef62f6a494493b0ea9a11b38097c",
+      "geometryAuditPath": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_29_candidate28_repair_00167_manual_seven_v11\\geometry-audit.json",
+      "geometryAuditSha256": "587adc868f03ff7b6625a6af53f1fc9f4bac74f23074a47ab869e97d40ade3fe",
+      "expectedFullyVisibleNailsOverride": 7,
+      "expectedCountCorrectionReason": "原始候选计数10包含了双手交叠处三枚完全遮挡、无法形成完整可见甲面的碎片；原分辨率逐甲复核确认本图仅有7枚完整可见甲面。"
+    }
+  }
+}
