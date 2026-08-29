@@ -151,6 +151,18 @@ def load_candidate_input_auditor() -> ModuleType:
     return module
 
 
+def load_hand_roi_input_auditor() -> ModuleType:
+    script_path = Path(__file__).with_name("audit-hand-roi-boundary-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "audit_hand_roi_boundary_dataset", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load hand-ROI candidate training input auditor")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def candidate_input_validation(
     args: argparse.Namespace, dataset_yaml: Path, output_dir: Path
 ) -> dict[str, object] | None:
@@ -166,7 +178,12 @@ def candidate_input_validation(
     if not args.candidate_input_report:
         raise ValueError("--candidate-mode requires --candidate-input-report")
     path = Path(args.candidate_input_report).resolve()
-    auditor = load_candidate_input_auditor()
+    shallow = json.loads(path.read_text(encoding="utf-8"))
+    auditor = (
+        load_hand_roi_input_auditor()
+        if shallow.get("decision") == "approved_hand_roi_candidate_training_input"
+        else load_candidate_input_auditor()
+    )
     report = auditor.verify_approved_report(path, dataset_yaml)
     counts = report.get("counts", {})
     if (

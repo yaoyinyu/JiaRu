@@ -185,6 +185,12 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--imgsz", type=int, default=640)
     parser.add_argument("--device", default="auto")
     parser.add_argument("--artifacts-dir", default="", help="Validation plots, prediction labels, and artifact index directory; defaults to <metrics-dir>/evaluation-artifacts")
+    parser.add_argument(
+        "--plots",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Generate optional Ultralytics plots; use --no-plots for memory-constrained formal evaluation while preserving prediction labels",
+    )
     parser.add_argument("--dry-run", action="store_true")
     return parser
 
@@ -226,6 +232,7 @@ def main() -> None:
         "split": args.split,
         "imgsz": args.imgsz,
         "device": args.device,
+        "plots": args.plots,
         "dry_run": args.dry_run,
     }
 
@@ -285,7 +292,7 @@ def main() -> None:
             project=str(artifacts_dir.parent),
             name=artifacts_dir.name,
             exist_ok=False,
-            plots=True,
+            plots=args.plots,
             save_json=True,
             save_txt=True,
             save_conf=True,

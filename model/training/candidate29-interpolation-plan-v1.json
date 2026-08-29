@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "decision": "preregistered_before_val30_evaluation",
+  "selectionRole": "val30-only",
+  "trainingUse": "prohibited",
+  "objective": "在保留candidate21完整甲面召回的前提下，引入candidate28全分辨率甲缘监督并减少误检。",
+  "base": {
+    "candidate": "candidate21",
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate21-soup-2026-08-25-v1\\alpha-060\\weights.pt",
+    "sha256": "1eea87424ec6bdc431cfdeea18283c4e2168989b8ea2a018acfad3abb21ffae7"
+  },
+  "tuned": {
+    "candidate": "candidate28",
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate28-2026-08-29-v5\\candidate28\\weights\\best.pt",
+    "sha256": "de90366fab1475eaf20a9901994e1151b2cf99f3a7250edc1cfd78173a824d9b"
+  },
+  "alphas": [0.02, 0.05, 0.08, 0.1, 0.15, 0.2],
+  "deploymentEvaluation": {
+    "inputSize": 512,
+    "split": "val",
+    "validationImages": 30,
+    "truthMasks": 144,
+    "confidenceSweep": [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9],
+    "matchIou": 0.5,
+    "minimumRecall": 0.88,
+    "maximumFalsePositivesPerImage": 1.0,
+    "maximumCandidatesPerImage": 10
+  },
+  "selectionRule": {
+    "primary": "matched_instances_descending",
+    "secondary": "false_positives_ascending",
+    "tertiary": "f1_at_iou50_descending",
+    "baseline": {
+      "candidate": "candidate21",
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 19,
+      "scoreThreshold": 0.4
+    },
+    "requiredOutcome": "仅当匹配实例不少于128且误检严格少于19，或误检不高于19时匹配实例增加，才允许替换candidate21。"
+  },
+  "prohibitions": [
+    "不得使用冻结test100或任何发布留出选择alpha或阈值。",
+    "不得在查看冻结测试后修改模型、阈值、后处理或alpha。",
+    "未严格改善预注册基线的融合点不得导出、登记或部署。"
+  ]
+}

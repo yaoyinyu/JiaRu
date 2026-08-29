@@ -184,6 +184,13 @@ test("evaluate script dry-run prints resolved config", async () => {
     String(result.artifact_index),
     /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+evaluation-artifacts[\\/]+evaluation-artifacts\.json$/
   );
+  assert.equal(result.plots, true);
+  assert.equal(result.dry_run, true);
+});
+
+test("evaluate script can disable optional plots without disabling prediction artifacts", async () => {
+  const result = await runPython("model/training/evaluate.py", ["--no-plots", "--dry-run"]);
+  assert.equal(result.plots, false);
   assert.equal(result.dry_run, true);
 });
 

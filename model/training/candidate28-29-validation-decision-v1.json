@@ -1,0 +1,91 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-30",
+  "decision": "reject_candidate28_select_candidate29_alpha_015_for_frozen_test_gate",
+  "productionPromotion": false,
+  "frozenTest100Consumed": false,
+  "exportAllowed": false,
+  "deploymentAllowed": false,
+  "baseline": {
+    "candidate": "candidate21",
+    "weightsSha256": "1eea87424ec6bdc431cfdeea18283c4e2168989b8ea2a018acfad3abb21ffae7",
+    "inputSize": 512,
+    "scoreThreshold": 0.4,
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 19
+  },
+  "candidate28": {
+    "weightsSha256": "de90366fab1475eaf20a9901994e1151b2cf99f3a7250edc1cfd78173a824d9b",
+    "weightsBytes": 45174121,
+    "trainingEpochsCompleted": 53,
+    "bestEpoch": 33,
+    "calibrationReportSha256": "4b59917116789e44920b9f38cee7e5adebee23f4b9f10dc54c5c09e086de176d",
+    "scoreThreshold": 0.5,
+    "matched": 122,
+    "missed": 22,
+    "falsePositives": 12,
+    "replacementRuleSatisfied": false
+  },
+  "candidate29": {
+    "interpolationPlan": "model/training/candidate29-interpolation-plan-v1.json",
+    "points": [
+      {
+        "alpha": 0.02,
+        "weightsSha256": "559cd809fb41fb1ca1e3811ebab2525897f31a58e80a9a37784cc2e1cc1b6b6d",
+        "calibrationReportSha256": "13241d9017e49a4fcc6b7cb82845f2d1ba7d562959491bed60b275b4e87ae7e8",
+        "bestBaselinePreservingPoint": { "scoreThreshold": 0.4, "matched": 128, "missed": 16, "falsePositives": 17 }
+      },
+      {
+        "alpha": 0.05,
+        "weightsSha256": "fbd4576e77a54b7660724c5dbe11ba59c9ebe8f862a8b506cdaf4e20883452ab",
+        "calibrationReportSha256": "2f2cbd294312a1539cfc565154f73752d1aa4c903ae98503815f209b7ff652ef",
+        "bestBaselinePreservingPoint": { "scoreThreshold": 0.4, "matched": 128, "missed": 16, "falsePositives": 17 }
+      },
+      {
+        "alpha": 0.08,
+        "weightsSha256": "02c24144a881396071bc82a2c3243932869351d312c06ac161c15e1aef5b86e6",
+        "calibrationReportSha256": "1bfd5da7eeaa5beacafd293685af4727f394a6fd4bdfb5a7ec3b44c9ecbcabb4",
+        "bestBaselinePreservingPoint": { "scoreThreshold": 0.4, "matched": 128, "missed": 16, "falsePositives": 17 }
+      },
+      {
+        "alpha": 0.1,
+        "weightsSha256": "1112172759d77716ffe02df5beceeba02f7a60e22a8f071dc1e2f8c01004d5c0",
+        "calibrationReportSha256": "b07fdec43cdc10520e219f68c8c7a32c9a29e61bbbfac27664f80358ec3dffcc",
+        "bestBaselinePreservingPoint": { "scoreThreshold": 0.4, "matched": 128, "missed": 16, "falsePositives": 18 }
+      },
+      {
+        "alpha": 0.15,
+        "weightsSha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02",
+        "calibrationReportSha256": "01e3ff2178327530b0ec4bc2a4f02c519be407e29bcaa97f737f4b4b269b605a",
+        "selected": { "scoreThreshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16, "f1AtIou50": 0.888888888888889 },
+        "replacementRuleSatisfied": true
+      },
+      {
+        "alpha": 0.2,
+        "weightsSha256": "c28af784ad823995d9f1f67d88d1576bbb2e2a2538fc8577e19645581e308051",
+        "calibrationReportSha256": "965cb3a63ef37e86d5e3f7cea8e9fc7dce84a8206a8680d8603f21eb6d112e18",
+        "selected": { "scoreThreshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16, "f1AtIou50": 0.888888888888889 },
+        "replacementRuleSatisfied": true
+      }
+    ],
+    "selected": {
+      "alpha": 0.15,
+      "weightsPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate29-soup-2026-08-30-v1\\alpha-015\\weights.pt",
+      "weightsSha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02",
+      "scoreThreshold": 0.45,
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 16,
+      "selectionReason": "alpha0.15与0.20在预注册三项规则完全并列；选择对candidate21参数扰动更小的alpha0.15，以降低未见分布漂移风险。"
+    }
+  },
+  "nextAction": {
+    "action": "run_frozen_test100_positive_quality_gate_once_for_candidate29_alpha_015",
+    "prohibitions": [
+      "不得回看冻结test100修改alpha、阈值、模型或后处理。",
+      "冻结test100未通过时不得导出、登记或部署。",
+      "不得把candidate28或candidate29融合点用于商业训练。"
+    ]
+  }
+}
