@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.539
+> 文档版本：v1.1.544
 >
 > 基线日期：2026-07-12
 >
@@ -122,7 +122,7 @@ AI 生图：文字描述（+ 可选手部参考图 Data URI）-> POST /api/gener
 | 首页与统一导航 | `/` | 已完成 | 提供功能入口与统一视觉框架 |
 | 灵感图库 | `/gallery` | 占位 | 当前使用本地占位素材，尚无真实内容管理后端 |
 | 图片试色编辑器 | `/editor` | 已完成 | 本地上传、MIME/大小/分辨率/解码校验、逐指选色、Canvas 涂抹与本地保存链路均已实现并通过浏览器审核 |
-| AI 美甲生图 | `/ai-generate`、`POST /api/generate-ai` | 已完成（用户验收） | 已接入Agnes Image 2.1 Flash（文生图 + 图生图）；`.cn`模型列表认证HTTP 200且目标模型可见，协议专项测试、Lint、全量758项测试和生产构建通过。2026-08-10用户确认AI美甲真实生图功能验证通过，并于2026-08-12再次确认；2026-08-19新增可选「参考图」图生图（上传手部照片→浏览器压缩至最长边1024 JPEG→与提示词一起生成，Agnes在参考图手部指甲上绘制美甲并保持原图构图，实测图生图成功且约12s，文生图约157s），并新增生成中 shimmer 加载与页面过渡动画。参考图仅在用户主动上传时发送第三方、仅用于本次生成；成本、内容安全和生产持续可用性继续作为运营监测项 |
+| AI 美甲生图 | `/ai-generate`、`POST /api/generate-ai` | 已完成（用户验收） | 已接入Agnes Image 2.1 Flash（文生图 + 图生图）；2026-08-29服务端Endpoint已切换为`https://api.agnes-ai.cn/v1/images/generations`并换用新服务端密钥，实测模型列表`GET /v1/models`认证HTTP 200、目标模型`agnes-image-2.1-flash`可见，真实文生图返回图片URL且产物可下载。`.cn`模型列表认证HTTP 200且目标模型可见，协议专项测试、Lint、全量758项测试和生产构建通过。2026-08-10用户确认AI美甲真实生图功能验证通过，并于2026-08-12再次确认；2026-08-19新增可选「参考图」图生图（上传手部照片→浏览器压缩至最长边1024 JPEG→与提示词一起生成，Agnes在参考图手部指甲上绘制美甲并保持原图构图，实测图生图成功且约12s，文生图约157s），并新增生成中 shimmer 加载与页面过渡动画；2026-08-29新增用户可选择**画面比例**（8 种）与**输出尺寸档位**（1K/2K/3K/4K），按 Agnes「输出尺寸参考」表实时显示最终像素尺寸，文生图与图生图共用（默认 1K+1:1 ≈ 1024x1024，行为与历史一致）。参考图仅在用户主动上传时发送第三方、仅用于本次生成；成本、内容安全和生产持续可用性继续作为运营监测项 |
 | AR 纯色试戴 | `/ar-tryon` | 待验证 | 单手摄像头、关键点、指甲绘制、手心/手背识别已实现；MediaPipe运行文件使用本站同源静态资源，实时路径启用`modelComplexity: 1`。甲面几何结合TIP/DIP/PIP、深度和手背平面生成长轴、横轴及侧转透视剪切，工程回归通过；真实边界仍需多设备真机验收 |
 | AR 纹理试戴 | `/ar-tryon` | 待验证 | 上传含完整手背的参考图时优先通过MediaPipe Hands逐指定位；完整手部关键点失败后，局部近景先用甲色连通域定位黑色、彩色、银色和镜面甲；甲面为裸色/半透明且被肤色种子吞掉时，再以闭合甲缘、甲板内部/肤色邻环和4—5枚同手连续链复合定位，仍失败才进入人工补选。两条辅助路径均没有像素级mask，低对比边界候选固定低置信并要求用户检查；实时AR支持拇/食/中/无/小指各自独立的长度75%—140%、宽度70%—145%及甲尖/指根位置±20%校准，摄像头最终贴合仍需多设备真机验收 |
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
@@ -145,7 +145,7 @@ AI 生图：文字描述（+ 可选手部参考图 Data URI）-> POST /api/gener
 | candidate24/25直接学生与插值对照 | `candidate24-direct-training-plan-v1.json`、`candidate25-interpolation-plan-v1.json`、`candidate24-25-validation-decision-v1.json` | ❌ val30否决 | candidate24规范输入为train430/val30/test0，270张正样本/1629 mask加160张困难负样本；最佳权重`0c5feba7…a56`，部署512/0.25为128匹配、16漏检、27误检。candidate25四个预注册插值点均不满足严格替换规则，alpha0.05在0.40仅与candidate21打平128/16/19。二者未运行冻结test100、未导出、登记或部署。 |
 | 下一候选训练困难负样本扩充 | Git外`2026_7_31_candidate6_training_v1`及`generation-progress-070-v1.json` | ⏸️ 策略暂停（70/160） | 递归深验仍为70通过、90缺失、0失败、0未知，报告`214abb69…b8bdb`。剩余90张不再作为candidate28开训前置；已下载但未正式终审/终结的来源候选隔离且不计数。训练只从既有批准负样本中按来源平衡确定性取满足正式下限的有限子集，发布三变体零误检门保持不变。 |
 | candidate27候选复核器 | 三种train/val隔离实现及val30联合报告 | ❌ val30否决 | 首版CNN、一对一标签CNN和手工特征复核器均不能在保持128匹配时把误检严格降到19以下；特征复核器同召回点仍为32误检。未运行冻结test100、未导出、登记或部署。 |
-| candidate28完整甲面正真值 | Git外`candidate9_teacher_review_truths_v35`、`candidate28-repair-00167-manual-seven-manifest-v1.json` | 🟡 真值源队列闭环（64张/442 mask） | 75张源队列按原分辨率三态终结为64张PASS、11张排除、0张返修。`00167…_15`以七个贴合真实甲板边缘的人工polygon覆盖超长/低对比/立体饰件甲，修复与几何报告分别为`a98cce5b…097c`、`587adc86…e3fe`，7/7合法、零交叠；三枚完全遮挡甲不计入真值。v35索引SHA-256 `72be31e9…99d3`、规范摘要`ecfe80ed…2f57`，相对v34旧63张零漂移。尚未物化或训练candidate28。 |
+| candidate28完整甲面正真值 | Git外`candidate9_teacher_review_truths_v35`、`candidate28_training_input_v1`、`nail-texture-candidate28-2026-08-29-v5` | 🟠 已物化并进行边界强化训练 | 75张源队列按原分辨率三态终结为64张PASS、11张排除、0张返修；与candidate8规范基线合并后形成274张正样本/1652 mask，并确定性加入160张既有批准困难负样本及来源隔离val30。输入审计v4为PASS、0 orphan，SHA-256 `4eca2deb…425`。v5以candidate21为基座执行640、100 epochs、`mask_ratio=1`、`overlap_mask=false`、无mosaic训练；Windows 1455恢复仅将DataLoader workers由8降为0，不改变模型质量参数。训练完成和项目逐实例val30门通过前不得替换candidate21或消费冻结test100。 |
 | 数据集治理 | `model/datasets/nail-texture-v1` | 进行中 | 正式训练集仍为409图、2142个mask，split=300/46/63。既有训练角色素材没有因candidate5发布拒绝而作废：当前100张/521 mask权威训练正样本及registry v4登记的4份训练负样本清单，仍可在各自授权、质量门和来源隔离范围内复用；其中candidate5训练160张的最终批准清单明确`trainingUse=permitted`。val30只允许阈值校准，冻结test100只允许质量评估，均不得回流训练。candidate4编号261—360与candidate5编号361—460两批独立留出均已被相应候选消费，永久`trainingUse=prohibited`，只能按授权用于长期回归/诊断/质量审核，且不得再次冒充全新未见留出。最新保护registry v4含7份manifest、4份training、3份holdout，阻止已消费留出回流训练。新补强数据用于覆盖既有漏甲/误检盲区并建立下一候选的全新泛化证据，不代表旧训练素材失效 |
 | 候选5训练负样本 | `build-candidate5-hard-negative-generation-plan.py`、训练授权/终审/物化链、Git外`2026_7_29_candidate5_training_v2` | 已完成（160/160训练输入） | 用户已按schema v2精确文本授权160张及四项用途，排除独立发布测试且不放宽质量门；A记录`de1b73b…0b16`、批准清单`fe68c361…164a`均深验通过。40张1:1审核页完成160/160原分辨率终审，0排除；物化为train260（100正样本/521 mask+160空标签负样本）、val30/144 mask、test0，物化`9974b871…3d73`与GPU输入审计`6734942d…f590`通过。本批只用于训练/回归/诊断/质量审核，永不充当独立发布测试 |
 | 候选5训练后独立留出 | Git外`2026_7_30_candidate5_post_train_holdout_v1`及同名`_review` | 审计完成（candidate5拒绝） | 用户已逐字授权编号361—460的100张精确文件清单，schema v2授权、A记录、原子freeze、registry v3隔离预审、25页1:1终审100/100及批准清单`c7af362a…17ed`均深验通过；冻结和批准前未运行candidate5推理。首次部署512、阈值0.50三变体报告`9cb13d1f…8016`深验通过，但原图3张/5检测、裁右下12%为4张/4检测、模糊右下角为3张/6检测，检测数delta=1/1，严格门失败。误检涉及软胶囊395、种荚388及实验室耗材405/407/410；牙科家族未触发部署阈值误检。整批已以holdout角色追加到registry v4，永久禁止训练、删图规避或再次充当未见留出 |
@@ -277,7 +277,7 @@ npm.cmd run build
 
 状态：已完成（2026-08-10用户真实功能验收通过）。
 
-使用方式：输入 1～520 字符描述，或选择预设风格按钮随机填入该风格的一段提示词，点击生成；成功后前端显示外部服务返回的远程图片 URL，并尝试跨域下载，失败时在新窗口打开图片。**参考图（可选）**：可上传手部照片（浏览器端校验 MIME/≤10MB，canvas 压缩至最长边 1024 的 JPEG 并就近映射 ratio 1:1/3:4/4:3/16:9/9:16），上传后请求携带 `image`（Data URI）与 `ratio`，服务端走图生图组装并启用**第二套图生图系统提示词**（`IMAGE_EDIT_SYSTEM_PROMPT`，与文生图系统提示词完全独立）：以参考图为唯一底图做局部编辑，唯一允许修改的区域是指甲，手部数量/姿势/动作、皮肤纹理与肤色、服装配饰、背景场景、光线构图等一切细节原样保留，禁止整体风格重绘，并保留手部解剖负面约束防止重绘缺陷；Agnes 在参考图手部指甲上直接绘制美甲样式（实测图生图约 12—41s，远快于文生图约 157s）；不上传则行为与历史文生图完全一致。参考图仅在用户主动上传时发送给第三方 Agnes，仅用于本次生成、不用于训练或存储。生成期间（loading 状态）右侧图像展示区不新增外框卡片：白色 shimmer 光带直接扫过整个展示区背景（光带限定在展示区内，由展示区 section 自身 `overflow-hidden` 裁剪，不会溢出到左侧提示词输入区；光带 80% 宽、峰值透明度 0.55、3.6s 周期并带 0.9s 淡入出现，适配 `prefers-reduced-motion` 时停用动画），中央沿用空闲态图标卡样式显示微光呼吸的 SVG 火花矢量图标（`src/components/Icon.tsx` 的 `sparkles`，v1.1.488 起全站 emoji 统一替换为内联 SVG 矢量图标）与「正在凝聚你的灵感…」文案；页面进入与空闲/加载/成功/失败四态切换均带柔和淡入上移过渡（`fade-in-up` 0.45s、页面级 0.65s），无接口变化。前端只向本项目 API 发送文字与（可选的）参考图。
+使用方式：输入 1～520 字符描述，或选择预设风格按钮随机填入该风格的一段提示词，点击生成；成功后前端显示外部服务返回的远程图片 URL，并尝试跨域下载，失败时在新窗口打开图片。**输出尺寸与画面比例（v1.1.542，参考 Agnes Image 2.1 Flash「输出尺寸参考」表）**：用户可选**画面比例**（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9，默认 1:1）与**输出尺寸档位**（1K/2K/3K/4K，默认 1K），页面实时显示最终像素尺寸（如 2K+16:9 → `2624x1472`）；文生图与图生图共用该选择，定义见 `src/lib/ai-image-size.ts`（`AI_IMAGE_SIZE_TABLE`）。**参考图（可选）**：可上传手部照片（浏览器端校验 MIME/≤10MB，canvas 压缩至最长边 1024 的 JPEG，上传时按原图比例就近选中画面比例，用户随后可在「画面比例」选择器中覆盖），上传后请求携带 `image`（Data URI）、`ratio` 与 `size`，服务端走图生图组装并启用**第二套图生图系统提示词**（`IMAGE_EDIT_SYSTEM_PROMPT`，与文生图系统提示词完全独立）：以参考图为唯一底图做局部编辑，唯一允许修改的区域是指甲，手部数量/姿势/动作、皮肤纹理与肤色、服装配饰、背景场景、光线构图等一切细节原样保留，禁止整体风格重绘，并保留手部解剖负面约束防止重绘缺陷；Agnes 在参考图手部指甲上直接绘制美甲样式（实测图生图约 12—41s，远快于文生图约 157s）；不上传则行为与历史文生图完全一致。参考图仅在用户主动上传时发送给第三方 Agnes，仅用于本次生成、不用于训练或存储。生成期间（loading 状态）右侧图像展示区不新增外框卡片：白色 shimmer 光带直接扫过整个展示区背景（光带限定在展示区内，由展示区 section 自身 `overflow-hidden` 裁剪，不会溢出到左侧提示词输入区；光带 80% 宽、峰值透明度 0.55、3.6s 周期并带 0.9s 淡入出现，适配 `prefers-reduced-motion` 时停用动画），中央沿用空闲态图标卡样式显示微光呼吸的 SVG 火花矢量图标（`src/components/Icon.tsx` 的 `sparkles`，v1.1.488 起全站 emoji 统一替换为内联 SVG 矢量图标）与「正在凝聚你的灵感…」文案；页面进入与空闲/加载/成功/失败四态切换均带柔和淡入上移过渡（`fade-in-up` 0.45s、页面级 0.65s），无接口变化。前端只向本项目 API 发送文字与（可选的）参考图。
 
 风格提示词库：`src/lib/ai-style-prompts.ts` 导出 `AI_STYLE_PROMPTS`，包含 10 个风格（甜美风、欧美风、日系、极简、复古、节日、水墨、几何、花草、金属），每个风格 50 段独立的中文场景提示词。用户每次点击风格按钮时，从该风格的 50 段提示词中随机抽取一段填入输入框（各风格独立随机，并避免连续两次抽到同一段；刷新页面后首次点击同样是随机结果）。提示词描述了底色、装饰、甲型、手持道具、光线、背景和皮肤质感等完整场景。`src/lib/utils.ts` 中原有的 `AI_STYLES` 字符串数组仍保留以维持向后兼容，但 `/ai-generate` 页面已改为从 `AI_STYLE_PROMPTS` 读取。
 
@@ -289,7 +289,7 @@ AGNES_API_BASE_URL=https://apihub.agnes-ai.com/v1
 AGNES_IMAGE_MODEL=agnes-image-2.1-flash
 ```
 
-当前服务端按Agnes Image 2.1 Flash协议请求`POST {AGNES_API_BASE_URL}/images/generations`，固定输出尺寸`1024x1024`，并将`response_format: "url"`置于`extra_body`。总超时为180秒；503最多按1/2/4秒退避后重试，401、429及供应商异常保持结构化错误响应。基础地址与模型ID可由服务端环境变量覆盖；本机用户配置使用`https://apihub.agnes-ai.cn/v1`，其`GET /models`认证返回HTTP 200并列出目标模型。2026-08-10用户确认AI美甲真实生图功能已经验证通过，并于2026-08-12再次确认；该验收证明当前交互链路可用，不代表供应商长期可用性、成本或内容安全无需继续监测。AI 输出仍不会自动进入图库、编辑器或 AR，当前需要用户先下载再手动上传。
+当前服务端按Agnes Image 2.1 Flash协议请求`POST {AGNES_API_BASE_URL}/images/generations`，按用户选择的**尺寸档位**（`size`，1K/2K/3K/4K，默认 1K）与**画面比例**（`ratio`，默认 1:1）组合决定输出尺寸（默认即 `1024x1024`，由`size:"1K"`+`ratio:"1:1"`得到，行为与历史一致），并将`response_format: "url"`置于`extra_body`。总超时为180秒；503最多按1/2/4秒退避后重试，401、429及供应商异常保持结构化错误响应。基础地址与模型ID可由服务端环境变量覆盖；本机用户配置当前使用`https://api.agnes-ai.cn/v1`（2026-08-29由`https://apihub.agnes-ai.cn/v1`切换并换用新服务端密钥），其`GET /models`认证返回HTTP 200并列出目标模型，`/v1/images/generations`真实文生图返回图片URL且产物可下载。2026-08-10用户确认AI美甲真实生图功能已经验证通过，并于2026-08-12再次确认；该验收证明当前交互链路可用，不代表供应商长期可用性、成本或内容安全无需继续监测。AI 输出仍不会自动进入图库、编辑器或 AR，当前需要用户先下载再手动上传。
 
 ### 4.5 `/ar-tryon` AR 试戴
 
@@ -406,8 +406,15 @@ interface NailGeometry {
 POST /api/generate-ai
 Content-Type: application/json
 
-{"prompt":"银色亮片渐变，月光质感"}
+{"prompt":"银色亮片渐变，月光质感","ratio":"1:1","size":"1K"}
 ```
+
+请求字段：
+
+- `prompt`：必填，1～520 字符描述。
+- `image`：可选，Data URI 参考图（PNG/JPEG/WebP，≤9,000,000 字符 ≈6.7MB）；提供后走图生图。
+- `ratio`：可选，画面比例，取值 `1:1`/`3:4`/`4:3`/`16:9`/`9:16`/`2:3`/`3:2`/`21:9`，默认 `1:1`。
+- `size`：可选，输出尺寸档位，取值 `1K`/`2K`/`3K`/`4K`，默认 `1K`；与 `ratio` 组合决定最终像素尺寸（参考 §4.4「输出尺寸参考」）。
 
 成功响应：
 
@@ -423,7 +430,7 @@ Content-Type: application/json
 
 | HTTP 状态 | 含义 |
 | --- | --- |
-| 400 | 非法 JSON、空描述或超过 520 字符 |
+| 400 | 非法 JSON、空描述或超过 520 字符、画面比例无效、尺寸档位无效 |
 | 401 | 外部 API 密钥无效 |
 | 429 | 外部 API 限流 |
 | 500 | 未分类服务端异常 |
@@ -1344,6 +1351,11 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-08-29 | v1.1.544 | `/ai-generate` 左侧表单区块顺序调整（用户要求：把「从一个风格开始」放到「画面比例」前面）。调整后的从上到下顺序为：描述输入 → 参考图（可选）→ **从一个风格开始**（风格按钮）→ **画面比例** → **输出尺寸**（含最终尺寸预览）→ 生成按钮。仅交换 `src/app/ai-generate/page.tsx` 中「从一个风格开始」与「画面比例/输出尺寸」两个 JSX 区块的顺序，文案、逻辑、可用尺寸/比例选项均不变；无 HTTP/TS 接口、模型、训练、数据或状态变化，已复核无接口/状态变更。验证：ESLint 0 错误；生产构建通过（25 路由）。未执行 commit/push。 | 全站UI、AI 页面、区块顺序、纯展示、无接口/状态变化 |
+| 2026-08-29 | v1.1.543 | 把「灵感图库、AI 设计、AR 试戴、上传试色」四个页面的排版从大标题开始整体向上稍稍移动（用户要求：这四页内容当前偏下，整体往上提一点）。实现：`src/components/AppShell.tsx` 新增可选的 `shiftUp` 布尔 prop，命中时给 `<main>` 叠加 `AppShell.module.css` 的 `.main.shiftUp` 修饰类；桌面端 `.main` 顶部内边距由 `132px` 收为 `112px`、移动端（≤700px）由 `106px` 收为 `88px`，从而把大标题及其下方整块内容上移约 20/18px。仅 `gallery`、`ai-generate`、`editor`、`ar-tryon` 四页开启 `shiftUp`；`login`/`account`/`privacy`/`device-benchmark` 等其余 AppShell 页面保持不变。纯前端展示调整，无 HTTP/TypeScript 接口、模型、训练、数据或状态变化；已复核无接口/状态变更。验证：ESLint 0 错误；生产构建通过（25 路由）。未执行 commit/push。 | 全站UI、AppShell布局、顶部内边上移、四页、纯展示、无接口/状态变化 |
+| 2026-08-29 | v1.1.542 | `/ai-generate` 新增用户可选的**画面比例**与**输出尺寸档位**（用户要求：参考 Agnes Image 2.1 Flash 技术文档「输出尺寸参考」表，让用户指定生成图片的画面比例和尺寸）。①新增共享模块`src/lib/ai-image-size.ts`——导出 `AI_IMAGE_SIZES`（1K/2K/3K/4K）、`AI_IMAGE_RATIOS`（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9）、`AI_IMAGE_SIZE_TABLE`（档位×比例→像素尺寸，与文档逐项一致）与 `resolveAiImageDimension`，前后端共用、不引入服务端专属代码；②`generateAgnesImage` 新增 `size` 选项并保留 `ratio`——有 `size` 用档位式 size，仅 `ratio` 时回退 `1K`，两者都缺省保持历史精确 `1024x1024`（向后兼容，`ratio` 由仅图生图扩展到文生图）；③`POST /api/generate-ai` body 新增可选 `size`，`ratio`/`size` 均白名单校验、缺省默认 `1K`/`1:1`，一并转给 Agnes；④前端新增「画面比例」「输出尺寸」两个 chip 选择器并实时显示最终像素尺寸（如 2K+16:9→`2624x1472`）；上传参考图时按原图比例就近选中比例（用户可在选择器覆盖）；请求携带 `ratio`、`size`。测试：新增`tests/ai-image-size.test.ts`（32 项表一致性+白名单校验）、`agnes-image-api.test.ts` 新增档位/比例 2 项、`generate-ai-route.test.ts` 扩展 3 项静态断言；相关 14/14、ESLint 0 错误；全量测试与生产构建见当日 dev-log。默认 `1K`+`1:1` ≈ `1024x1024`，与历史文生图输出一致；不改变图生图构图保持语义，产品模型/训练/发布门不变，未执行 commit/push。 | AI生图、输出尺寸档位、画面比例、输出尺寸参考表、尺寸选择器、路由校验、共享模块、测试、无模型/训练变化 |
+| 2026-08-29 | v1.1.541 | 为“沿真实甲面纹理边缘精确抠出”物化并启动candidate28直接学生训练。规范输入由candidate8基线210张/1210 mask与补强v35的64张/442 mask按稳定身份合并为274张/1652 mask，另含160张既有批准困难负样本和来源隔离val30；训练集共434图，输入审计v4为PASS、0 orphan，SHA-256 `4eca2deb…425`，数据文件树摘要`172130c0…db4`。训练器和预注册计划固定640、100 epochs、patience20、自动batch、AdamW、`lr0=1e-5`、freeze10、无mosaic、`mask_ratio=1`、`overlap_mask=false`，用全分辨率独立实例监督保留甲根、侧缘与甲尖。v1因Codex更新中断、v2因异常遗留cache被审计拦截、v3因Windows共享文件映射1455退出、v4因后台路径引号解析失败，均未产出可用模型；清理精确cache并深重放后，v5仅把DataLoader workers从8降为0恢复训练，质量参数未变，已越过epoch1故障点。专项训练CLI测试2/2通过。最终val30逐实例门、冻结test100、全新独立困难负样本、导出、浏览器和真机门均未放宽，产品继续HOLD；未执行commit/push。 | candidate28、完整甲面、全分辨率边界监督、训练输入审计、Windows 1455恢复、产品HOLD |
+| 2026-08-29 | v1.1.540 | 按用户要求切换AI生图Agnes Image 2.1 Flash的服务端Endpoint与密钥（仅改`src`代码以外的本地运行配置，无代码/接口变化）。`AGNES_API_BASE_URL`由`https://apihub.agnes-ai.cn/v1`改为`https://api.agnes-ai.cn/v1`（拼出`POST https://api.agnes-ai.cn/v1/images/generations`），`AGNES_API_KEY`换为新密钥；`AGNES_IMAGE_MODEL`保持`agnes-image-2.1-flash`不变。实测：`GET /v1/models`用新Key认证HTTP 200，9个模型中`agnes-image-2.1-flash`可见；真实文生图（1024×1024、`extra_body.response_format=url`）HTTP 200、耗时约6.8s并返回图片URL，产物经`GET`确认HTTP 200、`image/png`、约1.3MB可正常下载。`src/lib/agnes-image-api.ts`装配`{baseUrl}/images/generations`与Bearer鉴权，用`.env.local`重建后Endpoint/Key均与要求逐字符一致；同一套AGNES测试（含项目协议测试与环境模板测试）共8/8通过（测试进程以`--test-isolation=none`在本机运行，默认的`--test`子进程spawn因沙箱`EPERM`不可用，属环境限制非代码失败）。`.env.local`受`.gitignore`保护不入库；`.env.local.example`模板仍保留占位`.com`默认与`your-key-here`（其环境模板守卫测试继续通过），本文件§4.4与状态表已同步为当前`.cn`新Endpoint。未修改任何`src/`代码、模型、训练/测试/发布资产；本代理未执行git commit或push。 | AI生图、Agnes Image 2.1 Flash、Endpoint切换、服务端密钥、真实生成验证、无代码/接口变化、产品HOLD不变 |
 | 2026-08-29 | v1.1.539 | 按用户要求从Git仓库移除AI编程助手（Agent）工作区文件并建立长期排除规则（用户确认：这些内容对部署与应用无用，仅对开发者/AI助手有用，后续提交不再纳入，本地文件全部保留）。处理：①`git rm --cached` 移除 `AGENTS.md`、`CLAUDE.md`、`.codex/config.toml`、`.workbuddy/memory/*`（3个）与`.workbuddy/tmp/*.log`（7个）共13个文件的跟踪；②`.gitignore` 关闭README同步等AI工具产物提交——新增规则 `/.codex/`、`/.claude/`（本地有但从未被跟踪）、`/.workbuddy/`、`/AGENTS.md`、`/CLAUDE.md`，后续这些文件不再被git看到；③本地文件全部保留（`Test-Path` 验证True），未删除任何工作区内容。`.claude/settings.local.json` 从未被跟踪，保持本地。无代码、模型、接口、训练、阈值或发布状态变化，产品继续HOLD；candidate28训练改动（train-yolo-seg.py等）与本次无关，未纳入。 | AI工具工作区文件移除、Git忽略规则、本地保留、无接口/状态/数据变化 |
 | 2026-08-29 | v1.1.538 | 按“沿真实甲面/纹理边缘精确抠出”收口candidate28补强真值源队列。`00167…_15`以7个原分辨率人工polygon覆盖七枚完整超长/低对比/立体饰件甲，三枚完全遮挡甲不计数；最终v11修复报告`a98cce5b…097c`为7/7合法、同图零交叠，几何报告`587adc86…e3fe`为7/7通过。教师审核三态终结v35为64张/442 mask、11张质量排除、0张返修；索引SHA-256 `72be31e9…99d3`、规范摘要`ecfe80ed…2f57`，相对v34旧63张图片/标注哈希、来源组和mask数零漂移。训练器新增`--mask-ratio`与`--[no-]overlap-mask`，candidate28预注册使用`mask_ratio=1`、`overlap_mask=false`和无mosaic边界保持微调，以减少mask下采样和实例合并对甲缘的损失。candidate28尚未物化或训练，未运行val30/test100、导出、登记或部署；candidate21 `.pt`仍为90,018,153字节（85.85 MiB），产品继续HOLD。本代理未执行commit/push。 | candidate28、精确甲缘、完整甲板、全分辨率mask监督、规范真值、模型体积、产品HOLD |
 | 2026-08-29 | v1.1.537 | 按用户明确要求创建本轮中文提交`043a2e5`（仅本地，推送由用户自行完成），使仓库工作区与白皮书v1.1.535/536一致：纳入candidate28超长透明甲`01130…_10`五甲人工polygon返修清单v2、教师审核追加清单v31、补强规范真值v32（62张/429 mask）、`finalize-candidate9-teacher-reviewed-truths.py`的PASS/排除/返修三态拆分、完成度审计报告（459标记/434 PASS、14门4通过/10失败、`hold`）、三份规范文档，以及同步修正的README。README功能概览改为`01138…_7`与`01130…_10`两张五甲人工polygon、62张/429 mask，路线图新增该返修完成项。提交前执行差异格式检查和编码审计（714文件/0失败）。推送通道受权限限制：本机`GITHUB_API_KEY`对该仓库返回403无写权限、SSH公钥未授权给GitHub、凭据管理器无可用交互会话，因此推送交给用户在本机终端完成。本次提交只同步已复核的文档、脚本与报告，未物化或训练candidate28，未运行val30、冻结test100、导出、登记或部署，候选与产品继续HOLD；`01130…_10`真值仍为待物化候选，其`trainingUse`在物化审计前保持受限。 | 本地提交、推送权限受限、candidate28、超长透明甲、规范真值、完成度审计、README同步、产品HOLD |
