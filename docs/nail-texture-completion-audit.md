@@ -268,3 +268,11 @@ candidate28训练输入现已按稳定图片身份物化为274张正样本/1652 
 2026-08-29起，逐实例正样本报告自身不再能通过自报contract放宽正式门：新schema v2报告固定不少于100图、召回不低于0.90、完整mask比例不低于0.85、缺甲图片率不高于0.10、加权伪实例率不高于0.02，CLI只允许收紧。`--verify-report`会在重建前应用同一正式边界，伪造较弱contract不能通过重放；新建schema v1被拒绝，历史v1仍可在验证器内部只读重放。该工程修复封闭了报告构建/自重放漏洞，但最终完成度审计把逐实例报告登记为独立正式gate的编排工作仍待完成，因此不增加发布门通过数。
 
 同步schema v3 standing授权工程标记后的机器重放读取454个进度标记，其中430个PASS、24个非PASS；14个正式门仍为4通过、10失败，返回`ok=false`、`decision=hold`。审计报告SHA-256为`c302cfc879dd42b33d8d2275876ae924b213b23d6fdef9a36a9411e8cb65e56b`；新增授权标记只证明重复人工等待已移除且机器追溯有效，不改变70/160训练负样本数量、生产资产、移动设备、Beta、正式产品质量或回滚门。
+
+## candidate30—34边界增强结论（2026-08-30）
+
+candidate30全量ROI、candidate31小幅插值、candidate32平衡ROI、candidate33五信号同权重自蒸馏和candidate34保守插值均已完成来源隔离val30判断。candidate33在0.10/0.15保持128匹配、16漏检时仍有59/41误检；candidate34的alpha0.01—0.05全部只与candidate29打平128/16/16，alpha0.08退化为127/17/15。统一机器决定`candidate30-34-boundary-validation-decision-v1.json`拒绝全部候选，且明确`protectedTest100Used=false`、`exportAuthorized=false`、`deploymentAuthorized=false`。
+
+同权重自蒸馏工程合同及GPU反向烟测通过只证明训练链路有效，不增加任何正式发布门PASS。candidate29仍是失败状态的当前识别基线；冻结test100、独立困难负样本、三变体、生产ONNX、浏览器、四类真机、Beta、正式产品质量和双版本回滚均未晋升，完成度必须继续`decision=hold`。
+
+本轮总完成度机器重放读取464个进度标记，其中438个PASS、26个非PASS；14个正式门4通过、10失败，返回`ok=false`、`decision=hold`。报告`model/reports/nail-texture-local-inference-completion-audit.json`的SHA-256为`51374e260f060961c20979d4c6937552d25ecfc34a47ef269910042545515e0e`；该结果与candidate30—34全部止于val30、产品继续HOLD的结论一致。

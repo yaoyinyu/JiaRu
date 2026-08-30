@@ -643,3 +643,8 @@ candidate21继续作为当前识别基线，但它既有冻结test100门仍失�
 | `M2-T3-POSITIVE-QUALITY-CONTRACT-LOCK-002` | 正式逐实例正样本门不可放宽与历史只读重放 | ✅ PASS（报告构建/重放工程门） | `build-positive-recognition-quality-report.py`把100图、召回0.90、完整mask 0.85、缺甲图率0.10和加权伪实例率0.02固化为正式边界：CLI只允许更严格值，弱化任一门返回错误；schema v2自报弱门的`--verify-report`同样拒绝。普通构建禁止schema v1 `zero-defect`，历史v1只在验证器内部重建。专项6/6通过，包含5类弱门构建拒绝、弱门报告重放拒绝和历史v1重放兼容。该PASS不代表任何候选通过正样本质量门。 |
 
 candidate28补强源队列已闭环为64张/442 mask、11排除、0返修；相对candidate21输入新增4张/23 mask。现已与candidate8规范基线合并并物化为274张正样本/1652 mask、160张既有批准困难负样本和来源隔离val30，训练集434图、输入审计v4 PASS且0 orphan。v5已按640、全分辨率mask、实例不合并、无mosaic设置启动直接学生训练；Windows共享映射1455恢复仅将DataLoader workers由8降为0，未改变质量参数。训练、阈值与后处理仍只由来源隔离val30选择，未严格改善即停止；冻结test100尚未消费。
+
+| `M2-T3-CANDIDATE30-34-BOUNDARY-001` | ROI、自蒸馏与保守插值边界增强系列 | ❌ FAIL（val30严格替换门） | candidate30/32分别使用全量与85张确定性ROI；candidate33以candidate29同权重冻结教师传递五路软信号，27轮早停、权重`41b9bf0a…d9b`；candidate34再执行1%—8%保守插值。candidate33保持128匹配时仍有41—59误检，candidate34的1%—5%均只打平128/16/16。统一决策拒绝candidate30—34，未读取test100、未导出、登记或部署。 |
+| `M2-T3-SAME-CHECKPOINT-DISTILLATION-CONTRACT-001` | 同权重自蒸馏显式合同与烟测 | ✅ PASS（训练器工程门；不构成模型质量PASS） | 新增`--allow-same-checkpoint-self-distillation`，默认仍拒绝教师/学生同哈希；显式开启时写入模式和授权证据。专项测试16/16通过，1轮GPU烟测`dis_loss`非零并完成val；硬polygon真值保持权威。 |
+
+当前识别基线仍为candidate29（val30 128/16/16），但其已消费test100仍未通过完整mask、缺甲图率与伪实例门。下一训练不再重复调整现有ROI比例或蒸馏权重，转为扩充原分辨率审核通过的透明低对比、侧视和相邻长甲真实边界真值；产品继续HOLD。
