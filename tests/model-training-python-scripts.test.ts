@@ -67,6 +67,48 @@ test("train script freezes full-resolution boundary-preserving settings", async 
   assert.equal(result.overlap_mask, false);
 });
 
+test("train script hash-binds an interrupted checkpoint for exact resume", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-training-resume-"));
+  const outputDir = path.join(root, "output");
+  const runDir = path.join(outputDir, "resume-run");
+  const checkpoint = path.join(runDir, "weights", "last.pt");
+  await mkdir(path.dirname(checkpoint), { recursive: true });
+  await writeFile(checkpoint, "checkpoint-state", "utf8");
+  const runtimeDataset = path.join(outputDir, "resolved-dataset.yaml");
+  await writeFile(path.join(runDir, "args.yaml"), [
+    `model: ${path.resolve("yolo11n-seg.pt")}`,
+    `data: ${runtimeDataset}`,
+    "epochs: 100",
+    "patience: 20",
+    "batch: -1",
+    "imgsz: 640",
+    "device: auto",
+    "workers: 8",
+    `project: ${outputDir}`,
+    "name: resume-run",
+    "optimizer: auto",
+    "close_mosaic: 10",
+    "freeze: null",
+    "overlap_mask: true",
+    "mask_ratio: 4",
+    "mosaic: 1.0",
+    "lr0: null",
+  ].join("\n"), "utf8");
+  await writeFile(path.join(runDir, "results.csv"), "epoch,time\n1,1.0\n", "utf8");
+  const result = await runPython("model/training/train-yolo-seg.py", [
+    "--dry-run",
+    "--output-dir", outputDir,
+    "--run-name", "resume-run",
+    "--resume-from", checkpoint,
+  ]);
+  const resume = result.resume_from as { path: string; sha256: string; bytes: number; completed_epochs: number; quality_parameters_unchanged: boolean };
+  assert.equal(resume.path, path.resolve(checkpoint));
+  assert.equal(resume.bytes, Buffer.byteLength("checkpoint-state"));
+  assert.match(resume.sha256, /^[a-f0-9]{64}$/);
+  assert.equal(resume.completed_epochs, 1);
+  assert.equal(resume.quality_parameters_unchanged, true);
+});
+
 test("checkpoint interpolation creates a hash-bound student artifact", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-checkpoint-interpolation-"));
   const base = path.join(root, "base.pt");

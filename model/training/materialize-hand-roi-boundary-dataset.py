@@ -180,6 +180,13 @@ def main() -> None:
     parser.add_argument("--padding-ratio", type=float, default=0.20)
     parser.add_argument("--maximum-crop-area-ratio", type=float, default=0.85)
     parser.add_argument("--minimum-polygon-margin", type=int, default=2)
+    parser.add_argument(
+        "--selection-modulus",
+        type=int,
+        default=1,
+        help="Keep only parents whose image SHA-256 modulo this value equals --selection-remainder.",
+    )
+    parser.add_argument("--selection-remainder", type=int, default=0)
     args = parser.parse_args()
     if not 0 < args.padding_ratio <= 1:
         raise ValueError("--padding-ratio must be in (0, 1]")
@@ -187,6 +194,10 @@ def main() -> None:
         raise ValueError("--maximum-crop-area-ratio must be in (0, 1)")
     if args.minimum_polygon_margin < 1:
         raise ValueError("--minimum-polygon-margin must be positive")
+    if args.selection_modulus < 1:
+        raise ValueError("--selection-modulus must be positive")
+    if not 0 <= args.selection_remainder < args.selection_modulus:
+        raise ValueError("--selection-remainder must be in [0, selection-modulus)")
 
     input_root = Path(args.input_dataset).resolve()
     input_audit_path = Path(args.input_audit).resolve()
@@ -214,10 +225,17 @@ def main() -> None:
         train_images = image_by_stem(input_root / "images" / "train")
         lineage: list[dict[str, Any]] = []
         skipped = 0
+        selection_skipped = 0
+        geometry_skipped = 0
         for stem, image_path in train_images.items():
             label_path = input_root / "labels" / "train" / f"{stem}.txt"
             if not label_path.is_file():
                 raise ValueError(f"missing train label: {label_path}")
+            parent_image_sha256 = sha256_file(image_path)
+            if int(parent_image_sha256, 16) % args.selection_modulus != args.selection_remainder:
+                skipped += 1
+                selection_skipped += 1
+                continue
             output_stem = f"{stem}__handroi_v1"
             record = build_roi(
                 image_path,
@@ -230,6 +248,7 @@ def main() -> None:
             )
             if record is None:
                 skipped += 1
+                geometry_skipped += 1
                 continue
             record["parentStem"] = stem
             record["outputStem"] = output_stem
@@ -251,6 +270,9 @@ def main() -> None:
                 "paddingRatio": args.padding_ratio,
                 "maximumCropAreaRatio": args.maximum_crop_area_ratio,
                 "minimumPolygonMarginPixels": args.minimum_polygon_margin,
+                "selectionModulus": args.selection_modulus,
+                "selectionRemainder": args.selection_remainder,
+                "selectionIdentity": "parent-image-sha256",
             },
             "counts": {"created": len(lineage), "skipped": skipped},
             "itemsSha256": canonical_sha256(lineage),
@@ -285,6 +307,8 @@ def main() -> None:
                 "parentTrainImages": len(train_images),
                 "createdRoiImages": len(lineage),
                 "skippedTrainImages": skipped,
+                "selectionSkippedTrainImages": selection_skipped,
+                "geometrySkippedTrainImages": geometry_skipped,
                 "outputTrainImages": len(train_images) + len(lineage),
                 "validationImages": len(image_by_stem(input_root / "images" / "val")),
                 "testImages": len(image_by_stem(input_root / "images" / "test")),
