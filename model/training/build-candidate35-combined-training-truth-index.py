@@ -55,7 +55,7 @@ def main() -> int:
     helper.validate_standing_authorization(authorization_path)
     base_document, base_truths = helper.validate_index(base_path, "candidate28-base", 274, 1652, auditor)
     boundary_document, boundary_truths = helper.validate_index(
-        boundary_path, "candidate35-boundary", 4, 20, auditor
+        boundary_path, "candidate35-boundary", 11, 59, auditor
     )
 
     combined: list[dict[str, Any]] = []
@@ -80,10 +80,10 @@ def main() -> int:
             batch_by_file[name] = batch
             combined.append(truth)
     combined.sort(key=lambda item: (str(item["sourceGroup"]), str(item["fileName"])))
-    expected_images = 278
-    expected_masks = 1672
+    expected_images = 285
+    expected_masks = 1711
     if len(combined) != expected_images or sum(int(item["completeMaskCount"]) for item in combined) != expected_masks:
-        raise ValueError("candidate35合并结果不再是278张/1672 mask")
+        raise ValueError("candidate35合并结果不再是285张/1711 mask")
 
     result = {
         "schemaVersion": 1,

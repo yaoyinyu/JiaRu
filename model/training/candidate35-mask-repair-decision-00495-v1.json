@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00495_694eac42000000002103de7c_6.jpg",
+  "sha256": "1cb404003acc31aeb7adf92338bbd89410056c32ff883eb57e3c2f662684e559",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-99290a82e7f38ede",
+  "initialShardFinalSha256": "c237236ca16a0a66a981dd45549b53220fadb5f0e99df0b10b551a856af19338",
+  "repairPromptsSha256": "9618cd32aefd9c67f47c055ac980027596dbba02bc62300dc0a6894810b19897",
+  "manualReportSha256": "58802f8a6336a6d187d7b8657b0707ee37d57c3c53ad3906441f6dfecdc8d71a",
+  "geometryAuditSha256": "d4317237c6ad4fe5bbebf90c6f3f93bb769338296250f622dc8fd8e2b581b1d5",
+  "annotationSha256": "5a9613b15e4b9ecf984bc4baf62209188e4c418a076cf50603fa46849360516a",
+  "reviewedOverlaySha256": "9401a71053ec2410b854a4413a0eaa1ce5a05b35b029b354a1d43bfdf306d4a4",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "删除横向小指甲上的整段指腹污染候选；保留5枚完整低对比甲板，边界不进入皮肤或衣袖。"
+}
