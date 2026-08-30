@@ -94,6 +94,8 @@ test("hand ROI materializer preserves every polygon and leaves val/test unchange
     parentTrainImages: 2,
     createdRoiImages: 1,
     skippedTrainImages: 1,
+    selectionSkippedTrainImages: 0,
+    geometrySkippedTrainImages: 1,
     outputTrainImages: 3,
     validationImages: 1,
     testImages: 0,

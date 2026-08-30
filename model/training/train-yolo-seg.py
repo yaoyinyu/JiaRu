@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import csv
 from pathlib import Path
 from types import ModuleType
 
@@ -65,6 +66,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--distill-boundary-weight", type=float, default=0.25)
     parser.add_argument("--distill-topk", type=int, default=24)
     parser.add_argument("--run-name", default="nail-texture-seg-v1")
+    parser.add_argument(
+        "--resume-from",
+        default="",
+        help="Resume an interrupted Ultralytics run from its last.pt with the checkpoint-bound optimizer and epoch state",
+    )
     parser.add_argument("--candidate-mode", action="store_true", help="Require a deeply replayed candidate-input audit and mark this run as a release-candidate training attempt")
     parser.add_argument("--candidate-input-report", default="", help="Approved report from audit-candidate-training-input.py")
     parser.add_argument("--candidate-validation-report", default="", help="Deprecated legacy evidence; use --candidate-input-report")
@@ -265,6 +271,72 @@ def install_read_only_ultralytics_image_check() -> None:
         raise RuntimeError("failed to install read-only Ultralytics image verifier")
 
 
+def validate_resume_contract(
+    resume_from: Path,
+    args: argparse.Namespace,
+    batch: int | float,
+    runtime_dataset_yaml: Path,
+    output_dir: Path,
+) -> dict[str, object]:
+    expected_run_dir = resolve_training_run_dir(output_dir, args.run_name).resolve()
+    if resume_from.resolve() != expected_run_dir / "weights" / "last.pt":
+        raise ValueError("--resume-from must be the canonical last.pt of the requested run")
+    args_yaml = expected_run_dir / "args.yaml"
+    results_csv = expected_run_dir / "results.csv"
+    if not args_yaml.is_file() or not results_csv.is_file():
+        raise ValueError("resume requires the original args.yaml and results.csv")
+    import yaml
+
+    saved = yaml.safe_load(args_yaml.read_text(encoding="utf-8"))
+    expected = {
+        "model": str(Path(args.model).resolve()),
+        "data": str(runtime_dataset_yaml.resolve()),
+        "epochs": args.epochs,
+        "patience": args.patience,
+        "batch": batch,
+        "imgsz": args.imgsz,
+        "device": str(args.device),
+        "workers": args.workers,
+        "project": str(output_dir.resolve()),
+        "name": args.run_name,
+        "optimizer": args.optimizer,
+        "close_mosaic": args.close_mosaic,
+        "freeze": args.freeze,
+        "overlap_mask": args.overlap_mask,
+        "mask_ratio": args.mask_ratio,
+        "mosaic": args.mosaic,
+        "lr0": args.lr0,
+    }
+    for key, value in expected.items():
+        saved_value = saved.get(key)
+        if key in {"model", "data", "project"}:
+            matches = Path(str(saved_value)).resolve() == Path(str(value)).resolve()
+        elif isinstance(value, float):
+            matches = abs(float(saved_value) - value) <= 1e-12
+        else:
+            matches = saved_value == value
+        if not matches:
+            raise ValueError(
+                f"resume contract drift for {key}: saved={saved_value!r}, requested={value!r}"
+            )
+    with results_csv.open("r", encoding="utf-8", newline="") as source:
+        rows = list(csv.DictReader(source))
+    if not rows:
+        raise ValueError("resume results.csv contains no completed epoch")
+    completed_epochs = max(int(float(row["epoch"])) for row in rows)
+    if completed_epochs >= args.epochs:
+        raise ValueError("resume checkpoint has already reached the requested epoch count")
+    return {
+        "path": str(resume_from),
+        "sha256": sha256(resume_from),
+        "bytes": resume_from.stat().st_size,
+        "args_yaml": {"path": str(args_yaml), "sha256": sha256(args_yaml)},
+        "results_csv": {"path": str(results_csv), "sha256": sha256(results_csv)},
+        "completed_epochs": completed_epochs,
+        "quality_parameters_unchanged": True,
+    }
+
+
 def main() -> None:
     args = build_parser().parse_args()
     if not 0.0 <= args.mosaic <= 1.0:
@@ -276,6 +348,11 @@ def main() -> None:
     batch = parse_batch(args.batch)
     dataset_yaml = Path(args.dataset).resolve()
     output_dir = Path(args.output_dir).resolve()
+    resume_from = Path(args.resume_from).resolve() if args.resume_from else None
+    if resume_from is not None and not resume_from.is_file():
+        raise ValueError("--resume-from must point to an existing last.pt checkpoint")
+    if resume_from is not None and args.finalize_existing_run:
+        raise ValueError("--resume-from cannot be combined with --finalize-existing-run")
     config = load_dataset_config(dataset_yaml)
     preflight_removed_caches = (
         remove_ultralytics_label_caches(config.dataset_root)
@@ -287,6 +364,13 @@ def main() -> None:
     )
     distillation_evidence = resolve_distillation_evidence(args)
     runtime_dataset_yaml = output_dir / "resolved-dataset.yaml"
+    resume_evidence = (
+        validate_resume_contract(
+            resume_from, args, batch, runtime_dataset_yaml, output_dir
+        )
+        if resume_from is not None
+        else None
+    )
 
     summary = {
         "dataset_yaml": str(dataset_yaml),
@@ -300,6 +384,7 @@ def main() -> None:
         "class_count": config.class_count,
         "names": config.names,
         "model": args.model,
+        "resume_from": resume_evidence,
         "epochs": args.epochs,
         "imgsz": args.imgsz,
         "batch": batch,
@@ -374,7 +459,7 @@ def main() -> None:
         # Trainer通过该符号构造包装模型；子类仍可被Ultralytics的保存/解包逻辑识别。
         ultralytics_trainer.DistillationModel = JiaRuSegmentationDistillationModel
     write_resolved_dataset_yaml(runtime_dataset_yaml, config)
-    model = ultralytics.YOLO(args.model)
+    model = ultralytics.YOLO(str(resume_from) if resume_from is not None else args.model)
     output_dir.mkdir(parents=True, exist_ok=True)
     train_options = {
         "optimizer": args.optimizer,
@@ -390,19 +475,22 @@ def main() -> None:
     if distillation_evidence is not None:
         train_options["distill_model"] = distillation_evidence["teacher"]["path"]
         train_options["dis"] = args.distill_weight
-    results = model.train(
-        data=str(runtime_dataset_yaml),
-        task="segment",
-        epochs=args.epochs,
-        imgsz=args.imgsz,
-        batch=batch,
-        patience=args.patience,
-        device=args.device,
-        workers=args.workers,
-        project=str(output_dir),
-        name=args.run_name,
-        **train_options,
-    )
+    if resume_from is not None:
+        results = model.train(resume=True)
+    else:
+        results = model.train(
+            data=str(runtime_dataset_yaml),
+            task="segment",
+            epochs=args.epochs,
+            imgsz=args.imgsz,
+            batch=batch,
+            patience=args.patience,
+            device=args.device,
+            workers=args.workers,
+            project=str(output_dir),
+            name=args.run_name,
+            **train_options,
+        )
     results_dir = Path(getattr(results, "save_dir", output_dir)).resolve()
     actual_best_weights_path = results_dir / "weights" / "best.pt"
     if args.candidate_mode:

@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate32",
+  "decision": "pre_registered_balanced_train_only_hand_roi_boundary_supervision",
+  "objective": "将candidate30的全量ROI增强降为按父图SHA-256确定性抽取约三分之一，保留甲缘放大监督，同时减少正样本重复造成的检测头漂移。",
+  "evidenceBeforeImplementation": {
+    "candidate29Baseline": {
+      "scoreThreshold": 0.45,
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 16
+    },
+    "candidate30Direct": {
+      "bestRecallPoint": { "scoreThreshold": 0.2, "matched": 130, "missed": 14, "falsePositives": 38 },
+      "lowFalsePositivePoint": { "scoreThreshold": 0.5, "matched": 126, "missed": 18, "falsePositives": 15 },
+      "conclusion": "全量ROI证明额外召回信号存在，但检测头误检漂移过强。"
+    },
+    "candidate31Interpolation": {
+      "alphas": [0.02, 0.04, 0.06, 0.08, 0.1, 0.15],
+      "replacementPointFound": false,
+      "closestPoint": { "alpha": 0.02, "scoreThreshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16 },
+      "conclusion": "小比例融合只能持平，必须在训练输入比例上直接约束漂移。"
+    }
+  },
+  "input": {
+    "parentDataset": "candidate28-canonical-training-dataset-v1",
+    "parentTrainImages": 434,
+    "parentPositiveImages": 274,
+    "parentPositiveMasks": 1652,
+    "hardNegativeImages": 160,
+    "validationImages": 30,
+    "validationMasks": 144,
+    "testImages": 0,
+    "roiSelection": {
+      "identity": "parent-image-sha256",
+      "modulus": 3,
+      "remainder": 0,
+      "modelOutputUsed": false
+    }
+  },
+  "training": {
+    "baseCandidate": "candidate29-alpha-015",
+    "baseWeightsSha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02",
+    "imgsz": 640,
+    "epochs": 60,
+    "patience": 15,
+    "batch": "auto",
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.00001,
+    "freeze": 10,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false
+  },
+  "selection": {
+    "onlySplit": "isolated-val30",
+    "deploymentInputSize": 512,
+    "baseline": { "candidate": "candidate29-alpha-015", "matched": 128, "missed": 16, "falsePositives": 16 },
+    "replacementRule": "matched必须不少于128、missed不得多于16且falsePositives严格少于16；或在falsePositives不高于16时matched严格增加。"
+  },
+  "prohibitions": [
+    "不得使用受保护test100或发布留出选择ROI、训练轮次、阈值或权重。",
+    "不得按模型输出选择ROI父图。",
+    "val30未严格改善前不得导出、登记或部署。"
+  ],
+  "releaseState": "hold_until_all_formal_gates_pass"
+}
