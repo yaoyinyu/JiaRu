@@ -58,6 +58,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="Whether overlapping instance masks are merged during training; use --no-overlap-mask to preserve per-nail boundaries",
     )
     parser.add_argument("--distill-model", default="", help="Local larger YOLO segmentation teacher checkpoint")
+    parser.add_argument(
+        "--allow-same-checkpoint-self-distillation",
+        action="store_true",
+        help="Explicitly allow teacher and student to start from the same validated checkpoint",
+    )
     parser.add_argument("--distill-weight", type=float, default=1.0, help="Teacher-score-weighted neck feature loss weight")
     parser.add_argument("--distill-temperature", type=float, default=2.0)
     parser.add_argument("--distill-soft-score-weight", type=float, default=0.25)
@@ -115,8 +120,12 @@ def resolve_distillation_evidence(args: argparse.Namespace) -> dict[str, object]
         raise ValueError("distillation requires --model to be an existing local student checkpoint")
     teacher_sha = sha256(teacher)
     student_sha = sha256(student)
-    if teacher_sha == student_sha:
-        raise ValueError("distillation teacher and student checkpoints must differ")
+    same_checkpoint = teacher_sha == student_sha
+    if same_checkpoint and not args.allow_same_checkpoint_self_distillation:
+        raise ValueError(
+            "distillation teacher and student checkpoints must differ unless "
+            "--allow-same-checkpoint-self-distillation is explicitly set"
+        )
     from nail_texture_distillation import DistillationConfig, current_distillation_contract, configure_distillation
 
     config = DistillationConfig(
@@ -132,6 +141,10 @@ def resolve_distillation_evidence(args: argparse.Namespace) -> dict[str, object]
     return {
         "teacher": {"path": str(teacher), "sha256": teacher_sha, "bytes": teacher.stat().st_size},
         "studentBase": {"path": str(student), "sha256": student_sha, "bytes": student.stat().st_size},
+        "mode": "same-checkpoint-self-distillation" if same_checkpoint else "teacher-student-distillation",
+        "sameCheckpointExplicitlyAuthorized": bool(
+            same_checkpoint and args.allow_same_checkpoint_self_distillation
+        ),
         "contract": current_distillation_contract(),
         "teacherMustPassIsolatedValidationBeforeCandidateUse": True,
     }

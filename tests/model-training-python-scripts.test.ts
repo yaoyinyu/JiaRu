@@ -178,6 +178,32 @@ test("train script freezes a local multi-signal distillation contract", async ()
   ]);
 });
 
+test("train script requires an explicit switch for same-checkpoint self-distillation", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "nail-self-distillation-plan-"));
+  const checkpoint = path.join(root, "same.pt");
+  await writeFile(checkpoint, "same-checkpoint", "utf8");
+  await assert.rejects(
+    runPython("model/training/train-yolo-seg.py", [
+      "--dry-run",
+      "--model", checkpoint,
+      "--distill-model", checkpoint,
+    ]),
+    /allow-same-checkpoint-self-distillation/,
+  );
+  const result = await runPython("model/training/train-yolo-seg.py", [
+    "--dry-run",
+    "--model", checkpoint,
+    "--distill-model", checkpoint,
+    "--allow-same-checkpoint-self-distillation",
+  ]);
+  const distillation = result.distillation as {
+    mode: string;
+    sameCheckpointExplicitlyAuthorized: boolean;
+  };
+  assert.equal(distillation.mode, "same-checkpoint-self-distillation");
+  assert.equal(distillation.sameCheckpointExplicitlyAuthorized, true);
+});
+
 
 test("training environment preflight reports dataset, dependencies, and checkpoint risk", async () => {
   const result = await runPython("model/training/check-training-environment.py");

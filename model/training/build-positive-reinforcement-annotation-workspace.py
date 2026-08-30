@@ -18,7 +18,16 @@ from typing import Any
 
 def parser() -> argparse.ArgumentParser:
     value = argparse.ArgumentParser(description="Build a positive reinforcement annotation workspace.")
-    value.add_argument("--authorization")
+    source = value.add_mutually_exclusive_group()
+    source.add_argument("--authorization")
+    source.add_argument(
+        "--inventory",
+        help="Passing, replayable source-isolated inventory covered by the project standing commercial authorization.",
+    )
+    value.add_argument(
+        "--selection-plan",
+        help="Optional source selection frozen before model-assisted prelabeling; valid only with --inventory.",
+    )
     value.add_argument("--output-dir")
     value.add_argument("--target-shard-size", type=int, default=20)
     value.add_argument("--verify-workspace")
@@ -78,6 +87,73 @@ def verify_authorization(path: Path) -> dict[str, Any]:
     return authorization
 
 
+def verify_inventory(path: Path) -> dict[str, Any]:
+    script = Path(__file__).resolve().parent / "build-positive-reinforcement-candidate-inventory.py"
+    result = subprocess.run(
+        [sys.executable, str(script), "--verify-report", str(path)],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    if result.returncode != 0:
+        detail = result.stderr.decode("utf-8", errors="replace").strip() or result.stdout.decode(
+            "utf-8", errors="replace"
+        ).strip()
+        raise ValueError(f"Inventory deep verification failed: {detail}")
+    inventory = read_object(path, "source-isolated inventory")
+    if (
+        inventory.get("schemaVersion") != 1
+        or inventory.get("ok") is not True
+        or inventory.get("decision") != "candidate_inventory_ready_for_original_resolution_review"
+    ):
+        raise ValueError("Inventory is not a passing source-isolated candidate inventory")
+    items = inventory.get("items")
+    if not isinstance(items, list) or not items or any(not isinstance(item, dict) for item in items):
+        raise ValueError("Inventory must contain a non-empty item array")
+    if canonical_sha256(items) != inventory.get("itemsSha256"):
+        raise ValueError("Inventory item digest mismatch")
+    if any(item.get("trainingUse") != "prohibited" for item in items):
+        raise ValueError("Inventory contains an item that is not training-prohibited")
+    return inventory
+
+
+def verify_selection_plan(path: Path, inventory_path: Path, inventory: dict[str, Any]) -> dict[str, Any]:
+    plan = read_object(path, "source selection plan")
+    if (
+        plan.get("schemaVersion") != 1
+        or plan.get("ok") is not True
+        or plan.get("decision") != "source_selection_frozen_before_model_assistance"
+    ):
+        raise ValueError("Source selection plan schema or decision is invalid")
+    inputs = plan.get("inputs", {})
+    if Path(str(inputs.get("inventory", ""))).resolve() != inventory_path:
+        raise ValueError("Source selection plan inventory path drifted")
+    if inputs.get("inventorySha256") != sha256_path(inventory_path):
+        raise ValueError("Source selection plan inventory bytes drifted")
+    if inputs.get("inventoryItemsSha256") != inventory.get("itemsSha256"):
+        raise ValueError("Source selection plan inventory item digest drifted")
+    selected_names = plan.get("selectedFileNames")
+    if (
+        not isinstance(selected_names, list)
+        or not selected_names
+        or any(not isinstance(name, str) or not name for name in selected_names)
+        or len(selected_names) != len(set(selected_names))
+    ):
+        raise ValueError("Source selection plan must contain unique selected file names")
+    if canonical_sha256(selected_names) != plan.get("selectedFileNamesSha256"):
+        raise ValueError("Source selection plan file-name digest mismatch")
+    inventory_names = {str(item.get("fileName")) for item in inventory["items"]}
+    missing = sorted(set(selected_names) - inventory_names)
+    if missing:
+        raise ValueError(f"Source selection plan contains files absent from inventory: {missing[:3]}")
+    counts = plan.get("counts", {})
+    if counts.get("selectedImages") != len(selected_names):
+        raise ValueError("Source selection plan image count mismatch")
+    if plan.get("trainingUse") != "prohibited":
+        raise ValueError("Source selection plan must remain training prohibited")
+    return plan
+
+
 def group_shards(items: list[dict[str, Any]], target_size: int) -> list[list[dict[str, Any]]]:
     by_group: dict[str, list[dict[str, Any]]] = {}
     for item in items:
@@ -95,17 +171,57 @@ def group_shards(items: list[dict[str, Any]], target_size: int) -> list[list[dic
     return shards
 
 
-def build_workspace(authorization_path: Path, output_dir: Path, target_size: int) -> Path:
+def build_workspace(
+    authorization_path: Path | None,
+    inventory_path: Path | None,
+    selection_plan_path: Path | None,
+    output_dir: Path,
+    target_size: int,
+) -> Path:
     if target_size < 1:
         raise ValueError("target-shard-size must be positive")
     if output_dir.exists():
         raise ValueError(f"Output directory already exists: {output_dir}")
-    authorization = verify_authorization(authorization_path)
-    items = authorization.get("authorizedItems")
-    if not isinstance(items, list) or len(items) != 160 or any(not isinstance(item, dict) for item in items):
-        raise ValueError("Authorization must bind exactly 160 item objects")
-    if canonical_sha256(items) != authorization.get("authorizedItemsSha256"):
-        raise ValueError("Authorized item digest mismatch")
+    authorization: dict[str, Any] | None = None
+    inventory: dict[str, Any] | None = None
+    if authorization_path is not None:
+        if selection_plan_path is not None:
+            raise ValueError("selection-plan is valid only with inventory")
+        authorization = verify_authorization(authorization_path)
+        items = authorization.get("authorizedItems")
+        if not isinstance(items, list) or len(items) != 160 or any(not isinstance(item, dict) for item in items):
+            raise ValueError("Authorization must bind exactly 160 item objects")
+        if canonical_sha256(items) != authorization.get("authorizedItemsSha256"):
+            raise ValueError("Authorized item digest mismatch")
+        input_evidence = {
+            "authorization": str(authorization_path),
+            "authorizationSha256": sha256_path(authorization_path),
+            "authorizationMode": "exact-file-list-record",
+            "requestedItemsSha256": authorization["requestedItemsSha256"],
+            "authorizedItemsSha256": authorization["authorizedItemsSha256"],
+        }
+    elif inventory_path is not None:
+        inventory = verify_inventory(inventory_path)
+        items = inventory["items"]
+        input_evidence = {
+            "inventory": str(inventory_path),
+            "inventorySha256": sha256_path(inventory_path),
+            "inventoryItemsSha256": inventory["itemsSha256"],
+            "authorizationMode": "project-standing-commercial-authorization",
+        }
+        if selection_plan_path is not None:
+            selection_plan = verify_selection_plan(selection_plan_path, inventory_path, inventory)
+            selected_names = set(selection_plan["selectedFileNames"])
+            items = [item for item in items if item["fileName"] in selected_names]
+            input_evidence.update(
+                {
+                    "selectionPlan": str(selection_plan_path),
+                    "selectionPlanSha256": sha256_path(selection_plan_path),
+                    "selectedFileNamesSha256": selection_plan["selectedFileNamesSha256"],
+                }
+            )
+    else:
+        raise ValueError("Either authorization or inventory is required")
     shards = group_shards(items, target_size)
     output_dir.parent.mkdir(parents=True, exist_ok=True)
     staging = Path(tempfile.mkdtemp(prefix=f".{output_dir.name}-", dir=output_dir.parent))
@@ -194,12 +310,7 @@ def build_workspace(authorization_path: Path, output_dir: Path, target_size: int
             "schemaVersion": 1,
             "ok": True,
             "decision": "positive_reinforcement_annotation_workspace_ready_candidate_only",
-            "inputs": {
-                "authorization": str(authorization_path),
-                "authorizationSha256": sha256_path(authorization_path),
-                "requestedItemsSha256": authorization["requestedItemsSha256"],
-                "authorizedItemsSha256": authorization["authorizedItemsSha256"],
-            },
+            "inputs": input_evidence,
             "policy": {
                 "assignedRole": "train-positive-reinforcement-candidate",
                 "sourceGroupsRemainAtomicAcrossShards": True,
@@ -208,6 +319,7 @@ def build_workspace(authorization_path: Path, output_dir: Path, target_size: int
                 "completeMaskOriginalResolutionReviewRequired": True,
                 "polygonValidityAndZeroOverlapRequired": True,
                 "workspaceMustRemainOutsideGit": True,
+                "standingAuthorizationDoesNotApproveMasks": True,
             },
             "imageDir": str(output_dir / "images"),
             "counts": {
@@ -245,20 +357,47 @@ def verify_workspace(manifest_path: Path) -> dict[str, Any]:
         raise ValueError("Workspace decision is invalid")
     if manifest.get("trainingUse") != "prohibited":
         raise ValueError("Workspace must remain training prohibited")
-    authorization_path = require_file(manifest.get("inputs", {}).get("authorization"), "authorization")
-    if sha256_path(authorization_path) != manifest.get("inputs", {}).get("authorizationSha256"):
-        raise ValueError("Workspace authorization bytes drifted")
-    authorization = verify_authorization(authorization_path)
-    if manifest.get("inputs", {}).get("authorizedItemsSha256") != authorization.get("authorizedItemsSha256"):
-        raise ValueError("Workspace authorized item digest drifted")
+    inputs = manifest.get("inputs", {})
+    authorization: dict[str, Any] | None = None
+    inventory: dict[str, Any] | None = None
+    if inputs.get("authorizationMode") == "exact-file-list-record":
+        authorization_path = require_file(inputs.get("authorization"), "authorization")
+        if sha256_path(authorization_path) != inputs.get("authorizationSha256"):
+            raise ValueError("Workspace authorization bytes drifted")
+        authorization = verify_authorization(authorization_path)
+        if inputs.get("authorizedItemsSha256") != authorization.get("authorizedItemsSha256"):
+            raise ValueError("Workspace authorized item digest drifted")
+        eligible_items = authorization["authorizedItems"]
+        expected_count = 160
+    elif inputs.get("authorizationMode") == "project-standing-commercial-authorization":
+        inventory_path = require_file(inputs.get("inventory"), "source-isolated inventory")
+        if sha256_path(inventory_path) != inputs.get("inventorySha256"):
+            raise ValueError("Workspace inventory bytes drifted")
+        inventory = verify_inventory(inventory_path)
+        if inputs.get("inventoryItemsSha256") != inventory.get("itemsSha256"):
+            raise ValueError("Workspace inventory item digest drifted")
+        eligible_items = inventory["items"]
+        selection_plan_value = inputs.get("selectionPlan")
+        if selection_plan_value:
+            selection_plan_path = require_file(selection_plan_value, "source selection plan")
+            if sha256_path(selection_plan_path) != inputs.get("selectionPlanSha256"):
+                raise ValueError("Workspace source selection plan bytes drifted")
+            selection_plan = verify_selection_plan(selection_plan_path, inventory_path, inventory)
+            if inputs.get("selectedFileNamesSha256") != selection_plan.get("selectedFileNamesSha256"):
+                raise ValueError("Workspace selected file-name digest drifted")
+            selected_names = set(selection_plan["selectedFileNames"])
+            eligible_items = [item for item in eligible_items if item["fileName"] in selected_names]
+        expected_count = len(eligible_items)
+    else:
+        raise ValueError("Workspace authorization mode is invalid")
     items = manifest.get("items")
     if not isinstance(items, list) or any(not isinstance(item, dict) for item in items):
         raise ValueError("Workspace items are invalid")
     if canonical_sha256(items) != manifest.get("itemsSha256"):
         raise ValueError("Workspace item digest mismatch")
-    if len(items) != manifest.get("counts", {}).get("images") or len(items) != 160:
+    if len(items) != manifest.get("counts", {}).get("images") or len(items) != expected_count:
         raise ValueError("Workspace image count mismatch")
-    authorized_by_sha = {item["imageSha256"]: item for item in authorization["authorizedItems"]}
+    authorized_by_sha = {item["imageSha256"]: item for item in eligible_items}
     seen_files: set[str] = set()
     seen_sha: set[str] = set()
     for item in items:
@@ -270,7 +409,7 @@ def verify_workspace(manifest_path: Path) -> dict[str, Any]:
         seen_sha.add(image_sha)
         authorized = authorized_by_sha.get(image_sha)
         if authorized is None or authorized.get("fileName") != file_name:
-            raise ValueError(f"Workspace item is not exactly authorized: {file_name}")
+            raise ValueError(f"Workspace item is absent from its bound eligible input: {file_name}")
         if item.get("sourceGroup") != authorized.get("sourceGroup"):
             raise ValueError(f"Workspace source group drifted: {file_name}")
         if item.get("trainingUse") != "prohibited" or item.get("completeMaskReview") != "not-started":
@@ -313,11 +452,17 @@ def main() -> int:
                 )
             )
             return 0
-        authorization_path = require_file(args.authorization, "authorization")
+        authorization_path = require_file(args.authorization, "authorization") if args.authorization else None
+        inventory_path = require_file(args.inventory, "source-isolated inventory") if args.inventory else None
+        selection_plan_path = require_file(args.selection_plan, "source selection plan") if args.selection_plan else None
+        if authorization_path is None and inventory_path is None:
+            raise ValueError("authorization or inventory is required")
         if not args.output_dir:
             raise ValueError("output-dir is required")
         manifest_path = build_workspace(
             authorization_path,
+            inventory_path,
+            selection_plan_path,
             Path(args.output_dir).resolve(),
             args.target_shard_size,
         )

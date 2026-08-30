@@ -36,6 +36,21 @@
       "modulus": 3,
       "remainder": 0,
       "modelOutputUsed": false
+    },
+    "materializedEvidence": {
+      "auditDecision": "approved_hand_roi_candidate_training_input",
+      "auditSha256": "7d2104e40f8ac822b827470693542739bebefed2aae98700ff1c817751e23f25",
+      "datasetFilesSha256": "d6d0c8828d1adf5328c40ad51b75b0f625b66b9fe3c8dda45c5e36c59292d4fe",
+      "allRolesSha256": "4781befcc4f01f362b2162ffe5a23c1224a92bd019fe4cda12fb32090f8f751d",
+      "trainImages": 519,
+      "trainPositiveImages": 359,
+      "derivedRoiImages": 85,
+      "hardNegativeImages": 160,
+      "positiveMasks": 2139,
+      "derivedRoiMasks": 487,
+      "validationImages": 30,
+      "testImages": 0,
+      "orphanFiles": 0
     }
   },
   "training": {

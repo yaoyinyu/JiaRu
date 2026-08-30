@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-08-28T17:55:44.844Z",
+  "generatedAt": "2026-08-30T12:25:17.038Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 459,
-    "passMarkerCount": 434,
+    "progressMarkerCount": 464,
+    "passMarkerCount": 438,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -224,6 +224,12 @@
         "task": "train角色甲面候选复核器与val30联合选择",
         "status": "❌ VAL REJECT（3种受限实现，未运行test100）",
         "evidence": "为避免与candidate26困难负样本计划重号，实验改称candidate27。首版CNN、一对一候选标签CNN及手工特征复核器均无法在保持128匹配时把误检严格降到19以下；特征复核器同召回点仍有32误检。全部只读取train/val角色，未触碰冻结test100、未导出、登记或部署，复核器分支结束。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE30-34-BOUNDARY-001",
+        "task": "ROI、自蒸馏与保守插值边界增强系列",
+        "status": "❌ FAIL（val30严格替换门）",
+        "evidence": "candidate30/32分别使用全量与85张确定性ROI；candidate33以candidate29同权重冻结教师传递五路软信号，27轮早停、权重`41b9bf0a…d9b`；candidate34再执行1%—8%保守插值。candidate33保持128匹配时仍有41—59误检，candidate34的1%—5%均只打平128/16/16。统一决策拒绝candidate30—34，未读取test100、未导出、登记或部署。"
       }
     ]
   },
@@ -1112,9 +1118,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 459,
-      "uniqueMarkerCount": 459,
-      "passMarkerCount": 434,
+      "markerCount": 464,
+      "uniqueMarkerCount": 464,
+      "passMarkerCount": 438,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1267,6 +1273,12 @@
           "task": "train角色甲面候选复核器与val30联合选择",
           "status": "❌ VAL REJECT（3种受限实现，未运行test100）",
           "evidence": "为避免与candidate26困难负样本计划重号，实验改称candidate27。首版CNN、一对一候选标签CNN及手工特征复核器均无法在保持128匹配时把误检严格降到19以下；特征复核器同召回点仍有32误检。全部只读取train/val角色，未触碰冻结test100、未导出、登记或部署，复核器分支结束。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE30-34-BOUNDARY-001",
+          "task": "ROI、自蒸馏与保守插值边界增强系列",
+          "status": "❌ FAIL（val30严格替换门）",
+          "evidence": "candidate30/32分别使用全量与85张确定性ROI；candidate33以candidate29同权重冻结教师传递五路软信号，27轮早停、权重`41b9bf0a…d9b`；candidate34再执行1%—8%保守插值。candidate33保持128匹配时仍有41—59误检，candidate34的1%—5%均只打平128/16/16。统一决策拒绝candidate30—34，未读取test100、未导出、登记或部署。"
         }
       ]
     },
@@ -1477,7 +1489,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "25 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001."
+      "summary": "26 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001, M2-T3-CANDIDATE30-34-BOUNDARY-001."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",

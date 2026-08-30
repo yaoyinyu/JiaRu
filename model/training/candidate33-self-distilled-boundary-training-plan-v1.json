@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate33",
+  "decision": "pre_registered_same_checkpoint_self_distilled_boundary_training",
+  "objective": "在candidate29检测与召回基线约束下，用candidate32的来源隔离平衡ROI硬真值强化完整甲面边缘，降低直接微调造成的检测头漂移。",
+  "evidenceBeforeImplementation": {
+    "candidate29Baseline": { "threshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16 },
+    "candidate30FullRoi": { "threshold": 0.5, "matched": 126, "missed": 18, "falsePositives": 15 },
+    "candidate31Interpolation": { "replacementPointFound": false, "closestPoint": "alpha0.02 at 0.45 ties 128/16/16" },
+    "candidate32BalancedRoi": { "replacementPointFound": false, "bestRecallPoint": "0.10 gives 128/16/66", "lowFalsePositivePoint": "0.45 gives 124/20/15" },
+    "conclusion": "ROI硬真值含有效边界信号，但直接微调使分类与候选分布漂移；下一轮必须用冻结的candidate29教师同时约束软分类、框、mask与边界。"
+  },
+  "input": {
+    "datasetYaml": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_30_candidate32_balanced_roi_input_v1\\candidate32-balanced-roi-training-dataset-v1\\dataset.yaml",
+    "inputAudit": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_30_candidate32_balanced_roi_input_v1\\candidate32-balanced-roi-input-audit-v1.json",
+    "inputAuditSha256": "7d2104e40f8ac822b827470693542739bebefed2aae98700ff1c817751e23f25",
+    "datasetFilesSha256": "d6d0c8828d1adf5328c40ad51b75b0f625b66b9fe3c8dda45c5e36c59292d4fe",
+    "trainImages": 519,
+    "trainPositiveImages": 359,
+    "originalPositiveImages": 274,
+    "derivedRoiImages": 85,
+    "hardNegativeImages": 160,
+    "positiveMasks": 2139,
+    "validationImages": 30,
+    "validationMasks": 144,
+    "testImages": 0
+  },
+  "teacherAndStudent": {
+    "checkpoint": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate29-soup-2026-08-30-v1\\alpha-015\\weights.pt",
+    "sha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02",
+    "teacherFrozen": true,
+    "sameCheckpointInitializationExplicit": true,
+    "hardPolygonTruthAuthoritative": true
+  },
+  "distillation": {
+    "temperature": 2.0,
+    "featureWeight": 0.15,
+    "softScoreWeight": 0.5,
+    "boxDistributionWeight": 0.5,
+    "softMaskWeight": 0.75,
+    "boundaryWeight": 0.75,
+    "topKAnchors": 24,
+    "rationale": "降低特征强制匹配以允许边界适配；保留分类和框锚定，增强软mask及边界梯度，硬真值损失不变。"
+  },
+  "training": {
+    "imgsz": 640,
+    "epochs": 60,
+    "patience": 15,
+    "batch": "auto",
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.00001,
+    "freeze": 10,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false
+  },
+  "selection": {
+    "onlySplit": "isolated-val30",
+    "deploymentInputSize": 512,
+    "replacementRule": "matched必须不少于128、missed不得多于16且falsePositives严格少于16；或在falsePositives不高于16时matched严格增加。",
+    "protectedRegressionBeforeValReplacement": "prohibited"
+  },
+  "fallback": "candidate29 remains the baseline if smoke, training, or val replacement fails",
+  "releaseState": "hold_until_all_formal_gates_pass"
+}
