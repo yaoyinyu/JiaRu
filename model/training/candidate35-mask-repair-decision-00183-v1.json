@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00183_69ef48c5000000003703554f_5.jpg",
+  "sha256": "b6f41926992213e3df9d38e81a108f32bda159c8c62330096577908da49f0d30",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-fd68e94a26a45e26",
+  "initialShardFinalSha256": "d32b1dcac3ba57cdf290ce719fc5ee6aef2a5fcdb2da197c0a5a27ab480c80dc",
+  "repairPromptsSha256": "fb6a3e2d5913464f86632adbc0ba11c03365d92e51972973c5be4a9f366a3908",
+  "manualReportSha256": "f0e9e6cb2d368e33c4639f0df6bccf53c03b4c2a0e03605494e17d322416d01e",
+  "geometryAuditSha256": "5a0102c6dabb944e278370436524de9c7dda2484f6730c49023b81b5841fd871",
+  "annotationSha256": "6d6c29fe65d1a58110c52060de469905731f3395801012a0c56a6e5b660b607a",
+  "reviewedOverlaySha256": "4a5a49169e174cf3f7980acef28a1428039a2212ae8e5e8a929b7876f1e7f283",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "删除画面角落误检与重复候选，5枚星形长甲逐甲复核完整且无皮肤、衣物或背景污染。"
+}

@@ -648,3 +648,12 @@ candidate28补强源队列已闭环为64张/442 mask、11排除、0返修；相�
 | `M2-T3-SAME-CHECKPOINT-DISTILLATION-CONTRACT-001` | 同权重自蒸馏显式合同与烟测 | ✅ PASS（训练器工程门；不构成模型质量PASS） | 新增`--allow-same-checkpoint-self-distillation`，默认仍拒绝教师/学生同哈希；显式开启时写入模式和授权证据。专项测试16/16通过，1轮GPU烟测`dis_loss`非零并完成val；硬polygon真值保持权威。 |
 
 当前识别基线仍为candidate29（val30 128/16/16），但其已消费test100仍未通过完整mask、缺甲图率与伪实例门。下一训练不再重复调整现有ROI比例或蒸馏权重，转为扩充原分辨率审核通过的透明低对比、侧视和相邻长甲真实边界真值；产品继续HOLD。
+
+## 2026-08-31 candidate35新来源真实边界难例
+
+| 标记 ID | 任务 | 状态 | 审核证据 |
+| --- | --- | --- | --- |
+| `M2-T3-CANDIDATE35-BOUNDARY-HARDCASE-001` | 新来源边界难例终审、训练与val30替换判定 | ❌ VAL REJECT（未运行test100） | 168张/45组隔离库存先按模型无关清单冻结27张；candidate29低阈值与SAM2.1-L生成195候选后，原分辨率整图/逐甲终审仅4张/20 mask晋升，22张返修、1张排除。合并输入为278正图/1672 mask、160负图、val30/test0，输入审计`93eb96a1…c28`PASS。candidate35执行640全分辨率独立mask训练18轮早停，最佳权重`1aabbc8c…107f`；部署512 val30在0.45为128/16/17，0.30为129/15/28，未满足candidate29 128/16/16的严格替换规则。未读取test100或独立发布留出，未导出、登记、前端接入或部署。 |
+| `M2-T3-CANDIDATE35-EVIDENCE-PIPELINE-001` | 冻结选择、逐甲裁片审核与合并真值证据链 | ✅ PASS（工程/数据门；不构成模型质量PASS） | 标注工作区构建器新增哈希绑定selection plan子集重放；新增SAM逐甲2倍裁片审核页与candidate35合并真值索引构建器。4张/20 mask与candidate21/candidate28训练基线零文件名和图片哈希重合；278张合并真值、角色隔离、polygon合法、同图零交叠和0 orphan均通过机器审计。专项脚本语法与回归测试通过。 |
+
+candidate35只比candidate29多1个误检，证明4张/20 mask的新真实边界监督方向接近但不足以替换。下一步返修同一隔离池剩余22张，增加透明低对比、侧视和复杂纹理甲面的原分辨率贴边真值后再训练；candidate29仍是失败状态基线，产品继续HOLD。

@@ -276,3 +276,16 @@ candidate30全量ROI、candidate31小幅插值、candidate32平衡ROI、candidat
 同权重自蒸馏工程合同及GPU反向烟测通过只证明训练链路有效，不增加任何正式发布门PASS。candidate29仍是失败状态的当前识别基线；冻结test100、独立困难负样本、三变体、生产ONNX、浏览器、四类真机、Beta、正式产品质量和双版本回滚均未晋升，完成度必须继续`decision=hold`。
 
 本轮总完成度机器重放读取464个进度标记，其中438个PASS、26个非PASS；14个正式门4通过、10失败，返回`ok=false`、`decision=hold`。报告`model/reports/nail-texture-local-inference-completion-audit.json`的SHA-256为`51374e260f060961c20979d4c6937552d25ecfc34a47ef269910042545515e0e`；该结果与candidate30—34全部止于val30、产品继续HOLD的结论一致。
+
+## candidate35新来源边界难例结论（2026-08-31）
+
+| 证据 | 结论 | 完成度影响 |
+| --- | --- | --- |
+| 新来源真值与输入审计 | 27张冻结候选经原分辨率终审只晋升4张/20 mask；合并输入为278正图/1672 mask、160负图、val30/test0，审计`93eb96a1…c28`PASS | 只证明数据与训练输入合格，不增加正式识别门PASS |
+| candidate35训练 | 640全分辨率独立mask训练18轮早停，最佳第3轮，权重`1aabbc8c…107f` | 只证明训练运行有效，不构成可发布模型 |
+| 部署512 val30 | 0.45为128匹配、16漏检、17误检；0.30为129/15/28，均未严格优于candidate29的128/16/16 | VAL REJECT；禁止test100、发布留出、导出、登记、前端接入和部署 |
+| 剩余难例 | 22张返修、1张排除，所有返修项继续`trainingUse=prohibited`直到逐甲原分辨率终审 | 下一训练输入须扩大真实贴边真值，不能把SAM候选或计数相符当PASS |
+
+candidate35没有改变正式模型、生产manifest、浏览器、真机、Beta、困难负样本发布测试或回滚门。candidate29仍为失败状态的当前识别基线；完成度继续保持`ok=false`、`decision=hold`。
+
+同步后的机器重放读取466个进度标记，其中439个PASS、27个非PASS；14个正式门仍为4通过、10失败，正确返回`ok=false`、`decision=hold`。报告SHA-256为`95eb025f28aaa225768504d6bd0c84ab3747132f823c9551b6836b92693e64f1`，新增candidate35数据工程PASS没有掩盖其val30拒绝状态。

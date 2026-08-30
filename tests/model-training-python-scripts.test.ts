@@ -20,6 +20,21 @@ async function runPython(script: string, args: string[] = []) {
   return JSON.parse(stdout) as Record<string, unknown>;
 }
 
+test("candidate35 boundary evidence builders are valid Python", async () => {
+  for (const script of [
+    "model/training/build-sam-crop-review-sheets.py",
+    "model/training/build-candidate35-combined-training-truth-index.py",
+  ]) {
+    await execFileAsync("python", [
+      "-c",
+      "from pathlib import Path; import sys; p=Path(sys.argv[1]); compile(p.read_text(encoding='utf-8'), str(p), 'exec')",
+      script,
+    ], {
+      cwd: path.resolve("."),
+    });
+  }
+});
+
 test("dataset yaml exists and contains expected paths", async () => {
   const fs = await import("node:fs/promises");
   const yaml = await fs.readFile("model/training/dataset.yaml", "utf8");

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00274_6a12b71b000000000803db68_0.jpg",
+  "sha256": "4fc7eeb65246df49d56a7729befb5256d9da0c0fb6d6038e3b2c55ecda347251",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-b2255e4a8547f66e",
+  "initialShardFinalSha256": "d32b1dcac3ba57cdf290ce719fc5ee6aef2a5fcdb2da197c0a5a27ab480c80dc",
+  "repairPromptsSha256": "fb6a3e2d5913464f86632adbc0ba11c03365d92e51972973c5be4a9f366a3908",
+  "manualReportSha256": "f0e9e6cb2d368e33c4639f0df6bccf53c03b4c2a0e03605494e17d322416d01e",
+  "geometryAuditSha256": "5a0102c6dabb944e278370436524de9c7dda2484f6730c49023b81b5841fd871",
+  "annotationSha256": "fab7b1324921ded23da8ded34c04b627e8df92912cf553568722599c6b255023",
+  "reviewedOverlaySha256": "98dda9505fa9e25f99def68f65e7ba1ca935f7c563b91e59af4377feb51a3c3d",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "第4甲的装饰跟随内凹已用凸包候选补齐；放大复核确认五枚甲面覆盖甲根、双侧缘与甲尖且未扩入皮肤。"
+}

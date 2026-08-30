@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_01264_6a29424f0000000021023db8_3.jpg",
+  "sha256": "203521ac5dafefbe3ad8a7904c8c7553574f36efd9513e4fe8c075c683f3eabc",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-ab80522aac70b0b6",
+  "initialShardFinalSha256": "c237236ca16a0a66a981dd45549b53220fadb5f0e99df0b10b551a856af19338",
+  "repairPromptsSha256": "fb6a3e2d5913464f86632adbc0ba11c03365d92e51972973c5be4a9f366a3908",
+  "manualReportSha256": "f0e9e6cb2d368e33c4639f0df6bccf53c03b4c2a0e03605494e17d322416d01e",
+  "geometryAuditSha256": "5a0102c6dabb944e278370436524de9c7dda2484f6730c49023b81b5841fd871",
+  "annotationSha256": "edad9114be71d050d1adba6c4517ab69b1bf8a83912fbe6b5d183d8d074117c6",
+  "reviewedOverlaySha256": "4b2868491ef6973b22435725f2f150bd35a10138ff33c96c0135c0a5621721fb",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 9,
+  "issueCodes": [],
+  "note": "删除戒指误检，保留双手画面中9枚完整可见甲面；逐甲复核无重复、交叠或皮肤污染。"
+}
