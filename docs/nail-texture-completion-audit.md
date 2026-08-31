@@ -302,3 +302,16 @@ candidate35没有改变正式模型、生产manifest、浏览器、真机、Beta
 candidate36/37没有改变生产manifest、浏览器、真机、Beta、困难负样本三变体、正式产品质量或回滚门。candidate29仍是失败状态基线，最终完成度必须继续`ok=false`、`decision=hold`。
 
 同步后的机器重放读取468个进度标记，其中439个PASS、29个非PASS；14个正式门仍为4通过、10失败，返回`ok=false`、`decision=hold`。报告SHA-256为`998745a3ac88a523bf6bcb5e048385517cc0efbf263b579e0ed9693b03122171`；candidate36/37两个VAL REJECT标记被正确计入阻塞项，没有被数据工程PASS掩盖。
+
+## candidate38—42硬边界训练与受保护回归结论（2026-08-31）
+
+| 证据 | 结论 | 完成度影响 |
+| --- | --- | --- |
+| 硬边界损失与边界评估器 | PASS：训练器支持显式边界权重，原分辨率2px边界F1报告可重放 | 只证明训练与测量链路成立，不增加正式模型门PASS |
+| candidate38/40 | VAL REJECT：直接硬边界训练均降低固定阈值识别匹配数 | 不运行其test100，不导出或部署 |
+| candidate41 | TEST HOLD：val30保持128/16/16且边界F1=0.60596；test100为519匹配、466完整mask、35漏甲、16额外、13无效 | 完整mask仍低于candidate29，不能替换基线 |
+| candidate42 | TEST HOLD：val30保持128/16/16且边界F1=0.61307；test100为517匹配、465完整mask、37漏甲、18额外、16无效 | 回归进一步退化，停止该插值轨迹 |
+
+candidate41质量报告SHA-256为`1e2f7b28…d9f9`，candidate42为`ebc73d00…567d`，两者均返回`hold_positive_recognition_gate`。冻结test100结果不得用于继续修改alpha、阈值、模型、后处理或样本；当前下一步仅为扩大独立train角色的原分辨率完整边界真值。正式模型、生产ONNX、浏览器、真机、Beta、困难负样本三变体、正式产品质量与回滚门均未晋升，产品继续HOLD。
+
+同步后的机器重放读取472个进度标记，其中440个PASS、32个非PASS；新增硬边界工程门正确记为PASS，candidate38—42三个质量失败标记均进入阻塞清单。14个正式门仍为4通过、10失败，报告返回`ok=false`、`decision=hold`，SHA-256为`a8de8b4a…be1d`。

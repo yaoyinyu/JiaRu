@@ -54,8 +54,13 @@ def main() -> int:
     auditor = helper.load_role_auditor()
     helper.validate_standing_authorization(authorization_path)
     base_document, base_truths = helper.validate_index(base_path, "candidate28-base", 274, 1652, auditor)
+    boundary_summary = json.loads(boundary_path.read_text(encoding="utf-8")).get("summary", {})
+    boundary_images = int(boundary_summary.get("uniqueImageCount", 0))
+    boundary_masks = int(boundary_summary.get("completeMaskCount", 0))
+    if boundary_images < 11 or boundary_masks < 59:
+        raise ValueError("candidate35边界真值不得低于已审核基线11张/59 mask")
     boundary_document, boundary_truths = helper.validate_index(
-        boundary_path, "candidate35-boundary", 11, 59, auditor
+        boundary_path, "candidate35-boundary", boundary_images, boundary_masks, auditor
     )
 
     combined: list[dict[str, Any]] = []
@@ -80,10 +85,10 @@ def main() -> int:
             batch_by_file[name] = batch
             combined.append(truth)
     combined.sort(key=lambda item: (str(item["sourceGroup"]), str(item["fileName"])))
-    expected_images = 285
-    expected_masks = 1711
+    expected_images = len(base_truths) + boundary_images
+    expected_masks = int(base_document["summary"]["completeMaskCount"]) + boundary_masks
     if len(combined) != expected_images or sum(int(item["completeMaskCount"]) for item in combined) != expected_masks:
-        raise ValueError("candidate35合并结果不再是285张/1711 mask")
+        raise ValueError("candidate35合并结果与两个输入索引的权威计数不一致")
 
     result = {
         "schemaVersion": 1,

@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00075_6a2272030000000006036a04_0.jpg",
+  "sha256": "73f12369a51959794690d79da45255810f6e7a58e4a72d80ca789b3cf096da2d",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-951205325632475e",
+  "initialShardFinalSha256": "c237236ca16a0a66a981dd45549b53220fadb5f0e99df0b10b551a856af19338",
+  "repairPromptsSha256": "c83f71c35d411ba14b7bd8b9c7495343349d34f702aae2e4619e9b438f44a2ab",
+  "manualReportSha256": "af3fc16fb83ffa63904eef4e132e55bca5f861c5a4a2e9b9f0dd8c28d14d0ea4",
+  "geometryAuditSha256": "c183c276bac1dd793e3cca3af97658e255ff9e8076e7a8fbe4d26e4bc0bc8ecb",
+  "annotationSha256": "b240867755ff8658d1c1331317308ec17b8b6d28b3d1eb5f1af970a07ad3d192",
+  "reviewedOverlaySha256": "56fcce305b8a1a37e83f5d2b368b6b0ea98c0dcb86436eb53189dbbe515f53a2",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "逐甲2倍与整图原分辨率复核通过；仅以人工polygon替换顶部甲，将旧候选下方非甲面碎片完全删除，其余四甲保持完整且无皮肤、背景或车辆控件污染。"
+}

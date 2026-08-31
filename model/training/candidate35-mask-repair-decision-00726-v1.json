@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00726_6a3cbe3c000000001101ef13_0.jpg",
+  "sha256": "e7b76b1b707275864c6d8b3995aabcc8fb9887fd4870f7d570a4cbf7e7925909",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-7953d2691086e15f",
+  "initialShardFinalSha256": "c237236ca16a0a66a981dd45549b53220fadb5f0e99df0b10b551a856af19338",
+  "repairPromptsSha256": "c83f71c35d411ba14b7bd8b9c7495343349d34f702aae2e4619e9b438f44a2ab",
+  "manualReportSha256": "af3fc16fb83ffa63904eef4e132e55bca5f861c5a4a2e9b9f0dd8c28d14d0ea4",
+  "geometryAuditSha256": "c183c276bac1dd793e3cca3af97658e255ff9e8076e7a8fbe4d26e4bc0bc8ecb",
+  "annotationSha256": "a6da680ba1041603eb8ca3327cb9cc9db01a410c2b24f0fd3d1fe4a879561113",
+  "reviewedOverlaySha256": "23cd44c3b32ef32fc5a9d172350d0406378b57f95abe48b5986a1d45fc51646a",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "correctedExpectedFullyVisibleNails": 5,
+  "expectedCountCorrectionReason": "原分辨率整图确认这是单手五甲图；初审把同一枚侧视甲的重复/污染候选误计为第六甲，实际没有第六枚完整可见甲面。",
+  "issueCodes": [],
+  "note": "逐甲2倍与整图原分辨率复核通过；人工polygon消除侧视小指甲因高光造成的内凹断口并沿真实甲缘闭合，其余四甲保持完整，无皮肤、文字或背景污染。"
+}
