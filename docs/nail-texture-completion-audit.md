@@ -328,3 +328,9 @@ candidate41质量报告SHA-256为`1e2f7b28…d9f9`，candidate42为`ebc73d00…5
 `candidate43-boundary-validation-decision-v1.json`明确通用校准器的0.35不能覆盖预注册严格替换规则。剩余5张难例继续训练禁用；candidate29仍是失败状态基线，正式模型、生产ONNX、浏览器、真机、Beta、全新困难负样本三变体和双版本回滚门均未晋升，产品继续HOLD。
 
 同步后的机器重放读取474个进度标记，其中441个PASS、33个非PASS；14个正式门仍为4通过、10失败，正确返回`ok=false`、`decision=hold`。报告SHA-256为`ea23826662834358a5e7e6ddb95f78f86f1a27d4c719142d82756c9bddd76a5d`；新增真值工程PASS没有掩盖candidate43的VAL REJECT。
+
+## candidate43后续边界真值增量（2026-09-01）
+
+`00004`因立体装饰遮挡完整甲面而按源图门排除；`00201`按原图把预期10甲纠正为实际9枚完整可见甲面，9/9贴边polygon通过原分辨率视觉、合法性、零交叠和几何门。边界真值增至19张/113 mask、合并293张/1765 mask。该数据PASS发生在candidate43训练后，不可解释为candidate43质量改善，也不增加正式发布门PASS；剩余三张继续训练禁用，产品保持HOLD。
+
+同步后的机器重放读取475个进度标记，其中442个PASS、33个非PASS；14个正式门仍为4通过、10失败，返回`ok=false`、`decision=hold`。报告SHA-256为`dc11ed4da97d5889312a1be23d6460a7819a6492f589a1cb65c38ca61cdf4aae`。

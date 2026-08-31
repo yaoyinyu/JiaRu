@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate44",
+  "decision": "pre_registered_complete_boundary_conservative_finetune",
+  "objective": "在candidate29识别基线约束下，使用已完成全部原分辨率审核的20张/118个真实边界难例，增强透明、低对比、侧视、立体装饰及多手遮挡场景的完整甲面外缘分割。",
+  "evidenceBeforeTraining": {
+    "candidate29Baseline": { "inputSize": 512, "scoreThreshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16, "microBoundaryF1": 0.6011288950896838 },
+    "candidate43": "18张/104 mask保守微调在0.35达到130/14/22、边界F1 0.59038，在0.45达到124/20/17、边界F1 0.60695；识别与边界门不能同时通过，已由val30拒绝。",
+    "candidate44Rationale": "剩余五张隔离train难例已全部终结：00201与01213新增14个完整mask，00004、01063、01245按遮挡或残缺甲面源图门排除。边界真值池不再有待审项；从candidate29重新初始化，不继承candidate43或其他val30否决权重。"
+  },
+  "input": {
+    "datasetYaml": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_1_candidate44_boundary_truth_expansion_v1/candidate44-canonical-training-dataset-v1/dataset.yaml",
+      "sha256": "7b6006fd4059eb5db8f18a689c395f7141319ca8a069b2e95243f8e3ff14db65"
+    },
+    "candidateInputAudit": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_1_candidate44_boundary_truth_expansion_v1/candidate44-candidate-training-input-audit-v1.json",
+      "sha256": "c821fd6b98512a6c2687ddfe6256f56ae7880d66b81ac6e0702340f1ac48416b",
+      "decision": "approved_candidate_training_input",
+      "datasetFilesSha256": "f3536cc52b447d2a5221497aed863e476b4aadc58f239f324605bd149e69e018",
+      "allRolesSha256": "22b0ed20cb78efd38a7b7a6fa55f9d9784cdcc5697ba47e0f556010121645b5a"
+    },
+    "materializationReport": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_1_candidate44_boundary_truth_expansion_v1/candidate44-canonical-training-materialization-v1.json",
+      "sha256": "288df939c69b3494199a09f3a4b0ff949fa714d885586dc45ed84344d2009d95"
+    },
+    "combinedTrainingTruthIndex": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_31_candidate35_boundary_expansion_v2/candidate35-combined-training-truth-index-v11.json",
+      "sha256": "d066556c4869e87f24318e89a6c47a1d0be6e49340ca8cc2d1a6525b1af585ed",
+      "canonicalTruthsSha256": "c88c45ceb5614261b816e9cd38d6a49dd751ff7ef87ba86b847ce5b20f489f45"
+    },
+    "counts": {
+      "trainImages": 454,
+      "trainPositiveImages": 294,
+      "newBoundaryHardcaseImages": 20,
+      "hardNegativeImages": 160,
+      "positiveMasks": 1770,
+      "newBoundaryHardcaseMasks": 118,
+      "validationImages": 30,
+      "validationMasks": 144,
+      "testImages": 0,
+      "orphanFiles": 0
+    }
+  },
+  "initialization": {
+    "candidate": "candidate29-alpha-015",
+    "checkpoint": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate29-soup-2026-08-30-v1/alpha-015/weights.pt",
+    "sha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02"
+  },
+  "training": {
+    "mode": "direct-supervised-complete-boundary-conservative-finetune",
+    "imgsz": 640,
+    "epochs": 40,
+    "patience": 12,
+    "batch": "auto",
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.0000025,
+    "freeze": 10,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false,
+    "hardBoundaryWeight": 0,
+    "distillation": false
+  },
+  "selection": {
+    "onlySplit": "source-isolated-val30",
+    "deploymentInputSize": 512,
+    "thresholdSearchMayUseOnlyVal30": true,
+    "recognitionNonRegression": "matched不少于128、missed不多于16、falsePositives不多于16。",
+    "boundaryImprovement": "在同一匹配IoU=0.50与原分辨率2像素容差下，匹配实例micro boundary F1必须严格高于0.6011288950896838。",
+    "replacementRule": "识别不退步且边界F1严格提高；若误检严格少于16或匹配严格多于128则优先。",
+    "protectedTest100BeforeValReplacement": "prohibited",
+    "independentReleaseHoldoutBeforeValReplacement": "prohibited"
+  },
+  "prohibitions": [
+    "不得使用受保护test100或独立发布留出选择训练轮次、阈值或权重。",
+    "不得继承candidate35至candidate43中任何被val30否决的权重。",
+    "不得把几何通过但原分辨率视觉失败的返修项加入训练。",
+    "val30未严格改善前不得导出、登记、前端接入或部署。"
+  ],
+  "releaseState": "hold_until_all_formal_gates_pass"
+}

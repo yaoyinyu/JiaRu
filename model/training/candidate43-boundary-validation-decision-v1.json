@@ -74,9 +74,23 @@
   "exportAuthorized": false,
   "frontendIntegrationAuthorized": false,
   "deploymentAuthorized": false,
-  "remainingBoundaryHardcases": 4,
+  "postCandidate43BoundaryTruth": {
+    "index": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_30_candidate35_boundary_hardcase_selected_workspace_v1\\candidate35-training-truth-index-v10.json",
+    "indexSha256": "bf23e0887178a2ae7e5dcb64631d2ebc61dc4435ae4e845ca12898b2703db11a",
+    "images": 19,
+    "masks": 113,
+    "combinedIndex": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_31_candidate35_boundary_expansion_v2\\candidate35-combined-training-truth-index-v10.json",
+    "combinedIndexSha256": "f604f9cf159b1caf9ed977d67542a52588690a1cfd170a91420116510eb902cc",
+    "combinedCanonicalTruthsSha256": "baf3e87c7d3fc4a7c5691b983882416f32e7e8df57306e2fe8abd03322438807",
+    "combinedImages": 293,
+    "combinedMasks": 1765
+  },
+  "remainingBoundaryHardcases": 3,
   "excludedAfterCandidate43": [
     "nail_00004_6997b41a000000001a01db86_7.jpg"
   ],
-  "nextAction": "继续完成00201、01063、01213、01245四张隔离train角色难例的原分辨率完整甲面审核；扩大透明低对比、复杂多手和相邻甲边界覆盖后重建下一候选，禁止围绕candidate43继续调阈值或融合已拒绝权重。"
+  "approvedAfterCandidate43": [
+    "nail_00201_6a4c43000000000006037e9e_12.jpg"
+  ],
+  "nextAction": "继续完成01063、01213、01245三张隔离train角色难例的原分辨率完整甲面审核；扩大复杂多手、透明低对比和相邻甲边界覆盖后重建下一候选，禁止围绕candidate43继续调阈值或融合已拒绝权重。"
 }
