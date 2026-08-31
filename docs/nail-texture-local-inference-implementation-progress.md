@@ -657,3 +657,12 @@ candidate28补强源队列已闭环为64张/442 mask、11排除、0返修；相�
 | `M2-T3-CANDIDATE35-EVIDENCE-PIPELINE-001` | 冻结选择、逐甲裁片审核与合并真值证据链 | ✅ PASS（工程/数据门；不构成模型质量PASS） | 标注工作区构建器新增哈希绑定selection plan子集重放；新增SAM逐甲2倍裁片审核页与candidate35合并真值索引构建器。4张/20 mask与candidate21/candidate28训练基线零文件名和图片哈希重合；278张合并真值、角色隔离、polygon合法、同图零交叠和0 orphan均通过机器审计。专项脚本语法与回归测试通过。 |
 
 candidate35只比candidate29多1个误检，证明4张/20 mask的新真实边界监督方向接近但不足以替换。下一步返修同一隔离池剩余22张，增加透明低对比、侧视和复杂纹理甲面的原分辨率贴边真值后再训练；candidate29仍是失败状态基线，产品继续HOLD。
+
+## 2026-08-31 candidate36/37扩展边界监督
+
+| 标记 ID | 任务 | 状态 | 审核证据 |
+| --- | --- | --- | --- |
+| `M2-T3-CANDIDATE36-BOUNDARY-EXPANSION-001` | 扩展真实边界真值并直接训练 | ❌ VAL REJECT（未运行test100） | candidate35返修池累计11张/59 mask通过，裁边源图明确排除、视觉边界未达标项继续返修；合并输入285正图/1711 mask、160负图、val30/test0，审计`4c006bf4…d530`PASS。candidate36训练35轮早停、最佳第20轮、权重`b86a9a0b…f145`；512 val30在0.45为124/20/20，0.10为130/14/73，无阈值满足严格替换规则。 |
+| `M2-T3-CANDIDATE37-CONSERVATIVE-SOUP-001` | candidate29与candidate36保守权重融合 | ❌ VAL REJECT（未运行test100） | 查看结果前固定alpha 0.01/0.02/0.03/0.05/0.08/0.10/0.15。1%—5%在512/0.45均只打平candidate29的128/16/16；8%及以上退化。`candidate36-37-boundary-validation-decision-v1.json`拒绝全部点，未导出、登记、接入或部署。 |
+
+本阶段确认少量高质量边界真值能够被模型吸收，但11张/59 mask仍不足以在隔离val30上同时改善召回与误检。当前识别基线继续为candidate29且产品HOLD；下一轮只扩大真实贴边真值覆盖，不继续对candidate36/37做无效阈值搜索。

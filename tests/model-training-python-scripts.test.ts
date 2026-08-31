@@ -54,6 +54,15 @@ test("train script dry-run resolves dataset and hyperparameters", async () => {
   assert.equal(result.close_mosaic, 10);
   assert.equal(result.mask_ratio, 4);
   assert.equal(result.overlap_mask, true);
+  assert.deepEqual(result.hard_boundary, {
+    contract_version: 1,
+    weight: 0,
+    kernel_size: 3,
+    signal: "reviewed-polygon-morphological-boundary",
+    base_mask_loss: "ultralytics-instance-bce",
+    hard_polygon_truth_remains_authoritative: true,
+    classification_and_box_losses_unchanged: true,
+  });
   assert.match(String(result.runtime_dataset_yaml), /resolved-dataset\.yaml$/);
   assert.match(String(result.best_weights_path), /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+nail-texture-seg-v1[\\/]+weights[\\/]+best\.pt$/);
   assert.equal(result.training_intent, "experiment");
@@ -75,11 +84,36 @@ test("train script freezes full-resolution boundary-preserving settings", async 
     "--close-mosaic", "0",
     "--mask-ratio", "1",
     "--no-overlap-mask",
+    "--hard-boundary-weight", "0.25",
+    "--hard-boundary-kernel", "3",
   ]);
   assert.equal(result.mosaic, 0);
   assert.equal(result.close_mosaic, 0);
   assert.equal(result.mask_ratio, 1);
   assert.equal(result.overlap_mask, false);
+  assert.equal((result.hard_boundary as { weight: number }).weight, 0.25);
+  assert.equal((result.hard_boundary as { kernel_size: number }).kernel_size, 3);
+});
+
+test("hard polygon boundary signal is differentiable and reacts to edge displacement", async () => {
+  const code = [
+    "import sys, torch",
+    "sys.path.insert(0, 'model/training')",
+    "from nail_texture_boundary_loss import morphological_boundary",
+    "truth=torch.zeros((1,16,16)); truth[:,4:12,4:12]=1",
+    "aligned=truth.clone().requires_grad_(True)",
+    "shifted=torch.zeros((1,16,16)); shifted[:,4:12,5:13]=1; shifted.requires_grad_(True)",
+    "tb=morphological_boundary(truth,3)",
+    "la=(morphological_boundary(aligned,3)-tb).abs().mean()",
+    "ls=(morphological_boundary(shifted,3)-tb).abs().mean()",
+    "ls.backward()",
+    "print(float(la), float(ls), float(shifted.grad.abs().sum()))",
+  ].join("; ");
+  const { stdout } = await execFileAsync("python", ["-c", code], { cwd: path.resolve(".") });
+  const [aligned, shifted, gradient] = stdout.trim().split(/\s+/).map(Number);
+  assert.equal(aligned, 0);
+  assert.ok(shifted > aligned);
+  assert.ok(gradient > 0);
 });
 
 test("train script hash-binds an interrupted checkpoint for exact resume", async () => {

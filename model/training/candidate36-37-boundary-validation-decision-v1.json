@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "decision": "reject_candidate36_and_candidate37_on_isolated_val30",
+  "releaseState": "hold",
+  "baseline": {
+    "candidate": "candidate29-alpha-015",
+    "scoreThreshold": 0.45,
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 16
+  },
+  "candidate36": {
+    "trainingPlan": "model/training/candidate36-boundary-expansion-training-plan-v1.json",
+    "trainImages": 445,
+    "trainPositiveImages": 285,
+    "hardNegativeImages": 160,
+    "positiveMasks": 1711,
+    "newBoundaryHardcaseImages": 11,
+    "newBoundaryHardcaseMasks": 59,
+    "completedEpochs": 35,
+    "bestEpoch": 20,
+    "weights": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate36-boundary-expansion-2026-08-31-v1\\nail-texture-candidate36-boundary-expansion-v1\\weights\\best.pt",
+    "weightsSha256": "b86a9a0b48742b7b97fd81f8ead43c913a69c479a1f3af6c55e040b13d60f145",
+    "trainSummarySha256": "5fd2513de983e749dd1f423a8a7830194bf748de34466a1de30196ce7d0e8bb5",
+    "validation": {
+      "deploymentInputSize": 512,
+      "metricsSha256": "ff2e28447617dbb3aff5ca24724507bc960dde2aac40e0e6476138dc212e2682",
+      "artifactIndexSha256": "7ad7aa6f9a68928fd396b0655d59555b2c5a10b4db1149385852fa11c5b59afd",
+      "calibrationReportSha256": "f251d82904d35415798851fcf076da174f5dbf187c02c6f904d1ddb3a8aad71d",
+      "thresholdSweep": {
+        "0.10": { "matched": 130, "missed": 14, "falsePositives": 73 },
+        "0.15": { "matched": 129, "missed": 15, "falsePositives": 56 },
+        "0.20": { "matched": 129, "missed": 15, "falsePositives": 47 },
+        "0.25": { "matched": 127, "missed": 17, "falsePositives": 40 },
+        "0.30": { "matched": 126, "missed": 18, "falsePositives": 29 },
+        "0.35": { "matched": 126, "missed": 18, "falsePositives": 26 },
+        "0.40": { "matched": 126, "missed": 18, "falsePositives": 22 },
+        "0.45": { "matched": 124, "missed": 20, "falsePositives": 20 },
+        "0.50": { "matched": 121, "missed": 23, "falsePositives": 18 }
+      },
+      "decision": "no_threshold_meets_validation_constraints"
+    }
+  },
+  "candidate37": {
+    "interpolationPlan": "model/training/candidate37-boundary-interpolation-plan-v1.json",
+    "base": "candidate29-alpha-015",
+    "tuned": "candidate36-boundary-expansion",
+    "deploymentInputSize": 512,
+    "resultsAtSelectedThreshold": [
+      { "alpha": 0.01, "threshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16, "weightsSha256": "0849b4868b39cf9a154b261e57a0dd189b5f8427b01ef5766cef6d7d35eec8a4", "calibrationSha256": "aa903f2cf19dfe5d0c3a376e2c84c78e58bffc31a02e75af1217470d6ac22442" },
+      { "alpha": 0.02, "threshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16, "weightsSha256": "602ec68af84d2d347b6d280ee7ff98215e39a625111823441409d3f786972e33", "calibrationSha256": "084d15d983cd205832609d8845254d2cff459657fb652ceb8557d0000de7dea5" },
+      { "alpha": 0.03, "threshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16, "weightsSha256": "9d927a794561c97ecf09edb4d405871bb919ae0b44b9586a35fa91f451ed4b0a", "calibrationSha256": "1bba4c51ed7cdab157f5c92b4e328a6b8b59c558896a7d585a4d147b58a1ae13" },
+      { "alpha": 0.05, "threshold": 0.45, "matched": 128, "missed": 16, "falsePositives": 16, "weightsSha256": "0692bc022f28e4e68541b960a12e8ae8c030dba0e2a6e053f98fade42c36e406", "calibrationSha256": "9d9558af27085d43cc3fdb6deb36184c123b3d06da778700c60fce2383042de6" },
+      { "alpha": 0.08, "threshold": 0.45, "matched": 127, "missed": 17, "falsePositives": 18, "weightsSha256": "44cf411313a95d1cfaed722971f279760890cd36dfc16513aca388bba6e478d3", "calibrationSha256": "88b35e45bf078588b9ed47f7ed1bba2fc6e82851ce0b135693cd76dfea7f9a14" },
+      { "alpha": 0.10, "threshold": 0.45, "matched": 127, "missed": 17, "falsePositives": 18, "weightsSha256": "9b6331f8a31799ed80768a962b02b241ed7a6fc64a76d47062c2fc09a02462ac", "calibrationSha256": "00a21551ed4c7e373f3c783c454e3605bebb345c39f6508a89437585ce3b607d" },
+      { "alpha": 0.15, "threshold": 0.45, "matched": 127, "missed": 17, "falsePositives": 19, "weightsSha256": "b57a817812c627a3b610fde63d63b5f9843b885b88fe260f86270a875e1fa160", "calibrationSha256": "1db39a557b691e96db00eca24ee61c575ff5275423eebd1536d91fd917eaece8" }
+    ],
+    "replacementRuleSatisfied": false,
+    "conclusion": "alpha 0.01至0.05只复现candidate29基线且没有严格改善；alpha不低于0.08开始退化。"
+  },
+  "replacementRule": "matched必须不少于128、missed不得多于16且falsePositives严格少于16；或在falsePositives不高于16时matched严格增加。",
+  "protectedTest100Used": false,
+  "independentReleaseHoldoutUsed": false,
+  "exportAuthorized": false,
+  "frontendIntegrationAuthorized": false,
+  "deploymentAuthorized": false,
+  "nextAction": "继续返修同一来源隔离池中尚未通过的真实边界难例并补充透明、低对比、侧视及复杂装饰覆盖；扩大原分辨率完整甲面真值后重新训练，禁止继续围绕candidate36或candidate37调阈值。"
+}

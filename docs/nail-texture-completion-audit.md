@@ -289,3 +289,16 @@ candidate30全量ROI、candidate31小幅插值、candidate32平衡ROI、candidat
 candidate35没有改变正式模型、生产manifest、浏览器、真机、Beta、困难负样本发布测试或回滚门。candidate29仍为失败状态的当前识别基线；完成度继续保持`ok=false`、`decision=hold`。
 
 同步后的机器重放读取466个进度标记，其中439个PASS、27个非PASS；14个正式门仍为4通过、10失败，正确返回`ok=false`、`decision=hold`。报告SHA-256为`95eb025f28aaa225768504d6bd0c84ab3747132f823c9551b6836b92693e64f1`，新增candidate35数据工程PASS没有掩盖其val30拒绝状态。
+
+## candidate36/37扩展边界监督结论（2026-08-31）
+
+| 证据 | 结论 | 完成度影响 |
+| --- | --- | --- |
+| 返修真值与输入 | 累计11张/59 mask通过原分辨率完整甲面审核；合并为285正图/1711 mask、160负图、val30/test0，审计`4c006bf4…d530`PASS | 只证明训练输入合格，不增加正式模型门PASS |
+| candidate36训练与val30 | 35轮早停、最佳第20轮、权重`b86a9a0b…f145`；512/0.45为124/20/20，0.10为130/14/73 | VAL REJECT；低阈值召回增加不能抵消73个误检 |
+| candidate37保守融合 | 预注册7个alpha；1%—5%只打平128/16/16，8%及以上退化 | VAL REJECT；没有严格替换candidate29 |
+| 受保护证据 | test100与独立发布留出均未读取，未导出、登记、接入或部署 | 避免污染后续门，但发布状态不变 |
+
+candidate36/37没有改变生产manifest、浏览器、真机、Beta、困难负样本三变体、正式产品质量或回滚门。candidate29仍是失败状态基线，最终完成度必须继续`ok=false`、`decision=hold`。
+
+同步后的机器重放读取468个进度标记，其中439个PASS、29个非PASS；14个正式门仍为4通过、10失败，返回`ok=false`、`decision=hold`。报告SHA-256为`998745a3ac88a523bf6bcb5e048385517cc0efbf263b579e0ed9693b03122171`；candidate36/37两个VAL REJECT标记被正确计入阻塞项，没有被数据工程PASS掩盖。
