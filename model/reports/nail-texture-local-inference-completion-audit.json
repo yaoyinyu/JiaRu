@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-08-31T17:25:18.035Z",
+  "generatedAt": "2026-08-31T17:44:37.941Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 474,
-    "passMarkerCount": 441,
+    "progressMarkerCount": 475,
+    "passMarkerCount": 442,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -1160,9 +1160,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 474,
-      "uniqueMarkerCount": 474,
-      "passMarkerCount": 441,
+      "markerCount": 475,
+      "uniqueMarkerCount": 475,
+      "passMarkerCount": 442,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [

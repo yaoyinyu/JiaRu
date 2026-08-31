@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00201_6a4c43000000000006037e9e_12.jpg",
+  "sha256": "6653ca4535437bcad7d1d237568f30ffdf9b1e3383e4243b0b5777af11c74c63",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-524de956d6c568f4",
+  "initialShardFinalSha256": "c237236ca16a0a66a981dd45549b53220fadb5f0e99df0b10b551a856af19338",
+  "repairPromptsSha256": "710d3bc97826e9dd3f242305c515e9b113d03eb85c02319626c4c696daabf34a",
+  "manualReportSha256": "62be1a74db04d46e62e44e377e137358730fa211bbb5b69d3e77ebd8c9b4061d",
+  "geometryAuditSha256": "a3aef5585708fb44660c146e9c86afef6d24c28ce89f4e6a1b3f18db39efdd28",
+  "annotationSha256": "4558c526b49c896747c6ca6daf6ea7c4edd07ef07fb62fd986abf318404d8256",
+  "reviewedOverlaySha256": "5e480622792beebfba875621733a391ce96dd054e66921de7c8022ae825fd192",
+  "reviewStatus": "pass",
+  "correctedExpectedFullyVisibleNails": 9,
+  "expectedCountCorrectionReason": "原分辨率整图确认左上弯曲手指只露指侧和微小反光，甲板主体、甲根及双侧缘不可见，不属于完整可见应标甲面；其余双手共9枚甲面完整可见。",
+  "finalCompleteMaskCount": 9,
+  "issueCodes": [],
+  "note": "九枚透明裸色长甲均经整图与逐甲2倍复核；七枚低对比SAM边界的假凹口以原polygon凸包恢复连续杏仁甲外缘，第6、8枚保留原边界。全部覆盖完整甲根、双侧缘和甲尖，无皮肤、邻指、背景、水印、重复或交叠污染。"
+}

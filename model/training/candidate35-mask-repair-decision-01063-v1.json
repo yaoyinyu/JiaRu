@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "decision": "exclude_source_image_after_original_resolution_review",
+  "trainingUse": "prohibited",
+  "fileName": "nail_01063_69417639000000001f005854_0.jpg",
+  "imageSha256": "6825af044ef25bdf2bee782eff4368defc71aa39da2a1dd7e4a5890f854ceb8c",
+  "reviewedAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_selected_workspace_v1/candidate29-sam21l-annotations-v1/nail_01063_69417639000000001f005854_0.json",
+  "reviewedAnnotationSha256": "341f50dbd0a23e4adb39dfb723cf4c3e2a73c5c15eaf2b986402bb02f114e086",
+  "originalResolutionReviewCompleted": true,
+  "reviewStatus": "exclude",
+  "issueCodes": [
+    "multiple_required_nails_partially_occluded",
+    "three_hand_intersection_boundary_ambiguity",
+    "duplicate_and_overlapping_candidates"
+  ],
+  "finalCompleteMaskCount": 0,
+  "note": "三手交叠场景中多枚应标甲面仅露侧缘或自由缘，并被邻指、邻甲或衣袖遮挡；18个候选还包含同甲重复与跨甲交叠。原图无法可靠恢复所有甲面的完整甲根、双侧缘和甲尖，按源图门整图排除，不用人工猜测遮挡边界凑数。"
+}

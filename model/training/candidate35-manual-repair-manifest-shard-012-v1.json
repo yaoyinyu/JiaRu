@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "decision": "original_resolution_reviewed_full_surface_boundary_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "reviewNote": "单手五枚透明灰色渐变长甲均完整可见。保留五个一甲一候选，丢弃三个吸收整段手指或重复甲面的候选；对透明低对比造成的不真实凹口使用原polygon凸包恢复连续甲缘，第4枚原边界已连续且无污染，直接保留。",
+  "images": [
+    {
+      "fileName": "nail_01213_69ccbc4e000000002202797d_0.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_selected_workspace_v1/candidate29-sam21l-annotations-v1/nail_01213_69ccbc4e000000002202797d_0.json",
+      "nails": [
+        { "sourceIndex": 1, "convexHullSourcePolygon": true },
+        { "sourceIndex": 2, "convexHullSourcePolygon": true },
+        { "sourceIndex": 3, "convexHullSourcePolygon": true },
+        { "sourceIndex": 4 },
+        { "sourceIndex": 5, "convexHullSourcePolygon": true }
+      ]
+    }
+  ]
+}
