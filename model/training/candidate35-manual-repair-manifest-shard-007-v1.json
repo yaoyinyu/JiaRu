@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "decision": "original_resolution_reviewed_ui_false_positive_removal_candidate_only",
+  "trainingUse": "prohibited",
+  "reviewNote": "原分辨率整图及逐甲2倍复核确认sourceIndex 1至9为两只手中九枚完整可见甲面；sourceIndex 10是右下角静音界面按钮。画面右下边缘仅出现被裁断手指，未形成第十枚完整可见甲面，因此删除界面误标并将预期计数从10纠正为9。",
+  "images": [
+    {
+      "fileName": "nail_00325_69fedf6800000000350299d3_0.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_selected_workspace_v1/candidate29-sam21l-annotations-v1/nail_00325_69fedf6800000000350299d3_0.json",
+      "nails": [
+        { "sourceIndex": 1 }, { "sourceIndex": 2 }, { "sourceIndex": 3 },
+        { "sourceIndex": 4 }, { "sourceIndex": 5 }, { "sourceIndex": 6 },
+        { "sourceIndex": 7 }, { "sourceIndex": 8 }, { "sourceIndex": 9 }
+      ]
+    }
+  ]
+}

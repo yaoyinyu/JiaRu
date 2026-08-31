@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00527_6a057694000000003503189b_0.jpg",
+  "sha256": "98a9c5cb85ea7f5125008b12c05282e932c751212ea885fdedf4d899f396c38d",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-eceb6e2ca79da4bd",
+  "initialShardFinalSha256": "d32b1dcac3ba57cdf290ce719fc5ee6aef2a5fcdb2da197c0a5a27ab480c80dc",
+  "repairPromptsSha256": "ff6d1a7cfa14b57cf62d1b15142c937a31a48bff2fc97e562492eb11f79cac3f",
+  "manualReportSha256": "a9c8da48159794601a86360c8d5af8a63c141577a4852913f772e9de9387fbad",
+  "geometryAuditSha256": "0e234fe16cff20b609b9eead4b1f38f6d484c13486070e5a09ff96afefea1949",
+  "annotationSha256": "3842234998f6737a166bb82f514214d807bc3e9af5814af0448751898ee2f9fa",
+  "reviewedOverlaySha256": "5b976ab5395127a00a2dafa290103af1abc1afaa0ba2296a18e53ca72d5701dd",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "五枚甲面均经整图与逐甲2倍原分辨率复核；第3、4枚以凸包修复装饰造成的假内凹，第5枚保留侧视透明甲片与指腹之间的真实凹形分界，所有mask均覆盖完整甲根、双侧缘与甲尖且无皮肤或衣物污染。"
+}

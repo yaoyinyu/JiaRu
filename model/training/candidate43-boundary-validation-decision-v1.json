@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "decision": "reject_candidate43_on_isolated_val30",
+  "releaseState": "hold",
+  "baseline": {
+    "candidate": "candidate29-alpha-015",
+    "scoreThreshold": 0.45,
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 16,
+    "boundaryF1": 0.6011288950896838
+  },
+  "candidate43": {
+    "trainingPlan": "model/training/candidate43-expanded-boundary-conservative-training-plan-v1.json",
+    "trainingPlanSha256": "b2bc823ff2fd0fea7721f6e7fa0d95211d355817343a0963a0af825e7900d082",
+    "trainImages": 452,
+    "trainPositiveImages": 292,
+    "hardNegativeImages": 160,
+    "positiveMasks": 1756,
+    "newBoundaryHardcaseImages": 18,
+    "newBoundaryHardcaseMasks": 104,
+    "combinedTruthIndexSha256": "d6667f669e69ff7fc9b271043c93a44102dc2b946abf09e3abb42c3d8d77a605",
+    "combinedCanonicalTruthsSha256": "f1044c953311011e14bf5e8a4509a9ba2610df06da56212d85690978e6fda5cc",
+    "datasetFilesSha256": "d661dda9e72273461b1c24b3f58e5eaba313a0cdafdbfe00c69e56b4c1bd98e6",
+    "inputAuditSha256": "2df809bcfb984c2222d14a60a3062b3c9d3b4ffb3c2de3375501fd3232148613",
+    "allRolesSha256": "a9d11f34cb2154e5f9c99b5abed700c578f458f2aa3fed06eae59eb89bab4c8a",
+    "completedEpochs": 25,
+    "bestEpoch": 13,
+    "bestFitness": 0.5838000000000001,
+    "weights": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate43-expanded-boundary-2026-08-31-v1\\nail-texture-candidate43-expanded-boundary-v1\\weights\\best.pt",
+    "weightsBytes": 45169065,
+    "weightsSha256": "893945ce4b289c6e8be9f5d826bef35bf0753e5bdbeae1e4db34e923ddcd4f05",
+    "trainSummarySha256": "4c235476232ffeb7dfa2c08473e177fa550d9ed249fbae418844d8c89e72dc01",
+    "validation": {
+      "deploymentInputSize": 512,
+      "groundTruthImages": 30,
+      "groundTruthMasks": 144,
+      "metricsSha256": "4c190257f1bb3e80282b05b10a96ed4bc678acb6bae9dfa329525e3db2f8df7b",
+      "artifactIndexSha256": "d4fc8e97c11fc72b7c6aa00566462f35b2d5a092b598983c859ff688c8a2f002",
+      "calibrationReportSha256": "efbd23f694c1fcafc0b5407a307443231ea85346ea5094c793a3074396df74ed",
+      "thresholdSweep": {
+        "0.10": { "matched": 131, "missed": 13, "falsePositives": 80 },
+        "0.15": { "matched": 131, "missed": 13, "falsePositives": 63 },
+        "0.20": { "matched": 131, "missed": 13, "falsePositives": 46 },
+        "0.25": { "matched": 130, "missed": 14, "falsePositives": 37 },
+        "0.30": { "matched": 130, "missed": 14, "falsePositives": 27 },
+        "0.35": { "matched": 130, "missed": 14, "falsePositives": 22 },
+        "0.40": { "matched": 127, "missed": 17, "falsePositives": 19 },
+        "0.45": { "matched": 124, "missed": 20, "falsePositives": 17 },
+        "0.50": { "matched": 124, "missed": 20, "falsePositives": 15 }
+      },
+      "boundaryAtThreshold035": {
+        "matched": 130,
+        "boundaryF1": 0.5903844052566739,
+        "boundaryPrecision": 0.6092703604304096,
+        "boundaryRecall": 0.5726340887574656,
+        "reportSha256": "697c7ec0f8405adc77e0461de2847bd88c65b330f4513d17654f829772894dd0"
+      },
+      "boundaryAtThreshold045": {
+        "matched": 124,
+        "boundaryF1": 0.6069489257971113,
+        "boundaryPrecision": 0.623893922534838,
+        "boundaryRecall": 0.590900044778347,
+        "reportSha256": "b10699857175275da729821cc5fac1333da3bd7a83f2cdd657ac42daec398165"
+      },
+      "decision": "no_threshold_meets_validation_constraints"
+    }
+  },
+  "replacementRule": "matched必须不少于128、missed不得多于16且falsePositives严格少于16；或在falsePositives不高于16时matched严格增加。",
+  "replacementRuleSatisfied": false,
+  "conclusion": "阈值0.35把匹配提高到130但误检升至22且边界F1低于candidate29；阈值0.45虽把边界F1提高到0.60695，但匹配退化为124且误检为17。没有阈值同时满足识别非退化、误检预算和严格改进，因此拒绝candidate43。通用校准器给出的0.35不能覆盖预注册的候选替换规则。",
+  "protectedTest100Used": false,
+  "independentReleaseHoldoutUsed": false,
+  "exportAuthorized": false,
+  "frontendIntegrationAuthorized": false,
+  "deploymentAuthorized": false,
+  "remainingBoundaryHardcases": 4,
+  "excludedAfterCandidate43": [
+    "nail_00004_6997b41a000000001a01db86_7.jpg"
+  ],
+  "nextAction": "继续完成00201、01063、01213、01245四张隔离train角色难例的原分辨率完整甲面审核；扩大透明低对比、复杂多手和相邻甲边界覆盖后重建下一候选，禁止围绕candidate43继续调阈值或融合已拒绝权重。"
+}

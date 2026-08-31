@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00661_69fea34c0000000035025b53_0.jpg",
+  "sha256": "b670bb0712f4b69b0ad27890b1080a9c75a47a90c85e7c6c2132b00a311ce18e",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-247f2e5e1998a3b9",
+  "initialShardFinalSha256": "c237236ca16a0a66a981dd45549b53220fadb5f0e99df0b10b551a856af19338",
+  "repairPromptsSha256": "af2f3425b596ba7c5a5b2fbf44bdbf88a9ec9d945c93eb6a9a80306c12cf4aaa",
+  "manualReportSha256": "b46737ec4b09583e26ae5abbc46de94703c8b84ce0c8c68104c41c82791560b7",
+  "geometryAuditSha256": "6511329b5d56642a6bb4693848286dabf9fe1d8af19dd329565094f25e18fad2",
+  "annotationSha256": "edec6be9cd7a3fb2c59c11b6dde5867dd6b71b2ca97f4e9279f7805a323e26a0",
+  "reviewedOverlaySha256": "36811e44f4a2c3050999426c49a3be0473610f0a0ae3c75bc279fa47290995df",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 5,
+  "issueCodes": [],
+  "note": "删除左上背景花瓶口误标，保留五枚完整甲面；整图与逐甲2倍原分辨率复核确认甲根、双侧缘和甲尖完整。侧视拇指为真实凹形透明长甲，几何提示框移入真实甲面但未改写或填入指腹polygon。"
+}

@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00474_6a1fcb080000000022022c73_0.jpg",
+  "sha256": "f3fb3ff33c34da6479506d8c136f8b976c67b0cc7cadc58ff57d48b578103c30",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-dcedcf2a0d5d6889",
+  "initialShardFinalSha256": "c237236ca16a0a66a981dd45549b53220fadb5f0e99df0b10b551a856af19338",
+  "repairPromptsSha256": "702f744dab7fc40282282ac93cd8c829b29589bdd1ee68395a02968b99eed5e4",
+  "manualReportSha256": "e1e6fd4cdf4ff3f6975bfc002c1b089571f151d6480d45ee04d7af707c36a9e9",
+  "geometryAuditSha256": "e17ec9f591920a134d724e0a6572bc3775ff08de6719c417de6d71b3400fe3fe",
+  "annotationSha256": "5ef06c72f61990a81386e84ca3cd076bac0ab67396132fb2420e6f9ebd22f717",
+  "reviewedOverlaySha256": "518db146ab2417c5b24e8c354befbc6736bf385766a3826b8fd2feee39c0b5c9",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 8,
+  "correctedExpectedFullyVisibleNails": 8,
+  "expectedCountCorrectionReason": "原分辨率整图确认上方手五枚甲面完整可见、下方手三枚甲面完整可见；下方手其余两枚甲面被手势完全遮挡，画面中不存在可标注的第九、第十枚完整甲面。",
+  "issueCodes": [],
+  "note": "八枚甲面均经整图和逐甲2倍原分辨率复核，完整覆盖甲根、双侧缘和甲尖，无皮肤、衣物或背景污染。"
+}

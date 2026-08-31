@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "decision": "original_resolution_reviewed_expected_count_correction_candidate_only",
+  "trainingUse": "prohibited",
+  "reviewNote": "原分辨率整图确认两手各有四枚完整可见甲面，共八枚；左右拇指只露出指腹，甲面朝向背面且不可见，不属于漏标。sourceIndex 1至8逐甲2倍复核均覆盖完整甲板外缘。",
+  "images": [
+    {
+      "fileName": "nail_01045_6a06843500000000360314b2_2.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_selected_workspace_v1/candidate29-sam21l-annotations-v1/nail_01045_6a06843500000000360314b2_2.json",
+      "nails": [
+        { "sourceIndex": 1 }, { "sourceIndex": 2 }, { "sourceIndex": 3 }, { "sourceIndex": 4 },
+        { "sourceIndex": 5 }, { "sourceIndex": 6 }, { "sourceIndex": 7 }, { "sourceIndex": 8 }
+      ]
+    }
+  ]
+}
