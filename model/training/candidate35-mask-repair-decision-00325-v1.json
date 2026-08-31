@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00325_69fedf6800000000350299d3_0.jpg",
+  "sha256": "ee5fe86eec0c4aed361bb5442542675fdc701ad2d70e6c5b3efb518142b4afeb",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e067277bcd4b99cb",
+  "initialShardFinalSha256": "d32b1dcac3ba57cdf290ce719fc5ee6aef2a5fcdb2da197c0a5a27ab480c80dc",
+  "repairPromptsSha256": "77d5d9aed0fbf45724ad766a96f2d353d5eb7e73b52d04c29014b75c73a42c3d",
+  "manualReportSha256": "fa63288155a9d89e1f804f86b246562847d4fcd34bee1506ae5ef4f41f1c1465",
+  "geometryAuditSha256": "166469cf8a2e05153bd318dd7e09ca6f94da3c6c41ca5011632729ccd5813082",
+  "annotationSha256": "a29fd002a644f8d5785e31d5f5f999a187c81b195197a32a98181c3707c8df8f",
+  "reviewedOverlaySha256": "55e905a868d0acd68226ff18c5acc85ceef3a1f5f3610230a7ad4345f341d73b",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 9,
+  "correctedExpectedFullyVisibleNails": 9,
+  "expectedCountCorrectionReason": "原分辨率整图确认两只手共有九枚完整可见甲面；画面右下边缘只出现被裁断手指且其甲面不可见，初审把右下静音按钮误当第十候选后又推断漏甲，实际不存在可标注的第十枚完整甲面。",
+  "issueCodes": [],
+  "note": "删除右下静音界面按钮误标；九枚真实甲面均经整图与逐甲2倍复核，甲根、两侧和甲尖完整，无皮肤或背景污染。"
+}

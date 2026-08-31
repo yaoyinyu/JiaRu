@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "decision": "original_resolution_reviewed_expected_count_correction_candidate_only",
+  "trainingUse": "prohibited",
+  "reviewNote": "原分辨率整图确认画面中只有八枚完整可见甲面：上方手五枚、下方手三枚；下方手另外两枚甲面被手势完全遮挡而非漏标。sourceIndex 1至8逐甲2倍复核均覆盖完整甲根、两侧缘和甲尖，无皮肤、衣物或背景污染。",
+  "images": [
+    {
+      "fileName": "nail_00474_6a1fcb080000000022022c73_0.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_selected_workspace_v1/candidate29-sam21l-annotations-v1/nail_00474_6a1fcb080000000022022c73_0.json",
+      "nails": [
+        { "sourceIndex": 1 }, { "sourceIndex": 2 }, { "sourceIndex": 3 }, { "sourceIndex": 4 },
+        { "sourceIndex": 5 }, { "sourceIndex": 6 }, { "sourceIndex": 7 }, { "sourceIndex": 8 }
+      ]
+    }
+  ]
+}
