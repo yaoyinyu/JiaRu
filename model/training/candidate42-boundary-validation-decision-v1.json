@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "decision": "select_candidate42_alpha_0_30_on_val30_boundary_pareto",
+  "plan": "model/training/candidate42-extended-boundary-pareto-interpolation-plan-v1.json",
+  "baseline": {
+    "candidate": "candidate29-alpha-015",
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 16,
+    "microBoundaryF1": 0.6011288950896838
+  },
+  "evaluated": [
+    {"alpha": 0.12, "matched": 128, "missed": 16, "falsePositives": 16, "microBoundaryF1": 0.6066015145912586},
+    {"alpha": 0.15, "matched": 128, "missed": 16, "falsePositives": 16, "microBoundaryF1": 0.6068408158170632},
+    {"alpha": 0.20, "matched": 128, "missed": 16, "falsePositives": 16, "microBoundaryF1": 0.6092377440202174},
+    {"alpha": 0.25, "matched": 128, "missed": 16, "falsePositives": 16, "microBoundaryF1": 0.6108583391867294},
+    {"alpha": 0.30, "matched": 128, "missed": 16, "falsePositives": 16, "microBoundaryF1": 0.6130725717097925}
+  ],
+  "selected": {
+    "candidate": "candidate42-alpha-0.30",
+    "weightsPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate42-extended-boundary-pareto-2026-08-31-v1\\alpha-300\\weights.pt",
+    "weightsSha256": "a0de61978a74e30908a2b8ea1be6bf9d9c96bfaa311e4e1dede6bc28eacd3895",
+    "inputSize": 512,
+    "scoreThreshold": 0.45,
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 16,
+    "microBoundaryF1": 0.6130725717097925,
+    "relativeBoundaryF1GainVsCandidate29": 0.01986874625318177
+  },
+  "selectionEvidence": "只读取来源隔离val30的固定阈值识别计数和原分辨率2px边界F1；candidate41的test100结果未参与alpha选择。",
+  "next": "锁定candidate42后仅执行受保护test100回归；不得据此修改alpha、阈值、模型或后处理。",
+  "releaseState": "hold"
+}
