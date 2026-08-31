@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate42",
+  "decision": "pre_registered_extended_boundary_pareto_interpolation",
+  "objective": "在不改变部署尺寸、阈值和后处理的前提下，继续沿candidate29到candidate40的单一权重轨迹搜索更强边界点；选择只依据来源隔离val30，冻结test100不得参与选择。",
+  "base": {
+    "candidate": "candidate29-alpha-015",
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate29-soup-2026-08-30-v1\\alpha-015\\weights.pt",
+    "sha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02"
+  },
+  "tuned": {
+    "candidate": "candidate40-low-hard-boundary",
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate40-low-hard-boundary-2026-08-31-v1\\nail-texture-candidate40-low-hard-boundary-v1\\weights\\best.pt",
+    "sha256": "39b1b0f947abe73a108fe37d545f7d3da3c58052e2e1a3a158346d181b1cf8d2"
+  },
+  "alphas": [0.12, 0.15, 0.20, 0.25, 0.30],
+  "deploymentEvaluation": {
+    "inputSize": 512,
+    "split": "source-isolated-val30",
+    "threshold": 0.45,
+    "validationImages": 30,
+    "truthMasks": 144,
+    "matchIou": 0.50,
+    "strongIou": 0.75,
+    "boundaryTolerancePixelsAtOriginalResolution": 2
+  },
+  "selectionRule": {
+    "baseline": {
+      "candidate": "candidate29-alpha-015",
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 16,
+      "microBoundaryF1": 0.6011288950896838
+    },
+    "requiredOutcome": "在固定阈值0.45时matched不少于128、missed不多于16、falsePositives不多于16，且microBoundaryF1严格高于0.6011288950896838。",
+    "ranking": [
+      "matchedDescending",
+      "falsePositivesAscending",
+      "microBoundaryF1Descending",
+      "alphaAscending"
+    ]
+  },
+  "test100Handling": "candidate41的受保护回归失败仅登记为回归事实，不作为本轮alpha选择、阈值选择或停止条件。candidate42先独立完成val30锁定，锁定前不得再次读取test100。",
+  "prohibitions": [
+    "不得使用test100或发布留出选择alpha。",
+    "不得扫描阈值或改变0.45共享候选阈值。",
+    "不满足识别与边界双门的点不得导出、登记、接入或部署。"
+  ],
+  "releaseState": "hold"
+}

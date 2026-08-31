@@ -1,0 +1,36 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate42_alpha_0_30_boundary_pareto_locked_ready_for_protected_test100_regression",
+  "lockedBeforeTest100": true,
+  "model": {
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate42-extended-boundary-pareto-2026-08-31-v1\\alpha-300\\weights.pt",
+    "sha256": "a0de61978a74e30908a2b8ea1be6bf9d9c96bfaa311e4e1dede6bc28eacd3895",
+    "bytes": 90018153,
+    "architecture": "yolo11m-seg",
+    "inputSize": 512,
+    "scoreThreshold": 0.45
+  },
+  "interpolation": {
+    "alpha": 0.30,
+    "baseRole": "candidate29-recognition-baseline",
+    "candidateRole": "candidate40-low-hard-boundary-student",
+    "reportPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate42-extended-boundary-pareto-2026-08-31-v1\\alpha-300\\interpolation-report.json",
+    "reportSha256": "df274a6218ad5b3b2dfdfdca670cc2ef9514dbf1f60674d98628b2cb1248c837"
+  },
+  "validation": {
+    "calibrationPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate42-extended-boundary-pareto-2026-08-31-v1\\alpha-300\\formal-val30-primary-recall-calibration-v1.json",
+    "calibrationSha256": "dbe50615f54b5425c7b45e5f856c816d0d4f09319d663687317619e122923284",
+    "metricsPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate42-extended-boundary-pareto-2026-08-31-v1\\alpha-300\\formal-val30-canonical-512-v1\\metrics.json",
+    "metricsSha256": "6bdc2f03e9f88f50944530d30ae27d3cae94fc93323a0c880d63be7e6fe90bf6",
+    "artifactIndexPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate42-extended-boundary-pareto-2026-08-31-v1\\alpha-300\\formal-val30-canonical-512-v1\\artifacts\\evaluation-artifacts.json",
+    "artifactIndexSha256": "af5372c03a90d1ab0913ea506ed9323eed01accbd8d5728a720f06303fffd1d5",
+    "boundaryReportPath": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate42-extended-boundary-pareto-2026-08-31-v1\\alpha-300\\formal-val30-boundary-quality-threshold-045-v1.json",
+    "boundaryReportSha256": "aff87c7bcdc08b68181e0e09cd2397598ac298147e684fda78bda0ee9d71480e",
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 16,
+    "microBoundaryF1": 0.6130725717097925
+  },
+  "postTestPolicy": "受保护test100仅作回归；结果不得用于修改alpha、阈值、权重或后处理。若未改善，则停止该插值轨迹并回到新增原分辨率边界真值。",
+  "releaseState": "hold"
+}
