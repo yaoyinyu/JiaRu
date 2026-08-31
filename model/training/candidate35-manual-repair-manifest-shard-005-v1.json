@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "decision": "original_resolution_reviewed_local_boundary_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "reviewNote": "仅替换原分辨率复核中确认存在结构伪影的单个甲面polygon；其余四枚已审核甲面沿用上一轮候选。00075删除顶部甲下方非甲面碎片，00726平滑侧视甲由高光造成的内凹缺口；全部产物仍须逐甲原分辨率终审。",
+  "images": [
+    {
+      "fileName": "nail_00075_6a2272030000000006036a04_0.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_selected_workspace_v1/candidate35-manual-repair-shard-004-v1/annotations/nail_00075_6a2272030000000006036a04_0.json",
+      "nails": [
+        { "sourceIndex": 1 },
+        { "sourceIndex": 2 },
+        { "sourceIndex": 3 },
+        { "sourceIndex": 4 },
+        {
+          "polygon": [
+            { "x": 475, "y": 571 }, { "x": 485, "y": 563 },
+            { "x": 496, "y": 558 }, { "x": 512, "y": 556 },
+            { "x": 542, "y": 557 }, { "x": 554, "y": 562 },
+            { "x": 556, "y": 573 }, { "x": 553, "y": 590 },
+            { "x": 545, "y": 592 }, { "x": 537, "y": 597 },
+            { "x": 522, "y": 596 }, { "x": 497, "y": 597 },
+            { "x": 485, "y": 593 }, { "x": 474, "y": 582 },
+            { "x": 474, "y": 579 }, { "x": 476, "y": 576 }
+          ]
+        }
+      ]
+    },
+    {
+      "fileName": "nail_00726_6a3cbe3c000000001101ef13_0.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_selected_workspace_v1/candidate35-manual-repair-shard-004-v1/annotations/nail_00726_6a3cbe3c000000001101ef13_0.json",
+      "nails": [
+        { "sourceIndex": 1 },
+        { "sourceIndex": 2 },
+        { "sourceIndex": 3 },
+        { "sourceIndex": 4 },
+        {
+          "polygon": [
+            { "x": 245, "y": 773 }, { "x": 260, "y": 764 },
+            { "x": 276, "y": 762 }, { "x": 289, "y": 769 },
+            { "x": 303, "y": 776 }, { "x": 316, "y": 784 },
+            { "x": 329, "y": 792 }, { "x": 334, "y": 800 },
+            { "x": 341, "y": 821 }, { "x": 346, "y": 827 },
+            { "x": 348, "y": 835 }, { "x": 356, "y": 847 },
+            { "x": 359, "y": 859 }, { "x": 359, "y": 869 },
+            { "x": 351, "y": 877 }, { "x": 345, "y": 880 },
+            { "x": 340, "y": 880 }, { "x": 324, "y": 874 },
+            { "x": 303, "y": 862 }, { "x": 283, "y": 849 },
+            { "x": 273, "y": 838 }, { "x": 265, "y": 824 },
+            { "x": 248, "y": 807 }, { "x": 243, "y": 798 },
+            { "x": 242, "y": 780 }
+          ]
+        }
+      ]
+    }
+  ]
+}

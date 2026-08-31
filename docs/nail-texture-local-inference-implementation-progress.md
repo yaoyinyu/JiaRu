@@ -666,3 +666,14 @@ candidate35只比candidate29多1个误检，证明4张/20 mask的新真实边界
 | `M2-T3-CANDIDATE37-CONSERVATIVE-SOUP-001` | candidate29与candidate36保守权重融合 | ❌ VAL REJECT（未运行test100） | 查看结果前固定alpha 0.01/0.02/0.03/0.05/0.08/0.10/0.15。1%—5%在512/0.45均只打平candidate29的128/16/16；8%及以上退化。`candidate36-37-boundary-validation-decision-v1.json`拒绝全部点，未导出、登记、接入或部署。 |
 
 本阶段确认少量高质量边界真值能够被模型吸收，但11张/59 mask仍不足以在隔离val30上同时改善召回与误检。当前识别基线继续为candidate29且产品HOLD；下一轮只扩大真实贴边真值覆盖，不继续对candidate36/37做无效阈值搜索。
+
+## 2026-08-31 candidate38—42硬边界训练与边界Pareto验证
+
+| 标记 ID | 任务 | 状态 | 审核证据 |
+| --- | --- | --- | --- |
+| `M2-T3-HARD-BOUNDARY-LOSS-METRIC-001` | 硬边界训练损失与原分辨率边界评估 | ✅ PASS（工程门；不构成模型质量PASS） | 新增可选mask边界梯度损失且默认关闭；新增固定2px容差的匹配实例boundary precision/recall/F1报告，candidate29基线F1=0.60113。 |
+| `M2-T3-CANDIDATE38-40-HARD-BOUNDARY-001` | 两档硬边界权重直接训练 | ❌ VAL REJECT | candidate38权重0.20在固定0.40为127/17/20；candidate40权重0.05在固定0.45为127/17/15，均低于128匹配基线。 |
+| `M2-T3-CANDIDATE41-BOUNDARY-PARETO-001` | 小步边界Pareto融合与受保护回归 | ❌ TEST HOLD | alpha0.10在val保持128/16/16、边界F1=0.60596；test100为519匹配、466完整mask，未超过candidate29。 |
+| `M2-T3-CANDIDATE42-EXTENDED-BOUNDARY-PARETO-001` | 扩展边界Pareto融合与受保护回归 | ❌ TEST HOLD | alpha0.30在val保持128/16/16、边界F1=0.61307；锁定后test100退化为517匹配、465完整mask、37漏甲、18额外、16无效。 |
+
+边界损失在val30上能够提高贴边F1，但没有在受保护回归中转化为更多完整mask，说明当前主要限制是难例真值覆盖而不是继续增加边界权重。candidate29仍是失败状态基线；candidate38—42均不导出、不登记、不接前端、不部署。下一步停止同轨迹插值，继续把剩余隔离返修图做成原分辨率完整甲面真值后再训练。
