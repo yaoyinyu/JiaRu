@@ -1156,3 +1156,11 @@ candidate24在来源隔离val30、部署512口径下以阈值0.25保持128/144�
 - 规范训练输入合并candidate28的274张/1652 mask与新4张/20 mask，形成278张正样本/1672 mask、160张正式困难负样本、来源隔离val30、空test。输入审计`93eb96a1…c28`深度重放PASS；训练从candidate29初始化，固定640、AdamW 1e-5、freeze10、mosaic0、`mask_ratio=1`、`overlap_mask=false`。
 - candidate35训练18轮早停，最佳第3轮，权重SHA-256为`1aabbc8c8cbfbd1452ea96561a435e30bafc0de5a215f79e471207a4e390107f`。部署512的val30在0.45为128匹配、16漏检、17误检；0.30为129/15/28。没有阈值同时满足“误检不高于16且严格改善匹配或误检”的预注册替换规则，故`candidate35-boundary-validation-decision-v1.json`在val阶段否决。
 - candidate35不得导出、登记、前端接入或部署，不得读取test100或独立发布留出。下一轮只允许继续返修上述22张隔离真实难例并完成同一原分辨率门，再建立新的训练输入和预注册计划；禁止围绕candidate35继续调阈值冒充进展。
+
+## 32. candidate36/37扩展边界监督合同与结论（2026-08-31）
+
+- candidate35返修池累计11张/59个完整甲面mask通过原分辨率审核；几何合法不能替代视觉贴边门。含可见甲面被图片边缘裁断的`00227`、`01184`、`01268`排除，`00004`、`00075`、`00726`等边界残缺或碎片项继续返修，禁止为凑数晋升。
+- 合并candidate28后形成285张正图/1711 mask，并确定性复用160张训练角色困难负样本与隔离val30；规范物化train445/val30/test0、0 orphan，输入审计`4c006bf4…d530`通过。candidate36从candidate29而非被拒绝的candidate35初始化，固定640、AdamW 1e-5、freeze10、mosaic0、`mask_ratio=1`、`overlap_mask=false`。
+- candidate36训练35轮早停、最佳第20轮，权重SHA-256 `b86a9a0b48742b7b97fd81f8ead43c913a69c479a1f3af6c55e040b13d60f145`。部署512 val30在0.45为124匹配、20漏检、20误检；0.10虽提高至130/14，但误检73，因此没有阈值满足严格替换规则。
+- 查看融合结果前预注册candidate37的alpha 0.01/0.02/0.03/0.05/0.08/0.10/0.15，仅允许val30选择。alpha 0.01—0.05均为128/16/16，只能打平candidate29；alpha 0.08/0.10为127/17/18，alpha 0.15为127/17/19，全部拒绝。
+- `candidate36-37-boundary-validation-decision-v1.json`是本阶段机器决策。candidate36/37不得运行受保护test100或独立发布留出，不得导出、登记、前端接入或部署；下一轮必须继续扩大透明、低对比、侧视及复杂装饰的原分辨率完整甲面真值，禁止继续围绕已拒绝权重调阈值。

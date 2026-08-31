@@ -1,0 +1,79 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate38",
+  "decision": "pre_registered_hard_polygon_boundary_training",
+  "objective": "在保持candidate29完整美甲召回与误检基线的同时，直接以审核通过polygon的形态学甲缘监督预测mask，使提取结果贴合完整可见甲面边沿。",
+  "evidenceBeforeTraining": {
+    "candidate29Baseline": {
+      "inputSize": 512,
+      "threshold": 0.45,
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 16
+    },
+    "candidate36": "新增11张/59 mask后直接全分辨率微调退化为124/20/20",
+    "candidate37": "1%-5%权重融合仅打平128/16/16，未形成严格改善",
+    "conclusion": "继续堆入少量高难样本会引入分布漂移；本轮回到candidate28规范输入，新增仅作用于审核polygon真值的硬边界损失，并以更低学习率限制检测头漂移。"
+  },
+  "input": {
+    "datasetYaml": {
+      "path": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_29_candidate28_training_input_v1\\candidate28-canonical-training-dataset-v1\\dataset.yaml",
+      "sha256": "7b6006fd4059eb5db8f18a689c395f7141319ca8a069b2e95243f8e3ff14db65"
+    },
+    "candidateInputAudit": {
+      "path": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_29_candidate28_training_input_v1\\candidate28-candidate-training-input-audit-v4.json",
+      "sha256": "4eca2debf19a3326758abe1d1d2d01b617b8ae844a6b9f32add035316586a425"
+    },
+    "datasetFilesSha256": "172130c00f720084540f942f589e575819a3db03621b0bb037f423748f12edb4",
+    "allRolesSha256": "dc028b0b2e476d52752b2bfd079c5e3f62f76c9e80ab2da09e53a30b2aa4077f",
+    "counts": {
+      "trainImages": 434,
+      "trainPositiveImages": 274,
+      "positiveMasks": 1652,
+      "hardNegativeImages": 160,
+      "validationImages": 30,
+      "validationMasks": 144,
+      "testImages": 0,
+      "orphanFiles": 0
+    }
+  },
+  "baseWeights": {
+    "candidate": "candidate29-alpha-015",
+    "path": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate29-soup-2026-08-30-v1\\alpha-015\\weights.pt",
+    "sha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02",
+    "bytes": 90018153
+  },
+  "hardBoundaryLoss": {
+    "contractVersion": 1,
+    "weight": 0.2,
+    "kernelSize": 3,
+    "signal": "reviewed-polygon-morphological-boundary",
+    "baseMaskLoss": "ultralytics-instance-bce",
+    "classificationAndBoxLossesUnchanged": true,
+    "hardPolygonTruthAuthoritative": true
+  },
+  "training": {
+    "distillation": null,
+    "imgsz": 640,
+    "epochs": 40,
+    "patience": 12,
+    "batch": "auto",
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.000005,
+    "freeze": 10,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false
+  },
+  "selection": {
+    "onlySplit": "isolated-val30",
+    "deploymentInputSize": 512,
+    "replacementRule": "matched必须不少于128、missed不得多于16且falsePositives严格少于16；或在falsePositives不高于16时matched严格增加。",
+    "protectedTest100BeforeValReplacement": "prohibited"
+  },
+  "fallback": "candidate29保持当前识别基线；训练异常或val30无严格改善时candidate38立即否决。",
+  "releaseState": "hold_until_all_formal_gates_pass"
+}

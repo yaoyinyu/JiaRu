@@ -57,6 +57,18 @@ def build_parser() -> argparse.ArgumentParser:
         default=True,
         help="Whether overlapping instance masks are merged during training; use --no-overlap-mask to preserve per-nail boundaries",
     )
+    parser.add_argument(
+        "--hard-boundary-weight",
+        type=float,
+        default=0.0,
+        help="Additional reviewed-polygon boundary loss weight; 0 keeps native Ultralytics mask loss",
+    )
+    parser.add_argument(
+        "--hard-boundary-kernel",
+        type=int,
+        default=3,
+        help="Odd morphological-gradient kernel used by hard polygon boundary supervision",
+    )
     parser.add_argument("--distill-model", default="", help="Local larger YOLO segmentation teacher checkpoint")
     parser.add_argument(
         "--allow-same-checkpoint-self-distillation",
@@ -358,6 +370,10 @@ def main() -> None:
         raise ValueError("--close-mosaic must be non-negative")
     if args.mask_ratio < 1:
         raise ValueError("--mask-ratio must be at least 1")
+    if args.hard_boundary_weight < 0:
+        raise ValueError("--hard-boundary-weight must be non-negative")
+    if args.hard_boundary_kernel < 3 or args.hard_boundary_kernel % 2 == 0:
+        raise ValueError("--hard-boundary-kernel must be an odd integer >= 3")
     batch = parse_batch(args.batch)
     dataset_yaml = Path(args.dataset).resolve()
     output_dir = Path(args.output_dir).resolve()
@@ -376,6 +392,19 @@ def main() -> None:
         args, dataset_yaml, output_dir
     )
     distillation_evidence = resolve_distillation_evidence(args)
+    from nail_texture_boundary_loss import (
+        HardBoundaryConfig,
+        configure_hard_boundary_loss,
+        current_hard_boundary_contract,
+    )
+
+    configure_hard_boundary_loss(
+        HardBoundaryConfig(
+            weight=args.hard_boundary_weight,
+            kernel_size=args.hard_boundary_kernel,
+        )
+    )
+    hard_boundary_evidence = current_hard_boundary_contract()
     runtime_dataset_yaml = output_dir / "resolved-dataset.yaml"
     resume_evidence = (
         validate_resume_contract(
@@ -411,6 +440,7 @@ def main() -> None:
         "close_mosaic": args.close_mosaic,
         "mask_ratio": args.mask_ratio,
         "overlap_mask": args.overlap_mask,
+        "hard_boundary": hard_boundary_evidence,
         "distillation": distillation_evidence,
         "run_name": args.run_name,
         "output_dir": str(output_dir),
@@ -465,6 +495,10 @@ def main() -> None:
 
     ultralytics = ensure_python_dependency("ultralytics", "pip install ultralytics")
     install_read_only_ultralytics_image_check()
+    if args.hard_boundary_weight > 0:
+        from nail_texture_boundary_loss import install_hard_boundary_criterion
+
+        install_hard_boundary_criterion()
     if distillation_evidence is not None:
         import ultralytics.engine.trainer as ultralytics_trainer
         from nail_texture_distillation import JiaRuSegmentationDistillationModel
