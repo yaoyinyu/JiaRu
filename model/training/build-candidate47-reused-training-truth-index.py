@@ -53,6 +53,7 @@ def main() -> int:
     parser.add_argument("--current-train-index", required=True, type=Path)
     parser.add_argument("--legacy-truth-index", required=True, type=Path)
     parser.add_argument("--standing-commercial-authorization", required=True, type=Path)
+    parser.add_argument("--revalidated-report-dir", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
@@ -60,8 +61,9 @@ def main() -> int:
     current_path = args.current_train_index.resolve()
     legacy_path = args.legacy_truth_index.resolve()
     authorization_path = args.standing_commercial_authorization.resolve()
+    report_dir = args.revalidated_report_dir.resolve()
     output_path = args.output.resolve()
-    if output_path.exists() or output_path in {
+    if output_path.exists() or report_dir.exists() or output_path in {
         plan_path,
         current_path,
         legacy_path,
@@ -153,7 +155,12 @@ def main() -> int:
     reused_names: set[str] = set()
     reused_hashes: set[str] = set()
     reused_reports: set[str] = set()
-    for item in reusable:
+    revalidated: list[dict[str, Any]] = []
+    report_dir.parent.mkdir(parents=True, exist_ok=True)
+    temporary_report_dir = Path(
+        tempfile.mkdtemp(prefix=f".{report_dir.name}.tmp-", dir=report_dir.parent)
+    )
+    for sequence, item in enumerate(reusable, start=1):
         file_name = auditor.require_nonempty(item.get("fileName"), "reused truth fileName")
         image_hash = auditor.require_sha256(
             item.get("imageSha256"), f"reused truth {file_name} image SHA-256"
@@ -214,7 +221,58 @@ def main() -> int:
         reused_hashes.add(image_hash)
         reused_reports.add(report_key)
 
-    combined = [*current_truths, *reusable]
+        revalidated_path = report_dir / f"training-truth-candidate47-revalidated-{sequence:03d}.json"
+        revalidated_report = {
+            "schemaVersion": 1,
+            "ok": True,
+            "decision": "approved_as_training_truth_candidate_pending_dataset_materialization",
+            "inputs": {
+                "truthRole": "train",
+                "legacyFinalReport": str(report_path),
+                "legacyFinalReportSha256": item["reportSha256"],
+                "selectionPlan": str(plan_path),
+                "selectionPlanSha256": sha256_file(plan_path),
+                "standingCommercialAuthorization": str(authorization_path),
+                "standingCommercialAuthorizationSha256": sha256_file(authorization_path),
+                "image": str(Path(str(report_inputs["image"])).resolve()),
+                "imageSha256": image_hash,
+                "annotation": str(annotation_path),
+                "annotationSha256": item["annotationSha256"],
+            },
+            "policy": {
+                "originalResolutionVisualReviewRequired": True,
+                "polygonTopologyMustBeValid": True,
+                "pairwisePolygonIntersectionArea": 0,
+                "legacyReportAndAnnotationHashesRevalidated": True,
+                "datasetMaterializationAndSourceIsolationStillRequired": True,
+                "trainingUse": "prohibited-until-materialization-audit",
+            },
+            "item": {
+                "fileName": file_name,
+                "sha256": image_hash,
+                "sourceGroup": item["sourceGroup"],
+                "completeMaskCount": mask_count,
+                "invalidPolygonCount": 0,
+                "overlapPairCount": 0,
+                "annotationTruthStatus": "approved-as-training-truth-candidate",
+                "trainingUse": "prohibited-until-materialization-audit",
+            },
+            "errors": [],
+        }
+        temporary_report_path = temporary_report_dir / revalidated_path.name
+        temporary_report_path.write_text(
+            json.dumps(revalidated_report, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
+        transformed = dict(item)
+        transformed["reportPath"] = str(revalidated_path)
+        transformed["reportName"] = revalidated_path.name
+        transformed["reportSha256"] = sha256_file(temporary_report_path)
+        revalidated.append(transformed)
+
+    os.replace(temporary_report_dir, report_dir)
+
+    combined = [*current_truths, *revalidated]
     combined.sort(key=lambda item: (str(item["sourceGroup"]), str(item["fileName"])))
     expected_images = current_images + len(reusable)
     expected_masks = current_masks + reusable_masks

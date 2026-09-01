@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "shardIndex": 1,
+  "originalResolutionReviewCompleted": true,
+  "reviewedPageSha256s": [
+    "cc4a282268e07646d395ac14390b90ba98bbff009108f6322647bebfa3251a81",
+    "0433bda3e3843ed0da2434ea3ef7c1fd62d94a6a4b14359db156c8920591388d",
+    "69bbb4356226001ca005eb24dd4fa91e718c74145df7940926b70a411e3eabc7",
+    "919047a31a61d4ffcfd38fe3decc4fc2910405c2f27d6e71edfb7ca5384f8dbd",
+    "db64a2b44dda5fda94c196b4eb168e15a29dda09ee9d1ce4962f8582e55f928b",
+    "6aa730bbf36a070e427febfe14680f54f565efb26aa825877c7456bbd4fd6509"
+  ],
+  "items": [
+    {
+      "fileName": "nail_00623_6a52545a0000000022008ca1_1.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["missing_four_nails"],
+      "note": "双手预期10甲但仅6个候选，必须补齐漏甲并逐甲复核。"
+    },
+    {
+      "fileName": "nail_01271_6a29424f0000000021023db8_9.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["missing_two_nails"],
+      "note": "双手预期10甲但仅8个候选，必须补齐漏掉的甲面。"
+    },
+    {
+      "fileName": "nail_00537_6a3a208e0000000021009f42_2.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["missing_one_nail"],
+      "note": "双手预期10甲但仅9个候选，立体饰件甲与漏甲需联合返修。"
+    },
+    {
+      "fileName": "nail_00901_68bafcd8000000001d0243e4_2.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["duplicate_or_overlapping_candidate"],
+      "note": "11个候选中存在同甲重复或交叠，需收敛为10枚唯一完整甲面。"
+    },
+    {
+      "fileName": "nail_01243_69bc2da0000000002301f8f5_5.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["invalid_polygon_topology", "duplicate_candidates"],
+      "note": "11个候选全部存在无效拓扑且多于实际9甲，必须重建。"
+    },
+    {
+      "fileName": "nail_00301_69cf27bb000000001a028441_10.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["duplicate_or_overlapping_candidates"],
+      "note": "13个候选多于实际10甲且6个候选涉及交叠，必须去重返修。"
+    },
+    {
+      "fileName": "nail_00228_696cf228000000000a02d451_3.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["extra_decoration_candidate"],
+      "note": "11个候选中有装饰件或同甲局部多余区域，需收敛为10甲。"
+    },
+    {
+      "fileName": "nail_00062_68f8edbb00000000070391e5_2.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["transparent_thumb_partial_nail_surface"],
+      "note": "透明拇指只覆盖甲尖，须覆盖从甲根到透明甲尖的完整可见甲面。"
+    },
+    {
+      "fileName": "nail_00664_69fea34c0000000035025b53_3.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["superseded_by_reviewed_manual_repair"],
+      "note": "原SAM版本不在本分片重复晋升；已由独立绑定的人工返修版本通过。"
+    },
+    {
+      "fileName": "nail_00915_68b81169000000001d010fb2_1.jpg",
+      "reviewStatus": "rework",
+      "issueCodes": ["superseded_by_reviewed_manual_repair"],
+      "note": "原SAM版本不在本分片重复晋升；已由独立绑定的人工返修版本通过。"
+    },
+    {
+      "fileName": "nail_01051_6a06843500000000360314b2_8.jpg",
+      "reviewStatus": "pass",
+      "issueCodes": [],
+      "note": "双手10枚黑色、银色和裸粉长甲逐甲原分辨率及2倍叠加复核通过；完整甲根、双侧缘和甲尖均覆盖，两个侧视拇指无指腹、帽子、皮肤、文字、重复或交叠污染。"
+    }
+  ]
+}

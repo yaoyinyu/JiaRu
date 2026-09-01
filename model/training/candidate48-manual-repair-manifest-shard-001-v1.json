@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "decision": "original_resolution_reviewed_full_surface_boundary_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "reviewNote": "原分辨率整图与首轮逐甲2倍证据确认三张均为单手五枚完整可见甲面。保留一甲一候选；仅对透明或低对比造成的不真实局部凹口使用原polygon凸包恢复连续甲缘，产物仍须重新通过原分辨率逐甲视觉、polygon合法与零交叠审核。",
+  "images": [
+    {
+      "fileName": "nail_00062_68f8edbb00000000070391e5_2.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_1_candidate48_new_annotation_workspace_v1/candidate29-sam21l-annotations-v1/nail_00062_68f8edbb00000000070391e5_2.json",
+      "nails": [
+        { "sourceIndex": 1 },
+        { "sourceIndex": 2 },
+        { "sourceIndex": 3 },
+        { "sourceIndex": 4 },
+        { "sourceIndex": 5, "convexHullSourcePolygon": true }
+      ]
+    },
+    {
+      "fileName": "nail_00664_69fea34c0000000035025b53_3.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_1_candidate48_new_annotation_workspace_v1/candidate29-sam21l-annotations-v1/nail_00664_69fea34c0000000035025b53_3.json",
+      "nails": [
+        { "sourceIndex": 1 },
+        { "sourceIndex": 2 },
+        { "sourceIndex": 3 },
+        { "sourceIndex": 4, "convexHullSourcePolygon": true },
+        { "sourceIndex": 5 }
+      ]
+    },
+    {
+      "fileName": "nail_00915_68b81169000000001d010fb2_1.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_1_candidate48_new_annotation_workspace_v1/candidate29-sam21l-annotations-v1/nail_00915_68b81169000000001d010fb2_1.json",
+      "nails": [
+        { "sourceIndex": 1, "convexHullSourcePolygon": true },
+        { "sourceIndex": 2 },
+        { "sourceIndex": 3, "convexHullSourcePolygon": true },
+        { "sourceIndex": 4 },
+        { "sourceIndex": 5 }
+      ]
+    }
+  ]
+}
