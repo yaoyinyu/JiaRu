@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-09-01T11:54:54.318Z",
+  "generatedAt": "2026-09-01T17:26:47.562Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 489,
-    "passMarkerCount": 450,
+    "progressMarkerCount": 497,
+    "passMarkerCount": 455,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -304,10 +304,28 @@
         "evidence": "从candidate29初始化，训练18轮早停、最佳第6轮，权重`6c840ed1…b1c7`。0.35为128匹配/16漏检/28误检，0.45为126/18/21，没有阈值达到128/16/16合同；未导出、登记、接入或部署。"
       },
       {
-        "id": "M2-T3-CANDIDATE49-TRAINING-001",
-        "task": "足量新增完整边界真值后的直接学生训练",
-        "status": "🟠 等待足量新真值",
-        "evidence": "当前有效增量仅1张/10 mask，不以低收益GPU迭代冒充模型进展。继续收集来源隔离的透明低对比、饰品干扰、双手密集和相邻甲面真值；不得复用candidate48拒绝权重或读取test100。"
+        "id": "M2-T3-CANDIDATE50-DIRECT-TRAINING-001",
+        "task": "直接严格边界微调",
+        "status": "❌ VAL REJECT（直接权重）",
+        "evidence": "从candidate29初始化，训练24轮早停、最佳第12轮，权重`a0f603a6…aeec`；部署512最佳联合点为125匹配/19漏检/16误检，未保持识别非退化。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE50-PROTECTED-TEST100-001",
+        "task": "锁定候选受保护test100正样本质量门",
+        "status": "❌ TEST HOLD",
+        "evidence": "唯一一次512/0.45回归为519/554匹配、467完整mask、35漏甲、13重复、16额外、12无效、20图漏甲、55图可直接提取；完整率0.84296、缺甲图率0.20和加权杂散率0.11372失败。报告`c65e8b35…eb22`深验一致；禁止据test反调或重评。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE51-LEGACY-PRELABEL-AUDIT-001",
+        "task": "旧候选复用审计与返修路由",
+        "status": "🟡 IN PROGRESS",
+        "evidence": "4张旧候选共31 polygon，0非法/越界/贴边，但7对交叠、1张机器清洁、3张机器返修；第5张无完整旧候选。所有5张仍为`trainingUse=prohibited`，必须逐甲原分辨率终审。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE51-DIRECT-TRAINING-001",
+        "task": "有效新真值增量后的单一直接候选训练",
+        "status": "⏳ WAITING",
+        "evidence": "先完成`00710/00225`，再处理`00624/00625/00846`；达到预登记有效增量后仅训练一个直接候选并由val30联合门选择，不重复candidate16蒸馏或candidate50插值。"
       }
     ]
   },
@@ -1196,9 +1214,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 489,
-      "uniqueMarkerCount": 489,
-      "passMarkerCount": 450,
+      "markerCount": 497,
+      "uniqueMarkerCount": 497,
+      "passMarkerCount": 455,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1431,10 +1449,28 @@
           "evidence": "从candidate29初始化，训练18轮早停、最佳第6轮，权重`6c840ed1…b1c7`。0.35为128匹配/16漏检/28误检，0.45为126/18/21，没有阈值达到128/16/16合同；未导出、登记、接入或部署。"
         },
         {
-          "id": "M2-T3-CANDIDATE49-TRAINING-001",
-          "task": "足量新增完整边界真值后的直接学生训练",
-          "status": "🟠 等待足量新真值",
-          "evidence": "当前有效增量仅1张/10 mask，不以低收益GPU迭代冒充模型进展。继续收集来源隔离的透明低对比、饰品干扰、双手密集和相邻甲面真值；不得复用candidate48拒绝权重或读取test100。"
+          "id": "M2-T3-CANDIDATE50-DIRECT-TRAINING-001",
+          "task": "直接严格边界微调",
+          "status": "❌ VAL REJECT（直接权重）",
+          "evidence": "从candidate29初始化，训练24轮早停、最佳第12轮，权重`a0f603a6…aeec`；部署512最佳联合点为125匹配/19漏检/16误检，未保持识别非退化。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE50-PROTECTED-TEST100-001",
+          "task": "锁定候选受保护test100正样本质量门",
+          "status": "❌ TEST HOLD",
+          "evidence": "唯一一次512/0.45回归为519/554匹配、467完整mask、35漏甲、13重复、16额外、12无效、20图漏甲、55图可直接提取；完整率0.84296、缺甲图率0.20和加权杂散率0.11372失败。报告`c65e8b35…eb22`深验一致；禁止据test反调或重评。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE51-LEGACY-PRELABEL-AUDIT-001",
+          "task": "旧候选复用审计与返修路由",
+          "status": "🟡 IN PROGRESS",
+          "evidence": "4张旧候选共31 polygon，0非法/越界/贴边，但7对交叠、1张机器清洁、3张机器返修；第5张无完整旧候选。所有5张仍为`trainingUse=prohibited`，必须逐甲原分辨率终审。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE51-DIRECT-TRAINING-001",
+          "task": "有效新真值增量后的单一直接候选训练",
+          "status": "⏳ WAITING",
+          "evidence": "先完成`00710/00225`，再处理`00624/00625/00846`；达到预登记有效增量后仅训练一个直接候选并由val30联合门选择，不重复candidate16蒸馏或candidate50插值。"
         }
       ]
     },
@@ -1645,7 +1681,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "39 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001, M2-T3-CANDIDATE30-34-BOUNDARY-001, M2-T3-CANDIDATE35-BOUNDARY-HARDCASE-001, M2-T3-CANDIDATE36-BOUNDARY-EXPANSION-001, M2-T3-CANDIDATE37-CONSERVATIVE-SOUP-001, M2-T3-CANDIDATE38-40-HARD-BOUNDARY-001, M2-T3-CANDIDATE41-BOUNDARY-PARETO-001, M2-T3-CANDIDATE42-EXTENDED-BOUNDARY-PARETO-001, M2-T3-CANDIDATE43-EXPANDED-BOUNDARY-001, M2-T3-CANDIDATE44-COMPLETE-BOUNDARY-001, M2-T3-CANDIDATE45-COARSE-PARETO-001, M2-T3-CANDIDATE46-FROZEN-TEST100-001, M2-T3-CANDIDATE47-REUSED-POSITIVE-001, M2-T3-CANDIDATE48-NEW-BOUNDARY-001, M2-T3-CANDIDATE49-TRAINING-001."
+      "summary": "42 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001, M2-T3-CANDIDATE30-34-BOUNDARY-001, M2-T3-CANDIDATE35-BOUNDARY-HARDCASE-001, M2-T3-CANDIDATE36-BOUNDARY-EXPANSION-001, M2-T3-CANDIDATE37-CONSERVATIVE-SOUP-001, M2-T3-CANDIDATE38-40-HARD-BOUNDARY-001, M2-T3-CANDIDATE41-BOUNDARY-PARETO-001, M2-T3-CANDIDATE42-EXTENDED-BOUNDARY-PARETO-001, M2-T3-CANDIDATE43-EXPANDED-BOUNDARY-001, M2-T3-CANDIDATE44-COMPLETE-BOUNDARY-001, M2-T3-CANDIDATE45-COARSE-PARETO-001, M2-T3-CANDIDATE46-FROZEN-TEST100-001, M2-T3-CANDIDATE47-REUSED-POSITIVE-001, M2-T3-CANDIDATE48-NEW-BOUNDARY-001, M2-T3-CANDIDATE50-DIRECT-TRAINING-001, M2-T3-CANDIDATE50-PROTECTED-TEST100-001, M2-T3-CANDIDATE51-LEGACY-PRELABEL-AUDIT-001, M2-T3-CANDIDATE51-DIRECT-TRAINING-001."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",

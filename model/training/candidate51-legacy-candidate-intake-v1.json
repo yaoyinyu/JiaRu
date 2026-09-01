@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "candidate7_legacy_real_rereview_intake_ready",
+  "createdAt": "2026-09-02T00:00:00+08:00",
+  "sourceSelection": "model/training/candidate51-positive-source-selection-v1.json",
+  "items": [
+    {
+      "fileName": "nail_00225_696cf228000000000a02d451_0.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00225_696cf228000000000a02d451_0.jpg",
+      "imageSha256": "3d563bcebed0412e38a6014f2c1b2a745b131c73704da839e5d98f265ff5ab6c",
+      "width": 1080,
+      "height": 1278,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-512ff41f569a8147",
+      "legacyAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_7_14_A_v1/first-annotation-workspace-v1/mask-review-workspace-v1/repairs/multi-shard-clear-nail-repair-batch-063-manual-v1/annotations/nail_00225_696cf228000000000a02d451_0.json",
+      "legacyAnnotationSha256": "d925db69bb825466f49f746ed3e4e653d6d96963aaf4d361c5647a13acd7ade8",
+      "legacyPolygonCount": 5,
+      "legacyNeedsManualFix": true
+    },
+    {
+      "fileName": "nail_00624_6a52545a0000000022008ca1_2.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00624_6a52545a0000000022008ca1_2.jpg",
+      "imageSha256": "daa3f908839433cf3427234ebd89de140197854c51829d4c7adf74924291a60a",
+      "width": 1080,
+      "height": 1440,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-0b28297044569bfe",
+      "legacyAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_14_candidate7_new_positive_targeted_sam_v7/annotations/nail_00624_6a52545a0000000022008ca1_2.json",
+      "legacyAnnotationSha256": "d0ea4f20879740932a7258d9396f151b3eefc8ea4d3e1ce318e3df165a15c6d1",
+      "legacyPolygonCount": 10,
+      "legacyNeedsManualFix": true
+    },
+    {
+      "fileName": "nail_00710_6a2bf5e0000000003501c00c_3.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00710_6a2bf5e0000000003501c00c_3.jpg",
+      "imageSha256": "4e00e4aea815bf5436bfb242234c058909e44206ebe340c1fc76df434877dd6d",
+      "width": 1080,
+      "height": 1440,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-6e49c7eacd3970b8",
+      "legacyAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_7_14_A_v1/first-annotation-workspace-v1/sam2-yolo-refined-v1/annotations/nail_00710_6a2bf5e0000000003501c00c_3.json",
+      "legacyAnnotationSha256": "38f73654cfac7c8fe12898f3bca4bed4a2692e18758c0fe333dc6b032a074ab7",
+      "legacyPolygonCount": 5,
+      "legacyNeedsManualFix": true
+    },
+    {
+      "fileName": "nail_00846_6a1671840000000035021a23_0.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00846_6a1671840000000035021a23_0.jpg",
+      "imageSha256": "2851899a38131866ca893a9c5f5f493d937e6b0adf737f042951e24d0ee2ba55",
+      "width": 1080,
+      "height": 1438,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e3fe954803a06653",
+      "legacyAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_7_14_A_v1/positive-reinforcement-annotation-workspace-v1/sam2-large-candidates-v1/annotations/nail_00846_6a1671840000000035021a23_0.json",
+      "legacyAnnotationSha256": "a9c079e1ba62d56c12ccce68aa2a1aab3c84f0f57f0f0d8d51116323784b97c2",
+      "legacyPolygonCount": 11,
+      "legacyNeedsManualFix": true
+    }
+  ],
+  "itemsSha256": "777e513c79b5e3604b8e1c52352345abc9ba08b87e6129c3c9495a2ccfbdf97a",
+  "trainingUse": "prohibited"
+}

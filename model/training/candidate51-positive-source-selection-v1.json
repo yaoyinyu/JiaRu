@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "candidate51_source_selection_frozen_before_model_assistance",
+  "createdAt": "2026-09-02T00:00:00+08:00",
+  "purpose": "在candidate50受保护回归失败后，从未进入现行train/val/test的模型无关库存中冻结一批透明低对比、双手复杂构图和长甲边界源图，用于candidate51完整甲面polygon候选与原分辨率终审。",
+  "inputs": {
+    "inventory": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_1_candidate50_positive_intake_v1/candidate-inventory-v1.json",
+    "inventoryItemsSha256": "18c9d0771c6736889e387358c97d45bc132a475baa1d0993689e979016837f25",
+    "sourceContactSheets": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_2_candidate51_source_review_v1/contact-sheets",
+    "contactSheetCount": 4
+  },
+  "selectionMethod": {
+    "stage": "source-only-original-visual-selection-before-model-or-mask-assistance",
+    "modelOutputsUsedForSelection": false,
+    "protectedTestOutputsUsedForSelection": false,
+    "selectedFor": [
+      "透明或低对比甲面",
+      "双手复杂构图",
+      "长甲甲根与甲尖完整边界",
+      "相邻甲面和装饰干扰"
+    ],
+    "note": "本清单只冻结源图，不批准任何旧mask；所有候选polygon仍须逐甲原分辨率终审。"
+  },
+  "selectedFileNames": [
+    "nail_00225_696cf228000000000a02d451_0.jpg",
+    "nail_00624_6a52545a0000000022008ca1_2.jpg",
+    "nail_00625_6a52545a0000000022008ca1_3.jpg",
+    "nail_00710_6a2bf5e0000000003501c00c_3.jpg",
+    "nail_00846_6a1671840000000035021a23_0.jpg"
+  ],
+  "selectedFileNamesSha256": "d1fe39422ca54deb12b435581a7beed433beaec2c21826e6091725b1135351a1",
+  "counts": {
+    "selectedImages": 5,
+    "selectedSourceGroups": 4,
+    "expectedFullyVisibleNails": 39
+  },
+  "items": [
+    {
+      "fileName": "nail_00225_696cf228000000000a02d451_0.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00225_696cf228000000000a02d451_0.jpg",
+      "imageSha256": "3d563bcebed0412e38a6014f2c1b2a745b131c73704da839e5d98f265ff5ab6c",
+      "width": 1080,
+      "height": 1278,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-512ff41f569a8147",
+      "expectedFullyVisibleNails": 4
+    },
+    {
+      "fileName": "nail_00624_6a52545a0000000022008ca1_2.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00624_6a52545a0000000022008ca1_2.jpg",
+      "imageSha256": "daa3f908839433cf3427234ebd89de140197854c51829d4c7adf74924291a60a",
+      "width": 1080,
+      "height": 1440,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-0b28297044569bfe",
+      "expectedFullyVisibleNails": 10
+    },
+    {
+      "fileName": "nail_00625_6a52545a0000000022008ca1_3.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00625_6a52545a0000000022008ca1_3.jpg",
+      "imageSha256": "39a7943cc52d269bacf45a03359abfd9d123c31af3b3353df891d1c326ffc23b",
+      "width": 1080,
+      "height": 1440,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-0b28297044569bfe",
+      "expectedFullyVisibleNails": 10
+    },
+    {
+      "fileName": "nail_00710_6a2bf5e0000000003501c00c_3.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00710_6a2bf5e0000000003501c00c_3.jpg",
+      "imageSha256": "4e00e4aea815bf5436bfb242234c058909e44206ebe340c1fc76df434877dd6d",
+      "width": 1080,
+      "height": 1440,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-6e49c7eacd3970b8",
+      "expectedFullyVisibleNails": 5
+    },
+    {
+      "fileName": "nail_00846_6a1671840000000035021a23_0.jpg",
+      "imagePath": "E:/AI Project/Codex/JiaRu_image/真实素材/2026_7_14/nail_00846_6a1671840000000035021a23_0.jpg",
+      "imageSha256": "2851899a38131866ca893a9c5f5f493d937e6b0adf737f042951e24d0ee2ba55",
+      "width": 1080,
+      "height": 1438,
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e3fe954803a06653",
+      "expectedFullyVisibleNails": 10
+    }
+  ],
+  "authorization": {
+    "commercialTrainingUse": "authorized_by_standing_project_scope",
+    "perListPauseRequired": false,
+    "authorizationDoesNotRelaxQualityOrRoleIsolation": true
+  },
+  "policy": {
+    "trainingUseBeforeMaskReview": "prohibited",
+    "completeVisibleNailSurfaceRequired": true,
+    "originalResolutionPerNailReviewRequired": true,
+    "polygonValidityRequired": true,
+    "zeroOverlapRequired": true,
+    "watermarkMayNotBeUsedAsRecognitionShortcut": true,
+    "valTestAndHoldoutRolesRemainIsolated": true
+  },
+  "trainingUse": "prohibited"
+}
