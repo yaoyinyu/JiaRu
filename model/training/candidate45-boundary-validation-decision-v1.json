@@ -1,0 +1,78 @@
+{
+  "schemaVersion": 1,
+  "decision": "reject_candidate45_on_isolated_val30",
+  "releaseState": "hold",
+  "plan": "model/training/candidate45-complete-boundary-pareto-interpolation-plan-v1.json",
+  "planSha256": "715829301f991167d39eb4e128860b5d5e866cf485ae066ffdb125ea5a960516",
+  "deploymentContract": {
+    "inputSize": 512,
+    "scoreThreshold": 0.45,
+    "validationImages": 30,
+    "truthMasks": 144
+  },
+  "baseline": {
+    "candidate": "candidate29-alpha-015",
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 16,
+    "microBoundaryF1": 0.6011288950896838
+  },
+  "evaluated": [
+    {
+      "alpha": 0.1,
+      "weightsSha256": "19b6a06539e443131c6f90ae885f2bb313cc78e4e7d165cbd7057bc54064d055",
+      "metricsSha256": "0fdc833cbff024a64fa61182d8d3a09cde78843168a476772c908f3f7bf468cd",
+      "thresholdReportSha256": "672900651ea07073e9dc2a85bb3f178e202f27d511c7103d3971c95b1f94377e",
+      "boundaryReportSha256": "298c49bed411de48ee0bcca00aec67de77f7cec182b4e4cc3ed4ce1e959765dd",
+      "matched": 127,
+      "missed": 17,
+      "falsePositives": 17,
+      "microBoundaryF1": 0.6096321529530447,
+      "qualifies": false
+    },
+    {
+      "alpha": 0.2,
+      "weightsSha256": "cd32dbc7f6da4622422140d345db8fcf9b7721f96013258237dd6f5ca1abefdf",
+      "metricsSha256": "81eef4cbe23648cd24af02142c8a7dab7f83edd9064a3546998dcaf72e945c1e",
+      "thresholdReportSha256": "319bdc4cfb3e513f5c320226882585efc20e67882e4ddc0e2fd7b5f412e7a70f",
+      "boundaryReportSha256": "94ab54923522434d001f5573e4856a189401e392144c12db128456f7cd179e27",
+      "matched": 127,
+      "missed": 17,
+      "falsePositives": 19,
+      "microBoundaryF1": 0.614197348267501,
+      "qualifies": false
+    },
+    {
+      "alpha": 0.3,
+      "weightsSha256": "d264b785a61f53fbd8af45e2af63d07c8b84af0fffa405b99687318f6779a6fd",
+      "metricsSha256": "93f0d1367c08c6e0d8e62dccd552a94c614ecb7b10da47d50954d5969c536fd9",
+      "thresholdReportSha256": "2368f02ef0b4ace17a7747cc10c5a40fe24ab0ad2c716ec17ce2571248f3d7ef",
+      "boundaryReportSha256": "665cdf9e01606d9bc880841d67be5b824d33d6ef563210c47629b1ae57912c7f",
+      "matched": 127,
+      "missed": 17,
+      "falsePositives": 19,
+      "microBoundaryF1": 0.6200359894138662,
+      "qualifies": false
+    },
+    {
+      "alpha": 0.4,
+      "weightsSha256": "e0f4663cc0b731229e278a97dda40020f5e2b528e508affe1d1019b053f452ab",
+      "metricsSha256": "6fa06bb6824df4cca2cf04397e0e226610693a67a6bf1412b444e6a78226a5d3",
+      "thresholdReportSha256": "99eef07e39d5ddb00c61313fee5bf78532a7e0f2970d7018417dfe5f4ac364a5",
+      "boundaryReportSha256": "cfb88daf6afd4187a1dbe07efd0707015b459f85f3382c24ecc6a940f3e06e20",
+      "matched": 127,
+      "missed": 17,
+      "falsePositives": 18,
+      "microBoundaryF1": 0.6234796069087369,
+      "qualifies": false
+    }
+  ],
+  "selectionRuleSatisfied": false,
+  "conclusion": "四个预登记插值点均把匹配数降为127、漏检升至17，因此即使边界F1提高也不得替换candidate29。",
+  "protectedTest100Used": false,
+  "independentReleaseHoldoutUsed": false,
+  "exportAuthorized": false,
+  "frontendIntegrationAuthorized": false,
+  "deploymentAuthorized": false,
+  "nextAction": "按预登记candidate46计划，仅评估尚未使用的0至0.10区间三个细粒度点；继续禁止使用test100选择权重或阈值。"
+}
