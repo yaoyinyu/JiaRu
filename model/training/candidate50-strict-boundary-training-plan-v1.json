@@ -1,0 +1,92 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate50",
+  "decision": "pre_registered_strict_boundary_finetune_with_conservative_interpolation_fallback",
+  "objective": "在不牺牲美甲识别召回和误检预算的前提下，用candidate49新增真值及本轮重新审核通过的4张/25 mask强化透明长甲、双手多甲与真实甲板边沿。",
+  "evidenceBeforeTraining": {
+    "baseline": {
+      "candidate": "candidate29-alpha-015",
+      "deploymentInputSize": 512,
+      "scoreThreshold": 0.45,
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 16,
+      "microBoundaryF1": 0.6011288950896838
+    },
+    "rejectedCandidates": "candidate48已在val30否决，candidate49因仅新增1张/10 mask未训练；本轮不继承任何被val30或受保护回归否决的权重。",
+    "incrementSinceCandidate48": "candidate49新增00901的10个严格边界mask；candidate50从15张历史真值候选中按当前合同只重新批准4张/25 mask，合计较candidate48净增5张/35 mask。"
+  },
+  "input": {
+    "datasetYaml": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_2_candidate50_training_input_v1/candidate50-canonical-training-dataset-v1/dataset.yaml",
+      "sha256": "7b6006fd4059eb5db8f18a689c395f7141319ca8a069b2e95243f8e3ff14db65"
+    },
+    "candidateInputAudit": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_2_candidate50_training_input_v1/candidate50-candidate-training-input-audit-v1.json",
+      "sha256": "b84d4ff547b81f833294adae4ed36d5392f8f339ebf88056c546bb2f6463070e",
+      "decision": "approved_candidate_training_input",
+      "datasetFilesSha256": "120013b0926b8acf3020e238639f2697d7544e21d1f0f2b8da0810262cd2b6e8",
+      "allRolesSha256": "e60f19396361811b090c2a27e1d7d13f78e49e42f403a4a0986a88f1dc3435f8"
+    },
+    "materializationReport": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_2_candidate50_training_input_v1/candidate50-canonical-training-materialization-v1.json",
+      "sha256": "121d2feb99d41ab710e0facfa0381d9ded88f38432bde10023101e28b5cac233",
+      "recordsSha256": "a558731c523c9ec9fb221a29c9936133c1d014add9c0cf37295ea4c18e1a43cf"
+    },
+    "combinedTrainingTruthIndex": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_2_candidate50_training_input_v1/candidate50-combined-training-truth-index-v1.json",
+      "sha256": "ffc6186c1413b3b36d53d51e736985593ef5b801bd43cf1aa017e2fc5a2e1531",
+      "canonicalTruthsSha256": "6cbbde598d33350593d220ee1f95b6060b9bf1ba4bc3c3997425f789e41a66f9"
+    },
+    "counts": {
+      "trainImages": 481,
+      "trainPositiveImages": 321,
+      "hardNegativeImages": 160,
+      "positiveMasks": 1935,
+      "validationImages": 30,
+      "validationMasks": 144,
+      "testImages": 0
+    }
+  },
+  "initialization": {
+    "candidate": "candidate29-alpha-015",
+    "checkpoint": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate29-soup-2026-08-30-v1/alpha-015/weights.pt",
+    "sha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02"
+  },
+  "training": {
+    "mode": "direct-supervised-strict-boundary-finetune",
+    "imgsz": 640,
+    "epochs": 40,
+    "patience": 12,
+    "batch": "auto",
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.000001,
+    "freeze": 10,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false,
+    "hardBoundaryWeight": 0,
+    "distillation": false
+  },
+  "preRegisteredFallback": {
+    "enabledOnlyIfDirectCandidateFailsStrictValReplacement": true,
+    "interpolateFrom": "candidate29-alpha-015",
+    "interpolateTo": "candidate50-best",
+    "alphas": [0.01, 0.02, 0.03, 0.05, 0.08, 0.12, 0.2],
+    "selectionOrder": "先满足matched>=128、missed<=16、falsePositives<=16，再按boundaryF1最高、falsePositives最低、alpha最小选择。",
+    "protectedTestUse": "prohibited"
+  },
+  "selection": {
+    "onlySplit": "source-isolated-val30",
+    "deploymentInputSize": 512,
+    "thresholds": [0.1, 0.15, 0.2, 0.25, 0.3, 0.35, 0.4, 0.45, 0.5, 0.55, 0.6],
+    "recognitionNonRegression": "matched不少于128、missed不多于16、falsePositives不多于16。",
+    "boundaryImprovement": "在匹配IoU=0.50与原分辨率2像素容差下，匹配实例micro boundary F1必须严格高于0.6011288950896838。",
+    "protectedTest100BeforeValReplacement": "prohibited",
+    "independentReleaseHoldoutBeforeValReplacement": "prohibited"
+  },
+  "releaseState": "hold_until_all_formal_gates_pass"
+}

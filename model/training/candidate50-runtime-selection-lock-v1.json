@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate50_alpha_003_val30_strict_boundary_improvement_locked_ready_for_single_protected_test100_regression",
+  "createdAt": "2026-09-02T00:00:00+08:00",
+  "candidate": "candidate50-alpha-003",
+  "weights": {
+    "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate50-interpolation-2026-09-02-v1/alpha-003/weights.pt",
+    "sha256": "58e5006c5635f9ebf57a1885791daba377f806ecdbb6187f53d1f958b5540106"
+  },
+  "runtime": {
+    "inputSize": 512,
+    "scoreThreshold": 0.45,
+    "matchIou": 0.5,
+    "boundaryTolerancePixels": 2
+  },
+  "val30": {
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 16,
+    "microBoundaryF1": 0.6025056325979076,
+    "baselineMicroBoundaryF1": 0.6011288950896838,
+    "strictRecognitionNonRegression": true,
+    "strictBoundaryImprovement": true
+  },
+  "selectionDecision": "model/training/candidate50-validation-decision-v1.json",
+  "prohibitions": [
+    "受保护test100结果不得反向修改权重、alpha、阈值、训练数据或后处理。",
+    "未通过正样本质量门前不得导出、登记、接入前端或部署。",
+    "该受保护回归已被历史候选重复使用，不得宣称为全新未见最终发布测试。"
+  ],
+  "releaseState": "hold_pending_protected_test100"
+}

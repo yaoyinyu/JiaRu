@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "fileName": "nail_00901_68bafcd8000000001d0243e4_2.jpg",
+  "sha256": "96b226b35b97528f03781b5e6c8f49a9e3c366119bbab0ffb4c5bc36136ce2a1",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-7c50d676362446de",
+  "initialShardFinalSha256": "82ab30d3e429a1a5d37babfa6d4fce38d8ad1149abc5872db00f4c9232455ec6",
+  "repairPromptsSha256": "b37dca8621ef2cd18e683c9fb4827b9bc3ae52fcfb52c4d3b3b511c8b661420d",
+  "manualReportSha256": "42693187d278dffef4009f612915b018d9b11497eadd256feff771694778be1b",
+  "geometryAuditSha256": "c0c175713c5b9a5c462919dd78c98f12d22fb7e8bc22a3e6757daae38e6cfed2",
+  "annotationSha256": "6d389cc99a422f30d9ff370b3db63a0e4a7ff4214b0c5608b93db15ce7d113a4",
+  "reviewedOverlaySha256": "db54ef419c9314ddf40d339a7584af1be327c3d26502d4a926ce665e6176442a",
+  "reviewStatus": "pass",
+  "finalCompleteMaskCount": 10,
+  "issueCodes": [],
+  "note": "双手10枚黑蓝渐变与裸色蝶饰长甲完成原分辨率整图和逐甲2倍终审；删除同甲局部重复，三枚蝶饰甲凸包恢复连续甲缘后无皮肤、衣物、背景、文字、重复或交叠污染。"
+}
