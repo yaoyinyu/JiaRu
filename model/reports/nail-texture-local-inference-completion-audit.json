@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-09-01T06:05:30.291Z",
+  "generatedAt": "2026-09-01T11:54:54.318Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 483,
-    "passMarkerCount": 445,
+    "progressMarkerCount": 489,
+    "passMarkerCount": 450,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -298,10 +298,16 @@
         "evidence": "训练17轮早停、最佳第5轮、权重`7c408527…614d`。0.15为128匹配/16漏检/58误检，0.50为123/21/13，没有阈值达到128/16/16合同；机器决定拒绝，未导出、登记、接入或部署。"
       },
       {
-        "id": "M2-T3-CANDIDATE48-NEW-ANNOTATION-SHARD-001",
-        "task": "11张新图SAM候选、人工返修与首批原分辨率终审",
-        "status": "🟠 进行中（2张/10 mask通过，9张待返修）",
-        "evidence": "11张/94预期甲面均已建工作区；首批15个人工polygon合法、零交叠且几何15/15。原分辨率只接受`00664/00915`各5甲，`00062`透明拇指仅覆盖甲尖而返修。两张通过项尚未合入规范训练索引，物化前继续禁训。"
+        "id": "M2-T3-CANDIDATE48-NEW-BOUNDARY-001",
+        "task": "新边界真值直接训练与部署512 val30严格替换判定",
+        "status": "❌ VAL REJECT（未运行test100）",
+        "evidence": "从candidate29初始化，训练18轮早停、最佳第6轮，权重`6c840ed1…b1c7`。0.35为128匹配/16漏检/28误检，0.45为126/18/21，没有阈值达到128/16/16合同；未导出、登记、接入或部署。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE49-TRAINING-001",
+        "task": "足量新增完整边界真值后的直接学生训练",
+        "status": "🟠 等待足量新真值",
+        "evidence": "当前有效增量仅1张/10 mask，不以低收益GPU迭代冒充模型进展。继续收集来源隔离的透明低对比、饰品干扰、双手密集和相邻甲面真值；不得复用candidate48拒绝权重或读取test100。"
       }
     ]
   },
@@ -1190,9 +1196,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 483,
-      "uniqueMarkerCount": 483,
-      "passMarkerCount": 445,
+      "markerCount": 489,
+      "uniqueMarkerCount": 489,
+      "passMarkerCount": 450,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1419,10 +1425,16 @@
           "evidence": "训练17轮早停、最佳第5轮、权重`7c408527…614d`。0.15为128匹配/16漏检/58误检，0.50为123/21/13，没有阈值达到128/16/16合同；机器决定拒绝，未导出、登记、接入或部署。"
         },
         {
-          "id": "M2-T3-CANDIDATE48-NEW-ANNOTATION-SHARD-001",
-          "task": "11张新图SAM候选、人工返修与首批原分辨率终审",
-          "status": "🟠 进行中（2张/10 mask通过，9张待返修）",
-          "evidence": "11张/94预期甲面均已建工作区；首批15个人工polygon合法、零交叠且几何15/15。原分辨率只接受`00664/00915`各5甲，`00062`透明拇指仅覆盖甲尖而返修。两张通过项尚未合入规范训练索引，物化前继续禁训。"
+          "id": "M2-T3-CANDIDATE48-NEW-BOUNDARY-001",
+          "task": "新边界真值直接训练与部署512 val30严格替换判定",
+          "status": "❌ VAL REJECT（未运行test100）",
+          "evidence": "从candidate29初始化，训练18轮早停、最佳第6轮，权重`6c840ed1…b1c7`。0.35为128匹配/16漏检/28误检，0.45为126/18/21，没有阈值达到128/16/16合同；未导出、登记、接入或部署。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE49-TRAINING-001",
+          "task": "足量新增完整边界真值后的直接学生训练",
+          "status": "🟠 等待足量新真值",
+          "evidence": "当前有效增量仅1张/10 mask，不以低收益GPU迭代冒充模型进展。继续收集来源隔离的透明低对比、饰品干扰、双手密集和相邻甲面真值；不得复用candidate48拒绝权重或读取test100。"
         }
       ]
     },
@@ -1633,7 +1645,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "38 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001, M2-T3-CANDIDATE30-34-BOUNDARY-001, M2-T3-CANDIDATE35-BOUNDARY-HARDCASE-001, M2-T3-CANDIDATE36-BOUNDARY-EXPANSION-001, M2-T3-CANDIDATE37-CONSERVATIVE-SOUP-001, M2-T3-CANDIDATE38-40-HARD-BOUNDARY-001, M2-T3-CANDIDATE41-BOUNDARY-PARETO-001, M2-T3-CANDIDATE42-EXTENDED-BOUNDARY-PARETO-001, M2-T3-CANDIDATE43-EXPANDED-BOUNDARY-001, M2-T3-CANDIDATE44-COMPLETE-BOUNDARY-001, M2-T3-CANDIDATE45-COARSE-PARETO-001, M2-T3-CANDIDATE46-FROZEN-TEST100-001, M2-T3-CANDIDATE47-REUSED-POSITIVE-001, M2-T3-CANDIDATE48-NEW-ANNOTATION-SHARD-001."
+      "summary": "39 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001, M2-T3-CANDIDATE30-34-BOUNDARY-001, M2-T3-CANDIDATE35-BOUNDARY-HARDCASE-001, M2-T3-CANDIDATE36-BOUNDARY-EXPANSION-001, M2-T3-CANDIDATE37-CONSERVATIVE-SOUP-001, M2-T3-CANDIDATE38-40-HARD-BOUNDARY-001, M2-T3-CANDIDATE41-BOUNDARY-PARETO-001, M2-T3-CANDIDATE42-EXTENDED-BOUNDARY-PARETO-001, M2-T3-CANDIDATE43-EXPANDED-BOUNDARY-001, M2-T3-CANDIDATE44-COMPLETE-BOUNDARY-001, M2-T3-CANDIDATE45-COARSE-PARETO-001, M2-T3-CANDIDATE46-FROZEN-TEST100-001, M2-T3-CANDIDATE47-REUSED-POSITIVE-001, M2-T3-CANDIDATE48-NEW-BOUNDARY-001, M2-T3-CANDIDATE49-TRAINING-001."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",
