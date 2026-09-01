@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "source_selection_frozen_before_model_assistance",
+  "createdAt": "2026-09-01T00:00:00+08:00",
+  "purpose": "为正式版完整甲面边沿分割继续补充来源隔离的真实正样本，优先覆盖透明或低对比甲面、长延长甲、双手多甲、复杂姿态和复杂背景。",
+  "inputs": {
+    "inventory": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_intake_v1/candidate-inventory-v1.json",
+    "inventorySha256": "941f3a77ddd03abe3d6d15edabb3556d4a25ea9eaa4406e631ec76b24896e1af",
+    "inventoryItemsSha256": "6193e3c011da92a11d70a00c2c02d300af3ea08773ca44fe17cacd3f7dd62f46"
+  },
+  "selectionMethod": {
+    "stage": "source-only-visual-shortlist-before-model-assisted-prelabeling",
+    "modelOutputsUsedForSelection": false,
+    "contactSheetsReviewed": 14,
+    "individualOriginalsRechecked": 17,
+    "historicalMachineEvidenceCrossChecked": true,
+    "rejectedAfterOriginalRecheck": [
+      {
+        "fileName": "nail_00501_694eac42000000002103de7c_12.jpg",
+        "reason": "右侧甲面被画面边缘裁断，与candidate35原分辨率复核结论一致"
+      },
+      {
+        "fileName": "nail_00439_69df89090000000021039a37_2.jpg",
+        "reason": "完整可见甲面数量与inventory预期不一致，且主体相对画面过小"
+      },
+      {
+        "fileName": "nail_00458_6a2e8668000000002202045c_0.jpg",
+        "reason": "镜面反射形成同手重复甲面，训练真值语义存在歧义"
+      },
+      {
+        "fileName": "nail_00639_6a07f23f000000003502f048_1.jpg",
+        "reason": "原图压缩和失焦程度不足以稳定确认全部完整甲面边界"
+      },
+      {
+        "fileName": "nail_00055_69abda85000000002801ce68_0.jpg",
+        "reason": "既有原分辨率源图门已确认左下甲面被画面边缘裁断"
+      },
+      {
+        "fileName": "nail_00218_69c65d68000000001b002d0c_2.jpg",
+        "reason": "既有原分辨率源图门已确认实际完整甲面数与冻结inventory不一致"
+      },
+      {
+        "fileName": "nail_00327_69fedf6800000000350299d3_2.jpg",
+        "reason": "既有原分辨率源图门已确认实际9甲与inventory预期10甲不一致"
+      },
+      {
+        "fileName": "nail_00710_6a2bf5e0000000003501c00c_3.jpg",
+        "reason": "既有原分辨率源图门已确认实际仅4枚完整甲面"
+      },
+      {
+        "fileName": "nail_00846_6a1671840000000035021a23_0.jpg",
+        "reason": "既有终审确认两枚透明交叉甲无法在不猜测遮挡区域时同时满足完整甲面与严格零交叠"
+      }
+    ],
+    "note": "冻结只确定预标注候选，不代表mask或训练真值通过；逐甲原分辨率完整边沿审核仍是强制门。"
+  },
+  "selectedFileNames": [
+    "nail_00005_6997b41a000000001a01db86_8.jpg",
+    "nail_00052_6a32b72c000000001603c6ff_2.jpg",
+    "nail_00062_68f8edbb00000000070391e5_2.jpg",
+    "nail_00076_6a2272030000000006036a04_1.jpg",
+    "nail_00180_69ef48c5000000003703554f_2.jpg",
+    "nail_00188_6a4c43000000000006037e9e_0.jpg",
+    "nail_00228_696cf228000000000a02d451_3.jpg",
+    "nail_00276_6a12b71b000000000803db68_2.jpg",
+    "nail_00301_69cf27bb000000001a028441_10.jpg",
+    "nail_00476_6a38cd3c000000001602416e_0.jpg",
+    "nail_00534_6a057694000000003503189b_7.jpg",
+    "nail_00537_6a3a208e0000000021009f42_2.jpg",
+    "nail_00542_6a342b890000000007023ef0_3.jpg",
+    "nail_00623_6a52545a0000000022008ca1_1.jpg",
+    "nail_00637_6a18fdba000000003601ae1a_11.jpg",
+    "nail_00664_69fea34c0000000035025b53_3.jpg",
+    "nail_00719_6a072dae00000000070273e9_0.jpg",
+    "nail_00792_69095f35000000000302f457_0.jpg",
+    "nail_00841_68ce2c0d000000000e0266b1_3.jpg",
+    "nail_00901_68bafcd8000000001d0243e4_2.jpg",
+    "nail_00915_68b81169000000001d010fb2_1.jpg",
+    "nail_00951_69fef9e5000000003802022a_3.jpg",
+    "nail_00967_69dddbcc0000000021011c74_2.jpg",
+    "nail_01041_68d65a1c000000000e022377_2.jpg",
+    "nail_01051_6a06843500000000360314b2_8.jpg",
+    "nail_01119_699153fb000000000a03f84c_6.jpg",
+    "nail_01177_69438ba5000000001e001c1d_0.jpg",
+    "nail_01215_69ccbc4e000000002202797d_2.jpg",
+    "nail_01243_69bc2da0000000002301f8f5_5.jpg",
+    "nail_01271_6a29424f0000000021023db8_9.jpg"
+  ],
+  "selectedFileNamesSha256": "dfc41f531972ef09381bda0d32cef817a7671d1150bc2f52b57df687c65f405a",
+  "counts": {
+    "selectedImages": 30,
+    "selectedSourceGroups": 30,
+    "expectedFullyVisibleNails": 204
+  },
+  "existingTruthReuse": {
+    "currentCanonicalTrainIndex": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_31_candidate35_boundary_expansion_v2/candidate35-combined-training-truth-index-v11.json",
+    "currentCanonicalTrainIndexSha256": "d066556c4869e87f24318e89a6c47a1d0be6e49340ca8cc2d1a6525b1af585ed",
+    "legacyReviewedTruthIndex": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_7_14_A_v1/first-annotation-workspace-v1/mask-review-workspace-v1/final/training-truth-index-v1.json",
+    "legacyReviewedTruthIndexSha256": "13f606b547c32d2b8f34651f55e1bca1e826bf3ac13bdcdca345a1cef267f125",
+    "reusableApprovedImages": 19,
+    "reusableApprovedMasks": 110,
+    "reusableFileNamesSha256": "e52636f7d678d905f9386ac37477c54d29b3a4458e3f6bd711b22bb81ffdd4f3",
+    "newAnnotationCandidateImages": 11,
+    "newAnnotationCandidateFileNamesSha256": "e41155e24f2181b792239c4026f913c8a38fabc884756c2f788ecdee2c4f6550",
+    "note": "仅复用曾经通过原分辨率完整甲面、合法polygon与零交叠终审且未进入当前294图规范train的精确真值；11张其余图仍须重新形成终审真值。"
+  },
+  "policy": {
+    "modelAssistanceMayGenerateCandidatesOnly": true,
+    "completeVisibleNailSurfaceRequired": true,
+    "originalResolutionPerNailReviewRequired": true,
+    "polygonValidityRequired": true,
+    "zeroOverlapRequired": true,
+    "partialColorDecorationOrTipMasksRejected": true,
+    "sourceOrMaskFailureExcludesTrainingUse": true,
+    "valTestAndHoldoutRolesRemainIsolated": true
+  },
+  "trainingUse": "prohibited"
+}

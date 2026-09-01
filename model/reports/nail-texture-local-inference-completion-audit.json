@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-08-31T17:44:37.941Z",
+  "generatedAt": "2026-09-01T00:14:07.269Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 475,
-    "passMarkerCount": 442,
+    "progressMarkerCount": 480,
+    "passMarkerCount": 444,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -272,6 +272,24 @@
         "task": "从candidate29初始化直接训练并执行部署512 val30严格替换判定",
         "status": "❌ VAL REJECT（未运行test100）",
         "evidence": "训练25轮早停、最佳第13轮，权重`893945ce…4f05`。val30在0.35为130匹配/14漏检/22误检、边界F1=0.59038；0.45为124/20/17、边界F1=0.60695。没有阈值同时保持识别门并严格改善，机器决定`candidate43-boundary-validation-decision-v1.json`拒绝；未读取test100或发布留出，未导出、登记、接入或部署。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE44-COMPLETE-BOUNDARY-001",
+        "task": "完整边界保守训练与val30替换判定",
+        "status": "❌ VAL REJECT（未运行test100）",
+        "evidence": "训练23轮早停、最佳第11轮，权重`8b8f326c…c0c6`；512 val30在0.35为128/16/22、boundaryF1=0.61549，在0.45为126/18/16、boundaryF1=0.62379。没有阈值同时满足识别非退化、误检预算和边界严格改善。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE45-COARSE-PARETO-001",
+        "task": "candidate29→candidate44四点粗插值",
+        "status": "❌ VAL REJECT（未运行test100）",
+        "evidence": "预登记0.10/0.20/0.30/0.40，固定512/0.45；四点全部降为127匹配、17漏检，误检17/19/19/18，均违反识别非退化门。"
+      },
+      {
+        "id": "M2-T3-CANDIDATE46-FROZEN-TEST100-001",
+        "task": "candidate46唯一一次冻结test100正样本质量门",
+        "status": "❌ TEST HOLD",
+        "evidence": "519/554匹配、466完整mask、35漏甲、13重复、16额外、12无效、20图漏甲、54图可直接提取；实例召回0.93682通过，完整mask比例0.84116、缺甲图片率0.20、加权伪实例率0.11372失败。质量报告`b8cd82a2…fc05`构建与重放一致；停止本插值轨迹，禁止导出、登记、前端接入或部署。"
       }
     ]
   },
@@ -1160,9 +1178,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 475,
-      "uniqueMarkerCount": 475,
-      "passMarkerCount": 442,
+      "markerCount": 480,
+      "uniqueMarkerCount": 480,
+      "passMarkerCount": 444,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1363,6 +1381,24 @@
           "task": "从candidate29初始化直接训练并执行部署512 val30严格替换判定",
           "status": "❌ VAL REJECT（未运行test100）",
           "evidence": "训练25轮早停、最佳第13轮，权重`893945ce…4f05`。val30在0.35为130匹配/14漏检/22误检、边界F1=0.59038；0.45为124/20/17、边界F1=0.60695。没有阈值同时保持识别门并严格改善，机器决定`candidate43-boundary-validation-decision-v1.json`拒绝；未读取test100或发布留出，未导出、登记、接入或部署。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE44-COMPLETE-BOUNDARY-001",
+          "task": "完整边界保守训练与val30替换判定",
+          "status": "❌ VAL REJECT（未运行test100）",
+          "evidence": "训练23轮早停、最佳第11轮，权重`8b8f326c…c0c6`；512 val30在0.35为128/16/22、boundaryF1=0.61549，在0.45为126/18/16、boundaryF1=0.62379。没有阈值同时满足识别非退化、误检预算和边界严格改善。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE45-COARSE-PARETO-001",
+          "task": "candidate29→candidate44四点粗插值",
+          "status": "❌ VAL REJECT（未运行test100）",
+          "evidence": "预登记0.10/0.20/0.30/0.40，固定512/0.45；四点全部降为127匹配、17漏检，误检17/19/19/18，均违反识别非退化门。"
+        },
+        {
+          "id": "M2-T3-CANDIDATE46-FROZEN-TEST100-001",
+          "task": "candidate46唯一一次冻结test100正样本质量门",
+          "status": "❌ TEST HOLD",
+          "evidence": "519/554匹配、466完整mask、35漏甲、13重复、16额外、12无效、20图漏甲、54图可直接提取；实例召回0.93682通过，完整mask比例0.84116、缺甲图片率0.20、加权伪实例率0.11372失败。质量报告`b8cd82a2…fc05`构建与重放一致；停止本插值轨迹，禁止导出、登记、前端接入或部署。"
         }
       ]
     },
@@ -1573,7 +1609,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "33 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001, M2-T3-CANDIDATE30-34-BOUNDARY-001, M2-T3-CANDIDATE35-BOUNDARY-HARDCASE-001, M2-T3-CANDIDATE36-BOUNDARY-EXPANSION-001, M2-T3-CANDIDATE37-CONSERVATIVE-SOUP-001, M2-T3-CANDIDATE38-40-HARD-BOUNDARY-001, M2-T3-CANDIDATE41-BOUNDARY-PARETO-001, M2-T3-CANDIDATE42-EXTENDED-BOUNDARY-PARETO-001, M2-T3-CANDIDATE43-EXPANDED-BOUNDARY-001."
+      "summary": "36 progress marker(s) are not PASS: M2-T3-REAL-DATA, M2-T3-VISION-ANNOTATION, M2-T3-HARD-NEGATIVE-V3-TRAINING-010, M3-T3-DEVICE, M3-T4-QUALITY, M3-T5-BETA, M2-T3-RECOGNITION-POSITIVE-MASK-REVIEW-069, REL-T2-CANDIDATE, USER-FAILURE-01, M2-T3-CANDIDATE9-TEACHER-STUDENT-001, M2-T3-CANDIDATE12-CAPACITY-001, M2-T3-CANDIDATE13-EXPANDED-TRUTH-001, M2-T3-CANDIDATE14-CONTINUATION-001, M2-T3-CANDIDATE15-TEACHER-CURRICULUM-001, M2-T3-CANDIDATE16-MULTI-SIGNAL-DISTILLATION-001, M2-T3-CANDIDATE17-DIRECT-MEDIUM-001, M2-T3-CANDIDATE18-HARDCASE-DIRECT-001, M2-T3-CANDIDATE19-EXPANDED-DIRECT-001, M2-T3-CANDIDATE20-BOUNDARY-DIRECT-001, M2-T3-CANDIDATE21-INTERPOLATED-STUDENT-001, M2-T3-CANDIDATE22-DIRECT-HARDCASE-001, M2-T3-CANDIDATE23-INTERPOLATION-001, M2-T3-CANDIDATE24-DIRECT-STUDENT-001, M2-T3-CANDIDATE25-INTERPOLATION-001, M2-T3-CANDIDATE27-PROPOSAL-VERIFIER-001, M2-T3-CANDIDATE30-34-BOUNDARY-001, M2-T3-CANDIDATE35-BOUNDARY-HARDCASE-001, M2-T3-CANDIDATE36-BOUNDARY-EXPANSION-001, M2-T3-CANDIDATE37-CONSERVATIVE-SOUP-001, M2-T3-CANDIDATE38-40-HARD-BOUNDARY-001, M2-T3-CANDIDATE41-BOUNDARY-PARETO-001, M2-T3-CANDIDATE42-EXTENDED-BOUNDARY-PARETO-001, M2-T3-CANDIDATE43-EXPANDED-BOUNDARY-001, M2-T3-CANDIDATE44-COMPLETE-BOUNDARY-001, M2-T3-CANDIDATE45-COARSE-PARETO-001, M2-T3-CANDIDATE46-FROZEN-TEST100-001."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",

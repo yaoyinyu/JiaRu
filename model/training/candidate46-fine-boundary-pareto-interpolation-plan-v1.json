@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate46",
+  "decision": "pre_registered_fine_boundary_pareto_interpolation",
+  "objective": "candidate45的0.10至0.40插值均在固定0.45阈值退化为127匹配/17漏检；仅在尚未评估的(0,0.10)区间检查三个预登记点，寻找保持candidate29识别计数且严格改善边界的最小权重移动。",
+  "base": {
+    "candidate": "candidate29-alpha-015",
+    "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate29-soup-2026-08-30-v1/alpha-015/weights.pt",
+    "sha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02"
+  },
+  "tuned": {
+    "candidate": "candidate44-complete-boundary",
+    "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate44-complete-boundary-2026-09-01-v1/nail-texture-candidate44-complete-boundary-v1/weights/best.pt",
+    "sha256": "8b8f326c96c33832b03bc44084e01804f77c8424a7f024adca922002f0c5c0c6"
+  },
+  "alphas": [0.025, 0.050, 0.075],
+  "deploymentEvaluation": {
+    "inputSize": 512,
+    "split": "source-isolated-val30",
+    "threshold": 0.45,
+    "validationImages": 30,
+    "truthMasks": 144,
+    "matchIou": 0.50,
+    "strongIou": 0.75,
+    "boundaryTolerancePixelsAtOriginalResolution": 2
+  },
+  "selectionRule": {
+    "baseline": { "matched": 128, "missed": 16, "falsePositives": 16, "microBoundaryF1": 0.6011288950896838 },
+    "requiredOutcome": "固定0.45时matched不少于128、missed不多于16、falsePositives不多于16，且microBoundaryF1严格高于0.6011288950896838。",
+    "ranking": ["matchedDescending", "falsePositivesAscending", "microBoundaryF1Descending", "alphaAscending"]
+  },
+  "prohibitions": [
+    "不得继续细分或动态追逐单图结果；本轮仅允许三个预登记点。",
+    "不得使用test100或独立发布留出选择alpha。",
+    "不得改变阈值0.45、部署尺寸512或后处理。"
+  ],
+  "releaseState": "hold"
+}
