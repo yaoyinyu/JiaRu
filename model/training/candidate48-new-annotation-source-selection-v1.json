@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "source_selection_frozen_before_model_assistance",
+  "createdAt": "2026-09-01T00:00:00+08:00",
+  "purpose": "承接candidate47模型无关清单中尚无完整甲面真值的11张来源隔离正样本，形成下一候选的原分辨率逐甲精标工作区。",
+  "inputs": {
+    "inventory": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_intake_v1/candidate-inventory-v1.json",
+    "inventorySha256": "941f3a77ddd03abe3d6d15edabb3556d4a25ea9eaa4406e631ec76b24896e1af",
+    "inventoryItemsSha256": "6193e3c011da92a11d70a00c2c02d300af3ea08773ca44fe17cacd3f7dd62f46",
+    "parentSelectionPlan": "model/training/candidate47-positive-source-selection-v1.json",
+    "parentSelectionPlanSha256": "1af036b425899a071ee353055c72946a783cb229c3c2c4916b9ae5af2ba44a49",
+    "parentSelectedFileNamesSha256": "dfc41f531972ef09381bda0d32cef817a7671d1150bc2f52b57df687c65f405a",
+    "reusedApprovedFileNamesSha256": "e52636f7d678d905f9386ac37477c54d29b3a4458e3f6bd711b22bb81ffdd4f3"
+  },
+  "selectionMethod": {
+    "stage": "model-independent-remainder-from-parent-selection",
+    "modelOutputsUsedForSelection": false,
+    "exclusionRule": "仅扣除parent清单中已由历史原分辨率完整甲面终审真值精确复验通过的19张，不按candidate47输出挑图。"
+  },
+  "selectedFileNames": [
+    "nail_00062_68f8edbb00000000070391e5_2.jpg",
+    "nail_00228_696cf228000000000a02d451_3.jpg",
+    "nail_00301_69cf27bb000000001a028441_10.jpg",
+    "nail_00537_6a3a208e0000000021009f42_2.jpg",
+    "nail_00623_6a52545a0000000022008ca1_1.jpg",
+    "nail_00664_69fea34c0000000035025b53_3.jpg",
+    "nail_00901_68bafcd8000000001d0243e4_2.jpg",
+    "nail_00915_68b81169000000001d010fb2_1.jpg",
+    "nail_01051_6a06843500000000360314b2_8.jpg",
+    "nail_01243_69bc2da0000000002301f8f5_5.jpg",
+    "nail_01271_6a29424f0000000021023db8_9.jpg"
+  ],
+  "selectedFileNamesSha256": "e41155e24f2181b792239c4026f913c8a38fabc884756c2f788ecdee2c4f6550",
+  "counts": {
+    "selectedImages": 11,
+    "selectedSourceGroups": 11
+  },
+  "policy": {
+    "modelAssistanceMayGenerateCandidatesOnly": true,
+    "completeVisibleNailSurfaceRequired": true,
+    "originalResolutionPerNailReviewRequired": true,
+    "polygonValidityRequired": true,
+    "zeroOverlapRequired": true,
+    "sourceOrMaskFailureExcludesTrainingUse": true,
+    "valTestAndHoldoutRolesRemainIsolated": true
+  },
+  "trainingUse": "prohibited"
+}

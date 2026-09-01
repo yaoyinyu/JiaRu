@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "source_selection_frozen_before_model_assistance",
+  "createdAt": "2026-09-01T00:00:00+08:00",
+  "purpose": "为candidate48首批三张已完成人工原分辨率边界复核的返修候选建立精确证据工作区。",
+  "inputs": {
+    "inventory": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_8_30_candidate35_boundary_hardcase_intake_v1/candidate-inventory-v1.json",
+    "inventorySha256": "941f3a77ddd03abe3d6d15edabb3556d4a25ea9eaa4406e631ec76b24896e1af",
+    "inventoryItemsSha256": "6193e3c011da92a11d70a00c2c02d300af3ea08773ca44fe17cacd3f7dd62f46",
+    "parentSelectionPlan": "model/training/candidate48-new-annotation-source-selection-v1.json",
+    "parentSelectedFileNamesSha256": "e41155e24f2181b792239c4026f913c8a38fabc884756c2f788ecdee2c4f6550",
+    "repairManifest": "model/training/candidate48-manual-repair-manifest-shard-001-v1.json"
+  },
+  "selectionMethod": {
+    "stage": "original-resolution-reviewed-repair-subset",
+    "modelOutputsUsedForSourceSelection": false,
+    "note": "该子集只建立精确审核覆盖，不改变父清单或自动批准mask。"
+  },
+  "selectedFileNames": [
+    "nail_00062_68f8edbb00000000070391e5_2.jpg",
+    "nail_00664_69fea34c0000000035025b53_3.jpg",
+    "nail_00915_68b81169000000001d010fb2_1.jpg"
+  ],
+  "selectedFileNamesSha256": "d182f3cd5f1f232dc72d55530086a7c1bbe4386a1cf49df9a65a460dab799ddd",
+  "counts": {
+    "selectedImages": 3,
+    "selectedSourceGroups": 3,
+    "expectedFullyVisibleNails": 15
+  },
+  "policy": {
+    "completeVisibleNailSurfaceRequired": true,
+    "originalResolutionPerNailReviewRequired": true,
+    "polygonValidityRequired": true,
+    "zeroOverlapRequired": true,
+    "trainingUseRequiresFinalTruthReport": true
+  },
+  "trainingUse": "prohibited"
+}
