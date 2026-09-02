@@ -7,12 +7,48 @@ import { AI_STYLE_PROMPTS } from "@/lib/ai-style-prompts";
 import {
   AI_IMAGE_RATIOS,
   AI_IMAGE_SIZES,
+  DEFAULT_AI_IMAGE_SIZE,
+  isAiImageSize,
   resolveAiImageDimension,
   type AiImageRatio,
-  type AiImageSize,
 } from "@/lib/ai-image-size";
+import {
+  DEFAULT_SEEDREAM_SIZE,
+  resolveSeedreamDimension,
+  seedreamSizesFor,
+} from "@/lib/seedream-image-size";
 
 type Status = "idle" | "loading" | "success" | "error";
+
+/** 生成引擎：Agnes（默认）与火山方舟 Seedream 5.0 pro / lite。 */
+type Engine = "agnes" | "seedream-pro" | "seedream-lite";
+
+const ENGINE_OPTIONS: { value: Engine; label: string }[] = [
+  { value: "agnes", label: "Agnes" },
+  { value: "seedream-pro", label: "Seedream 5.0 Pro" },
+  { value: "seedream-lite", label: "Seedream 5.0 Lite" },
+];
+
+/** 各引擎用户提示词上限（火山方舟建议中文提示词不超过 300 字）。 */
+const ENGINE_PROMPT_LIMIT: Record<Engine, number> = {
+  agnes: 520,
+  "seedream-pro": 300,
+  "seedream-lite": 300,
+};
+
+/** 引擎默认尺寸档位（Agnes 1K；Seedream pro/lite 均为 2K）。 */
+function engineDefaultSize(engine: Engine): string {
+  if (engine === "agnes") return DEFAULT_AI_IMAGE_SIZE;
+  return engine === "seedream-pro"
+    ? DEFAULT_SEEDREAM_SIZE.pro
+    : DEFAULT_SEEDREAM_SIZE.lite;
+}
+
+/** 引擎可选尺寸档位（Seedream 档位随模型不同：pro 无 3K/4K，lite 无 1K）。 */
+function engineSizeOptions(engine: Engine): readonly string[] {
+  if (engine === "agnes") return AI_IMAGE_SIZES;
+  return seedreamSizesFor(engine === "seedream-pro" ? "pro" : "lite");
+}
 
 const MAX_REFERENCE_FILE_SIZE = 10 * 1024 * 1024; // 10MB 原始文件上限
 const MAX_REFERENCE_EDGE = 1024; // 压缩后最长边
@@ -60,10 +96,30 @@ export default function AiGeneratePage() {
   const [referenceImage, setReferenceImage] = useState<string | null>(null);
   const [referenceError, setReferenceError] = useState("");
   const [ratio, setRatio] = useState<AiImageRatio>("1:1");
-  const [size, setSize] = useState<AiImageSize>("1K");
+  const [engine, setEngine] = useState<Engine>("agnes");
+  const [size, setSize] = useState<string>("1K");
 
-  // 由「尺寸档位 + 画面比例」决定的最终输出像素尺寸（参考 Agnes 输出尺寸参考表）。
-  const resolvedDimension = resolveAiImageDimension(size, ratio);
+  const promptLimit = ENGINE_PROMPT_LIMIT[engine];
+
+  /** 切换生成引擎：同步重置为该引擎的默认尺寸档位。 */
+  const handleEngineClick = (value: Engine) => {
+    if (value === engine) return;
+    setEngine(value);
+    setSize(engineDefaultSize(value));
+  };
+
+  // 由「尺寸档位 + 画面比例」决定的最终输出像素尺寸：
+  // Agnes 走 Agnes 尺寸表；Seedream 走火山方舟尺寸表（档位随模型联动）。
+  const resolvedDimension =
+    engine === "agnes"
+      ? isAiImageSize(size)
+        ? resolveAiImageDimension(size, ratio)
+        : "—"
+      : resolveSeedreamDimension(
+          engine === "seedream-pro" ? "pro" : "lite",
+          size,
+          ratio
+        ) ?? "—";
 
   /** 尺寸/比例选择 chip 的样式。 */
   const chipClass = (active: boolean) =>
@@ -131,16 +187,30 @@ export default function AiGeneratePage() {
     setErrorMsg("");
     setImageUrl(null);
     try {
-      const resp = await fetch("/api/generate-ai", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          prompt,
-          image: referenceImage ?? undefined,
-          ratio,
-          size,
-        }),
-      });
+      const isSeedream = engine !== "agnes";
+      const resp = await fetch(
+        isSeedream ? "/api/generate-seedream" : "/api/generate-ai",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(
+            isSeedream
+              ? {
+                  prompt,
+                  image: referenceImage ?? undefined,
+                  model: engine === "seedream-pro" ? "pro" : "lite",
+                  ratio,
+                  size,
+                }
+              : {
+                  prompt,
+                  image: referenceImage ?? undefined,
+                  ratio,
+                  size,
+                }
+          ),
+        }
+      );
       const data = await resp.json();
       if (!resp.ok) throw new Error(data?.error || `请求失败 (${resp.status})`);
       if (!data?.imageUrl) throw new Error("API 返回数据异常");
@@ -174,9 +244,9 @@ export default function AiGeneratePage() {
         <section className="p-5 sm:p-8">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#CF6F99]">Creative brief</p>
-            <span className="text-[11px] text-[#B1A7AC]">{prompt.length}/520</span>
+            <span className="text-[11px] text-[#B1A7AC]">{prompt.length}/{promptLimit}</span>
           </div>
-          <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节……" maxLength={520} className="mt-4 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-white/75 p-4 text-sm leading-7 text-[#544C50] outline-none transition placeholder:text-[#BEB4B9] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
+          <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节……" maxLength={promptLimit} className="mt-4 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-white/75 p-4 text-sm leading-7 text-[#544C50] outline-none transition placeholder:text-[#BEB4B9] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
           <p className="mt-5 text-xs font-medium text-[#7F767B]">参考图（可选）</p>
           {referenceImage ? (
             <div className="mt-3 flex items-center gap-3 rounded-2xl border border-pink-100/70 bg-white/75 p-3">
@@ -202,6 +272,14 @@ export default function AiGeneratePage() {
           </div>
           <div className="mt-5 space-y-4">
             <div>
+              <p className="text-xs font-medium text-[#7F767B]">生成引擎</p>
+              <div className="mt-2 flex flex-wrap gap-1.5">
+                {ENGINE_OPTIONS.map((opt) => (
+                  <button key={opt.value} type="button" onClick={() => handleEngineClick(opt.value)} className={chipClass(engine === opt.value)}>{opt.label}</button>
+                ))}
+              </div>
+            </div>
+            <div>
               <p className="text-xs font-medium text-[#7F767B]">画面比例</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {AI_IMAGE_RATIOS.map((r) => (
@@ -212,7 +290,7 @@ export default function AiGeneratePage() {
             <div>
               <p className="text-xs font-medium text-[#7F767B]">输出尺寸</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
-                {AI_IMAGE_SIZES.map((s) => (
+                {engineSizeOptions(engine).map((s) => (
                   <button key={s} type="button" onClick={() => setSize(s)} className={chipClass(size === s)}>{s}</button>
                 ))}
               </div>

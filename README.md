@@ -16,7 +16,7 @@
 | --- | --- | :---: | --- |
 | 首页 | `/` | ✅ | 品牌展示 + 四大功能入口 |
 | 涂色编辑器 | `/editor` | ✅ | 上传照片 → 五指独立选色 → Canvas 涂抹 → 本地保存 |
-| AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → Agnes Image 2.1 Flash 生成；用户已完成真实功能验收并再次确认 |
+| AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → 生成引擎可选（Agnes Image 2.1 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite）；用户已完成真实功能验收并再次确认 |
 | 灵感图库 | `/gallery` | 📌 | SVG 占位素材浏览，后续接入真实内容后台 |
 | AR 纯色试戴 | `/ar-tryon` | 🚧 | 摄像头实时手部追踪 + 五指贴色 |
 | AR 纹理试戴 | `/ar-tryon` | ⛔ | 上传参考图 → 美甲识别/mask 提取 → 纹理贴合；正式识别模型尚未发布 |
@@ -109,7 +109,8 @@ JiaRu/
 │   │   ├── privacy/page.tsx      # 隐私政策
 │   │   ├── login/page.tsx        # 登录页（手机号+验证码 / 微信）
 │   │   ├── account/page.tsx      # 账号页（档案/登录方式/改进计划/退出）
-│   │   ├── api/generate-ai/route.ts  # AI 生图 API
+│   │   ├── api/generate-ai/route.ts  # AI 生图 API（Agnes）
+│   │   ├── api/generate-seedream/route.ts  # AI 生图 API（火山方舟 Seedream）
 │   │   ├── api/auth/             # 认证 API（验证码/人机验证/微信 OAuth/登出/绑手机）
 │   │   └── api/me/               # 账号 API（档案/登录方式/改进计划偏好）
 │   │
@@ -131,6 +132,9 @@ JiaRu/
 │   │   ├── ai-style-prompts.ts   # AI 生图风格提示词库（10 风格 × 50 段）
 │   │   ├── ai-hand-anatomy-prompt.ts  # AI 生图两套系统提示词（文生图/图生图互斥）
 │   │   ├── agnes-image-api.ts    # Agnes 图像 API 客户端（文生图/图生图）
+│   │   ├── seedream-image-api.ts # 火山方舟 Seedream 图像 API 客户端（扁平 body/Ark 错误体系）
+│   │   ├── seedream-image-size.ts # Seedream 尺寸档位表（档位×比例→显式宽高像素）
+│   │   ├── seedream-prompt.ts    # Seedream 专用精简系统提示词（独立于 Agnes）
 │   │   ├── texture.ts            # 纹理处理（裁剪、缩放、释放）
 │   │   ├── ar-hand-orientation.ts # AR 手部朝向检测（4 传感器融合）
 │   │   ├── ar-video-layout.ts    # 视频自适应布局（cover 裁切）
@@ -219,11 +223,13 @@ JiaRu/
 - 10 种预设风格（甜美风/欧美风/日系/极简/复古/节日/水墨/几何/花草/金属）
 - 每风格 50 段独立中文场景提示词，点击轮转填入
 - 用户输入 1–520 字符 + 自动附加美甲场景后缀
-- **画面比例**（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9）与**输出尺寸档位**（1K/2K/3K/4K）可选，实时显示最终像素尺寸（默认 1K+1:1 ≈ 1024x1024，参考 Agnes「输出尺寸参考」表）
-- **参考图（可选）**：上传手部照片（浏览器端压缩至最长边 1024 的 JPEG），结合提示词走图生图——Agnes 在参考图手部指甲上直接绘制美甲样式，保持手部姿势与场景不变；不上传则按文字直接生成（行为与历史一致）
-- 后端 API Route → Agnes Image 2.1 Flash（需 `AGNES_API_KEY`）
-- 180 秒总超时（AbortController），503 按 1/2/4 秒指数退避重试
-- 仅发送文字描述；只有上传参考图时图片才发送给第三方（仅用于本次生成，不存储）
+- **生成引擎可选**：Agnes（默认）/ 火山方舟 Seedream 5.0 Pro / Seedream 5.0 Lite；切换引擎时尺寸档位与提示词上限联动
+- **画面比例**（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9）与**输出尺寸档位**可选，实时显示最终像素尺寸（默认 1K+1:1 ≈ 1024x1024，参考 Agnes「输出尺寸参考」表）；Seedream 档位随模型不同（pro：1K/1.5K/2K，lite：2K/3K/4K），比例经「档位×比例→显式宽高像素」换算后随请求发送
+- **参考图（可选）**：上传手部照片（浏览器端压缩至最长边 1024 的 JPEG），结合提示词走图生图——在参考图手部指甲上直接绘制美甲样式，保持手部姿势与场景不变；不上传则按文字直接生成（行为与历史一致）
+- 后端 API Route：Agnes 走 `/api/generate-ai`（需 `AGNES_API_KEY`）；Seedream 走 `/api/generate-seedream`（需 `VOLCENGINE_ARK_API_KEY` 与两个 Model ID），两条链路完全独立互不影响
+- Seedream 使用独立精简系统提示词（约 100 字核心手部约束，提示词上限 300 字，符合火山方舟建议），区别于 Agnes 的长提示词
+- 超时与重试：Agnes 180 秒总超时、503 退避重试；Seedream 240 秒总超时、429/500/503 退避重试
+- 仅发送文字描述；只有上传参考图时图片才发送给第三方（仅用于本次生成，不存储）；Seedream 生成图片默认不添加"AI 生成"水印（可用 `ARK_IMAGE_WATERMARK=true` 开启）
 
 ### 👤 用户系统（初始注册登录已落地）
 
@@ -256,6 +262,11 @@ JiaRu/
 | `AGNES_API_KEY` | Agnes API 密钥（仅服务端读取） | AI 生成功能需要 |
 | `AGNES_API_BASE_URL` | Agnes API 基础地址 | 否（默认 `https://apihub.agnes-ai.com/v1`） |
 | `AGNES_IMAGE_MODEL` | Agnes 图片模型 ID | 否（默认 `agnes-image-2.1-flash`） |
+| `VOLCENGINE_ARK_API_KEY` | 火山方舟 API 密钥（仅服务端读取） | Seedream 引擎需要 |
+| `ARK_SEEDREAM_PRO_MODEL` | Seedream 5.0 pro Model ID（控制台查询） | Seedream 引擎需要 |
+| `ARK_SEEDREAM_LITE_MODEL` | Seedream 5.0 lite Model ID（控制台查询） | Seedream 引擎需要 |
+| `ARK_BASE_URL` | 火山方舟基础地址 | 否（默认 `https://ark.cn-beijing.volces.com/api/v3`） |
+| `ARK_IMAGE_WATERMARK` | Seedream 生成图是否添加"AI 生成"水印 | 否（默认关闭） |
 | `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL` | 浏览器端纹理模型 manifest 路径 | 否（有默认值） |
 | `JWT_SECRET` | JWT 签名密钥（生产必须 ≥16 位随机字符串；未配置时本地开发用内置回退密钥，生产构建直接报错） | 用户系统生产必需 |
 | `JIARU_DB_PATH` | 用户数据库文件路径 | 否（默认 `<项目根>/data/jiaru-user.db`） |
@@ -395,5 +406,5 @@ copy .env.local.example .env.local
 | 手部关键点 | MediaPipe Hands | 浏览器端，CDN 加载 |
 | 纹理推理 | ONNX Runtime Web | 1.27.0（WebGPU/WASM） |
 | 3D | Three.js | 0.184.0（已安装，未使用） |
-| AI 生图 | Agnes Image 2.1 Flash | 服务端 API |
+| AI 生图 | Agnes Image 2.1 Flash + 火山方舟 Seedream 5.0（pro/lite，引擎可选） | 服务端 API |
 | 部署 | Vercel | 待配置 |

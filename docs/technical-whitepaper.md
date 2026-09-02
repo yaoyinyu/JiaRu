@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.560
+> 文档版本：v1.1.568
 >
 > 基线日期：2026-07-12
 >
@@ -98,6 +98,7 @@
 | 图形处理 | Canvas、OffscreenCanvas、ImageBitmap | 浏览器端 |
 | 3D 依赖 | Three.js | 0.184.0，仅安装依赖，当前 `src` 未使用 |
 | AI 生图 | Agnes Images HTTP API | 当前代码使用`agnes-image-2.1-flash`，依赖服务端密钥 |
+| AI 生图（新引擎） | 火山方舟 Ark Images HTTP API | Seedream 5 系列：pro=`doubao-seedream-5-0-pro-260628`（已实测）、lite 档=`doubao-seedream-5-0-260128`（账号未开通待激活），依赖服务端密钥`VOLCENGINE_ARK_API_KEY` |
 
 ### 2.2 逻辑数据流
 
@@ -109,13 +110,16 @@
 
 AI 生图：文字描述（+ 可选手部参考图 Data URI）-> POST /api/generate-ai -> 外部图像 API
          （文生图：仅文字；图生图：文字 + 参考图，保持原图手部仅改指甲）-> 远程图片 URL/本地下载
+
+AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI）-> POST /api/generate-seedream
+         -> 火山方舟 Ark /images/generations（档位×比例映射为显式 WxH）-> 远程图片 URL（24h 有效）
 ```
 
 三条流程目前彼此独立：AI 生成结果和图库款式不会自动写入编辑器或 AR；只有 `/ar-tryon` 内上传的参考图可以进入纹理识别/裁剪链路。
 
 ## 3. 功能状态总表
 
-> **当前最高优先级（2026-09-02）：** 第一目标仍是沿真实甲面/纹理边缘精确识别并提取每枚完整可见美甲。candidate50-alpha-003的受保护test100仍为519/554匹配、467完整mask、35漏甲、13重复、16额外、12无效，完整mask比例、漏甲图片率和加权杂散率未过门，候选已拒绝且产品继续HOLD。candidate51在模型辅助前冻结的5张/4来源组新源图按原图事实再次校正为38枚完整可见甲面；其中`00710/00225`已逐甲原分辨率终审、合法性与零交叠通过，形成2张/9 mask真值，并与candidate50基线原子合并为323张/1944 mask/107来源组的候选索引v2（SHA-256 `2b179256…38d2`，规范条目`33580c22…a993`）。该检查点仍为`trainingUse=prohibited-until-materialization-audit`；`00624`实为9甲，其当前9 polygon虽合法且零交叠，但逐甲放大仍发现透明延长甲和装饰外缘需返修，不能计入PASS；`00624/00625/00846`仍余3张/29 mask。OpenAI `gpt-image-2`只可生成/编辑来源隔离候选，项目从未获得本地YOLO蒸馏所需的logit、特征层、软mask或边界置信度，也没有对应学生权重；本地YOLO11m→YOLO11n多信号蒸馏candidate16已在val30否决，因此最短路径仍是完成真值、只训练一个candidate51直接候选，并前置非生产ONNX/Worker替换验证。
+> **当前最高优先级（2026-09-02）：** 第一目标仍是沿真实甲面/纹理边缘精确识别并提取每枚完整可见美甲。candidate51已完成16轮直接监督训练，最佳权重SHA-256为`403e24ca…322`；正式部署512的来源隔离val30为mask mAP50 `0.87627`、mAP50-95 `0.54533`。细阈值扫描在0.46达到129匹配/15漏检/17误检，升至0.465即降为127/17/17，没有阈值同时满足旧基线至少128匹配、至多16漏检、至多16误检，因此candidate51在val阶段正式拒绝，未读取test100、未测边界晋级、未导出/登记/部署。OpenAI `gpt-image-2`从未产生本地YOLO蒸馏所需的logit、特征层、软mask、边界置信度或学生权重；唯一实际运行的本地YOLO11m→YOLO11n蒸馏candidate16也已被val30否决。当前最快路径是保留candidate29-alpha-015识别基线，停止重复蒸馏和同数据盲训，只用新来源完整甲面难例与预注册训练改动驱动下一单一候选，同时前置非生产ONNX/Worker浏览器替换验证。产品继续HOLD。
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
 | --- | --- | --- | --- |
@@ -123,6 +127,7 @@ AI 生图：文字描述（+ 可选手部参考图 Data URI）-> POST /api/gener
 | 灵感图库 | `/gallery` | 占位 | 当前使用本地占位素材，尚无真实内容管理后端 |
 | 图片试色编辑器 | `/editor` | 已完成 | 本地上传、MIME/大小/分辨率/解码校验、逐指选色、Canvas 涂抹与本地保存链路均已实现并通过浏览器审核 |
 | AI 美甲生图 | `/ai-generate`、`POST /api/generate-ai` | 已完成（用户验收） | 已接入Agnes Image 2.1 Flash（文生图 + 图生图）；2026-08-29服务端Endpoint已切换为`https://api.agnes-ai.cn/v1/images/generations`并换用新服务端密钥，实测模型列表`GET /v1/models`认证HTTP 200、目标模型`agnes-image-2.1-flash`可见，真实文生图返回图片URL且产物可下载。`.cn`模型列表认证HTTP 200且目标模型可见，协议专项测试、Lint、全量758项测试和生产构建通过。2026-08-10用户确认AI美甲真实生图功能验证通过，并于2026-08-12再次确认；2026-08-19新增可选「参考图」图生图（上传手部照片→浏览器压缩至最长边1024 JPEG→与提示词一起生成，Agnes在参考图手部指甲上绘制美甲并保持原图构图，实测图生图成功且约12s，文生图约157s），并新增生成中 shimmer 加载与页面过渡动画；2026-08-29新增用户可选择**画面比例**（8 种）与**输出尺寸档位**（1K/2K/3K/4K），按 Agnes「输出尺寸参考」表实时显示最终像素尺寸，文生图与图生图共用（默认 1K+1:1 ≈ 1024x1024，行为与历史一致）。参考图仅在用户主动上传时发送第三方、仅用于本次生成；成本、内容安全和生产持续可用性继续作为运营监测项 |
+| AI 美甲生图（Seedream 引擎） | `/ai-generate`（引擎切换）、`POST /api/generate-seedream` | 待验证（pro 实测通过；lite 待账号开通） | v1.1.564 新增火山方舟 Seedream 5 系列作为第二生图引擎，Agnes 保持默认且链路零改动。新增`src/lib/seedream-image-api.ts`（扁平 body、顶层`error{code,message}`解析、429/500/503 指数退避重试、240s 超时、`watermark`默认关）、`seedream-image-size.ts`（pro=1K/1.5K/2K、lite=2K/3K/4K 档位×8 比例→显式 WxH 表）与`seedream-prompt.ts`（Seedream 专用精简系统词约 100 字，独立于 Agnes 长提示词；用户提示词上限 300 字）。前端`/ai-generate`新增「生成引擎」切换（Agnes / Seedream pro / Seedream lite），切引擎联动尺寸档位与提示词上限。真实端到端：pro 引擎经`doubao-seedream-5-0-pro-260628`文生图 19.7s 成功返回 186KB 有效 JPEG；lite 档`doubao-seedream-5-0-260128`返回"has not activated the model"，需方舟控制台开通或改映射 4.5/4.0。模型 ID 经`GET /api/v3/models`实测发现（必须带版本日期后缀）。新增 17 项测试全过、路由校验冒烟 6/6 通过；前端浏览器验收与 lite 开通为剩余验证项。生成 URL 24h 过期，项目不做长期留存 |
 | AR 纯色试戴 | `/ar-tryon` | 待验证 | 单手摄像头、关键点、指甲绘制、手心/手背识别已实现；MediaPipe运行文件使用本站同源静态资源，实时路径启用`modelComplexity: 1`。甲面几何结合TIP/DIP/PIP、深度和手背平面生成长轴、横轴及侧转透视剪切，工程回归通过；真实边界仍需多设备真机验收 |
 | AR 纹理试戴 | `/ar-tryon` | 待验证 | 上传含完整手背的参考图时优先通过MediaPipe Hands逐指定位；完整手部关键点失败后，局部近景先用甲色连通域定位黑色、彩色、银色和镜面甲；甲面为裸色/半透明且被肤色种子吞掉时，再以闭合甲缘、甲板内部/肤色邻环和4—5枚同手连续链复合定位，仍失败才进入人工补选。两条辅助路径均没有像素级mask，低对比边界候选固定低置信并要求用户检查；实时AR支持拇/食/中/无/小指各自独立的长度75%—140%、宽度70%—145%及甲尖/指根位置±20%校准，摄像头最终贴合仍需多设备真机验收 |
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
@@ -289,6 +294,8 @@ npm.cmd run build
 
 使用方式：输入 1～520 字符描述，或选择预设风格按钮随机填入该风格的一段提示词，点击生成；成功后前端显示外部服务返回的远程图片 URL，并尝试跨域下载，失败时在新窗口打开图片。**输出尺寸与画面比例（v1.1.542，参考 Agnes Image 2.1 Flash「输出尺寸参考」表）**：用户可选**画面比例**（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9，默认 1:1）与**输出尺寸档位**（1K/2K/3K/4K，默认 1K），页面实时显示最终像素尺寸（如 2K+16:9 → `2624x1472`）；文生图与图生图共用该选择，定义见 `src/lib/ai-image-size.ts`（`AI_IMAGE_SIZE_TABLE`）。**参考图（可选）**：可上传手部照片（浏览器端校验 MIME/≤10MB，canvas 压缩至最长边 1024 的 JPEG，上传时按原图比例就近选中画面比例，用户随后可在「画面比例」选择器中覆盖），上传后请求携带 `image`（Data URI）、`ratio` 与 `size`，服务端走图生图组装并启用**第二套图生图系统提示词**（`IMAGE_EDIT_SYSTEM_PROMPT`，与文生图系统提示词完全独立）：以参考图为唯一底图做局部编辑，唯一允许修改的区域是指甲，手部数量/姿势/动作、皮肤纹理与肤色、服装配饰、背景场景、光线构图等一切细节原样保留，禁止整体风格重绘，并保留手部解剖负面约束防止重绘缺陷；Agnes 在参考图手部指甲上直接绘制美甲样式（实测图生图约 12—41s，远快于文生图约 157s）；不上传则行为与历史文生图完全一致。参考图仅在用户主动上传时发送给第三方 Agnes，仅用于本次生成、不用于训练或存储。生成期间（loading 状态）右侧图像展示区不新增外框卡片：白色 shimmer 光带直接扫过整个展示区背景（光带限定在展示区内，由展示区 section 自身 `overflow-hidden` 裁剪，不会溢出到左侧提示词输入区；光带 80% 宽、峰值透明度 0.55、3.6s 周期并带 0.9s 淡入出现，适配 `prefers-reduced-motion` 时停用动画），中央沿用空闲态图标卡样式显示微光呼吸的 SVG 火花矢量图标（`src/components/Icon.tsx` 的 `sparkles`，v1.1.488 起全站 emoji 统一替换为内联 SVG 矢量图标）与「正在凝聚你的灵感…」文案；页面进入与空闲/加载/成功/失败四态切换均带柔和淡入上移过渡（`fade-in-up` 0.45s、页面级 0.65s），无接口变化。前端只向本项目 API 发送文字与（可选的）参考图。
 
+**生成引擎（v1.1.564，Seedream 5 半分离接入）**：页面顶部新增「生成引擎」切换（Agnes 默认 / Seedream pro / Seedream lite），Agnes 链路与行为完全不变。选择 Seedream 引擎时：①尺寸档位切换为该模型的合法档位（pro=1K/1.5K/2K，lite=2K/3K/4K，默认 2K），与 8 种画面比例组合实时映射为显式像素尺寸（如 pro 2K+21:9 → `3136x1344`）；②提示词输入上限由 520 收紧为 300 字符（对齐 Ark 文档建议），计数器同步变化；③请求改发 `POST /api/generate-seedream`（契约见 §5.2），服务端组装 Seedream 专用精简系统词（`SEEDREAM_T2I_SYSTEM_PROMPT`/`SEEDREAM_I2I_SYSTEM_PROMPT`，约 100 字，独立于 Agnes 两套长系统提示词，二者互不复用）。参考图上传、压缩与图生图交互与 Agnes 一致。切引擎会重置尺寸档位为该引擎默认值。
+
 风格提示词库：`src/lib/ai-style-prompts.ts` 导出 `AI_STYLE_PROMPTS`，包含 10 个风格（甜美风、欧美风、日系、极简、复古、节日、水墨、几何、花草、金属），每个风格 50 段独立的中文场景提示词。用户每次点击风格按钮时，从该风格的 50 段提示词中随机抽取一段填入输入框（各风格独立随机，并避免连续两次抽到同一段；刷新页面后首次点击同样是随机结果）。提示词描述了底色、装饰、甲型、手持道具、光线、背景和皮肤质感等完整场景。`src/lib/utils.ts` 中原有的 `AI_STYLES` 字符串数组仍保留以维持向后兼容，但 `/ai-generate` 页面已改为从 `AI_STYLE_PROMPTS` 读取。
 
 前置条件：
@@ -449,6 +456,41 @@ Content-Type: application/json
 | 504 | 180秒总超时 |
 
 当前未实现鉴权、用户配额、内容审核记录、请求幂等、结果持久化和计费统计；正式开放前必须补齐相应治理能力。
+
+### 5.2 `POST /api/generate-seedream`
+
+状态：待验证（服务端已实现；pro 引擎经脚本端到端实测通过，lite 引擎待模型开通；浏览器全链路验收待做）。
+
+请求：
+
+```http
+POST /api/generate-seedream
+Content-Type: application/json
+
+{"prompt":"银色亮片渐变，月光质感","model":"pro","ratio":"21:9","size":"2K"}
+```
+
+请求字段：
+
+- `prompt`：必填，1～300 字符描述（Seedream 文档建议中文 ≤300 字，短于 Agnes 的 520）。
+- `model`：可选，`pro`（默认，`doubao-seedream-5-0-pro-260628`）或 `lite`（`doubao-seedream-5-0-260128`）；非法值回退 `pro`。
+- `image`：可选，Data URI 参考图（PNG/JPEG/WebP，≤9,000,000 字符 ≈6.7MB）；提供后走图生图，作为 Ark 顶层 `image` 字段发送。
+- `ratio`：可选，画面比例，取值与 §5.1 相同的 8 值白名单，默认 `1:1`。
+- `size`：可选，输出尺寸档位；pro 合法值 `1K`/`1.5K`/`2K`，lite 合法值 `2K`/`3K`/`4K`，默认 `2K`；与 `ratio` 组合经 `resolveSeedreamDimension` 映射为 Ark 显式 `size`（WxH 像素字符串，如 `3136x1344`），非法组合在调用外部 API 前返回 400。
+
+成功响应：`{"imageUrl":"https://..."}`（Ark 返回的 URL 24 小时后过期，项目不做长期留存）。
+
+错误响应统一格式同 §5.1（`{"error":"..."}`）。主要状态码：
+
+| HTTP 状态 | 含义 |
+| --- | --- |
+| 400 | 非法 JSON、空描述或超过 300 字符、比例无效、档位与模型组合非法、参考图格式非法 |
+| 401 | `VOLCENGINE_ARK_API_KEY` 无效 |
+| 429/500/503 | 外部 API 限流或异常（客户端已按 1/2/4s 退避重试，重试耗尽后透传） |
+| 502 | Ark 顶层 `error{code,message}`、`data[0].error` 或响应缺少图片 URL |
+| 503 | 未配置`VOLCENGINE_ARK_API_KEY`或 Model ID |
+
+服务端环境变量：`VOLCENGINE_ARK_API_KEY`（必填）、`ARK_SEEDREAM_PRO_MODEL`/`ARK_SEEDREAM_LITE_MODEL`（Model ID，必须带版本日期后缀）、可选 `ARK_BASE_URL`（默认 `https://ark.cn-beijing.volces.com/api/v3`）、可选 `ARK_IMAGE_WATERMARK`（默认 `false`）。`sequential_image_generation` 等组图参数禁止用于 pro；本路由为扁平 body，无 Agnes 的 `extra_body` 包装，也无 `ratio` 参数。当前同样未实现鉴权、配额、审核记录、幂等、持久化和计费。
 
 ## 6. 浏览器端美甲纹理识别接口
 
@@ -1148,7 +1190,7 @@ Git 推送若出现`Failed to connect to github.com port 443`，应先用只读�
 
 ### 11.1 阻塞项
 
-截至v1.1.560，candidate50已因受保护test100正样本质量门失败终止。candidate51的5张/4来源组新源图按原图事实校正为38枚完整可见甲面，源文件名清单SHA-256仍为`d1fe3942…35a1`，修正后的源冻结文件SHA-256为`025655c9…3a2e`。`00710/00225`已完成原分辨率整图与逐甲终审，生成2张/9 mask的重新绑定真值候选；与candidate50规范索引原子合并后仍为323张/1944 mask/107来源组，索引v2 SHA-256 `2b179256…38d2`、规范条目SHA-256 `33580c22…a993`，零冲突、零冗余。`00624`实为9甲，当前候选机器几何9/9且零交叠，但逐甲放大仍发现边界风险，故未晋升。该中间索引仍为`trainingUse=prohibited-until-materialization-audit`；`00624/00625/00846`剩余3张/29 mask终审、完整物化与candidate51直接训练尚未完成。后续仍需val30选择、全新正样本发布留出、训练后全新独立困难负样本100张三变体零误检、生产ONNX、Worker/`/ar-tryon`、浏览器/四类真机、Beta100、产品质量和双版本回滚门；生产manifest继续HOLD。
+截至v1.1.568，candidate50已因受保护test100正样本质量门失败终止；candidate51也已在来源隔离val30阶段拒绝。candidate51完成16轮训练，最佳权重`403e24ca…322`；部署512的正式val30指标为mask mAP50 `0.87627`、mAP50-95 `0.54533`，细阈值扫描最接近严格替换门的0.46为129匹配/15漏检/17误检，误检超预算1；0.465则降为127/17/17。不存在同时满足128/16/16非退化合同的阈值，故不再运行边界晋级测量、test100、插值、导出、登记或部署。正式识别基线仍保留candidate29-alpha-015；后续仍需由来源隔离的新完整甲面难例与可验证训练改动形成下一单一候选，再依次通过val30、受保护test100、全新正样本发布留出、训练后全新独立困难负样本100张三变体零误检、生产ONNX、Worker/`/ar-tryon`、浏览器/四类真机、Beta100、产品质量和双版本回滚门。生产manifest继续HOLD。
 
 1. 第二候选因训练后独立留出三变体7/5/6张误检被否决，第三候选因规范val30联合门失败被否决，第四候选因另一批独立留出3/2/3张误检被否决。candidate5虽通过规范val30与冻结test100正样本质量门，但在训练后新100张独立留出上产生3/4/3张误检、5/4/6个检测和1/1检测数delta，同样正式拒绝。编号361—460留出已以holdout角色单调追加至registry v4，永久禁止训练或再次充当未见留出。下一候选若继续改进，必须使用与当前留出隔离且另获商业训练授权的新训练负样本，并在训练方案冻结后再建立另一份全新未见留出；不能用本次失败图片本身训练。仍缺用户典型失败案例、四类移动真机、至少100张Beta人工质量报告和生产ONNX；首发回滚工程策略已通过双批准版本命令链测试，但必须等待两个真正通过全部门的正式版本才能产生回滚证据。生产manifest、共享阈值和正式发布状态继续HOLD；
 
@@ -1335,6 +1377,14 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 7. 图库款式到编辑器/AR 的参数消费和纹理传递；
 8. AI 生成结果一键进入图库、编辑器或 AR 的集成链路；
 
+### 11.4 外网演示与内网穿透已知限制
+
+- `/ar-demo` 页面通过 iframe 加载 `http://localhost:8080/?embedded=jiaru-main`（访问者本机的 Python demo 服务）。在经由 Cloudflare / cpolar 等隧道暴露的 HTTPS 公网地址下，该 iframe 因「HTTPS 页面加载 HTTP 子资源」被浏览器混合内容策略拦截，且访问者电脑通常并未运行该 Python demo，故 `/ar-demo` 外网演示必然不可用；此为页面设计对本地环境的依赖，与穿透工具或 `allowedDevOrigins` / `Permissions-Policy` 配置无关。
+- AR 摄像头（`/ar-tryon`、`/ar-demo` 的 `camera=(self)`）在隧道 HTTPS 域名下已实测可正常调用 `getUserMedia`（GRANTED、视频轨 live），前提为隧道提供有效 TLS 且未改动 `next.config.ts` 的 Permissions-Policy。
+- 纹理识别与 AR 合成依赖 onnxruntime-web（WebGPU 优先、WASM 回退）在浏览器端推理；远程演示所用的手机或老旧浏览器若不支持 WebGPU 且未回退 WASM，识别会失败，属设备能力问题。
+- AI 生图（`/ai-generate`）密钥 `AGNES_API_KEY` 已在 `.env.local` 配置，由服务端 `/api/generate-ai` 调用 `api.agnes-ai.cn`；外网可用，前提是运行服务的本机可访问该外部 API。
+- 临时演示默认使用 Cloudflare quick tunnel，域名每次启动变化、节点可能位于境外（实测 kix04 / sjc11），国内访问延迟高；如需稳定国内节点应使用 cpolar / 花生壳等（需注册账号获取 authtoken），且仍需解决 `/ar-demo` 的本地 8080 依赖。
+
 ## 12. 新模块对接登记模板
 
 后续新增模块时，在对应章节至少记录以下内容：
@@ -1361,6 +1411,16 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-09-02 | v1.1.569 | 再次只读核验 Git 恢复完整性并回答是否与损坏前一致：数据层面已恢复。`HEAD` 仍为本地与远端共同的 `a26b825…`，可解析为 commit；`git fsck --full --no-reflogs` 退出0且无 missing/bad object，仅有无害 dangling commit/tree；损坏前记录的15个已修改路径与11个未跟踪条目均未丢失。当前工作区为15个已修改路径、12个未跟踪条目，新增项是恢复后正常产生的 `candidate51-validation-decision-v1.json`，同时白皮书已推进至v1.1.568，故当前工作区并非损坏前快照的逐字节静止副本，而是“完整恢复后继续工作”的状态。唯一未收口的 Git 展示/元数据项仍是本地 `origin/master` 远端跟踪引用缺失，导致`[gone]`；远端 `master` 实际存在且与本地同提交，后续普通 `git fetch origin` 可刷新。未执行fetch、reset、clean、commit或push；无运行时接口、模型、数据集或产品HOLD状态变化。 | Git恢复复核、对象完整性、工作区保护、远端跟踪引用、无接口/状态变化 |
+| 2026-09-02 | v1.1.568 | candidate51完成16轮直接监督训练，最佳权重`403e24ca…322`。正式512 val30为mask mAP50 `0.87627`、mAP50-95 `0.54533`；粗扫与0.005细扫报告均形成，细扫报告`fff51cec…cd80`深重放PASS。0.46为129匹配/15漏检/17误检，0.465为127/17/17，没有阈值同时满足相对candidate29-alpha-015的128/16/16识别非退化合同，因此在val阶段拒绝candidate51；未运行边界晋级、test100、插值、导出、登记或部署。再次确认OpenAI `gpt-image-2`没有端到端蒸馏产物，本地candidate16蒸馏亦已失败；提速改为停止同数据盲训，以新来源完整甲面难例和预注册可验证训练改动驱动下一单一候选，同时前置非生产ONNX/Worker浏览器链路。产品继续HOLD。 | candidate51训练、val30细阈值、候选拒绝、OpenAI蒸馏边界、上线加速、产品HOLD |
+| 2026-09-02 | v1.1.567 | 只读复核用户询问的 Git 异常：当前 `HEAD` `a26b825…` 可正常解析为 commit，`git fsck --full --no-reflogs` 退出0且无 missing/bad object，仅有不影响仓库完整性的 dangling commit/tree；无 index lock、merge、cherry-pick、revert 或 rebase 残留。`git status` 显示 `master...origin/master [gone]` 的原因是本地远端跟踪引用缺失/过期，并非远端分支被删除：`git ls-remote --symref origin HEAD` 确认远端默认分支仍为 `master`，远端 `refs/heads/master` 与本地 `HEAD` 同为 `a26b825…`。工作区现有15个已修改路径及11个未跟踪条目均保留，未清理、重置、fetch、修改跟踪配置、commit 或 push。复核确认无运行时接口、模型、数据集或产品HOLD状态变化。 | Git完整性、远端跟踪引用、工作区保护、无接口/状态变化 |
+| 2026-09-02 | v1.1.566 | 完成candidate51最后一张`00846`的8枚完整可见甲面原分辨率终审；与`00710/00225/00624`合计4张/26 mask，`00625`保持遮挡排除。最终合并索引v5为325张/1961 mask/109来源组（索引`d040d11f…c8f8`、规范条目`2b4c7d54…b88`）。物化为485张训练图（325正样本+160困难负样本）及val30/144 mask，test=0、孤儿文件=0；物化报告`cb9c6779…ab77`与正式合同审计v3 `4301d117…1892`均PASS。首次dry-run因审计时自定义最低正样本325与验证器正式最低合同100不一致而被深重放拒绝；数据树未变化，按正式合同无覆盖生成v3后深重放与dry-run通过。13:58已从candidate29-alpha-015权重按640、40 epochs、patience 12、自动batch、CUDA 0、冻结10层、全分辨率独立mask、无蒸馏启动唯一candidate51直接训练。再次确认OpenAI `gpt-image-2`无本地可微蒸馏产物，candidate16蒸馏已被val30否决；不重复该支线。完成度重放498标记/457 PASS、14门4通过/10失败，报告`bcf28886…a7cf`，产品继续HOLD。 | candidate51、最终真值、物化审计、深重放、单候选训练、OpenAI gpt-image-2、完成度审计、产品HOLD |
+| 2026-09-02 | v1.1.565 | 复核正式模型上线加速路线与OpenAI `gpt-image-2`蒸馏现状，并以当前磁盘证据纠正文档漂移：`00624`已终审通过并进入真值，`00625`因必要甲面相互遮挡整图排除，candidate51中间索引v4为324张/1953 mask/108来源组；`00846`实际8枚可见甲面，8-mask候选已过合法性/零交叠机器门但仍待逐甲原分辨率终审。确认`gpt-image-2`从未产生logit、特征层、软mask、边界置信度或学生权重，本地candidate16蒸馏已被val30否决。上线最短路径保持为完成`00846`、最终物化审计、单一candidate51直接训练及前置非生产ONNX/Worker验证；不重复失败蒸馏、不降低发布门。完成度重放498标记/456 PASS、14门4通过/10失败，报告`b13035d4…6a87`继续HOLD。无运行时接口、生产manifest或产品状态变化。 | candidate51、上线加速、OpenAI gpt-image-2、蒸馏边界、文档纠偏、完成度审计、产品HOLD |
+| 2026-09-02 | v1.1.564 | 按用户要求新增火山方舟 Seedream 5 系列作为第二 AI 生图引擎（半分离架构，Agnes 保持默认且链路零改动）。①新增 `src/lib/seedream-image-size.ts`：pro=1K/1.5K/2K、lite=2K/3K/4K 档位×8 比例→显式 WxH 像素表（Ark 无 `ratio` 参数，采用文档"方式2"），含档位白名单、非法组合 null 返回与总像素区间属性测试；②新增 `src/lib/seedream-prompt.ts`：Seedream 专用精简系统词（文生图"单手/最多双手/恰五指/无畸形"，图生图"参考图唯一基准、仅改可见指甲"，各约 100 字，复用既有 `AI_IMAGE_SCENE_SUFFIX`，与 Agnes 两套长系统提示词完全独立），用户提示词上限 300 字（对齐 Ark 文档建议）；③新增 `src/lib/seedream-image-api.ts`：`POST {ARK_BASE_URL}/images/generations` 扁平 body（无 `extra_body`、顶层 `image`）、顶层 `error{code,message}` 与 `data[0].error` 解析归一化、429/500/503 指数退避重试（1/2/4s）、240s 超时、`watermark` 默认 `false`（可经 `ARK_IMAGE_WATERMARK` 覆盖）、非 HTTPS 基址拒绝；④新增 `POST /api/generate-seedream` 路由（`maxDuration=300`）：prompt 1—300、model 默认 pro、比例 8 值白名单、档位按模型白名单校验后经 `resolveSeedreamDimension` 映射，非法组合在调用外部前 400；⑤`/ai-generate` 前端新增「生成引擎」切换（Agnes/Seedream pro/Seedream lite），切引擎联动尺寸档位与 300 字上限，Agnes 分支行为逐字节不变。实测（用户临时 Key，已写入 gitignored `.env.local`）：`GET /api/v3/models` 发现真实 Model ID 必须带日期后缀——pro=`doubao-seedream-5-0-pro-260628`（端到端文生图 19.7s 成功，产物 186KB 有效 JPEG）、lite 档=`doubao-seedream-5-0-260128`（返回 "has not activated the model"，账号未开通，待控制台开通或改映射 4.5/4.0）；账号另可见 `doubao-seedream-4-5-251128`/`doubao-seedream-4-0-250828`。验证：新增 3 个测试文件 17 用例全过（尺寸表抽查+像素区间属性、提示词长度约束、协议/重试/错误归一化含无 `extra_body`/无 `ratio` 断言）；相关域测试 35/35 通过；路由校验冒烟 6/6（经 Node loader hook 直接调用真实 `POST` handler，零外部调用）；ESLint 0 告警；tsc 对 src 与新测试零报错。全量 761 项测试出现的失败经干净 HEAD worktree 复现证明为既有的甲面纹理训练/审计管线问题，与本次改动无关（相关域 35/35 通过）。`.env.local.example` 与 README 已同步；本次未执行 commit/push。剩余待办：lite 模型开通、重启服务加载 `.env.local`、前端浏览器验收。生成 URL 24h 过期，不做长期留存；无模型/数据集/训练/发布门禁变化，产品继续 HOLD。 | AI生图、Seedream 5、火山方舟、引擎切换、尺寸档位映射、压缩提示词、独立路由、17项测试、端到端实测、lite待开通 |
+| 2026-09-02 | v1.1.563 | 修复外网访问时「部分功能不可用」的根因，改动仅限 `next.config.ts` 的 `allowedDevOrigins`。诊断确认此前 v1.1.561/v1.1.562 的「生产模式」判断有误：3000 端口服务实际运行在 **dev 模式**（`start-server.js` 为 dev 与 start 共用入口，不能据此区分；dev-only 端点 `/__nextjs_launch-editor` 返回 400 而非 404，且 HTML 引用 `[turbopack]_browser_dev_hmr-client` 与 `next-devtools` chunk）。因此 `blockCrossSiteDEV` 在 `development` 分支生效，而 `allowedDevOrigins` 仅含 `192.168.1.100 / 127.0.0.1 / localhost`，隧道域名 `*.trycloudflare.com` 全部被拦。cloudflared 日志出现大量 `malformed HTTP response "Unauthorized"`，目标为 `/_next/webpack-hmr` 且 `type=ws`，与 `block-cross-site-dev.js` 第 52 行 `res.end('Unauthorized')` 及第 614—617 行 dev 分支 websocket 拦截完全对应。方法论纠正：`blockCrossSiteDEV` 的判据为 `originLowerCase !== undefined && …`，curl 发普通 GET 不带 `Origin` 头会直接放行，故 curl 全绿**不能**证明外网可用，必须以真实浏览器验证。修复为 `allowedDevOrigins` 追加 `*.trycloudflare.com`、`*.cpolar.cn`、`*.cpolar.top`、`*.cpolar.io`、`*.ngrok-free.app`；修复后 `/`、`/gallery`、`/editor`、`/ar-tryon`、`/login`、`/ai-generate` 标题与内容均正常且网络零失败（`/gallery` 仅有无害的 LCP 提示）。遗留限制：dev 模式叠加境外节点时浏览器访问仍间歇失败（curl 连续 5/5 成功且 0.42—1.2s，但浏览器多次出现 `ERR_CONNECTION_CLOSED`），根因是 dev 模式实时编译与 HMR websocket 长连接叠加境外往返，正式演示应改用 `next build && next start` 并优先国内中转。另记录两项与外网相关的既有限制：`src/app/ar-demo/page.tsx` 第 5 行 iframe 的 `src` 硬编码 `http://localhost:8080`，指向访问者本机端口且属混合内容，外网必然不可用；微信登录未配置 `WECHAT_APP_ID`/`WECHAT_APP_SECRET`，`/api/auth/oauth/wechat/status` 返回 `configured:false`、OAuth 跳转返回 503。无模型、数据集、训练或发布门禁变化，产品继续 HOLD。 | 外网访问、跨站拦截修复、dev模式判定纠正、检测方法论、已知限制、无接口/状态变化 |
+| 2026-09-02 | v1.1.563 | 诊断外网演示「部分功能无法正常使用」并完成隧道恢复，本次未修改任何源码。根因分两类：(1) 隧道连接本身失效——原 Cloudflare quick tunnel 进程虽存活，但到 Cloudflare 边缘的连接已断，外网访问返回 530，导致整站资源部分加载失败；已 kill 失效进程并以新 quick tunnel 恢复，本次连入 sjc11 节点，新随机域名为 `https://<随机子域>.trycloudflare.com`。(2) 部分功能设计上依赖本地环境、与穿透无关：① `/ar-demo` 经 iframe 加载 `http://localhost:8080/?embedded=jiaru-main`（访问者本机的 Python demo），HTTPS 页加载 HTTP 子资源被混合内容策略拦截且对方通常无此服务，外网必然不可用；② AI 生图 `/ai-generate` 的 `AGNES_API_KEY` 已在 `.env.local` 配置、由服务端 `/api/generate-ai` 调 `api.agnes-ai.cn`，外网可用（前提是运行服务的本机可访问该外部 API）；③ 纹理识别/AR 合成依赖 onnxruntime-web（WebGPU 优先、WASM 回退），远程手机/老旧浏览器不支持 WebGPU 且未回退时识别失败属设备能力问题；④ 摄像头已实测外网 GRANTED。新增 §11.4「外网演示与内网穿透已知限制」固化上述结论。另下载 cpolar 客户端至 `C:\Users\YaoYinyu\.workbuddy\binaries\cpolar\`（15MB），实测其免费版需 `authtoken`（`user authToken auth failed` StatusCode 4003）方可建隧道，故国内稳定穿透待用户提供 cpolar.cn 注册 token 后再建立。已复核无接口、模块状态、模型、数据或发布门禁变化，产品继续 HOLD。 | 外网演示诊断、隧道恢复、/ar-demo 限制、AI生图密钥、WebGPU依赖、cpolar客户端、无接口/状态变化 |
+| 2026-09-02 | v1.1.562 | 对外网隧道地址执行摄像头实测，本次未修改任何源码。使用本机已安装的 Chrome（`C:\Program Files\Google\Chrome\Application\chrome.exe`）以 headless 模式配合 `--use-fake-ui-for-media-stream --use-fake-device-for-media-stream` 提供合成摄像头设备，经 CDP 在真实页面上下文中调用 `navigator.mediaDevices.getUserMedia({video:true})`。`/ar-tryon` 与 `/ar-demo` 两页结果一致：`origin=https://<随机子域>.trycloudflare.com`、`window.isSecureContext=true`、`getUserMedia=GRANTED`、视频轨 `fake_device_0` 且 `readyState=live`、`navigator.permissions.query({name:'camera'}).state=granted`。由此证明 HTTPS 隧道域名构成安全上下文，且 `next.config.ts` 第 6—24 行两处 `camera=(self …)` 的 Permissions-Policy 在外网域名下均放行摄像头；`/ar-demo` 中额外列出的 `http://localhost:8080` 与 `http://127.0.0.1:8080` 不影响 `self` 生效，无需为外网访问修改该配置。此前 v1.1.561 仅依据响应头推断摄像头可用，本条以真实浏览器执行结果补上实证。验证过程未安装 agent-browser 或额外 Chromium，仅使用 Node 22 内置 WebSocket 与本机 Chrome；临时 profile 已清理，调试端口无残留监听，隧道服务保持可用。已复核无接口、模块状态、模型、数据集、训练或发布门禁变化，产品继续 HOLD。 | 外网访问、摄像头实测、安全上下文、Permissions-Policy、无接口/状态变化 |
+| 2026-09-02 | v1.1.561 | 新增外网临时演示访问通道并复核相关配置，本次未修改任何源码。安装 cloudflared 2026.8.3 至隔离目录 `C:\Users\YaoYinyu\.workbuddy\binaries\cloudflared\cloudflared.exe`，以 account-less quick tunnel 将本机已在运行的 `next start` 生产服务（HTTP 3000 端口，进程命令行 `start-server.js`）暴露为 HTTPS 公网地址 `https://<随机子域>.trycloudflare.com`，本次实例连入 kix04 节点、首页响应约 1.57s。端到端验证：`/`、`/ar-tryon`、`/ar-demo` 均 200，`ssl_verify_result=0`，页面标题「甲如 — 美甲试色」与本地一致；`/ar-tryon` 响应头为 `permissions-policy: camera=(self), microphone=()`，隧道域名下 `self` 与页面同源匹配，摄像头处于安全上下文；`/ar-demo` 的 `camera=(self "http://localhost:8080" "http://127.0.0.1:8080")` 中 `self` 同样生效，额外两条 localhost 条目在 HTTPS 页面下不影响放行。资源一致性：`/vendor/mediapipe/hands/hand_landmark_full.tflite` 经隧道下载 5,478,688 字节、SHA-256 前32位 `8c026882c9ec059ce0f8e75266bee5a9`，与本地文件逐位一致；JS chunk 返回 200 且内容完整，静态资源无白屏风险。关键源码复核：`node_modules/next/dist/server/lib/router-server.js` 第 295—296 行显示 `blockCrossSiteDEV` 仅在 `if (development)` 分支被调用，生产模式不执行跨站拦截，故 `next.config.ts` 第 2 行 `allowedDevOrigins` 无需为隧道域名追加条目（该选项虽支持 `*.domain` 通配，但生产模式不生效）。另记录环境事实：`npm.cmd run build` 在本工作区被 `safe-delete` 护栏以 `SAFE_DELETE_BULK_CONFIRM_REQUIRED`（目标 `.next/trace`，count=50 达到阈值）中止，属环境护栏而非代码缺陷，且在删除阶段即中止、未写入新产物；复核确认构建失败后现有 3000 服务的 `/`、`/ar-tryon`、`/ar-demo` 仍全部 200，未受影响。已复核无接口、模块状态、模型、数据集、训练或发布门禁变化，产品继续 HOLD。 | 外网访问、演示部署、摄像头安全上下文、静态资源一致性、本地开发环境、无接口/状态变化 |
 | 2026-09-02 | v1.1.560 | 按`00624`原图纠正candidate51总数为38甲：旧10候选中存在重复/皮肤误标及相邻甲合并，真实完整可见甲面为9。当前9 polygon机器合法且零交叠，但逐甲放大仍有透明延长甲与装饰外缘边界风险，保持返修且不计PASS。源冻结SHA更新为`025655c9…3a2e`，既有`00710/00225`决定重新绑定并无覆盖地生成v2真值；合并索引v2仍为323张/1944 mask/107来源组，索引`2b179256…38d2`、规范条目`33580c22…a993`。剩余真实工作量为3张/29 mask。再次确认OpenAI `gpt-image-2`未产生可微蒸馏信号或学生权重；上线加速固定为单一直接候选、前置非生产ONNX/Worker验证和门禁失败即停，不重复失败蒸馏。完成度重放498标记/456 PASS、14门4通过/10失败，报告`08642134…3035`继续HOLD。 | candidate51、原图事实校正、哈希重绑、边界审核、OpenAI gpt-image-2、上线加速、完成度审计、产品HOLD |
 | 2026-09-02 | v1.1.559 | 校正candidate51冻结源图的完整可见甲面总数为39；`00710/00225`已完成原分辨率整图与逐甲终审、polygon合法性及零交叠检查，终结2张/9 mask真值候选。新增严格终结器与candidate51合并索引器，将它们与candidate50规范基线原子合并为323张/1944 mask/107来源组，索引`86997f01…011c2`、规范条目`8fdaa682…7e66`，零冲突/冗余。全批仍禁止训练直到剩余3张/30 mask终审与物化审计完成。复核确认OpenAI `gpt-image-2`蒸馏未实际启动且无学生权重，本地candidate16蒸馏已被val30否决；最短路径继续为完成剩余真值、只训练一个直接候选，并提前完成非生产ONNX/Worker替换验证。 | candidate51、真值终结、规范索引、OpenAI gpt-image-2、蒸馏结论、上线加速、产品HOLD |
 | 2026-09-02 | v1.1.558 | 复核正式模型加速路线与OpenAI图像教师边界：官方文档确认`gpt-image-2`用于图像生成/编辑，项目中没有其logit、特征层、软mask、边界张量或端到端蒸馏运行报告；唯一真实可微蒸馏仍是已在val30否决的candidate16本地YOLO11m→YOLO11n实验。candidate51已在模型辅助前从44张/14组库存冻结5张/4来源组/预计40枚完整甲面，文件名清单`d1fe3942…35a1`；4张旧候选机器审计31 polygon、7对交叠、1张机器清洁、3张返修，第5张待新标注，全部保持禁止训练。加速顺序固定为原分辨率真值修边、达到有效增量后只训练一个直接候选，同时提前验证非生产ONNX/Worker替换路径；不得以重复蒸馏、重复训练或降低发布门换速度。完成度重放497标记/455 PASS、14门4通过/10失败，报告`abf42ec1…489e`继续HOLD；4份JSON、819文件编码及差异检查通过。 | candidate51、新源图、原分辨率修边、OpenAI gpt-image-2、蒸馏边界、并行工程、完成度审计、产品HOLD |
