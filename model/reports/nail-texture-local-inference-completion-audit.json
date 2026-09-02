@@ -1,7 +1,7 @@
 {
   "ok": false,
   "version": "nail-texture-local-inference-completion-audit/v2",
-  "generatedAt": "2026-09-01T17:26:47.562Z",
+  "generatedAt": "2026-09-02T00:45:53.752Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -72,8 +72,8 @@
     "gateCount": 14,
     "passedGates": 4,
     "failedGates": 10,
-    "progressMarkerCount": 497,
-    "passMarkerCount": 455,
+    "progressMarkerCount": 498,
+    "passMarkerCount": 456,
     "incompleteProgressMarkers": [
       {
         "id": "M2-T3-REAL-DATA",
@@ -319,7 +319,7 @@
         "id": "M2-T3-CANDIDATE51-LEGACY-PRELABEL-AUDIT-001",
         "task": "旧候选复用审计与返修路由",
         "status": "🟡 IN PROGRESS",
-        "evidence": "4张旧候选共31 polygon，0非法/越界/贴边，但7对交叠、1张机器清洁、3张机器返修；第5张无完整旧候选。所有5张仍为`trainingUse=prohibited`，必须逐甲原分辨率终审。"
+        "evidence": "`00710/00225`已逐甲原分辨率终审通过并终结2张/9 mask；`00624`当前9 polygon虽机器合法且零交叠，但逐甲放大仍有边界风险，保持返修。`00624/00625/00846`剩余3张/29 mask待完成，失败版本不计数。"
       },
       {
         "id": "M2-T3-CANDIDATE51-DIRECT-TRAINING-001",
@@ -1214,9 +1214,9 @@
     },
     "progressMarkers": {
       "ok": false,
-      "markerCount": 497,
-      "uniqueMarkerCount": 497,
-      "passMarkerCount": 455,
+      "markerCount": 498,
+      "uniqueMarkerCount": 498,
+      "passMarkerCount": 456,
       "malformedRows": [],
       "duplicateMarkerIds": [],
       "incompleteMarkers": [
@@ -1464,7 +1464,7 @@
           "id": "M2-T3-CANDIDATE51-LEGACY-PRELABEL-AUDIT-001",
           "task": "旧候选复用审计与返修路由",
           "status": "🟡 IN PROGRESS",
-          "evidence": "4张旧候选共31 polygon，0非法/越界/贴边，但7对交叠、1张机器清洁、3张机器返修；第5张无完整旧候选。所有5张仍为`trainingUse=prohibited`，必须逐甲原分辨率终审。"
+          "evidence": "`00710/00225`已逐甲原分辨率终审通过并终结2张/9 mask；`00624`当前9 polygon虽机器合法且零交叠，但逐甲放大仍有边界风险，保持返修。`00624/00625/00846`剩余3张/29 mask待完成，失败版本不计数。"
         },
         {
           "id": "M2-T3-CANDIDATE51-DIRECT-TRAINING-001",
