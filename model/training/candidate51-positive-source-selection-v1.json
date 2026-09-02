@@ -33,7 +33,9 @@
   "counts": {
     "selectedImages": 5,
     "selectedSourceGroups": 4,
-    "expectedFullyVisibleNails": 38
+    "sourceReviewEligibleImages": 4,
+    "sourceReviewExcludedImages": 1,
+    "expectedFullyVisibleNails": 26
   },
   "items": [
     {
@@ -61,7 +63,10 @@
       "width": 1080,
       "height": 1440,
       "sourceGroup": "real-material-2026-07-14-candidate-v1:note-0b28297044569bfe",
-      "expectedFullyVisibleNails": 10
+      "expectedFullyVisibleNails": 0,
+      "sourceReviewStatus": "exclude",
+      "sourceReviewDecisionPath": "model/training/candidate51-source-quality-exclusion-decision-00625-v1.json",
+      "sourceReviewReason": "required nail surfaces are mutually occluded, so complete nail boundaries cannot be confirmed"
     },
     {
       "fileName": "nail_00710_6a2bf5e0000000003501c00c_3.jpg",
@@ -79,7 +84,7 @@
       "width": 1080,
       "height": 1438,
       "sourceGroup": "real-material-2026-07-14-candidate-v1:note-e3fe954803a06653",
-      "expectedFullyVisibleNails": 10
+      "expectedFullyVisibleNails": 8
     }
   ],
   "authorization": {

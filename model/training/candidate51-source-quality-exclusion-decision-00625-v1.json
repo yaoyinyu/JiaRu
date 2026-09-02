@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "decision": "exclude_source_image_after_original_resolution_review",
+  "trainingUse": "prohibited",
+  "fileName": "nail_00625_6a52545a0000000022008ca1_3.jpg",
+  "imageSha256": "39a7943cc52d269bacf45a03359abfd9d123c31af3b3353df891d1c326ffc23b",
+  "sourceGroup": "real-material-2026-07-14-candidate-v1:note-0b28297044569bfe",
+  "sourceSelectionSha256BeforeExclusion": "025655c9f31bb04259b1d0b87ebe2a239d5d87195242b85d60d3f536a9d93a2e",
+  "reviewedCandidateManifestPath": "model/training/candidate51-manual-repair-manifest-batch004-v1.json",
+  "originalResolutionReviewCompleted": true,
+  "reviewStatus": "exclude",
+  "issueCodes": [
+    "required_nail_surfaces_occluded_by_adjacent_hands_and_nails",
+    "complete_nail_boundaries_not_confirmable",
+    "repeated_polygon_partition_would_fabricate_hidden_boundaries"
+  ],
+  "finalCompleteMaskCount": 0,
+  "note": "原图为双手多指交叠构图，顶部多枚透明长甲在投影上相互遮挡；第3—5枚等候选需要人为切分不可见边界才能实现零交叠，无法从原图确认每枚完整甲板外轮廓。按照源图质量门整图排除，失败的batch004候选不计数、不晋升训练真值。"
+}
