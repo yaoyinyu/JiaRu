@@ -747,5 +747,24 @@ candidate50首次把本轮新增边界信号转化为val30严格边界改善，�
 | `M2-T3-CANDIDATE51-TRUTH-CHECKPOINT-001` | 最终原分辨率真值、规范索引与物化深验 | ✅ PASS（训练输入门；不构成模型质量PASS） | 最终索引v5为325张/1961 mask/109来源组，索引`d040d11f…c8f8`、规范条目`2b4c7d54…b88`；物化train485（325正图+160负图）、val30/144、test0、孤儿0，正式合同审计v3 `4301d117…1892`PASS。 |
 | `M2-T3-CANDIDATE51-DIRECT-TRAINING-001` | 有效新真值增量后的单一直接候选训练 | ✅ PASS（训练完成；不构成质量PASS） | 完成16轮，最佳权重`403e24ca…322`；训练汇总`3e0a42dc…98bb`，无蒸馏。 |
 | `M2-T3-CANDIDATE51-VAL30-001` | 部署512来源隔离val30严格替换判定 | ❌ FAIL | mask mAP50 `0.87627`；0.46为129/15/17，0.465为127/17/17，无阈值满足128匹配、至多16漏检、至多16误检。决定文件`candidate51-validation-decision-v1.json`，未读取test100。 |
+| `M1-T2-NONPROD-BROWSER-REPLACEMENT-001` | 正式权重到达前的ONNX/Worker/像素mask/UI写回预验 | ✅ PASS（非生产工程门） | smoke资产完整性PASS；静态浏览器契约16/16、相关测试33/33。真实Chromium中Worker/WebGPU返回2个带mask候选，manifest/ONNX/WASM均200，完成手指分配、纹理提取和AR槽位写回，控制台0错误；不构成模型质量或发布PASS。 |
 
 OpenAI官方`gpt-image-2`在本项目只具有来源隔离图像生成/编辑候选角色，没有端到端蒸馏产物或运行报告。candidate51已被val30否决；下一主线为来源隔离新难例加一项预注册可验证训练改动驱动的单一候选，同时前置非生产ONNX/Worker替换验证。生产manifest和产品仍HOLD。
+
+## 2026-09-02 下一候选上线加速合同
+
+| 标记 | 项目 | 状态 | 证据与结论 |
+| --- | --- | --- | --- |
+| `M2-T3-NEXT-CANDIDATE-SHADOW-DEV-PLAN-001` | train角色内部来源组隔离影子开发集与短程配方筛选 | ⏳ 计划已锁定 | 下一候选最多比较两项短程单变量配方，影子开发集只从train角色按`sourceGroup`隔离产生；胜出后只完整训练一个正式候选，再执行一次正式val30。该标记不构成数据、训练、val或发布PASS。 |
+| `M2-T3-OPENAI-IMAGE2-ROLE-AUDIT-001` | OpenAI图像模型教师角色复核 | ✅ PASS（事实边界审计） | 当前磁盘无OpenAI教师logit、特征、软mask、边界张量、蒸馏报告或学生权重；`gpt-image-2`只保留为新来源候选图生成/编辑工具，不能被登记为已完成知识蒸馏。 |
+
+该加速合同减少整轮失败训练，但不删除val30、test100、全新发布留出、困难负样本三变体、生产ONNX、浏览器、真机、Beta或回滚门。产品继续HOLD。
+
+## 2026-09-02 candidate52库存止损与新源图冻结
+
+| 标记 | 项目 | 状态 | 证据与结论 |
+| --- | --- | --- | --- |
+| `M2-T3-CANDIDATE52-EXISTING-SOURCE-DISPOSITION-001` | 当前训练索引下的既有真实源图库存重放 | ✅ PASS（数据治理；不构成模型质量PASS） | 1166张筛选记录中565张源图门通过，555张因来源组已进train排除；余下10张/8来源组全部因裁甲、遮挡、重复、立体装饰、低清、计数冲突或多手交叠排除。决定文件`candidate52-source-disposition-v1.json`，不复活旧失败素材。 |
+| `M2-T3-CANDIDATE52-GENERATED-SOURCE-FREEZE-001` | OpenAI内置生成的新来源候选源图冻结 | ✅ PASS（源图选择门；不构成训练或模型质量PASS） | 3张/3来源组/预计20甲完成原分辨率源图初筛，SHA分别为`c5751486…d488`、`43c4c4d0…975d`、`913138e3…33ea`；无裁边、甲面重叠、文字水印或明显结构错误。精确模型ID不可核验，不能称为已确认`gpt-image-2`产物或蒸馏。完整mask终审前`trainingUse=prohibited`。 |
+
+下一步只为这20枚完整可见甲面生成和终审完整polygon；在此之前不物化训练输入、不启动candidate52训练、不晋级任何正式发布门。产品继续HOLD。

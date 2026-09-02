@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "candidate52_existing_source_inventory_exhausted_without_eligible_selection",
+  "createdAt": "2026-09-02T20:10:00+08:00",
+  "purpose": "对按candidate51当前train/val/test角色重新扣除后的全库剩余inventory执行原分辨率源图止损，并复核历史权威处置，防止已排除图片重新进入训练。",
+  "inputs": {
+    "inventory": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_2_candidate52_positive_intake_v1/candidate-inventory-v1.json",
+    "inventorySha256": "dee123bdc24eb927d8f7d3692ca18dbab8f6bbcef9419cef1c774fccd3e1c162",
+    "inventoryItemsSha256": "9bcaecda01d1b2bea067874f9e84334fe97d252b84a7ec0119e6cc2649c86f90",
+    "trainingTruthIndex": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_2_candidate51_training_input_v1/candidate51-combined-training-truth-index-v5.json",
+    "trainingTruthIndexSha256": "d040d11fbe3fe92f8b3d686945ba36f606c03bdaeeba77d36237b9e36221c8f8"
+  },
+  "reviewMethod": {
+    "originalResolutionVisualReview": true,
+    "historicalDispositionReplay": true,
+    "modelOutputsUsedForSelection": false,
+    "protectedTestOutputsUsedForSelection": false
+  },
+  "counts": {
+    "inventoryImages": 10,
+    "inventorySourceGroups": 8,
+    "selectedImages": 0,
+    "selectedSourceGroups": 0,
+    "excludedImages": 10,
+    "excludedSourceGroups": 8
+  },
+  "excludedItems": [
+    {
+      "fileName": "nail_00055_69abda85000000002801ce68_0.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-7928bf299958ddd8",
+      "reason": "左下长甲被图像边缘裁断；2026-08-09既有原分辨率源图门已明确止损"
+    },
+    {
+      "fileName": "nail_00218_69c65d68000000001b002d0c_2.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-9424482ee7f3270e",
+      "reason": "实际两手6甲与旧库存5甲不一致且双手重叠，历史源图门已判甲数不稳定并未建manifest"
+    },
+    {
+      "fileName": "nail_00439_69df89090000000021039a37_2.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-835cded9a64947a6",
+      "reason": "人脸主导、甲面遮挡且小目标边界不稳定；2026-08-09/12既有源图门已止损"
+    },
+    {
+      "fileName": "nail_00458_6a2e8668000000002202045c_0.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-9cf33154c34aff2c",
+      "reason": "镜面重复同一只手并伴随立体饰件，真实手与镜像形成重复实例语义，不用于单甲唯一性补强"
+    },
+    {
+      "fileName": "nail_00535_6a3a208e0000000021009f42_0.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-72e84d41b07fdf73",
+      "reason": "大型立体花饰遮挡必要甲面外缘；历史SAM与原分辨率复核还确认皮肤吸收和相邻甲交叠"
+    },
+    {
+      "fileName": "nail_00537_6a3a208e0000000021009f42_2.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-72e84d41b07fdf73",
+      "reason": "实际完整可见甲面少于库存10甲声明，且两枚大型花饰甲存在必要边界遮挡"
+    },
+    {
+      "fileName": "nail_00538_6a3a208e0000000021009f42_3.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-72e84d41b07fdf73",
+      "reason": "大型立体花饰遮挡甲尖与侧缘；虽有历史train真值版本，本轮inventory所代表的来源组仍不得作为全新来源重复计数"
+    },
+    {
+      "fileName": "nail_00639_6a07f23f000000003502f048_1.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-4e82263c4b86beb5",
+      "reason": "低清、过曝和压缩导致部分甲缘不可确认；2026-08-10既有源图门已止损"
+    },
+    {
+      "fileName": "nail_01063_69417639000000001f005854_0.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-87c4aff0a6e23ef7",
+      "reason": "三手交叠、多枚必要甲面相互遮挡或只局部露出；既有candidate35返修证据未形成可接受真值"
+    },
+    {
+      "fileName": "nail_01184_697d6e4a000000002202f9de_0.jpg",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-475e55865cb8d307",
+      "reason": "左侧拇指甲与图像边缘相交并被裁断；candidate35既有正式处置为exclude"
+    }
+  ],
+  "nextAction": "建立全新来源的正样本候选池，优先透明低对比、侧视、小目标和复杂多手但每枚必要甲面完整可确认的单一真实场景。",
+  "policy": {
+    "trainingUse": "prohibited",
+    "noExcludedItemMayBeReintroduced": true,
+    "newSourceRequired": true,
+    "originalResolutionMaskReviewRequired": true,
+    "valTestAndHoldoutRolesRemainIsolated": true
+  },
+  "trainingUse": "prohibited"
+}
