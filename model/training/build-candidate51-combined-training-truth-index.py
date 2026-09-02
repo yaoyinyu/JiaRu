@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""把candidate51逐图终审真值安全追加到candidate50规范train索引。"""
+"""把逐图终审真值安全追加到既有规范train索引。"""
 
 from __future__ import annotations
 
@@ -101,6 +101,12 @@ def main() -> int:
     parser.add_argument("--current-train-index", required=True, type=Path)
     parser.add_argument("--training-truth-report", required=True, action="append", type=Path)
     parser.add_argument("--standing-commercial-authorization", required=True, type=Path)
+    parser.add_argument("--current-batch", default="candidate50-canonical")
+    parser.add_argument("--addition-batch", default="candidate51-reviewed-truth")
+    parser.add_argument(
+        "--canonical-selection",
+        default="candidate50-canonical-plus-candidate51-reviewed-truth",
+    )
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
@@ -108,6 +114,11 @@ def main() -> int:
     authorization_path = args.standing_commercial_authorization.resolve()
     report_paths = [path.resolve() for path in args.training_truth_report]
     output_path = args.output.resolve()
+    current_batch = str(args.current_batch).strip()
+    addition_batch = str(args.addition_batch).strip()
+    canonical_selection = str(args.canonical_selection).strip()
+    if not current_batch or not addition_batch or current_batch == addition_batch or not canonical_selection:
+        raise ValueError("索引批次名称或规范选择策略无效")
     protected = {current_path, authorization_path, *report_paths}
     if output_path.exists() or output_path in protected:
         raise ValueError("输出不得覆盖既有证据")
@@ -162,7 +173,7 @@ def main() -> int:
     total_masks = sum(int(value["completeMaskCount"]) for value in combined)
     batch_by_file = {
         str(value["fileName"]): (
-            "candidate51-reviewed-truth" if str(value["fileName"]).casefold() in addition_names else "candidate50-canonical"
+            addition_batch if str(value["fileName"]).casefold() in addition_names else current_batch
         )
         for value in combined
     }
@@ -174,14 +185,14 @@ def main() -> int:
             "truthRole": "train",
             "sourceIndexes": [
                 {
-                    "batch": "candidate50-canonical",
+                    "batch": current_batch,
                     "path": str(current_path),
                     "sha256": sha256_file(current_path),
                     "images": len(truths),
                     "masks": int(summary["completeMaskCount"]),
                 },
                 {
-                    "batch": "candidate51-reviewed-truth",
+                    "batch": addition_batch,
                     "paths": [str(path) for path in report_paths],
                     "sha256": [sha256_file(path) for path in report_paths],
                     "images": len(additions),
@@ -195,7 +206,7 @@ def main() -> int:
         },
         "policy": {
             "uniqueKey": "item.fileName",
-            "canonicalSelection": "candidate50-canonical-plus-candidate51-reviewed-truth",
+            "canonicalSelection": canonical_selection,
             "sourceIndexesAreImmutableAllowLists": True,
             "fileNameImageHashAndReportPathMustBeUnique": True,
             "sameTrainRoleMayContainMultipleImagesFromOneSourceGroup": True,
@@ -214,8 +225,8 @@ def main() -> int:
             "sourceGroupCount": len({str(value["sourceGroup"]) for value in combined}),
         },
         "batchCounts": {
-            "candidate50-canonical": {"images": len(truths), "masks": int(summary["completeMaskCount"])},
-            "candidate51-reviewed-truth": {
+            current_batch: {"images": len(truths), "masks": int(summary["completeMaskCount"])},
+            addition_batch: {
                 "images": len(additions),
                 "masks": sum(int(value["completeMaskCount"]) for value in additions),
             },
