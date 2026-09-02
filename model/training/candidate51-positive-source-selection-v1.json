@@ -33,7 +33,7 @@
   "counts": {
     "selectedImages": 5,
     "selectedSourceGroups": 4,
-    "expectedFullyVisibleNails": 39
+    "expectedFullyVisibleNails": 38
   },
   "items": [
     {
@@ -43,7 +43,7 @@
       "width": 1080,
       "height": 1278,
       "sourceGroup": "real-material-2026-07-14-candidate-v1:note-512ff41f569a8147",
-      "expectedFullyVisibleNails": 4
+      "expectedFullyVisibleNails": 5
     },
     {
       "fileName": "nail_00624_6a52545a0000000022008ca1_2.jpg",
@@ -52,7 +52,7 @@
       "width": 1080,
       "height": 1440,
       "sourceGroup": "real-material-2026-07-14-candidate-v1:note-0b28297044569bfe",
-      "expectedFullyVisibleNails": 10
+      "expectedFullyVisibleNails": 9
     },
     {
       "fileName": "nail_00625_6a52545a0000000022008ca1_3.jpg",
@@ -70,7 +70,7 @@
       "width": 1080,
       "height": 1440,
       "sourceGroup": "real-material-2026-07-14-candidate-v1:note-6e49c7eacd3970b8",
-      "expectedFullyVisibleNails": 5
+      "expectedFullyVisibleNails": 4
     },
     {
       "fileName": "nail_00846_6a1671840000000035021a23_0.jpg",

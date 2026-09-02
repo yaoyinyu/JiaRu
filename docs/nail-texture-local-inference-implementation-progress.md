@@ -742,8 +742,9 @@ candidate50首次把本轮新增边界信号转化为val30严格边界改善，�
 
 | 标记 | 项目 | 状态 | 证据与结论 |
 | --- | --- | --- | --- |
-| `M2-T3-CANDIDATE51-SOURCE-FREEZE-001` | 模型辅助前的新来源正样本冻结 | ✅ PASS（源图选择门；不构成训练或模型质量PASS） | 从44张/14来源组库存按原图质量冻结5张/4来源组/预计40枚完整甲面，文件名清单SHA `d1fe3942…35a1`；未使用candidate50或test100逐图输出选样。 |
-| `M2-T3-CANDIDATE51-LEGACY-PRELABEL-AUDIT-001` | 旧候选复用审计与返修路由 | 🟡 IN PROGRESS | 4张旧候选共31 polygon，0非法/越界/贴边，但7对交叠、1张机器清洁、3张机器返修；第5张无完整旧候选。所有5张仍为`trainingUse=prohibited`，必须逐甲原分辨率终审。 |
+| `M2-T3-CANDIDATE51-SOURCE-FREEZE-001` | 模型辅助前的新来源正样本冻结 | ✅ PASS（源图选择门；不构成训练或模型质量PASS） | 从44张/14来源组库存按原图质量冻结5张/4来源组；`00624`原图复核纠正旧重复/皮肤误标/相邻甲合并后，全批实为38枚完整甲面。文件名清单SHA仍为`d1fe3942…35a1`，修正后的冻结文件SHA为`025655c9…3a2e`；未使用candidate50或test100逐图输出选样。 |
+| `M2-T3-CANDIDATE51-LEGACY-PRELABEL-AUDIT-001` | 旧候选复用审计与返修路由 | 🟡 IN PROGRESS | `00710/00225`已逐甲原分辨率终审通过并终结2张/9 mask；`00624`当前9 polygon虽机器合法且零交叠，但逐甲放大仍有边界风险，保持返修。`00624/00625/00846`剩余3张/29 mask待完成，失败版本不计数。 |
+| `M2-T3-CANDIDATE51-TRUTH-CHECKPOINT-001` | 首批原分辨率真值终结与规范索引检查点 | ✅ PASS（中间数据检查点；不构成开训或发布PASS） | `00710/00225`的2张/9 mask真值候选已按修正后的源冻结SHA重新绑定，并与candidate50基线原子合并为323张/1944 mask/107来源组；索引v2 SHA `2b179256…38d2`、规范条目SHA `33580c22…a993`，零冲突/冗余，仍为`trainingUse=prohibited-until-materialization-audit`。 |
 | `M2-T3-CANDIDATE51-DIRECT-TRAINING-001` | 有效新真值增量后的单一直接候选训练 | ⏳ WAITING | 先完成`00710/00225`，再处理`00624/00625/00846`；达到预登记有效增量后仅训练一个直接候选并由val30联合门选择，不重复candidate16蒸馏或candidate50插值。 |
 
 OpenAI官方`gpt-image-2`在本项目只具有来源隔离图像生成/编辑候选角色，当前没有端到端蒸馏产物或运行报告。上线加速采用“原分辨率真值修边为唯一模型关键路径 + 非生产ONNX/Worker替换验证提前完成”的双轨方式；生产manifest和产品仍HOLD。

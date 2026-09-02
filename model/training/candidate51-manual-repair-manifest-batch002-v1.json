@@ -1,0 +1,90 @@
+{
+  "schemaVersion": 1,
+  "decision": "candidate51_original_resolution_manual_polygon_repair_candidate_only",
+  "trainingUse": "prohibited",
+  "images": [
+    {
+      "fileName": "nail_00225_696cf228000000000a02d451_0.jpg",
+      "sourceAnnotationPath": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_7_14_A_v1/first-annotation-workspace-v1/mask-review-workspace-v1/repairs/multi-shard-clear-nail-repair-batch-063-manual-v1/annotations/nail_00225_696cf228000000000a02d451_0.json",
+      "sourceGroup": "real-material-2026-07-14-candidate-v1:note-512ff41f569a8147",
+      "nails": [
+        {
+          "polygon": [
+            { "x": 114, "y": 565 },
+            { "x": 120, "y": 548 },
+            { "x": 138, "y": 535 },
+            { "x": 163, "y": 528 },
+            { "x": 190, "y": 532 },
+            { "x": 213, "y": 547 },
+            { "x": 235, "y": 565 },
+            { "x": 258, "y": 585 },
+            { "x": 284, "y": 604 },
+            { "x": 310, "y": 619 },
+            { "x": 334, "y": 634 },
+            { "x": 356, "y": 651 },
+            { "x": 376, "y": 669 },
+            { "x": 389, "y": 685 },
+            { "x": 388, "y": 701 },
+            { "x": 377, "y": 715 },
+            { "x": 355, "y": 721 },
+            { "x": 327, "y": 719 },
+            { "x": 297, "y": 712 },
+            { "x": 269, "y": 701 },
+            { "x": 247, "y": 687 },
+            { "x": 220, "y": 677 },
+            { "x": 203, "y": 663 },
+            { "x": 181, "y": 650 },
+            { "x": 159, "y": 637 },
+            { "x": 139, "y": 621 },
+            { "x": 124, "y": 604 },
+            { "x": 116, "y": 584 }
+          ],
+          "attributes": {
+            "fingerHint": "thumb",
+            "shape": "long-almond",
+            "quality": 4,
+            "occluded": false,
+            "artificialTip": true,
+            "reviewNote": "按连续甲板外缘平滑重画，保留完整透明网格甲尖但不随根部立体钻饰向皮肤外扩。"
+          }
+        },
+        { "sourceIndex": 2 },
+        { "sourceIndex": 3 },
+        {
+          "polygon": [
+            { "x": 522, "y": 790 },
+            { "x": 531, "y": 772 },
+            { "x": 550, "y": 756 },
+            { "x": 580, "y": 744 },
+            { "x": 620, "y": 737 },
+            { "x": 661, "y": 738 },
+            { "x": 700, "y": 744 },
+            { "x": 735, "y": 751 },
+            { "x": 762, "y": 760 },
+            { "x": 780, "y": 772 },
+            { "x": 789, "y": 789 },
+            { "x": 790, "y": 808 },
+            { "x": 783, "y": 826 },
+            { "x": 770, "y": 840 },
+            { "x": 746, "y": 850 },
+            { "x": 715, "y": 855 },
+            { "x": 681, "y": 852 },
+            { "x": 647, "y": 846 },
+            { "x": 610, "y": 833 },
+            { "x": 575, "y": 818 },
+            { "x": 545, "y": 805 }
+          ],
+          "attributes": {
+            "fingerHint": "ring",
+            "shape": "long-almond",
+            "quality": 4,
+            "occluded": false,
+            "artificialTip": true,
+            "reviewNote": "沿透明羽毛甲板真实边缘重画并在甲根收口，排除右侧皮肤、文字水印和背景。"
+          }
+        },
+        { "sourceIndex": 5 }
+      ]
+    }
+  ]
+}
