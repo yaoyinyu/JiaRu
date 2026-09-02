@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate52",
+  "decision": "pre_registered_single_direct_low_weight_boundary_continuation",
+  "objective": "在candidate51仅超出1个误检的临界点上，吸收3张/20个新来源完整甲面真值，并用0.02低权重边界监督争取同时保持至少128匹配、至多16漏检和至多16误检。",
+  "evidenceBeforeTraining": {
+    "baseline": {
+      "candidate": "candidate29-alpha-015",
+      "deploymentInputSize": 512,
+      "scoreThreshold": 0.45,
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 16,
+      "microBoundaryF1": 0.6011288950896838
+    },
+    "candidate51": {
+      "weights": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate51-strict-boundary-2026-09-02-v1/candidate51/weights/best.pt",
+      "weightsSha256": "403e24cac52813e60ee8fd7bf97df1576200af0ea72876eac23cf7ed6dcaa322",
+      "deployment512BestPoint": "confidence=0.46、129匹配、15漏检、17误检；只因误检超预算1个而在val30拒绝。"
+    },
+    "newTruth": "新增OpenAI内置生成源图3张/3来源组/20个完整mask；v8整图与逐甲2倍原分辨率终审、polygon合法性、同图零交叠和提示几何20/20均通过。",
+    "recipeRationale": "历史0.05边界权重曾把误检压到15但损失1个匹配；本轮只预注册更保守的0.02边界权重，目标是在candidate51临界点恢复联合合同。",
+    "shadowDevDecision": "不新增影子数据工具或第二条短程支线；合同允许最多两项而非强制两项，本轮直接训练唯一完整候选以缩短路径。",
+    "distillation": "OpenAI Image2不提供logit、特征、软mask或边界置信度；candidate16本地YOLO11m到YOLO11n蒸馏已被val30否决，本轮distillation=false。"
+  },
+  "input": {
+    "datasetYaml": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_3_candidate52_training_input_v1/candidate52-canonical-training-dataset-v1/dataset.yaml",
+      "sha256": "7b6006fd4059eb5db8f18a689c395f7141319ca8a069b2e95243f8e3ff14db65"
+    },
+    "candidateInputAudit": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_3_candidate52_training_input_v1/candidate52-candidate-training-input-audit-v1.json",
+      "sha256": "b3b2e1341d172b8d6df459c3da1b90ae74c7e4f0517f9cbb198bde41112e8b43",
+      "decision": "approved_candidate_training_input",
+      "datasetFilesSha256": "08b7ee18bcc4c9a4defa6f2fee4e75483b1926d4e1699b4421731a6d7a19db54",
+      "allRolesSha256": "9a6ff4958a9c7982dde022e29b97f9a5e2283abb12c5b192bc3248841ea34672"
+    },
+    "materializationReport": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_3_candidate52_training_input_v1/candidate52-canonical-training-materialization-v1.json",
+      "sha256": "21c3425cb70d2d8233a04011e99d35f61e7211e63a46c7f506522a82eeda8d9f",
+      "recordsSha256": "c4c0e041456cc00004478dc44a71e57481875c1ff80a4c1f448999676b1c1099"
+    },
+    "combinedTrainingTruthIndex": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_3_candidate52_training_input_v1/candidate52-combined-training-truth-index-v1.json",
+      "sha256": "0fd7379a9fc29fa56023d7e61f77327c0a94bf5054b17e1105e938f8901ae2db",
+      "canonicalTruthsSha256": "b10849e9c6adae54e028ce9993480cb8e1bb5d5562d7b2ffe50b73ef66670117"
+    },
+    "counts": {
+      "trainImages": 488,
+      "trainPositiveImages": 328,
+      "hardNegativeImages": 160,
+      "positiveMasks": 1981,
+      "validationImages": 30,
+      "validationMasks": 144,
+      "testImages": 0
+    }
+  },
+  "initialization": {
+    "candidate": "candidate51",
+    "checkpoint": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate51-strict-boundary-2026-09-02-v1/candidate51/weights/best.pt",
+    "sha256": "403e24cac52813e60ee8fd7bf97df1576200af0ea72876eac23cf7ed6dcaa322"
+  },
+  "training": {
+    "mode": "direct-supervised-low-weight-boundary-continuation",
+    "imgsz": 640,
+    "epochs": 24,
+    "patience": 8,
+    "batch": "auto",
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.000001,
+    "freeze": 10,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false,
+    "hardBoundaryWeight": 0.02,
+    "hardBoundaryKernel": 3,
+    "distillation": false,
+    "outputDir": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate52-generated-positive-boundary-2026-09-03-v1",
+    "runName": "candidate52"
+  },
+  "selection": {
+    "onlySplit": "source-isolated-val30",
+    "deploymentInputSize": 512,
+    "recognitionNonRegression": "matched不少于128、missed不多于16、falsePositives不多于16。",
+    "boundaryImprovement": "通过识别联合门后，原分辨率2像素micro boundary F1必须严格高于0.6011288950896838。",
+    "protectedTest100BeforeValReplacement": "prohibited",
+    "independentReleaseHoldoutBeforeValReplacement": "prohibited"
+  },
+  "releaseState": "hold_until_all_formal_gates_pass"
+}

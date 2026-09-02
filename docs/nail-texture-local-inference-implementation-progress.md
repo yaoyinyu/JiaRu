@@ -773,7 +773,8 @@ OpenAI官方`gpt-image-2`在本项目只具有来源隔离图像生成/编辑候
 
 | 标记 | 项目 | 状态 | 证据与结论 |
 | --- | --- | --- | --- |
-| `M2-T3-CANDIDATE52-MASK-VISUAL-REVIEW-001` | 两轮SAM及两轮人工polygon逐甲原分辨率复核 | ❌ REWORK | v4机器合法性、同图零交叠、提示几何20/20通过，但逐甲2×复核仍有皮肤污染、错位和漏真实甲板；v1—v4全部候选禁训。 |
+| `M2-T3-CANDIDATE52-MASK-VISUAL-REVIEW-001` | 两轮SAM及后续人工polygon逐甲原分辨率复核 | ✅ PASS（真值视觉门；不构成模型质量PASS） | v1—v7失败版本隔离且不计数；v8的3张/20甲通过整图与逐甲2×原图/overlay终审，20个polygon合法、同图零交叠、提示几何20/20，无漏甲、重复、皮肤、指腹、织物或背景污染。 |
+| `M2-T3-CANDIDATE52-TRUTH-FINALIZATION-001` | 3张生成正样本的哈希绑定训练真值候选终结 | ✅ PASS（真值候选门；待物化审计） | 决定文件绑定源选择、v8 manifest、人工报告、几何报告、3份annotation及overlay哈希；终结器生成3份`ok=true`报告，共3来源组/20完整mask。规范索引、物化和来源隔离深审完成前仍为`trainingUse=prohibited-until-materialization-audit`。 |
 | `M2-T3-CANDIDATE52-FAST-PATH-001` | 单模型短程筛选与两阶段ROI备选 | ⏳ 计划已锁定 | 先只返修失败polygon，再最多两项train内短程单变量配方、一个完整候选、一次正式val30；仅在仍卡小目标/边界时启用全图召回+单甲高分辨率ROI精修对照。 |
 
-OpenAI Image2没有教师张量、蒸馏报告或学生权重；现有3张OpenAI内置生成源图只能作为候选数据，不能计作蒸馏进度。产品继续HOLD。
+OpenAI Image2没有教师张量、蒸馏报告或学生权重；现有3张OpenAI内置生成图已贡献20个审核通过的硬polygon，但只能计作训练数据扩充，不能计作严格蒸馏进度。下一步是无冲突并入candidate51的325图/1961 mask规范索引，预期形成328图/1981 mask/112来源组，再做物化和来源隔离深审；产品继续HOLD。

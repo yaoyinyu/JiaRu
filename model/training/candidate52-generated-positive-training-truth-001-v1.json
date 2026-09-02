@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "decision": "approved_as_training_truth_candidate_pending_dataset_materialization",
+  "inputs": {
+    "truthRole": "train",
+    "decision": "E:\\AI Project\\Codex\\JiaRu\\model\\training\\candidate52-generated-positive-original-resolution-review-decision-v1.json",
+    "decisionSha256": "983887cbdcf23646bee5d226e05967e9f00e4f7a7c704ee337734d6bcc3a40cf",
+    "sourceSelection": "E:\\AI Project\\Codex\\JiaRu\\model\\training\\candidate52-generated-positive-source-selection-v1.json",
+    "sourceSelectionSha256": "0d0ab3470cf112ccea188d52d03b85d333bb0797ac3dfc4371b60bdc33082ae9",
+    "standingCommercialAuthorization": "E:\\AI Project\\Codex\\JiaRu\\model\\training\\project-commercial-resource-authorization-v1.json",
+    "standingCommercialAuthorizationSha256": "5e7e8d6db2e1fddddd4e78b51d558b951ac6de9e6925655d7004cd8001d47f3c",
+    "image": "E:\\AI Project\\Codex\\JiaRu_image\\真实素材\\candidate52_openai_generated_positive_v1\\candidate52_openai_positive_001_single_hand_low_contrast.png",
+    "imageSha256": "c5751486a9faaac9ed46f9266835e48261c1a1cbb8ddb1a5074e1b8cbcc2d488",
+    "annotation": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_9_3_candidate52_generated_positive_annotation_v8_manual\\annotations\\candidate52_openai_positive_001_single_hand_low_contrast.json",
+    "annotationSha256": "74d5ef1673636883f6b5f192f64ccb36ab4f9c67d669a757216d6892d951e5af",
+    "manualReport": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_9_3_candidate52_generated_positive_annotation_v8_manual\\manual-repair-report-v1.json",
+    "manualReportSha256": "a457de002d1344005854757e304960d517c8e423e820ca15222b2c2a61bc9001",
+    "geometryAudit": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_9_3_candidate52_generated_positive_annotation_v8_manual\\geometry-audit-v1.json",
+    "geometryAuditSha256": "8b639eaac8fe3407d14708d2b7734a3a59214243db5184392c2f3c83f9f92f2f",
+    "reviewedOverlay": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_9_3_candidate52_generated_positive_annotation_v8_manual\\overlays\\candidate52_openai_positive_001_single_hand_low_contrast-manual-reviewed-overlay.png",
+    "reviewedOverlaySha256": "2dfe7229d718cd2cc20ba2cd5e0c33195f089f2b08cd18443633d8fdbac4f415"
+  },
+  "policy": {
+    "originalResolutionWholeImageAndPerNailReviewRequired": true,
+    "completeVisibleNailSurfaceRequired": true,
+    "polygonTopologyMustBeValid": true,
+    "pairwisePolygonIntersectionArea": 0,
+    "watermarkMayNotBeUsedAsRecognitionShortcut": true,
+    "datasetMaterializationAndSourceIsolationStillRequired": true,
+    "trainingUse": "prohibited-until-materialization-audit"
+  },
+  "item": {
+    "fileName": "candidate52_openai_positive_001_single_hand_low_contrast.png",
+    "sha256": "c5751486a9faaac9ed46f9266835e48261c1a1cbb8ddb1a5074e1b8cbcc2d488",
+    "sourceGroup": "openai-built-in-imagegen-2026-09-02:source-001",
+    "completeMaskCount": 5,
+    "invalidPolygonCount": 0,
+    "overlapPairCount": 0,
+    "annotationTruthStatus": "approved-as-training-truth-candidate",
+    "trainingUse": "prohibited-until-materialization-audit"
+  },
+  "errors": []
+}
