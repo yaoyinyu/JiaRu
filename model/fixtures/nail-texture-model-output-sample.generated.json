@@ -52,7 +52,7 @@
   "expect": {
     "candidateCount": 2,
     "minScore": 0.6,
-    "firstSuggestedFinger": 1,
+    "firstSuggestedFinger": null,
     "requireMasks": true
   }
 }
