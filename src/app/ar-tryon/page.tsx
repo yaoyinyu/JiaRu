@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { Suspense, useState, useCallback, useRef, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
@@ -9,6 +10,7 @@ import { PRESET_COLORS } from "@/lib/utils";
 import { disposeAllTextures } from "@/lib/texture";
 import type { NailAssignment } from "@/components/NailArtPicker";
 import { validateImageUpload } from "@/lib/image-upload-validation";
+import { loadReferenceFromParams } from "@/lib/gallery-bridge";
 
 const TextureCropper = dynamic(() => import("@/components/TextureCropper"), {
   ssr: false,
@@ -30,6 +32,33 @@ function createDefaultNailFits(): NailFitAdjustment[] {
 }
 
 export default function ArTryonPage() {
+  // useSearchParams 在静态渲染的客户端组件中必须包 Suspense（与 /editor 同一约定）。
+  return (
+    <Suspense fallback={null}>
+      <ArTryonPageInner />
+    </Suspense>
+  );
+}
+
+function ArTryonPageInner() {
+  const searchParams = useSearchParams();
+  const galleryParam = searchParams.get("gallery");
+  const collectParam = searchParams.get("collect");
+  return (
+    <ArTryonPageBody
+      galleryParam={galleryParam}
+      collectParam={collectParam}
+    />
+  );
+}
+
+function ArTryonPageBody({
+  galleryParam,
+  collectParam,
+}: {
+  galleryParam: string | null;
+  collectParam: string | null;
+}) {
   const [nailColors, setNailColors] = useState([
     "#E8A0BF", "#E8A0BF", "#E8A0BF", "#E8A0BF", "#E8A0BF",
   ]);
@@ -121,6 +150,26 @@ export default function ArTryonPage() {
     setUploadedPhotoUrl(url);
     setShowNailPicker(true);
   };
+
+  // 图库灵感自动带入纹理参考图（?gallery=<id> 或 ?collect=<id>）：
+  // 加载后走与手动上传完全一致的校验与 objectURL 管线，直接打开多指指甲选取器；
+  // 任何失败静默降级，不阻塞手动上传主流程。ref 防止 React StrictMode 下重复执行。
+  const galleryRefLoadStarted = useRef(false);
+  useEffect(() => {
+    if (galleryRefLoadStarted.current) return;
+    if (!galleryParam && !collectParam) return;
+    galleryRefLoadStarted.current = true;
+    (async () => {
+      const ref = await loadReferenceFromParams({ gallery: galleryParam, collect: collectParam });
+      if (!ref) return;
+      const validation = await validateImageUpload(ref.file);
+      if (!validation.ok) return;
+      const url = prepareUploadUrl(ref.file);
+      setUploadedPhotoUrl(url);
+      setShowNailPicker(true);
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [galleryParam, collectParam]);
 
   const handleCropConfirm = useCallback(
     (bitmap: ImageBitmap) => {

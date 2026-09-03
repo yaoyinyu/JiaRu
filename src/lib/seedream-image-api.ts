@@ -134,13 +134,17 @@ export async function generateSeedreamImage(
   prompt: string,
   options: GenerateSeedreamImageOptions
 ) {
-  const config = getSeedreamImageConfig(options.model, options.env);
+  // 路由层不显式传 env 时，回退到进程环境变量；与下方 getSeedreamImageConfig
+  // 保持同一口径（不传 env 不应崩溃），避免 2026-09-03 实测的
+  // `Cannot read properties of undefined (reading 'ARK_IMAGE_WATERMARK')` 回归。
+  const env: Environment = options.env ?? process.env;
+  const config = getSeedreamImageConfig(options.model, env);
   const endpoint = `${config.baseUrl}/images/generations`;
   const fetchImpl = options.fetchImpl ?? fetch;
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const maxAttempts = options.maxAttempts ?? DEFAULT_MAX_ATTEMPTS;
   const retryDelayMs = options.retryDelayMs ?? DEFAULT_RETRY_DELAY_MS;
-  const watermark = resolveWatermark(options.env, options.watermark);
+  const watermark = resolveWatermark(env, options.watermark);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 

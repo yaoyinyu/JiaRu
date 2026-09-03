@@ -789,3 +789,13 @@ OpenAI Image2没有教师张量、蒸馏报告或学生权重；现有3张OpenAI
 | `M2-T3-CANDIDATE53-TWO-STAGE-PLAN-001` | 全图高召回加单甲256 ROI精修 | ⏳ 计划已锁定 | 固定candidate29-alpha-015提供512高召回候选，只训练一个轻量单甲ROI分割器；正ROI保留35%上下文并做固定扰动，负正比≤0.35，仅用train派生、val30选择，test/holdout禁止参与。 |
 
 OpenAI图像模型没有执行严格蒸馏：可核验证据仅为3张生成源图和20个终审硬polygon进入candidate52，未产生logit、特征层、软mask、边界置信度、蒸馏报告或学生权重。candidate52已按val门止损；下一步只实施candidate53两阶段ROI数据构建、训练和val30联合质量门，质量通过后复用已验证的浏览器工程链。生产manifest未改，产品继续HOLD。
+
+## 2026-09-03 candidate53/54两阶段止损与candidate55加速入口
+
+| 标记 | 项目 | 状态 | 证据与结论 |
+| --- | --- | --- | --- |
+| `M2-T3-CANDIDATE53-TWO-STAGE-001` | 单甲ROI数据、训练及完整图联合val30 | ❌ FAIL（训练完成；模型质量拒绝） | train 13,795裁片、val 156裁片、test0；14轮早停，最佳第6轮，权重`25c02be…3eb7`。内部ROI mask mAP50=0.863；方形完整图联合val30在0.10—0.55仅120匹配、24漏检，最低误检29，报告`d0841e5d…7c30`拒绝。 |
+| `M2-T3-CANDIDATE54-CONSERVATIVE-REFINEMENT-001` | stage1保底、stage2条件边界替换 | ❌ FAIL（无需新训练） | 阈值0.85/0.90最好124匹配、20漏检、14误检，2px边界F1最高0.59637；不满足128/16/16和`>0.6011288951`联合门，报告`f4c53183…8416`拒绝。 |
+| `M2-T3-CANDIDATE55-PROPOSAL-CONDITIONED-PLAN-001` | 评测/部署一致性及真实候选裁片训练 | ⏳ 计划已锁定 | 先复现candidate29正式128/16/16基线；通过后仅用train父图真实stage1候选裁片、权威硬polygon和有限明确负例训练一个candidate55。禁止test/holdout、教师重训、架构网格和OpenAI张量蒸馏宣称。 |
+
+candidate53失败的主因已收敛为裁片分布偏移，而非GPU不足：训练以真值中心裁片为主，实际运行以stage1偏移候选框裁片为输入。candidate54还揭示当前方形直接推理与历史candidate29正式基线不一致；先统一这一语义可以避免继续训练后才发现评测口径不一致。OpenAI Image2仍没有可供本地YOLO使用的logit、特征、软mask或边界置信度；既有3张/20 mask只是数据扩充。产品继续HOLD。

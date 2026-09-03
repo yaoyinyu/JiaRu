@@ -442,3 +442,9 @@ candidate52已完成规范索引、物化、输入深验和单一直接训练，
 OpenAI图像模型的可核验证据仍只有3张生成源图及20个终审硬polygon进入普通训练数据，没有logit、特征层、软mask、边界置信度、蒸馏报告或蒸馏学生权重。下一计划标记为固定全图高召回模型加单甲256 ROI精修器，只使用train派生ROI和val30选择；计划状态不增加发布门PASS。
 
 同步后的机器重放读取511个进度标记，其中466个PASS、45个非PASS；14个正式门仍为4通过、10失败，`ok=false`、`decision=hold`。报告SHA-256为`7066d76db6fee414efb049bd7f5a0b450404a9e34dab9adc0a5638a4abddc46a`。产品继续HOLD。
+
+## candidate53/54两阶段拒绝与candidate55入口门（2026-09-03）
+
+candidate53已完成13,795张train ROI、156张val ROI、test0的物化和单一256模型训练；内部ROI验证不能替代完整图联合门。固定方形letterbox后，严格两阶段在0.10—0.55均只有120/144匹配、24漏检，最低误检29；candidate54保留stage1判断并只条件替换边界，最好仍为124匹配、20漏检、14误检，边界F1最高0.59637。两者均未达到128/16/16和边界门，且`testImagesRead=0`，不得填入正式模型、冻结测试、导出或部署PASS。
+
+下一项计划先要求浏览器一致的方形预处理复现candidate29正式128/16/16基线，防止评测语义漂移；通过后才允许用train角色的真实stage1候选裁片和权威硬polygon训练唯一candidate55。OpenAI Image2仍没有教师张量、蒸馏报告或学生权重，3张生成源图和20个硬polygon继续只计训练数据扩充。同步后的机器重放读取514个进度标记，其中466个PASS、48个非PASS；14个正式门仍为4通过/10失败，`ok=false`、`decision=hold`，报告SHA-256为`b6681adf66f60dde2d705388eb6572d919f6a3d3c7fa53014499ad9d2f3e65d6`。
