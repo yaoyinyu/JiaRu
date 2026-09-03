@@ -778,3 +778,14 @@ OpenAI官方`gpt-image-2`在本项目只具有来源隔离图像生成/编辑候
 | `M2-T3-CANDIDATE52-FAST-PATH-001` | 单模型短程筛选与两阶段ROI备选 | ⏳ 计划已锁定 | 先只返修失败polygon，再最多两项train内短程单变量配方、一个完整候选、一次正式val30；仅在仍卡小目标/边界时启用全图召回+单甲高分辨率ROI精修对照。 |
 
 OpenAI Image2没有教师张量、蒸馏报告或学生权重；现有3张OpenAI内置生成图已贡献20个审核通过的硬polygon，但只能计作训练数据扩充，不能计作严格蒸馏进度。下一步是无冲突并入candidate51的325图/1961 mask规范索引，预期形成328图/1981 mask/112来源组，再做物化和来源隔离深审；产品继续HOLD。
+
+## 2026-09-03 candidate52训练止损与candidate53两阶段提速
+
+| 标记 | 项目 | 状态 | 证据与结论 |
+| --- | --- | --- | --- |
+| `M2-T3-CANDIDATE52-CANONICAL-INPUT-001` | 规范索引、物化与训练前后输入深验 | ✅ PASS（训练输入门；不构成模型质量PASS） | 328正图/1981 mask/112来源组加160张train困难负样本；物化train488、val30/144、test0、孤儿0，数据树`08b7ee18…db54`，输入审计`b3b2e134…8b43`训练后字节一致。 |
+| `M2-T3-CANDIDATE52-TRAINING-001` | 单一直接候选训练 | ✅ PASS（训练完成；不构成质量PASS） | 12轮早停、最佳第4轮，权重45,166,633 bytes、SHA-256 `ce8baff8…2ff6`，训练汇总`0a039b3b…0c8`；`distillation=null`。 |
+| `M2-T3-CANDIDATE52-VAL30-001` | 部署512来源隔离val30严格替换判定 | ❌ FAIL | mask mAP50/mAP50-95=`0.86968/0.53501`；0.345为128/16/22，误检降至16时仅126/18/16。没有阈值满足128匹配、至多16漏检和至多16误检，未读取test100、未做边界晋级、导出、登记或部署。 |
+| `M2-T3-CANDIDATE53-TWO-STAGE-PLAN-001` | 全图高召回加单甲256 ROI精修 | ⏳ 计划已锁定 | 固定candidate29-alpha-015提供512高召回候选，只训练一个轻量单甲ROI分割器；正ROI保留35%上下文并做固定扰动，负正比≤0.35，仅用train派生、val30选择，test/holdout禁止参与。 |
+
+OpenAI图像模型没有执行严格蒸馏：可核验证据仅为3张生成源图和20个终审硬polygon进入candidate52，未产生logit、特征层、软mask、边界置信度、蒸馏报告或学生权重。candidate52已按val门止损；下一步只实施candidate53两阶段ROI数据构建、训练和val30联合质量门，质量通过后复用已验证的浏览器工程链。生产manifest未改，产品继续HOLD。

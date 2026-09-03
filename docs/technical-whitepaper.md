@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.574
+> 文档版本：v1.1.575
 >
 > 基线日期：2026-07-12
 >
@@ -119,7 +119,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 
 ## 3. 功能状态总表
 
-> **当前最高优先级（2026-09-03）：** 第一目标仍是沿真实甲面/纹理边缘精确识别并提取每枚完整可见美甲。candidate51已在来源隔离val30正式拒绝，未读取test100、未导出/登记/部署。candidate52的3张/3来源组/20甲已在不可覆盖v8目录完成polygon合法性、同图零交叠、提示几何20/20及整图/逐甲2×原分辨率终审，3份训练真值报告均为`approved_as_training_truth_candidate_pending_dataset_materialization`；在并入candidate51规范索引、完成物化与来源隔离审计前仍禁止训练。OpenAI `gpt-image-2`从未产生本地YOLO蒸馏所需的logit、特征层、软mask、边界置信度或学生权重；唯一实际运行的本地YOLO11m→YOLO11n蒸馏candidate16也已被val30否决。当前最快路径是先完成candidate52规范索引合并和输入深审，再在train角色内部最多比较两项短程单变量配方、完整训练一个胜出候选并执行一次正式val30；若仍卡在小目标或贴边质量，再启用“全图召回模型 + 单甲高分辨率ROI精修模型”的预注册两阶段对照，不并行扩展无界架构搜索。产品继续HOLD。
+> **当前最高优先级（2026-09-03）：** 第一目标仍是沿真实甲面/纹理边缘精确识别并提取每枚完整可见美甲。candidate52已完成328张正样本/1981 mask/112来源组的规范索引、488张训练输入物化和来源隔离深审，并从candidate51权重以640、0.02低权重边界监督训练12轮早停；最佳权重`ce8baff8…2ff6`。正式512 val30细扫无合格阈值：0.345为128匹配/16漏检/22误检，0.455为126/18/16，故已在val阶段拒绝，未读取test100、未运行边界晋级、未导出/登记/部署。OpenAI `gpt-image-2`从未产生本地YOLO蒸馏所需的logit、特征层、软mask、边界置信度或学生权重；实际贡献仅为3张经审核生成源图及20个完整硬polygon，属于教师辅助数据扩充而非知识蒸馏。既定止损条件已触发，下一候选转入“固定全图高召回候选 + 轻量单甲256高分辨率ROI分割精修”的单一两阶段对照，不再重复同轨迹微调或插值。产品继续HOLD。
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
 | --- | --- | --- | --- |
@@ -135,7 +135,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | 美甲纹理自动识别 | `recognizeNailTextures()`、`detectNailsFromHandImage()`、`detectPartialCloseupNails()` | 进行中（精细模型阻塞；两级辅助定位可用） | 浏览器模型推理、Worker和后处理已实现，但candidate5因独立困难负样本门失败而拒绝，禁止切换生产权重或阈值。完整手部照片可由同源MediaPipe生成逐指候选；局部近景优先以非皮肤且未过曝甲色连通域筛选2—5枚。该路径不足2枚时才运行低对比边界路径，以5×5平滑/Sobel/闭运算形成闭合内部区域，同时要求甲板内部及邻环肤色、内部非暗且平滑、边界梯度和4—5枚连续链，孤立物、少于4枚或竞争簇整批拒绝。五候选按掌心近似与极角弧排序后分配；甲色路径4—5枚为中置信，低对比边界路径固定低置信。诊断导出区分`painted-color`与`low-contrast-boundary`并包含两路组件/拒绝计数；辅助定位没有像素级mask，不能替代正式分割模型质量结论 |
 | 传统算法降级 | `recognizeNailTexturesWithFallback()` | 已完成 | 底层仍可返回仅供诊断的规则候选，且统一标为低置信度；`NailArtPicker`在正式模型失败时不会把这些候选展示为有效甲面，而是切换到安全的人工定位流程 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
-| 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（candidate51来源隔离val30失败；candidate52待物化审计） | 当前生产manifest仍没有批准ONNX。candidate51权重`403e24ca…322`在512 val30的0.46为129匹配/15漏检/17误检，无法同时满足128/16/16合同，故未读取test100、未导出或部署。candidate52的3张/20甲v8真值已通过整图/逐甲原分辨率视觉门、polygon合法性、零交叠和提示几何20/20，3份训练真值候选报告已生成；规范索引合并、数据物化和来源隔离深审尚未完成，故仍禁训。产品继续HOLD。 |
+| 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（candidate52来源隔离val30失败；candidate53两阶段ROI待实现） | 当前生产manifest仍没有批准ONNX。candidate52训练输入深审PASS，12轮早停后最佳权重`ce8baff8…2ff6`；正式512 val30在保持128匹配/16漏检时仍有22误检，误检降至16时只有126匹配/18漏检，因此机器决定`candidate52-validation-decision-v1.json`拒绝，未读取test100、未导出或部署。下一候选只实现一个全图高召回+单甲ROI精修对照，仍由val30选择。产品继续HOLD。 |
 | candidate8全新正样本补强 | `build-candidate8-unseen-positive-workspace.py`、`build-candidate8-combined-training-truth-index.py`及Git外`2026_8_22_candidate8_*` | ✅ 10张/87 mask已审计并进入候选训练 | 31张全新隔离候选最终收敛为10张训练真值、19张质量排除、2张候选不足隔离。最后一轮将`f5e4…jpg`纠正为8枚完整甲面并删除钻饰局部/重复候选，将`v2-1b…jpg`纠正为9枚并删除轮播页码误检；17/17几何通过且同图零交叠。剩余5张因强曝光、多手交叠、大钻遮挡或SAM皮肤污染排除，未以近似人工边界凑数。candidate8独立真值索引为10张/87 mask，与candidate7基线合并后为210张/1210 mask；规范物化train370/val30/test0、0 orphan及来源隔离审计PASS。 |
 | candidate9正样本补强与训练 | Git外`2026_8_22_candidate9_*`、`2026_8_23_candidate9_*`及`src/lib/nail-texture-recognition/quality.ts` | ❌ 首轮逐实例门失败；第二轮16张/105 mask | 75张/22组/552甲面源图门PASS；首轮11张/75 mask训练candidate9，权重`75f441c2…2758`。部署512 val30阈值0.40通过，但冻结test100逐实例493/554匹配、435完整mask、61漏甲、29重复、35额外、27无效，仍为HOLD。第二轮规范真值16张/105 mask、59返修、摘要`b9af047c…7bb1`，物化前继续禁训。浏览器质量排序已加入mask IoU 0.60、较小mask包含率0.85、完整大mask替换分数容差0.12的同甲唯一性抑制，专项18/18通过；该结果仅证明代码契约，不代表candidate9质量改善。训练触发还差至少5张/20 mask及关键难例覆盖，之后先用val30锁定后处理参数，再以固定参数诊断test100，禁止test反向调参。 |
 | candidate10/11教师增量训练 | Git外`2026_8_23_candidate10_training_input_v1`、`nail-texture-candidate-2026-08-23-v10/v11`及`candidate11-runtime-selection-lock-v1.json` | ❌ candidate11逐实例门失败 | 第二轮教师真值21张/130 mask与既有真值合并为231张/1340 mask，加入160困难负样本后规范物化train391/val30/test0，输入深审PASS。candidate10自动学习率0.002在val30无阈值满足门而提前否决；candidate11以AdamW 0.0002、冻结前10层训练，val30锁定阈值0.50与0.60/0.85/0.12后处理。冻结test100一次评估虽总体mask mAP50=0.96167，但61漏甲和0.78700完整mask比例未改善，报告`77ca3342…d1386`决定HOLD；禁止用test100调参或回流训练。 |
@@ -1417,12 +1417,24 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 | `M2-T3-CANDIDATE52-TRUTH-FINALIZATION-001` | 哈希绑定的训练真值候选终结 | ✅ PASS（真值候选门；待物化审计） | 原分辨率决定绑定源图选择、v8 manifest、人工返修报告、几何报告、3份标注和审核overlay哈希；终结器生成3份`ok=true`报告，共3来源组/20个完整mask，状态为`approved_as_training_truth_candidate_pending_dataset_materialization`。规范索引、物化与来源隔离深审前`trainingUse=prohibited-until-materialization-audit`。 |
 | `M2-T3-CANDIDATE52-FAST-PATH-001` | 正式模型上线加速分层 | ⏳ 计划已锁定 | 第一层只返修视觉失败polygon，随后最多两项train内短程单变量配方、一个完整正式候选和一次正式val30；只有第一层仍卡在小目标/边界时，才预注册“全图召回 + 单甲高分辨率ROI精修”两阶段对照。禁止同时扩展多模型、多损失和无界阈值搜索。 |
 
-OpenAI Image2状态没有变化：本项目没有OpenAI教师张量、蒸馏运行报告或由其产生的学生权重。现有3张图只能登记为精确模型ID不可核验的OpenAI内置生成图；其20枚硬polygon现已通过真值门，但这仍属于教师辅助数据扩充，不属于知识蒸馏。当前最快的剩余本地步骤是把3份真值无冲突并入candidate51的325图/1961 mask规范索引，物化为328图/1981 mask正样本基线并完成来源隔离深审；审计通过后才启动shadow-dev短程配方筛选。
+OpenAI Image2状态没有变化：本项目没有OpenAI教师张量、蒸馏运行报告或由其产生的学生权重。现有3张图只能登记为精确模型ID不可核验的OpenAI内置生成图；其20枚硬polygon已通过真值门并随candidate52进入训练，但这仍属于教师辅助数据扩充，不属于知识蒸馏。candidate52的规范索引、物化、输入深审、训练和正式val30均已完成，最终因召回—误检联合合同失败而止损；当前最快剩余本地步骤已转为下节预注册的单一candidate53两阶段ROI对照。
+
+## 12.10 candidate52训练否决与candidate53两阶段ROI提速合同（2026-09-03）
+
+| 标记 | 项目 | 状态 | 证据与结论 |
+| --- | --- | --- | --- |
+| `M2-T3-CANDIDATE52-CANONICAL-INPUT-001` | 规范索引、物化与来源隔离深审 | ✅ PASS（数据/工程门；不构成模型质量PASS） | candidate52索引为328张/1981 mask/112来源组；物化train488（328正图+160困难负图）、val30/144、test0、孤儿0。数据树`08b7ee18…db54`、输入审计`b3b2e134…8b43`通过，训练后重放字节一致。 |
+| `M2-T3-CANDIDATE52-TRAINING-001` | 单一低权重边界候选训练 | ✅ PASS（训练完成；不构成质量PASS） | 从candidate51初始化，640、0.02边界权重、patience8；12轮早停、最佳第4轮。权重45,166,633 bytes、SHA-256 `ce8baff8…2ff6`，训练摘要`0a039b3b…10c8`，`distillation=null`。 |
+| `M2-T3-CANDIDATE52-VAL30-001` | 部署512来源隔离val30严格替换判定 | ❌ FAIL（未运行test100） | mask mAP50 `0.86968`、mAP50-95 `0.53501`；0.005细扫中0.345为128/16/22，0.455为126/18/16，无阈值满足128/16/16。校准报告`a7f942d4…7dbd`深重放PASS，机器决定`candidate52-validation-decision-v1.json`拒绝。 |
+| `M2-T3-CANDIDATE53-TWO-STAGE-PLAN-001` | 全图召回+单甲256 ROI精修预注册 | ⏳ 计划已锁定 | stage1固定candidate29在512/0.10产生至多10个候选；stage2使用train角色328图/1981 mask派生单甲ROI，正样本保留35%上下文并做固定扰动，负ROI只取train未匹配候选且比例不超过正样本35%。val30只用于组合阈值选择；test100和holdout禁止读取。只训练一个candidate53，不做插值或并行架构搜索。 |
+
+candidate52证明3张/20甲的OpenAI生成难例能够形成合格训练真值，但没有解决单阶段全图模型的召回—误检冲突。OpenAI图像模型没有暴露可微教师张量，严格蒸馏仍未发生；继续增加合成图只能算数据扩充。candidate53把高召回候选发现与局部像素边界分割拆开，目标是用256单甲裁片提高边缘有效像素占比并过滤非甲候选；组合模型仍必须在512 val30达到至少128匹配、至多16漏检/误检且2px boundary F1严格高于`0.6011288951`，否则在val阶段立即止损。
 
 ## 13. 版本与变更记录
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-09-03 | v1.1.575 | 完成candidate52规范索引、物化、训练输入深审、单一候选训练及正式512 val30止损。输入为328正图/1981 mask/112来源组+160训练困难负样本，训练12轮早停、最佳第4轮，权重45,166,633 bytes、`ce8baff8…2ff6`；训练后输入审计`b3b2e134…8b43`字节一致。正式val30 mask mAP50/mAP50-95为`0.86968/0.53501`；0.005细扫中保持128/16时最低22误检，误检达16时仅126/18，故`candidate52-validation-decision-v1.json`在val阶段拒绝，未读取test100、未做边界晋级、导出、登记或部署。OpenAI Image2实际只贡献3张/20 mask训练数据，无教师张量或蒸馏学生权重。止损条件触发后预注册唯一candidate53：固定全图高召回候选+轻量单甲256 ROI分割精修，train内派生ROI、负例比例上限35%、val30唯一选择、禁止test/holdout参与。完成度审计为511标记/466 PASS、14门4通过/10失败，报告`7066d76d…c46a`；生产manifest未改，产品继续HOLD。 | candidate52训练与val拒绝、OpenAI蒸馏事实边界、candidate53两阶段ROI、上线提速、产品HOLD |
 | 2026-09-03 | v1.1.574 | 以磁盘机器证据纠正candidate52状态漂移：v1—v7失败版本继续隔离，v8的3张/3来源组/20甲已通过整图与逐甲2×原分辨率终审、20个polygon合法、同图零交叠及提示几何20/20；原分辨率决定绑定源选择、manifest、人工报告、几何报告、标注及overlay哈希，新增终结器生成3份`ok=true`训练真值候选报告。全批在规范索引合并、物化和来源隔离深审前仍为`trainingUse=prohibited-until-materialization-audit`。再次确认OpenAI Image2只贡献合成源图，不提供logit、特征、软mask或边界张量，严格蒸馏未发生；最快路线改为先完成328图/1981 mask预期索引与输入深审，再执行最多两项shadow-dev短程单变量对照和一个正式候选。完成度重放为507标记/464 PASS、14门4通过/10失败，`ok=false`、`decision=hold`，报告`a25e3131…657d`；生产manifest未改，产品继续HOLD。 | candidate52、原分辨率真值、训练真值终结、OpenAI蒸馏边界、上线加速、完成度审计、产品HOLD |
 | 2026-09-03 | v1.1.573 | 复核candidate52的3张/20甲标注：两轮SAM均因皮肤污染拒绝，人工v3因错位拒绝；人工v4虽合法性、零交叠与提示几何20/20通过，逐甲2×原图视觉门仍发现皮肤污染、错位和漏真实甲板，因此继续`trainingUse=prohibited`，未物化或训练。上线加速固定为两层：先只返修失败polygon并执行至多两项train内短程单变量配方、一个完整候选和一次正式val30；只有仍卡小目标/边界时才预注册全图召回+单甲高分辨率ROI精修对照。复核确认OpenAI Image2没有教师张量、蒸馏报告或学生权重，现有生成图不构成蒸馏。完成度重放506标记/462 PASS、14门4通过/10失败，`ok=false`、`decision=hold`，报告`8d06e7bd…991b`；未改生产manifest，未提交或推送Git。 | candidate52、原分辨率视觉门、标注止损、两阶段ROI备选、OpenAI蒸馏事实边界、完成度审计、产品HOLD |
 | 2026-09-02 | v1.1.572 | 重放candidate51现行训练索引下的全部既有真实正样本库存：1166张筛选记录中565张源图门通过，555张因来源组已进入train排除，剩余10张/8来源组经历史证据和原分辨率复核全部因裁甲、遮挡、重复、立体装饰、低清或多手冲突排除，形成`candidate52-source-disposition-v1.json`（`180f450a…e9b`），不复活旧失败素材。OpenAI内置图像生成新增3张/3来源组/预计20甲候选源图，原分辨率初筛均通过并复制到独立项目素材目录；冻结清单`candidate52-generated-positive-source-selection-v1.json`（`0d0ab347…2ae9`）绑定三个文件SHA-256与尺寸。由于内置接口没有返回可核验的精确模型ID，只登记为OpenAI内置生成，不宣称确定由`gpt-image-2`产生；这不是logit、特征、软mask或边界张量蒸馏。20甲完整mask逐甲终审前`trainingUse=prohibited`。完成度重放504标记/462 PASS、14门4通过/10失败，`ok=false`、`decision=hold`，报告`b02de70b…2113`；生产manifest和产品继续HOLD。 | candidate52、真实库存止损、OpenAI生成候选、来源冻结、完整mask待审、蒸馏事实边界、完成度审计、产品HOLD |
