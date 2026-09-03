@@ -1,9 +1,12 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { Suspense, useEffect, useState, useRef, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
 import { AI_STYLE_PROMPTS } from "@/lib/ai-style-prompts";
+import { loadReferenceFromParams } from "@/lib/gallery-bridge";
+import { addCollect } from "@/lib/gallery-collection";
 import {
   AI_IMAGE_RATIOS,
   AI_IMAGE_SIZES,
@@ -66,14 +69,15 @@ function pickReferenceRatio(width: number, height: number): AiImageRatio {
   return "9:16";
 }
 
-/** 压缩参考图到最长边 1024 并转 JPEG Data URI（透明底色填白）。 */
-function compressReferenceImage(img: HTMLImageElement): {
-  dataUrl: string;
-  ratio: AiImageRatio;
-} {
-  const scale = Math.min(1, MAX_REFERENCE_EDGE / Math.max(img.naturalWidth, img.naturalHeight));
-  const width = Math.max(1, Math.round(img.naturalWidth * scale));
-  const height = Math.max(1, Math.round(img.naturalHeight * scale));
+/** 压缩参考图源到最长边 1024 并转 JPEG Data URI（透明底色填白）。 */
+function compressReferenceSource(
+  source: CanvasImageSource,
+  sourceWidth: number,
+  sourceHeight: number
+): { dataUrl: string; ratio: AiImageRatio } {
+  const scale = Math.min(1, MAX_REFERENCE_EDGE / Math.max(sourceWidth, sourceHeight));
+  const width = Math.max(1, Math.round(sourceWidth * scale));
+  const height = Math.max(1, Math.round(sourceHeight * scale));
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -81,14 +85,49 @@ function compressReferenceImage(img: HTMLImageElement): {
   if (!ctx) throw new Error("无法处理图片");
   ctx.fillStyle = "#ffffff";
   ctx.fillRect(0, 0, width, height);
-  ctx.drawImage(img, 0, 0, width, height);
+  ctx.drawImage(source, 0, 0, width, height);
   return {
     dataUrl: canvas.toDataURL("image/jpeg", 0.85),
-    ratio: pickReferenceRatio(img.naturalWidth, img.naturalHeight),
+    ratio: pickReferenceRatio(sourceWidth, sourceHeight),
   };
 }
 
+/** 手动上传路径：HTMLImageElement 版压缩（保持既有行为）。 */
+function compressReferenceImage(img: HTMLImageElement): {
+  dataUrl: string;
+  ratio: AiImageRatio;
+} {
+  return compressReferenceSource(img, img.naturalWidth, img.naturalHeight);
+}
+
 export default function AiGeneratePage() {
+  // useSearchParams 在静态渲染的客户端组件中必须包 Suspense（与 /editor 同一约定）。
+  return (
+    <Suspense fallback={null}>
+      <AiGeneratePageInner />
+    </Suspense>
+  );
+}
+
+function AiGeneratePageInner() {
+  const searchParams = useSearchParams();
+  const galleryParam = searchParams.get("gallery");
+  const collectParam = searchParams.get("collect");
+  return (
+    <AiGeneratePageBody
+      galleryParam={galleryParam}
+      collectParam={collectParam}
+    />
+  );
+}
+
+function AiGeneratePageBody({
+  galleryParam,
+  collectParam,
+}: {
+  galleryParam: string | null;
+  collectParam: string | null;
+}) {
   const [prompt, setPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
@@ -98,6 +137,12 @@ export default function AiGeneratePage() {
   const [ratio, setRatio] = useState<AiImageRatio>("1:1");
   const [engine, setEngine] = useState<Engine>("agnes");
   const [size, setSize] = useState<string>("1K");
+  // 图库灵感来源名（?gallery=/collect= 自动带入参考图时展示）。
+  const [refSourceName, setRefSourceName] = useState<string | null>(null);
+  // 收录状态：当前生成结果是否已收录进图库。
+  const [collectState, setCollectState] = useState<
+    "idle" | "saving" | "saved" | "error"
+  >("idle");
 
   const promptLimit = ENGINE_PROMPT_LIMIT[engine];
 
@@ -179,13 +224,64 @@ export default function AiGeneratePage() {
   const removeReferenceImage = useCallback(() => {
     setReferenceImage(null);
     setReferenceError("");
+    setRefSourceName(null);
   }, []);
+
+  // 图库灵感自动带入参考图（?gallery=<id> 或 ?collect=<id>）：
+  // 与手动上传走同一条压缩链路；任何失败静默降级，不阻塞主流程。
+  useEffect(() => {
+    if (!galleryParam && !collectParam) return;
+    let cancelled = false;
+    (async () => {
+      const ref = await loadReferenceFromParams({ gallery: galleryParam, collect: collectParam });
+      if (cancelled || !ref) return;
+      try {
+        const bitmap = await createImageBitmap(ref.file);
+        try {
+          const { dataUrl, ratio: refRatio } = compressReferenceSource(
+            bitmap,
+            bitmap.width,
+            bitmap.height
+          );
+          if (cancelled) return;
+          setReferenceImage(dataUrl);
+          setRatio(refRatio);
+          setRefSourceName(ref.name);
+          setPrompt((prev) => (prev.trim() ? prev : `参考「${ref.name}」的美甲样式，生成同风格的新设计`));
+        } finally {
+          bitmap.close();
+        }
+      } catch {
+        // 解码失败：静默降级，用户仍可手动上传参考图。
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [galleryParam, collectParam]);
+
+  /** 把当前生成结果收录进图库（IndexedDB）。 */
+  const handleCollect = async () => {
+    if (!imageUrl || collectState === "saving" || collectState === "saved") return;
+    setCollectState("saving");
+    try {
+      const resp = await fetch(imageUrl);
+      if (!resp.ok) throw new Error(`收录失败 (${resp.status})`);
+      const blob = await resp.blob();
+      if (!blob.type.startsWith("image/")) throw new Error("返回内容不是图片");
+      await addCollect(blob, { engine, prompt: prompt.trim().slice(0, 200) });
+      setCollectState("saved");
+    } catch {
+      setCollectState("error");
+    }
+  };
 
   const handleGenerate = async () => {
     if (!prompt.trim() || status === "loading") return;
     setStatus("loading");
     setErrorMsg("");
     setImageUrl(null);
+    setCollectState("idle");
     try {
       const isSeedream = engine !== "agnes";
       const resp = await fetch(
@@ -253,7 +349,7 @@ export default function AiGeneratePage() {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={referenceImage} alt="手部参考图" className="h-16 w-16 rounded-xl object-cover" />
               <div className="flex-1 text-xs text-[#8B8287]">
-                <p className="font-medium text-[#5A5156]">已添加参考图</p>
+                <p className="font-medium text-[#5A5156]">{refSourceName ? `已带入灵感「${refSourceName}」` : "已添加参考图"}</p>
                 <p className="mt-1">生成结果将直接呈现在图中手部指甲上</p>
               </div>
               <button onClick={removeReferenceImage} className="rounded-full border border-pink-100 bg-pink-50/65 px-3 py-1.5 text-xs text-[#B96A8C] transition hover:bg-white">移除</button>
@@ -307,7 +403,25 @@ export default function AiGeneratePage() {
             <div key="success" className="fade-in-up w-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={imageUrl} alt="AI 生成的美甲设计" className="mx-auto max-h-[520px] w-full rounded-[22px] object-contain shadow-[0_20px_60px_rgba(80,52,67,.18)]" />
-              <button onClick={handleSave} className="mx-auto mt-4 flex rounded-full bg-white/85 px-5 py-2.5 text-xs font-medium text-[#B95F87] shadow-sm backdrop-blur transition hover:bg-white">保存设计到本地</button>
+              <div className="mx-auto mt-4 flex w-fit gap-2">
+                <button onClick={handleSave} className="flex rounded-full bg-white/85 px-5 py-2.5 text-xs font-medium text-[#B95F87] shadow-sm backdrop-blur transition hover:bg-white">保存设计到本地</button>
+                <button
+                  onClick={handleCollect}
+                  disabled={collectState === "saving" || collectState === "saved"}
+                  className="flex items-center gap-1.5 rounded-full bg-[#A583C4]/90 px-5 py-2.5 text-xs font-medium text-white shadow-sm backdrop-blur transition hover:bg-[#A583C4] disabled:cursor-not-allowed disabled:opacity-55"
+                >
+                  {collectState === "saved" ? (
+                    <>已收录到图库</>
+                  ) : collectState === "saving" ? (
+                    <><span className="h-3 w-3 animate-spin rounded-full border-2 border-white/40 border-t-white" />正在收录</>
+                  ) : (
+                    <><Icon name="sparkles" className="h-3.5 w-3.5" />{collectState === "error" ? "收录失败，点击重试" : "收录到图库"}</>
+                  )}
+                </button>
+              </div>
+              {collectState === "error" && (
+                <p className="mt-2 text-center text-[11px] text-red-400">图片跨域受限时可能收录失败，可先保存到本地再手动上传参考图</p>
+              )}
             </div>
           ) : status === "error" ? (
             <div key="error" className="fade-in-up max-w-sm rounded-3xl border border-red-100 bg-white/80 p-6 text-center shadow-lg">

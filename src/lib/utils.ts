@@ -22,14 +22,14 @@ export const PRESET_COLORS = [
   { name: "珊瑚粉", color: "#F88379" },
 ];
 
-// 预设美甲图库
+// 预设美甲图库（AI 生成纹理素材，Seedream pro 文生图 1024x1024）
 export const GALLERY_IMAGES = [
-  { id: 1, src: "/nail-gallery/placeholder-1.svg", name: "渐变裸粉" },
-  { id: 2, src: "/nail-gallery/placeholder-2.svg", name: "法式白边" },
-  { id: 3, src: "/nail-gallery/placeholder-3.svg", name: "亮片闪粉" },
-  { id: 4, src: "/nail-gallery/placeholder-4.svg", name: "简约纯色" },
-  { id: 5, src: "/nail-gallery/placeholder-5.svg", name: "复古花纹" },
-  { id: 6, src: "/nail-gallery/placeholder-6.svg", name: "宝石镶嵌" },
+  { id: 1, src: "/nail-gallery/ai-look-1.jpg", name: "渐变裸粉" },
+  { id: 2, src: "/nail-gallery/ai-look-2.jpg", name: "法式白边" },
+  { id: 3, src: "/nail-gallery/ai-look-3.jpg", name: "亮片闪粉" },
+  { id: 4, src: "/nail-gallery/ai-look-4.jpg", name: "简约纯色" },
+  { id: 5, src: "/nail-gallery/ai-look-5.jpg", name: "复古花纹" },
+  { id: 6, src: "/nail-gallery/ai-look-6.jpg", name: "宝石镶嵌" },
 ];
 
 // 手指名称：复用于编辑器和 AR 模块

@@ -17,7 +17,7 @@
 | 首页 | `/` | ✅ | 品牌展示 + 四大功能入口 |
 | 涂色编辑器 | `/editor` | ✅ | 上传照片 → 五指独立选色 → Canvas 涂抹 → 本地保存 |
 | AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → 生成引擎可选（Agnes Image 2.1 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite）；用户已完成真实功能验收并再次确认 |
-| 灵感图库 | `/gallery` | 📌 | SVG 占位素材浏览，后续接入真实内容后台 |
+| 灵感图库 | `/gallery` | ✅ | 6 张 Seedream 灵感图；卡片三入口（试色 / AI 相似款 / AR 试戴）打通到 `/editor`、`/ai-generate`、`/ar-tryon` 链路，AI 生成结果可一键本地 IndexedDB 收录至「我的收录」区块（无服务端后台；真实内容后台见待规划） |
 | AR 纯色试戴 | `/ar-tryon` | 🚧 | 摄像头实时手部追踪 + 五指贴色 |
 | AR 纹理试戴 | `/ar-tryon` | ⛔ | 上传参考图 → 美甲识别/mask 提取 → 纹理贴合；正式识别模型尚未发布 |
 | 独立 AR 演示 | `/ar-demo` | 📌 | 桥接外部 Python demo 的 iframe 占位 |
@@ -176,7 +176,7 @@ JiaRu/
 ├── dev-log/                      # 开发日志（按天，2026-06-21 至今）
 ├── public/
 │   ├── models/                   # 浏览器端模型（smoke ONNX 等）
-│   └── nail-gallery/             # 图库占位 SVG
+│   └── nail-gallery/             # 灵感图库素材（AI 生成 JPG；旧占位 SVG 保留未删）
 ├── weights/                      # 本地权重（不上传 Git）
 ├── certificates/                 # 本地开发证书
 └── 辅助材料/                     # 参考资料

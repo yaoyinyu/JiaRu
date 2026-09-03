@@ -82,6 +82,25 @@ def polygon_from_stage2(points: np.ndarray, crop: tuple[int, int, int, int], roi
     return polygon if polygon.geom_type == "Polygon" and not polygon.is_empty and polygon.area > 0 else None
 
 
+def polygon_from_image_points(points: np.ndarray, width: int, height: int) -> Polygon | None:
+    if points.ndim != 2 or points.shape[0] < 3 or points.shape[1] != 2:
+        return None
+    polygon = Polygon(
+        [
+            (
+                min(max(float(x) / width, 0.0), 1.0),
+                min(max(float(y) / height, 0.0), 1.0),
+            )
+            for x, y in points
+        ]
+    )
+    if not polygon.is_valid:
+        polygon = polygon.buffer(0)
+        if polygon.geom_type == "MultiPolygon":
+            polygon = max(polygon.geoms, key=lambda item: item.area)
+    return polygon if polygon.geom_type == "Polygon" and not polygon.is_empty and polygon.area > 0 else None
+
+
 def box_iou(left: tuple[float, float, float, float], right: tuple[float, float, float, float]) -> float:
     x0, y0 = max(left[0], right[0]), max(left[1], right[1])
     x1, y1 = min(left[2], right[2]), min(left[3], right[3])
@@ -187,6 +206,7 @@ def main() -> None:
     parser.add_argument("--truth-audit", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--device", default="0")
+    parser.add_argument("--mode", choices=("strict-presence", "conservative-refinement"), default="strict-presence")
     args = parser.parse_args()
 
     plan_path = Path(args.plan).resolve()
@@ -197,10 +217,20 @@ def main() -> None:
     if output_dir.exists():
         raise ValueError(f"输出目录必须全新：{output_dir}")
     plan = read_json(plan_path)
-    if plan.get("candidate") != "candidate53" or plan.get("decision") != "pre_registered_two_stage_full_image_recall_plus_single_nail_roi_refinement":
-        raise ValueError("计划不是预登记candidate53两阶段计划")
+    expected_plan = {
+        "strict-presence": ("candidate53", "pre_registered_two_stage_full_image_recall_plus_single_nail_roi_refinement"),
+        "conservative-refinement": ("candidate54", "pre_registered_conservative_stage1_acceptance_with_conditional_roi_boundary_refinement"),
+    }[args.mode]
+    if (plan.get("candidate"), plan.get("decision")) != expected_plan:
+        raise ValueError(f"计划与评估模式不匹配：{args.mode}")
     if sha256_file(stage2_weights) != args.stage2_weights_sha256:
         raise ValueError("stage2权重SHA-256不一致")
+    planned_stage2 = plan.get("stage2", {})
+    if planned_stage2.get("weightsSha256") is not None:
+        if Path(str(planned_stage2.get("weights", ""))).resolve() != stage2_weights:
+            raise ValueError("stage2权重路径与计划不一致")
+        if planned_stage2["weightsSha256"] != args.stage2_weights_sha256:
+            raise ValueError("stage2权重哈希与计划不一致")
     stage1 = plan["stage1"]
     stage1_weights = Path(str(stage1["weights"])).resolve()
     if sha256_file(stage1_weights) != stage1["weightsSha256"]:
@@ -220,7 +250,9 @@ def main() -> None:
 
     stage1_model = YOLO(str(stage1_weights))
     stage2_model = YOLO(str(stage2_weights))
-    context = float(plan["runtimeComposition"]["cropContextRatio"])
+    context = float(
+        plan["runtimeComposition"].get("cropContextRatio", plan.get("stage2", {}).get("cropContextRatio"))
+    )
     roi_size = int(plan["stage2"]["inputSize"])
     maximum = int(stage1["maximumProposalsPerImage"])
     raw_by_stem: dict[str, list[dict[str, Any]]] = {}
@@ -228,7 +260,8 @@ def main() -> None:
 
     stage1_results = stage1_model.predict(
         source=str(images_dir), imgsz=int(stage1["inputSize"]), conf=float(stage1["proposalThreshold"]),
-        iou=0.7, max_det=maximum, device=args.device, retina_masks=True, stream=True, verbose=False,
+        iou=0.7, max_det=maximum, device=args.device, retina_masks=True, rect=False,
+        stream=True, verbose=False,
     )
     for result in stage1_results:
         image_path = Path(str(result.path)).resolve()
@@ -236,39 +269,82 @@ def main() -> None:
             image = ImageOps.exif_transpose(encoded).convert("RGB")
         width, height = image.size
         image_sizes[image_path.stem] = (width, height)
-        proposals: list[tuple[int, tuple[int, int, int, int], np.ndarray]] = []
-        if result.boxes is not None:
-            for index, raw_box in enumerate(result.boxes.xyxy.detach().cpu().numpy()[:maximum]):
+        proposals: list[tuple[int, tuple[int, int, int, int], np.ndarray, float, Polygon]] = []
+        if result.boxes is not None and result.masks is not None:
+            boxes = result.boxes.xyxy.detach().cpu().numpy()[:maximum]
+            scores = result.boxes.conf.detach().cpu().numpy()[:maximum]
+            mask_polygons = result.masks.xy[:maximum]
+            if not (len(boxes) == len(scores) == len(mask_polygons)):
+                raise ValueError("stage1 box、score与mask数量不一致")
+            for index, (raw_box, raw_score, raw_mask_polygon) in enumerate(zip(boxes, scores, mask_polygons, strict=True)):
                 crop_box = square_crop(tuple(float(value) for value in raw_box), width, height, context)
                 if crop_box is None:
+                    continue
+                stage1_polygon = polygon_from_image_points(np.asarray(raw_mask_polygon), width, height)
+                if stage1_polygon is None:
                     continue
                 crop_rgb = np.asarray(
                     image.crop(crop_box).resize((roi_size, roi_size), Image.Resampling.LANCZOS)
                 )
                 crop = cv2.cvtColor(crop_rgb, cv2.COLOR_RGB2BGR)
-                proposals.append((index, crop_box, crop))
+                proposals.append((index, crop_box, crop, float(raw_score), stage1_polygon))
         candidates: list[dict[str, Any]] = []
         if proposals:
             refinements = stage2_model.predict(
                 source=[item[2] for item in proposals], imgsz=roi_size, conf=0.001, iou=0.7,
-                max_det=1, device=args.device, retina_masks=True, verbose=False,
+                max_det=1, device=args.device, retina_masks=True, rect=False, verbose=False,
             )
             if len(refinements) != len(proposals):
                 raise ValueError("stage2结果数与ROI数不一致")
-            for (proposal_index, crop_box, _), refinement in zip(proposals, refinements, strict=True):
-                if refinement.boxes is None or refinement.masks is None or len(refinement.boxes) == 0 or not refinement.masks.xy:
-                    continue
-                polygon = polygon_from_stage2(np.asarray(refinement.masks.xy[0]), crop_box, roi_size, width, height)
-                if polygon is None:
-                    continue
-                score = float(refinement.boxes.conf[0].detach().cpu())
+            for (proposal_index, crop_box, _, stage1_score, stage1_polygon), refinement in zip(proposals, refinements, strict=True):
+                polygon = None
+                score = 0.0
+                if refinement.boxes is not None and refinement.masks is not None and len(refinement.boxes) > 0 and refinement.masks.xy:
+                    polygon = polygon_from_stage2(np.asarray(refinement.masks.xy[0]), crop_box, roi_size, width, height)
+                    score = float(refinement.boxes.conf[0].detach().cpu()) if polygon is not None else 0.0
                 candidates.append({
                     "proposalIndex": proposal_index, "score": score, "polygon": polygon,
-                    "bounds": tuple(float(value) for value in polygon.bounds), "cropBox": list(crop_box),
+                    "bounds": tuple(float(value) for value in polygon.bounds) if polygon is not None else None,
+                    "cropBox": list(crop_box), "stage1Score": stage1_score,
+                    "stage1Polygon": stage1_polygon, "stage1Bounds": tuple(float(value) for value in stage1_polygon.bounds),
                 })
         raw_by_stem[image_path.stem] = candidates
     if set(raw_by_stem) != {path.stem for path in truth_paths}:
         raise ValueError("stage1没有精确覆盖val30")
+
+    stage1_acceptance = float(stage1.get("acceptanceThreshold", 0.45))
+    stage1_runtime_baseline = {
+        "acceptanceThreshold": stage1_acceptance,
+        "beforeProductDedup": {"truth": 0, "predictions": 0, "matched": 0, "missed": 0, "falsePositives": 0},
+        "afterProductDedup": {"truth": 0, "predictions": 0, "matched": 0, "missed": 0, "falsePositives": 0},
+    }
+    for truth_path in truth_paths:
+        truth = parse_yolo_polygons(truth_path, prediction=False)
+        raw_stage1 = [
+            {
+                **candidate,
+                "polygon": candidate["stage1Polygon"],
+                "bounds": candidate["stage1Bounds"],
+                "score": candidate["stage1Score"],
+            }
+            for candidate in raw_by_stem[truth_path.stem]
+            if candidate["stage1Score"] >= stage1_acceptance
+        ]
+        for key, candidates in (
+            ("beforeProductDedup", raw_stage1),
+            ("afterProductDedup", suppress_duplicates(raw_stage1, maximum)),
+        ):
+            matched = match_instances(
+                truth,
+                [{"polygon": item["polygon"], "confidence": item["score"]} for item in candidates],
+                0.50,
+                0.75,
+            )
+            stage1_runtime_baseline[key]["truth"] += len(truth)
+            stage1_runtime_baseline[key]["predictions"] += len(candidates)
+            stage1_runtime_baseline[key]["matched"] += matched["matchedCount"]
+            stage1_runtime_baseline[key]["missed"] += matched["missedCount"]
+            stage1_runtime_baseline[key]["falsePositives"] += matched["falsePositiveCount"]
 
     sweep: list[dict[str, Any]] = []
     predictions_by_threshold: dict[float, dict[str, list[dict[str, Any]]]] = {}
@@ -279,9 +355,24 @@ def main() -> None:
         for truth_path in truth_paths:
             stem = truth_path.stem
             truth = parse_yolo_polygons(truth_path, prediction=False)
-            selected = suppress_duplicates(
-                [candidate for candidate in raw_by_stem[stem] if candidate["score"] >= threshold], maximum
-            )
+            if args.mode == "strict-presence":
+                threshold_candidates = [candidate for candidate in raw_by_stem[stem] if candidate["polygon"] is not None and candidate["score"] >= threshold]
+            else:
+                acceptance = float(stage1["acceptanceThreshold"])
+                threshold_candidates = []
+                for candidate in raw_by_stem[stem]:
+                    if candidate["stage1Score"] < acceptance:
+                        continue
+                    use_refinement = candidate["polygon"] is not None and candidate["score"] >= threshold
+                    selected_polygon = candidate["polygon"] if use_refinement else candidate["stage1Polygon"]
+                    threshold_candidates.append({
+                        **candidate,
+                        "polygon": selected_polygon,
+                        "bounds": tuple(float(value) for value in selected_polygon.bounds),
+                        "score": candidate["stage1Score"],
+                        "refined": use_refinement,
+                    })
+            selected = suppress_duplicates(threshold_candidates, maximum)
             predictions = [{"polygon": item["polygon"], "confidence": item["score"]} for item in selected]
             matched = match_instances(truth, predictions, 0.50, 0.75)
             totals["truth"] += len(truth)
@@ -332,10 +423,11 @@ def main() -> None:
                     coordinates = " ".join(f"{value:.8f}" for point in item["polygon"].exterior.coords[:-1] for value in point)
                     lines.append(f"0 {coordinates} {item['confidence']:.8f}")
                 (prediction_dir / f"{stem}.txt").write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8", newline="\n")
+        decision_prefix = "candidate53_two_stage" if args.mode == "strict-presence" else "candidate54_conservative_refinement"
         report = {
             "schemaVersion": 1,
             "ok": chosen is not None,
-            "decision": "candidate53_two_stage_val30_pass" if chosen is not None else "candidate53_two_stage_val30_rejected",
+            "decision": f"{decision_prefix}_val30_pass" if chosen is not None else f"{decision_prefix}_val30_rejected",
             "inputs": {
                 "plan": str(plan_path), "planSha256": sha256_file(plan_path),
                 "stage1Weights": str(stage1_weights), "stage1WeightsSha256": sha256_file(stage1_weights),
@@ -344,6 +436,8 @@ def main() -> None:
                 "truthAudit": str(truth_audit_path), "truthAuditSha256": sha256_file(truth_audit_path),
             },
             "fixedRuntime": {
+                "mode": args.mode,
+                "squareLetterbox": True,
                 "stage1InputSize": stage1["inputSize"], "stage1ProposalThreshold": stage1["proposalThreshold"],
                 "maximumProposalsPerImage": maximum, "cropContextRatio": context, "stage2InputSize": roi_size,
                 "maskIouThreshold": MASK_IOU_THRESHOLD, "maskContainmentThreshold": MASK_CONTAINMENT_THRESHOLD,
@@ -354,12 +448,18 @@ def main() -> None:
                 "images": len(truth_paths), "truthInstances": sum(len(parse_yolo_polygons(path, prediction=False)) for path in truth_paths),
                 "rawStage1RefinedCandidates": sum(len(items) for items in raw_by_stem.values()), "testImagesRead": 0,
             },
+            "stage1RuntimeBaseline": stage1_runtime_baseline,
             "thresholdSweep": sweep,
             "selected": chosen,
             "selectedPredictionLabels": str(output_dir / prediction_dir.name) if chosen is not None else None,
             "releaseState": "val-pass-test100-still-required" if chosen is not None else "hold-val-rejected",
         }
-        write_json(temporary / "candidate53-two-stage-val30-decision-v1.json", report)
+        report_name = (
+            "candidate53-two-stage-val30-decision-v1.json"
+            if args.mode == "strict-presence"
+            else "candidate54-conservative-refinement-val30-decision-v1.json"
+        )
+        write_json(temporary / report_name, report)
         temporary.replace(output_dir)
     except Exception:
         shutil.rmtree(temporary, ignore_errors=True)

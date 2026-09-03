@@ -1,20 +1,53 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
 import { UploadButton } from "@/components/UploadButton";
 import { NailCanvas } from "@/components/NailCanvas";
 import { ColorPalette } from "@/components/ColorPalette";
-import { FINGER_NAMES } from "@/lib/utils";
+import { GalleryInspirationCard } from "@/components/GalleryInspiration";
+import { FINGER_NAMES, GALLERY_IMAGES } from "@/lib/utils";
 import { validateImageUpload } from "@/lib/image-upload-validation";
 
+/** 未选灵感色时的默认甲色（与历史行为一致）。 */
+const DEFAULT_NAIL_COLOR = "#E8A0BF";
+
 export default function EditorPage() {
+  // useSearchParams 在静态渲染的客户端组件中必须包 Suspense，
+  // 否则生产构建直接失败（Next.js 16 文档 useSearchParams → Prerendering）。
+  return (
+    <Suspense fallback={null}>
+      <EditorPageInner />
+    </Suspense>
+  );
+}
+
+function EditorPageInner() {
+  const searchParams = useSearchParams();
+  const galleryParam = searchParams.get("gallery");
+  const look =
+    GALLERY_IMAGES.find((item) => String(item.id) === galleryParam) ?? null;
+  return <EditorPageBody look={look} />;
+}
+
+function EditorPageBody({
+  look,
+}: {
+  look: (typeof GALLERY_IMAGES)[number] | null;
+}) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [nailColors, setNailColors] = useState<string[]>(Array(5).fill("#E8A0BF"));
+  const [nailColors, setNailColors] = useState<string[]>(
+    Array(5).fill(DEFAULT_NAIL_COLOR)
+  );
   const [activeFinger, setActiveFinger] = useState(0);
   const [brushSize] = useState(15);
   const [uploadError, setUploadError] = useState<string | null>(null);
+  const [inspiredPreset, setInspiredPreset] = useState<{
+    name: string;
+    color: string;
+  } | null>(null);
   const currentColor = nailColors[activeFinger];
 
   useEffect(() => () => {
@@ -28,6 +61,12 @@ export default function EditorPage() {
       setUploadError(validation.message);
       return;
     }
+    // 从灵感页进入时，把推导出的灵感预设色作为五指初始甲色。
+    setNailColors(
+      Array(5).fill(
+        look && inspiredPreset ? inspiredPreset.color : DEFAULT_NAIL_COLOR
+      )
+    );
     setImageUrl(URL.createObjectURL(file));
   };
   const changeColor = (color: string) => {
@@ -40,31 +79,48 @@ export default function EditorPage() {
   return (
     <AppShell
       shiftUp
-      eyebrow="Photo Studio"
-      title={imageUrl ? "在照片上试出你的心动甲色" : "上传一张照片，开始自由试色"}
-      description="照片只在你的浏览器中处理。选择不同手指与颜色，像在真实甲片上一样轻松调整。"
+      eyebrow={look ? "Inspiration Studio" : "Photo Studio"}
+      title={
+        imageUrl
+          ? "在照片上试出你的心动甲色"
+          : look
+            ? `以「${look.name}」为灵感，开始你的试色`
+            : "上传一张照片，开始自由试色"
+      }
+      description={
+        look
+          ? "照片只在你的浏览器中处理。已根据灵感款式预选相近甲色，你也可以随时更换。"
+          : "照片只在你的浏览器中处理。选择不同手指与颜色，像在真实甲片上一样轻松调整。"
+      }
     >
       {!imageUrl ? (
-        <div className="grid gap-5 md:grid-cols-[1.25fr_.75fr]">
-          <section className="rounded-[28px] border border-white/80 bg-white/65 p-3 shadow-[0_24px_70px_rgba(116,73,92,.10)] backdrop-blur-2xl sm:p-5">
-            <UploadButton onUpload={handleUpload} />
-            {uploadError && (
-              <p role="alert" className="px-3 pb-2 pt-3 text-center text-sm text-red-600">
-                {uploadError}
-              </p>
-            )}
-          </section>
-          <aside className="rounded-[28px] border border-white/75 bg-white/55 p-6 shadow-[0_20px_60px_rgba(116,73,92,.07)] backdrop-blur-xl">
-            <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-100 to-purple-100"><Icon name="sparkles" className="h-5 w-5 text-[#B95F87]" /></span>
-            <h2 className="mt-5 text-lg font-semibold text-[#4A4447]">获得更自然的效果</h2>
-            <ul className="mt-4 space-y-3 text-sm leading-6 text-[#90878C]">
-              <li className="flex gap-3"><span className="text-[#D4749D]">01</span><span>选择光线均匀、手指清晰的正面照片</span></li>
-              <li className="flex gap-3"><span className="text-[#D4749D]">02</span><span>逐个选择手指，可为每一指搭配不同颜色</span></li>
-              <li className="flex gap-3"><span className="text-[#D4749D]">03</span><span>用撤销与重置随时回退，满意后保存到本地</span></li>
-            </ul>
-            <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#9A7C89]"><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />本地优先：照片默认不会上传；「用户改进计划」可在隐私页关闭</div>
-          </aside>
-        </div>
+        <>
+          {look && (
+            <div className="mb-5">
+              <GalleryInspirationCard src={look.src} name={look.name} onPresetColor={setInspiredPreset} />
+            </div>
+          )}
+          <div className="grid gap-5 md:grid-cols-[1.25fr_.75fr]">
+            <section className="rounded-[28px] border border-white/80 bg-white/65 p-3 shadow-[0_24px_70px_rgba(116,73,92,.10)] backdrop-blur-2xl sm:p-5">
+              <UploadButton onUpload={handleUpload} />
+              {uploadError && (
+                <p role="alert" className="px-3 pb-2 pt-3 text-center text-sm text-red-600">
+                  {uploadError}
+                </p>
+              )}
+            </section>
+            <aside className="rounded-[28px] border border-white/75 bg-white/55 p-6 shadow-[0_20px_60px_rgba(116,73,92,.07)] backdrop-blur-xl">
+              <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-100 to-purple-100"><Icon name="sparkles" className="h-5 w-5 text-[#B95F87]" /></span>
+              <h2 className="mt-5 text-lg font-semibold text-[#4A4447]">获得更自然的效果</h2>
+              <ul className="mt-4 space-y-3 text-sm leading-6 text-[#90878C]">
+                <li className="flex gap-3"><span className="text-[#D4749D]">01</span><span>选择光线均匀、手指清晰的正面照片</span></li>
+                <li className="flex gap-3"><span className="text-[#D4749D]">02</span><span>逐个选择手指，可为每一指搭配不同颜色</span></li>
+                <li className="flex gap-3"><span className="text-[#D4749D]">03</span><span>用撤销与重置随时回退，满意后保存到本地</span></li>
+              </ul>
+              <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#9A7C89]"><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />本地优先：照片默认不会上传；「用户改进计划」可在隐私页关闭</div>
+            </aside>
+          </div>
+        </>
       ) : (
         <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
           <section className="rounded-[30px] border border-white/80 bg-white/62 p-4 shadow-[0_24px_70px_rgba(116,73,92,.10)] backdrop-blur-2xl sm:p-6">
@@ -78,6 +134,16 @@ export default function EditorPage() {
               </div>
               <button onClick={() => setImageUrl(null)} className="rounded-xl border border-pink-100 bg-white/80 px-3 py-2 text-xs text-[#9A7C89] transition hover:border-pink-200 hover:text-[#D4749D]">更换照片</button>
             </div>
+            {look && (
+              <div className="mb-4">
+                <GalleryInspirationCard
+                  src={look.src}
+                  name={look.name}
+                  variant="mini"
+                  onApplyPreset={(preset) => changeColor(preset.color)}
+                />
+              </div>
+            )}
             <div className="grid grid-cols-5 gap-1.5 rounded-2xl bg-pink-50/60 p-1.5">
               {FINGER_NAMES.map((name, index) => (
                 <button key={name} onClick={() => setActiveFinger(index)} className={`rounded-xl px-1 py-2 text-[11px] transition ${activeFinger === index ? "bg-white font-medium text-[#CF6F99] shadow-sm" : "text-[#9B9297] hover:bg-white/60"}`}>{name}</button>

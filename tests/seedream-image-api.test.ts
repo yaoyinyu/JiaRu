@@ -233,3 +233,36 @@ test("Seedream 自定义 Base URL 生效且去掉尾部斜杠", async () => {
     "https://ark.cn-shanghai.volces.com/api/v3/images/generations"
   );
 });
+
+test(
+  "Seedream 路由层不传 env 时不崩溃（回归 2026-09-03 浏览器实测报 " +
+    "'Cannot read properties of undefined (reading ARK_IMAGE_WATERMARK)'）",
+  async () => {
+    // 模拟真实路由调用形态：仅传 model / pixelSize，不显式注入 env。
+    // 若 generateSeedreamImage 内部没有 env ?? process.env 回退，watermark
+    // 解析路径会读 undefined.ARK_IMAGE_WATERMARK 抛出。
+    const prevArk = process.env.VOLCENGINE_ARK_API_KEY;
+    const prevPro = process.env.ARK_SEEDREAM_PRO_MODEL;
+    process.env.VOLCENGINE_ARK_API_KEY = "test-secret";
+    process.env.ARK_SEEDREAM_PRO_MODEL = "doubao-seedream-5-0-pro-test";
+    try {
+      const fetchImpl = async () =>
+        new Response(
+          JSON.stringify({ data: [{ url: "https://ark.example/design.png" }] }),
+          { status: 200, headers: { "Content-Type": "application/json" } }
+        );
+      const result = await generateSeedreamImage("银色亮片美甲", {
+        model: "pro",
+        pixelSize: "2048x2048",
+        fetchImpl: fetchImpl as typeof fetch,
+      });
+      assert.equal(result.imageUrl, "https://ark.example/design.png");
+      assert.equal(result.model, "doubao-seedream-5-0-pro-test");
+    } finally {
+      if (prevArk === undefined) delete process.env.VOLCENGINE_ARK_API_KEY;
+      else process.env.VOLCENGINE_ARK_API_KEY = prevArk;
+      if (prevPro === undefined) delete process.env.ARK_SEEDREAM_PRO_MODEL;
+      else process.env.ARK_SEEDREAM_PRO_MODEL = prevPro;
+    }
+  }
+);
