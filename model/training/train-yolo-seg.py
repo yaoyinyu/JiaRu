@@ -194,6 +194,18 @@ def load_hand_roi_input_auditor() -> ModuleType:
     return module
 
 
+def load_single_nail_roi_input_auditor() -> ModuleType:
+    script_path = Path(__file__).with_name("audit-candidate53-single-nail-roi-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "audit_candidate53_single_nail_roi_dataset", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load candidate53 single-nail ROI input auditor")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def candidate_input_validation(
     args: argparse.Namespace, dataset_yaml: Path, output_dir: Path
 ) -> dict[str, object] | None:
@@ -210,20 +222,32 @@ def candidate_input_validation(
         raise ValueError("--candidate-mode requires --candidate-input-report")
     path = Path(args.candidate_input_report).resolve()
     shallow = json.loads(path.read_text(encoding="utf-8"))
-    auditor = (
-        load_hand_roi_input_auditor()
-        if shallow.get("decision") == "approved_hand_roi_candidate_training_input"
-        else load_candidate_input_auditor()
-    )
+    decision = shallow.get("decision")
+    if decision == "approved_hand_roi_candidate_training_input":
+        auditor = load_hand_roi_input_auditor()
+    elif decision == "approved_candidate53_single_nail_roi_training_input":
+        auditor = load_single_nail_roi_input_auditor()
+    else:
+        auditor = load_candidate_input_auditor()
     report = auditor.verify_approved_report(path, dataset_yaml)
     counts = report.get("counts", {})
-    if (
-        int(counts.get("trainPositiveImages", -1)) < 100
-        or int(counts.get("hardNegativeImages", -1)) < 100
-        or int(counts.get("validationImages", -1)) < 30
-        or int(counts.get("testImages", -1)) != 0
-        or int(counts.get("orphanFiles", -1)) != 0
-    ):
+    if decision == "approved_candidate53_single_nail_roi_training_input":
+        count_gate_failed = (
+            int(counts.get("trainPositiveRois", -1)) < 100
+            or int(counts.get("trainNegativeRois", -1)) < 1
+            or int(counts.get("valPositiveRois", -1)) < 30
+            or int(counts.get("testImages", -1)) != 0
+            or int(counts.get("orphanFiles", -1)) != 0
+        )
+    else:
+        count_gate_failed = (
+            int(counts.get("trainPositiveImages", -1)) < 100
+            or int(counts.get("hardNegativeImages", -1)) < 100
+            or int(counts.get("validationImages", -1)) < 30
+            or int(counts.get("testImages", -1)) != 0
+            or int(counts.get("orphanFiles", -1)) != 0
+        )
+    if count_gate_failed:
         raise ValueError("candidate training input count gate is not satisfied")
     dataset_root = Path(str(report.get("outputDir", ""))).resolve()
     if dataset_root != dataset_yaml.parent.resolve():

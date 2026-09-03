@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 1,
+  "decision": "reject_candidate52_on_isolated_val30_recognition_non_regression",
+  "createdAt": "2026-09-03T00:00:00+08:00",
+  "baseline": {
+    "candidate": "candidate29-alpha-015",
+    "threshold": 0.45,
+    "matched": 128,
+    "missed": 16,
+    "falsePositives": 16,
+    "microBoundaryF1": 0.6011288950896838
+  },
+  "candidate": {
+    "trainingPlan": "model/training/candidate52-generated-positive-boundary-training-plan-v1.json",
+    "weights": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate52-generated-positive-boundary-2026-09-03-v1/candidate52/weights/best.pt",
+    "weightsSha256": "ce8baff8c10dc789f2669ce2aa72ef8e28b685ced2a604b1dbebbcc1a7e12ff6",
+    "weightsBytes": 45166633,
+    "completedEpochs": 12,
+    "bestEpoch": 4,
+    "distillation": null,
+    "deploymentInputSize": 512
+  },
+  "strictValidationContract": {
+    "minimumMatched": 128,
+    "maximumMissed": 16,
+    "maximumFalsePositives": 16,
+    "boundaryRequirement": "microBoundaryF1 must be strictly greater than 0.6011288950896838 after recognition non-regression passes"
+  },
+  "closestThresholds": [
+    {
+      "threshold": 0.345,
+      "matched": 128,
+      "missed": 16,
+      "falsePositives": 22,
+      "failure": "false_positive_budget_exceeded_by_6"
+    },
+    {
+      "threshold": 0.455,
+      "matched": 126,
+      "missed": 18,
+      "falsePositives": 16,
+      "failure": "matched_and_missed_contract_failed"
+    },
+    {
+      "threshold": 0.46,
+      "matched": 126,
+      "missed": 18,
+      "falsePositives": 15,
+      "failure": "matched_and_missed_contract_failed"
+    }
+  ],
+  "evidence": {
+    "trainingInputAudit": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_3_candidate52_training_input_v1/candidate52-candidate-training-input-audit-v1.json",
+      "sha256": "b3b2e1341d172b8d6df459c3da1b90ae74c7e4f0517f9cbb198bde41112e8b43",
+      "deepReplay": "pass_after_training"
+    },
+    "trainingSummary": {
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate52-generated-positive-boundary-2026-09-03-v1/train-summary.json",
+      "sha256": "0a039b3b7f4d55faafb2c079a96c3927fffbfd21274326e52a4ed42408ca10c8"
+    },
+    "formalVal30Metrics": {
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate52-generated-positive-boundary-2026-09-03-v1/formal-val30-canonical-direct-512-v1/metrics.json",
+      "sha256": "62f61836b91ff45e246a32e709d75a99737e92a13861926073c0aee8414e5ed8",
+      "boxMap50": 0.962605095055734,
+      "boxMap50To95": 0.683189338473515,
+      "maskMap50": 0.86968320203234,
+      "maskMap50To95": 0.535014985713501
+    },
+    "fineThresholdCalibration": {
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate52-generated-positive-boundary-2026-09-03-v1/formal-val30-primary-recall-calibration-v2.json",
+      "sha256": "a7f942d41397940f9ffc0af529eaf3245a71043c02bf6a02f793ee08cf917dbd",
+      "deepReplay": "pass"
+    }
+  },
+  "boundaryMeasurement": "not_run_because_no_threshold_passed_recognition_non_regression",
+  "protectedTest100": "not_read_by_candidate52",
+  "exportRegistrationDeployment": "prohibited",
+  "openAiImage2Role": "three generated and fully reviewed source images contributed twenty hard polygons; no logits, feature tensors, soft masks, boundary confidence tensors, distillation report, or distilled student weights were produced",
+  "nextAction": "停止candidate52，不读取test100、不做插值、不导出或部署。按既定止损条件转入全图召回模型加单甲高分辨率ROI精修的两阶段train角色对照；仍只用来源隔离val30选择。",
+  "releaseState": "hold"
+}
