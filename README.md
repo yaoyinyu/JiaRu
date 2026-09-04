@@ -287,7 +287,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.372 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.592 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
@@ -377,7 +377,9 @@ copy .env.local.example .env.local
 - [x] candidate28全分辨率边界训练完成并在val30否决（122匹配/22漏检/12误检）
 - [x] candidate29预注册alpha插值锁定alpha0.15（val30为128匹配/16漏检/16误检），受保护回归test100仍HOLD
 - [ ] candidate30用甲面联合近景增强训练并以val30为唯一选择证据
-- [ ] 通过冻结test100逐实例完整识别门（candidate6、candidate7、candidate8、candidate29均已否决）
+- [x] candidate56复用candidate52深审输入完成512方形stage1训练（最佳权重SHA-256 `64628504…c272`），单stage1与联合candidate55边界精修两条链均在来源隔离val30拒绝，未读取test100
+- [x] candidate57低置信带组合门val30通过（129匹配/15漏检/16误检、边界F1 `0.6139459`）并锁定不可反调复合运行时，详见白皮书§12.11
+- [ ] 通过冻结test100逐实例完整识别门（candidate6、candidate7、candidate8、candidate29均已否决；candidate57锁定运行时已完成冻结test100验收，实例召回率`0.95848375`与完整mask率`0.86462094`通过，漏检图片率`0.13`与加权杂散率`0.04693141`仍失败，产品HOLD）
 - [ ] 训练后另建、原子冻结并终审不少于100张全新未见困难负样本
 - [ ] 部署512三变体达到误检图片0、误检检测0、相对原图delta 0
 - [ ] 导出并登记生产ONNX，接入`/ar-tryon`正式多纹理识别和像素级mask提取

@@ -54,6 +54,10 @@ def parser() -> argparse.ArgumentParser:
     value.add_argument("--materialization-report")
     value.add_argument("--artifact-index")
     value.add_argument("--weights")
+    value.add_argument(
+        "--runtime-selection-lock",
+        help="Optional immutable composite-runtime lock; the artifact index must bind its path and SHA-256.",
+    )
     value.add_argument("--score-threshold", type=float)
     value.add_argument("--output")
     value.add_argument("--verify-report")
@@ -302,6 +306,20 @@ def build(
     items, records, output_dir, predictions = validate_lineage(
         snapshot_path, materialization_path, artifact_path
     )
+    runtime_lock_value = getattr(args, "runtime_selection_lock", None)
+    runtime_lock_path = (
+        require_path(runtime_lock_value, "runtime-selection-lock")
+        if runtime_lock_value
+        else None
+    )
+    if runtime_lock_path is not None:
+        artifacts = load_object(artifact_path)
+        bound_lock = Path(str(artifacts.get("runtime_selection_lock", ""))).resolve()
+        if (
+            bound_lock != runtime_lock_path
+            or artifacts.get("runtime_selection_lock_sha256") != sha256_path(runtime_lock_path)
+        ):
+            raise ValueError("Prediction artifact index is not bound to the runtime selection lock")
 
     image_rows: list[dict[str, Any]] = []
     totals = {"truth": 0, "predictions": 0, "matched": 0, "completeMasks": 0, "missing": 0, "duplicates": 0, "falsePositives": 0, "invalidPredictionMasks": 0}
@@ -430,13 +448,27 @@ def build(
         summary = dict(base_summary)
         diagnostics = {}
     ok = all(gates.values())
+    candidate = {"weights": str(weights_path), "weightsSha256": sha256_path(weights_path)}
+    if runtime_lock_path is not None:
+        candidate.update(
+            {
+                "runtimeSelectionLock": str(runtime_lock_path),
+                "runtimeSelectionLockSha256": sha256_path(runtime_lock_path),
+            }
+        )
+        contract.update(
+            {
+                "selectionMode": "locked-composite-runtime",
+                "scoreThresholdMeaning": "minimum emitted stage1 confidence after locked composite selection",
+            }
+        )
     return {
         "schemaVersion": schema_version,
         "ok": ok,
         "decision": "accept_positive_recognition_gate" if ok else "hold_positive_recognition_gate",
         "trainingUse": "prohibited",
         "deploymentContract": contract,
-        "candidate": {"weights": str(weights_path), "weightsSha256": sha256_path(weights_path)},
+        "candidate": candidate,
         "summary": summary,
         "gates": gates,
         **diagnostics,
@@ -467,6 +499,12 @@ def verify(report_path: Path) -> dict[str, Any]:
     weights = require_path(candidate.get("weights"), "weights")
     if sha256_path(weights) != candidate.get("weightsSha256"):
         raise ValueError("Recognition report weights drift")
+    runtime_lock = candidate.get("runtimeSelectionLock")
+    runtime_lock_path = None
+    if runtime_lock is not None:
+        runtime_lock_path = require_path(runtime_lock, "runtimeSelectionLock")
+        if sha256_path(runtime_lock_path) != candidate.get("runtimeSelectionLockSha256"):
+            raise ValueError("Recognition report runtime selection lock drift")
     schema_version = report.get("schemaVersion")
     if schema_version == 2:
         gate_mode = "weighted"
@@ -483,6 +521,7 @@ def verify(report_path: Path) -> dict[str, Any]:
         materialization_report=str(inputs["materializationReport"]),
         artifact_index=str(inputs["artifactIndex"]),
         weights=str(weights),
+        runtime_selection_lock=str(runtime_lock_path) if runtime_lock_path else None,
         score_threshold=float(contract["scoreThreshold"]),
         output=None,
         verify_report=None,
