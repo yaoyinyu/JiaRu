@@ -207,8 +207,20 @@ def main() -> None:
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--device", default="0")
     parser.add_argument(
+        "--include-calibration-diagnostics",
+        action="store_true",
+        help="在报告中写入val候选分数与匹配归属，仅供阈值/组合诊断；不得用于test或训练选样",
+    )
+    parser.add_argument(
         "--mode",
-        choices=("strict-presence", "conservative-refinement", "proposal-conditioned-refinement"),
+        choices=(
+            "strict-presence",
+            "conservative-refinement",
+            "proposal-conditioned-refinement",
+            "stage1-recall-with-locked-refinement",
+            "stage1-only",
+            "low-band-margin-gate",
+        ),
         default="strict-presence",
     )
     args = parser.parse_args()
@@ -225,6 +237,9 @@ def main() -> None:
         "strict-presence": ("candidate53", "pre_registered_two_stage_full_image_recall_plus_single_nail_roi_refinement"),
         "conservative-refinement": ("candidate54", "pre_registered_conservative_stage1_acceptance_with_conditional_roi_boundary_refinement"),
         "proposal-conditioned-refinement": ("candidate55", "pre_registered_proposal_conditioned_single_nail_roi_retraining"),
+        "stage1-recall-with-locked-refinement": ("candidate56", "pre_registered_candidate56_joint_val30"),
+        "stage1-only": ("candidate56-direct", "pre_registered_candidate56_direct_stage1_val30"),
+        "low-band-margin-gate": ("candidate57", "pre_registered_candidate57_low_band_margin_gate_val30"),
     }[args.mode]
     if (plan.get("candidate"), plan.get("decision")) != expected_plan:
         raise ValueError(f"计划与评估模式不匹配：{args.mode}")
@@ -242,6 +257,18 @@ def main() -> None:
         raise ValueError("stage1权重SHA-256不一致")
     if tuple(round(0.10 + 0.05 * index, 2) for index in range(17)) != THRESHOLDS:
         raise ValueError("内部阈值表漂移")
+    if args.mode in ("stage1-recall-with-locked-refinement", "stage1-only"):
+        planned_thresholds = tuple(float(value) for value in plan["thresholdCalibration"]["values"])
+        if planned_thresholds != THRESHOLDS:
+            raise ValueError("candidate56预注册stage1阈值表与评估器不一致")
+    if args.mode == "stage1-recall-with-locked-refinement":
+        if float(plan["thresholdCalibration"]["stage2AcceptanceThresholdLocked"]) != float(plan["stage2"]["acceptanceThreshold"]):
+            raise ValueError("candidate56锁定stage2阈值不一致")
+    evaluation_thresholds = THRESHOLDS
+    if args.mode == "low-band-margin-gate":
+        evaluation_thresholds = tuple(float(value) for value in plan["runtimeComposition"]["marginThresholds"])
+        if evaluation_thresholds != (0.55,):
+            raise ValueError("candidate57跨阶段提升阈值必须锁定为0.55")
     validate_truth_audit(truth_audit_path, dataset_path, output_dir.parent / ".candidate53-val30-truth-replay.json")
 
     config = load_dataset_config(dataset_path)
@@ -359,7 +386,7 @@ def main() -> None:
 
     sweep: list[dict[str, Any]] = []
     predictions_by_threshold: dict[float, dict[str, list[dict[str, Any]]]] = {}
-    for threshold in THRESHOLDS:
+    for threshold in evaluation_thresholds:
         totals = {"truth": 0, "predictions": 0, "matched": 0, "missed": 0, "falsePositives": 0}
         boundary_totals = [0, 0, 0, 0]
         selected_by_stem: dict[str, list[dict[str, Any]]] = {}
@@ -368,6 +395,53 @@ def main() -> None:
             truth = parse_yolo_polygons(truth_path, prediction=False)
             if args.mode in ("strict-presence", "proposal-conditioned-refinement"):
                 threshold_candidates = [candidate for candidate in raw_by_stem[stem] if candidate["polygon"] is not None and candidate["score"] >= threshold]
+            elif args.mode == "stage1-recall-with-locked-refinement":
+                refinement_threshold = float(plan["stage2"]["acceptanceThreshold"])
+                threshold_candidates = []
+                for candidate in raw_by_stem[stem]:
+                    if candidate["stage1Score"] < threshold:
+                        continue
+                    use_refinement = candidate["polygon"] is not None and candidate["score"] >= refinement_threshold
+                    selected_polygon = candidate["polygon"] if use_refinement else candidate["stage1Polygon"]
+                    threshold_candidates.append({
+                        **candidate,
+                        "polygon": selected_polygon,
+                        "bounds": tuple(float(value) for value in selected_polygon.bounds),
+                        "score": candidate["stage1Score"],
+                        "refined": use_refinement,
+                    })
+            elif args.mode == "stage1-only":
+                threshold_candidates = [
+                    {
+                        **candidate,
+                        "polygon": candidate["stage1Polygon"],
+                        "bounds": candidate["stage1Bounds"],
+                        "score": candidate["stage1Score"],
+                        "refined": False,
+                    }
+                    for candidate in raw_by_stem[stem]
+                    if candidate["stage1Score"] >= threshold
+                ]
+            elif args.mode == "low-band-margin-gate":
+                primary_threshold = float(stage1["acceptanceThreshold"])
+                promotion_minimum = float(stage1["promotionBandMinimum"])
+                threshold_candidates = []
+                for candidate in raw_by_stem[stem]:
+                    stage1_score = float(candidate["stage1Score"])
+                    promoted = (
+                        promotion_minimum <= stage1_score < primary_threshold
+                        and float(candidate["score"]) - stage1_score >= threshold
+                    )
+                    if stage1_score < primary_threshold and not promoted:
+                        continue
+                    threshold_candidates.append({
+                        **candidate,
+                        "polygon": candidate["stage1Polygon"],
+                        "bounds": candidate["stage1Bounds"],
+                        "score": stage1_score,
+                        "refined": False,
+                        "promoted": promoted,
+                    })
             else:
                 acceptance = stage1_acceptance
                 threshold_candidates = []
@@ -438,7 +512,48 @@ def main() -> None:
             "strict-presence": "candidate53_two_stage",
             "conservative-refinement": "candidate54_conservative_refinement",
             "proposal-conditioned-refinement": "candidate55_proposal_conditioned_refinement",
+            "stage1-recall-with-locked-refinement": "candidate56_stage1_recall_with_locked_refinement",
+            "stage1-only": "candidate56_direct_stage1",
+            "low-band-margin-gate": "candidate57_low_band_margin_gate",
         }[args.mode]
+        calibration_diagnostics = None
+        if args.include_calibration_diagnostics:
+            calibration_diagnostics = []
+            for truth_path in truth_paths:
+                stem = truth_path.stem
+                truth = parse_yolo_polygons(truth_path, prediction=False)
+                candidates = suppress_duplicates(
+                    [
+                        {
+                            **candidate,
+                            "stage2Score": candidate["score"],
+                            "polygon": candidate["stage1Polygon"],
+                            "bounds": candidate["stage1Bounds"],
+                            "score": candidate["stage1Score"],
+                        }
+                        for candidate in raw_by_stem[stem]
+                        if candidate["stage1Score"] >= 0.30
+                    ],
+                    maximum,
+                )
+                matched = match_instances(
+                    truth,
+                    [{"polygon": item["polygon"], "confidence": item["score"]} for item in candidates],
+                    0.50,
+                    0.75,
+                )
+                match_by_prediction = {
+                    int(item["predictionIndex"]): int(item["truthIndex"])
+                    for item in matched["matches"]
+                }
+                for prediction_index, candidate in enumerate(candidates, start=1):
+                    calibration_diagnostics.append({
+                        "imageStem": stem,
+                        "proposalIndex": int(candidate["proposalIndex"]),
+                        "stage1Score": float(candidate["stage1Score"]),
+                        "stage2Score": float(candidate["stage2Score"]),
+                        "matchedTruthIndex": match_by_prediction.get(prediction_index),
+                    })
         report = {
             "schemaVersion": 1,
             "ok": chosen is not None,
@@ -465,6 +580,7 @@ def main() -> None:
             },
             "stage1RuntimeBaseline": stage1_runtime_baseline,
             "thresholdSweep": sweep,
+            "calibrationDiagnostics": calibration_diagnostics,
             "selected": chosen,
             "selectedPredictionLabels": str(output_dir / prediction_dir.name) if chosen is not None else None,
             "releaseState": "val-pass-test100-still-required" if chosen is not None else "hold-val-rejected",
@@ -473,6 +589,9 @@ def main() -> None:
             "strict-presence": "candidate53-two-stage-val30-decision-v1.json",
             "conservative-refinement": "candidate54-conservative-refinement-val30-decision-v1.json",
             "proposal-conditioned-refinement": "candidate55-proposal-conditioned-refinement-val30-decision-v1.json",
+            "stage1-recall-with-locked-refinement": "candidate56-joint-val30-decision-v1.json",
+            "stage1-only": "candidate56-direct-val30-decision-v1.json",
+            "low-band-margin-gate": "candidate57-low-band-margin-gate-val30-decision-v1.json",
         }[args.mode]
         write_json(temporary / report_name, report)
         temporary.replace(output_dir)

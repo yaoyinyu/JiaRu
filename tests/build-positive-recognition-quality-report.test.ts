@@ -71,6 +71,46 @@ test("逐实例正样本识别报告可构建并重放", () => {
   execFileSync("python", [script, "--verify-report", output]);
 });
 
+test("复合运行时报告必须绑定选择锁并可重放", () => {
+  const value = fixture();
+  const runtimeLock = path.join(value.root, "runtime-lock.json");
+  writeFileSync(runtimeLock, JSON.stringify({ candidate: "candidate57", fixed: true }));
+  const artifact = JSON.parse(readFileSync(value.artifactIndex, "utf8"));
+  artifact.runtime_selection_lock = runtimeLock;
+  artifact.runtime_selection_lock_sha256 = sha(readFileSync(runtimeLock));
+  writeFileSync(value.artifactIndex, JSON.stringify(artifact));
+  const output = path.join(value.root, "composite-report.json");
+  execFileSync("python", [
+    script,
+    "--snapshot-manifest", value.snapshot,
+    "--materialization-report", value.materialization,
+    "--artifact-index", value.artifactIndex,
+    "--weights", value.weights,
+    "--runtime-selection-lock", runtimeLock,
+    "--score-threshold", "0.3",
+    "--output", output,
+  ]);
+  const report = JSON.parse(readFileSync(output, "utf8"));
+  assert.equal(report.candidate.runtimeSelectionLock, runtimeLock);
+  assert.equal(report.deploymentContract.selectionMode, "locked-composite-runtime");
+  assert.equal(report.deploymentContract.scoreThreshold, 0.3);
+  execFileSync("python", [script, "--verify-report", output]);
+
+  artifact.runtime_selection_lock_sha256 = "0".repeat(64);
+  writeFileSync(value.artifactIndex, JSON.stringify(artifact));
+  const rejected = spawnSync("python", [
+    script,
+    "--snapshot-manifest", value.snapshot,
+    "--materialization-report", value.materialization,
+    "--artifact-index", value.artifactIndex,
+    "--weights", value.weights,
+    "--runtime-selection-lock", runtimeLock,
+    "--score-threshold", "0.3",
+    "--output", path.join(value.root, "rejected.json"),
+  ]);
+  assert.equal(rejected.status, 2);
+});
+
 test("漏甲会让识别强门保持HOLD", () => {
   const value = fixture();
   const predictionPath = path.join(value.artifactsDir, "labels", "ab.txt");
