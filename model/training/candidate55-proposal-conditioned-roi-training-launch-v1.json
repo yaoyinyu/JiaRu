@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate55-stage2",
+  "decision": "approved_single_candidate_training_launch",
+  "objective": "从candidate53单甲精修权重继续训练，使第二阶段适应浏览器真实stage1候选裁片分布；不重训stage1、不训练教师、不扩散候选。",
+  "plan": {
+    "path": "E:/AI Project/Codex/JiaRu/model/training/candidate55-proposal-conditioned-roi-plan-v1.json",
+    "sha256": "bb2540097a488fd68244e8eff17cc0b88890af1dab7b6c3f7702c0cb982ca5b6"
+  },
+  "trainingInput": {
+    "datasetYaml": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_4_candidate55_proposal_conditioned_roi_input_v1/candidate55-proposal-conditioned-roi-dataset-v2/dataset.yaml",
+    "audit": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_4_candidate55_proposal_conditioned_roi_input_v1/candidate55-proposal-conditioned-roi-training-input-audit-v1.json",
+    "auditSha256": "1d52635394ae5aec26a194bd3e540f88e1026353a7d50e5b4287cfe99d34596d",
+    "datasetFilesSha256": "48e99048669ec513c88837065fa22aa29115c0103786d52b800ab6a682a3505d",
+    "allRolesSha256": "36b0a81deabbdeed5db0543f48f66cbd3b61a60c76b8d69a94149bd7058d050a",
+    "recordsSha256": "eaa8a749336a9f29be1b24b39c7d2ec7deff93572f34830574d050401362c705",
+    "counts": {
+      "trainPositiveRois": 15479,
+      "trainNegativeRois": 52,
+      "valPositiveRois": 144,
+      "valNegativeRois": 12,
+      "proposalConditionedPositiveRois": 1736,
+      "testImages": 0,
+      "orphanFiles": 0
+    }
+  },
+  "initialization": {
+    "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate53-single-nail-roi-2026-09-03-v1/candidate53-stage2/weights/best.pt",
+    "sha256": "25c02be9c05b37c3f60e02367add0e31e19508bbbbafcdfa4d18c6f42c133eb7",
+    "bytes": 5983957,
+    "role": "candidate53_stage2_best_refinement_checkpoint",
+    "distillation": false
+  },
+  "training": {
+    "inputSize": 256,
+    "epochs": 24,
+    "patience": 6,
+    "batch": "auto",
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.0001,
+    "freeze": 0,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false,
+    "hardBoundaryWeight": 0,
+    "distillation": null
+  },
+  "output": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate55-proposal-conditioned-roi-2026-09-04-v1",
+  "selection": "ROI内部val只用于早停；唯一正式选择依据是浏览器一致512方形letterbox加产品去重后的来源隔离val30联合结果。",
+  "protectedTest100": "prohibited_until_joint_val30_replacement_passes",
+  "releaseState": "hold"
+}

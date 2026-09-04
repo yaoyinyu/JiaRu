@@ -206,6 +206,18 @@ def load_single_nail_roi_input_auditor() -> ModuleType:
     return module
 
 
+def load_proposal_conditioned_roi_input_auditor() -> ModuleType:
+    script_path = Path(__file__).with_name("audit-candidate55-proposal-conditioned-roi-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "audit_candidate55_proposal_conditioned_roi_dataset", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load candidate55 proposal-conditioned ROI input auditor")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def candidate_input_validation(
     args: argparse.Namespace, dataset_yaml: Path, output_dir: Path
 ) -> dict[str, object] | None:
@@ -227,11 +239,16 @@ def candidate_input_validation(
         auditor = load_hand_roi_input_auditor()
     elif decision == "approved_candidate53_single_nail_roi_training_input":
         auditor = load_single_nail_roi_input_auditor()
+    elif decision == "approved_candidate55_proposal_conditioned_roi_training_input":
+        auditor = load_proposal_conditioned_roi_input_auditor()
     else:
         auditor = load_candidate_input_auditor()
     report = auditor.verify_approved_report(path, dataset_yaml)
     counts = report.get("counts", {})
-    if decision == "approved_candidate53_single_nail_roi_training_input":
+    if decision in {
+        "approved_candidate53_single_nail_roi_training_input",
+        "approved_candidate55_proposal_conditioned_roi_training_input",
+    }:
         count_gate_failed = (
             int(counts.get("trainPositiveRois", -1)) < 100
             or int(counts.get("trainNegativeRois", -1)) < 1
