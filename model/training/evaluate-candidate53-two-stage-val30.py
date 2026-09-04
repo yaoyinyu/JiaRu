@@ -198,7 +198,7 @@ def validate_truth_audit(path: Path, dataset: Path, replay_output: Path) -> None
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="评估candidate53两阶段val30")
+    parser = argparse.ArgumentParser(description="评估candidate53/54/55两阶段val30")
     parser.add_argument("--plan", required=True)
     parser.add_argument("--stage2-weights", required=True)
     parser.add_argument("--stage2-weights-sha256", required=True)
@@ -206,7 +206,11 @@ def main() -> None:
     parser.add_argument("--truth-audit", required=True)
     parser.add_argument("--output-dir", required=True)
     parser.add_argument("--device", default="0")
-    parser.add_argument("--mode", choices=("strict-presence", "conservative-refinement"), default="strict-presence")
+    parser.add_argument(
+        "--mode",
+        choices=("strict-presence", "conservative-refinement", "proposal-conditioned-refinement"),
+        default="strict-presence",
+    )
     args = parser.parse_args()
 
     plan_path = Path(args.plan).resolve()
@@ -220,6 +224,7 @@ def main() -> None:
     expected_plan = {
         "strict-presence": ("candidate53", "pre_registered_two_stage_full_image_recall_plus_single_nail_roi_refinement"),
         "conservative-refinement": ("candidate54", "pre_registered_conservative_stage1_acceptance_with_conditional_roi_boundary_refinement"),
+        "proposal-conditioned-refinement": ("candidate55", "pre_registered_proposal_conditioned_single_nail_roi_retraining"),
     }[args.mode]
     if (plan.get("candidate"), plan.get("decision")) != expected_plan:
         raise ValueError(f"计划与评估模式不匹配：{args.mode}")
@@ -251,9 +256,15 @@ def main() -> None:
     stage1_model = YOLO(str(stage1_weights))
     stage2_model = YOLO(str(stage2_weights))
     context = float(
-        plan["runtimeComposition"].get("cropContextRatio", plan.get("stage2", {}).get("cropContextRatio"))
+        plan.get("runtimeComposition", {}).get(
+            "cropContextRatio",
+            plan.get("stage2", {}).get("cropContextRatio", stage1.get("cropContextRatio")),
+        )
     )
-    roi_size = int(plan["stage2"]["inputSize"])
+    roi_size_value = plan.get("stage2", {}).get("inputSize", plan.get("training", {}).get("inputSize"))
+    if roi_size_value is None:
+        raise ValueError("计划缺少stage2.inputSize或training.inputSize")
+    roi_size = int(roi_size_value)
     maximum = int(stage1["maximumProposalsPerImage"])
     raw_by_stem: dict[str, list[dict[str, Any]]] = {}
     image_sizes: dict[str, tuple[int, int]] = {}
@@ -355,10 +366,10 @@ def main() -> None:
         for truth_path in truth_paths:
             stem = truth_path.stem
             truth = parse_yolo_polygons(truth_path, prediction=False)
-            if args.mode == "strict-presence":
+            if args.mode in ("strict-presence", "proposal-conditioned-refinement"):
                 threshold_candidates = [candidate for candidate in raw_by_stem[stem] if candidate["polygon"] is not None and candidate["score"] >= threshold]
             else:
-                acceptance = float(stage1["acceptanceThreshold"])
+                acceptance = stage1_acceptance
                 threshold_candidates = []
                 for candidate in raw_by_stem[stem]:
                     if candidate["stage1Score"] < acceptance:
@@ -423,7 +434,11 @@ def main() -> None:
                     coordinates = " ".join(f"{value:.8f}" for point in item["polygon"].exterior.coords[:-1] for value in point)
                     lines.append(f"0 {coordinates} {item['confidence']:.8f}")
                 (prediction_dir / f"{stem}.txt").write_text("\n".join(lines) + ("\n" if lines else ""), encoding="utf-8", newline="\n")
-        decision_prefix = "candidate53_two_stage" if args.mode == "strict-presence" else "candidate54_conservative_refinement"
+        decision_prefix = {
+            "strict-presence": "candidate53_two_stage",
+            "conservative-refinement": "candidate54_conservative_refinement",
+            "proposal-conditioned-refinement": "candidate55_proposal_conditioned_refinement",
+        }[args.mode]
         report = {
             "schemaVersion": 1,
             "ok": chosen is not None,
@@ -454,11 +469,11 @@ def main() -> None:
             "selectedPredictionLabels": str(output_dir / prediction_dir.name) if chosen is not None else None,
             "releaseState": "val-pass-test100-still-required" if chosen is not None else "hold-val-rejected",
         }
-        report_name = (
-            "candidate53-two-stage-val30-decision-v1.json"
-            if args.mode == "strict-presence"
-            else "candidate54-conservative-refinement-val30-decision-v1.json"
-        )
+        report_name = {
+            "strict-presence": "candidate53-two-stage-val30-decision-v1.json",
+            "conservative-refinement": "candidate54-conservative-refinement-val30-decision-v1.json",
+            "proposal-conditioned-refinement": "candidate55-proposal-conditioned-refinement-val30-decision-v1.json",
+        }[args.mode]
         write_json(temporary / report_name, report)
         temporary.replace(output_dir)
     except Exception:

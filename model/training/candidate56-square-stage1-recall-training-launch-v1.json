@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "candidate": "candidate56-stage1",
+  "decision": "approved_single_candidate_training_launch",
+  "objective": "在已批准完整图训练输入上，以部署一致512方形尺寸短程微调candidate29 stage1，只修复至少3个召回缺口并保持误检预算。",
+  "plan": {
+    "path": "E:/AI Project/Codex/JiaRu/model/training/candidate56-square-stage1-recall-plan-v1.json",
+    "sha256": "6e1112a656c1b646ee13d91b73f23530ef51dda87f1e2f65bd0c8cde43899901"
+  },
+  "trainingInput": {
+    "datasetYaml": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_3_candidate52_training_input_v1/candidate52-canonical-training-dataset-v1/dataset.yaml",
+    "audit": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_3_candidate52_training_input_v1/candidate52-candidate-training-input-audit-v1.json",
+    "auditSha256": "b3b2e1341d172b8d6df459c3da1b90ae74c7e4f0517f9cbb198bde41112e8b43",
+    "datasetFilesSha256": "08b7ee18bcc4c9a4defa6f2fee4e75483b1926d4e1699b4421731a6d7a19db54",
+    "allRolesSha256": "9a6ff4958a9c7982dde022e29b97f9a5e2283abb12c5b192bc3248841ea34672",
+    "counts": {"trainPositiveImages": 328, "positiveMasks": 1981, "hardNegativeImages": 160, "validationImages": 30, "validationMasks": 144, "testImages": 0}
+  },
+  "initialization": {
+    "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate29-soup-2026-08-30-v1/alpha-015/weights.pt",
+    "sha256": "1524ba9ff3819ca25f6e9c7c0480a1464bbac2da0b091d38227a3002ac346f02",
+    "bytes": 90018153,
+    "role": "candidate29_alpha015_stage1_runtime_baseline",
+    "distillation": false
+  },
+  "training": {
+    "inputSize": 512,
+    "epochs": 24,
+    "patience": 6,
+    "batch": "auto",
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.00001,
+    "freeze": 10,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false,
+    "hardBoundaryWeight": 0,
+    "distillation": null
+  },
+  "output": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-candidate56-square-stage1-recall-2026-09-04-v1",
+  "selection": "先以浏览器一致512方形输入加产品去重在val30达到128/16/16；随后只组合锁定candidate55 stage2验证边界门。",
+  "protectedTest100": "prohibited_until_joint_val30_replacement_passes",
+  "releaseState": "hold"
+}

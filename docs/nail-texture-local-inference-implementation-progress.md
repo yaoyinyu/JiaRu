@@ -796,6 +796,9 @@ OpenAI图像模型没有执行严格蒸馏：可核验证据仅为3张生成源�
 | --- | --- | --- | --- |
 | `M2-T3-CANDIDATE53-TWO-STAGE-001` | 单甲ROI数据、训练及完整图联合val30 | ❌ FAIL（训练完成；模型质量拒绝） | train 13,795裁片、val 156裁片、test0；14轮早停，最佳第6轮，权重`25c02be…3eb7`。内部ROI mask mAP50=0.863；方形完整图联合val30在0.10—0.55仅120匹配、24漏检，最低误检29，报告`d0841e5d…7c30`拒绝。 |
 | `M2-T3-CANDIDATE54-CONSERVATIVE-REFINEMENT-001` | stage1保底、stage2条件边界替换 | ❌ FAIL（无需新训练） | 阈值0.85/0.90最好124匹配、20漏检、14误检，2px边界F1最高0.59637；不满足128/16/16和`>0.6011288951`联合门，报告`f4c53183…8416`拒绝。 |
-| `M2-T3-CANDIDATE55-PROPOSAL-CONDITIONED-PLAN-001` | 评测/部署一致性及真实候选裁片训练 | ⏳ 计划已锁定 | 先复现candidate29正式128/16/16基线；通过后仅用train父图真实stage1候选裁片、权威硬polygon和有限明确负例训练一个candidate55。禁止test/holdout、教师重训、架构网格和OpenAI张量蒸馏宣称。 |
+| `M2-T3-CANDIDATE55-RUNTIME-SEMANTICS-001` | 历史验证器与浏览器真实入口差异 | ✅ PASS（诊断门；不构成模型质量PASS） | 报告`cead6cab…5891`确认历史矩形`model.val`为128匹配/16漏检/16误检；浏览器一致512方形输入在产品去重前126/18/17、去重后125/19/13。入口差异已量化，candidate55固定以方形输入+产品去重为唯一真实基线。 |
+| `M2-T3-CANDIDATE55-PROPOSAL-CONDITIONED-INPUT-001` | 真实stage1候选裁片物化与独立深审 | ✅ PASS（训练输入门；不构成模型质量PASS） | 326张train父图/1961真值产生2106个stage1候选；1802个可用唯一关联候选经同真值去重后新增1736张正ROI。最终train为15479正+52负，val保持144正+12负，test0、孤儿0；27902个candidate53基础文件逐字节一致，112个新增train来源组与val交叠0。输入审计`1d526353…4596d`PASS。v1因诊断计数器未闭合保持禁用，修正后v2才获批准。 |
+| `M2-T3-CANDIDATE55-PROPOSAL-CONDITIONED-TRAINING-001` | 单一256学生短程续训 | ✅ PASS（训练完成；不构成模型质量PASS） | 10轮按patience6早停，最佳第4轮内部ROI mask mAP50/mAP50-95为0.88943/0.63843；最佳权重5,983,381 bytes、`5e47bd7f…a1e1f`。训练后再次深重放输入审计`1d526353…4596d`，test0，`distillation=null`。 |
+| `M2-T3-CANDIDATE55-PROPOSAL-CONDITIONED-VAL30-001` | 浏览器一致512方形完整图联合门 | ❌ FAIL（未读取test100） | 对全部0.10候选执行stage2存在性筛选时，阈值0.50最好为122匹配/22漏检/30误检，无法满足128/16/16；报告`8b96ff5b…45bc`拒绝。保守精修诊断在0.85为125/19/13且边界F1 `0.6012338`已越过边界门，剩余瓶颈明确为stage1至少3个召回缺口。 |
 
-candidate53失败的主因已收敛为裁片分布偏移，而非GPU不足：训练以真值中心裁片为主，实际运行以stage1偏移候选框裁片为输入。candidate54还揭示当前方形直接推理与历史candidate29正式基线不一致；先统一这一语义可以避免继续训练后才发现评测口径不一致。OpenAI Image2仍没有可供本地YOLO使用的logit、特征、软mask或边界置信度；既有3张/20 mask只是数据扩充。产品继续HOLD。
+candidate53失败的主因已收敛为裁片分布偏移，而非GPU不足。candidate55已把浏览器真实stage1候选分布加入train，并以权威完整polygon而非预测mask监督；当前训练仍属中间里程碑。OpenAI Image2仍没有可供本地YOLO使用的logit、特征、软mask或边界置信度；既有3张/20 mask只是数据扩充。完成训练后必须先执行方形输入+产品去重的完整图val30，未通过前不读取test100、不导出、不部署，产品继续HOLD。
