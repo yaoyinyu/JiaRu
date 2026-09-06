@@ -167,7 +167,7 @@ JiaRu/
 │
 ├── model/                        # 模型训练与数据集
 │   ├── datasets/nail-texture-v1/ # 基础正式集（409 图/2142 mask）
-│   ├── training/                 # 训练脚本、标注辅助、审计工具
+│   ├── training/                 # 训练脚本、标注辅助、审计工具；可重建的逐文件开发报告不进入 Git
 │   └── reports/                  # 审计报告
 │
 ├── scripts/                      # 审计/验证/发布治理脚本
@@ -287,7 +287,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.603 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.605 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
