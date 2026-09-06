@@ -10,9 +10,11 @@ import {
 } from "./lib/release-rollback-audit.ts";
 import { assertSafeOutputPath } from "./lib/safe-output-path.ts";
 import { auditReleaseProgress } from "./lib/nail-texture-release-progress.ts";
+import { verifyReleaseIdentityProfile } from "./lib/nail-texture-release-identity-profile.ts";
 
 interface Options {
   evidenceProfilePath?: string;
+  releaseIdentityProfilePath: string;
   specPath: string;
   progressPath: string;
   datasetReadinessPath: string;
@@ -119,6 +121,7 @@ function usage(): never {
     "Usage: node --experimental-strip-types scripts/audit-nail-texture-local-inference-completion.ts " +
       "[--spec <md>] [--progress <md>] [--dataset-readiness <json>] [--candidate-review <json>] " +
       "[--evidence-profile <json>] " +
+      "[--release-identity-profile <json>] " +
       "[--release-test-snapshot <json>] [--release-test-quality <json>] " +
       "[--hard-negative-audit <json>] " +
       "[--best-metrics <json>] [--production-manifest <json>] [--desktop-performance <json>] " +
@@ -131,6 +134,7 @@ function usage(): never {
 function parseArgs(argv: string[]): Options {
   const options: Options = {
     specPath: path.resolve("docs/nail-texture-local-inference-implementation-spec.md"),
+    releaseIdentityProfilePath: path.resolve("model/reports/nail-texture-release-identity-profile.json"),
     progressPath: path.resolve("docs/nail-texture-local-inference-implementation-progress.md"),
     datasetReadinessPath: path.resolve("model/datasets/nail-texture-v1/metadata/training-dataset-readiness-release.json"),
     candidateReviewPath: path.resolve("model/reports/nail-texture-seg-real-candidate-v9-review.json"),
@@ -163,6 +167,7 @@ function parseArgs(argv: string[]): Options {
       if (options.evidenceProfilePath) throw new Error("--evidence-profile may only be provided once");
       options.evidenceProfilePath = path.resolve(value);
     }
+    else if (arg === "--release-identity-profile") options.releaseIdentityProfilePath = path.resolve(value);
     else if (arg === "--spec") options.specPath = path.resolve(value);
     else if (arg === "--progress") options.progressPath = path.resolve(value);
     else if (arg === "--dataset-readiness") options.datasetReadinessPath = path.resolve(value);
@@ -472,6 +477,7 @@ function verifyHardNegativeWatermarkAudit(
 function directInputPaths(options: Options): string[] {
   return [
     ...(options.evidenceProfilePath ? [options.evidenceProfilePath] : []),
+    options.releaseIdentityProfilePath,
     options.specPath,
     options.progressPath,
     options.datasetReadinessPath,
@@ -685,6 +691,7 @@ async function productionAsset(manifestPath: string) {
 async function main() {
   const options = parseArgs(process.argv.slice(2));
   const evidenceProfile = await applyEvidenceProfile(options);
+  const releaseIdentityProfile = await verifyReleaseIdentityProfile(options.releaseIdentityProfilePath);
   if (options.outputPath) await assertSafeOutputPath(options.outputPath, directInputPaths(options));
   const [specText, progressText] = await Promise.all([
     readFile(options.specPath, "utf8"),
@@ -1024,8 +1031,12 @@ async function main() {
   }
 
   const blockingInputs = [
+    ...(!releaseIdentityProfile.ok ? [{ code: "RELEASE_IDENTITY", owner: "engineering", summary:
+      releaseIdentityProfile.status === "no_approved_release_candidate"
+        ? "No approved release candidate identity exists. Promotion must atomically create a deeply bound release identity profile."
+        : `Release identity profile is invalid: ${releaseIdentityProfile.errors.join("; ")}` }] : []),
     { code: "AUDIT_V3_MIGRATION_INCOMPLETE", owner: "engineering", summary:
-      "Current-release marker isolation is implemented; unified release identity, fixed instance-quality replay and one-use evidence ledger are not yet connected. Legacy evidence cannot authorize release." },
+      "Current-release marker isolation and unified release identity verification are implemented; fixed instance-quality replay and one-use evidence ledger are not yet connected." },
     ...(!userChecklistGate.ok ? [{
       code: "SPEC_USER_CHECKLIST",
       owner: "user",
@@ -1092,7 +1103,8 @@ async function main() {
   ];
 
   const gates = {
-    auditV3Migration: { ok: false, reason: "release_identity_and_instance_replay_not_connected" },
+    auditV3Migration: { ok: false, reason: "instance_replay_and_one_use_ledger_not_connected" },
+    releaseIdentity: releaseIdentityProfile,
     userChecklist: userChecklistGate,
     engineeringChecklist: engineeringChecklistGate,
     progressMarkers: progressMarkersGate,
@@ -1116,6 +1128,7 @@ async function main() {
     decision: ok ? "complete" : "hold",
     inputs: options,
     evidenceProfile,
+    releaseIdentityProfile,
     summary: {
       gateCount: Object.keys(gates).length,
       passedGates: Object.values(gates).filter((gate) => gate.ok === true).length,
