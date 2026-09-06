@@ -58,6 +58,14 @@ def parser() -> argparse.ArgumentParser:
         "--runtime-selection-lock",
         help="Optional immutable composite-runtime lock; the artifact index must bind its path and SHA-256.",
     )
+    value.add_argument(
+        "--release-identity",
+        help="Immutable releaseIdentity JSON document; required together with --consumption-ledger for schema v3.",
+    )
+    value.add_argument(
+        "--consumption-ledger",
+        help="Completed one-use positive release holdout ledger; required together with --release-identity for schema v3.",
+    )
     value.add_argument("--score-threshold", type=float)
     value.add_argument("--output")
     value.add_argument("--verify-report")
@@ -100,6 +108,28 @@ def sha256_path(path: Path) -> str:
         for chunk in iter(lambda: handle.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def validate_release_identity(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != {"core", "coreSha256", "manifestSha256"}:
+        raise ValueError("releaseIdentity must contain exactly core, coreSha256 and manifestSha256")
+    core = value.get("core")
+    if not isinstance(core, dict) or canonical_sha256(core) != value.get("coreSha256"):
+        raise ValueError("releaseIdentity core hash is invalid")
+    manifest_sha = value.get("manifestSha256")
+    if (
+        not isinstance(manifest_sha, str)
+        or len(manifest_sha) != 64
+        or manifest_sha.lower() != manifest_sha
+        or any(char not in "0123456789abcdef" for char in manifest_sha)
+    ):
+        raise ValueError("releaseIdentity manifestSha256 is invalid")
+    return value
+
+
+def load_release_identity(path: Path) -> dict[str, Any]:
+    document = load_object(path)
+    return validate_release_identity(document.get("releaseIdentity", document))
 
 
 def require_path(value: Any, field: str) -> Path:
@@ -321,6 +351,39 @@ def build(
         ):
             raise ValueError("Prediction artifact index is not bound to the runtime selection lock")
 
+    release_identity_path_value = getattr(args, "release_identity", None)
+    consumption_ledger_value = getattr(args, "consumption_ledger", None)
+    if bool(release_identity_path_value) != bool(consumption_ledger_value):
+        raise ValueError("release-identity and consumption-ledger must be provided together")
+    release_identity: dict[str, Any] | None = None
+    release_identity_path: Path | None = None
+    consumption_ledger_path: Path | None = None
+    if release_identity_path_value:
+        if runtime_lock_path is None:
+            raise ValueError("schema v3 requires a runtime-selection-lock")
+        release_identity_path = require_path(release_identity_path_value, "release-identity")
+        release_identity = load_release_identity(release_identity_path)
+        if release_identity["core"].get("runtimeSelectionLockSha256") != sha256_path(runtime_lock_path):
+            raise ValueError("releaseIdentity does not bind the runtime selection lock")
+        if release_identity["core"].get("inputSize") != 512:
+            raise ValueError("releaseIdentity inputSize must be 512")
+        if float(release_identity["core"].get("scoreThreshold", -1)) != threshold:
+            raise ValueError("releaseIdentity scoreThreshold differs from the recognition report")
+        consumption_ledger_path = require_path(consumption_ledger_value, "consumption-ledger")
+        ledger = load_object(consumption_ledger_path)
+        attempts = ledger.get("attempts")
+        if (
+            ledger.get("schemaVersion") != 1
+            or ledger.get("decision") != "positive_release_holdout_one_use_ledger"
+            or ledger.get("purpose") != "positive-recognition-release-evaluation"
+            or ledger.get("releaseIdentity") != release_identity
+            or not isinstance(attempts, list)
+            or not attempts
+            or not isinstance(attempts[-1], dict)
+            or attempts[-1].get("state") != "completed"
+        ):
+            raise ValueError("positive release consumption ledger is not completed for this releaseIdentity")
+
     image_rows: list[dict[str, Any]] = []
     totals = {"truth": 0, "predictions": 0, "matched": 0, "completeMasks": 0, "missing": 0, "duplicates": 0, "falsePositives": 0, "invalidPredictionMasks": 0}
     for stem in sorted(records):
@@ -413,7 +476,7 @@ def build(
             "weightedSpuriousRate": weighted_spurious_rate <= args.max_weighted_spurious_rate,
             "everyImageHasModelOutput": every_image_has_output,
         }
-        schema_version = 2
+        schema_version = 3 if release_identity is not None else 2
         contract = {
             **base_contract,
             "maximumWeightedSpuriousRate": args.max_weighted_spurious_rate,
@@ -462,7 +525,7 @@ def build(
                 "scoreThresholdMeaning": "minimum emitted stage1 confidence after locked composite selection",
             }
         )
-    return {
+    report = {
         "schemaVersion": schema_version,
         "ok": ok,
         "decision": "accept_positive_recognition_gate" if ok else "hold_positive_recognition_gate",
@@ -483,6 +546,17 @@ def build(
             "artifactIndexSha256": sha256_path(artifact_path),
         },
     }
+    if release_identity is not None and release_identity_path is not None and consumption_ledger_path is not None:
+        report["releaseIdentity"] = release_identity
+        report["inputs"].update(
+            {
+                "releaseIdentityDocument": str(release_identity_path),
+                "releaseIdentityDocumentSha256": sha256_path(release_identity_path),
+                "consumptionLedger": str(consumption_ledger_path),
+                "consumptionLedgerSha256": sha256_path(consumption_ledger_path),
+            }
+        )
+    return report
 
 
 def verify(report_path: Path) -> dict[str, Any]:
@@ -506,7 +580,9 @@ def verify(report_path: Path) -> dict[str, Any]:
         if sha256_path(runtime_lock_path) != candidate.get("runtimeSelectionLockSha256"):
             raise ValueError("Recognition report runtime selection lock drift")
     schema_version = report.get("schemaVersion")
-    if schema_version == 2:
+    release_identity_path = None
+    consumption_ledger_path = None
+    if schema_version in (2, 3):
         gate_mode = "weighted"
         max_weighted_spurious_rate = float(contract["maximumWeightedSpuriousRate"])
         allow_legacy_replay = False
@@ -516,12 +592,23 @@ def verify(report_path: Path) -> dict[str, Any]:
         allow_legacy_replay = True
     else:
         raise ValueError(f"Unsupported recognition report schema version: {schema_version}")
+    if schema_version == 3:
+        release_identity_path = require_path(inputs.get("releaseIdentityDocument"), "releaseIdentityDocument")
+        if sha256_path(release_identity_path) != inputs.get("releaseIdentityDocumentSha256"):
+            raise ValueError("Recognition report release identity document drift")
+        if load_release_identity(release_identity_path) != report.get("releaseIdentity"):
+            raise ValueError("Recognition report releaseIdentity differs from its immutable document")
+        consumption_ledger_path = require_path(inputs.get("consumptionLedger"), "consumptionLedger")
+        if sha256_path(consumption_ledger_path) != inputs.get("consumptionLedgerSha256"):
+            raise ValueError("Recognition report consumption ledger drift")
     replay_args = argparse.Namespace(
         snapshot_manifest=str(inputs["snapshotManifest"]),
         materialization_report=str(inputs["materializationReport"]),
         artifact_index=str(inputs["artifactIndex"]),
         weights=str(weights),
         runtime_selection_lock=str(runtime_lock_path) if runtime_lock_path else None,
+        release_identity=str(release_identity_path) if release_identity_path else None,
+        consumption_ledger=str(consumption_ledger_path) if consumption_ledger_path else None,
         score_threshold=float(contract["scoreThreshold"]),
         output=None,
         verify_report=None,

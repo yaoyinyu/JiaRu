@@ -1,0 +1,142 @@
+{
+  "schemaVersion": 1,
+  "cycleId": "nail-texture-development-cycle-001",
+  "decision": "pre_registered_two_short_single_variable_experiments",
+  "revision": {
+    "previousPlan": {
+      "path": "E:/AI Project/Codex/JiaRu/model/training/nail-texture-development-cycle-001-plan-v3.json",
+      "sha256": "ee61fa3d58bd6aedb013a80bdcbf6bd5a9c3bcdb89b911054fdb79009259875b"
+    },
+    "failedLaunch": {
+      "path": "E:/AI Project/Codex/JiaRu/model/training/nail-texture-development-cycle-001-launch-003-failure-v1.json",
+      "sha256": "5b5beeae05a8944830327934a8519a3b372dccbd7cb66d696385225d0a27d85e",
+      "hypothesisConsumed": false
+    },
+    "onlyChange": "训练合同保持不变；仅换全新输出目录，避免上一会话外部进程生命周期中断留下的部分目录。",
+    "previousOutputPreserved": true
+  },
+  "purpose": "在不读取旧val30、旧test100或任何发布留出的前提下，用train内部sourceGroup互斥开发折判断单阶段模型容量是否仍是完整甲面召回与边界质量瓶颈。",
+  "hypothesis": {
+    "id": "H-CAPACITY-001",
+    "statement": "在相同训练数据、初始化来源、512方形输入和训练超参数下，YOLO11s-seg相对YOLO11n-seg应把开发评估折完整mask比例提高至少0.02，并保持实例召回下降不超过0.01、加权杂散率增加不超过0.01。",
+    "falsifiedWhen": "YOLO11s-seg未达到完整mask比例+0.02，或实例召回比YOLO11n-seg低超过0.01，或加权杂散率高超过0.01。",
+    "branchClosure": "假设被证伪即关闭本轮容量扩展分支；禁止用旧val/test、微小阈值爬坡或同配方原样重训挽救。"
+  },
+  "inputs": {
+    "developmentFoldPlan": {
+      "path": "E:/AI Project/Codex/JiaRu/model/training/nail-texture-train-source-group-development-folds-v1.json",
+      "sha256": "d0c394884cd8771c86bb62e9bf0d63cdf4e54224815581a42a547ad1b29f3466",
+      "contentSha256": "99fda336d4e9ca06f9f646d13188025d6e88641f3910298b7228535ad3ac8420"
+    },
+    "developmentMaterializationReport": {
+      "path": "E:/AI Project/Codex/JiaRu/model/training/nail-texture-train-source-group-development-materialization-v1.json",
+      "sha256": "6c7dcc944f43326e4964eb644e18677f34680c7d0dfb3456ba900c10a9e89755",
+      "datasetFilesSha256": "f3dfbaf08e5cc447fb3ac0ddbe9e83c92b1d3eb8eed0e35227b0cc75554f6ae0"
+    },
+    "datasetYaml": {
+      "path": "E:/AI Project/Codex/JiaRu_image/审核工作区/2026_9_6_formal_model_train_internal_development_v1/dataset/dataset.yaml",
+      "sha256": "e29c5027a38a636ff581956258791adf152273a5eab16891a5257e3a1d5b95f8"
+    },
+    "environmentReport": {
+      "path": "E:/AI Project/Codex/JiaRu/model/training/nail-texture-development-cycle-001-environment.json",
+      "sha256": "23a58a4cb04d64326e36eb9921e373c600ca300d871f448a652ddea675d8f534",
+      "cuda": "NVIDIA GeForce RTX 4060 Laptop GPU",
+      "vramBytes": 8585216000,
+      "python": "3.13.7",
+      "ultralytics": "8.4.92",
+      "torch": "2.12.1+cu126"
+    },
+    "counts": {
+      "trainImages": 383,
+      "trainPositiveImages": 263,
+      "trainPositiveMasks": 1581,
+      "trainHardNegativeImages": 120,
+      "developmentEvaluationImages": 105,
+      "developmentEvaluationPositiveImages": 65,
+      "developmentEvaluationPositiveMasks": 400,
+      "developmentEvaluationHardNegativeImages": 40,
+      "testImages": 0,
+      "sourceGroupOverlap": 0
+    }
+  },
+  "fixedTrainingContract": {
+    "task": "segment",
+    "singleStage": true,
+    "inputSize": 512,
+    "epochs": 20,
+    "patience": 5,
+    "batch": 4,
+    "device": 0,
+    "workers": 0,
+    "optimizer": "AdamW",
+    "lr0": 0.001,
+    "freeze": 0,
+    "mosaic": 0,
+    "closeMosaic": 0,
+    "maskRatio": 1,
+    "overlapMask": false,
+    "hardBoundaryWeight": 0,
+    "distillation": false,
+    "onlyVariable": "modelCapacity"
+  },
+  "experiments": [
+    {
+      "experimentId": "development-cycle-001-yolo11n-control-v4",
+      "role": "control",
+      "model": "E:/AI Project/Codex/JiaRu/yolo11n-seg.pt",
+      "modelSha256": "55ed65c56c91713d23e8402371c6c49a6fd84f257f7dce452e8d70e41dcbe152",
+      "modelBytes": 6182636,
+      "outputDir": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-development-cycle-001-2026-09-06-v4/yolo11n-control",
+      "runName": "development-cycle-001-yolo11n-control-v4"
+    },
+    {
+      "experimentId": "development-cycle-001-yolo11s-capacity-v4",
+      "role": "single-variable-treatment",
+      "model": "E:/AI Project/Codex/JiaRu/yolo11s-seg.pt",
+      "modelSha256": "1caa81c0195412efa411b632bcfb8c184939dddb6ae41f6a80c41b211ff257c3",
+      "modelBytes": 20669228,
+      "outputDir": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-development-cycle-001-2026-09-06-v4/yolo11s-capacity",
+      "runName": "development-cycle-001-yolo11s-capacity-v4"
+    }
+  ],
+  "fixedDevelopmentEvaluationContract": {
+    "split": "val",
+    "inputSize": 512,
+    "scoreThreshold": 0.25,
+    "thresholdSelection": "pre_registered_fixed_diagnostic_threshold_not_formal_calibration",
+    "matchIou": 0.5,
+    "completeMaskIou": 0.75,
+    "spuriousWeights": {
+      "duplicates": 1,
+      "invalidPredictionMasks": 1.5,
+      "falsePositives": 2
+    },
+    "formalFloorForPromotionToFullTrain": {
+      "minimumInstanceRecall": 0.9,
+      "minimumCompleteMaskRatio": 0.85,
+      "maximumMissingImageRate": 0.1,
+      "maximumWeightedSpuriousRate": 0.02,
+      "everyEvaluationImageAccountedFor": true
+    },
+    "diagnosticOnly": true,
+    "cannotSelectFormalScoreThreshold": true,
+    "cannotProveReleaseQuality": true
+  },
+  "winnerPolicy": {
+    "maximumExperiments": 2,
+    "oneVariableOnly": true,
+    "promotionRequiresFormalDevelopmentFloor": true,
+    "ifBothPass": "选择加权杂散率更低者；若相同，依次比较漏甲图片率、完整mask比例、实例召回；仍相同则选择体积更小的YOLO11n。",
+    "ifNeitherPass": "关闭本轮分支，不进行完整候选训练。",
+    "winnerNextStep": "在全部328张正图/1981 mask和160张train困难负样本上执行一次完整单阶段训练；之后另建全新来源隔离calibration30，不能使用本开发折选择正式阈值。"
+  },
+  "prohibited": [
+    "读取或使用旧val30逐图结果",
+    "读取或使用旧test100及其派生结果",
+    "使用任何正式发布留出调参",
+    "在本轮扫描多个阈值",
+    "给普通短程实验分配candidate编号",
+    "把开发折PASS表述为正式候选或发布PASS"
+  ],
+  "releaseState": "hold"
+}

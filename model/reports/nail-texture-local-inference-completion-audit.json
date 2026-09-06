@@ -1,7 +1,7 @@
 {
   "ok": false,
-  "version": "nail-texture-local-inference-completion-audit/v3-migration",
-  "generatedAt": "2026-09-06T07:04:47.179Z",
+  "version": "nail-texture-local-inference-completion-audit/v3",
+  "generatedAt": "2026-09-06T07:40:53.088Z",
   "decision": "hold",
   "inputs": {
     "specPath": "E:\\AI Project\\Codex\\JiaRu\\docs\\nail-texture-local-inference-implementation-spec.md",
@@ -74,27 +74,36 @@
     "status": "no_approved_release_candidate",
     "profilePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-release-identity-profile.json",
     "releaseIdentity": null,
+    "artifactBindings": null,
+    "reportBindings": null,
     "errors": [
       "release identity profile is missing"
     ]
   },
+  "positiveReleaseEvidence": {
+    "quality": {
+      "ok": false,
+      "status": "no_approved_release_candidate",
+      "errors": [
+        "no approved releaseIdentity exists"
+      ]
+    },
+    "consumption": {
+      "ok": false,
+      "status": "no_approved_release_candidate",
+      "errors": [
+        "no approved releaseIdentity exists"
+      ]
+    },
+    "transitivePaths": []
+  },
   "summary": {
-    "gateCount": 16,
-    "passedGates": 4,
-    "failedGates": 12,
+    "gateCount": 18,
+    "passedGates": 5,
+    "failedGates": 13,
     "progressMarkerCount": 530,
-    "passMarkerCount": 0,
+    "passMarkerCount": 1,
     "incompleteProgressMarkers": [
-      {
-        "id": "REL-CURRENT-AUDIT-V3-001",
-        "task": "可达且不可跨候选拼接的最终审计",
-        "status": "⬜ PENDING",
-        "evidence": "`lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；实现active marker、统一`releaseIdentity`、逐实例强门和正样本发布留出一次性消费台账。当前v2不能满足该合同。",
-        "lifecycle": "planned",
-        "outcome": "pending",
-        "gateRole": "current-release",
-        "required": true
-      },
       {
         "id": "REL-CURRENT-DEVELOPMENT-002",
         "task": "train内来源组开发折与单阶段胜出配方",
@@ -158,17 +167,33 @@
     ]
   },
   "gates": {
-    "auditV3Migration": {
-      "ok": false,
-      "reason": "instance_replay_and_one_use_ledger_not_connected"
+    "auditV3Implementation": {
+      "ok": true,
+      "reason": "current_release_scope_release_identity_instance_replay_and_one_use_ledger_connected"
     },
     "releaseIdentity": {
       "ok": false,
       "status": "no_approved_release_candidate",
       "profilePath": "E:\\AI Project\\Codex\\JiaRu\\model\\reports\\nail-texture-release-identity-profile.json",
       "releaseIdentity": null,
+      "artifactBindings": null,
+      "reportBindings": null,
       "errors": [
         "release identity profile is missing"
+      ]
+    },
+    "positiveRecognitionQuality": {
+      "ok": false,
+      "status": "no_approved_release_candidate",
+      "errors": [
+        "no approved releaseIdentity exists"
+      ]
+    },
+    "positiveHoldoutConsumption": {
+      "ok": false,
+      "status": "no_approved_release_candidate",
+      "errors": [
+        "no approved releaseIdentity exists"
       ]
     },
     "userChecklist": {
@@ -210,7 +235,7 @@
       "ok": false,
       "items": [
         {
-          "checked": false,
+          "checked": true,
           "text": "`REL-CURRENT-AUDIT-V3-001`：实现active gate、统一`releaseIdentity`、固定逐实例强门和一次性消费台账。"
         },
         {
@@ -1046,7 +1071,7 @@
           "text": "历史v2完成度审计已实现产品质量、冻结快照、输出覆盖保护和回滚深验；但“全部非PASS进度标记参与`decision`”会让历史REJECT/HOLD永久阻断，单权重profile也允许跨候选拼接证据。v2结果只能作为当前缺陷诊断，不能再视为最终完成判据。"
         },
         {
-          "checked": false,
+          "checked": true,
           "text": "实现audit v3：进度标记拆分`lifecycle`、`outcome`和`gateRole`，总门只读取当前发布要求；引入统一`releaseIdentity`并将正样本、困难负样本、全部模型/运行时锁、ONNX、manifest、桌面/真机、Beta、产品质量和回滚绑定同一身份；直接重放固定0.90/0.85/0.10/0.02逐实例合同，并为全新正样本发布留出建立不可变一次性消费台账。历史失败必须保留，不得改写为PASS。"
         },
         {
@@ -1089,19 +1114,9 @@
       "ok": false,
       "markerCount": 530,
       "currentRequirementCount": 7,
-      "passMarkerCount": 0,
+      "passMarkerCount": 1,
       "historicalMarkerCount": 523,
       "incompleteMarkers": [
-        {
-          "id": "REL-CURRENT-AUDIT-V3-001",
-          "task": "可达且不可跨候选拼接的最终审计",
-          "status": "⬜ PENDING",
-          "evidence": "`lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；实现active marker、统一`releaseIdentity`、逐实例强门和正样本发布留出一次性消费台账。当前v2不能满足该合同。",
-          "lifecycle": "planned",
-          "outcome": "pending",
-          "gateRole": "current-release",
-          "required": true
-        },
         {
           "id": "REL-CURRENT-DEVELOPMENT-002",
           "task": "train内来源组开发折与单阶段胜出配方",
@@ -1167,10 +1182,10 @@
         {
           "id": "REL-CURRENT-AUDIT-V3-001",
           "task": "可达且不可跨候选拼接的最终审计",
-          "status": "⬜ PENDING",
-          "evidence": "`lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；实现active marker、统一`releaseIdentity`、逐实例强门和正样本发布留出一次性消费台账。当前v2不能满足该合同。",
-          "lifecycle": "planned",
-          "outcome": "pending",
+          "status": "✅ PASS（审计基础设施）",
+          "evidence": "`lifecycle=closed; outcome=pass; gateRole=current-release; required=true`；audit v3已实现active marker、统一`releaseIdentity`、逐实例schema v3强门和正样本发布留出一次性消费台账。该PASS只证明审计可达且不可绕过；没有批准候选时正样本、运行时和产品门仍分别HOLD。",
+          "lifecycle": "closed",
+          "outcome": "pass",
           "gateRole": "current-release",
           "required": true
         },
@@ -6670,9 +6685,14 @@
       "summary": "No approved release candidate identity exists. Promotion must atomically create a deeply bound release identity profile."
     },
     {
-      "code": "AUDIT_V3_MIGRATION_INCOMPLETE",
+      "code": "POSITIVE_RECOGNITION_QUALITY",
       "owner": "engineering",
-      "summary": "Current-release marker isolation and unified release identity verification are implemented; fixed instance-quality replay and one-use evidence ledger are not yet connected."
+      "summary": "Provide a schema-v3 per-instance positive recognition report bound to the approved releaseIdentity and replay the fixed 0.90/0.85/0.10/0.02 contract: no approved releaseIdentity exists"
+    },
+    {
+      "code": "POSITIVE_HOLDOUT_ONE_USE_LEDGER",
+      "owner": "engineering",
+      "summary": "Provide a completed atomic one-use positive holdout ledger created before image read and prediction: no approved releaseIdentity exists"
     },
     {
       "code": "SPEC_USER_CHECKLIST",
@@ -6687,7 +6707,7 @@
     {
       "code": "INCOMPLETE_PROGRESS_MARKERS",
       "owner": "user+engineering",
-      "summary": "7 progress marker(s) are not PASS: REL-CURRENT-AUDIT-V3-001, REL-CURRENT-DEVELOPMENT-002, REL-CURRENT-CALIBRATION-003, REL-CURRENT-POSITIVE-HOLDOUT-004, REL-CURRENT-NEGATIVE-HOLDOUT-005, REL-CURRENT-RUNTIME-006, REL-CURRENT-PRODUCT-007."
+      "summary": "6 progress marker(s) are not PASS: REL-CURRENT-DEVELOPMENT-002, REL-CURRENT-CALIBRATION-003, REL-CURRENT-POSITIVE-HOLDOUT-004, REL-CURRENT-NEGATIVE-HOLDOUT-005, REL-CURRENT-RUNTIME-006, REL-CURRENT-PRODUCT-007."
     },
     {
       "code": "INDEPENDENT_HARD_NEGATIVE_WATERMARK_AUDIT",

@@ -1,0 +1,70 @@
+{
+  "ok": true,
+  "python": {
+    "executable": "C:\\Users\\YaoYinyu\\AppData\\Local\\Programs\\Python\\Python313\\python.exe",
+    "version": "3.13.7",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "dataset_yaml": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_9_6_formal_model_train_internal_development_v1\\dataset\\dataset.yaml",
+  "dataset_root": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_9_6_formal_model_train_internal_development_v1\\dataset",
+  "split_counts": {
+    "train": 383,
+    "val": 105,
+    "test": 0
+  },
+  "dependencies": {
+    "ultralytics": {
+      "available": true,
+      "version": "8.4.92"
+    },
+    "torch": {
+      "available": true,
+      "version": "2.12.1+cu126",
+      "cuda_available": true,
+      "device_count": 1
+    }
+  },
+  "model": {
+    "requested": "E:\\AI Project\\Codex\\JiaRu\\yolo11s-seg.pt",
+    "resolved_path": "E:\\AI Project\\Codex\\JiaRu\\yolo11s-seg.pt",
+    "exists": true,
+    "may_download": false,
+    "require_local_model": true
+  },
+  "output_dir": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-v1",
+  "run_dir": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-v1\\nail-texture-seg-v1",
+  "best_weights_path": "E:\\AI Project\\Codex\\JiaRu\\model\\exports\\nail-texture-seg-v1\\nail-texture-seg-v1\\weights\\best.pt",
+  "checks": [
+    {
+      "name": "dataset_yaml_exists",
+      "ok": true,
+      "detail": "E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_9_6_formal_model_train_internal_development_v1\\dataset\\dataset.yaml"
+    },
+    {
+      "name": "train_split_has_images",
+      "ok": true,
+      "detail": "383 train images"
+    },
+    {
+      "name": "val_split_has_images",
+      "ok": true,
+      "detail": "105 val images"
+    },
+    {
+      "name": "test_split_has_images",
+      "ok": true,
+      "detail": "0 test images"
+    },
+    {
+      "name": "ultralytics_installed",
+      "ok": true,
+      "detail": "8.4.92"
+    },
+    {
+      "name": "local_model_available",
+      "ok": true,
+      "detail": "E:\\AI Project\\Codex\\JiaRu\\yolo11s-seg.pt"
+    }
+  ],
+  "warnings": []
+}

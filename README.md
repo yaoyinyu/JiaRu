@@ -287,7 +287,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.600 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.603 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
@@ -382,7 +382,8 @@ copy .env.local.example .env.local
 - [ ] 通过冻结test100逐实例完整识别门（candidate6、candidate7、candidate8、candidate29均已否决；candidate57锁定运行时已完成冻结test100验收，实例召回率`0.95848375`与完整mask率`0.86462094`通过，漏检图片率`0.13`与加权杂散率`0.04693141`仍失败，产品HOLD）
 - [ ] 训练后另建、原子冻结并终审不少于100张全新未见困难负样本
 - [x] audit v3发布要求解析器（`scripts/lib/nail-texture-release-progress.ts`）接入总审计，530条真实记录分为7项当前发布要求与523条历史记录（历史记录标记 `historical`/`legacy-unclassified`，不再永久阻断）
-- [ ] audit v3统一身份、逐实例重放与一次性消费台账接入（当前仅标记 `v3-migration`，仍设强制HOLD门，未宣称完整v3验收）
+- [x] audit v3统一身份、逐实例重放与一次性消费台账接入：新增冻结正样本留出原子独占认领台账与正式schema v3报告，completion audit升级为`v3`（18门5通过/13失败，`ok=false`、HOLD；候选证据门须真实满足，不再用迁移占位阻断）
+- [ ] development-cycle-001预注册容量实验 `H-CAPACITY-001`（train内`sourceGroup`互斥开发折，YOLO11s-seg对比YOLO11n-seg，不读取旧val30/test100或任何发布留出）；前三次启动因外部进程生命周期中断失败，当前为plan-v4修正版
 - [ ] 部署512三变体达到误检图片0、误检检测0、相对原图delta 0
 - [ ] 导出并登记生产ONNX，接入`/ar-tryon`正式多纹理识别和像素级mask提取
 - [ ] 移动真机 WebGPU 性能验证

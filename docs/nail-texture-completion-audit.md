@@ -1,10 +1,10 @@
 # 美甲纹理端侧最终完成度审计
 
-文档版本：v1.3
+文档版本：v1.4
 更新日期：2026-09-06
-当前状态：audit v3-migration已接入活动标记门；统一身份、逐实例重放和消费台账未接通，迁移门强制HOLD。下述v2问题说明保留为迁移前诊断。
+当前状态：audit v3已接入活动标记、统一`releaseIdentity`、固定逐实例正样本深度重放和一次性消费台账；当前因无批准发布候选及其正式证据继续HOLD。下述v2问题说明只保留为迁移前诊断。
 
-`audit-nail-texture-local-inference-completion.ts`当前仍是v2。它会把实施规范、全部历史进度标记和多类发布证据汇总为机器报告，但存在两个P0：一是把每个历史FAIL/REJECT/HOLD永久当作当前阻断，导致诚实保留失败史时`ok=true`不可达；二是当前profile仍可混用candidate5质量、candidate6桌面和candidate57当前状态，未把全部证据绑定同一不可变发布身份。不得通过把历史失败改成PASS、忽略退出码、复制smoke模型或提前切换manifest来绕过；必须实现下述audit v3。
+历史v2会把每个历史FAIL/REJECT/HOLD永久当作当前阻断，并允许candidate5质量、candidate6桌面和candidate57状态混入同一profile。当前v3已经修复这两个P0：历史结果保持原文但不参与当前门，全部正式报告必须绑定同一不可变`releaseIdentity`；缺身份时明确返回`no_approved_release_candidate`。不得通过改写历史失败、忽略退出码、复制smoke模型或提前切换manifest绕过。
 
 ## 执行
 
@@ -18,7 +18,7 @@ npm.cmd run audit:nail-texture-completion
 model/reports/nail-texture-local-inference-completion-audit.json
 ```
 
-当前命令返回退出码1并写出`decision=hold`，与产品仍应HOLD一致；但不能把全部失败都解释为当前候选缺口，因为报告同时包含历史marker永久阻断和跨候选profile问题。audit v3落地前，该命令只用于确认“不得发布”，不能证明“修完当前训练就能完成”。
+当前命令返回退出码1并写出`decision=hold`，与产品仍应HOLD一致。报告中的历史marker不再计入当前缺口；真实阻断来自无批准`releaseIdentity`、无schema v3正样本报告/一次性消费台账，以及尚未完成的数据、运行时和产品证据。只有全部门对同一身份通过时才返回`complete`。
 
 ## 审计范围
 
@@ -524,7 +524,7 @@ candidate57比candidate50更接近正式正样本门，但仍未满足全部绝�
 ## 2026-09-06当前完成度与下一实现项
 
 - candidate57保持TEST HOLD，旧val30/test100降为只读历史回归；下一候选不再“重新通过旧val30/旧test100”，而是使用train内来源组开发折、全新校准集和锁定后的全新一次性正样本发布留出。
-- 当前机器报告仍为v2、14门中4门通过/10门失败、523个历史进度标记中472个PASS；这些数字是旧schema快照，不代表audit v3的active gate计数。
+- 当前机器报告已升级为audit v3；活动标记、统一身份、固定逐实例深度重放和一次性消费台账均已接线。最新正式重放仍因无批准候选及后续证据保持HOLD，具体门数与SHA-256以本轮生成报告为准。
 - 当前`nail-texture-completion-evidence-profile.json`仍绑定candidate5单权重/阈值，桌面证据来自candidate6，不能代表当前发布候选；在统一promotion生成新`releaseIdentity`前，应把产品状态解释为“无批准发布候选”。
 - 当前生产manifest仍是输入640占位且缺少其指向的生产ONNX；smoke模型、规则区域或页面能加载不能填充生产资产和正式识别门。
-- 下一代码任务必须实现本文件的audit v3合同，并同步测试、profile schema、机器报告和进度marker解析；在实现通过前，文档已纠正但运行时审计行为仍是v2，不得声称缺陷已经修复。
+- 下一工程任务进入train内来源组开发折与单阶段512配方对照；普通实验不得占用正式candidate编号，胜出配方全量训练后才建立全新校准集与一次性正样本发布留出。
