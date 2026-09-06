@@ -78,6 +78,9 @@ model/exports/
 /model/experiments/
 /model/debug/
 /model/fixtures/*-output.json
+/model/training/nail-texture-development-cycle-*-quality-*.json
+/model/training/nail-texture-train-source-group-development-folds-*.json
+/model/training/nail-texture-train-source-group-development-materialization-*.json
 /public/models/**/*.onnx
 /runs/
 /review-temp/
