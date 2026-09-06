@@ -744,7 +744,7 @@ async function readReport(output: string) {
   return JSON.parse(await readFile(output, "utf8"));
 }
 
-test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence", async (t) => {
+test("completion audit v3 migration rejects forged, drifted, weak, and incomplete evidence", async (t) => {
   const root = await mkdtemp(path.join(tmpdir(), "nail-completion-audit-v2-"));
   const externalRoots = new Set<string>();
   t.after(async () => {
@@ -763,30 +763,32 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
 
   // This synthetic bound fixture validates evidence binding and replay mechanics.
   // It does not attest a real user identity or exercise real Ultralytics inference.
-  await t.test("accepts a fully bound synthetic release evidence fixture", async () => {
+  await t.test("keeps fully bound legacy evidence HOLD until the v3 identity and replay chain exists", async () => {
     const output = path.join(root, "complete.json");
     const result = runAudit(fixture, output);
-    assert.equal(result.status, 0, result.stderr);
+    assert.equal(result.status, 1, result.stderr);
     const report = await readReport(output);
-    assert.equal(report.ok, true);
-    assert.equal(report.decision, "complete");
-    assert.equal(report.version, "nail-texture-local-inference-completion-audit/v2");
-    assert.equal(report.summary.gateCount, 14);
+    assert.equal(report.ok, false);
+    assert.equal(report.decision, "hold");
+    assert.equal(report.version, "nail-texture-local-inference-completion-audit/v3-migration");
+    assert.equal(report.gates.auditV3Migration.ok, false);
+    assert.equal(report.gates.releaseIdentity.status, "no_approved_release_candidate");
     assert.equal(report.gates.independentHardNegativeWatermark.ok, true);
     assert.equal(report.gates.releaseProductQuality.ok, true);
     assert.equal(report.gates.releaseRollback.ok, true);
   });
 
-  await t.test("accepts a SHA-256-bound current evidence profile", async () => {
+  await t.test("retains a SHA-256-bound legacy profile as diagnostic evidence only", async () => {
     const profile = path.join(root, "completion-evidence-profile.json");
     const output = path.join(root, "complete-from-profile.json");
     await writeEvidenceProfile(fixture, profile);
     const result = runAudit(fixture, output, profile);
-    assert.equal(result.status, 0, `${result.stderr}\n${result.stdout}`);
+    assert.equal(result.status, 1, `${result.stderr}\n${result.stdout}`);
     const report = await readReport(output);
     assert.equal(report.evidenceProfile.decision, "nail_texture_completion_evidence_profile");
     assert.equal(report.evidenceProfile.evidence.releaseTestSnapshot.path, path.resolve(fixture.files.snapshot));
     assert.match(report.evidenceProfile.sha256, /^[a-f0-9]{64}$/);
+    assert.equal(report.releaseIdentityProfile.status, "no_approved_release_candidate");
   });
 
   await t.test("rejects evidence-profile hash drift before writing an audit", async () => {
@@ -909,15 +911,15 @@ test("completion audit v2 rejects forged, drifted, weak, and incomplete evidence
     assert.deepEqual(await readFile(metricPath), before);
   });
 
-  await t.test("treats a non-PASS progress marker as a formal blocking gate", async () => {
+  await t.test("does not let an arbitrary legacy marker replace fixed current release requirements", async () => {
     await writeFile(fixture.files.progress, "| `M1` | 工程 | 🟠 PARTIAL | incomplete |\n", "utf8");
     const output = path.join(root, "partial-marker.json");
     const result = runAudit(fixture, output);
     assert.equal(result.status, 1);
     const report = await readReport(output);
     assert.equal(report.gates.progressMarkers.ok, false);
-    assert.equal(report.summary.failedGates, 1);
-    assert.deepEqual(report.gates.progressMarkers.incompleteMarkers.map((item: { id: string }) => item.id), ["M1"]);
+    assert.deepEqual(report.gates.progressMarkers.incompleteMarkers, []);
+    assert.ok(report.gates.progressMarkers.errors.some((item: string) => /missing requirement/.test(item)));
     assert.ok(report.blockingInputs.some((item: { code: string }) => item.code === "INCOMPLETE_PROGRESS_MARKERS"));
     await writeFile(fixture.files.progress, "| `M1` | 工程 | ✅ PASS | tested |\n", "utf8");
   });

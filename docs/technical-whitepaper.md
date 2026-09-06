@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.600 **〔本段由 Codex 更新〕** **〔本段由 WorkBuddy 更新〕**
+> 文档版本：v1.1.601 **〔本段由 Codex 更新〕** **〔本段由 WorkBuddy 更新〕**
 >
 > 基线日期：2026-07-12
 >
@@ -80,6 +80,10 @@
 6. 执行与风险相匹配的验证，并记录验证结论，不得把“代码存在”直接写成“生产可用”。
 
 仅修改注释、拼写或不影响行为的格式调整时，可只追加简短变更记录，但仍须同步当天开发日志。
+
+### 1.5 多 Agent 内容来源标注
+
+本项目由不同 AI Agent 协作维护。任何 Agent 新增或修改白皮书内容时，必须在对应正文段落、表格行或§13变更记录中显式标注实际编写来源；Codex 编写的内容使用“由 Codex 新增/更新/编写”标记，WorkBuddy 编写的内容使用项目约定的 WorkBuddy 标记。每个 Agent 只标注自己实际新增或修改的内容，不得为其他 Agent 代签、补署、删除或改写其既有来源标记。该规则用于区分责任与证据来源，不改变代码、模型、数据或发布质量门的事实优先级。 **〔本段由 Codex 新增〕**
 
 ## 2. 系统概览
 
@@ -1531,6 +1535,7 @@ candidate57相对candidate50增加12个匹配和12个完整mask、减少12个漏
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-09-06 | v1.1.601 | 按用户对多 Agent 协作的最新确认，在§1.5把白皮书来源署名固化为正文维护合同：Codex 新增或修改的段落、表格行和§13记录必须使用 Codex 来源标记；其他 Agent 使用各自约定标记；任何 Agent 只标注自己的实际改动，不得替他人代签、补署、删除或改写既有来源。现行`AGENTS.md`已包含同一规则，本次仅增强白皮书自身的可发现性；未改动源码、模型、数据、审计证据或发布状态，candidate57与产品继续HOLD。 **〔本条由 Codex 编写〕** | 文档治理、多Agent协作、来源标注、Codex署名、无接口变化 |
 | 2026-09-06 | v1.1.600 | 按用户要求提交并推送 2026-09-06 工作区差异，本次**未改动任何源码、模型、数据集或发布门禁**。提交内容为 Codex 当日两项工作：v1.1.598（三份 Goal 引用技术文档同步与活动合同纠偏——实施规范升 v1.2 并新增§51当前发布候选活动合同与§16.2七项 `REL-CURRENT-*` 清单；进度文档新增 candidate57 TEST HOLD dashboard；完成度审计文档升 v1.3 并登记 audit v3 active gate、统一 `releaseIdentity` 与固定 0.90/0.85/0.10/0.02 逐实例门）与 v1.1.599（audit v3 活动标记解析与固定七项要求校验接入总审计，530 条记录分为 7 项当前要求与 523 条历史，旧记录标记 `historical`/`legacy-unclassified` 不再永久阻断）。暂存区再次为空（与 08-29、08-30、09-04、09-05 历次一致，用户所述"暂存的文件"实为工作区差异），显式 `git add` 指定文件、未用 `git add -A`，复核无 `output/`、`.workbuddy/` 等无关产物。**README 同步（提交前强制检查）**：文档索引中技术白皮书版本仍为 `v1.1.592`，与实际相差 8 个版本，已更正至 `v1.1.600`；Phase 4 路线图补入 audit v3 两条——解析器已接入总审计（含 530 条记录分离）标记为完成，统一身份/逐实例重放/一次性消费台账仍为未完成并保留强制 HOLD 门。验证：`npm.cmd run audit:encoding` 通过（0 失败）；按项目规则把 Python 3.13 置于 PATH 首位后 `tests/nail-texture-release-progress.test.ts` 为 4/4 通过（与 Codex 记录一致）；`git diff --check` 通过，仅有既有 LF/CRLF 提示。推送沿用 v1.1.594 更正后的完整模板（`GIT_CONFIG_SYSTEM` 指向 `C:/...` 原生路径空文件 + 清空 `http_proxy`/`https_proxy` + `GIT_TERMINAL_PROMPT=0` + `-c credential.helper=manager -c http.schannelCheckRevoke=false`），裸 `git push` 会挂起，**不可依赖**；凭据本身始终有效，推送不需要用户提供任何凭证。未运行 test100、全量测试或生产构建；candidate57 TEST HOLD、无批准生产候选、无生产 ONNX 的状态不变，产品继续 HOLD。**〔本条由 WorkBuddy 编写〕** | 提交推送、README同步、文档索引版本更正、audit v3路线图、编码审计、专项测试、无接口变化 |
 | 2026-09-06 | v1.1.599 | 接入audit v3活动标记解析与固定七项要求校验，历史结果原文保留，不再永久阻断当前进度门；拒绝条目删除、角色降级、重复字段与假PASS。新增4项专项测试，包含真实530条进度记录的7当前/523历史分离。审计版本为v3-migration，身份、逐实例重放和消费台账未接通前强制HOLD；同步三份引用文档与当日日志。未训练、评估候选、提交或推送。 **〔本条由 Codex 编写〕** | audit v3迁移、历史隔离、不可绕过发布要求、产品HOLD |
 | 2026-09-06 | v1.1.598 | 将2026-09-05 Goal一致性审计的修正直接写回三份引用文档：`nail-texture-local-inference-implementation-spec.md`升级v1.2并以§51固定当前候选合同、standing授权、新校准/正样本发布留出/困难负样本角色、逐实例正式门和单阶段优先路线；`nail-texture-local-inference-implementation-progress.md`更新为candidate57 TEST HOLD dashboard，引入`lifecycle/outcome/gateRole/required`并把candidate1—57、旧val30/test100及已否决计划保留为历史账本；`nail-texture-completion-audit.md`升级v1.3，明确v2只可诊断HOLD，补充audit v3与统一`releaseIdentity`合同并纠正实际14门和发布顺序。同步§3、§9.9和§11.1，清理candidate17/18/21等旧“当前基线”、过期数据角色、candidate52/53活动计划和fallback已安全完成的误述；`releaseIdentity`采用不含manifest自身哈希的identity core，再由报告绑定manifest哈希，避免循环。仅修改文档；当前审计脚本/profile仍为v2/candidate5历史证据，生产ONNX、前端接入、真机、Beta和回滚均未完成，candidate57及产品继续HOLD。通过UTF-8、Markdown结构与差异检查；未训练、重跑test100、提交或推送。 **〔本条由 Codex 编写〕** | Goal引用文档、活动合同、audit v3、release identity、历史证据、standing授权、产品HOLD |
