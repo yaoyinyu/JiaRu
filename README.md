@@ -165,15 +165,16 @@ JiaRu/
 │   └── workers/
 │       └── nail-texture-recognition.worker.ts  # Web Worker 入口
 │
-├── model/                        # 模型训练与数据集
+├── model/                        # 模型训练与数据集（调试输出、权重和生成报告不进入 Git）
 │   ├── datasets/nail-texture-v1/ # 基础正式集（409 图/2142 mask）
-│   ├── training/                 # 训练脚本、标注辅助、审计工具；可重建的逐文件开发报告不进入 Git
+│   ├── training/                 # 训练脚本、标注辅助、审计工具；可重建报告只留本地
 │   └── reports/                  # 审计报告
 │
 ├── scripts/                      # 审计/验证/发布治理脚本
 ├── tests/                        # 测试文件（当前 350+ 项）
 ├── docs/                         # 项目文档（见下方索引）
 ├── dev-log/                      # 开发日志（按天，2026-06-21 至今）
+├── output/                       # 本地审核/调试产物（不进入 Git）
 ├── public/
 │   ├── models/                   # 浏览器端模型（smoke ONNX 等）
 │   └── nail-gallery/             # 灵感图库素材（AI 生成 JPG；旧占位 SVG 保留未删）
@@ -287,7 +288,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.605 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.606 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |

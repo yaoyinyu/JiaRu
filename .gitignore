@@ -77,7 +77,11 @@ model/exports/
 /weights/
 /model/experiments/
 /model/debug/
-/model/fixtures/*-output.json
+/model/fixtures/nail-texture-seg-*-output.json
+/model/fixtures/*.generated.json
+/model/nail-detection-debug.*
+/model/nail-candidate-mask.png
+/model/nail-skin-mask.png
 /model/training/nail-texture-development-cycle-*-quality-*.json
 /model/training/nail-texture-train-source-group-development-folds-*.json
 /model/training/nail-texture-train-source-group-development-materialization-*.json
@@ -85,7 +89,7 @@ model/exports/
 /runs/
 /review-temp/
 /.playwright-cli/
-/output/playwright/
+/output/
 
 # task-local release-test media snapshots (canonical copies live outside the repo)
 /辅助材料/real-release-test-2026-07-22/
