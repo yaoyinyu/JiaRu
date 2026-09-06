@@ -259,7 +259,7 @@ test("batch-verify-nail-detection skips generated debug artifacts and keeps uniq
     path.join(imageDir, "same-name.png")
   );
   await cp(
-    path.resolve("model/nail-detection-debug.png"),
+    path.resolve("model/5188.jpg_wh860.png"),
     path.join(imageDir, "ignore-detection-debug.png")
   );
 
