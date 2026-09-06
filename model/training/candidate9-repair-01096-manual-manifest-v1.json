@@ -1,7 +1,0 @@
-{
-  "schemaVersion":1,"decision":"candidate9_original_resolution_manual_polygon_repair_candidate_only","trainingUse":"prohibited",
-  "images":[{"fileName":"nail_01096_69a5ad16000000002303ba31_11.jpg","sourceAnnotationPath":"E:\\AI Project\\Codex\\JiaRu_image\\审核工作区\\2026_8_22_candidate9_ranked_sam_v1\\annotations\\nail_01096_69a5ad16000000002303ba31_11.json","sourceGroup":"real-material-2026-07-14-candidate-v1:note-047f033b38876e10","nails":[
-    {"sourceIndex":1},{"sourceIndex":2},{"sourceIndex":3},
-    {"polygon":[{"x":344,"y":520},{"x":360,"y":523},{"x":372,"y":533},{"x":378,"y":550},{"x":378,"y":575},{"x":374,"y":603},{"x":369,"y":630},{"x":359,"y":651},{"x":345,"y":661},{"x":330,"y":658},{"x":320,"y":645},{"x":315,"y":623},{"x":312,"y":595},{"x":313,"y":567},{"x":318,"y":544},{"x":328,"y":527}],"attributes":{"fingerHint":"unknown","shape":"long-oval","quality":4,"occluded":false,"artificialTip":true,"reviewNote":"平滑重画并补齐绿色自由缘，移除旧mask底部锯齿。"}},
-    {"sourceIndex":5}
-  ]}]}

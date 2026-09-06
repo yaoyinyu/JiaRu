@@ -20,6 +20,40 @@ async function runPython(script: string, args: string[] = []) {
   return JSON.parse(stdout) as Record<string, unknown>;
 }
 
+async function createMinimalDataset(prefix: string) {
+  const root = await mkdtemp(path.join(os.tmpdir(), prefix));
+  for (const split of ["train", "val", "test"]) {
+    await mkdir(path.join(root, "images", split), { recursive: true });
+    await mkdir(path.join(root, "labels", split), { recursive: true });
+    await writeFile(path.join(root, "images", split, `${split}-001.jpg`), "fixture-image", "utf8");
+    await writeFile(
+      path.join(root, "labels", split, `${split}-001.txt`),
+      "0 0.1 0.1 0.2 0.1 0.2 0.2 0.1 0.2\n",
+      "utf8",
+    );
+  }
+  const dataset = path.join(root, "dataset.yaml");
+  await writeFile(
+    dataset,
+    [
+      "path: .",
+      "train: images/train",
+      "val: images/val",
+      "test: images/test",
+      "",
+      "names:",
+      "  0: nail_texture",
+      "",
+      "task: segment",
+      "class_count: 1",
+      "image_size: 640",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  return dataset;
+}
+
 test("candidate35 boundary evidence builders are valid Python", async () => {
   for (const script of [
     "model/training/build-sam-crop-review-sheets.py",
@@ -255,14 +289,15 @@ test("train script requires an explicit switch for same-checkpoint self-distilla
 
 
 test("training environment preflight reports dataset, dependencies, and checkpoint risk", async () => {
-  const result = await runPython("model/training/check-training-environment.py");
-  const split = JSON.parse(
-    await readFile("model/datasets/nail-texture-v1/metadata/split.json", "utf8")
-  ) as Record<"train" | "val" | "test", string[]>;
+  const dataset = await createMinimalDataset("nail-training-env-dataset-");
+  const result = await runPython("model/training/check-training-environment.py", [
+    "--dataset",
+    dataset,
+  ]);
   assert.deepEqual(result.split_counts, {
-    train: split.train.length,
-    val: split.val.length,
-    test: split.test.length,
+    train: 1,
+    val: 1,
+    test: 1,
   });
   assert.equal(typeof (result.dependencies as { ultralytics: { available: boolean } }).ultralytics.available, "boolean");
   const model = result.model as { exists: boolean; may_download: boolean };
@@ -293,7 +328,8 @@ test("training environment preflight can require a local model checkpoint", asyn
   );
 });
 test("evaluate script dry-run prints resolved config", async () => {
-  const result = await runPython("model/training/evaluate.py", ["--dry-run"]);
+  const dataset = await createMinimalDataset("nail-evaluate-dry-run-");
+  const result = await runPython("model/training/evaluate.py", ["--dataset", dataset, "--dry-run"]);
   assert.equal(result.split, "test");
   assert.equal(result.imgsz, 640);
   assert.match(String(result.weights), /model[\\/]+exports[\\/]+nail-texture-seg-v1[\\/]+nail-texture-seg-v1[\\/]+weights[\\/]+best\.pt$/);
@@ -306,7 +342,13 @@ test("evaluate script dry-run prints resolved config", async () => {
 });
 
 test("evaluate script can disable optional plots without disabling prediction artifacts", async () => {
-  const result = await runPython("model/training/evaluate.py", ["--no-plots", "--dry-run"]);
+  const dataset = await createMinimalDataset("nail-evaluate-no-plots-");
+  const result = await runPython("model/training/evaluate.py", [
+    "--dataset",
+    dataset,
+    "--no-plots",
+    "--dry-run",
+  ]);
   assert.equal(result.plots, false);
   assert.equal(result.dry_run, true);
 });

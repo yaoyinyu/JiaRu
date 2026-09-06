@@ -16,6 +16,40 @@ async function writeJson(filePath: string, value: unknown) {
   await writeFile(filePath, `${JSON.stringify(value, null, 2)}\n`, "utf8");
 }
 
+async function createMinimalDataset(root: string) {
+  const datasetRoot = path.join(root, "dataset");
+  for (const split of ["train", "val", "test"]) {
+    await mkdir(path.join(datasetRoot, "images", split), { recursive: true });
+    await mkdir(path.join(datasetRoot, "labels", split), { recursive: true });
+    await writeFile(path.join(datasetRoot, "images", split, `${split}-001.jpg`), "fixture-image", "utf8");
+    await writeFile(
+      path.join(datasetRoot, "labels", split, `${split}-001.txt`),
+      "0 0.1 0.1 0.2 0.1 0.2 0.2 0.1 0.2\n",
+      "utf8",
+    );
+  }
+  const dataset = path.join(datasetRoot, "dataset.yaml");
+  await writeFile(
+    dataset,
+    [
+      "path: .",
+      "train: images/train",
+      "val: images/val",
+      "test: images/test",
+      "",
+      "names:",
+      "  0: nail_texture",
+      "",
+      "task: segment",
+      "class_count: 1",
+      "image_size: 640",
+      "",
+    ].join("\n"),
+    "utf8",
+  );
+  return dataset;
+}
+
 async function createCandidateLaneFixture(root: string) {
   const trainingDataset = path.join(root, "training", "dataset.yaml");
   const calibrationDataset = path.join(root, "canonical-val", "dataset.yaml");
@@ -176,6 +210,7 @@ test("run-training-release-pipeline produces a dry-run orchestration report", as
   const browserDir = path.join(root, "public", "models", "nail-texture-seg");
   await mkdir(outputDir, { recursive: true });
   await mkdir(browserDir, { recursive: true });
+  const dataset = await createMinimalDataset(root);
 
   const { stdout } = await execFileAsync(
     process.execPath,
@@ -183,6 +218,8 @@ test("run-training-release-pipeline produces a dry-run orchestration report", as
       "--no-warnings",
       "--experimental-strip-types",
       "scripts/run-training-release-pipeline.ts",
+      "--dataset",
+      dataset,
       "--train-output-dir",
       outputDir,
       "--browser-model-dir",
@@ -407,6 +444,7 @@ test("run-training-release-pipeline can skip training environment preflight", as
   const browserDir = path.join(root, "public", "models", "nail-texture-seg");
   await mkdir(outputDir, { recursive: true });
   await mkdir(browserDir, { recursive: true });
+  const dataset = await createMinimalDataset(root);
 
   const { stdout } = await execFileAsync(
     process.execPath,
@@ -414,6 +452,8 @@ test("run-training-release-pipeline can skip training environment preflight", as
       "--no-warnings",
       "--experimental-strip-types",
       "scripts/run-training-release-pipeline.ts",
+      "--dataset",
+      dataset,
       "--train-output-dir",
       outputDir,
       "--browser-model-dir",
@@ -440,6 +480,9 @@ test("run-training-release-pipeline forwards local checkpoint requirement to pre
   const browserDir = path.join(root, "public", "models", "nail-texture-seg");
   await mkdir(outputDir, { recursive: true });
   await mkdir(browserDir, { recursive: true });
+  const dataset = await createMinimalDataset(root);
+  const checkpoint = path.join(root, "local-yolo-seg.pt");
+  await writeFile(checkpoint, "fake weights", "utf8");
 
   const { stdout } = await execFileAsync(
     process.execPath,
@@ -447,6 +490,10 @@ test("run-training-release-pipeline forwards local checkpoint requirement to pre
       "--no-warnings",
       "--experimental-strip-types",
       "scripts/run-training-release-pipeline.ts",
+      "--dataset",
+      dataset,
+      "--model",
+      checkpoint,
       "--train-output-dir",
       outputDir,
       "--browser-model-dir",
@@ -471,6 +518,7 @@ test("run-training-release-pipeline aligns default runName and trainOutputDir wi
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-train-pipeline-model-version-defaults-"));
   const browserDir = path.join(root, "public", "models", "nail-texture-seg");
   await mkdir(browserDir, { recursive: true });
+  const dataset = await createMinimalDataset(root);
 
   const { stdout } = await execFileAsync(
     process.execPath,
@@ -478,6 +526,8 @@ test("run-training-release-pipeline aligns default runName and trainOutputDir wi
       "--no-warnings",
       "--experimental-strip-types",
       "scripts/run-training-release-pipeline.ts",
+      "--dataset",
+      dataset,
       "--browser-model-dir",
       browserDir,
       "--model-version",

@@ -24,8 +24,9 @@ test("generate-ai route imports and calls the prompt assembler (hidden system pr
       source.includes("assembleAiImageEditPrompt"),
     "route must import both text-to-image and image-to-image assemblers"
   );
-  assert.ok(
-    source.includes("image\n    ? assembleAiImageEditPrompt(prompt)\n    : assembleAiImagePrompt(prompt)"),
+  assert.match(
+    source,
+    /const enhancedPrompt = image\s*\?\s*assembleAiImageEditPrompt\(prompt\)\s*:\s*assembleAiImagePrompt\(prompt\)/,
     "route must pick image-edit assembler when a reference image is present"
   );
   assert.ok(
@@ -52,8 +53,9 @@ test("generate-ai route validates optional reference image and ratio", () => {
     source.includes("imageDataUri: image || undefined"),
     "route must forward the image to the Agnes client"
   );
-  assert.ok(
-    source.includes("ratio,\n      size,"),
+  assert.match(
+    source,
+    /ratio,\s*size,/,
     "route must forward both ratio and size to the Agnes client"
   );
   assert.ok(

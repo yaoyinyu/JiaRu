@@ -165,10 +165,10 @@ JiaRu/
 │   └── workers/
 │       └── nail-texture-recognition.worker.ts  # Web Worker 入口
 │
-├── model/                        # 模型训练与数据集（调试输出、权重和生成报告不进入 Git）
-│   ├── datasets/nail-texture-v1/ # 基础正式集（409 图/2142 mask）
-│   ├── training/                 # 训练脚本、标注辅助、审计工具；可重建报告只留本地
-│   └── reports/                  # 审计报告
+├── model/                        # 模型训练代码与稳定小型测试夹具
+│   ├── datasets/nail-texture-v1/ # 数据集目录骨架；数据和逐文件 metadata 只留本地
+│   ├── training/                 # 训练、标注和审计代码；计划/清单/判定 JSON 只留本地
+│   └── reports/                  # 本地机器报告目录（不进入 Git）
 │
 ├── scripts/                      # 审计/验证/发布治理脚本
 ├── tests/                        # 测试文件（当前 350+ 项）
@@ -180,8 +180,10 @@ JiaRu/
 │   └── nail-gallery/             # 灵感图库素材（AI 生成 JPG；旧占位 SVG 保留未删）
 ├── weights/                      # 本地权重（不上传 Git）
 ├── certificates/                 # 本地开发证书
-└── 辅助材料/                     # 参考资料
+└── 辅助材料/                     # 本地审核工作区；Git 仅保留必要 Markdown 说明
 ```
+
+Git 与远端只保存完整可运行的业务、训练和审计代码，测试、配置模板、浏览器运行时必需资产及必要说明。模型权重、数据集、逐文件开发清单、训练输出、评估明细、审核截图、浏览器调试快照和其他可重建机器报告均留在本机并由 `.gitignore` 隔离；稳定的小型测试夹具不受此限制。
 
 ---
 

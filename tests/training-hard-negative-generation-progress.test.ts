@@ -345,6 +345,8 @@ test("partial pool produces a truthful HOLD with next missing and family counts"
       output,
       "--candidate-id",
       "candidate5-training-v2",
+      "--standing-project-authorization",
+      item.standingAuthorization,
       "--output",
       rejectedRequest,
     ],
