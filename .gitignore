@@ -90,6 +90,19 @@ model/exports/
 /review-temp/
 /.playwright-cli/
 /output/
+/.archive/
+
+# local-only ML evidence and per-item review artifacts
+/model/reports/
+/model/reviews/
+/model/training/*.json
+/model/datasets/nail-texture-v1/metadata/*
+!/model/datasets/nail-texture-v1/metadata/.gitkeep
+
+# keep only human-readable instructions under the auxiliary workspace
+/辅助材料/**
+!/辅助材料/**/
+!/辅助材料/**/*.md
 
 # task-local release-test media snapshots (canonical copies live outside the repo)
 /辅助材料/real-release-test-2026-07-22/
