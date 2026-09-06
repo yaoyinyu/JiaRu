@@ -1,10 +1,10 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.594
+> 文档版本：v1.1.600 **〔本段由 Codex 更新〕** **〔本段由 WorkBuddy 更新〕**
 >
 > 基线日期：2026-07-12
 >
-> 最近全面审查：2026-08-23
+> 最近全面审查：2026-09-06（Goal引用文档、源码合同及机器报告一致性复核；详见§9.9） **〔本段由 Codex 更新〕**
 >
 > 文档状态：持续维护
 >
@@ -115,7 +115,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
          -> 火山方舟 Ark /images/generations（档位×比例映射为显式 WxH）-> 远程图片 URL（24h 有效）
 ```
 
-三条流程目前彼此独立：AI 生成结果和图库款式不会自动写入编辑器或 AR；只有 `/ar-tryon` 内上传的参考图可以进入纹理识别/裁剪链路。
+图库款式已可带入编辑器灵感色、AI参考图和AR选取器；AI生成结果可收录到浏览器IndexedDB，再由图库带入AI或AR。编辑器笔画/成品尚无共享项目协议，云端保存与跨设备同步未实现；相关链路见§4.3—§4.5。 **〔本段由 Codex 更新〕**
 
 ## 3. 功能状态总表
 
@@ -124,6 +124,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
 | --- | --- | --- | --- |
 | 首页与统一导航 | `/` | 已完成 | 提供功能入口与统一视觉框架 |
+| 登录与账号原型 | `/login`、`/account`、`/api/auth/*`、`/api/me` | 进行中（生产闭环未完成） | 已有JWT/SQLite、手机号/微信身份与偏好接口；真实短信、refresh入口、默认数据库目录初始化及身份一致性/验证码治理仍有缺口，生图路由未接账号配额。详见§5补充及§9.7。 **〔本行由 Codex 新增〕** |
 | 灵感图库 | `/gallery` | AI 素材 + 编辑器灵感参数消费 + 图库→AR/AI 链路打通 + 本地收录（2026-09-03，v1.1.580/581/583） | 6 张 Seedream pro 文生图素材本地落盘 `public/nail-gallery/ai-look-1..6.jpg` 并逐张通过视觉审核；`/editor?gallery=` 已实现灵感卡 + 灵感色预涂（v1.1.581，见 §4.3）；v1.1.583 起图库卡片新增「AI 相似款」(`/ai-generate?gallery=<id>`) 与「AR 试戴」(`/ar-tryon?gallery=<id>`) 入口，图库款式到 AR 的纹理传递已打通（§4.5）；AI 生成结果可一键收录到浏览器本地 IndexedDB 图库（`/gallery`「我的收录」区块，§4.3），真实内容后端与跨设备同步仍无 |
 | 图片试色编辑器 | `/editor` | 已完成 | 本地上传、MIME/大小/分辨率/解码校验、逐指选色、Canvas 涂抹与本地保存链路均已实现并通过浏览器审核 |
 | AI 美甲生图 | `/ai-generate`、`POST /api/generate-ai` | 已完成（用户验收） | 已接入Agnes Image 2.1 Flash（文生图 + 图生图）；2026-08-29服务端Endpoint已切换为`https://api.agnes-ai.cn/v1/images/generations`并换用新服务端密钥，实测模型列表`GET /v1/models`认证HTTP 200、目标模型`agnes-image-2.1-flash`可见，真实文生图返回图片URL且产物可下载。`.cn`模型列表认证HTTP 200且目标模型可见，协议专项测试、Lint、全量758项测试和生产构建通过。2026-08-10用户确认AI美甲真实生图功能验证通过，并于2026-08-12再次确认；2026-08-19新增可选「参考图」图生图（上传手部照片→浏览器压缩至最长边1024 JPEG→与提示词一起生成，Agnes在参考图手部指甲上绘制美甲并保持原图构图，实测图生图成功且约12s，文生图约157s），并新增生成中 shimmer 加载与页面过渡动画；2026-08-29新增用户可选择**画面比例**（8 种）与**输出尺寸档位**（1K/2K/3K/4K），按 Agnes「输出尺寸参考」表实时显示最终像素尺寸，文生图与图生图共用（默认 1K+1:1 ≈ 1024x1024，行为与历史一致）。参考图仅在用户主动上传时发送第三方、仅用于本次生成；成本、内容安全和生产持续可用性继续作为运营监测项 |
@@ -133,7 +134,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
 | 视频自适应展示 | `calculateCoverVideoLayout()` | 已完成 | 保持比例，采用居中 cover 裁切，不拉伸 |
 | 美甲纹理自动识别 | `recognizeNailTextures()`、`detectNailsFromHandImage()`、`detectPartialCloseupNails()` | 进行中（精细模型阻塞；两级辅助定位可用） | 浏览器模型推理、Worker和后处理已实现，但生产manifest仍无批准ONNX；candidate57已在受保护test100因漏甲图片率与加权杂散率失败，不能切换生产权重、阈值或组合逻辑。完整手部照片可由同源MediaPipe生成逐指候选；局部近景优先以非皮肤且未过曝甲色连通域筛选2—5枚。该路径不足2枚时才运行低对比边界路径，以5×5平滑/Sobel/闭运算形成闭合内部区域，同时要求甲板内部及邻环肤色、内部非暗且平滑、边界梯度和4—5枚连续链，孤立物、少于4枚或竞争簇整批拒绝。五候选按掌心近似与极角弧排序后分配；甲色路径4—5枚为中置信，低对比边界路径固定低置信。诊断导出区分`painted-color`与`low-contrast-boundary`并包含两路组件/拒绝计数；辅助定位没有像素级mask，不能替代正式分割模型质量结论。 **〔本行由 Codex 更新〕** |
-| 传统算法降级 | `recognizeNailTexturesWithFallback()` | 已完成 | 底层仍可返回仅供诊断的规则候选，且统一标为低置信度；`NailArtPicker`在正式模型失败时不会把这些候选展示为有效甲面，而是切换到安全的人工定位流程 |
+| 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 进行中（语义缺陷待修） | 底层规则候选和MediaPipe/局部近景辅助定位均可在模型失败时返回；这些结果没有生产模型身份，局部近景候选也没有像素级mask。当前`NailArtPicker`仍会在局部近景达到4个区域时显示绿色“可直接提取”，因此尚未满足正式fallback合同。修复后必须持续显示“模型不可用/辅助定位、需人工确认”，并从模型成功率和Beta直接可用率排除。 **〔本行由 Codex 更新〕** |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
 | 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（candidate57受保护test100失败） | 当前生产manifest仍没有批准ONNX。candidate57选择锁`35374464…9910`绑定candidate56 stage1、candidate55 stage2及0.40/0.30/0.55组合；唯一一次test100取得531匹配、479完整mask、23漏甲、16重复、5背景误检、0无效mask，召回95.85%与完整率86.46%通过，但13%漏甲图片率和4.69%加权杂散率未达10%/2%上限。质量报告`5f1463c5…ff65`重放一致，候选轨迹终止且禁止据test反调或重复评估。全新train证据、全新发布留出、生产资产、浏览器/真机、Beta和回滚门均未完成，不得导出、登记、接入或部署，产品继续HOLD。 **〔本行由 Codex 更新〕** |
 | candidate8全新正样本补强 | `build-candidate8-unseen-positive-workspace.py`、`build-candidate8-combined-training-truth-index.py`及Git外`2026_8_22_candidate8_*` | ✅ 10张/87 mask已审计并进入候选训练 | 31张全新隔离候选最终收敛为10张训练真值、19张质量排除、2张候选不足隔离。最后一轮将`f5e4…jpg`纠正为8枚完整甲面并删除钻饰局部/重复候选，将`v2-1b…jpg`纠正为9枚并删除轮播页码误检；17/17几何通过且同图零交叠。剩余5张因强曝光、多手交叠、大钻遮挡或SAM皮肤污染排除，未以近似人工边界凑数。candidate8独立真值索引为10张/87 mask，与candidate7基线合并后为210张/1210 mask；规范物化train370/val30/test0、0 orphan及来源隔离审计PASS。 |
@@ -143,26 +144,26 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | candidate13/14扩展教师真值训练 | Git外`2026_8_24_candidate13_training_input_v1`、`nail-texture-candidate-2026-08-24-v13/v14` | ❌ val30未优于candidate11，未运行test100 | 教师真值v11为30张/180 mask，规范摘要`633e4f86…ab9f`；其中`00451…_6`因侧视甲面与皮肤不可可靠分离而整图排除，`01126`错误人工v2因吞入黑色背景隔离，保留经原分辨率复核通过的v1。合并后240张/1390 mask正样本加160负样本，规范train400/val30/test0，输入深审`6dfea016…5bb`通过。candidate13从candidate9权重重训，candidate14从candidate11权重以AdamW 0.0001继续训练；两者正式512 val30在阈值0.50均为121匹配、23漏检、26误检，召回0.84028、F1=0.83162，低于candidate11的122匹配、22漏检、召回0.84722。candidate14权重`7a76ac5c…8e4d`、校准报告`a5e00241…6dd`深验通过，但按完整甲面召回主门在val阶段否决；不建立选择锁、不运行test100、不导出或部署。 |
 | candidate15强教师课程增量 | Git外`2026_8_24_candidate15_training_input_v1`、`nail-texture-candidate-2026-08-24-v15`及`candidate15-runtime-selection-lock-v1.json` | ❌ 冻结test100识别门失败 | val30失败画像只保留匿名类别，报告`e95c794f…f49f`明确禁止训练、身份披露和逐图选样。原分辨率审核新增7张/54 mask，教师真值v14为37张/234 mask、38张返修，规范摘要`8457eee0…c3`；`00156`因模糊整图排除，`00163/00267/00588/00591/01028`按原图事实删除皮肤、背景、袖口或同甲碎片假候选，所有保留polygon通过合法性、零交叠、几何与逐甲视觉门。合并后247张/1444 mask正样本加160负样本，train407/val30/test0、0 orphan，输入深审`3902b9fd…c00`PASS。candidate15从candidate11权重以AdamW 0.00005、冻结前10层训练28轮早停、最佳第8轮，权重`f538a27b…44d`；部署512 val30阈值0.50为124匹配、20漏检、29误检、召回0.86111，按识别优先主门超过candidate11并原子锁定。固定参数冻结test100一次评估为496/554匹配、441完整mask、58漏甲、21重复、33额外、25无效，37图漏甲、40图可直接提取，报告仍`hold_positive_recognition_gate`；不得导出、登记、部署或用test反调/回流。 |
 | candidate16 OpenAI强教师与多信号蒸馏 | `model/training/nail_texture_distillation.py`、`train-yolo-seg.py --distill-model`及Git外`nail-texture-teacher-2026-08-24-v2`、`nail-texture-candidate-2026-08-24-v16` | ❌ 学生val30否决；直接学生主线恢复 | 旧YOLO11s教师权重`c26d06db…a568`在512 val30无合格阈值；随后从官方YOLO11m-seg干净基座训练27轮、最佳第7轮，教师权重SHA-256 `46b8af324d4e2db949051b7ad69abf48ec1131d65dc7e522f16db810a5b85087`、45169257 bytes。该教师在规范512 val30阈值0.50为155预测、127/144匹配、17漏检、28误检，recall/F1=0.88194/0.84950，校准报告`7a3144ca…062c`深验PASS，较candidate15匹配+3、漏检-3、误检-1。1轮烟测确认`dis_loss`真实参与GPU反向传播后，YOLO11n蒸馏学生训练24轮早停，权重`fc91e603…18e18`；其512 val30 mask mAP50=0.840，但阈值扫描决定`no_threshold_meets_validation_constraints`，故candidate16在val阶段否决，未运行test100、导出、登记或部署。教师只用于离线训练，网页不部署教师；后续默认直接训练学生，蒸馏失败必须自动回退既有学生基线。 |
-| candidate17直接中型部署候选 | `candidate17-runtime-selection-lock-v1.json`及Git外`nail-texture-candidate-2026-08-24-v17` | ❌ 冻结test100识别门失败；当前最优识别基线 | 同一份`46b8af32…5087`权重按训练事实重新登记为直接训练的YOLO11m-seg部署候选，而非生产依赖教师。选择锁只读取val30：512/0.50为127/144匹配、17漏检、28误检，较candidate15匹配+3、漏检-3、误检-1；冻结test100在锁定后一次评估为570预测、503/554匹配、446完整mask、51漏甲、28重复、39额外、36无效，31图漏甲、42图可直接提取，实例召回0.90794首次通过0.90子门。完整mask比例0.80505、缺甲图片率0.31及零重复/零额外/零无效门仍失败，报告决定`hold_positive_recognition_gate`并深度重放一致；不导出、登记、部署，也不使用test逐图结果反调。 |
-| candidate18高价值难例直接微调 | `candidate18-runtime-selection-lock-v1.json`及Git外`2026_8_24_candidate18_training_input_v2`、`nail-texture-candidate18-2026-08-24-v1`、`nail-texture-candidate-2026-08-24-v18` | ❌ 冻结test100识别门失败；当前最优识别基线 | 严格终审新增6张/53 mask，把补强真值扩至43张/287 mask；包含透明长甲、双手十甲、侧视小甲，并排除裁边、遮挡、低清和假候选源图。合并后253张/1497 mask正样本+160困难负样本，train413/val30/test0深审PASS。candidate18从candidate17权重直接微调，不启用蒸馏，权重`bbc10675…01ec`；val30按召回不低于0.88的预注册主目标锁定512/0.30，为128匹配、16漏检、21误检，较candidate17同时改善。固定参数冻结test100为554预测、515匹配、461完整mask、39漏甲、14重复、25额外、22无效，22图漏甲、50图可直接提取；召回0.92960通过，完整率0.83213、缺甲图率0.22和唯一性门仍失败。报告深验保持HOLD，不导出、登记、部署或用test反调。 |
-| candidate19/20直接边界微调与candidate21插值学生 | `train-yolo-seg.py --mosaic/--close-mosaic`、`interpolate-yolo-checkpoints.py`、`candidate21-runtime-selection-lock-v1.json`及Git外`2026_8_25_candidate19_training_input_v1`、`nail-texture-candidate19/20/21-*` | ❌ candidate21冻结test100识别门失败；当前最优识别基线 | 新终审7张/54 mask把补强真值扩至50张/341 mask；合并为260张/1551 mask正样本+160困难负样本，train420/val30/test0深审PASS。candidate19默认mosaic训练24轮，权重`88d10257…123d`，val30无合格阈值；candidate20以1e-5、mosaic0训练32轮，权重`aeba70af…9266`，仍在val30否决。预注册0.20/0.40/0.60/0.80四个同架构插值点后，alpha0.60在512/0.40为128匹配、16漏检、19误检，较candidate18保持召回并减少2误检，权重`1eea8742…fae7`及校准报告深验PASS。选择锁后唯一一次冻结test100为550预测、519匹配、466完整mask、35漏甲、13重复、18额外、17无效、20图漏甲、53图可直接提取；实例召回0.93682通过，完整率0.84116、缺甲图率0.20和唯一性门失败。测试已消费，不得逐图反调；不导出、登记或部署。 |
+| candidate17直接中型部署候选 | `candidate17-runtime-selection-lock-v1.json`及Git外`nail-texture-candidate-2026-08-24-v17` | ❌ 冻结test100识别门失败；历史阶段基线 | 同一份`46b8af32…5087`权重按训练事实重新登记为直接训练的YOLO11m-seg部署候选，而非生产依赖教师。选择锁只读取val30：512/0.50为127/144匹配、17漏检、28误检，较candidate15匹配+3、漏检-3、误检-1；冻结test100在锁定后一次评估为570预测、503/554匹配、446完整mask、51漏甲、28重复、39额外、36无效，31图漏甲、42图可直接提取，实例召回0.90794首次通过0.90子门。完整mask比例0.80505、缺甲图片率0.31及零重复/零额外/零无效门仍失败，报告决定`hold_positive_recognition_gate`并深度重放一致；不导出、登记、部署，也不使用test逐图结果反调。 **〔本行由 Codex 更新〕** |
+| candidate18高价值难例直接微调 | `candidate18-runtime-selection-lock-v1.json`及Git外`2026_8_24_candidate18_training_input_v2`、`nail-texture-candidate18-2026-08-24-v1`、`nail-texture-candidate-2026-08-24-v18` | ❌ 冻结test100识别门失败；历史阶段基线 | 严格终审新增6张/53 mask，把补强真值扩至43张/287 mask；包含透明长甲、双手十甲、侧视小甲，并排除裁边、遮挡、低清和假候选源图。合并后253张/1497 mask正样本+160困难负样本，train413/val30/test0深审PASS。candidate18从candidate17权重直接微调，不启用蒸馏，权重`bbc10675…01ec`；val30按召回不低于0.88的预注册主目标锁定512/0.30，为128匹配、16漏检、21误检，较candidate17同时改善。固定参数冻结test100为554预测、515匹配、461完整mask、39漏甲、14重复、25额外、22无效，22图漏甲、50图可直接提取；召回0.92960通过，完整率0.83213、缺甲图率0.22和唯一性门仍失败。报告深验保持HOLD，不导出、登记、部署或用test反调。 **〔本行由 Codex 更新〕** |
+| candidate19/20直接边界微调与candidate21插值学生 | `train-yolo-seg.py --mosaic/--close-mosaic`、`interpolate-yolo-checkpoints.py`、`candidate21-runtime-selection-lock-v1.json`及Git外`2026_8_25_candidate19_training_input_v1`、`nail-texture-candidate19/20/21-*` | ❌ candidate21冻结test100识别门失败；历史阶段基线 | 新终审7张/54 mask把补强真值扩至50张/341 mask；合并为260张/1551 mask正样本+160困难负样本，train420/val30/test0深审PASS。candidate19默认mosaic训练24轮，权重`88d10257…123d`，val30无合格阈值；candidate20以1e-5、mosaic0训练32轮，权重`aeba70af…9266`，仍在val30否决。预注册0.20/0.40/0.60/0.80四个同架构插值点后，alpha0.60在512/0.40为128匹配、16漏检、19误检，较candidate18保持召回并减少2误检，权重`1eea8742…fae7`及校准报告深验PASS。选择锁后唯一一次冻结test100为550预测、519匹配、466完整mask、35漏甲、13重复、18额外、17无效、20图漏甲、53图可直接提取；实例召回0.93682通过，完整率0.84116、缺甲图率0.20和唯一性门失败。测试已消费，不得逐图反调；不导出、登记或部署。 **〔本行由 Codex 更新〕** |
 | candidate22直接增量与candidate23插值对照 | `candidate23-interpolation-plan-v1.json`及Git外`2026_8_25_candidate22_training_input_v1`、`nail-texture-candidate22/23-*` | ❌ val30未优于candidate21，未运行test100 | 原分辨率终审新增5张/38 mask，把candidate9补强真值扩至55张/379 mask；合并后265张/1589 mask正样本加160困难负样本，train425/val30/test0、0 orphan，输入审计`281c5641…31a`PASS。candidate22从candidate21权重直接训练，45轮早停且`distillation=null`，最佳权重`ec6aad80…25dc`；部署512正式val30在0.25为127匹配、17漏检、22误检，低于candidate21。预注册0.20/0.40/0.60/0.80四个同架构插值点；alpha0.20在0.30为128匹配、16漏检、29误检，其余点无合格阈值，均未满足“保持召回且误检少于19”的替换规则。未建立选择锁、未运行test100、未导出、登记或部署。 |
 | candidate24/25直接学生与插值对照 | `candidate24-direct-training-plan-v1.json`、`candidate25-interpolation-plan-v1.json`、`candidate24-25-validation-decision-v1.json` | ❌ val30否决 | candidate24规范输入为train430/val30/test0，270张正样本/1629 mask加160张困难负样本；最佳权重`0c5feba7…a56`，部署512/0.25为128匹配、16漏检、27误检。candidate25四个预注册插值点均不满足严格替换规则，alpha0.05在0.40仅与candidate21打平128/16/19。二者未运行冻结test100、未导出、登记或部署。 |
 | 下一候选训练困难负样本扩充 | Git外`2026_7_31_candidate6_training_v1`及`generation-progress-070-v1.json` | ⏸️ 策略暂停（70/160） | 递归深验仍为70通过、90缺失、0失败、0未知，报告`214abb69…b8bdb`。剩余90张不再作为candidate28开训前置；已下载但未正式终审/终结的来源候选隔离且不计数。训练只从既有批准负样本中按来源平衡确定性取满足正式下限的有限子集，发布三变体零误检门保持不变。 |
 | candidate27候选复核器 | 三种train/val隔离实现及val30联合报告 | ❌ val30否决 | 首版CNN、一对一标签CNN和手工特征复核器均不能在保持128匹配时把误检严格降到19以下；特征复核器同召回点仍为32误检。未运行冻结test100、未导出、登记或部署。 |
 | candidate28完整甲面正真值 | Git外`candidate9_teacher_review_truths_v35`、`candidate28_training_input_v1`、`nail-texture-candidate28-2026-08-29-v5` | ❌ val30否决 | 75张源队列按原分辨率三态终结为64张PASS、11张排除、0张返修；与candidate8规范基线合并后形成274张正样本/1652 mask，并确定性加入160张既有批准困难负样本及来源隔离val30，输入审计v4为PASS、0 orphan，SHA-256 `4eca2deb…425`。v5以candidate21为基座执行640、100 epochs、`mask_ratio=1`、`overlap_mask=false`、无mosaic训练，Windows 1455恢复仅将DataLoader workers由8降为0，不改变质量参数。训练正常早停于epoch 53、最佳epoch 33，权重SHA-256 `de90366f…d9b`；部署512的val30在阈值0.50仅122/144匹配、22漏检、12误检，未保持candidate21的128匹配，替换规则不满足，在val阶段否决。未运行冻结test100、未导出、登记或部署。 |
 | candidate29插值融合 | `candidate29-interpolation-plan-v1.json`、`candidate29-runtime-selection-lock-v1.json`、`candidate28-29-validation-decision-v1.json` | 🟠 受保护回归HOLD | candidate21与candidate28按预注册alpha0.02/0.05/0.08/0.10/0.15/0.20插值；alpha0.15在val30阈值0.45取得128匹配、16漏检、16误检，保持candidate21召回且少3误检，与alpha0.20完全并列时按最小参数偏移的保守规则选中，权重SHA-256 `1524ba9f…6f02`。读取受保护回归前已固定权重、阈值和后处理。在已消费test100受保护回归上为519/554匹配、467完整mask、35漏甲、13重复、16额外、12无效、20图漏甲、55图可直接提取；相对candidate21改善1个完整mask、少2个额外候选和5个无效mask、多2张可提取图，但完整mask比例0.84296、缺甲图率0.20、加权伪实例率0.11372仍未过正式门。不得进入困难负样本发布门、导出、登记或部署；该回归不能再用于alpha、阈值、样本或后处理选择。 |
-| candidate30—34边界增强系列 | `candidate30-hand-roi-boundary-training-plan-v1.json`、`candidate32-balanced-roi-training-plan-v1.json`、`candidate33-self-distilled-boundary-training-plan-v1.json`、`candidate34-self-distilled-interpolation-plan-v1.json`、`candidate30-34-boundary-validation-decision-v1.json` | ❌ val30全部否决 | candidate30全量ROI为523张正图/3091 mask，0.50为126/18/15；candidate31小幅插值最好仅打平128/16/16。candidate32按父图SHA确定性抽取85张ROI，形成359张正图/2139 mask，0.10为128/16/66、0.45为124/20/15。candidate33以candidate29同时作为冻结教师与学生基线，传递特征、软概率、DFL框、软mask和边界梯度，27轮早停，权重`41b9bf0a…d9b`；0.10/0.15为128/16/59与128/16/41，0.45为118/26/15。candidate34 alpha0.01—0.05均仅打平128/16/16，alpha0.08为127/17/15。全部未满足严格替换规则，未读取test100、未导出、登记或部署；candidate29仍为失败状态的识别基线。 |
+| candidate30—34边界增强系列 | `candidate30-hand-roi-boundary-training-plan-v1.json`、`candidate32-balanced-roi-training-plan-v1.json`、`candidate33-self-distilled-boundary-training-plan-v1.json`、`candidate34-self-distilled-interpolation-plan-v1.json`、`candidate30-34-boundary-validation-decision-v1.json` | ❌ val30全部否决 | candidate30全量ROI为523张正图/3091 mask，0.50为126/18/15；candidate31小幅插值最好仅打平128/16/16。candidate32按父图SHA确定性抽取85张ROI，形成359张正图/2139 mask，0.10为128/16/66、0.45为124/20/15。candidate33以candidate29同时作为冻结教师与学生基线，传递特征、软概率、DFL框、软mask和边界梯度，27轮早停，权重`41b9bf0a…d9b`；0.10/0.15为128/16/59与128/16/41，0.45为118/26/15。candidate34 alpha0.01—0.05均仅打平128/16/16，alpha0.08为127/17/15。全部未满足严格替换规则，未读取test100、未导出、登记或部署；candidate29当时仍为失败状态的识别基线。 **〔本行由 Codex 更新〕** |
 | candidate35新来源真实边界难例 | `candidate35-boundary-hardcase-source-selection-v1.json`、`candidate35-boundary-hardcase-training-plan-v1.json`、`candidate35-boundary-validation-decision-v1.json`及Git外`2026_8_30_candidate35_*` | ❌ val30否决；22张继续返修 | 新库存168张/45组与candidate28 train、val30和test100来源隔离；冻结选择27张后，candidate29低阈值预标195候选、SAM2.1-L生成195 mask，原分辨率整图/逐甲终审仅4张/20 mask直接通过，22张返修、1张排除。规范输入为278正图/1672 mask、160负图、val30/test0，审计`93eb96a1…c28`PASS。candidate35从candidate29初始化，640、全分辨率独立mask、无mosaic训练18轮早停，最佳权重`1aabbc8c…107f`；512 val30在0.45为128/16/17，0.30为129/15/28，均未满足误检不高于16的严格替换规则。未读取test100或独立发布留出，未导出、登记、前端接入或部署。 |
-| candidate36/37边界真值扩展与保守融合 | `candidate36-boundary-expansion-training-plan-v1.json`、`candidate37-boundary-interpolation-plan-v1.json`、`candidate36-37-boundary-validation-decision-v1.json`及Git外`2026_8_31_candidate35_boundary_expansion_v2`、`nail-texture-candidate36/37-*` | ❌ val30否决；candidate29继续作为失败状态基线 | 对candidate35返修项新增7张/39 mask，累计11张/59 mask通过；`00227`、`01184`、`01268`等含裁边可见甲面的源图不进入训练，几何通过但视觉边界不完整的`00004`、`00075`、`00726`继续返修。规范输入为285正图/1711 mask、160负图、val30/test0，审计`4c006bf4…d530`PASS。candidate36训练35轮早停、最佳第20轮、权重`b86a9a0b…f145`，512 val30在0.45为124/20/20，低阈值130/14伴随73误检。candidate37预注册1%—15%融合；1%—5%只打平128/16/16，8%及以上退化。二者均未满足严格替换规则，未读取test100或发布留出，未导出、登记、接入或部署。 |
+| candidate36/37边界真值扩展与保守融合 | `candidate36-boundary-expansion-training-plan-v1.json`、`candidate37-boundary-interpolation-plan-v1.json`、`candidate36-37-boundary-validation-decision-v1.json`及Git外`2026_8_31_candidate35_boundary_expansion_v2`、`nail-texture-candidate36/37-*` | ❌ val30否决；candidate29当时作为失败状态基线 | 对candidate35返修项新增7张/39 mask，累计11张/59 mask通过；`00227`、`01184`、`01268`等含裁边可见甲面的源图不进入训练，几何通过但视觉边界不完整的`00004`、`00075`、`00726`继续返修。规范输入为285正图/1711 mask、160负图、val30/test0，审计`4c006bf4…d530`PASS。candidate36训练35轮早停、最佳第20轮、权重`b86a9a0b…f145`，512 val30在0.45为124/20/20，低阈值130/14伴随73误检。candidate37预注册1%—15%融合；1%—5%只打平128/16/16，8%及以上退化。二者均未满足严格替换规则，未读取test100或发布留出，未导出、登记、接入或部署。 **〔本行由 Codex 更新〕** |
 | candidate38—42硬边界损失、机器边界门与Pareto融合 | `nail_texture_boundary_loss.py`、`measure-mask-boundary-quality.py`、`candidate38-hard-boundary-training-plan-v1.json`、`candidate40-low-weight-hard-boundary-training-plan-v1.json`、`candidate41/42-*-plan-v1.json`及对应选择锁 | ❌ 受保护回归均未替换candidate29；轨迹停止 | candidate38边界权重0.20在val30固定0.40为127/17/20；candidate40权重0.05在0.45为127/17/15，均因识别退化否决。candidate41 alpha0.10保持128/16/16并将原分辨率2px边界F1从0.60113提高到0.60596，但test100为519匹配、466完整mask。candidate42在读取test前预注册0.12—0.30五点并锁定alpha0.30，val30保持128/16/16、边界F1=0.61307；test100仅517匹配、465完整mask、37漏甲、18额外、16无效，加权伪实例率0.13177。两份正式报告均HOLD；不得据test继续调alpha，下一轮回到新增高质量边界真值。 |
 | candidate43扩展真实边界真值直接训练 | `candidate43-expanded-boundary-conservative-training-plan-v1.json`、`candidate43-boundary-validation-decision-v1.json`及Git外`2026_8_31_candidate43_boundary_truth_expansion_v2`、`nail-texture-candidate43-*` | ❌ val30否决；剩余3张继续返修 | candidate43训练输入为292张正图/1756 mask、160负图、val30/test0；输入审计`2df809bc…8613`PASS。训练25轮、最佳第13轮，权重`893945ce…4f05`；部署512 val30在0.35为130/14/22、边界F1=0.59038，在0.45为124/20/17、边界F1=0.60695，故拒绝且未读取test100。训练后继续审图：`00004`因完整甲面被立体装饰遮挡而排除，`00201`按实际9甲完成9/9贴边真值；当前累计19张/113 mask、合并293张/1765 mask。下一步只处理`01063/01213/01245`三张，不导出、登记、接入或部署candidate43。 |
 | candidate44—46完整边界训练与锁定回归 | `candidate44-complete-boundary-conservative-training-plan-v1.json`、`candidate45/46-*-interpolation-plan-v1.json`、`candidate46-runtime-selection-lock-v1.json`及对应验证决定 | ❌ candidate46冻结test100失败；轨迹停止 | `01063/01245`按残缺/遮挡源图门排除，`01213`新增5枚透明灰色长甲完整mask；边界真值20张/118 mask，合并294张/1770 mask。candidate44以train454训练23轮早停、最佳第11轮，权重`8b8f326c…c0c6`；val30的0.35为128/16/22、0.45为126/18/16，拒绝。candidate45四点粗插值均退化为127匹配。candidate46三个预登记细点中只锁定alpha0.025：val30为128/16/16、边界F1=0.603157；一次test100虽较candidate42改善为519匹配、466完整mask、35漏甲、16额外、12无效，但完整mask、缺甲图片率和加权杂散率仍失败，禁止继续据test细分插值。 |
 | candidate47复用真值与candidate48新边界训练 | `candidate47-boundary-validation-decision-v1.json`、`candidate48-new-boundary-training-plan-v1.json`、`candidate48-boundary-validation-decision-v1.json`及两批candidate48审核清单 | ❌ candidate47/48均在val30否决；余8张待返修 | candidate48原分辨率接受`00664/00915/01051`共3张/20 mask，其余8张未通过项不计数。合并索引316张/1900 mask，规范输入train476（316正图+160负图）、val30/144、test0，输入审计`3023b22d…55bb`与数据树`b32e524b…cf6d`PASS。candidate48训练18轮、最佳第6轮、权重45167657 bytes、`6c840ed1…b1c7`；部署512 val30在0.35为128/16/28、0.45为126/18/21，联合门失败，未读取test100，未导出、登记、接入或部署。 |
 | candidate49剩余难例收口与规范输入 | `candidate49-source-disposition-v1.json`、`candidate49-mask-repair-decision-00901-v1.json`、`build-candidate49-combined-training-truth-index.py`及Git外`2026_9_1_candidate49_*` | ✅ 1张/10 mask真值与输入PASS；待积累后训练 | 用户截图指出的`00623`漏甲/污染、`01243`重复交叠、`00228`手部饰品误识别均整图排除，不进入训练。余下8张最终仅`00901`可可靠修复：删去1个重复候选，对3个装饰假凹口以真实甲板外缘修平，10/10 polygon合法、零交叠、几何和原分辨率视觉审核PASS；其余7张全部排除。合并索引317张/1910 mask、103来源组，物化train477（317正图+160负图）、val30/144、test0，记录摘要`03a86ff6…d6bc`、数据树`4c1d392b…0f25`、输入审计`0161f28f…1556`PASS。冻结test100仅用于来源隔离核验，未复制或推理；尚未训练、val/test、导出、登记、接入或部署。 |
 | candidate50严格旧真值复核、训练与受保护回归 | `candidate50-positive-source-selection-v1.json`、`candidate50-validation-decision-v1.json`、`candidate50-runtime-selection-lock-v1.json`、`candidate50-frozen-test100-decision-v1.json`及Git外candidate50输出 | ❌ TEST HOLD | val30锁定alpha0.03权重`58e5006c…0106`后只执行一次受保护test100。结果519/554匹配、467完整mask、35漏甲、13重复、16额外、12无效、20图漏甲、55图可直接提取；相对candidate46仅增加1个完整mask和1张可直接提取图。三项绝对门失败，轨迹终止，禁止导出、登记、接入或部署。 |
-| candidate51—57运行时对齐与低置信带组合 | `candidate56-square-stage1-recall-plan-v1.json`、`candidate56-direct-val30-plan-v1.json`、`candidate56-joint-val30-plan-v1.json`、`candidate57-low-band-margin-gate-plan-v1.json`及Git外candidate56输出 | 🟡 candidate57 VAL PASS；test100待执行 | candidate51—55均已在val阶段或受保护回归阶段拒绝；candidate56完成512方形stage1训练但单模型与锁定边界精修联合链均未达到128/16/16。candidate57不再训练新权重，只在val30按预注册规则将低置信带中stage2相对stage1提升至少0.55的候选晋级并保留stage1 polygon，得到129匹配/15漏检/16误检、边界F1 `0.6139459`。报告`e2c3976a…e71`为PASS且`testImagesRead=0`；固定组合通过受保护test100前继续禁止导出、登记、接入和部署。 **〔本行由 Codex 新增〕** |
-| 数据集治理 | `model/datasets/nail-texture-v1` | 进行中 | 正式训练集仍为409图、2142个mask，split=300/46/63。既有训练角色素材没有因candidate5发布拒绝而作废：当前100张/521 mask权威训练正样本及registry v4登记的4份训练负样本清单，仍可在各自授权、质量门和来源隔离范围内复用；其中candidate5训练160张的最终批准清单明确`trainingUse=permitted`。val30只允许阈值校准，冻结test100只允许质量评估，均不得回流训练。candidate4编号261—360与candidate5编号361—460两批独立留出均已被相应候选消费，永久`trainingUse=prohibited`，只能按授权用于长期回归/诊断/质量审核，且不得再次冒充全新未见留出。最新保护registry v4含7份manifest、4份training、3份holdout，阻止已消费留出回流训练。新补强数据用于覆盖既有漏甲/误检盲区并建立下一候选的全新泛化证据，不代表旧训练素材失效 |
+| candidate51—57运行时对齐与低置信带组合 | `candidate56-square-stage1-recall-plan-v1.json`、`candidate56-direct-val30-plan-v1.json`、`candidate56-joint-val30-plan-v1.json`、`candidate57-low-band-margin-gate-plan-v1.json`及Git外candidate56输出 | 🔴 candidate57 TEST HOLD；轨迹终止 | candidate51—56均已在val或受保护回归阶段拒绝；candidate57以val30的129匹配/15漏检/16误检进入唯一一次有效test100后，得到531/554匹配、479完整mask、23漏甲、16重复、5背景误检、13图漏甲和59图可直接提取。召回与完整率通过，但漏甲图片率`0.13`和加权杂散率`0.04693141`失败；禁止重跑、反调、导出、登记、接入或部署。旧val30/test100只保留为历史回归，下一候选须使用train内开发折、全新校准集和全新一次性正样本发布留出。 **〔本行由 Codex 更新〕** |
+| 数据集治理 | `model/datasets/nail-texture-v1`及候选物化报告 | 进行中（发布角色需重建） | 仓库历史基础数据集仍为409图/2142 mask、split=300/46/63；candidate52/56最近一次深审训练输入为328张正图/1981 mask/112来源组加160张train困难负样本，物化train488/val30/test0。旧val30、旧test100及编号261—360、361—460等已消费holdout现在只作受保护历史回归，禁止训练、配方/阈值选择或再次冒充未见证据。下一候选须在train内建立来源组开发折，并另建全新校准集、一次性正样本发布留出和候选锁定后的全新困难负样本；当前无批准发布候选。 **〔本行由 Codex 更新〕** |
 | 候选5训练负样本 | `build-candidate5-hard-negative-generation-plan.py`、训练授权/终审/物化链、Git外`2026_7_29_candidate5_training_v2` | 已完成（160/160训练输入） | 用户已按schema v2精确文本授权160张及四项用途，排除独立发布测试且不放宽质量门；A记录`de1b73b…0b16`、批准清单`fe68c361…164a`均深验通过。40张1:1审核页完成160/160原分辨率终审，0排除；物化为train260（100正样本/521 mask+160空标签负样本）、val30/144 mask、test0，物化`9974b871…3d73`与GPU输入审计`6734942d…f590`通过。本批只用于训练/回归/诊断/质量审核，永不充当独立发布测试 |
 | 候选5训练后独立留出 | Git外`2026_7_30_candidate5_post_train_holdout_v1`及同名`_review` | 审计完成（candidate5拒绝） | 用户已逐字授权编号361—460的100张精确文件清单，schema v2授权、A记录、原子freeze、registry v3隔离预审、25页1:1终审100/100及批准清单`c7af362a…17ed`均深验通过；冻结和批准前未运行candidate5推理。首次部署512、阈值0.50三变体报告`9cb13d1f…8016`深验通过，但原图3张/5检测、裁右下12%为4张/4检测、模糊右下角为3张/6检测，检测数delta=1/1，严格门失败。误检涉及软胶囊395、种荚388及实验室耗材405/407/410；牙科家族未触发部署阈值误检。整批已以holdout角色追加到registry v4，永久禁止训练、删图规避或再次充当未见留出 |
 | 候选6训练负样本 | `build-candidate6-hard-negative-generation-plan.py`、Git外`2026_7_31_candidate6_training_plan_v1`与`2026_7_31_candidate6_training_v1` | 暂停（10/160，先补正式识别门） | 新计划从candidate5拒绝报告和registry v4深验提取5张误检、3个失败家族，只生成全新来源训练候选，不复制361—460。首族001—010已通过生成机器门，但全批继续`trainingUse=prohibited`、`authorizationStatus=missing`。鉴于产品第一目标是完整识别美甲，剩余150张生成暂停；先建立逐图完整甲面召回、重复/污染和像素mask可提取性的正样本强门，并规划新来源、精确商业训练授权的正样本补强。三变体零误检/零delta门保持不变，不运行candidate5/6推理或训练 |
@@ -252,6 +253,8 @@ npm.cmd run build
 
 状态：已完成。
 
+2026-09-05复核发现两个待修缺陷：`NailCanvas`直接导出≤400×600的预览画布，4096方图保存为400方图；20份撤销历史淘汰原图后，“重置”回到最旧编辑状态。已有上传/涂抹链路可用不代表原分辨率导出与长历史重置正确，本轮只登记，未改运行代码。 **〔本段由 Codex 新增〕**
+
 使用方式：
 
 1. 上传或拍摄清晰的手部图片；文件选择器与运行时均限制为 JPG/PNG/WebP、最大 10 MB、宽高各 320–4096 像素；
@@ -315,7 +318,7 @@ AGNES_API_BASE_URL=https://apihub.agnes-ai.com/v1
 AGNES_IMAGE_MODEL=agnes-image-2.1-flash
 ```
 
-当前服务端按Agnes Image 2.1 Flash协议请求`POST {AGNES_API_BASE_URL}/images/generations`，按用户选择的**尺寸档位**（`size`，1K/2K/3K/4K，默认 1K）与**画面比例**（`ratio`，默认 1:1）组合决定输出尺寸（默认即 `1024x1024`，由`size:"1K"`+`ratio:"1:1"`得到，行为与历史一致），并将`response_format: "url"`置于`extra_body`。总超时为180秒；503最多按1/2/4秒退避后重试，401、429及供应商异常保持结构化错误响应。基础地址与模型ID可由服务端环境变量覆盖；本机用户配置当前使用`https://api.agnes-ai.cn/v1`（2026-08-29由`https://apihub.agnes-ai.cn/v1`切换并换用新服务端密钥），其`GET /models`认证返回HTTP 200并列出目标模型，`/v1/images/generations`真实文生图返回图片URL且产物可下载。2026-08-10用户确认AI美甲真实生图功能已经验证通过，并于2026-08-12再次确认；该验收证明当前交互链路可用，不代表供应商长期可用性、成本或内容安全无需继续监测。AI 输出仍不会自动进入图库、编辑器或 AR，当前需要用户先下载再手动上传。
+当前服务端按Agnes Image 2.1 Flash协议请求`POST {AGNES_API_BASE_URL}/images/generations`，按用户选择的**尺寸档位**（`size`，1K/2K/3K/4K，默认 1K）与**画面比例**（`ratio`，默认 1:1）组合决定输出尺寸（默认即 `1024x1024`，由`size:"1K"`+`ratio:"1:1"`得到，行为与历史一致），并将`response_format: "url"`置于`extra_body`。总超时为180秒；503最多按1/2/4秒退避后重试，401、429及供应商异常保持结构化错误响应。基础地址与模型ID可由服务端环境变量覆盖；本机用户配置当前使用`https://api.agnes-ai.cn/v1`（2026-08-29由`https://apihub.agnes-ai.cn/v1`切换并换用新服务端密钥），其`GET /models`认证返回HTTP 200并列出目标模型，`/v1/images/generations`真实文生图返回图片URL且产物可下载。2026-08-10用户确认AI美甲真实生图功能已经验证通过，并于2026-08-12再次确认；该验收证明当前交互链路可用，不代表供应商长期可用性、成本或内容安全无需继续监测。AI输出可一键收录到本地图库，再由图库带入AI或AR；编辑器尚无直接消费生成成品的共享项目协议，见§4.3。 **〔本段由 Codex 更新〕**
 
 ### 4.5 `/ar-tryon` AR 试戴
 
@@ -424,9 +427,11 @@ interface NailGeometry {
 
 ## 5. HTTP API 契约
 
+账号接口补充（2026-09-05源码复核）：当前已存在`/login`、`/account`及`/api/auth/*`、`/api/me`、`/api/me/improvement`、身份绑定/解绑接口；底层为JWT与Node内置SQLite的账户原型。真实短信发送尚未接入，refresh轮换没有实际请求入口，默认数据库父目录缺少初始化；验证码发送历史、手机号换绑一致性和生产部署仍有缺口。因此账户不是“完全未实现”，也不能按生产可用登记。两条付费生图路由尚未使用现有账户鉴权与额度保护。源码证据与复现见`docs/project-review-2026-09-05.md`第5—7项。 **〔本段由 Codex 新增〕**
+
 ### 5.1 `POST /api/generate-ai`
 
-状态：待验证。
+状态：功能链路已有既有用户验收；公开服务所需鉴权、配额、幂等与成本治理未完成，不能把功能验收等同生产开放资格。 **〔本段由 Codex 更新〕**
 
 请求：
 
@@ -1152,19 +1157,21 @@ Git 推送若出现`Failed to connect to github.com port 443`，应先用只读�
 
 ### 9.4 推荐的正式模型落地Goal
 
-2026-07-31根据当前完成度、candidate5拒绝证据和前端真实运行状态，推荐把下一项持续Goal命名为“完成甲如正式美甲纹理模型、前端接入与发布验收”。Goal正文应使用以下完整定义：
+2026-09-05复核确认，旧Goal把standing授权与逐批人工确认、已消费留出禁用与继续使用旧val30/test100、历史进度账本与当前完成门混在一起，已经不能原样执行。完整问题清单和可复制文本见`docs/nail-texture-goal-and-reference-docs-review-2026-09-05.md`；当前Goal应以“正式美甲识别语义、全新校准/发布留出、单一release identity和可达的audit v3”为核心。 **〔本段由 Codex 更新〕**
 
-> 按`docs/nail-texture-local-inference-implementation-spec.md`、`docs/nail-texture-local-inference-implementation-progress.md`和`docs/nail-texture-completion-audit.md`持续推进甲如美甲纹理抠图正式模型落地与`/ar-tryon`前端接入。在不降低现有质量门、不部署或复用已拒绝candidate5、不复用已消费holdout、不扩大未授权数据用途的前提下：先以新来源、精确商业训练授权且原分辨率审核通过的数据训练并迭代下一候选；使用来源隔离val30校准阈值并通过冻结test100；训练完成后另建、精确授权、原子冻结并终审不少于100张全新未见困难负样本，在部署512上对原图、裁右下12%、模糊右下角实现误检图片数=0、误检检测数=0、相对原图delta=0；随后导出并登记带大小与SHA-256完整性证据的生产ONNX，接入浏览器Worker的WebGPU/WASM路径和`/ar-tryon`多纹理自动识别/像素mask提取，完成真实浏览器回归、Android手机/平板、iPhone/iPad真机验收、至少100张Beta人工质量审核、正式产品质量报告以及两个独立批准版本的回滚验证。只有最终完成度审计返回`ok=true`且`decision=complete`才标记Goal完成。遇到精确授权、原子freeze、Beta审核或物理设备输入时停下请求用户确认；未经明确要求不执行git commit或git push。
+> 目标：交付可商用、浏览器本地运行并接入`/ar-tryon`的正式美甲纹理识别模型。正式成功要求对每枚完整可见甲面输出且只输出一个可映回原图的完整像素mask；模型不可用或只有MediaPipe/颜色/边界/矩形/椭圆辅助区域时，必须标明“辅助定位、需要人工确认”，不得计入模型成功率或Beta直接可用率。candidate57已经在唯一一次有效test100上因漏甲图片率`0.13`和加权杂散率`0.04693141`失败并固定为TEST HOLD；旧val30/test100只保留为受保护历史回归，不再作为下一候选的独立校准或最终未见发布证据。 **〔本段由 Codex 更新〕**
+>
+> 用户已对本项目范围内由其提供或放置、且有权授权并可由Codex访问的图像资源与本机计算资源授予持续商业模型开发使用权。逐清单处理、标注、物化、训练启动和满足机器证据门后的原子freeze无需再次请求人工授权；系统仍须记录来源、许可声明、用途角色、精确清单、SHA-256和冻结时间。该授权不改变train/dev/calibration/test/holdout隔离，不允许已消费测试或留出回流训练，也不替代外部付费服务、Beta人工判断和物理设备真实证据。 **〔本段由 Codex 更新〕**
+>
+> 下一正式候选前先实现completion audit v3：历史实验的生命周期与质量结果分开，总门只读取当前发布要求；历史REJECT/HOLD必须保留且不得改写成PASS。所有正式证据必须绑定同一不可变`releaseIdentity`，至少包含candidate、运行时选择锁、全部模型SHA、输入尺寸、阈值/组合、预后处理实现和生产manifest SHA；禁止跨候选拼接正负留出、ONNX、浏览器、桌面、真机、Beta、产品质量或回滚证据。 **〔本段由 Codex 更新〕**
+>
+> 训练主线保留单阶段YOLO实例分割、部署一致的512方形letterbox和产品去重，暂停当前只重新打分且不替换mask的ROI stage2。每轮预注册一个可证伪假设，在train内按`sourceGroup`建立互斥开发折并至多做两个短程单变量实验；失败关闭分支，禁止同输入原样重训、用正式测试调参或微小阈值/插值循环。优先增加透明/低对比、相邻长甲、侧视、多手和复杂背景的独立父图，禁止用大量近重复ROI代替来源多样性。水印图可进入train，但水印不得进入甲面mask，必须登记位置/类型并完成无水印、去除/遮挡/模糊和位置变化消融。 **〔本段由 Codex 更新〕**
+>
+> 配方锁定后建立不少于30张全新来源隔离校准集，只允许选择一次阈值；随后冻结权重、512预处理、阈值、后处理和`releaseIdentity`，再原子冻结不少于100张全新正样本发布留出并只正式评估一次，固定要求实例召回≥0.90、完整mask比例≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02。候选锁定后另建不少于100张、未被模型筛选的全新困难负样本；部署512的原图、裁右下12%、模糊右下角均须误检图片=0、误检检测=0、delta=0，非右下水印还须增加对应区域变体。 **〔本段由 Codex 更新〕**
+>
+> 质量门通过后导出并登记生产ONNX，验证训练框架、ONNX、WebGPU和WASM在同一冻结样本上的候选、坐标与mask一致性。使用同一`releaseIdentity`完成Worker与`/ar-tryon`、真实浏览器、Windows桌面性能/重复运行内存、真实用户失败案例、Android手机/平板、iPhone/iPad各至少20次真机、Beta不少于100张、正式产品质量和双版本回滚bootstrap/演练。只有audit v3对同一发布身份的全部当前门重放为`ok=true`且`decision=complete`，才解除HOLD。仅在Beta人工判断或物理设备确需真实外部输入时，先完成验收包再一次性请求用户；未经明确要求不执行git commit或git push。 **〔本段由 Codex 更新〕**
 
-该Goal的边界与执行规则如下：
-
-- 单个候选训练完成、离线正样本指标通过、导出ONNX或网页能加载模型，都只是中间里程碑，不能单独宣告Goal完成；
-- candidate5及编号261—360、361—460等已消费独立留出只能保留为历史诊断/长期回归角色，不能转为新候选训练数据或再次冒充未见发布留出；
-- 阈值只能由来源隔离val证据校准，冻结test、发布留出和用户单图不得参与阈值选择；
-- 第一执行步应先重放当前完成度审计并形成下一候选的训练数据/授权/来源隔离方案；精确训练清单未获授权前不得启动训练；
-- 这是长周期持续Goal，建议不设置固定token预算，避免预算耗尽被误解为质量门已通过；候选失败时应记录拒绝证据并继续迭代，不能降低发布标准。
-
-本节仅给出可直接设置的Goal文本与完成边界；当前Goal接口仍为空，本轮没有调用Goal创建接口，也没有启动生成、训练、推理、导出、部署或前端修改。
+单个训练完成、开发折或校准集通过、ONNX导出成功、网页加载模型都只是中间里程碑。当前Goal接口是否已由用户在外部设置不由仓库文档判断；本节只维护推荐文本与完成边界。 **〔本段由 Codex 更新〕**
 
 ### 9.5 正样本识别质量门（schema v2 加权模式）
 
@@ -1187,29 +1194,87 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 
 以下两项只是分阶段口径不同，不构成矛盾：正样本test使用加权伪实例预算，而全负样本独立留出要求三变体零误检/零delta，是因为两者条件分布和失败含义不同；新160张训练困难负样本在70/160暂停也不破坏最低100张训练负样本门，因为下一训练计划复用的是既有已批准集合，暂停批次仍不得计入。
 
+### 9.7 项目全面复核（2026-09-05）
+
+本轮结合当前源码、候选决策、三方向独立审查与局部行为复现，形成`docs/project-review-2026-09-05.md`的12组问题及推进顺序；这是代码/证据评审，不构成模型、真机或法律验收。已复核，无运行接口/发布状态变化，原因是任务仅要求分析，代码缺陷保留待修，candidate57与产品继续HOLD。 **〔本段由 Codex 新增〕**
+
+| 范围 | 当前证据与结论 |
+| --- | --- |
+| 模型与门禁 | candidate57终结决策为TEST HOLD，59/100图直接可提取；最终完成度profile仍绑定candidate5且未接逐实例质量gate。test runner只要求新输出目录，没有按选择锁/测试快照登记消费；本轮仅静态确认，未重跑test100。旧CLI放宽漏洞已封闭，不能继续当作当前缺陷。 **〔本行由 Codex 新增〕** |
+| 验证方法 | 固定val30经历多轮训练方向与后处理选择；candidate57低带阈值的局部支撑仅2真阳性/2假阳性。存在自适应复用风险，未证明已过拟合；应补train内来源组开发集、新校准证据及全新一次性正样本发布留出。 **〔本行由 Codex 新增〕** |
+| 账号/API | 生图路由缺鉴权/额度；生产短信未实现，refresh没有请求入口，默认SQLite父目录不创建。纯内存复现验证码答案可解析、已消费验证码不计入发送限额、换绑号码导致资料/identity不一致；生产部署与用户告知需补齐。 **〔本行由 Codex 新增〕** |
+| 编辑器/AI/AR | 复现编辑器400像素级导出、25笔后重置回第6笔；3:4/2:3参考图比例被映射为2:3/9:16；AR共享旧纹理在应用全部后未close。已有图库→AI/AR与AI本地收录链路有效。 **〔本行由 Codex 新增〕** |
+| 工程与维护 | 默认178个Node测试文件，缺CI工作流与默认浏览器交互回归；scripts未进入主tsconfig/ESLint。千行组件和约1MB白皮书增加维护成本。建议优先覆盖用户关键行为，并把当前候选状态集中到机器决策入口。 **〔本行由 Codex 新增〕** |
+
+本轮验证：ESLint、生产构建通过；首轮全量受到沙箱`spawnSync python EPERM`影响，沙箱外专项20/20与全量串行833/833通过，0跳过。最终文档检查见§13 v1.1.595收尾记录；未训练、重跑受保护测试或调用付费服务。 **〔本段由 Codex 新增〕**
+
+### 9.8 模型技术路线与训练速度复核（2026-09-05）
+
+结论：浏览器端单类YOLO实例分割与512方形部署输入没有根本路线错误；当前主要问题是实验收敛方式和candidate53—57两阶段实现。candidate56单阶段主模型在RTX 4060 Laptop 8GB上用488张全图训练17轮只需785.02秒，单次训练不慢；ROI分支把同一批328张正图、1981个mask、112个来源组展开为1.38万—1.55万张近重复裁片，使每轮训练和候选验证显著变长，但没有增加同等规模的独立来源多样性。candidate57在test100中没有任何stage2晋级，最终polygon始终来自stage1，因此当前分数门式stage2没有产生可观察的最终收益。 **〔本段由 Codex 新增〕**
+
+| 训练 | 数据与关键配置 | 实测耗时 | 解释 |
+| --- | --- | --- | --- |
+| candidate22 | 425张全图，640，`workers=8`、`cache=false`、`mask_ratio=4` | 45轮/806.90秒，17.93秒/轮 | 较早的低成本基线；与后续配置不完全同质。 **〔本行由 Codex 新增〕** |
+| candidate28 | 434张全图，640，`workers=0`、`cache=false`、`mask_ratio=1` | 53轮/3022.04秒，57.02秒/轮 | 每轮为candidate22的3.18倍；同时改变了worker、mask分辨率、overlap与mosaic，不能把全部差异归因于单一参数。 **〔本行由 Codex 新增〕** |
+| candidate53 stage2 | 13795张256 ROI，`workers=0`、`cache=false`、`mask_ratio=1` | 14轮/3077.66秒，219.83秒/轮 | 近重复ROI物化和逐轮小文件解码把训练量放大。 **〔本行由 Codex 新增〕** |
+| candidate55 stage2 | 15531张256 ROI，其中15479正ROI、52负ROI | 10轮/2500.64秒，250.06秒/轮 | 正负极不平衡且只增加1736个proposal条件正ROI；不适合作为可靠存在性拒绝器。 **〔本行由 Codex 新增〕** |
+| candidate56 stage1 | 488张512方形全图，`workers=0`、`cache=false`、`mask_ratio=1`、冻结前10层 | 17轮/785.02秒，46.18秒/轮 | 当前单阶段正式方向的单次GPU训练约13.1分钟，速度可接受。 **〔本行由 Codex 新增〕** |
+
+candidate57的主要失败不再是总体检测召回不足：test100实例召回为95.85%，但23个漏甲集中在13张图，另有16个重复；531个匹配中只有479个完整mask，即52个实例已经匹配但边界仍不完整，最终只有59/100图可直接提取。现有val30选择合同主要看匹配/漏检/误检和micro边界F1，发布合同则看漏甲图片率、完整mask比例和加权杂散率；目标未完全对齐。val30仅30图/14来源组并被多轮候选复用，candidate57的0.55跨阶段分差又只由2个真阳性和2个假阳性局部分隔，不能继续支撑同轨小步调参。 **〔本段由 Codex 新增〕**
+
+| 优先级 | 后续路线决定 |
+| --- | --- |
+| P0 | candidate57保持终止；下一轮保留单阶段YOLO基线与部署一致的方形letterbox/产品去重，暂停继续训练当前“只打分、不替换mask”的ROI stage2。 **〔本行由 Codex 新增〕** |
+| P0 | 把缺甲图片率、完整mask比例、加权杂散率、直接可提取率及来源组最差值前移到开发选择；现有val30降为历史回归证据，从train内按`sourceGroup`建立互斥开发折，配方锁定后再建立全新来源校准集和一次性发布留出。 **〔本行由 Codex 新增〕** |
+| P1 | 优先增加透明/裸色、相邻长甲、侧视、多手和复杂背景的独立父图与来源组；停止用更多近重复ROI数量代替来源多样性。普通配方实验使用experiment ID，只有准备晋升的方案占用candidate编号和正式审计链。 **〔本行由 Codex 新增〕** |
+| P1 | 在不改变质量参数的短基准上比较`workers=0/2/4`、`cache=false/ram`和固定实际batch，记录吞吐、GPU利用率、显存、功耗与DataLoader等待；Windows错误1455说明不能直接恢复workers=8。当前GPU为空闲快照，不能据此断言训练时存在降频或GPU饥饿。 **〔本行由 Codex 新增〕** |
+| P1 | 预注册少量有信息量的训练对照，例如当前容量512与较小模型640；统一训练、验证和浏览器预处理，不再连续使用`1e-6`级学习率、冻结10层和小alpha插值做局部爬坡。 **〔本行由 Codex 新增〕** |
+| P2 | 只有新数据循环后仍由边界主导失败，才重建两阶段：stage1负责高召回，stage2必须实际输出替换mask并使用充足的真实proposal负样本或独立校准质量头；同时先扩展浏览器多模型manifest、Worker、体积、延迟和真机合同。 **〔本行由 Codex 新增〕** |
+
+严格真值审核、来源隔离、候选锁和失败保持HOLD均应保留；应拆分轻量研发实验轨与正式晋升轨，避免每个小阈值、插值或微调都支付接近发布候选的完整治理成本。本轮只读分析未启动训练、修改训练配置、重跑test100或改变生产状态。 **〔本段由 Codex 新增〕**
+
+### 9.9 Goal与三份引用文档一致性审计（2026-09-05）
+
+对Goal、实施规范、实施进度、完成度说明、实际审计脚本和当前机器报告交叉核对后，确认旧Goal不能原样继续。最高优先级问题不是质量门太严，而是完成语义不可达和证据身份不一致；完整审计与替换文本见`docs/nail-texture-goal-and-reference-docs-review-2026-09-05.md`。 **〔本段由 Codex 新增〕**
+
+| 优先级 | 当前问题 | 必须修改为 |
+| --- | --- | --- |
+| P0 | Goal开头授予standing商业使用权，结尾又要求在精确训练授权和原子freeze时停下确认；现有授权文件已明确这两项不是等待门。 | 精确清单、来源、许可、用途角色和SHA-256继续机器追溯；逐批授权、训练启动和证据门后的原子freeze直接推进。只有Beta人工判断和物理设备真实输入可能需要用户。 **〔本行由 Codex 新增〕** |
+| P0 | Goal禁止复用已消费holdout，却又要求下一候选继续用旧val30校准和旧test100发布。两套数据均已被长期自适应使用。 | 旧val30/test100降为只读历史回归；train内来源组开发折选配方，另建全新校准集，再在运行时锁定后原子冻结全新一次性正样本发布留出。 **〔本行由 Codex 新增〕** |
+| P0 | audit v2扫描整份progress并只认严格PASS；当前保存的v2报告含523个标记、51个非PASS，多数是不可篡改的历史候选终局。 | audit v3拆分`lifecycle`、`outcome`、`gateRole`和`required`，只阻断`gateRole=current-release; required=true`要求；历史REJECT/HOLD保留但不伪装质量PASS，也不永久阻断未来候选。 **〔本行由 Codex 更新〕** |
+| P0 | evidence profile仍绑定candidate5质量证据，桌面报告来自candidate6，最新状态为candidate57 TEST HOLD；现有schema只支持单权重/单阈值。 | 引入单一不可变`releaseIdentity`，让正负留出、全部模型/运行时锁、ONNX、manifest、浏览器、桌面/真机、Beta、产品质量和回滚逐项绑定并重放同一身份。 **〔本行由 Codex 新增〕** |
+| P0 | 正式总门仍主要读取mAP和旧`qualityGatePassed`，没有独立重放schema v2逐实例正样本合同。 | 完成审计必须调用正样本报告`--verify-report`，固定核验召回≥0.90、完整mask≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02和每图输出；mAP只作辅助回归。 **〔本行由 Codex 新增〕** |
+| P1 | spec头部仍描述dry-run、Worker误判、拉伸输入等已修问题；progress顶部停在candidate18、当前总体验收停在candidate5/6；completion文档写13门而代码实际14门。 | 重写spec当前状态与稳定合同，把候选流水移至progress/archive；progress改成短当前dashboard加结构化历史账本；gate数量从schema生成，避免自然语言漂移。 **〔本行由 Codex 新增〕** |
+| P1 | 当前前端在模型不可用时仍可能把无像素mask的辅助候选显示为“可直接提取”。 | 只有`backend=model`、发布身份一致且每个候选有有效mask时才计正式识别；fallback持续显示辅助定位/人工确认并从Beta成功率排除。 **〔本行由 Codex 新增〕** |
+
+三份引用文档的活动状态、角色和质量合同已于2026-09-06先行同步；剩余实现顺序固定为：完成audit v3及消费台账，修复fallback与manifest/release identity，再启动新来源数据和下一单阶段候选。文档更新不改变脚本行为或发布状态，当前audit v2仍不得作为“只差训练”的可信解释。 **〔本段由 Codex 更新〕**
+
+2026-09-06已把审计结论直接写回三份Goal引用文档：实施规范升级为v1.2，以§51登记当前发布候选活动合同并将candidate1—57、旧val30/test100和旧两阶段计划明确降为历史证据；实施进度新增当前发布dashboard、`lifecycle/outcome/gateRole/required`标记语义及只面向下一发布链的要求清单；完成度说明升级为v1.3，明确audit v2只能诊断HOLD，并给出audit v3、统一`releaseIdentity`、新校准集、一次性正样本发布留出和全新困难负样本的合同。此次同步只纠正文档语义：实际审计脚本及`model/reports/nail-texture-completion-evidence-profile.json`仍是v2/candidate5历史profile，尚未获得v3行为，产品与candidate57继续HOLD。 **〔本段由 Codex 新增〕**
+
 ## 10. 隐私、安全与资源管理
 
 - `/editor` 上传照片默认在浏览器本地处理；「用户改进计划」开关默认开启时，手部照片等数据可能被上传用于产品改进（当前代码尚无实际上传通道，开关为偏好记录，未来数据收集上线后生效）；
 - `/ar-tryon` 摄像头帧默认在浏览器内存中处理，不录制；MediaPipe程序和模型由本站同源静态目录提供；
 - 自动纹理识别默认在浏览器 Worker/主线程中运行；
-- `/api/generate-ai` 只接收文字，但会把增强后的文字发送给外部图像服务，返回的图片也由浏览器访问外部 URL；
+- `/api/generate-ai`与`/api/generate-seedream`接收文字及可选参考图，并分别转发给Agnes与火山方舟；返回图片由浏览器访问外部URL，主动生图不由“用户改进计划”开关禁用。 **〔本段由 Codex 更新〕**
 - `AGNES_API_KEY`只能存在于服务端环境变量；本机`.env.local`受`.gitignore`保护，文档、日志和源码不得记录真实密钥；
 - `ImageBitmap`、对象 URL、MediaStream track、Worker 和动画帧循环必须在取消或卸载时释放；
 - 用户素材、训练图片、大模型权重和生成数据默认不应加入 Git；应通过 `.gitignore`、对象存储或独立数据盘管理；
 - 正式 API 上线前需增加鉴权、限流、内容安全、审计、费用保护和错误信息脱敏。
-- `/privacy` 是当前产品文案，不构成已完成的法律合规审计；v1.1.470 已将“不上传照片/不追踪/无云同步”承诺修订为「用户改进计划」模式：开关默认开启（手部照片等数据可能用于产品改进）、可随时关闭，关闭后不再上传数据；开关为客户端组件，状态持久化于 localStorage（key `jiaru-improvement-program`，值 on/off），当前版本尚无实际上传通道，该开关仅记录用户偏好供未来数据收集功能生效；AI 生图默认只发送文字描述不发送原图，v1.1.484 起仅当用户主动上传参考图时该图片才发送给第三方 Agnes（仅用于本次生成、不用于训练或存储），隐私页与 AI 页文案已同步。
+- `/privacy`是待纠正的产品文案，不构成法律合规验收：仍称无账户体系、只列Agnes、关闭改进计划后不再上传任何数据，与已有账户、Seedream和主动生图数据流不符。账户数据库可保存手机号、身份、会话IP和审计记录；个人收录保存在本地IndexedDB。第三方“不用于训练或存储”不能仅凭本项目代码保证，需要实际服务条款/协议依据。 **〔本段由 Codex 更新〕**
+- 改进计划目前尚无实际素材上传通道；隐私页开关仅写localStorage，账户页开关同时写`/api/me/improvement`与localStorage，反向同步未实现，可能出现账号与设备偏好不一致。后续接入上传前必须统一权威偏好与作用范围，不能把关闭可选改进计划描述为关闭用户主动请求的全部网络服务。 **〔本段由 Codex 新增〕**
 
 ## 11. 已知限制与下一阶段
 
 ### 11.1 阻塞项
 
-截至v1.1.591，candidate51—56已完成各自受控训练或组合评估并在val30/受保护回归阶段拒绝；当前唯一前沿候选为candidate57。candidate56最佳权重`64628504…c272`在512方形stage1直接阈值扫描中，0.30为129匹配/15漏检/18误检，0.40为127/17/16，0.45为127/17/13；与锁定candidate55边界精修组合后仍无合格点。candidate57不训练新权重，只按val30预注册的低置信带提升门组合两阶段分数并保留stage1 polygon，已达到129匹配/15漏检/16误检、边界F1 `0.6139459`。当前阻塞已从“继续训练下一候选”更新为“以锁定组合读取受保护test100并通过正样本质量门”；报告仍为`testImagesRead=0`，因此生产manifest、导出、登记、前端接入与发布继续HOLD。后续即使test100通过，仍须完成全新独立困难负样本、生产ONNX、Worker/`/ar-tryon`、浏览器/四类真机、Beta100、产品质量和双版本回滚门。 **〔本段由 Codex 更新〕**
+截至v1.1.598复核，candidate57已经执行锁定运行时唯一一次有效test100评估并固定为TEST HOLD：531/554匹配、479完整mask、23漏甲、16重复、5背景误检，13%漏甲图片率和4.693%加权杂散率失败，59/100图满足报告定义的直接提取条件。机器终结决策为`model/training/candidate57-frozen-test100-decision-v1.json`，禁止重复评估或据test逐图反调；旧val30/test100降为只读历史回归，下一候选改用train内来源组开发折、全新校准集和运行时锁定后的全新一次性正样本发布留出。三份Goal引用文档已按§9.9同步为当前合同；实际completion audit v2仍因历史marker永久阻断并混用跨候选证据，须先完成audit v3；生产ONNX、浏览器/四类真机、Beta100、产品质量与回滚门仍待完成。 **〔本段由 Codex 更新〕**
 
 candidate52的旧“3张生成源图/20枚甲面尚未制作为完整mask、训练禁用”状态已经失效：3张/20个硬polygon后来通过原分辨率真值门并进入candidate52规范索引；最终索引328张/1981 mask/112来源组，物化train488（328正图+160困难负图）、val30/144、test0，输入审计`b3b2e134…8b43`通过。candidate52训练后在val30因128/16时最低仍有22误检而拒绝，随后该规范输入继续被candidate56复用。内置生成接口没有返回可核验的精确模型ID，因此这3张仍只能登记为OpenAI内置生成数据扩充，不构成知识蒸馏。 **〔本段由 Codex 更新〕**
 
-1. candidate57目前只通过来源隔离val30，受保护test100尚未读取，因此不能进入导出、登记或部署。若锁定组合通过test100正样本门，仍必须在训练方案和样本角色冻结后建立全新未见独立困难负样本，并通过原图、裁右下12%、模糊右下角三变体零误检/零delta门；既有编号261—360与361—460留出均已被历史候选消费并登记为holdout，永久禁止训练或再次冒充未见留出。仍缺用户典型失败案例、四类移动真机、至少100张Beta人工质量报告、生产ONNX和两个独立批准版本的回滚证据。生产manifest、共享阈值和正式发布状态继续HOLD。 **〔本段由 Codex 更新〕**
+1. candidate57的受保护test100已消费且失败，不能导出、登记或部署。后续合格候选仍需在训练方案和样本角色冻结后建立全新未见独立困难负样本，通过原图、裁右下12%、模糊右下角三变体零误检/零delta门；既有编号261—360与361—460已被历史候选消费，永久禁止训练或冒充未见留出。独立正样本最终留出、典型失败案例、四类移动真机、Beta人工质量、生产资产和双版本回滚证据仍须补齐。生产manifest、共享阈值和正式发布状态继续HOLD。 **〔本段由 Codex 更新〕**
 
-上传完整手背参考图可通过本站同源MediaPipe资源自动生成五指候选；局部近景没有完整手部关键点时，甲色路径可覆盖低饱和银色、镜面高光和干燥/纹理化甲缘，低对比边界路径可在部分裸色/半透明近景中生成低置信候选。但这些规则对含标题、说明文字、重复缩略图或多个视觉区域的复杂拼图仍不具备可靠泛化能力，两条路径也都没有像素级甲面mask；禁止以单图规则结果冒充正式模型质量。正式精细自动识别继续受“无批准生产ONNX”阻塞：candidate57虽已通过val30，但尚未读取test100，也未导出或接入浏览器，当前页面仍只能使用既有辅助定位/人工补选链路。实时AR已启用高精度手部关键点、TIP/DIP/PIP深度尺度、手背平面横轴、侧转仿射剪切、低拖尾平滑和五指独立校准，自动几何/页面回归通过；跨设备原分辨率视觉贴合仍未PASS。 **〔本段由 Codex 更新〕**
+上传完整手背参考图可通过本站同源MediaPipe生成五指候选；局部近景甲色路径与低对比边界路径可提供辅助定位，但复杂拼图泛化有限，且均没有像素级甲面mask。正式精细识别继续受“无批准生产ONNX”阻塞：candidate57已因test100质量门失败终止，当前页面仍使用既有辅助定位/人工补选。实时AR已有手部关键点、深度几何、侧转剪切、平滑与五指校准，跨设备原分辨率视觉贴合尚未PASS；本轮另复现“应用全部”遗漏关闭共享旧ImageBitmap的问题，见§9.7。 **〔本段由 Codex 更新〕**
 截至v1.1.157，阻塞项中的训练真值数量以56个批准报告、55张唯一图片/297 mask为准；最低100张train正样本仍缺45张。`00476`裁边排除，`00478`与`00482`新增10个终审mask；该更新替代本条前半段的v1.1.156嵌入快照，val 0/30、约100张hard negative、物化和来源隔离门均未改变。
 
 截至v1.1.162，训练真值数量以66个批准报告、65张唯一图片/347 mask为准；最低100张train正样本仍缺35张。同来源`00967`新增5个终审mask，眼睛/头发误检及指腹污染均已清除；`00965`因甲面遮挡正式排除。该更新替代上方v1.1.161嵌入快照，val 0/30、约100张hard negative、物化和来源隔离门均未改变。
@@ -1384,13 +1449,12 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 ### 11.3 未完成或占位能力
 
 1. 真实灵感图库与内容后台；
-2. 用户账户、云端项目保存、跨设备同步；
+2. 用户账户原型已存在，真实短信、会话续期、数据库初始化与生产治理仍待补齐；云端项目保存、跨设备同步未实现，详见§5补充及§9.7。 **〔本段由 Codex 更新〕**
 3. 订单、门店、商品、预约、支付等业务后端；
 4. 正式 3D 指甲网格、遮挡、光照和物理材质试戴；
 5. AI 生图的供应商抽象、任务队列、结果持久化和配额系统；
 6. 正式模型监控、线上质量回流和自动回滚闭环。
-7. 图库款式到 AR 的纹理传递（已于 v1.1.583 落地：`/ar-tryon?gallery=<id>` / `?collect=<id>` 自动打开多指指甲选取器，见 §4.3/§4.5；编辑器的 `?gallery=` 灵感参数消费于 v1.1.581 实现）；
-8. AI 生成结果一键进入图库（已于 v1.1.583 落地为浏览器本地 IndexedDB 收录，无服务端、`/gallery`「我的收录」区块可查看与删除，见 §4.3/§4.4；编辑器/AR 的集成仍无，仅 AI→图库收录已实现）；
+7. 图库/本地收录→AI/AR及AI→本地图库已实现，不再列为待实现链路；剩余缺口是编辑器笔画/成品共享与服务端持久项目协议，见§4.3—§4.5。 **〔本段由 Codex 更新〕**
 
 ### 11.4 外网演示与内网穿透已知限制
 
@@ -1430,9 +1494,9 @@ v1.1.188完成val返修批次011—013、替补角色扩展和候选物化。`00
 | --- | --- | --- | --- |
 | `M2-T3-CANDIDATE52-MASK-VISUAL-REVIEW-001` | 3张/20甲SAM与人工polygon逐甲2×复核 | ✅ PASS（真值视觉门；不构成训练或模型质量PASS） | v1—v7失败产物隔离且不计数；不可覆盖v8目录中的3张/20甲通过整图与逐甲2×原图/overlay终审，完整覆盖甲根、双侧缘、甲尖及所属装饰，无漏甲、重复、皮肤、指腹、织物、背景或交叠污染。机器复验为20合法、0交叠、提示几何20/20。 |
 | `M2-T3-CANDIDATE52-TRUTH-FINALIZATION-001` | 哈希绑定的训练真值候选终结 | ✅ PASS（真值候选门；待物化审计） | 原分辨率决定绑定源图选择、v8 manifest、人工返修报告、几何报告、3份标注和审核overlay哈希；终结器生成3份`ok=true`报告，共3来源组/20个完整mask，状态为`approved_as_training_truth_candidate_pending_dataset_materialization`。规范索引、物化与来源隔离深审前`trainingUse=prohibited-until-materialization-audit`。 |
-| `M2-T3-CANDIDATE52-FAST-PATH-001` | 正式模型上线加速分层 | ⏳ 计划已锁定 | 第一层只返修视觉失败polygon，随后最多两项train内短程单变量配方、一个完整正式候选和一次正式val30；只有第一层仍卡在小目标/边界时，才预注册“全图召回 + 单甲高分辨率ROI精修”两阶段对照。禁止同时扩展多模型、多损失和无界阈值搜索。 |
+| `M2-T3-CANDIDATE52-FAST-PATH-001` | 正式模型上线加速分层 | 🗃 SUPERSEDED（历史计划已执行并终结） | 第一层只返修视觉失败polygon，随后最多两项train内短程单变量配方、一个完整正式候选和一次正式val30；只有第一层仍卡在小目标/边界时，才预注册“全图召回 + 单甲高分辨率ROI精修”两阶段对照。禁止同时扩展多模型、多损失和无界阈值搜索。candidate52—57已经执行并终结该历史计划，当前活动路线由§9.9、§11.1和实施规范§51接管。 **〔本行由 Codex 更新〕** |
 
-OpenAI Image2状态没有变化：本项目没有OpenAI教师张量、蒸馏运行报告或由其产生的学生权重。现有3张图只能登记为精确模型ID不可核验的OpenAI内置生成图；其20枚硬polygon已通过真值门并随candidate52进入训练，但这仍属于教师辅助数据扩充，不属于知识蒸馏。candidate52的规范索引、物化、输入深审、训练和正式val30均已完成，最终因召回—误检联合合同失败而止损；当前最快剩余本地步骤已转为下节预注册的单一candidate53两阶段ROI对照。
+OpenAI Image2状态没有变化：本项目没有OpenAI教师张量、蒸馏运行报告或由其产生的学生权重。现有3张图只能登记为精确模型ID不可核验的OpenAI内置生成图；其20枚硬polygon已通过真值门并随candidate52进入训练，但这仍属于教师辅助数据扩充，不属于知识蒸馏。candidate52的规范索引、物化、输入深审、训练和正式val30均已完成，最终因召回—误检联合合同失败而止损；当时最快剩余本地步骤转为下节预注册的单一candidate53两阶段ROI对照；该计划已由candidate53—57执行并终结，当前路线以§9.9、§11.1及三份Goal引用文档为准。 **〔本段由 Codex 更新〕**
 
 ## 12.10 candidate52训练否决与candidate53两阶段ROI提速合同（2026-09-03）
 
@@ -1454,15 +1518,25 @@ candidate53/54/55证明“提高单甲裁片内部mAP”不会自动转化为完
 | `M2-T3-CANDIDATE56-STAGE1-TRAINING-001` | 512方形stage1召回训练 | ✅ PASS（训练完成；不构成质量PASS） | 复用candidate52深审输入：train488（328正图/1981 mask+160困难负图）、val30/144、test0；从candidate29权重启动，512、AdamW 1e-5、冻结前10层、mosaic0、独立全分辨率mask。训练摘要`130b8513…71a9`，最佳权重45,163,689 bytes、SHA-256 `64628504…c272`。 **〔本行由 Codex 新增〕** |
 | `M2-T3-CANDIDATE56-DIRECT-VAL30-001` | candidate56单stage1阈值扫描 | ❌ FAIL（未读取test100） | 来源隔离val30中，阈值0.30为129匹配/15漏检/18误检，0.40为127/17/16，0.45为127/17/13；边界F1在0.30为`0.6139459`、在0.40/0.45为`0.6198875`，但没有阈值同时满足至少128匹配、至多16漏检和至多16误检。正式报告`f379de8e…47be`拒绝；仅含147条val候选归属的诊断重跑`bb713c7c…29f0`不改变决定。 **〔本行由 Codex 新增〕** |
 | `M2-T3-CANDIDATE56-JOINT-VAL30-001` | candidate56 stage1 + 锁定candidate55边界精修 | ❌ FAIL（未读取test100） | 锁定stage2接纳阈值0.85，低于阈值时保留stage1 mask；candidate56在0.45的直接基线为127/17/13，精修组合为126/18/14、边界F1 `0.6284775`，识别门退化且全扫描无合格点。报告`b2e4d252…8d90`拒绝。 **〔本行由 Codex 新增〕** |
-| `M2-T3-CANDIDATE57-LOW-BAND-GATE-001` | val30预注册低置信带跨阶段提升门 | ✅ VAL PASS（test100仍待执行） | 固定candidate56 stage1主阈值0.40，只在`0.30 <= stage1Score < 0.40`且`stage2Score-stage1Score >= 0.55`时晋级；最终polygon始终使用candidate56 stage1 mask，产品去重参数保持0.60/0.85/0.12与box IoU 0.55。val30得到129匹配/15漏检/16误检、边界F1 `0.6139459`，报告`e2c3976a…e71`为PASS且`testImagesRead=0`。 **〔本行由 Codex 新增〕** |
+| `M2-T3-CANDIDATE57-LOW-BAND-GATE-001` | val30预注册低置信带跨阶段提升门 | ✅ VAL PASS（历史阶段；最终TEST HOLD） | 固定candidate56 stage1主阈值0.40，只在`0.30 <= stage1Score < 0.40`且`stage2Score-stage1Score >= 0.55`时晋级；最终polygon始终使用candidate56 stage1 mask，产品去重参数保持0.60/0.85/0.12与box IoU 0.55。val30得到129匹配/15漏检/16误检、边界F1 `0.6139459`，报告`e2c3976a…e71`为PASS且`testImagesRead=0`；该行只记录选择阶段，最终发布状态以后续test100行的TEST HOLD为准。 **〔本行由 Codex 更新〕** |
 | `M2-T3-CANDIDATE57-RELEASE-001` | 受保护test100与发布门 | ❌ TEST HOLD（已消费；禁止反调或重跑） | 选择锁`candidate57-runtime-selection-lock-v1.json`（SHA-256 `35374464…9910`）绑定两阶段权重、实现、val30报告、受保护快照及单次政策。有效运行物化100张/552预测/0无输出；正式报告`5f1463c5…ff65`为531/554匹配、479完整mask、23漏甲、16重复、5背景误检、0无效mask、13图漏甲、59图可直接提取，召回`0.95848375`和完整率`0.86462094`通过，漏甲图片率`0.13`与加权杂散率`0.04693141`失败；独立重放一致。两次输出前基础设施失败只修复递归枚举和合成路径映射，未生成预测制品或质量统计，也未改变权重、阈值、组合或去重。候选禁止导出、登记、接入、部署或重复评估。 **〔本行由 Codex 更新〕** |
 
 candidate57相对candidate50增加12个匹配和12个完整mask、减少12个漏甲、11个背景误检及12个无效mask，并让召回与完整率首次同时过门，证明512方形stage1路线有效；但重复实例增加3个，仍有13张图片漏甲，加权杂散量26高于允许上限约11。该结果只允许终止candidate57并回到新的来源隔离train证据或独立于test的预注册训练改动，禁止读取逐图结果选样、修改0.40/0.30/0.55组合或重新运行test100。 **〔本段由 Codex 更新〕**
+
+### 12.12 audit v3迁移：活动发布标记已接入
+
+完成度脚本现为`v3-migration`：`nail-texture-release-progress.ts`严格解析生命周期、质量结果、角色与必需性；当前七个固定发布要求不可删除或降级，523条旧记录保留原始状态并归入历史，未结构化旧结果标记为`legacy-unclassified`，不推断质量PASS。真实文档与绕过测试4/4通过。统一releaseIdentity、固定逐实例重放和一次性消费台账仍未接通，显式迁移门强制HOLD；历史profile只作诊断，不能据此解除产品HOLD。此状态覆盖前文“源码完全未实现v3”的阶段描述，但不宣称v3整体完成。 **〔本段由 Codex 新增〕**
 
 ## 13. 版本与变更记录
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-09-06 | v1.1.600 | 按用户要求提交并推送 2026-09-06 工作区差异，本次**未改动任何源码、模型、数据集或发布门禁**。提交内容为 Codex 当日两项工作：v1.1.598（三份 Goal 引用技术文档同步与活动合同纠偏——实施规范升 v1.2 并新增§51当前发布候选活动合同与§16.2七项 `REL-CURRENT-*` 清单；进度文档新增 candidate57 TEST HOLD dashboard；完成度审计文档升 v1.3 并登记 audit v3 active gate、统一 `releaseIdentity` 与固定 0.90/0.85/0.10/0.02 逐实例门）与 v1.1.599（audit v3 活动标记解析与固定七项要求校验接入总审计，530 条记录分为 7 项当前要求与 523 条历史，旧记录标记 `historical`/`legacy-unclassified` 不再永久阻断）。暂存区再次为空（与 08-29、08-30、09-04、09-05 历次一致，用户所述"暂存的文件"实为工作区差异），显式 `git add` 指定文件、未用 `git add -A`，复核无 `output/`、`.workbuddy/` 等无关产物。**README 同步（提交前强制检查）**：文档索引中技术白皮书版本仍为 `v1.1.592`，与实际相差 8 个版本，已更正至 `v1.1.600`；Phase 4 路线图补入 audit v3 两条——解析器已接入总审计（含 530 条记录分离）标记为完成，统一身份/逐实例重放/一次性消费台账仍为未完成并保留强制 HOLD 门。验证：`npm.cmd run audit:encoding` 通过（0 失败）；按项目规则把 Python 3.13 置于 PATH 首位后 `tests/nail-texture-release-progress.test.ts` 为 4/4 通过（与 Codex 记录一致）；`git diff --check` 通过，仅有既有 LF/CRLF 提示。推送沿用 v1.1.594 更正后的完整模板（`GIT_CONFIG_SYSTEM` 指向 `C:/...` 原生路径空文件 + 清空 `http_proxy`/`https_proxy` + `GIT_TERMINAL_PROMPT=0` + `-c credential.helper=manager -c http.schannelCheckRevoke=false`），裸 `git push` 会挂起，**不可依赖**；凭据本身始终有效，推送不需要用户提供任何凭证。未运行 test100、全量测试或生产构建；candidate57 TEST HOLD、无批准生产候选、无生产 ONNX 的状态不变，产品继续 HOLD。**〔本条由 WorkBuddy 编写〕** | 提交推送、README同步、文档索引版本更正、audit v3路线图、编码审计、专项测试、无接口变化 |
+| 2026-09-06 | v1.1.599 | 接入audit v3活动标记解析与固定七项要求校验，历史结果原文保留，不再永久阻断当前进度门；拒绝条目删除、角色降级、重复字段与假PASS。新增4项专项测试，包含真实530条进度记录的7当前/523历史分离。审计版本为v3-migration，身份、逐实例重放和消费台账未接通前强制HOLD；同步三份引用文档与当日日志。未训练、评估候选、提交或推送。 **〔本条由 Codex 编写〕** | audit v3迁移、历史隔离、不可绕过发布要求、产品HOLD |
+| 2026-09-06 | v1.1.598 | 将2026-09-05 Goal一致性审计的修正直接写回三份引用文档：`nail-texture-local-inference-implementation-spec.md`升级v1.2并以§51固定当前候选合同、standing授权、新校准/正样本发布留出/困难负样本角色、逐实例正式门和单阶段优先路线；`nail-texture-local-inference-implementation-progress.md`更新为candidate57 TEST HOLD dashboard，引入`lifecycle/outcome/gateRole/required`并把candidate1—57、旧val30/test100及已否决计划保留为历史账本；`nail-texture-completion-audit.md`升级v1.3，明确v2只可诊断HOLD，补充audit v3与统一`releaseIdentity`合同并纠正实际14门和发布顺序。同步§3、§9.9和§11.1，清理candidate17/18/21等旧“当前基线”、过期数据角色、candidate52/53活动计划和fallback已安全完成的误述；`releaseIdentity`采用不含manifest自身哈希的identity core，再由报告绑定manifest哈希，避免循环。仅修改文档；当前审计脚本/profile仍为v2/candidate5历史证据，生产ONNX、前端接入、真机、Beta和回滚均未完成，candidate57及产品继续HOLD。通过UTF-8、Markdown结构与差异检查；未训练、重跑test100、提交或推送。 **〔本条由 Codex 编写〕** | Goal引用文档、活动合同、audit v3、release identity、历史证据、standing授权、产品HOLD |
+| 2026-09-05 | v1.1.597 | 审计当前Goal及其引用的实施规范、实施进度、完成度说明、实际审计脚本和机器报告，新增`docs/nail-texture-goal-and-reference-docs-review-2026-09-05.md`并重写§9.4推荐Goal、增加§9.9一致性结论。确认四项P0：standing授权与逐批确认互相冲突；旧val30/test100已被自适应使用却仍被写成下一发布证据；audit v2把51个历史非PASS永久作为当前阻断，使`complete`不可达；evidence profile混用candidate5质量、candidate6桌面与candidate57当前状态，且缺少统一release identity。新Goal固定旧val/test为历史回归、train内来源组开发折、全新校准和一次性正样本发布留出，保留单阶段512方形YOLO并暂停只打分不换mask的ROI stage2；逐清单处理、训练启动和证据门后的原子freeze不再人工等待。同步纠正§3 candidate57仍“test100待执行”的状态和§11.1阻塞说明。当前只建立审计与修复合同，completion脚本、三份被审文档的历史结构、模型、数据、manifest和前端运行逻辑尚未修改；candidate57及产品继续HOLD。文档编码和差异检查见当日日志，未训练、重跑test100、提交或推送。 **〔本条由 Codex 编写〕** | Goal修订、standing授权、测试角色、audit v3、release identity、文档漂移、candidate57、产品HOLD |
+| 2026-09-05 | v1.1.596 | 复核模型技术路线与训练速度并新增§9.8：当前单阶段YOLO与512方形部署输入没有根本路线错误，candidate56的488图/17轮训练仅785.02秒；训练变慢主要来自`workers=0`、`cache=false`、全分辨率mask，以及candidate53/55将328张父图展开为13795/15531个ROI。当前两阶段实现又因stage2只打分、最终仍用stage1 polygon且test100零晋级，未体现相称收益。登记candidate22/28/53/55/56实测耗时、candidate57长尾图片/唯一性/边界瓶颈、val与发布目标错位、val30复用及浏览器复合运行时缺口；建议保留单阶段基线，先补独立来源全图、来源组开发折、产品级指标与少量部署一致A/B，并基准`workers=0/2/4`、RAM cache和固定batch。同步纠正§12.11低带门“test100仍待执行”的过期状态。本轮只读分析，无运行接口、训练配置、模型或发布状态变化；未启动训练、重跑test100、提交或推送，candidate57与产品继续HOLD。 **〔本条由 Codex 编写〕** | 模型路线、训练速度、ROI膨胀、实验收敛、目标对齐、candidate57、产品HOLD |
+| 2026-09-05 | v1.1.595 | 完成项目全面评审并新增`docs/project-review-2026-09-05.md`，覆盖模型质量、最终审计漏接逐实例门、test100缺消费台账、val30重复选择风险、AI成本保护、账号生产闭环与身份一致性、编辑器导出/重置、AI比例、AR纹理释放、隐私偏好与工程维护12组问题。同步§2数据流、§3账户状态、§4.2/4.4局限与闭环、§5账户/API登记、§9.7复核、§10隐私事实、§11.1/11.3当前阻塞，纠正candidate57仍“未读test100”的过期指令。局部行为复现不访问真实用户库；ESLint、沙箱外专项20/20、全量串行833/833与生产构建通过，首轮Python EPERM仅为沙箱环境失败，不计为代码回归。已复核，无运行接口/生产状态变化；本轮只改评审文档，缺陷尚待修复，candidate57与产品继续HOLD。未训练、重跑受保护测试、调用付费服务、提交或推送。编码与文档差异检查收尾登记于当日日志。 **〔本条由 Codex 编写〕** | 全面评审、质量门、账号治理、交互缺陷、文档纠偏、工程验证、产品HOLD |
 | 2026-09-05 | v1.1.594 | **更正 v1.1.585 的推送结论**（以当前可复现事实为准）：v1.1.585 记录的"裸 `git push origin master` 直接可用、无需环境变量或 `-c` 参数"**在 2026-09-05 复测中不成立**。实测现象：裸 `git push origin master` 与禁用代理后的裸推送均挂起直到超时（退出码 124 / SIGTERM），`git push --dry-run` 同样挂起，而只读的 `git ls-remote origin master` 秒回，说明**卡点在 send-pack 协商阶段而非网络连通性或数据体积**（本次提交仅 25 个对象、最大文件 17KB）。根因两层：① 系统级 `credential.helper=helper-selector` 在无 TTY 环境下**挂起而非报错**，09-04 实验成功时该路径恰好未触发；② 期间 `~/.gitconfig` 的 `credential.helper` 被外部改写为 shell 形式 `!"C:/Users/YaoYinyu/.workbuddy/binaries/PortableGit/versions/1.2.0/mingw64/bin/git-credential-manager.exe"`，`!` 前缀表示 git 需经 shell 执行该 helper，无 TTY 时同样挂起。旁证：单独调用系统 GCM 与 PortableGit 的 GCM 均能在 45 秒内返回 username/password（各 100 字节），**凭据本身始终有效**，问题只在 helper 调用链路。本次处置：把全局 `credential.helper` 改回直接调用形式 `manager`（备份 `gitconfig.backup-20260905`），并采用 09-04 验证过的完整模板完成推送——`GIT_CONFIG_SYSTEM` 指向 `C:/...` 原生路径的空文件（绕过系统级 selector）+ 清空 `http_proxy`/`https_proxy` + `GIT_TERMINAL_PROMPT=0` + `-c credential.helper=manager -c http.schannelCheckRevoke=false`，结果 `e8fd1ec..3e4f64e master -> master` 成功，17 个文件（10 修改 + 7 新增，1105 插入/33 删除）上远端，`git ls-remote` 复验远端 HEAD 为 `3e4f64e`。**结论修正**：推送仍不需要用户提供任何凭证（凭据一直有效），但**必须使用该完整模板**，不可依赖裸 `git push`。推论：`curl` 走本机代理对 github.com 超时属正常，代理端口会变（09-04 为 7098、09-05 为 3697），git 连通性以 `git ls-remote` 为准。无接口/模型/数据/门禁变化，产品继续 HOLD。**〔本条由 WorkBuddy 编写〕** | 推送结论更正、helper-selector挂起、shell形式helper、完整模板、凭据有效性、无接口变化 |
 | 2026-09-05 | v1.1.593 | 按用户要求提交并推送 2026-09-05 工作区差异，并补齐 WorkBuddy 来源标注与 README 过期项，本次**未改动任何源码、模型、数据集或发布门禁**。①**补署来源标记**：v1.1.584、v1.1.585 两条变更记录由 WorkBuddy 编写，但署名规则于 09-04 晚些时候才写入 `AGENTS.md`，此前遗漏，本次按格式在描述末尾、标签列前补 `**〔本条由 WorkBuddy 编写〕**`；`dev-log/2026-09-04.md` 的三个 WorkBuddy 章节（提交candidate53/54否决与灵感图库链路、推送完成根因修正、推送能力永久化）同样补 `> 本条目由 **WorkBuddy** 编写（2026-09-04）。`。Codex 编写的条目（v1.1.589—592 等）保持原样未作改动，未代签或改标。②**README 同步（提交前强制检查发现过期）**：文档索引中技术白皮书版本仍写 `v1.1.372`，与当前 `v1.1.592` 相差 220 个版本，已更正；Phase 4 路线图原止于 candidate29/30，已按 §12.11 与当日机器报告补入 candidate56（512方形stage1训练完成，单stage1与联合candidate55边界精修两条链均在来源隔离val30拒绝、`testImagesRead=0`）与 candidate57（低置信带组合门val30通过，129匹配/15漏检/16误检、边界F1 `0.6139459`；锁定运行时完成唯一一次受保护test100验收，召回`0.95848375`与完整mask率`0.86462094`通过，漏检图片率`0.13`与加权杂散率`0.04693141`失败，产品HOLD）两行，并同步更新「通过冻结test100逐实例完整识别门」条目的否决清单。③**提交与推送**：8 个修改文件（3 份实施/审计文档、`docs/technical-whitepaper.md` v1.1.590—592、完成度审计报告 JSON、`build-positive-recognition-quality-report.py`、`evaluate-candidate53-two-stage-val30.py`、对应测试）与 7 个新增文件（当日 dev-log、candidate56 两份计划、candidate57 决策/门计划/选择锁、冻结测试执行器）以中文提交信息建提交并推送至 `origin/master`；推送沿用 v1.1.585 永久化的全局 Git 配置，裸 `git push origin master` 直接生效，无需环境变量或 `-c` 参数。验证：`npm.cmd run audit:encoding` 通过（878+ 文件/0 失败）；按项目规则把 Python 3.13 置于 PATH 首位后 `tests/build-positive-recognition-quality-report.test.ts` 为 7/7 通过（裸 `python` 命中缺少 Shapely 的 Python 3.14 会造成环境假失败）；`git diff --check` 通过，仅有既有 LF/CRLF 提示。未运行 test100、全量测试或生产构建；识别模型、数据集、训练与产品 HOLD 状态不变。**〔本条由 WorkBuddy 编写〕** | 署名补正、README同步、文档索引版本更正、candidate56/57路线图、提交推送、编码审计、专项测试、无接口变化 |
 | 2026-09-05 | v1.1.592 | 完成candidate57不可变运行时选择锁、唯一一次受保护test100预测、逐实例质量门及深度重放。选择锁`35374464…9910`绑定candidate56 stage1权重`64628504…c272`、candidate55 stage2权重`5e47bd7f…a1e1f`、512方形输入、0.40主阈值、0.30低带下限、0.55跨阶段提升差和产品去重；新增锁绑定test runner与复合运行时报告合同，专项7/7通过。正式test100为531/554匹配、479完整mask、23漏甲、16重复、5背景误检、0无效mask、13图漏甲、59图可直接提取；召回`0.95848375`与完整率`0.86462094`通过，漏甲图片率`0.13`与加权杂散率`0.04693141`失败，报告`5f1463c5…ff65`重放一致。两次制品生成前的输入枚举/合成路径失败未产生质量统计且未改变锁定模型规则；有效评估只计一次。candidate57固定TEST HOLD，不导出、登记、接入或部署，不据test逐图结果反调；下一候选必须由来源隔离新train证据或独立于test的预注册训练改动驱动。 **〔本条由 Codex 编写〕** | candidate57、选择锁、受保护test100、正样本质量门、复合运行时、轨迹终止、产品HOLD |

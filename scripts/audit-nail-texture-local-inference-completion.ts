@@ -9,6 +9,7 @@ import {
   verifyApprovedReleaseRollbackReport,
 } from "./lib/release-rollback-audit.ts";
 import { assertSafeOutputPath } from "./lib/safe-output-path.ts";
+import { auditReleaseProgress } from "./lib/nail-texture-release-progress.ts";
 
 interface Options {
   evidenceProfilePath?: string;
@@ -583,10 +584,6 @@ function malformedProgressMarkerRows(text: string) {
   );
 }
 
-function isPassMarker(status: string): boolean {
-  return /^(?:✅\s*)?PASS(?:\s|（|\(|$)/i.test(status.trim());
-}
-
 function duplicateValues(values: string[]): string[] {
   const counts = new Map<string, number>();
   for (const value of values) counts.set(value, (counts.get(value) ?? 0) + 1);
@@ -989,17 +986,19 @@ async function main() {
     malformedRows: malformedEngineeringChecklistRows,
     duplicateItems: duplicateEngineeringChecklistItems,
   };
-  const incompleteProgressMarkers = markers.filter((marker) => !isPassMarker(marker.status));
+  const releaseProgress = auditReleaseProgress(markers);
+  const incompleteProgressMarkers = releaseProgress.incompleteMarkers;
   const duplicateProgressMarkerIds = duplicateValues(markers.map((marker) => marker.id));
   const progressMarkersGate = {
+    ...releaseProgress,
     ok:
       markers.length > 0 &&
       malformedMarkerRows.length === 0 &&
       duplicateProgressMarkerIds.length === 0 &&
-      incompleteProgressMarkers.length === 0,
+      releaseProgress.ok,
     markerCount: markers.length,
     uniqueMarkerCount: new Set(markers.map((marker) => marker.id)).size,
-    passMarkerCount: markers.length - incompleteProgressMarkers.length,
+    passMarkerCount: releaseProgress.passMarkerCount,
     malformedRows: malformedMarkerRows,
     duplicateMarkerIds: duplicateProgressMarkerIds,
     incompleteMarkers: incompleteProgressMarkers,
@@ -1025,6 +1024,8 @@ async function main() {
   }
 
   const blockingInputs = [
+    { code: "AUDIT_V3_MIGRATION_INCOMPLETE", owner: "engineering", summary:
+      "Current-release marker isolation is implemented; unified release identity, fixed instance-quality replay and one-use evidence ledger are not yet connected. Legacy evidence cannot authorize release." },
     ...(!userChecklistGate.ok ? [{
       code: "SPEC_USER_CHECKLIST",
       owner: "user",
@@ -1091,6 +1092,7 @@ async function main() {
   ];
 
   const gates = {
+    auditV3Migration: { ok: false, reason: "release_identity_and_instance_replay_not_connected" },
     userChecklist: userChecklistGate,
     engineeringChecklist: engineeringChecklistGate,
     progressMarkers: progressMarkersGate,
@@ -1109,7 +1111,7 @@ async function main() {
   const ok = Object.values(gates).every((gate) => gate.ok === true);
   const report = {
     ok,
-    version: "nail-texture-local-inference-completion-audit/v2",
+    version: "nail-texture-local-inference-completion-audit/v3-migration",
     generatedAt: new Date().toISOString(),
     decision: ok ? "complete" : "hold",
     inputs: options,

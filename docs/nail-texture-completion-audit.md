@@ -1,6 +1,10 @@
 # 美甲纹理端侧最终完成度审计
 
-`audit-nail-texture-local-inference-completion.ts` v2把实施规范、全部进度标记、数据授权、候选精度、代表性测试集、桌面/移动设备、失败案例、Beta人工质量、正式发布产品质量、生产模型资产和回滚完整性汇总为一个机器可读总门。任一进度标记不是严格的`PASS`，都作为正式失败门参与`decision`，不再只出现在摘要中。
+文档版本：v1.3
+更新日期：2026-09-06
+当前状态：audit v3-migration已接入活动标记门；统一身份、逐实例重放和消费台账未接通，迁移门强制HOLD。下述v2问题说明保留为迁移前诊断。
+
+`audit-nail-texture-local-inference-completion.ts`当前仍是v2。它会把实施规范、全部历史进度标记和多类发布证据汇总为机器报告，但存在两个P0：一是把每个历史FAIL/REJECT/HOLD永久当作当前阻断，导致诚实保留失败史时`ok=true`不可达；二是当前profile仍可混用candidate5质量、candidate6桌面和candidate57当前状态，未把全部证据绑定同一不可变发布身份。不得通过把历史失败改成PASS、忽略退出码、复制smoke模型或提前切换manifest来绕过；必须实现下述audit v3。
 
 ## 执行
 
@@ -14,15 +18,16 @@ npm.cmd run audit:nail-texture-completion
 model/reports/nail-texture-local-inference-completion-audit.json
 ```
 
-未完成时命令返回退出码1并写出`decision=hold`。这是正确的阻断结果，不应通过忽略退出码、复制smoke模型或提前切换生产manifest规避。
+当前命令返回退出码1并写出`decision=hold`，与产品仍应HOLD一致；但不能把全部失败都解释为当前候选缺口，因为报告同时包含历史marker永久阻断和跨候选profile问题。audit v3落地前，该命令只用于确认“不得发布”，不能证明“修完当前训练就能完成”。
 
 ## 审计范围
 
-- 实施规范第16.1/16.2节全部勾选项；
-- 进度文档所有标记及非PASS项；非PASS项正式参与总门，不是仅供查看的统计；
+- 实施规范第16.1/16.2节的当前发布要求；历史候选履历不再作为当前清单阻断；
+- 进度文档显式`gateRole=current-release; required=true`的标记；历史与superseded标记保留事实但不参与当前总门；
 - 正式数据集release授权和readiness；
-- 当前最佳候选box/mask mAP50门；
-- 100–200张来源隔离真实发布测试集下限；
+- 当前发布候选固定逐实例正样本门；box/mask mAP只作辅助诊断；
+- 不少于30张全新来源隔离校准集，以及运行时锁定后不少于100张、一次性消费的全新正样本发布留出；
+- 候选锁定后不少于100张全新未见困难负样本及三变体零误检/零delta；
 - Windows桌面性能与重复运行内存门；
 - Android手机、Android平板、iPhone和iPad真机性能/内存门；
 - 用户典型失败案例；
@@ -30,6 +35,44 @@ model/reports/nail-texture-local-inference-completion-audit.json
 - 与冻结发布测试快照绑定的正式产品质量：直接可用率、污染实例率、像素泄漏率、粗糙矩形化、甲面缺失率和场景分组退化；
 - 生产manifest、ONNX大小和SHA-256一致性。
 - 当前版本以及至少一个历史版本的回滚注册、模型完整性和审计结果。
+
+## audit v3当前有效合同
+
+1. **标记语义。** 每个结构化进度标记分别记录`lifecycle=planned|running|closed`、`outcome=pending|pass|rejected|hold|not-applicable`、`gateRole=current-release|historical|superseded`和`required=true|false`；尚未执行使用`lifecycle=planned; outcome=pending`。总门只要求`gateRole=current-release; required=true`标记达到`lifecycle=closed; outcome=pass`；历史REJECT/HOLD必须保留，不得伪装为质量PASS，也不得永久阻断未来候选。
+2. **统一发布身份。** evidence profile升级为`releaseIdentity`，至少绑定candidate ID、运行时选择锁、全部PT/ONNX SHA-256、输入尺寸、阈值与组合、预处理/后处理实现和生产manifest SHA-256。无批准候选时必须明确返回`no_approved_release_candidate`，不得继续以candidate5填充当前profile。
+3. **全链身份一致。** 正样本发布留出、困难负样本、导出/parity、浏览器、Windows桌面、Android手机/平板、iPhone/iPad、Beta、产品质量、生产资产和回滚报告都必须包含并重放同一`releaseIdentity`；任何跨候选、跨权重、跨阈值或跨运行时拼接均失败。
+4. **固定正样本门。** 总审计直接调用`build-positive-recognition-quality-report.py --verify-report`，并拒绝非规范contract。固定阈值为实例召回≥0.90、完整mask比例≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02、每图均有可核验输出；mAP不得替代这些门。
+5. **全新证据角色。** 旧val30和旧test100只作受保护历史回归。下一候选在train内部开发折完成后，使用不少于30张全新来源隔离校准集且只选一次阈值；锁定完整运行时后，再原子冻结不少于100张全新正样本发布留出并只评估一次。
+6. **不可变消费台账。** 正样本发布留出runner在读取图片或预测前必须原子登记快照、`releaseIdentity`、用途和消费状态；基础设施失败只有在确认未读取图片、未产生预测/统计且运行时未变化时才允许修复后重试。产生任何有效预测后禁止重跑或反调。
+7. **standing授权。** 项目范围逐清单处理、训练启动和满足机器证据门后的原子freeze无需用户再次确认；来源、许可声明、用途角色、精确清单和SHA-256仍须机器重放。该授权不改变split隔离，也不替代Beta人工判断或物理设备真实证据。
+
+audit v3中的每份正式报告至少包含以下同源身份；具体schema可扩展，但不得省略或只写自由文本：
+
+```json
+{
+  "releaseIdentity": {
+    "core": {
+      "candidateId": "candidate-N",
+      "runtimeSelectionLockSha256": "<64 lowercase hex>",
+      "modelFiles": [
+        { "role": "segment", "sha256": "<64 lowercase hex>" }
+      ],
+      "inputSize": 512,
+      "thresholdContractSha256": "<64 lowercase hex>",
+      "preprocessSha256": "<64 lowercase hex>",
+      "postprocessSha256": "<64 lowercase hex>"
+    },
+    "coreSha256": "<64 lowercase hex>",
+    "manifestSha256": "<64 lowercase hex>"
+  }
+}
+```
+
+`coreSha256`只对规范化`core`计算，并写入候选manifest的`releaseIdentityCoreSha256`；`runtimeSelectionLockSha256`所指选择锁必须在manifest前冻结且不得包含候选或生产manifest哈希。随后再计算manifest字节哈希并填入报告的`manifestSha256`，禁止让manifest、选择锁或发布身份形成哈希循环。候选尚未promotion时，`manifestSha256`绑定锁定候选manifest快照；最终promotion必须部署相同身份核心并由发布记录绑定实际生产manifest，任何字段或字节漂移都使下游证据失效。
+
+## 历史候选审计记录（不构成当前发布门）
+
+以下candidate9—57段落保留当时事实。凡其中仍出现“下一候选使用val30”“通过后消费冻结test100”“当前最佳候选”等文字，均是对应日期的历史决策，已经由audit v3合同和实施规范第51节取代；不得据此重开旧测试、重新训练已拒绝权重或改变当前dashboard。
 
 自2026-08-23起，candidate9后续采用强教师到端侧小模型的受控标注/蒸馏策略：GPT-5.6 Sol负责原分辨率语义审核，轻量候选负责高召回定位，SAM2.1 large负责像素候选，端侧学生负责最终浏览器部署。该策略不是新增的旁路PASS：完成度审计仍只接受已物化、来源隔离且审核通过的训练真值，以及学生模型独立产生的val30、冻结test100、全新困难负样本、浏览器、真机、Beta和回滚证据；教师输出、软标签或伪标签本身不得填写任何正式gate。第二轮教师审核已形成21张/130 mask，candidate11虽在val30锁定阈值0.50与同甲后处理0.60/0.85/0.12，冻结test100仍只有493/554匹配、436完整mask、61漏甲、19重复、30额外和22无效预测mask，完整mask比例0.78700、37%图片漏甲，继续HOLD。该结果只允许驱动train角色新真值课程和val30上的容量比较，禁止test100回流或反向调参。
 
@@ -56,6 +99,8 @@ candidate18继续沿直接训练主线推进：43张/287 mask补强真值合并�
 训练困难负样本的新批授权链现以schema v3落实上述standing授权：只有160/160机器进度完成时才能冻结候选ID、精确文件清单、`requestedItemsSha256`及standing授权文件SHA-256；不再要求逐项用户消息。该工程标记不增加正式发布门通过数，也不把生成候选变成训练可用；原分辨率正式终审、保护集合隔离、清单终结和规范物化仍必须各自通过。
 
 ## 外部证据格式
+
+下列模板和构建器描述的是当前已实现的v2格式，继续用于历史重放。audit v3实现时，所有新生成的移动设备、Beta、失败案例、产品质量和回滚报告必须增加并深验上一节的`releaseIdentity`；在schema升级前，旧模板即使外层`ok=true`也不能单独满足新的最终完成门。
 
 无需手写下列JSON。先复制可填写模板：
 
@@ -208,7 +253,9 @@ node --no-warnings --experimental-strip-types scripts/audit-release-rollback.ts 
 
 ## 发布顺序
 
-外部证据全部通过后，先重新训练/评估并确认候选通过冻结快照和正式产品质量门，再执行promotion、生产资产完整性验证、回滚审计和浏览器回归。只有v2的13个正式gate全部通过、全部进度标记均为PASS，且最终返回`ok=true`、`decision=complete`，才能把实施目标标记为完成。
+正确顺序是：修复audit v3与`releaseIdentity` → train内开发折筛选 → 一个胜出配方全量训练 → 全新校准集只选一次阈值 → 锁定权重/预后处理/运行时 → 全新正样本发布留出一次性评估 → 候选锁定后的全新困难负样本 → ONNX导出与训练框架/WebGPU/WASM parity → 浏览器、Windows桌面、四类真机、Beta和产品质量 → 双版本回滚bootstrap/演练 → promotion与最终重放。任何绑定发布证据产生后再训练或修改运行时，都会使该证据失效。
+
+当前v2实际输出14个正式gate，而旧文档写13个；未来数量必须由schema生成，不再手写。只有audit v3对同一`releaseIdentity`的全部current-release required gate返回`ok=true`、`decision=complete`，才能标记Goal完成和解除产品HOLD。历史失败标记不需要改写为PASS。
 
 ## candidate19—21 当前完成度结论（2026-08-25）
 
@@ -472,4 +519,12 @@ candidate55已从candidate53精修权重启动单一24轮、patience6短程训�
 | 受保护test100 | 531匹配、479完整mask、23漏甲、16重复、5背景误检、0无效mask、13图漏甲、59图直接可提取；报告`5f1463c5…ff65`重放一致 | 召回和完整率PASS；漏甲图片率0.13、加权杂散率0.04693141 FAIL，候选TEST HOLD |
 | 后续发布链 | 全新train证据、全新正样本发布留出、训练后全新困难负样本三变体、ONNX、正式浏览器/真机、Beta100、产品质量和双版本回滚仍未完成 | 最终完成度继续HOLD |
 
-candidate57比candidate50更接近正式正样本门，但仍未满足全部绝对质量合同。受保护test100已经消费，禁止逐图选样、阈值/组合/后处理反调或重复评估；下一候选必须从新的来源隔离train证据或独立于test的预注册训练改动重新开始，并重新通过val30。该结果不得触发ONNX导出、生产登记或前端接入。
+candidate57比candidate50更接近正式正样本门，但仍未满足全部绝对质量合同。受保护test100已经消费，禁止逐图选样、阈值/组合/后处理反调或重复评估；旧val30/test100只保留受保护历史回归。下一候选必须从新的来源隔离train证据或独立于旧val/test逐图信息的预注册训练改动重新开始，并按train内开发折、全新校准集、锁定后全新一次性正样本发布留出的顺序推进。该结果不得触发ONNX导出、生产登记或前端接入。
+
+## 2026-09-06当前完成度与下一实现项
+
+- candidate57保持TEST HOLD，旧val30/test100降为只读历史回归；下一候选不再“重新通过旧val30/旧test100”，而是使用train内来源组开发折、全新校准集和锁定后的全新一次性正样本发布留出。
+- 当前机器报告仍为v2、14门中4门通过/10门失败、523个历史进度标记中472个PASS；这些数字是旧schema快照，不代表audit v3的active gate计数。
+- 当前`nail-texture-completion-evidence-profile.json`仍绑定candidate5单权重/阈值，桌面证据来自candidate6，不能代表当前发布候选；在统一promotion生成新`releaseIdentity`前，应把产品状态解释为“无批准发布候选”。
+- 当前生产manifest仍是输入640占位且缺少其指向的生产ONNX；smoke模型、规则区域或页面能加载不能填充生产资产和正式识别门。
+- 下一代码任务必须实现本文件的audit v3合同，并同步测试、profile schema、机器报告和进度marker解析；在实现通过前，文档已纠正但运行时审计行为仍是v2，不得声称缺陷已经修复。
