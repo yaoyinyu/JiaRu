@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.601 **〔本段由 Codex 更新〕** **〔本段由 WorkBuddy 更新〕**
+> 文档版本：v1.1.603 **〔本段由 Codex 更新〕** **〔本段由 WorkBuddy 更新〕**
 >
 > 基线日期：2026-07-12
 >
@@ -1251,9 +1251,9 @@ candidate57的主要失败不再是总体检测召回不足：test100实例召�
 | P1 | spec头部仍描述dry-run、Worker误判、拉伸输入等已修问题；progress顶部停在candidate18、当前总体验收停在candidate5/6；completion文档写13门而代码实际14门。 | 重写spec当前状态与稳定合同，把候选流水移至progress/archive；progress改成短当前dashboard加结构化历史账本；gate数量从schema生成，避免自然语言漂移。 **〔本行由 Codex 新增〕** |
 | P1 | 当前前端在模型不可用时仍可能把无像素mask的辅助候选显示为“可直接提取”。 | 只有`backend=model`、发布身份一致且每个候选有有效mask时才计正式识别；fallback持续显示辅助定位/人工确认并从Beta成功率排除。 **〔本行由 Codex 新增〕** |
 
-三份引用文档的活动状态、角色和质量合同已于2026-09-06先行同步；剩余实现顺序固定为：完成audit v3及消费台账，修复fallback与manifest/release identity，再启动新来源数据和下一单阶段候选。文档更新不改变脚本行为或发布状态，当前audit v2仍不得作为“只差训练”的可信解释。 **〔本段由 Codex 更新〕**
+三份引用文档的活动状态、角色和质量合同已于2026-09-06同步；audit v3现已完成活动标记、统一`releaseIdentity`、固定逐实例schema v3深度重放和一次性消费台账接线。剩余顺序固定为：train内来源组开发折与下一单阶段候选→全新校准/正样本发布留出→困难负样本→生产运行时与产品门。当前没有批准release identity，审计继续HOLD，不能解释为“只差训练”。 **〔本段由 Codex 更新〕**
 
-2026-09-06已把审计结论直接写回三份Goal引用文档：实施规范升级为v1.2，以§51登记当前发布候选活动合同并将candidate1—57、旧val30/test100和旧两阶段计划明确降为历史证据；实施进度新增当前发布dashboard、`lifecycle/outcome/gateRole/required`标记语义及只面向下一发布链的要求清单；完成度说明升级为v1.3，明确audit v2只能诊断HOLD，并给出audit v3、统一`releaseIdentity`、新校准集、一次性正样本发布留出和全新困难负样本的合同。此次同步只纠正文档语义：实际审计脚本及`model/reports/nail-texture-completion-evidence-profile.json`仍是v2/candidate5历史profile，尚未获得v3行为，产品与candidate57继续HOLD。 **〔本段由 Codex 新增〕**
+2026-09-06三份Goal引用文档已完成第二轮同步：实施规范与进度将`REL-CURRENT-AUDIT-V3-001`标为审计基础设施PASS，完成度说明升级v1.4。实际脚本输出`nail-texture-local-inference-completion-audit/v3`，新增`positiveRecognitionQuality`和`positiveHoldoutConsumption`独立门；schema v3正样本报告必须绑定同一release identity、固定512及0.90/0.85/0.10/0.02合同，并由Python重建逐图证据。一次性台账使用原子独占认领及严格事件顺序，只有`aborted-no-data-read`可重试，读图或预测后永久禁止再消费。旧candidate5 evidence profile继续只作历史诊断，不能满足新身份门。 **〔本段由 Codex 更新〕**
 
 ## 10. 隐私、安全与资源管理
 
@@ -1272,7 +1272,7 @@ candidate57的主要失败不再是总体检测召回不足：test100实例召�
 
 ### 11.1 阻塞项
 
-截至v1.1.598复核，candidate57已经执行锁定运行时唯一一次有效test100评估并固定为TEST HOLD：531/554匹配、479完整mask、23漏甲、16重复、5背景误检，13%漏甲图片率和4.693%加权杂散率失败，59/100图满足报告定义的直接提取条件。机器终结决策为`model/training/candidate57-frozen-test100-decision-v1.json`，禁止重复评估或据test逐图反调；旧val30/test100降为只读历史回归，下一候选改用train内来源组开发折、全新校准集和运行时锁定后的全新一次性正样本发布留出。三份Goal引用文档已按§9.9同步为当前合同；实际completion audit v2仍因历史marker永久阻断并混用跨候选证据，须先完成audit v3；生产ONNX、浏览器/四类真机、Beta100、产品质量与回滚门仍待完成。 **〔本段由 Codex 更新〕**
+截至v1.1.602复核，candidate57已经执行锁定运行时唯一一次有效test100评估并固定为TEST HOLD：531/554匹配、479完整mask、23漏甲、16重复、5背景误检，13%漏甲图片率和4.693%加权杂散率失败，59/100图满足报告定义的直接提取条件。机器终结决策为`model/training/candidate57-frozen-test100-decision-v1.json`，禁止重复评估或据test逐图反调；旧val30/test100降为只读历史回归。completion audit v3基础设施已完成，真实重放18门5通过/13失败、当前7项发布要求1通过/6待完成，因无批准`releaseIdentity`与后续候选证据继续HOLD；下一步进入train内来源组开发折。生产ONNX、浏览器/四类真机、Beta100、产品质量与回滚门仍待完成。 **〔本段由 Codex 更新〕**
 
 candidate52的旧“3张生成源图/20枚甲面尚未制作为完整mask、训练禁用”状态已经失效：3张/20个硬polygon后来通过原分辨率真值门并进入candidate52规范索引；最终索引328张/1981 mask/112来源组，物化train488（328正图+160困难负图）、val30/144、test0，输入审计`b3b2e134…8b43`通过。candidate52训练后在val30因128/16时最低仍有22误检而拒绝，随后该规范输入继续被candidate56复用。内置生成接口没有返回可核验的精确模型ID，因此这3张仍只能登记为OpenAI内置生成数据扩充，不构成知识蒸馏。 **〔本段由 Codex 更新〕**
 
@@ -1527,14 +1527,16 @@ candidate53/54/55证明“提高单甲裁片内部mAP”不会自动转化为完
 
 candidate57相对candidate50增加12个匹配和12个完整mask、减少12个漏甲、11个背景误检及12个无效mask，并让召回与完整率首次同时过门，证明512方形stage1路线有效；但重复实例增加3个，仍有13张图片漏甲，加权杂散量26高于允许上限约11。该结果只允许终止candidate57并回到新的来源隔离train证据或独立于test的预注册训练改动，禁止读取逐图结果选样、修改0.40/0.30/0.55组合或重新运行test100。 **〔本段由 Codex 更新〕**
 
-### 12.12 audit v3迁移：活动发布标记已接入
+### 12.12 audit v3：身份、逐实例重放与一次性消费台账已接入
 
-完成度脚本现为`v3-migration`：`nail-texture-release-progress.ts`严格解析生命周期、质量结果、角色与必需性；当前七个固定发布要求不可删除或降级，523条旧记录保留原始状态并归入历史，未结构化旧结果标记为`legacy-unclassified`，不推断质量PASS。真实文档与绕过测试4/4通过。统一releaseIdentity、固定逐实例重放和一次性消费台账仍未接通，显式迁移门强制HOLD；历史profile只作诊断，不能据此解除产品HOLD。此状态覆盖前文“源码完全未实现v3”的阶段描述，但不宣称v3整体完成。 **〔本段由 Codex 新增〕**
+完成度脚本现为正式`v3`：`nail-texture-release-progress.ts`严格解析生命周期、质量结果、角色与必需性；当前七个固定发布要求不可删除或降级，523条旧记录保留原始状态并归入历史。`nail-texture-release-identity.ts`及profile验证器固定candidate、运行时锁、全部模型、512输入、阈值、组合、预后处理和manifest身份，并拒绝跨报告拼接。逐实例正样本报告新增schema v3，只有绑定同一身份、一次性消费台账及固定0.90/0.85/0.10/0.02合同才可进入正式门，完成审计直接调用Python`--verify-report`重建全部逐图证据。`positive-release-consumption-ledger.py`在读图前原子独占认领，事件顺序固定为认领→读图→预测→完成；只有明确未读图中止可追加一次新尝试，读图或预测开始后不得重试。联合专项20/20、schema v3端到端与台账专项11/11、完整completion审计回归退出码0；真实总审计为18门5通过/13失败，当前要求1通过/6待完成，报告SHA-256 `d527012257c324314a3309058621ba9e6bffc2f4119e003b192ab23caf899798`。无批准候选时正样本身份和消费门按预期HOLD，未运行候选推理或改变产品状态。 **〔本段由 Codex 更新〕**
 
 ## 13. 版本与变更记录
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-09-06 | v1.1.603 | 按用户要求提交并推送 2026-09-06 第二轮工作区差异，本次**未改动任何源码、模型、数据集或发布门禁**。提交主体为 Codex 当日 v1.1.602 工作：新增 `model/training/positive-release-consumption-ledger.py`（冻结正样本发布留出在任何读图前必须原子独占认领，严格记录 `claimed→image-read-started→prediction-started→completed`，仅 `aborted-no-data-read` 可追加重试）、`build-positive-recognition-quality-report.py` 正式 schema v3（同时绑定不可变 release identity、完成态消费台账与运行时锁，保留 v1/v2 历史重放兼容）、`nail-texture-positive-release-evidence.ts`（固定核验召回0.90、完整mask0.85、漏甲图片率0.10、加权杂散率0.02 并独立深验台账）；completion audit 升级为 `v3`，新增 `positiveRecognitionQuality` 与 `positiveHoldoutConsumption` 两门，真实运行为 `ok=false`/`decision=hold`、18门5通过/13失败、七项当前发布要求1通过6待完成。**另含一批 Codex 尚未写入日志的后续产物**：`nail-texture-development-cycle-001` 预注册容量实验 `H-CAPACITY-001`（train 内 `sourceGroup` 互斥开发折，YOLO11s-seg 对比 YOLO11n-seg，完整mask比例目标+0.02、实例召回下降不超过0.01，明确不读取旧val30/test100或任何发布留出），含 plan-v1—v4 与 launch-001—003 三份失败记录（失败原因均为外部进程生命周期中断，v4 改为换全新输出目录并保留上一版产物）。提交前已确认这批文件最后修改于 16:37、距提交时已静止约 70 分钟且无 Agent 活跃改动。**README 同步（提交前强制检查）**：文档索引白皮书版本由 `v1.1.600` 更正至 `v1.1.603`；Phase 4 路线图把「audit v3统一身份/逐实例重放/一次性消费台账」由未完成改为完成（并注明候选证据门仍须真实满足、不再用迁移占位阻断），补入 development-cycle-001 预注册容量实验条目。验证：`npm.cmd run audit:encoding` 通过（0 失败）；按项目规则把 Python 3.13 置于 PATH 首位后串行复验五个相关测试文件合计 63 项全部通过（`audit-nail-texture-local-inference-completion` 44/44、`build-positive-recognition-quality-report` 8/8、`nail-texture-release-progress` 4/4、`build-source-group-development-folds` 4/4、`positive-release-consumption-ledger` 3/3）；`git diff --check` 通过，仅有既有 LF/CRLF 提示。暂存区再次为空（历次一致），显式 `git add` 指定文件、未用 `git add -A`，复核无 `output/`、`.workbuddy/` 等无关产物。推送沿用 v1.1.594 更正后的完整模板（裸 `git push` 会挂起，不可依赖）；凭据本身始终有效，不需要用户提供任何凭证。未运行 test100、全量测试或生产构建；candidate57 TEST HOLD、无批准生产候选、无生产 ONNX 与产品 HOLD 状态均不变。**〔本条由 WorkBuddy 编写〕** | 提交推送、消费台账、schema v3、audit v3、development-cycle-001、README同步、63项测试、无接口变化 |
+| 2026-09-06 | v1.1.602 | 完成completion audit v3证据基础设施：统一`releaseIdentity`profile深验全部正式报告同源身份；逐实例正样本质量报告新增schema v3，绑定身份文档与一次性消费台账，并由总审计直接调用Python`--verify-report`重建固定512、召回≥0.90、完整mask≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02及每图输出合同；新增原子留出台账CLI，重复认领拒绝，仅`aborted-no-data-read`允许重试，读图/预测后永久禁止再消费，完成态绑定预测制品索引。完成审计升级`v3`并新增正样本质量/消费两门，移除迁移占位阻断；三份Goal文档将`REL-CURRENT-AUDIT-V3-001`标为审计基础设施PASS。专项联合20/20、schema v3与台账11/11、完整completion回归退出码0；真实报告18门5通过/13失败、当前7项要求1通过/6待完成，SHA-256 `d5270122…9798`，因无批准候选继续HOLD。未训练、读取旧test100、导出、部署、提交或推送。 **〔本条由 Codex 编写〕** | audit v3、releaseIdentity、逐实例质量门、一次性消费台账、机器重放、产品HOLD |
 | 2026-09-06 | v1.1.601 | 按用户对多 Agent 协作的最新确认，在§1.5把白皮书来源署名固化为正文维护合同：Codex 新增或修改的段落、表格行和§13记录必须使用 Codex 来源标记；其他 Agent 使用各自约定标记；任何 Agent 只标注自己的实际改动，不得替他人代签、补署、删除或改写既有来源。现行`AGENTS.md`已包含同一规则，本次仅增强白皮书自身的可发现性；未改动源码、模型、数据、审计证据或发布状态，candidate57与产品继续HOLD。 **〔本条由 Codex 编写〕** | 文档治理、多Agent协作、来源标注、Codex署名、无接口变化 |
 | 2026-09-06 | v1.1.600 | 按用户要求提交并推送 2026-09-06 工作区差异，本次**未改动任何源码、模型、数据集或发布门禁**。提交内容为 Codex 当日两项工作：v1.1.598（三份 Goal 引用技术文档同步与活动合同纠偏——实施规范升 v1.2 并新增§51当前发布候选活动合同与§16.2七项 `REL-CURRENT-*` 清单；进度文档新增 candidate57 TEST HOLD dashboard；完成度审计文档升 v1.3 并登记 audit v3 active gate、统一 `releaseIdentity` 与固定 0.90/0.85/0.10/0.02 逐实例门）与 v1.1.599（audit v3 活动标记解析与固定七项要求校验接入总审计，530 条记录分为 7 项当前要求与 523 条历史，旧记录标记 `historical`/`legacy-unclassified` 不再永久阻断）。暂存区再次为空（与 08-29、08-30、09-04、09-05 历次一致，用户所述"暂存的文件"实为工作区差异），显式 `git add` 指定文件、未用 `git add -A`，复核无 `output/`、`.workbuddy/` 等无关产物。**README 同步（提交前强制检查）**：文档索引中技术白皮书版本仍为 `v1.1.592`，与实际相差 8 个版本，已更正至 `v1.1.600`；Phase 4 路线图补入 audit v3 两条——解析器已接入总审计（含 530 条记录分离）标记为完成，统一身份/逐实例重放/一次性消费台账仍为未完成并保留强制 HOLD 门。验证：`npm.cmd run audit:encoding` 通过（0 失败）；按项目规则把 Python 3.13 置于 PATH 首位后 `tests/nail-texture-release-progress.test.ts` 为 4/4 通过（与 Codex 记录一致）；`git diff --check` 通过，仅有既有 LF/CRLF 提示。推送沿用 v1.1.594 更正后的完整模板（`GIT_CONFIG_SYSTEM` 指向 `C:/...` 原生路径空文件 + 清空 `http_proxy`/`https_proxy` + `GIT_TERMINAL_PROMPT=0` + `-c credential.helper=manager -c http.schannelCheckRevoke=false`），裸 `git push` 会挂起，**不可依赖**；凭据本身始终有效，推送不需要用户提供任何凭证。未运行 test100、全量测试或生产构建；candidate57 TEST HOLD、无批准生产候选、无生产 ONNX 的状态不变，产品继续 HOLD。**〔本条由 WorkBuddy 编写〕** | 提交推送、README同步、文档索引版本更正、audit v3路线图、编码审计、专项测试、无接口变化 |
 | 2026-09-06 | v1.1.599 | 接入audit v3活动标记解析与固定七项要求校验，历史结果原文保留，不再永久阻断当前进度门；拒绝条目删除、角色降级、重复字段与假PASS。新增4项专项测试，包含真实530条进度记录的7当前/523历史分离。审计版本为v3-migration，身份、逐实例重放和消费台账未接通前强制HOLD；同步三份引用文档与当日日志。未训练、评估候选、提交或推送。 **〔本条由 Codex 编写〕** | audit v3迁移、历史隔离、不可绕过发布要求、产品HOLD |

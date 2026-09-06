@@ -3,9 +3,9 @@
 更新日期：2026-09-06
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
-> **当前最高优先级（2026-09-06）：** candidate57已经在唯一一次有效受保护test100中得到531/554匹配、479个完整mask、23漏甲、16重复、5背景误检、13图漏甲和59/100图可直接提取；召回`0.95848375`与完整率`0.86462094`通过，但漏甲图片率`0.13`和加权杂散率`0.04693141`失败，固定为TEST HOLD。旧val30/test100仅保留受保护历史回归；当前无批准发布候选、无生产ONNX。下一步先实现audit v3的active gate与统一`releaseIdentity`，再按train内来源组开发折→全新校准集→锁定运行时→全新一次性正样本发布留出的顺序启动下一单阶段候选。
+> **当前最高优先级（2026-09-06）：** candidate57已经在唯一一次有效受保护test100中得到531/554匹配、479个完整mask、23漏甲、16重复、5背景误检、13图漏甲和59/100图可直接提取；召回`0.95848375`与完整率`0.86462094`通过，但漏甲图片率`0.13`和加权杂散率`0.04693141`失败，固定为TEST HOLD。旧val30/test100仅保留受保护历史回归；当前无批准发布候选、无生产ONNX。audit v3证据基础设施已经实现，下一步按train内来源组开发折→全新校准集→锁定运行时→全新一次性正样本发布留出的顺序启动下一单阶段候选。
 
-> **当前文档解释规则：** 下方candidate1—57条目是不可删除的历史账本，其中`PASS（流程完成，候选否决）`、`FAIL`、`VAL REJECT`和`TEST HOLD`记录当时生命周期与质量结果。它们不得改写成质量PASS，也不得继续作为当前发布要求。当前发布状态只读本页顶部dashboard和显式`gateRole=current-release; required=true`条目；audit v2仍会错误地把全部历史非PASS作为当前阻断，须由audit v3修复。
+> **当前文档解释规则：** 下方candidate1—57条目是不可删除的历史账本，其中`PASS（流程完成，候选否决）`、`FAIL`、`VAL REJECT`和`TEST HOLD`记录当时生命周期与质量结果。它们不得改写成质量PASS，也不得继续作为当前发布要求。当前发布状态只读本页顶部dashboard和显式`gateRole=current-release; required=true`条目；audit v3已按此范围执行，历史非PASS不再永久阻断未来候选。
 
 ## 标记规则
 
@@ -19,18 +19,18 @@
 
 ## 当前发布 dashboard（2026-09-06）
 
-实现增量（v1.1.599）：审计已解析七项current-release要求并将523条旧记录作为历史保留，字段与必需ID防绕过测试4/4通过。总审计标为v3-migration并强制HOLD；统一身份、逐实例重放和消费台账仍待实现，AUDIT-V3整体要求仍为pending。此增量覆盖上方v2尚未分离标记的旧状态说明。
+实现增量（v1.1.602）：audit v3已完成活动标记、统一`releaseIdentity`、固定逐实例正样本schema v3深度重放和一次性正样本发布留出台账接线。台账在读图前原子独占认领，只允许`aborted-no-data-read`重试；读图或预测开始后永久禁止再次消费。当前没有批准`releaseIdentity`，因此真实总审计仍按证据缺失保持HOLD，而不是由迁移占位门阻断。
 
 - **当前发布候选：** 无。candidate57已经TEST HOLD并关闭轨迹；candidate5及其他已拒绝权重不得晋级或部署。
 - **当前生产资产：** `public/models/nail-texture-seg/manifest.json`仍为640占位，所指生产ONNX不存在；历史33KB smoke ONNX只证明工程加载链。
 - **历史回归：** 旧val30、旧test100、编号261—360与361—460困难负样本及其他已消费holdout均只读保护，禁止训练、选择阈值或冒充全新发布证据。
 - **授权：** 项目范围standing商业开发授权已经生效；精确清单、来源、许可声明、角色和SHA-256继续机器追溯，但逐清单处理、训练启动和证据门后的原子freeze无需再次向用户确认。
-- **当前P0：** 实现audit v3，拆分历史/当前标记并建立统一`releaseIdentity`，把固定0.90/0.85/0.10/0.02逐实例正样本门及全新发布留出一次性消费台账接入总审计。
+- **当前P0：** 建立train内`sourceGroup`互斥开发折，预注册至多两个短程单变量实验，选出一个单阶段512胜出配方；audit v3基础设施已完成，仍会对缺少当前候选证据的各门保持HOLD。
 - **随后顺序：** train内`sourceGroup`开发折和最多两个短程单变量实验；全新来源校准集；锁定单阶段512运行时；全新正样本发布留出；全新困难负样本；生产ONNX与多后端一致性；浏览器/桌面/四类真机/Beta100/产品质量/双版本回滚。
 
 | 标记 ID | 当前发布要求 | 状态 | 证据与下一步 |
 | --- | --- | --- | --- |
-| `REL-CURRENT-AUDIT-V3-001` | 可达且不可跨候选拼接的最终审计 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；实现active marker、统一`releaseIdentity`、逐实例强门和正样本发布留出一次性消费台账。当前v2不能满足该合同。 |
+| `REL-CURRENT-AUDIT-V3-001` | 可达且不可跨候选拼接的最终审计 | ✅ PASS（审计基础设施） | `lifecycle=closed; outcome=pass; gateRole=current-release; required=true`；audit v3已实现active marker、统一`releaseIdentity`、逐实例schema v3强门和正样本发布留出一次性消费台账。该PASS只证明审计可达且不可绕过；没有批准候选时正样本、运行时和产品门仍分别HOLD。 |
 | `REL-CURRENT-DEVELOPMENT-002` | train内来源组开发折与单阶段胜出配方 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；每轮至多两个短程单变量实验，只有一个胜出方案进入完整训练；旧val/test禁止参与。 |
 | `REL-CURRENT-CALIBRATION-003` | 全新来源隔离校准集 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；配方锁定后不少于30张，只允许选择一次阈值。 |
 | `REL-CURRENT-POSITIVE-HOLDOUT-004` | 全新一次性正样本发布留出 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；运行时锁定后原子冻结不少于100张，只评估一次并通过召回≥0.90、完整mask≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02。 |
@@ -522,7 +522,7 @@ npm.cmd run build
 
 ## 当前总体验收
 
-当前生产状态继续HOLD：candidate57已经TEST HOLD并关闭轨迹，当前不存在可导出、登记、接入或部署的正式候选。旧val30、旧test100、candidate4编号261—360、candidate5编号361—460和其他已消费holdout只保留为受保护历史回归，禁止训练、阈值选择或再次冒充未见发布证据。项目范围standing商业开发授权已生效，不再缺逐批或精确清单人工批准；真正缺口是audit v3、统一`releaseIdentity`、train内来源组开发折、全新校准集、全新正样本发布留出、候选锁定后的全新困难负样本、生产ONNX/多后端一致性、fallback真实性、Windows性能/内存、真实用户失败案例、四类真机、Beta100、产品质量和双版本回滚。
+当前生产状态继续HOLD：candidate57已经TEST HOLD并关闭轨迹，当前不存在可导出、登记、接入或部署的正式候选。旧val30、旧test100、candidate4编号261—360、candidate5编号361—460和其他已消费holdout只保留为受保护历史回归，禁止训练、阈值选择或再次冒充未见发布证据。项目范围standing商业开发授权已生效，不再缺逐批或精确清单人工批准；audit v3与统一身份/逐实例重放/消费台账基础设施已完成，真正剩余缺口是train内来源组开发折、全新校准集、全新正样本发布留出、候选锁定后的全新困难负样本、生产ONNX/多后端一致性、fallback真实性、Windows性能/内存、真实用户失败案例、四类真机、Beta100、产品质量和双版本回滚。
 
 ### 合成数据基线审核记录
 
@@ -565,7 +565,7 @@ npm.cmd run build
 
 ## 后续里程碑
 
-- 里程碑1：实现audit v3、active gate、统一`releaseIdentity`和全新正样本发布留出一次性消费台账。
+- 里程碑1：✅ 已实现audit v3、active gate、统一`releaseIdentity`和全新正样本发布留出一次性消费台账；真实候选证据仍须后续生成并逐门通过。
 - 里程碑2：以train内来源组开发折选出一个单阶段配方，完成全新校准和一次性正样本发布留出。
 - 里程碑3：完成全新困难负样本、水印消融、生产ONNX及训练框架/WebGPU/WASM一致性。
 - 里程碑4：完成fallback真实性、真实浏览器、Windows性能/内存、真实用户失败案例和四类真机。

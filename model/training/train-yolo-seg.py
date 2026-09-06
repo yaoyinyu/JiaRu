@@ -91,6 +91,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate-mode", action="store_true", help="Require a deeply replayed candidate-input audit and mark this run as a release-candidate training attempt")
     parser.add_argument("--candidate-input-report", default="", help="Approved report from audit-candidate-training-input.py")
     parser.add_argument("--candidate-validation-report", default="", help="Deprecated legacy evidence; use --candidate-input-report")
+    parser.add_argument("--experiment-plan", default="", help="Pre-registered train-internal development experiment plan")
+    parser.add_argument("--experiment-id", default="", help="Exact experimentId selected from --experiment-plan")
     parser.add_argument("--finalize-existing-run", action="store_true", help="Finalize an already completed run after replaying its current evidence")
     parser.add_argument("--dry-run", action="store_true", help="Validate config and print the resolved training plan")
     return parser
@@ -292,6 +294,150 @@ def candidate_input_validation(
     }
 
 
+def load_development_materializer() -> ModuleType:
+    script_path = Path(__file__).with_name("materialize-source-group-development-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "materialize_source_group_development_dataset_for_training", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load sourceGroup development materializer")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def experiment_plan_validation(
+    args: argparse.Namespace,
+    dataset_yaml: Path,
+    output_dir: Path,
+    batch: int | float,
+) -> dict[str, object] | None:
+    if bool(args.experiment_plan) != bool(args.experiment_id):
+        raise ValueError("--experiment-plan and --experiment-id must be provided together")
+    if not args.experiment_plan:
+        return None
+    if args.candidate_mode or args.candidate_input_report or args.candidate_validation_report:
+        raise ValueError("development experiment evidence cannot be combined with candidate mode")
+    plan_path = Path(args.experiment_plan).resolve()
+    if not plan_path.is_file():
+        raise ValueError(f"development experiment plan is missing: {plan_path}")
+    plan = json.loads(plan_path.read_text(encoding="utf-8"))
+    if (
+        not isinstance(plan, dict)
+        or plan.get("schemaVersion") != 1
+        or plan.get("decision")
+        != "pre_registered_two_short_single_variable_experiments"
+        or plan.get("releaseState") != "hold"
+    ):
+        raise ValueError("development experiment plan contract is invalid")
+    experiments = plan.get("experiments")
+    selected = [
+        item
+        for item in experiments if isinstance(item, dict) and item.get("experimentId") == args.experiment_id
+    ] if isinstance(experiments, list) else []
+    if len(selected) != 1:
+        raise ValueError("experimentId does not select exactly one pre-registered experiment")
+    experiment = selected[0]
+    model_path = Path(str(experiment.get("model", ""))).resolve()
+    if Path(args.model).resolve() != model_path:
+        raise ValueError("training model differs from the pre-registered experiment")
+    if not model_path.is_file() or sha256(model_path) != experiment.get("modelSha256"):
+        raise ValueError("pre-registered development model is missing or hash-drifted")
+    if model_path.stat().st_size != int(experiment.get("modelBytes", -1)):
+        raise ValueError("pre-registered development model byte size drifted")
+    if output_dir != Path(str(experiment.get("outputDir", ""))).resolve():
+        raise ValueError("training output directory differs from the pre-registered experiment")
+    if args.run_name != experiment.get("runName"):
+        raise ValueError("training run name differs from the pre-registered experiment")
+
+    plan_inputs = plan.get("inputs", {})
+    dataset_binding = plan_inputs.get("datasetYaml")
+    materialization_binding = plan_inputs.get("developmentMaterializationReport")
+    fold_binding = plan_inputs.get("developmentFoldPlan")
+    environment_binding = plan_inputs.get("environmentReport")
+    if not all(
+        isinstance(value, dict)
+        for value in (dataset_binding, materialization_binding, fold_binding, environment_binding)
+    ):
+        raise ValueError("development experiment plan is missing dataset evidence")
+    if dataset_yaml != Path(str(dataset_binding.get("path", ""))).resolve():
+        raise ValueError("training dataset differs from the pre-registered experiment")
+    if sha256(dataset_yaml) != dataset_binding.get("sha256"):
+        raise ValueError("pre-registered development dataset YAML hash drifted")
+    materialization_path = Path(str(materialization_binding.get("path", ""))).resolve()
+    if not materialization_path.is_file() or sha256(materialization_path) != materialization_binding.get("sha256"):
+        raise ValueError("development materialization report is missing or hash-drifted")
+    materializer = load_development_materializer()
+    materialization = materializer.verify_report(materialization_path)
+    if materialization.get("datasetFilesSha256") != materialization_binding.get("datasetFilesSha256"):
+        raise ValueError("development dataset file-tree identity drifted")
+    fold_path = Path(str(fold_binding.get("path", ""))).resolve()
+    if not fold_path.is_file() or sha256(fold_path) != fold_binding.get("sha256"):
+        raise ValueError("development fold plan is missing or hash-drifted")
+    fold_plan = materializer.FOLD_BUILDER.verify_plan(fold_path)
+    if fold_plan.get("contentSha256") != fold_binding.get("contentSha256"):
+        raise ValueError("development fold plan content identity drifted")
+    environment_path = Path(str(environment_binding.get("path", ""))).resolve()
+    if not environment_path.is_file() or sha256(environment_path) != environment_binding.get("sha256"):
+        raise ValueError("development environment report is missing or hash-drifted")
+    environment = json.loads(environment_path.read_text(encoding="utf-8"))
+    if not isinstance(environment, dict) or environment.get("ok") is not True:
+        raise ValueError("development environment report did not pass")
+    revision = plan.get("revision")
+    if revision is not None:
+        if not isinstance(revision, dict) or revision.get("previousOutputPreserved") is not True:
+            raise ValueError("development experiment plan revision contract is invalid")
+        for key in ("previousPlan", "failedLaunch"):
+            binding = revision.get(key)
+            if not isinstance(binding, dict):
+                raise ValueError(f"development experiment revision is missing {key}")
+            evidence_path = Path(str(binding.get("path", ""))).resolve()
+            if not evidence_path.is_file() or sha256(evidence_path) != binding.get("sha256"):
+                raise ValueError(f"development experiment revision evidence drifted: {key}")
+
+    contract = plan.get("fixedTrainingContract")
+    if not isinstance(contract, dict) or contract.get("onlyVariable") != "modelCapacity":
+        raise ValueError("development training contract is missing or not single-variable")
+    actual = {
+        "task": "segment",
+        "singleStage": True,
+        "inputSize": args.imgsz,
+        "epochs": args.epochs,
+        "patience": args.patience,
+        "batch": "auto" if batch == -1 else batch,
+        "device": int(args.device) if str(args.device).isdigit() else args.device,
+        "workers": args.workers,
+        "optimizer": args.optimizer,
+        "lr0": args.lr0,
+        "freeze": args.freeze,
+        "mosaic": args.mosaic,
+        "closeMosaic": args.close_mosaic,
+        "maskRatio": args.mask_ratio,
+        "overlapMask": args.overlap_mask,
+        "hardBoundaryWeight": args.hard_boundary_weight,
+        "distillation": bool(args.distill_model),
+        "onlyVariable": "modelCapacity",
+    }
+    if actual != contract:
+        raise ValueError(
+            "training arguments differ from the pre-registered fixed contract: "
+            f"actual={actual} expected={contract}"
+        )
+    return {
+        "plan": str(plan_path),
+        "plan_sha256": sha256(plan_path),
+        "cycle_id": plan.get("cycleId"),
+        "hypothesis_id": plan.get("hypothesis", {}).get("id"),
+        "experiment_id": args.experiment_id,
+        "experiment_role": experiment.get("role"),
+        "only_variable": contract.get("onlyVariable"),
+        "dataset_files_sha256": materialization.get("datasetFilesSha256"),
+        "development_materialization_report": str(materialization_path),
+        "development_materialization_report_sha256": sha256(materialization_path),
+        "formal_calibration_test_or_holdout": False,
+    }
+
+
 def remove_ultralytics_label_caches(dataset_root: Path) -> list[str]:
     """Remove only Ultralytics' known, reproducible label-cache side effects."""
 
@@ -426,11 +572,14 @@ def main() -> None:
     config = load_dataset_config(dataset_yaml)
     preflight_removed_caches = (
         remove_ultralytics_label_caches(config.dataset_root)
-        if args.finalize_existing_run
+        if args.finalize_existing_run or args.experiment_plan
         else []
     )
     candidate_input_evidence = candidate_input_validation(
         args, dataset_yaml, output_dir
+    )
+    experiment_evidence = experiment_plan_validation(
+        args, dataset_yaml, output_dir, batch
     )
     distillation_evidence = resolve_distillation_evidence(args)
     from nail_texture_boundary_loss import (
@@ -487,9 +636,14 @@ def main() -> None:
         "output_dir": str(output_dir),
         "run_dir": str(resolve_training_run_dir(output_dir, args.run_name)),
         "best_weights_path": str(resolve_best_weights_path(output_dir, args.run_name)),
-        "training_intent": "candidate" if args.candidate_mode else "experiment",
+        "training_intent": (
+            "candidate" if args.candidate_mode else
+            "pre-registered-development-experiment" if experiment_evidence is not None else
+            "experiment"
+        ),
         "candidate_input_evidence": candidate_input_evidence,
         "candidate_validation_evidence": None,
+        "development_experiment_evidence": experiment_evidence,
         "dry_run": args.dry_run,
     }
 
@@ -510,6 +664,8 @@ def main() -> None:
             *remove_ultralytics_label_caches(config.dataset_root),
         ]
         candidate_input_validation(args, dataset_yaml, output_dir)
+        if experiment_evidence is not None:
+            experiment_plan_validation(args, dataset_yaml, output_dir, batch)
         write_json(
             output_dir / "train-summary.json",
             {
@@ -563,22 +719,29 @@ def main() -> None:
     if distillation_evidence is not None:
         train_options["distill_model"] = distillation_evidence["teacher"]["path"]
         train_options["dis"] = args.distill_weight
-    if resume_from is not None:
-        results = model.train(resume=True)
-    else:
-        results = model.train(
-            data=str(runtime_dataset_yaml),
-            task="segment",
-            epochs=args.epochs,
-            imgsz=args.imgsz,
-            batch=batch,
-            patience=args.patience,
-            device=args.device,
-            workers=args.workers,
-            project=str(output_dir),
-            name=args.run_name,
-            **train_options,
-        )
+    try:
+        if resume_from is not None:
+            results = model.train(resume=True)
+        else:
+            results = model.train(
+                data=str(runtime_dataset_yaml),
+                task="segment",
+                epochs=args.epochs,
+                imgsz=args.imgsz,
+                batch=batch,
+                patience=args.patience,
+                device=args.device,
+                workers=args.workers,
+                project=str(output_dir),
+                name=args.run_name,
+                **train_options,
+            )
+    except BaseException:
+        if experiment_evidence is not None:
+            # 失败运行也不能把Ultralytics扫描缓存遗留在哈希绑定的数据副本中。
+            remove_ultralytics_label_caches(config.dataset_root)
+            experiment_plan_validation(args, dataset_yaml, output_dir, batch)
+        raise
     results_dir = Path(getattr(results, "save_dir", output_dir)).resolve()
     actual_best_weights_path = results_dir / "weights" / "best.pt"
     if args.candidate_mode:
@@ -586,6 +749,16 @@ def main() -> None:
         # mutation during the run cannot produce an eligible candidate summary.
         remove_ultralytics_label_caches(config.dataset_root)
         candidate_input_validation(args, dataset_yaml, output_dir)
+    if experiment_evidence is not None:
+        # Ultralytics的labels/*.cache是可再生扫描缓存；只清理这两个已知
+        # 副作用后重放开发折与完整文件树，证明图片和标签未发生漂移。
+        removed_experiment_caches = [
+            *preflight_removed_caches,
+            *remove_ultralytics_label_caches(config.dataset_root),
+        ]
+        experiment_plan_validation(args, dataset_yaml, output_dir, batch)
+    else:
+        removed_experiment_caches = []
     write_json(
         output_dir / "train-summary.json",
         {
@@ -597,6 +770,7 @@ def main() -> None:
                 if actual_best_weights_path.is_file()
                 else None
             ),
+            "removed_ultralytics_label_caches": removed_experiment_caches,
         },
     )
     print(f"Training finished. Summary written to {output_dir / 'train-summary.json'}")

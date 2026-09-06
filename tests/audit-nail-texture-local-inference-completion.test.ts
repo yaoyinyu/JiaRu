@@ -744,7 +744,7 @@ async function readReport(output: string) {
   return JSON.parse(await readFile(output, "utf8"));
 }
 
-test("completion audit v3 migration rejects forged, drifted, weak, and incomplete evidence", async (t) => {
+test("completion audit v3 rejects forged, drifted, weak, and incomplete evidence", async (t) => {
   const root = await mkdtemp(path.join(tmpdir(), "nail-completion-audit-v2-"));
   const externalRoots = new Set<string>();
   t.after(async () => {
@@ -763,16 +763,18 @@ test("completion audit v3 migration rejects forged, drifted, weak, and incomplet
 
   // This synthetic bound fixture validates evidence binding and replay mechanics.
   // It does not attest a real user identity or exercise real Ultralytics inference.
-  await t.test("keeps fully bound legacy evidence HOLD until the v3 identity and replay chain exists", async () => {
+  await t.test("keeps fully bound legacy evidence HOLD when no approved release identity exists", async () => {
     const output = path.join(root, "complete.json");
     const result = runAudit(fixture, output);
     assert.equal(result.status, 1, result.stderr);
     const report = await readReport(output);
     assert.equal(report.ok, false);
     assert.equal(report.decision, "hold");
-    assert.equal(report.version, "nail-texture-local-inference-completion-audit/v3-migration");
-    assert.equal(report.gates.auditV3Migration.ok, false);
+    assert.equal(report.version, "nail-texture-local-inference-completion-audit/v3");
+    assert.equal(report.gates.auditV3Implementation.ok, true);
     assert.equal(report.gates.releaseIdentity.status, "no_approved_release_candidate");
+    assert.equal(report.gates.positiveRecognitionQuality.status, "no_approved_release_candidate");
+    assert.equal(report.gates.positiveHoldoutConsumption.status, "no_approved_release_candidate");
     assert.equal(report.gates.independentHardNegativeWatermark.ok, true);
     assert.equal(report.gates.releaseProductQuality.ok, true);
     assert.equal(report.gates.releaseRollback.ok, true);

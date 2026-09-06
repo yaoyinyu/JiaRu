@@ -37,11 +37,11 @@ export async function verifyReleaseIdentityProfile(profilePath: string) {
   const errors: string[] = [];
   let raw: Buffer;
   try { raw = await readFile(profilePath); } catch {
-    return { ok: false, status: "no_approved_release_candidate", profilePath, releaseIdentity: null, errors: ["release identity profile is missing"] };
+    return { ok: false, status: "no_approved_release_candidate", profilePath, releaseIdentity: null, artifactBindings: null, reportBindings: null, errors: ["release identity profile is missing"] };
   }
   let profile: any;
   try { profile = JSON.parse(raw.toString("utf8")); } catch {
-    return { ok: false, status: "invalid_release_identity_profile", profilePath, releaseIdentity: null, errors: ["release identity profile is invalid JSON"] };
+    return { ok: false, status: "invalid_release_identity_profile", profilePath, releaseIdentity: null, artifactBindings: null, reportBindings: null, errors: ["release identity profile is invalid JSON"] };
   }
   if (!profile || typeof profile !== "object" || Array.isArray(profile)) errors.push("profile must be an object");
   else exactKeys(profile, ["schemaVersion", "decision", "releaseIdentity", "artifacts", "reports"], "profile", errors);
@@ -92,5 +92,6 @@ export async function verifyReleaseIdentityProfile(profilePath: string) {
     }
   }
   return { ok: errors.length === 0, status: errors.length === 0 ? "approved_release_identity" : "invalid_release_identity_profile",
-    profilePath, profileSha256: sha(raw), releaseIdentity: identity, errors };
+    profilePath, profileSha256: sha(raw), releaseIdentity: identity,
+    artifactBindings: artifacts ?? null, reportBindings: reports ?? null, errors };
 }

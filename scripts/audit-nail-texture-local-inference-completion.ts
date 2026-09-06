@@ -11,6 +11,7 @@ import {
 import { assertSafeOutputPath } from "./lib/safe-output-path.ts";
 import { auditReleaseProgress } from "./lib/nail-texture-release-progress.ts";
 import { verifyReleaseIdentityProfile } from "./lib/nail-texture-release-identity-profile.ts";
+import { verifyPositiveReleaseEvidence } from "./lib/nail-texture-positive-release-evidence.ts";
 
 interface Options {
   evidenceProfilePath?: string;
@@ -692,6 +693,7 @@ async function main() {
   const options = parseArgs(process.argv.slice(2));
   const evidenceProfile = await applyEvidenceProfile(options);
   const releaseIdentityProfile = await verifyReleaseIdentityProfile(options.releaseIdentityProfilePath);
+  const positiveReleaseEvidence = await verifyPositiveReleaseEvidence(releaseIdentityProfile);
   if (options.outputPath) await assertSafeOutputPath(options.outputPath, directInputPaths(options));
   const [specText, progressText] = await Promise.all([
     readFile(options.specPath, "utf8"),
@@ -1025,6 +1027,7 @@ async function main() {
       ...currentRollbackEvidencePaths,
       ...releaseTestQualityVerification.transitivePaths,
       ...hardNegativeAuditVerification.transitivePaths,
+      ...positiveReleaseEvidence.transitivePaths,
       ...mobileResults.flatMap((item) => item.transitivePaths),
       ...(production.modelPath ? [production.modelPath] : []),
     ]);
@@ -1035,8 +1038,10 @@ async function main() {
       releaseIdentityProfile.status === "no_approved_release_candidate"
         ? "No approved release candidate identity exists. Promotion must atomically create a deeply bound release identity profile."
         : `Release identity profile is invalid: ${releaseIdentityProfile.errors.join("; ")}` }] : []),
-    { code: "AUDIT_V3_MIGRATION_INCOMPLETE", owner: "engineering", summary:
-      "Current-release marker isolation and unified release identity verification are implemented; fixed instance-quality replay and one-use evidence ledger are not yet connected." },
+    ...(!positiveReleaseEvidence.quality.ok ? [{ code: "POSITIVE_RECOGNITION_QUALITY", owner: "engineering", summary:
+      `Provide a schema-v3 per-instance positive recognition report bound to the approved releaseIdentity and replay the fixed 0.90/0.85/0.10/0.02 contract: ${positiveReleaseEvidence.quality.errors.join("; ")}` }] : []),
+    ...(!positiveReleaseEvidence.consumption.ok ? [{ code: "POSITIVE_HOLDOUT_ONE_USE_LEDGER", owner: "engineering", summary:
+      `Provide a completed atomic one-use positive holdout ledger created before image read and prediction: ${positiveReleaseEvidence.consumption.errors.join("; ")}` }] : []),
     ...(!userChecklistGate.ok ? [{
       code: "SPEC_USER_CHECKLIST",
       owner: "user",
@@ -1103,8 +1108,10 @@ async function main() {
   ];
 
   const gates = {
-    auditV3Migration: { ok: false, reason: "instance_replay_and_one_use_ledger_not_connected" },
+    auditV3Implementation: { ok: true, reason: "current_release_scope_release_identity_instance_replay_and_one_use_ledger_connected" },
     releaseIdentity: releaseIdentityProfile,
+    positiveRecognitionQuality: positiveReleaseEvidence.quality,
+    positiveHoldoutConsumption: positiveReleaseEvidence.consumption,
     userChecklist: userChecklistGate,
     engineeringChecklist: engineeringChecklistGate,
     progressMarkers: progressMarkersGate,
@@ -1123,12 +1130,13 @@ async function main() {
   const ok = Object.values(gates).every((gate) => gate.ok === true);
   const report = {
     ok,
-    version: "nail-texture-local-inference-completion-audit/v3-migration",
+    version: "nail-texture-local-inference-completion-audit/v3",
     generatedAt: new Date().toISOString(),
     decision: ok ? "complete" : "hold",
     inputs: options,
     evidenceProfile,
     releaseIdentityProfile,
+    positiveReleaseEvidence,
     summary: {
       gateCount: Object.keys(gates).length,
       passedGates: Object.values(gates).filter((gate) => gate.ok === true).length,

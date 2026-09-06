@@ -6,14 +6,15 @@ import { auditReleaseProgress, CURRENT_RELEASE_REQUIREMENTS } from "../scripts/l
 const fixture = () => CURRENT_RELEASE_REQUIREMENTS.map((id) => ({ id, task: id, status: "✅ PASS",
   evidence: "lifecycle=closed; outcome=pass; gateRole=current-release; required=true" }));
 
-test("当前真实进度文档只选择七项发布要求且继续HOLD", () => {
+test("当前真实进度文档只选择七项发布要求且审计基础设施一项通过", () => {
   const text = readFileSync("docs/nail-texture-local-inference-implementation-progress.md", "utf8");
   const rows = [...text.matchAll(/^\| `([^`]+)` \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$/gm)]
     .map((m) => ({ id: m[1]!.trim(), task: m[2]!.trim(), status: m[3]!.trim(), evidence: m[4]!.trim() }));
   const result = auditReleaseProgress(rows);
   assert.deepEqual(result.errors, []);
   assert.equal(result.currentRequirementCount, 7);
-  assert.equal(result.incompleteMarkers.length, 7);
+  assert.equal(result.passMarkerCount, 1);
+  assert.equal(result.incompleteMarkers.length, 6);
   assert.ok(result.historicalMarkerCount >= 523);
   assert.equal(result.ok, false);
 });

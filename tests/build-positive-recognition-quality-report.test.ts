@@ -7,6 +7,7 @@ import path from "node:path";
 import test from "node:test";
 
 const script = path.resolve("model/training/build-positive-recognition-quality-report.py");
+const ledgerScript = path.resolve("model/training/positive-release-consumption-ledger.py");
 
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
@@ -109,6 +110,52 @@ test("复合运行时报告必须绑定选择锁并可重放", () => {
     "--output", path.join(value.root, "rejected.json"),
   ]);
   assert.equal(rejected.status, 2);
+});
+
+test("schema v3正式报告绑定releaseIdentity与一次性消费台账并可深度重放", () => {
+  const value = fixture();
+  const runtimeLock = path.join(value.root, "runtime-lock-v3.json");
+  writeFileSync(runtimeLock, JSON.stringify({ candidate: "candidate58", fixed: true }));
+  const artifact = JSON.parse(readFileSync(value.artifactIndex, "utf8"));
+  artifact.runtime_selection_lock = runtimeLock;
+  artifact.runtime_selection_lock_sha256 = sha(readFileSync(runtimeLock));
+  writeFileSync(value.artifactIndex, JSON.stringify(artifact));
+  const core = {
+    candidateId: "candidate-58",
+    runtimeSelectionLockSha256: sha(readFileSync(runtimeLock)),
+    modelFiles: [{ role: "segment", sha256: sha(readFileSync(value.weights)) }],
+    inputSize: 512,
+    scoreThreshold: 0.5,
+    combinationRulesSha256: "c".repeat(64),
+    preprocessSha256: "d".repeat(64),
+    postprocessSha256: "e".repeat(64),
+  };
+  const releaseIdentity = { core, coreSha256: sha(core), manifestSha256: "f".repeat(64) };
+  const identityPath = path.join(value.root, "release-identity.json");
+  const ledgerPath = path.join(value.root, "positive-consumption-ledger.json");
+  writeFileSync(identityPath, JSON.stringify({ releaseIdentity }));
+  const claimed = JSON.parse(execFileSync("python", [ledgerScript, "--action", "claim", "--ledger", ledgerPath, "--release-identity", identityPath, "--snapshot-manifest", value.snapshot, "--runtime-selection-lock", runtimeLock], { encoding: "utf8" }));
+  execFileSync("python", [ledgerScript, "--action", "mark-read", "--ledger", ledgerPath, "--run-id", claimed.runId]);
+  execFileSync("python", [ledgerScript, "--action", "mark-prediction", "--ledger", ledgerPath, "--run-id", claimed.runId]);
+  execFileSync("python", [ledgerScript, "--action", "complete", "--ledger", ledgerPath, "--run-id", claimed.runId, "--artifact-index", value.artifactIndex]);
+  const output = path.join(value.root, "schema-v3-report.json");
+  execFileSync("python", [
+    script,
+    "--snapshot-manifest", value.snapshot,
+    "--materialization-report", value.materialization,
+    "--artifact-index", value.artifactIndex,
+    "--weights", value.weights,
+    "--runtime-selection-lock", runtimeLock,
+    "--release-identity", identityPath,
+    "--consumption-ledger", ledgerPath,
+    "--score-threshold", "0.5",
+    "--output", output,
+  ]);
+  const report = JSON.parse(readFileSync(output, "utf8"));
+  assert.equal(report.schemaVersion, 3);
+  assert.deepEqual(report.releaseIdentity, releaseIdentity);
+  assert.equal(report.inputs.consumptionLedgerSha256, sha(readFileSync(ledgerPath)));
+  execFileSync("python", [script, "--verify-report", output]);
 });
 
 test("漏甲会让识别强门保持HOLD", () => {

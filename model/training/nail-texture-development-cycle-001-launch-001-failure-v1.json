@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "cycleId": "nail-texture-development-cycle-001",
+  "experimentId": "development-cycle-001-yolo11n-control",
+  "decision": "launch_failed_before_first_training_batch_completed",
+  "outcome": "infrastructure_failure_not_experiment_result",
+  "failure": {
+    "type": "torch.AcceleratorError",
+    "message": "CUDA error: out of memory",
+    "phase": "epoch-1-batch-1-forward-loss-preprocess",
+    "autoBatchSelected": 18,
+    "completedEpochs": 0,
+    "resultsCsvExists": false,
+    "bestWeightsExists": false,
+    "lastWeightsExists": false,
+    "hypothesisConsumed": false
+  },
+  "inputs": {
+    "plan": {
+      "path": "E:/AI Project/Codex/JiaRu/model/training/nail-texture-development-cycle-001-plan-v1.json",
+      "sha256": "2b8359abb6905ed4a01d81e00e1b958c3022869a136130136687a696e70de604"
+    },
+    "datasetFilesSha256": "f3dfbaf08e5cc447fb3ac0ddbe9e83c92b1d3eb8eed0e35227b0cc75554f6ae0",
+    "modelSha256": "55ed65c56c91713d23e8402371c6c49a6fd84f257f7dce452e8d70e41dcbe152"
+  },
+  "preservedArtifacts": [
+    {
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-development-cycle-001-2026-09-06-v1/yolo11n-control/development-cycle-001-yolo11n-control/args.yaml",
+      "sha256": "6b1a513e8c8f65c46bdc05387b95b1c577f5f7bf4470d00397be8d2ee3b91386"
+    },
+    {
+      "path": "E:/AI Project/Codex/JiaRu_image/训练输出/nail-texture-development-cycle-001-2026-09-06-v1/yolo11n-control/development-cycle-001-yolo11n-control/labels.jpg",
+      "sha256": "20dab6698f4f6b16c985a2f74e8328d030feb3b631bb2cd924138e9add63abeb"
+    }
+  ],
+  "datasetRecovery": {
+    "removedGeneratedCaches": [
+      {
+        "path": "labels/train.cache",
+        "sha256": "1ee008a460a298eb26c0cfe250b1051f25e5a4a856ced74df1e182b8f43bf7ce",
+        "bytes": 490464
+      },
+      {
+        "path": "labels/val.cache",
+        "sha256": "7c84e82c45bbcc589cb35a4447e8572477288b7cf7ae3b45b22fbf6c19e563d3",
+        "bytes": 123892
+      }
+    ],
+    "developmentMaterializationReplay": "PASS",
+    "datasetFilesSha256AfterRecovery": "f3dfbaf08e5cc447fb3ac0ddbe9e83c92b1d3eb8eed0e35227b0cc75554f6ae0"
+  },
+  "nextAction": "用新计划版本把唯一资源参数batch从auto改为固定4；使用全新输出目录，不覆盖本失败证据。"
+}
