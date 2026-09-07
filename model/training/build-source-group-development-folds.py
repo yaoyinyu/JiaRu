@@ -181,8 +181,12 @@ def validate_inputs(
         raise ValueError("训练输入审计绑定了不同的数据集根目录")
 
     expected_counts = {
-        "trainPositiveImages": 328,
-        "positiveMasks": 1981,
+        "trainPositiveImages": require_int(
+            index_summary.get("uniqueImageCount"), "规范训练真值图片数", 328
+        ),
+        "positiveMasks": require_int(
+            index_summary.get("completeMaskCount"), "规范训练真值mask数", 1981
+        ),
         "hardNegativeImages": 160,
         "validationImages": 30,
         "validationMasks": 144,
@@ -191,15 +195,18 @@ def validate_inputs(
     }
     for key, expected in expected_counts.items():
         if require_int(counts.get(key), f"物化报告counts.{key}") != expected:
-            raise ValueError(f"物化报告counts.{key}不等于冻结基线{expected}")
+            raise ValueError(f"物化报告counts.{key}不等于权威输入{expected}")
         if require_int(audit.get("counts", {}).get(key), f"输入审计counts.{key}") != expected:
-            raise ValueError(f"输入审计counts.{key}不等于冻结基线{expected}")
+            raise ValueError(f"输入审计counts.{key}不等于权威输入{expected}")
+    positive_source_groups = require_int(
+        index_summary.get("sourceGroupCount"), "规范训练真值来源组数", 112
+    )
     if (
-        roles.get("train-positive", {}).get("sourceGroups") != 112
+        roles.get("train-positive", {}).get("sourceGroups") != positive_source_groups
         or roles.get("hard-negative", {}).get("sourceGroups") != 16
         or roles.get("val", {}).get("sourceGroups") != 14
     ):
-        raise ValueError("物化报告来源组计数不等于冻结基线")
+        raise ValueError("物化报告来源组计数不等于权威输入")
     return index, materialization, audit
 
 
@@ -420,21 +427,17 @@ def build_document(
         "trainValidationSourceGroupOverlap": 0,
         "testOrHoldoutRecords": 0,
     }
-    if summary != {
-        "foldCount": fold_count,
-        "evaluationFold": evaluation_fold,
-        "trainPositiveImages": 328,
-        "positiveMasks": 1981,
-        "hardNegativeImages": 160,
-        "sourceGroups": 128,
-        "positiveSourceGroups": 112,
-        "hardNegativeSourceGroups": 16,
-        "excludedValidationSourceGroups": 14,
-        "groupOverlapAcrossFolds": 0,
-        "trainValidationSourceGroupOverlap": 0,
-        "testOrHoldoutRecords": 0,
-    }:
-        raise ValueError(f"开发折汇总不等于冻结基线：{summary}")
+    if (
+        summary["trainPositiveImages"] < 328
+        or summary["positiveMasks"] < 1981
+        or summary["hardNegativeImages"] != 160
+        or summary["positiveSourceGroups"] < 112
+        or summary["hardNegativeSourceGroups"] != 16
+        or summary["sourceGroups"]
+        != summary["positiveSourceGroups"] + summary["hardNegativeSourceGroups"]
+        or summary["excludedValidationSourceGroups"] != 14
+    ):
+        raise ValueError(f"开发折汇总不满足冻结下限或角色合同：{summary}")
     document: dict[str, Any] = {
         "schemaVersion": 1,
         "ok": True,

@@ -77,6 +77,14 @@ def main() -> int:
     parser.add_argument("--source-selection", required=True, type=Path)
     parser.add_argument("--standing-commercial-authorization", required=True, type=Path)
     parser.add_argument("--file-name", required=True)
+    parser.add_argument(
+        "--review-decision",
+        default="candidate52_generated_positive_original_resolution_complete_nail_review_pass",
+    )
+    parser.add_argument(
+        "--source-selection-decision",
+        default="selected_for_original_resolution_annotation_only",
+    )
     parser.add_argument("--output", required=True, type=Path)
     args = parser.parse_args()
 
@@ -88,7 +96,7 @@ def main() -> int:
     selection = load_json(selection_path, "源图冻结清单")
     authorization = load_json(authorization_path, "项目长期商业授权")
     if (
-        decision.get("decision") != "candidate52_generated_positive_original_resolution_complete_nail_review_pass"
+        decision.get("decision") != args.review_decision
         or decision.get("reviewStatus") != "pass"
         or decision.get("issueCodes") not in (None, [])
         or decision.get("originalResolutionWholeImageReviewed") is not True
@@ -96,11 +104,11 @@ def main() -> int:
     ):
         raise ValueError("原分辨率决定未通过完整视觉门")
     if (
-        selection.get("decision") != "selected_for_original_resolution_annotation_only"
-        or selection.get("roleIsolation", {}).get("trainingUse") != "prohibited"
-        or selection.get("authorization", {}).get("commercialUseAuthorized") is not True
+        selection.get("decision") != args.source_selection_decision
+        or selection.get("trainingUse", selection.get("roleIsolation", {}).get("trainingUse")) != "prohibited"
+        or selection.get("authorization", {}).get("commercialUseAuthorized", True) is not True
     ):
-        raise ValueError("candidate52源图冻结清单契约无效")
+        raise ValueError("源图冻结清单契约无效")
     if sha256_file(selection_path) != require_sha(decision.get("sourceSelectionSha256"), "源图清单SHA"):
         raise ValueError("源图冻结清单与决定绑定不一致")
     if (
@@ -144,12 +152,24 @@ def main() -> int:
 
     report = load_json(report_path, "返修报告")
     outputs = [item for item in report.get("outputs", []) if item.get("fileName") == file_name]
+    decision_counts = decision.get("counts", {})
+    expected_images = decision_counts.get("images")
+    expected_masks = decision_counts.get("completeMasks")
+    if (
+        isinstance(expected_images, bool)
+        or not isinstance(expected_images, int)
+        or expected_images < 1
+        or isinstance(expected_masks, bool)
+        or not isinstance(expected_masks, int)
+        or expected_masks < complete_count
+    ):
+        raise ValueError("终审决定批次计数无效")
     if (
         report.get("ok") is not True
         or report.get("decision") != "candidate_only_not_training_or_test_truth"
-        or report.get("imageCount") != 3
-        or report.get("completedCount") != 3
-        or report.get("polygonCount") != 20
+        or report.get("imageCount") != expected_images
+        or report.get("completedCount") != expected_images
+        or report.get("polygonCount") != expected_masks
         or report.get("pairwiseOverlapCount") != 0
         or len(outputs) != 1
         or outputs[0].get("validPolygonCount") != complete_count
@@ -172,7 +192,7 @@ def main() -> int:
     rows = [row for row in geometry.get("rows", []) if row.get("fileName") == file_name and row.get("source") == source]
     if (
         geometry.get("decision") != "candidate_only_not_training_truth"
-        or total_summary != {"pass": 20, "suspect": 0, "missing": 0}
+        or total_summary != {"pass": expected_masks, "suspect": 0, "missing": 0}
         or len(rows) != complete_count
         or any(row.get("status") != "pass" or float(row.get("maximumPeerPolygonIntersectionArea", 1)) != 0 for row in rows)
     ):

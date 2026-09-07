@@ -124,3 +124,9 @@
 本审计指出的文档层问题已经直接写回三份引用文档：实施规范升级为v1.2并新增当前发布候选活动合同，实施进度新增candidate57 TEST HOLD dashboard和结构化当前发布要求，完成度说明升级为v1.3并登记audit v3与统一`releaseIdentity`合同。旧candidate1—57、旧val30/test100和旧两阶段计划仍保留原始事实，但已明确标为历史或被替代，不再被解释为下一候选的有效发布路线。
 
 代码层问题尚未因此自动解决：`scripts/audit-nail-texture-local-inference-completion.ts`和`model/reports/nail-texture-completion-evidence-profile.json`仍是v2/candidate5历史结构，生产manifest仍无批准ONNX，前端fallback、真机、Beta和回滚证据仍待实现。后续必须按三份文档的新合同修改并重放机器审计，不能把本次文档同步当作模型或产品PASS。
+
+## 9. 2026-09-07可持续Goal替代方式
+
+第8节第二段是2026-09-06整改前的时点记录，现已过期：completion audit v3已经实现活动发布门、统一`releaseIdentity`、schema v3逐实例正样本深重放和一次性消费台账；最近机器重放为18门5通过/13失败、当前七项发布要求1通过/6未完成，`ok=false`、`decision=hold`。生产manifest、正式ONNX、真机、Beta和回滚门仍未完成。
+
+原第4节长提示词不再建议整体复制为一个长期静态Goal。项目现使用`docs/nail-texture-current-goal.md`，且只保留目标、核心要求、当前状态和下一步计划；Codex Goal只保存指向该文件的精简启动器。读取、回写、字段保护和文档同步放在`AGENTS.md`中。这样每轮可以根据可重放证据主动更新执行状态，同时避免治理说明挤占目标正文，也防止静默降低质量门或长期固化过期候选状态。通用结构见`docs/continuous-goal-template.md`。

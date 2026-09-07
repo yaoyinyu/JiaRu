@@ -363,43 +363,81 @@ def build_report(
         resampled_positive_copies = sum(
             item.get("isResampledCopy") is True for item in records
         )
+        unique_train_positive_images = sum(
+            item["developmentSplit"] == "train"
+            and item["role"] == "train-positive"
+            and item.get("isResampledCopy") is not True
+            for item in records
+        )
+        unique_train_positive_masks = sum(
+            item["maskCount"]
+            for item in records
+            if item["developmentSplit"] == "train"
+            and item["role"] == "train-positive"
+            and item.get("isResampledCopy") is not True
+        )
         if positive_resampling_binding is not None:
             counts.update(
                 {
-                    "trainUniquePositiveImages": 263,
+                    "trainUniquePositiveImages": unique_train_positive_images,
                     "trainResampledPositiveCopies": resampled_positive_copies,
-                    "trainUniquePositiveMasks": 1581,
+                    "trainUniquePositiveMasks": unique_train_positive_masks,
                     "trainEffectivePositiveMasks": counts["trainPositiveMasks"],
                 }
             )
         expected_counts = {
-            "trainImages": 263 + resampled_positive_copies + counts["trainHardNegativeImages"],
-            "trainPositiveImages": 263 + resampled_positive_copies,
-            "trainPositiveMasks": 1581
+            "trainImages": unique_train_positive_images
+            + resampled_positive_copies
+            + counts["trainHardNegativeImages"],
+            "trainPositiveImages": unique_train_positive_images
+            + resampled_positive_copies,
+            "trainPositiveMasks": unique_train_positive_masks
             + sum(
                 item["maskCount"]
                 for item in records
                 if item.get("isResampledCopy") is True
             ),
             "trainHardNegativeImages": counts["trainHardNegativeImages"],
-            "evaluationImages": 105,
-            "evaluationPositiveImages": 65,
-            "evaluationPositiveMasks": 400,
-            "evaluationHardNegativeImages": 40,
+            "evaluationImages": sum(
+                item["developmentSplit"] == "val" for item in records
+            ),
+            "evaluationPositiveImages": sum(
+                item["developmentSplit"] == "val"
+                and item["role"] == "train-positive"
+                for item in records
+            ),
+            "evaluationPositiveMasks": sum(
+                item["maskCount"]
+                for item in records
+                if item["developmentSplit"] == "val"
+            ),
+            "evaluationHardNegativeImages": sum(
+                item["developmentSplit"] == "val"
+                and item["role"] == "hard-negative"
+                for item in records
+            ),
             "testImages": 0,
             "sourceGroupOverlap": 0,
         }
         if positive_resampling_binding is not None:
             expected_counts.update(
                 {
-                    "trainUniquePositiveImages": 263,
+                    "trainUniquePositiveImages": unique_train_positive_images,
                     "trainResampledPositiveCopies": resampled_positive_copies,
-                    "trainUniquePositiveMasks": 1581,
+                    "trainUniquePositiveMasks": unique_train_positive_masks,
                     "trainEffectivePositiveMasks": expected_counts["trainPositiveMasks"],
                 }
             )
         if counts != expected_counts:
             raise ValueError(f"开发数据集计数不等于固定折计划：{counts}")
+        if (
+            unique_train_positive_images < 263
+            or unique_train_positive_masks < 1581
+            or counts["evaluationPositiveImages"] < 65
+            or counts["evaluationPositiveMasks"] < 400
+            or counts["evaluationHardNegativeImages"] != 40
+        ):
+            raise ValueError(f"开发数据集低于冻结开发基线：{counts}")
         if selection_binding is None and counts["trainHardNegativeImages"] != 120:
             raise ValueError("未指定消融选择计划时必须保留全部120张训练困难负样本")
         report = {

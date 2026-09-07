@@ -195,8 +195,29 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         for row in records
         if isinstance(row, dict) and row.get("developmentSplit") == "val"
     ] if isinstance(records, list) else []
-    if len(eval_records) != 105:
-        raise ValueError("development evaluation must contain exactly 105 images")
+    materialization_counts = materialization.get("counts")
+    if not isinstance(materialization_counts, dict):
+        raise ValueError("development materialization counts are missing")
+    expected_evaluation_images = int(
+        materialization_counts.get("evaluationImages", -1)
+    )
+    expected_positive_images = int(
+        materialization_counts.get("evaluationPositiveImages", -1)
+    )
+    expected_positive_masks = int(
+        materialization_counts.get("evaluationPositiveMasks", -1)
+    )
+    expected_negative_images = int(
+        materialization_counts.get("evaluationHardNegativeImages", -1)
+    )
+    if (
+        expected_evaluation_images < 105
+        or expected_positive_images < 65
+        or expected_positive_masks < 400
+        or expected_negative_images != 40
+        or len(eval_records) != expected_evaluation_images
+    ):
+        raise ValueError("development evaluation is below the frozen baseline or count-drifted")
     by_stem = {Path(str(row["fileName"])).stem: row for row in eval_records}
     if len(by_stem) != len(eval_records):
         raise ValueError("development evaluation contains duplicate image stems")
@@ -332,7 +353,11 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
 
     positive_rows = [row for row in image_rows if row["role"] == "train-positive"]
     negative_rows = [row for row in image_rows if row["role"] == "hard-negative"]
-    if len(positive_rows) != 65 or len(negative_rows) != 40 or totals["truth"] != 400:
+    if (
+        len(positive_rows) != expected_positive_images
+        or len(negative_rows) != expected_negative_images
+        or totals["truth"] != expected_positive_masks
+    ):
         raise ValueError("development role counts drifted")
     missing_images = sum(row["missingCount"] > 0 for row in positive_rows)
     directly_extractable = sum(row["directlyExtractable"] for row in positive_rows)

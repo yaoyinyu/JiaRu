@@ -1,7 +1,7 @@
 # 美甲纹理端侧最终完成度审计
 
-文档版本：v1.4
-更新日期：2026-09-07
+文档版本：v1.7
+更新日期：2026-09-08
 当前状态：audit v3已接入活动标记、统一`releaseIdentity`、固定逐实例正样本深度重放和一次性消费台账；当前因无批准发布候选及其正式证据继续HOLD。下述v2问题说明只保留为迁移前诊断。
 
 历史v2会把每个历史FAIL/REJECT/HOLD永久当作当前阻断，并允许candidate5质量、candidate6桌面和candidate57状态混入同一profile。当前v3已经修复这两个P0：历史结果保持原文但不参与当前门，全部正式报告必须绑定同一不可变`releaseIdentity`；缺身份时明确返回`no_approved_release_candidate`。不得通过改写历史失败、忽略退出码、复制smoke模型或提前切换manifest绕过。
@@ -534,3 +534,17 @@ candidate57比candidate50更接近正式正样本门，但仍未满足全部绝�
 train内来源组开发折与循环001—005均属于`REL-CURRENT-DEVELOPMENT-002`的研发证据，不增加正式发布门PASS。当前较优循环004在固定逐实例评估下为召回0.8975、完整mask比例0.780、漏甲图片率0.400、加权杂散率0.130，仍未达到0.90/0.85/0.10/0.02绝对门；因此不存在可生成`releaseIdentity`的批准候选，正式校准、正样本发布留出、困难负样本发布留出、ONNX和产品证据仍必须HOLD。
 
 循环002的Windows/CUDA基础设施崩溃在未生成预测、权重或质量统计时记录并修复；同步修订后正常完成。循环003训练640、循环005边界监督均已由独立质量报告证伪，不能通过重复训练、权重扫描或旧val/test反调改写结果。完成度审计应把这些结果保留为`lifecycle=closed`的研发历史，同时仅让尚未完成的`REL-CURRENT-DEVELOPMENT-002`阻断当前发布。
+
+## 2026-09-07 candidate58与循环006—008完成度影响
+
+新增5张/25 mask已通过源图、真值、规范索引、物化和输入深审，规范train正样本增至333张/2006 mask/117来源组；这只增加研发可用训练资产。循环006来源组重采样退化，循环007虽改善召回与漏甲图率但杂散率0.15925926失败，循环008增加训练负样本后未压低杂散并整体回退，三轮均不能生成批准`releaseIdentity`。
+
+因此`REL-CURRENT-DEVELOPMENT-002`仍为`lifecycle=running; outcome=pending`，其余全新校准、正样本发布留出、困难负样本发布留出、生产运行时和产品证据仍保持PENDING/HOLD。完成度不得因训练资产增加、单项指标改善或权重生成而晋升；下一动作是错误剖面后的一项预注册结构变量或真实正样本补强。
+
+## 2026-09-07 错误剖面完成后的当前门状态
+
+循环007错误剖面报告`099d956fca21aa84bf3f312db341d18937472dee1ec75100558892f14e7d568a`已重放通过，且证明旧val/test/holdout读取为0；它只关闭研发诊断子步骤，不增加任何正式发布门PASS。依据正图承担`60.5/64.5`加权杂散质量以及`17/25`错误图同时漏甲，下一单变量固定为来源隔离真实困难正样本补强。469张/68来源组候选池、代表图和联系表仍是训练前审核材料，尚无批准训练真值、胜出配方、`releaseIdentity`或生产ONNX，因此`REL-CURRENT-DEVELOPMENT-002`继续running。同步后completion audit v3报告SHA-256为`3f57b504deb09cdfa53e75103d456c3a085a9249991828230e340e63a27baf33`，仍为18门5通过/13失败、`ok=false`、`decision=hold`。
+
+## 2026-09-08 困难正样本选源完成后的当前门状态
+
+10张/10来源组/预计69甲的源图选择报告`794662d87f8360279d13bd49ad1b2b82e7a30ca6e1778eaf3bfeacd76216b1fd`已经机器重放，与train、旧val、冻结test和受保护困难负样本交叠0。该结果只完成`REL-CURRENT-DEVELOPMENT-002`内部的选源子步骤；完整mask尚未制作、训练索引和物化尚未更新、没有新权重或批准`releaseIdentity`，因此不增加正式发布门PASS。当前活动目标已切换为逐甲标注与原分辨率真值终审。同步后的completion audit v3报告SHA-256为`ba0bf5d358efff7c7aebb0e521f6531b6d8bed9fd4c4acde89b49cecec8abd16`，仍为18门5通过/13失败、6个current-release标记未完成、`ok=false`、`decision=hold`，产品继续HOLD。

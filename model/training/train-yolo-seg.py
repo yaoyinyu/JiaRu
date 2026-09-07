@@ -27,6 +27,7 @@ DEVELOPMENT_ONLY_VARIABLES = frozenset(
         "trainingInputResolution",
         "trainingHardNegativeImageCount",
         "positiveSourceGroupResampling",
+        "trainingPositiveSourceAddition",
         "augmentationPolicy",
         "boundarySupervision",
         "distillationPolicy",

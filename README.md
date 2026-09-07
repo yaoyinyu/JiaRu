@@ -290,7 +290,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.611 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.618 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
@@ -388,7 +388,9 @@ copy .env.local.example .env.local
 - [x] audit v3统一身份、逐实例重放与一次性消费台账接入：新增冻结正样本留出原子独占认领台账与正式schema v3报告，completion audit升级为`v3`（18门5通过/13失败，`ok=false`、HOLD；候选证据门须真实满足，不再用迁移占位阻断）
 - [x] development-cycle-001预注册容量实验 `H-CAPACITY-001`（train内`sourceGroup`互斥开发折，YOLO11n基线召回`0.890`/完整率`0.775`，YOLO11s扩大容量未达预注册改善门，容量扩展分支关闭）；全程不读取旧val30/test100或任何发布留出
 - [x] 开发循环003—005单变量复评：训练分辨率512→640（召回`0.8625`，分支关闭）、困难负样本120→60（召回`0.8975`/杂散率`0.130`，当前较优开发基线但仍未达晋级门）、`hardBoundaryWeight=0.5`（退化，形态学边界监督分支关闭）
-- [ ] 转向train角色透明、低对比、相邻长甲、侧视、多手与复杂背景困难正样本覆盖或重采样；开发证据不增加发布PASS，产品继续HOLD
+- [x] train角色困难正样本精确选集：原469张/68来源组按原分辨率质量止损，补审90张真实素材后形成10张/10来源组/预计69甲精确选集（两张边缘裁断风险图未计入）；语料审计确认批内精确重复0、dHash≤2近重复0，与train、旧val、冻结test和受保护困难负样本交叠0
+- [ ] 完成该10张/预计69甲的逐甲候选mask、原分辨率整图与逐甲真值终审、多边形合法性、同图零交叠及哈希绑定；全批当前仍为`trainingUse=prohibited`
+- [ ] 开发证据不增加发布PASS，产品继续HOLD
 - [ ] 部署512三变体达到误检图片0、误检检测0、相对原图delta 0
 - [ ] 导出并登记生产ONNX，接入`/ar-tryon`正式多纹理识别和像素级mask提取
 - [ ] 移动真机 WebGPU 性能验证

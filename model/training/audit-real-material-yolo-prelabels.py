@@ -64,12 +64,14 @@ def main() -> None:
         "annotation_workspace_ready_candidate_only",
         "positive_reinforcement_annotation_workspace_ready_candidate_only",
         "candidate7_annotation_workspace_ready_candidate_only",
+        "development_positive_annotation_workspace_ready_candidate_only",
     }
     if workspace.get("ok") is not True or workspace.get("decision") not in allowed_workspace_decisions:
         errors.append("annotation workspace must pass")
     requires_explicit_candidate_gates = workspace.get("decision") in {
         "positive_reinforcement_annotation_workspace_ready_candidate_only",
         "candidate7_annotation_workspace_ready_candidate_only",
+        "development_positive_annotation_workspace_ready_candidate_only",
     }
     if prelabel.get("ok") is not True or prelabel.get("decision") != "candidate_only_not_training_truth":
         errors.append("YOLO prelabel report must be candidate-only and pass")
