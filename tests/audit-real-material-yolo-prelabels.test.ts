@@ -16,12 +16,13 @@ test("YOLO prelabel audit reports count gaps without approving candidate truth",
   const workspace = path.join(root, "workspace.json");
   writeFileSync(workspace, JSON.stringify({
     ok: true,
-    decision: "annotation_workspace_ready_candidate_only",
+    decision: "development_positive_annotation_workspace_ready_candidate_only",
     items: [{ fileName: "a.jpg", sha256: "a", sourceGroup: "g1", expectedFullyVisibleNails: 2 }],
   }));
   const annotation = path.join(annotationDir, "a.json");
   writeFileSync(annotation, JSON.stringify({
     decision: "candidate_only_not_training_truth",
+    trainingUse: "prohibited",
     image: { fileName: "a.jpg", sourceGroup: "g1", width: 100, height: 100 },
     annotations: [{ polygon: [{ x: 10, y: 10 }, { x: 30, y: 10 }, { x: 30, y: 30 }, { x: 10, y: 30 }] }],
   }));
@@ -29,6 +30,8 @@ test("YOLO prelabel audit reports count gaps without approving candidate truth",
   writeFileSync(prelabel, JSON.stringify({
     ok: true,
     decision: "candidate_only_not_training_truth",
+    trainingUse: "prohibited",
+    originalResolutionReviewRequired: true,
     workspaceManifestSha256: hash(workspace),
     items: [{ fileName: "a.jpg", sha256: "a", sourceGroup: "g1", candidateCount: 1, annotationPath: annotation }],
   }));

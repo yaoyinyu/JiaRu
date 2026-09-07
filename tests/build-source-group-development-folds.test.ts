@@ -24,7 +24,7 @@ function sha(value: string | Buffer | unknown): string {
   return createHash("sha256").update(payload).digest("hex");
 }
 
-function fixture() {
+function fixture(extraPositiveImages = 0) {
   const root = mkdtempSync(path.join(tmpdir(), "source-group-folds-"));
   const indexPath = path.join(root, "index.json");
   const materializationPath = path.join(root, "materialization.json");
@@ -33,22 +33,27 @@ function fixture() {
   const outputPath = path.join(root, "folds.json");
   writeFileSync(yamlPath, "path: .\ntrain: images/train\nval: images/val\ntest: images/test\ntask: segment\n");
 
-  const positiveGroups = Array.from({ length: 112 }, (_, index) => `positive-${String(index).padStart(3, "0")}`);
-  const truths = Array.from({ length: 328 }, (_, index) => {
+  const positiveGroups = Array.from({ length: 112 + extraPositiveImages }, (_, index) => `positive-${String(index).padStart(3, "0")}`);
+  const truths = Array.from({ length: 328 + extraPositiveImages }, (_, index) => {
     const fileName = `positive-${String(index).padStart(3, "0")}.jpg`;
-    const maskCount = index < 13 ? 7 : 6;
+    const maskCount = index >= 328 ? 5 : index < 13 ? 7 : 6;
     return {
       fileName,
       imageSha256: sha(`positive-image-${index}`),
-      sourceGroup: positiveGroups[index % positiveGroups.length],
+      sourceGroup: index < 328 ? positiveGroups[index % 112] : positiveGroups[index - 216],
       completeMaskCount: maskCount,
     };
   });
-  assert.equal(truths.reduce((total, item) => total + item.completeMaskCount, 0), 1981);
+  const positiveMaskCount = 1981 + extraPositiveImages * 5;
+  assert.equal(truths.reduce((total, item) => total + item.completeMaskCount, 0), positiveMaskCount);
   const index = {
     ok: true,
     decision: "approved_unique_training_truth_index",
-    summary: { uniqueImageCount: 328, completeMaskCount: 1981, sourceGroupCount: 112 },
+    summary: {
+      uniqueImageCount: 328 + extraPositiveImages,
+      completeMaskCount: positiveMaskCount,
+      sourceGroupCount: 112 + extraPositiveImages,
+    },
     canonicalTruthsSha256: sha(truths),
     canonicalTruths: truths,
     conflicts: [],
@@ -99,18 +104,22 @@ function fixture() {
     outputDir: root,
     inputs: { trainingTruthIndex: { path: indexPath, sha256: sha(readFileSync(indexPath)) } },
     counts: {
-      trainImages: 488,
-      trainPositiveImages: 328,
+      trainImages: 488 + extraPositiveImages,
+      trainPositiveImages: 328 + extraPositiveImages,
       hardNegativeImages: 160,
       validationImages: 30,
       testImages: 0,
-      positiveMasks: 1981,
+      positiveMasks: positiveMaskCount,
       validationMasks: 144,
       emptyHardNegativeLabels: 160,
       orphanFiles: 0,
     },
     roles: {
-      "train-positive": { images: 328, masks: 1981, sourceGroups: 112 },
+      "train-positive": {
+        images: 328 + extraPositiveImages,
+        masks: positiveMaskCount,
+        sourceGroups: 112 + extraPositiveImages,
+      },
       "hard-negative": { images: 160, masks: 0, sourceGroups: 16 },
       val: { images: 30, masks: 144, sourceGroups: 14 },
     },
@@ -198,6 +207,18 @@ test("同一冻结输入可确定性重建同一开发折", () => {
   assert.equal(second.contentSha256, first.contentSha256);
   assert.deepEqual(second.sourceGroupAssignments, first.sourceGroupAssignments);
   assert.deepEqual(second.records, first.records);
+});
+
+test("规范正样本语料增长后按权威索引构建新开发折", () => {
+  const value = fixture(5);
+  const report = build(value);
+  assert.equal(report.ok, true);
+  assert.equal(report.summary.trainPositiveImages, 333);
+  assert.equal(report.summary.positiveMasks, 2006);
+  assert.equal(report.summary.positiveSourceGroups, 117);
+  assert.equal(report.summary.sourceGroups, 133);
+  assert.equal(report.records.length, 493);
+  execFileSync("python", [script, "--verify-plan", value.outputPath]);
 });
 
 test("上游报告漂移后重放必须失败", () => {
