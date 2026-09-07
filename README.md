@@ -290,7 +290,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.606 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.611 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
@@ -386,7 +386,9 @@ copy .env.local.example .env.local
 - [ ] 训练后另建、原子冻结并终审不少于100张全新未见困难负样本
 - [x] audit v3发布要求解析器（`scripts/lib/nail-texture-release-progress.ts`）接入总审计，530条真实记录分为7项当前发布要求与523条历史记录（历史记录标记 `historical`/`legacy-unclassified`，不再永久阻断）
 - [x] audit v3统一身份、逐实例重放与一次性消费台账接入：新增冻结正样本留出原子独占认领台账与正式schema v3报告，completion audit升级为`v3`（18门5通过/13失败，`ok=false`、HOLD；候选证据门须真实满足，不再用迁移占位阻断）
-- [ ] development-cycle-001预注册容量实验 `H-CAPACITY-001`（train内`sourceGroup`互斥开发折，YOLO11s-seg对比YOLO11n-seg，不读取旧val30/test100或任何发布留出）；前三次启动因外部进程生命周期中断失败，当前为plan-v4修正版
+- [x] development-cycle-001预注册容量实验 `H-CAPACITY-001`（train内`sourceGroup`互斥开发折，YOLO11n基线召回`0.890`/完整率`0.775`，YOLO11s扩大容量未达预注册改善门，容量扩展分支关闭）；全程不读取旧val30/test100或任何发布留出
+- [x] 开发循环003—005单变量复评：训练分辨率512→640（召回`0.8625`，分支关闭）、困难负样本120→60（召回`0.8975`/杂散率`0.130`，当前较优开发基线但仍未达晋级门）、`hardBoundaryWeight=0.5`（退化，形态学边界监督分支关闭）
+- [ ] 转向train角色透明、低对比、相邻长甲、侧视、多手与复杂背景困难正样本覆盖或重采样；开发证据不增加发布PASS，产品继续HOLD
 - [ ] 部署512三变体达到误检图片0、误检检测0、相对原图delta 0
 - [ ] 导出并登记生产ONNX，接入`/ar-tryon`正式多纹理识别和像素级mask提取
 - [ ] 移动真机 WebGPU 性能验证

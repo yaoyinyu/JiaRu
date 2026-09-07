@@ -16,6 +16,13 @@ MASK_CONTAINMENT_THRESHOLD = 0.85
 MASK_SCORE_TOLERANCE = 0.12
 BOX_IOU_THRESHOLD = 0.55
 MAXIMUM_CANDIDATES = 10
+CANONICAL_FORMAL_FLOORS = {
+    "minimumInstanceRecall": 0.9,
+    "minimumCompleteMaskRatio": 0.85,
+    "maximumMissingImageRate": 0.1,
+    "maximumWeightedSpuriousRate": 0.02,
+    "everyEvaluationImageAccountedFor": True,
+}
 
 
 def load_module(name: str, path: Path):
@@ -65,6 +72,17 @@ def require_file(value: str, label: str) -> Path:
     if not path.is_file():
         raise ValueError(f"{label} is missing: {path}")
     return path
+
+
+def resolve_development_floors(contract: dict[str, Any]) -> tuple[dict[str, Any], str]:
+    """解析不可放宽的开发门，并兼容未内嵌该段的已哈希绑定计划。"""
+
+    configured = contract.get("formalFloorForPromotionToFullTrain")
+    if configured is None:
+        return dict(CANONICAL_FORMAL_FLOORS), "immutable-code-default-for-legacy-plan"
+    if configured != CANONICAL_FORMAL_FLOORS:
+        raise ValueError("formal-like development floors drifted from canonical values")
+    return dict(configured), "pre-registered-plan"
 
 
 def box_iou(left: tuple[float, float, float, float], right: tuple[float, float, float, float]) -> float:
@@ -338,9 +356,10 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
         "weightedSpuriousRate": round(weighted_spurious / totals["truth"], 8),
         "directlyExtractableRate": round(directly_extractable / len(positive_rows), 8),
     }
-    floors = contract.get("formalFloorForPromotionToFullTrain")
-    if not isinstance(floors, dict):
-        raise ValueError("formal-like development floors are missing")
+    floors, floor_source = resolve_development_floors(contract)
+    resolved_contract = dict(contract)
+    resolved_contract["formalFloorForPromotionToFullTrain"] = floors
+    resolved_contract["formalFloorSource"] = floor_source
     gates = {
         "instanceRecall": summary["instanceRecall"]
         >= float(floors["minimumInstanceRecall"]),
@@ -381,7 +400,7 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             },
             "weights": {"path": str(weights_path), "sha256": sha256_file(weights_path)},
         },
-        "contract": contract,
+        "contract": resolved_contract,
         "productDeduplication": {
             "implementation": str(POSTPROCESS_SOURCE.resolve()),
             "implementationSha256": sha256_file(POSTPROCESS_SOURCE),

@@ -1,7 +1,7 @@
 # 美甲纹理端侧最终完成度审计
 
 文档版本：v1.4
-更新日期：2026-09-06
+更新日期：2026-09-07
 当前状态：audit v3已接入活动标记、统一`releaseIdentity`、固定逐实例正样本深度重放和一次性消费台账；当前因无批准发布候选及其正式证据继续HOLD。下述v2问题说明只保留为迁移前诊断。
 
 历史v2会把每个历史FAIL/REJECT/HOLD永久当作当前阻断，并允许candidate5质量、candidate6桌面和candidate57状态混入同一profile。当前v3已经修复这两个P0：历史结果保持原文但不参与当前门，全部正式报告必须绑定同一不可变`releaseIdentity`；缺身份时明确返回`no_approved_release_candidate`。不得通过改写历史失败、忽略退出码、复制smoke模型或提前切换manifest绕过。
@@ -528,3 +528,9 @@ candidate57比candidate50更接近正式正样本门，但仍未满足全部绝�
 - 当前`nail-texture-completion-evidence-profile.json`仍绑定candidate5单权重/阈值，桌面证据来自candidate6，不能代表当前发布候选；在统一promotion生成新`releaseIdentity`前，应把产品状态解释为“无批准发布候选”。
 - 当前生产manifest仍是输入640占位且缺少其指向的生产ONNX；smoke模型、规则区域或页面能加载不能填充生产资产和正式识别门。
 - 下一工程任务进入train内来源组开发折与单阶段512配方对照；普通实验不得占用正式candidate编号，胜出配方全量训练后才建立全新校准集与一次性正样本发布留出。
+
+## 2026-09-07 train内开发证据状态
+
+train内来源组开发折与循环001—005均属于`REL-CURRENT-DEVELOPMENT-002`的研发证据，不增加正式发布门PASS。当前较优循环004在固定逐实例评估下为召回0.8975、完整mask比例0.780、漏甲图片率0.400、加权杂散率0.130，仍未达到0.90/0.85/0.10/0.02绝对门；因此不存在可生成`releaseIdentity`的批准候选，正式校准、正样本发布留出、困难负样本发布留出、ONNX和产品证据仍必须HOLD。
+
+循环002的Windows/CUDA基础设施崩溃在未生成预测、权重或质量统计时记录并修复；同步修订后正常完成。循环003训练640、循环005边界监督均已由独立质量报告证伪，不能通过重复训练、权重扫描或旧val/test反调改写结果。完成度审计应把这些结果保留为`lifecycle=closed`的研发历史，同时仅让尚未完成的`REL-CURRENT-DEVELOPMENT-002`阻断当前发布。

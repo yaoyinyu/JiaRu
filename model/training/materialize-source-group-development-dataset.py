@@ -153,12 +153,129 @@ def validate_plan_and_sources(
     return plan, materialization, source_root, prepared
 
 
+def apply_training_hard_negative_selection(
+    prepared: list[dict[str, Any]], selection_path: Path | None
+) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
+    if selection_path is None:
+        return prepared, None
+    selection = read_json(selection_path, "训练困难负样本选择计划")
+    groups = selection.get("trainingHardNegativeSourceGroups")
+    if selection.get("schemaVersion") != 1 or not isinstance(groups, list):
+        raise ValueError("训练困难负样本选择计划合同无效")
+    normalized_groups = sorted({str(value) for value in groups})
+    if len(normalized_groups) != len(groups) or not normalized_groups:
+        raise ValueError("训练困难负样本来源组必须非空且不重复")
+    available_groups = {
+        item["sourceGroup"]
+        for item in prepared
+        if item["developmentSplit"] == "train" and item["role"] == "hard-negative"
+    }
+    unknown_groups = sorted(set(normalized_groups) - available_groups)
+    if unknown_groups:
+        raise ValueError(f"选择计划包含未知训练困难负样本来源组：{unknown_groups}")
+    selected = [
+        item
+        for item in prepared
+        if not (
+            item["developmentSplit"] == "train"
+            and item["role"] == "hard-negative"
+            and item["sourceGroup"] not in normalized_groups
+        )
+    ]
+    selected_count = sum(
+        item["developmentSplit"] == "train" and item["role"] == "hard-negative"
+        for item in selected
+    )
+    if selected_count != selection.get("expectedTrainingHardNegativeImages"):
+        raise ValueError("训练困难负样本选择后的图片数与计划不一致")
+    return selected, {
+        "path": str(selection_path),
+        "sha256": sha256_file(selection_path),
+        "trainingHardNegativeSourceGroups": normalized_groups,
+        "expectedTrainingHardNegativeImages": selected_count,
+    }
+
+
+def apply_training_positive_resampling(
+    prepared: list[dict[str, Any]], selection_path: Path | None
+) -> tuple[list[dict[str, Any]], dict[str, Any] | None]:
+    if selection_path is None:
+        return prepared, None
+    selection = read_json(selection_path, "训练困难正样本重采样计划")
+    groups = selection.get("selectedSourceGroups")
+    repeat_factor = selection.get("repeatFactor")
+    if (
+        selection.get("schemaVersion") != 1
+        or selection.get("decision")
+        != "approved_train_internal_positive_resampling_selection"
+        or selection.get("trainingUse") != "development-experiment-only"
+        or not isinstance(groups, list)
+        or repeat_factor != 2
+    ):
+        raise ValueError("训练困难正样本重采样计划合同无效")
+    normalized_groups = sorted({str(value) for value in groups})
+    if len(normalized_groups) != len(groups) or not normalized_groups:
+        raise ValueError("训练困难正样本重采样来源组必须非空且不重复")
+    training_positives = [
+        item
+        for item in prepared
+        if item["developmentSplit"] == "train" and item["role"] == "train-positive"
+    ]
+    if len(training_positives) != selection.get("expectedBaseTrainingPositiveImages"):
+        raise ValueError("训练正样本基数与重采样计划不一致")
+    available_groups = {item["sourceGroup"] for item in training_positives}
+    unknown_groups = sorted(set(normalized_groups) - available_groups)
+    if unknown_groups:
+        raise ValueError(f"重采样计划包含未知训练正样本来源组：{unknown_groups}")
+    selected_items = [
+        item for item in training_positives if item["sourceGroup"] in normalized_groups
+    ]
+    if len(selected_items) != selection.get("expectedSelectedUniqueImages"):
+        raise ValueError("训练困难正样本选择数量与计划不一致")
+    existing_names = {item["fileName"].casefold() for item in prepared}
+    replicas: list[dict[str, Any]] = []
+    for item in selected_items:
+        source_name = item["fileName"]
+        replica_name = f"resample01__{source_name}"
+        if replica_name.casefold() in existing_names:
+            raise ValueError(f"重采样文件名冲突：{replica_name}")
+        existing_names.add(replica_name.casefold())
+        replicas.append(
+            {
+                **item,
+                "fileName": replica_name,
+                "sourceFileName": source_name,
+                "resampleIndex": 1,
+                "isResampledCopy": True,
+            }
+        )
+    if len(replicas) != selection.get("expectedResampledPositiveCopies"):
+        raise ValueError("训练困难正样本副本数量与计划不一致")
+    return prepared + replicas, {
+        "path": str(selection_path),
+        "sha256": sha256_file(selection_path),
+        "selectedSourceGroups": normalized_groups,
+        "expectedBaseTrainingPositiveImages": len(training_positives),
+        "expectedSelectedUniqueImages": len(selected_items),
+        "repeatFactor": repeat_factor,
+        "expectedResampledPositiveCopies": len(replicas),
+    }
+
+
 def build_report(
     plan_path: Path,
     output_root: Path,
     report_path: Path,
+    training_hard_negative_selection: Path | None = None,
+    training_positive_resampling_selection: Path | None = None,
 ) -> dict[str, Any]:
     plan, source_materialization, source_root, prepared = validate_plan_and_sources(plan_path)
+    prepared, selection_binding = apply_training_hard_negative_selection(
+        prepared, training_hard_negative_selection
+    )
+    prepared, positive_resampling_binding = apply_training_positive_resampling(
+        prepared, training_positive_resampling_selection
+    )
     if output_root.exists():
         raise ValueError(f"开发数据集输出已存在，禁止覆盖：{output_root}")
     if report_path.exists():
@@ -196,6 +313,15 @@ def build_report(
                     "imageSha256": image_sha,
                     "label": f"labels/{split}/{stem}.txt",
                     "labelSha256": label_sha,
+                    **(
+                        {
+                            "sourceFileName": item["sourceFileName"],
+                            "resampleIndex": item["resampleIndex"],
+                            "isResampledCopy": True,
+                        }
+                        if item.get("isResampledCopy") is True
+                        else {}
+                    ),
                 }
             )
         dataset_yaml = (
@@ -234,11 +360,28 @@ def build_report(
             "testImages": 0,
             "sourceGroupOverlap": 0,
         }
+        resampled_positive_copies = sum(
+            item.get("isResampledCopy") is True for item in records
+        )
+        if positive_resampling_binding is not None:
+            counts.update(
+                {
+                    "trainUniquePositiveImages": 263,
+                    "trainResampledPositiveCopies": resampled_positive_copies,
+                    "trainUniquePositiveMasks": 1581,
+                    "trainEffectivePositiveMasks": counts["trainPositiveMasks"],
+                }
+            )
         expected_counts = {
-            "trainImages": 383,
-            "trainPositiveImages": 263,
-            "trainPositiveMasks": 1581,
-            "trainHardNegativeImages": 120,
+            "trainImages": 263 + resampled_positive_copies + counts["trainHardNegativeImages"],
+            "trainPositiveImages": 263 + resampled_positive_copies,
+            "trainPositiveMasks": 1581
+            + sum(
+                item["maskCount"]
+                for item in records
+                if item.get("isResampledCopy") is True
+            ),
+            "trainHardNegativeImages": counts["trainHardNegativeImages"],
             "evaluationImages": 105,
             "evaluationPositiveImages": 65,
             "evaluationPositiveMasks": 400,
@@ -246,8 +389,19 @@ def build_report(
             "testImages": 0,
             "sourceGroupOverlap": 0,
         }
+        if positive_resampling_binding is not None:
+            expected_counts.update(
+                {
+                    "trainUniquePositiveImages": 263,
+                    "trainResampledPositiveCopies": resampled_positive_copies,
+                    "trainUniquePositiveMasks": 1581,
+                    "trainEffectivePositiveMasks": expected_counts["trainPositiveMasks"],
+                }
+            )
         if counts != expected_counts:
             raise ValueError(f"开发数据集计数不等于固定折计划：{counts}")
+        if selection_binding is None and counts["trainHardNegativeImages"] != 120:
+            raise ValueError("未指定消融选择计划时必须保留全部120张训练困难负样本")
         report = {
             "schemaVersion": 1,
             "ok": True,
@@ -268,6 +422,8 @@ def build_report(
                     "recordsSha256": source_materialization["recordsSha256"],
                     "datasetFilesSha256": source_materialization["datasetFilesSha256"],
                 },
+                "trainingHardNegativeSelection": selection_binding,
+                "trainingPositiveResamplingSelection": positive_resampling_binding,
             },
             "outputDir": str(output_root),
             "datasetYaml": {
@@ -291,6 +447,8 @@ def build_report(
                 "sourceGroupAtomicAndMutuallyExclusive": True,
                 "sourceFilesHashMatchedBeforeAndAfterCopy": True,
                 "zeroByteHardNegativeLabelsPreserved": True,
+                "positiveResamplingSourceGroupAtomic": positive_resampling_binding
+                is not None,
             },
             "errors": [],
         }
@@ -334,6 +492,32 @@ def verify_report(path: Path) -> dict[str, Any]:
     records = report.get("records")
     if not isinstance(records, list) or canonical_sha256(records) != report.get("recordsSha256"):
         raise ValueError("开发数据集records缺失或哈希漂移")
+    selection_binding = report.get("inputs", {}).get("trainingHardNegativeSelection")
+    if selection_binding is not None:
+        if not isinstance(selection_binding, dict):
+            raise ValueError("训练困难负样本选择绑定无效")
+        selection_path = Path(str(selection_binding.get("path", ""))).resolve()
+        if sha256_file(selection_path) != selection_binding.get("sha256"):
+            raise ValueError("训练困难负样本选择计划哈希漂移")
+        prepared, replayed_binding = apply_training_hard_negative_selection(
+            prepared, selection_path
+        )
+        if replayed_binding != selection_binding:
+            raise ValueError("训练困难负样本选择绑定无法重放")
+    positive_resampling_binding = report.get("inputs", {}).get(
+        "trainingPositiveResamplingSelection"
+    )
+    if positive_resampling_binding is not None:
+        if not isinstance(positive_resampling_binding, dict):
+            raise ValueError("训练困难正样本重采样绑定无效")
+        selection_path = Path(str(positive_resampling_binding.get("path", ""))).resolve()
+        if sha256_file(selection_path) != positive_resampling_binding.get("sha256"):
+            raise ValueError("训练困难正样本重采样计划哈希漂移")
+        prepared, replayed_binding = apply_training_positive_resampling(
+            prepared, selection_path
+        )
+        if replayed_binding != positive_resampling_binding:
+            raise ValueError("训练困难正样本重采样绑定无法重放")
     if len(records) != len(prepared):
         raise ValueError("开发数据集记录数与开发折计划不一致")
     prepared_by_name = {item["fileName"]: item for item in prepared}
@@ -364,10 +548,12 @@ def main() -> int:
     parser.add_argument("--development-fold-plan", type=Path)
     parser.add_argument("--output-dir", type=Path)
     parser.add_argument("--report", type=Path)
+    parser.add_argument("--training-hard-negative-selection", type=Path)
+    parser.add_argument("--training-positive-resampling-selection", type=Path)
     parser.add_argument("--verify-report", type=Path)
     args = parser.parse_args()
     if args.verify_report is not None:
-        if any(value is not None for value in (args.development_fold_plan, args.output_dir, args.report)):
+        if any(value is not None for value in (args.development_fold_plan, args.output_dir, args.report, args.training_hard_negative_selection, args.training_positive_resampling_selection)):
             raise ValueError("--verify-report不能与物化参数并用")
         report = verify_report(args.verify_report.resolve())
         print(json.dumps({"ok": True, "decision": report["decision"], "counts": report["counts"]}, ensure_ascii=False))
@@ -378,6 +564,12 @@ def main() -> int:
         args.development_fold_plan.resolve(),
         args.output_dir.resolve(),
         args.report.resolve(),
+        args.training_hard_negative_selection.resolve()
+        if args.training_hard_negative_selection is not None
+        else None,
+        args.training_positive_resampling_selection.resolve()
+        if args.training_positive_resampling_selection is not None
+        else None,
     )
     verify_report(args.report.resolve())
     print(json.dumps({"ok": True, "decision": report["decision"], "counts": report["counts"], "datasetFilesSha256": report["datasetFilesSha256"]}, ensure_ascii=False))
