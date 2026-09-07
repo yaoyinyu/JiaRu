@@ -5,6 +5,7 @@ import hashlib
 import importlib.util
 import json
 import csv
+import os
 from pathlib import Path
 from types import ModuleType
 
@@ -16,6 +17,20 @@ from _training_common import (
     resolve_training_run_dir,
     write_json,
     write_resolved_dataset_yaml,
+)
+
+
+DEVELOPMENT_ONLY_VARIABLES = frozenset(
+    {
+        "modelCapacity",
+        "optimizationDuration",
+        "trainingInputResolution",
+        "trainingHardNegativeImageCount",
+        "positiveSourceGroupResampling",
+        "augmentationPolicy",
+        "boundarySupervision",
+        "distillationPolicy",
+    }
 )
 
 
@@ -93,6 +108,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate-validation-report", default="", help="Deprecated legacy evidence; use --candidate-input-report")
     parser.add_argument("--experiment-plan", default="", help="Pre-registered train-internal development experiment plan")
     parser.add_argument("--experiment-id", default="", help="Exact experimentId selected from --experiment-plan")
+    parser.add_argument(
+        "--windows-cuda-epoch-sync",
+        action="store_true",
+        help="Synchronize CUDA before validation and checkpoint serialization to avoid Windows WDDM epoch-boundary races",
+    )
     parser.add_argument("--finalize-existing-run", action="store_true", help="Finalize an already completed run after replaying its current evidence")
     parser.add_argument("--dry-run", action="store_true", help="Validate config and print the resolved training plan")
     return parser
@@ -396,8 +416,16 @@ def experiment_plan_validation(
                 raise ValueError(f"development experiment revision evidence drifted: {key}")
 
     contract = plan.get("fixedTrainingContract")
-    if not isinstance(contract, dict) or contract.get("onlyVariable") != "modelCapacity":
+    if not isinstance(contract, dict):
         raise ValueError("development training contract is missing or not single-variable")
+    only_variable = contract.get("onlyVariable")
+    hypothesis = plan.get("hypothesis")
+    if (
+        only_variable not in DEVELOPMENT_ONLY_VARIABLES
+        or not isinstance(hypothesis, dict)
+        or hypothesis.get("onlyVariable") != only_variable
+    ):
+        raise ValueError("development training contract has an unsupported or inconsistent onlyVariable")
     actual = {
         "task": "segment",
         "singleStage": True,
@@ -416,8 +444,10 @@ def experiment_plan_validation(
         "overlapMask": args.overlap_mask,
         "hardBoundaryWeight": args.hard_boundary_weight,
         "distillation": bool(args.distill_model),
-        "onlyVariable": "modelCapacity",
+        "onlyVariable": only_variable,
     }
+    if "windowsCudaEpochSync" in contract:
+        actual["windowsCudaEpochSync"] = args.windows_cuda_epoch_sync
     if actual != contract:
         raise ValueError(
             "training arguments differ from the pre-registered fixed contract: "
@@ -430,7 +460,7 @@ def experiment_plan_validation(
         "hypothesis_id": plan.get("hypothesis", {}).get("id"),
         "experiment_id": args.experiment_id,
         "experiment_role": experiment.get("role"),
-        "only_variable": contract.get("onlyVariable"),
+        "only_variable": only_variable,
         "dataset_files_sha256": materialization.get("datasetFilesSha256"),
         "development_materialization_report": str(materialization_path),
         "development_materialization_report_sha256": sha256(materialization_path),
@@ -481,6 +511,32 @@ def install_read_only_ultralytics_image_check() -> None:
     # Ultralytics版本改变导入方式后静默恢复成写入行为。
     if data_utils.verify_image.__globals__.get("check_image") is not check_image_read_only:
         raise RuntimeError("failed to install read-only Ultralytics image verifier")
+
+
+def install_windows_cuda_epoch_sync() -> dict[str, object]:
+    """在Windows epoch边界显式同步CUDA，规避WDDM/NVRTC原生竞态崩溃。"""
+
+    import torch
+    from ultralytics.engine.trainer import BaseTrainer
+
+    if os.name != "nt" or not torch.cuda.is_available():
+        raise RuntimeError("--windows-cuda-epoch-sync requires Windows with CUDA")
+
+    original_save_model = BaseTrainer.save_model
+
+    def synchronized_save_model(trainer):
+        torch.cuda.synchronize(trainer.device)
+        result = original_save_model(trainer)
+        torch.cuda.synchronize(trainer.device)
+        return result
+
+    BaseTrainer.save_model = synchronized_save_model
+    return {
+        "enabled": True,
+        "platform": "windows",
+        "barriers": ["before-checkpoint-save", "after-checkpoint-save"],
+        "qualityParametersChanged": False,
+    }
 
 
 def validate_resume_contract(
@@ -644,6 +700,16 @@ def main() -> None:
         "candidate_input_evidence": candidate_input_evidence,
         "candidate_validation_evidence": None,
         "development_experiment_evidence": experiment_evidence,
+        "windows_cuda_epoch_sync": (
+            {
+                "enabled": True,
+                "platform": "windows",
+                "barriers": ["before-validation", "after-validation", "before-checkpoint-save", "after-checkpoint-save"],
+                "qualityParametersChanged": False,
+            }
+            if args.windows_cuda_epoch_sync
+            else None
+        ),
         "dry_run": args.dry_run,
     }
 
@@ -692,6 +758,22 @@ def main() -> None:
 
     ultralytics = ensure_python_dependency("ultralytics", "pip install ultralytics")
     install_read_only_ultralytics_image_check()
+    if args.windows_cuda_epoch_sync:
+        import torch
+
+        sync_evidence = install_windows_cuda_epoch_sync()
+
+        def synchronize_epoch_boundary(_context) -> None:
+            torch.cuda.synchronize()
+
+        summary["windows_cuda_epoch_sync"] = {
+            **sync_evidence,
+            "barriers": [
+                "after-training-epoch",
+                "after-validation",
+                *sync_evidence["barriers"],
+            ],
+        }
     if args.hard_boundary_weight > 0:
         from nail_texture_boundary_loss import install_hard_boundary_criterion
 
@@ -704,6 +786,9 @@ def main() -> None:
         ultralytics_trainer.DistillationModel = JiaRuSegmentationDistillationModel
     write_resolved_dataset_yaml(runtime_dataset_yaml, config)
     model = ultralytics.YOLO(str(resume_from) if resume_from is not None else args.model)
+    if args.windows_cuda_epoch_sync:
+        model.add_callback("on_train_epoch_end", synchronize_epoch_boundary)
+        model.add_callback("on_val_end", synchronize_epoch_boundary)
     output_dir.mkdir(parents=True, exist_ok=True)
     train_options = {
         "optimizer": args.optimizer,

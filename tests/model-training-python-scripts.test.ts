@@ -150,6 +150,139 @@ test("hard polygon boundary signal is differentiable and reacts to edge displace
   assert.ok(gradient > 0);
 });
 
+test("development materializer applies an exact source-group hard-negative selection", async () => {
+  const code = [
+    "import importlib.util, json, pathlib, tempfile",
+    "p=pathlib.Path('model/training/materialize-source-group-development-dataset.py')",
+    "s=importlib.util.spec_from_file_location('materializer', p)",
+    "m=importlib.util.module_from_spec(s); s.loader.exec_module(m)",
+    "records=[",
+    " {'fileName':'positive.jpg','role':'train-positive','sourceGroup':'positive-group','developmentSplit':'train'},",
+    " {'fileName':'keep.jpg','role':'hard-negative','sourceGroup':'keep-group','developmentSplit':'train'},",
+    " {'fileName':'drop.jpg','role':'hard-negative','sourceGroup':'drop-group','developmentSplit':'train'},",
+    " {'fileName':'eval.jpg','role':'hard-negative','sourceGroup':'eval-group','developmentSplit':'val'},",
+    "]",
+    "root=pathlib.Path(tempfile.mkdtemp())",
+    "selection=root/'selection.json'",
+    "selection.write_text(json.dumps({'schemaVersion':1,'trainingHardNegativeSourceGroups':['keep-group'],'expectedTrainingHardNegativeImages':1}), encoding='utf-8')",
+    "selected,binding=m.apply_training_hard_negative_selection(records, selection)",
+    "assert [item['fileName'] for item in selected] == ['positive.jpg','keep.jpg','eval.jpg']",
+    "assert binding['trainingHardNegativeSourceGroups'] == ['keep-group']",
+    "assert binding['expectedTrainingHardNegativeImages'] == 1",
+    "print(json.dumps({'ok':True,'selected':[item['fileName'] for item in selected]}))",
+  ].join("\n");
+  const result = await runPython("-c", [code]);
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.selected, ["positive.jpg", "keep.jpg", "eval.jpg"]);
+});
+
+test("development materializer resamples complete train-positive source groups only", async () => {
+  const code = [
+    "import importlib.util, json, pathlib, tempfile",
+    "p=pathlib.Path('model/training/materialize-source-group-development-dataset.py')",
+    "s=importlib.util.spec_from_file_location('materializer', p)",
+    "m=importlib.util.module_from_spec(s); s.loader.exec_module(m)",
+    "records=[",
+    " {'fileName':'a.jpg','role':'train-positive','sourceGroup':'hard-group','developmentSplit':'train','sourceImage':'a','sourceLabel':'a'},",
+    " {'fileName':'b.jpg','role':'train-positive','sourceGroup':'hard-group','developmentSplit':'train','sourceImage':'b','sourceLabel':'b'},",
+    " {'fileName':'c.jpg','role':'train-positive','sourceGroup':'easy-group','developmentSplit':'train','sourceImage':'c','sourceLabel':'c'},",
+    " {'fileName':'eval.jpg','role':'train-positive','sourceGroup':'eval-group','developmentSplit':'val','sourceImage':'e','sourceLabel':'e'},",
+    "]",
+    "root=pathlib.Path(tempfile.mkdtemp())",
+    "selection=root/'selection.json'",
+    "selection.write_text(json.dumps({'schemaVersion':1,'decision':'approved_train_internal_positive_resampling_selection','trainingUse':'development-experiment-only','selectedSourceGroups':['hard-group'],'expectedBaseTrainingPositiveImages':3,'expectedSelectedUniqueImages':2,'repeatFactor':2,'expectedResampledPositiveCopies':2}), encoding='utf-8')",
+    "selected,binding=m.apply_training_positive_resampling(records, selection)",
+    "assert [item['fileName'] for item in selected] == ['a.jpg','b.jpg','c.jpg','eval.jpg','resample01__a.jpg','resample01__b.jpg']",
+    "assert all(item['sourceGroup']=='hard-group' for item in selected[-2:])",
+    "assert binding['expectedResampledPositiveCopies'] == 2",
+    "print(json.dumps({'ok':True,'selected':[item['fileName'] for item in selected]}))",
+  ].join("\n");
+  const result = await runPython("-c", [code]);
+  assert.equal(result.ok, true);
+  assert.deepEqual(result.selected.slice(-2), ["resample01__a.jpg", "resample01__b.jpg"]);
+});
+
+test("train-positive difficulty analyzer derives replayable mask and contrast features", async () => {
+  const code = [
+    "import hashlib, importlib.util, pathlib, tempfile",
+    "from PIL import Image",
+    "p=pathlib.Path('model/training/build-train-positive-difficulty-selection.py')",
+    "s=importlib.util.spec_from_file_location('difficulty', p)",
+    "m=importlib.util.module_from_spec(s); s.loader.exec_module(m)",
+    "root=pathlib.Path(tempfile.mkdtemp()); (root/'images/train').mkdir(parents=True); (root/'labels/train').mkdir(parents=True)",
+    "image=root/'images/train/sample.png'; label=root/'labels/train/sample.txt'",
+    "Image.new('RGB',(64,64),(180,160,150)).save(image)",
+    "label.write_text('0 0.20 0.20 0.35 0.20 0.35 0.70 0.20 0.70\\n0 0.55 0.20 0.70 0.20 0.70 0.70 0.55 0.70\\n', encoding='utf-8')",
+    "sha=lambda value: hashlib.sha256(value.read_bytes()).hexdigest()",
+    "record={'fileName':'sample.png','image':'images/train/sample.png','label':'labels/train/sample.txt','imageSha256':sha(image),'labelSha256':sha(label),'sourceGroup':'group','maskCount':2}",
+    "result=m.analyze_record(root, record)",
+    "assert result['maskCount']==2 and 0 <= result['difficultyScore'] <= 1",
+    "assert set(result['featureScores']) == set(m.FEATURE_WEIGHTS)",
+    "print('ok')",
+  ].join("\n");
+  const { stdout } = await execFileAsync("python", ["-c", code], { cwd: path.resolve(".") });
+  assert.equal(stdout.trim(), "ok");
+});
+
+test("development training plan accepts an explicit supported single variable and rejects drift", async () => {
+  const code = [
+    "import importlib.util, pathlib, sys",
+    "sys.path.insert(0, 'model/training')",
+    "path=pathlib.Path('model/training/train-yolo-seg.py')",
+    "spec=importlib.util.spec_from_file_location('train_yolo_seg', path)",
+    "module=importlib.util.module_from_spec(spec)",
+    "spec.loader.exec_module(module)",
+    "assert 'optimizationDuration' in module.DEVELOPMENT_ONLY_VARIABLES",
+    "assert 'trainingInputResolution' in module.DEVELOPMENT_ONLY_VARIABLES",
+    "assert 'positiveSourceGroupResampling' in module.DEVELOPMENT_ONLY_VARIABLES",
+    "assert 'thresholdScan' not in module.DEVELOPMENT_ONLY_VARIABLES",
+    "print('ok')",
+  ].join("; ");
+  const { stdout } = await execFileAsync("python", ["-c", code], { cwd: path.resolve(".") });
+  assert.equal(stdout.trim(), "ok");
+});
+
+test("Windows CUDA epoch synchronization is explicit and does not change quality parameters", async () => {
+  const result = await runPython("model/training/train-yolo-seg.py", [
+    "--dry-run",
+    "--windows-cuda-epoch-sync",
+  ]);
+  const sync = result.windows_cuda_epoch_sync as {
+    enabled: boolean;
+    platform: string;
+    barriers: string[];
+    qualityParametersChanged: boolean;
+  };
+  assert.equal(sync.enabled, true);
+  assert.equal(sync.platform, "windows");
+  assert.equal(sync.qualityParametersChanged, false);
+  assert.ok(sync.barriers.includes("before-validation"));
+  assert.ok(sync.barriers.includes("before-checkpoint-save"));
+});
+
+test("development quality report uses immutable formal floors for a hash-bound legacy plan", async () => {
+  const code = [
+    "import importlib.util, pathlib, sys",
+    "sys.path.insert(0, 'model/training')",
+    "path=pathlib.Path('model/training/build-development-instance-quality-report.py')",
+    "spec=importlib.util.spec_from_file_location('development_quality', path)",
+    "module=importlib.util.module_from_spec(spec)",
+    "spec.loader.exec_module(module)",
+    "floors, source=module.resolve_development_floors({})",
+    "assert floors == module.CANONICAL_FORMAL_FLOORS",
+    "assert source == 'immutable-code-default-for-legacy-plan'",
+    "bad=dict(module.CANONICAL_FORMAL_FLOORS)",
+    "bad['minimumInstanceRecall']=0.8",
+    "try:",
+    "    module.resolve_development_floors({'formalFloorForPromotionToFullTrain': bad})",
+    "except ValueError: pass",
+    "else: raise AssertionError('weakened floor accepted')",
+    "print('ok')",
+  ].join("\n");
+  const { stdout } = await execFileAsync("python", ["-c", code], { cwd: path.resolve(".") });
+  assert.equal(stdout.trim(), "ok");
+});
+
 test("train script hash-binds an interrupted checkpoint for exact resume", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-training-resume-"));
   const outputDir = path.join(root, "output");

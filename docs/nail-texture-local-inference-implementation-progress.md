@@ -1,9 +1,9 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-09-06
+更新日期：2026-09-07
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
-> **当前最高优先级（2026-09-06）：** candidate57已经在唯一一次有效受保护test100中得到531/554匹配、479个完整mask、23漏甲、16重复、5背景误检、13图漏甲和59/100图可直接提取；召回`0.95848375`与完整率`0.86462094`通过，但漏甲图片率`0.13`和加权杂散率`0.04693141`失败，固定为TEST HOLD。旧val30/test100仅保留受保护历史回归；当前无批准发布候选、无生产ONNX。audit v3证据基础设施已经实现，下一步按train内来源组开发折→全新校准集→锁定运行时→全新一次性正样本发布留出的顺序启动下一单阶段候选。
+> **当前最高优先级（2026-09-07）：** candidate57保持TEST HOLD且旧val30/test100未读取。train内来源组开发折已完成5轮单变量诊断；当前较优配方为YOLO11n、512、20轮、60张训练困难负样本，固定开发评估为359/400匹配、312个完整mask、26张正图漏甲、加权杂散率0.130，即召回0.8975、完整率0.780、漏甲图率0.400，仍不具备全量训练或正式候选资格。训练640和hardBoundaryWeight=0.5已证伪；下一步转向train角色困难正样本覆盖/重采样，再按全新校准集→锁定运行时→全新一次性正样本发布留出推进。
 
 > **当前文档解释规则：** 下方candidate1—57条目是不可删除的历史账本，其中`PASS（流程完成，候选否决）`、`FAIL`、`VAL REJECT`和`TEST HOLD`记录当时生命周期与质量结果。它们不得改写成质量PASS，也不得继续作为当前发布要求。当前发布状态只读本页顶部dashboard和显式`gateRole=current-release; required=true`条目；audit v3已按此范围执行，历史非PASS不再永久阻断未来候选。
 
@@ -25,13 +25,13 @@
 - **当前生产资产：** `public/models/nail-texture-seg/manifest.json`仍为640占位，所指生产ONNX不存在；历史33KB smoke ONNX只证明工程加载链。
 - **历史回归：** 旧val30、旧test100、编号261—360与361—460困难负样本及其他已消费holdout均只读保护，禁止训练、选择阈值或冒充全新发布证据。
 - **授权：** 项目范围standing商业开发授权已经生效；精确清单、来源、许可声明、角色和SHA-256继续机器追溯，但逐清单处理、训练启动和证据门后的原子freeze无需再次向用户确认。
-- **当前P0：** 建立train内`sourceGroup`互斥开发折，预注册至多两个短程单变量实验，选出一个单阶段512胜出配方；audit v3基础设施已完成，仍会对缺少当前候选证据的各门保持HOLD。
+- **当前P0：** train内`sourceGroup`互斥开发折和001—005诊断已完成；保留第4轮为较优开发基线，新增或重采样透明/低对比、相邻长甲、侧视、多手、复杂背景困难正样本，达到研发绝对门后才允许一个单阶段512配方进入全量训练。audit v3继续对缺少当前候选证据的各门保持HOLD。
 - **随后顺序：** train内`sourceGroup`开发折和最多两个短程单变量实验；全新来源校准集；锁定单阶段512运行时；全新正样本发布留出；全新困难负样本；生产ONNX与多后端一致性；浏览器/桌面/四类真机/Beta100/产品质量/双版本回滚。
 
 | 标记 ID | 当前发布要求 | 状态 | 证据与下一步 |
 | --- | --- | --- | --- |
 | `REL-CURRENT-AUDIT-V3-001` | 可达且不可跨候选拼接的最终审计 | ✅ PASS（审计基础设施） | `lifecycle=closed; outcome=pass; gateRole=current-release; required=true`；audit v3已实现active marker、统一`releaseIdentity`、逐实例schema v3强门和正样本发布留出一次性消费台账。该PASS只证明审计可达且不可绕过；没有批准候选时正样本、运行时和产品门仍分别HOLD。 |
-| `REL-CURRENT-DEVELOPMENT-002` | train内来源组开发折与单阶段胜出配方 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；每轮至多两个短程单变量实验，只有一个胜出方案进入完整训练；旧val/test禁止参与。 |
+| `REL-CURRENT-DEVELOPMENT-002` | train内来源组开发折与单阶段胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；互斥开发折与001—005轮已完成，旧val/test读取0。第4轮60张训练困难负样本为当前较优基线：召回0.8975、完整率0.780、漏甲图率0.400、杂散率0.130，尚未达到研发绝对门；训练640与现有边界监督分支已关闭。 |
 | `REL-CURRENT-CALIBRATION-003` | 全新来源隔离校准集 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；配方锁定后不少于30张，只允许选择一次阈值。 |
 | `REL-CURRENT-POSITIVE-HOLDOUT-004` | 全新一次性正样本发布留出 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；运行时锁定后原子冻结不少于100张，只评估一次并通过召回≥0.90、完整mask≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02。 |
 | `REL-CURRENT-NEGATIVE-HOLDOUT-005` | 全新困难负样本与水印消融 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；候选锁定后不少于100张，三变体零误检/零delta，非右下水印增加对应区域变体。 |
@@ -848,3 +848,12 @@ candidate53失败的主因收敛为裁片分布偏移，而非GPU不足。candid
 | `M2-T3-CANDIDATE57-PROTECTED-TEST100-001` | 唯一一次受保护test100正样本质量门 | ❌ FAIL（候选轨迹终止） | 531/554匹配、479完整mask、23漏甲、16重复、5背景误检、0无效mask、13图漏甲、59图直接可提取；召回与完整率通过，漏甲图片率0.13、加权杂散率0.04693141失败。报告`5f1463c5…ff65`重放一致；禁止test反调、重跑、导出或部署。 |
 
 candidate57相对candidate50增加12个匹配与12个完整mask，减少12个漏甲、11个背景误检及12个无效mask，说明方形stage1路线显著缩短了正样本差距；但正样本质量门仍未完全通过。candidate57轨迹已经关闭，旧val30/test100只作受保护历史回归。下一轮必须回到新的来源隔离train证据或独立于旧val/test逐图信息的预注册改动，先在train内来源组开发折筛选，再使用全新校准集和运行时锁定后的全新一次性正样本发布留出；生产manifest与产品HOLD不变，当前活动门统一见顶部dashboard。
+
+## 2026-09-07 train内开发循环001—005
+
+- 开发折固定为train 263张正图/1581 mask与120张困难负图，evaluation 65张正图/400 mask与40张困难负图，test0、sourceGroup交叠0；循环004只把训练困难负样本确定性缩减到6个来源组/60张，evaluation逐字节不变。
+- 循环001的YOLO11n基线为召回0.890、完整率0.775、漏甲图率0.400、杂散率0.1625；YOLO11s容量、延长训练和训练640均未带来满足预注册门的改善。
+- 循环004把召回提高到0.8975、完整率提高到0.780、杂散率降到0.130，但漏甲图率仍为0.400且直接提取率未升，故只保留为当前较优开发基线，不晋级。
+- 循环005在同一数据上只启用hardBoundaryWeight=0.5，结果退化为召回0.8625、完整率0.750、漏甲图率0.4308、杂散率0.19875，边界监督分支已关闭且不扫描其他权重。
+- Windows第1轮验证边界曾由`nvrtc64_120_0.dll`异常退出；新增epoch验证/checkpoint CUDA同步后，修订训练及后续三轮均正常完成。该稳定化不改变质量参数。
+- 下一项不再继续模型大小、训练时长、分辨率或边界权重网格，而是从train角色困难正样本来源覆盖/重采样推进；透明、低对比、相邻长甲、侧视、多手和复杂背景优先。旧val30、旧test100和发布留出继续禁止参与选择。
