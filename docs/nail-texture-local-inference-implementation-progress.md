@@ -31,7 +31,7 @@
 | 标记 ID | 当前发布要求 | 状态 | 证据与下一步 |
 | --- | --- | --- | --- |
 | `REL-CURRENT-AUDIT-V3-001` | 可达且不可跨候选拼接的最终审计 | ✅ PASS（审计基础设施） | `lifecycle=closed; outcome=pass; gateRole=current-release; required=true`；audit v3已实现active marker、统一`releaseIdentity`、逐实例schema v3强门和正样本发布留出一次性消费台账。该PASS只证明审计可达且不可绕过；没有批准候选时正样本、运行时和产品门仍分别HOLD。 |
-| `REL-CURRENT-DEVELOPMENT-002` | train内来源组开发折与单阶段胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；循环001—008与错误剖面已完成，旧val/test/发布留出读取0。新的真实困难正样本精确选集为10张/10来源组/预计69甲，源图选择报告`794662d8…b1fd`已重放，四类角色交叠0；当前唯一活动是逐甲完整mask及原分辨率终审，尚未形成训练真值、胜出配方或正式候选。 |
+| `REL-CURRENT-DEVELOPMENT-002` | train内来源组开发折与单阶段胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；candidate58b已形成343张/2071 mask/127来源组规范索引。循环009直接追加真值失败；错误剖面`39d6ee58…052f`确认12张回归图当前漏17个完整甲面、净新增14。循环010冻结教师蒸馏把漏甲图28→25、漏甲48→41、召回升至0.89876543但未恢复cycle007基线，配方关闭；旧val/test/发布留出读取0。当前唯一活动为循环011来源组均衡回放采样器实现、专项测试、预注册与一次短程复评，尚无胜出配方或正式候选。 **〔本行由 Codex 更新〕** |
 | `REL-CURRENT-CALIBRATION-003` | 全新来源隔离校准集 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；配方锁定后不少于30张，只允许选择一次阈值。 |
 | `REL-CURRENT-POSITIVE-HOLDOUT-004` | 全新一次性正样本发布留出 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；运行时锁定后原子冻结不少于100张，只评估一次并通过召回≥0.90、完整mask≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02。 |
 | `REL-CURRENT-NEGATIVE-HOLDOUT-005` | 全新困难负样本与水印消融 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；候选锁定后不少于100张，三变体零误检/零delta，非右下水印增加对应区域变体。 |
@@ -878,3 +878,10 @@ candidate57相对candidate50增加12个匹配与12个完整mask，减少12个漏
 - 选择报告SHA-256 `794662d87f8360279d13bd49ad1b2b82e7a30ca6e1778eaf3bfeacd76216b1fd`、条目SHA-256 `5ad48a50c54a314a540c0dc7d2621c6c6425b17534128b672c5ebfd5f398b1c5`已重放；与train、旧val、冻结test及受保护困难负样本交叠0，批内精确重复和感知近重复0。
 - 选源目标已经完成并移出下一步。当前Goal唯一里程碑改为对这10张图片建立逐甲标注工作区，完成预计69个完整甲面mask的原分辨率终审、合法性、零交叠及真值终结；在此之前`trainingUse=prohibited`，无发布门晋升。
 - 同步后的completion audit v3报告`ba0bf5d3…bd16`仍为18门5通过/13失败，6个current-release标记未完成，`ok=false`、`decision=hold`。
+
+## 2026-09-08 循环009错误剖面与循环010蒸馏判定
+
+- 循环009逐图机器复算纠正旧摘要：12张回归图当前漏17实例，其中基线已漏3、净新增14；3张改善图恢复3实例、91张不变，总漏甲37→48闭合。12张图的17个当前漏甲经原分辨率审核均为完整可见目标，故“残缺甲面退出队列”不能用于掩盖本次回归；剖面报告`39d6ee58…052f`。 **〔本段由 Codex 新增〕**
+- 正式候选只应自动识别完整可见、未触边且轮廓可确认的甲面；残缺、触边、严重遮挡或轮廓不可确认目标进入人工流程，不计成功。锁定真值中的完整目标仍必须识别，不能因漏检被移出分母。 **〔本段由 Codex 新增〕**
+- 循环010在同一337张train/106张评估折上仅启用冻结cycle007教师多信号蒸馏，完成12轮并生成权重`fd9beb0d…76dc`。固定512/0.25逐实例结果为漏甲图25、漏甲41、召回0.89876543、完整率0.77777778、加权杂散率0.16296296、直接可提取率0.36363636；相对cycle009改善但未恢复cycle007基线，质量报告`b0a8cc61…019b`与决策均为FAIL/HOLD。 **〔本段由 Codex 新增〕**
+- 当前蒸馏配方已关闭，Goal切换到循环011唯一变量：实现并测试按`sourceGroup`均衡的train回放采样器，保持其余输入、损失与评估合同不变。无正式候选、无生产ONNX，产品继续HOLD。 **〔本段由 Codex 新增〕**

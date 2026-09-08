@@ -28,6 +28,7 @@ DEVELOPMENT_ONLY_VARIABLES = frozenset(
         "trainingHardNegativeImageCount",
         "positiveSourceGroupResampling",
         "trainingPositiveSourceAddition",
+        "sourceGroupBalancedReplaySampling",
         "augmentationPolicy",
         "boundarySupervision",
         "distillationPolicy",
@@ -109,6 +110,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--candidate-validation-report", default="", help="Deprecated legacy evidence; use --candidate-input-report")
     parser.add_argument("--experiment-plan", default="", help="Pre-registered train-internal development experiment plan")
     parser.add_argument("--experiment-id", default="", help="Exact experimentId selected from --experiment-plan")
+    parser.add_argument(
+        "--source-group-balanced-sampler",
+        default="",
+        help="Optional train-split stem->sourceGroup map JSON enabling the source-group balanced replay sampler",
+    )
     parser.add_argument(
         "--windows-cuda-epoch-sync",
         action="store_true",
@@ -416,6 +422,18 @@ def experiment_plan_validation(
             if not evidence_path.is_file() or sha256(evidence_path) != binding.get("sha256"):
                 raise ValueError(f"development experiment revision evidence drifted: {key}")
 
+    sampler_binding = plan_inputs.get("balancedSamplerGroupMap")
+    if sampler_binding is not None or args.source_group_balanced_sampler:
+        if not isinstance(sampler_binding, dict) or not args.source_group_balanced_sampler:
+            raise ValueError(
+                "--source-group-balanced-sampler and the plan balancedSamplerGroupMap binding must be provided together"
+            )
+        sampler_path = Path(args.source_group_balanced_sampler).resolve()
+        if sampler_path != Path(str(sampler_binding.get("path", ""))).resolve():
+            raise ValueError("balanced sampler group map differs from the pre-registered experiment")
+        if sha256(sampler_path) != sampler_binding.get("sha256"):
+            raise ValueError("balanced sampler group map is missing or hash-drifted")
+
     contract = plan.get("fixedTrainingContract")
     if not isinstance(contract, dict):
         raise ValueError("development training contract is missing or not single-variable")
@@ -447,6 +465,8 @@ def experiment_plan_validation(
         "distillation": bool(args.distill_model),
         "onlyVariable": only_variable,
     }
+    if args.source_group_balanced_sampler:
+        actual["balancedSamplerGroupMapSha256"] = sha256(Path(args.source_group_balanced_sampler).resolve())
     if "windowsCudaEpochSync" in contract:
         actual["windowsCudaEpochSync"] = args.windows_cuda_epoch_sync
     if actual != contract:
@@ -786,6 +806,12 @@ def main() -> None:
         # Trainer通过该符号构造包装模型；子类仍可被Ultralytics的保存/解包逻辑识别。
         ultralytics_trainer.DistillationModel = JiaRuSegmentationDistillationModel
     write_resolved_dataset_yaml(runtime_dataset_yaml, config)
+    if args.source_group_balanced_sampler:
+        from nail_texture_balanced_sampler import install_source_group_balanced_dataloader
+
+        summary["balanced_sampler"] = install_source_group_balanced_dataloader(
+            Path(args.source_group_balanced_sampler).resolve()
+        )
     model = ultralytics.YOLO(str(resume_from) if resume_from is not None else args.model)
     if args.windows_cuda_epoch_sync:
         model.add_callback("on_train_epoch_end", synchronize_epoch_boundary)

@@ -548,3 +548,7 @@ train内来源组开发折与循环001—005均属于`REL-CURRENT-DEVELOPMENT-00
 ## 2026-09-08 困难正样本选源完成后的当前门状态
 
 10张/10来源组/预计69甲的源图选择报告`794662d87f8360279d13bd49ad1b2b82e7a30ca6e1778eaf3bfeacd76216b1fd`已经机器重放，与train、旧val、冻结test和受保护困难负样本交叠0。该结果只完成`REL-CURRENT-DEVELOPMENT-002`内部的选源子步骤；完整mask尚未制作、训练索引和物化尚未更新、没有新权重或批准`releaseIdentity`，因此不增加正式发布门PASS。当前活动目标已切换为逐甲标注与原分辨率真值终审。同步后的completion audit v3报告SHA-256为`ba0bf5d358efff7c7aebb0e521f6531b6d8bed9fd4c4acde89b49cecec8abd16`，仍为18门5通过/13失败、6个current-release标记未完成、`ok=false`、`decision=hold`，产品继续HOLD。
+
+## 2026-09-08 循环010开发判定后的当前门状态
+
+循环009错误剖面及循环010蒸馏训练/固定开发折复评均属于`REL-CURRENT-DEVELOPMENT-002`研发证据，不增加正式发布门PASS。循环010虽然把漏甲图28降至25、漏甲实例48降至41并将召回提高至0.89876543，但未达到预注册恢复线21图和0.90864198召回，故决策为关闭当前蒸馏配方，不能生成`releaseIdentity`、导出ONNX或接入正式前端。正式识别目标仅包含完整可见且轮廓可确认的甲面；残缺目标退出自动识别队列，但锁定真值中的完整甲面不得移出分母。下一活动已切换为循环011来源组均衡回放采样器。同步重放仍为18门5通过/13失败、530个进度标记、`ok=false`、`decision=hold`，报告SHA-256为`6756cd635b3a14b17f9dc44218a85e129e4e35d4cd47fea11f64eaa6d6617903`。 **〔本段由 Codex 新增〕**
