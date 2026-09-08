@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.1.618 **〔本段由 Codex 更新〕** **〔本段由 WorkBuddy 更新〕**
+> 文档版本：v1.1.623 **〔本段由 Codex 更新〕** **〔本段由 WorkBuddy 更新〕**
 >
 > 基线日期：2026-07-12
 >
@@ -68,6 +68,8 @@
 
 即使任务没有改变任何接口，也必须在白皮书变更记录和当天日志中写明“已复核，无接口/状态变化”及原因。这样可以留下任务确实读取并核对白皮书的证据。
 
+涉及美甲纹理正式模型Goal的轮次形成可重放阶段结论后，必须在同一轮删除已完成或已证伪的活动目标，并把`docs/nail-texture-current-goal.md`中的“本轮活动目标”切换为下一项唯一可执行里程碑；不得只追加进度后继续沿用旧目标。纯治理说明不构成模型里程碑完成，不能为满足改写形式而伪造状态推进。 **〔本段由 Codex 新增〕**
+
 ### 1.4 内容维护要求
 
 每完成一项会影响功能、接口、使用方式、配置、数据结构、模型、脚本或部署方式的任务，必须在结束任务前同步更新本文档：
@@ -123,7 +125,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 
 ## 3. 功能状态总表
 
-> **当前最高优先级（2026-09-08）：** 第一目标仍是沿真实甲面边沿为每枚完整可见美甲输出唯一完整像素mask。candidate57固定为TEST HOLD，旧val30/test100及发布留出继续只读保护。困难正样本选源已从宽候选池收敛为10张/10来源组/预计69个完整可见甲面的精确清单；机器报告`794662d8…b1fd`重放证明与train、旧val、冻结test及受保护困难负样本交叠0，批内精确与感知近重复0。当前唯一活动已切换为逐甲候选mask、原分辨率真值终审和哈希绑定终结；完成前全批`trainingUse=prohibited`，不训练、不读取发布数据。生产ONNX、前端接入和发布继续禁止。 **〔本段由 Codex 更新〕**
+> **当前最高优先级（2026-09-08）：** 第一目标仍是沿真实甲面边沿为每枚完整可见美甲输出唯一完整像素mask；残缺、触边、严重遮挡或轮廓不可确认甲面退出自动识别队列并转人工流程，但锁定真值中的完整甲面不得因漏检移出分母。candidate57固定TEST HOLD，旧val30/test100及发布留出继续只读。循环011在循环010同构合同上仅将train每epoch抽样改为来源组均衡回放（111组每组3-4样本、种子20260908、组间轮转交错，评估折与val路径逐字节不变）：漏甲图25→22、漏甲实例41持平、加权杂散率0.16296296→`0.1382716`与直接可提取率0.36363636→`0.43939394`均创循环001-011历史最佳，但漏甲图差1张未达21、召回0.89876543未达0.90864198，预注册allRequired失败，当前均衡回放配方按branchClosure关闭。当前蒸馏与均衡回放配方均关闭、不晋升；下一唯一活动为循环011逐图错误剖面（8张相对cycle007新漏图集中于69f400a8与68cbdc00等少数来源组）后重新设计单变量并预注册。生产ONNX、前端正式接入和发布继续禁止。 **〔本段由 WorkBuddy 更新〕** **〔本段由 Codex 更新〕**
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
 | --- | --- | --- | --- |
@@ -1570,10 +1572,43 @@ train角色已按`sourceGroup`物化互斥开发折：训练263张正图/1581个
 
 选源子步骤完成后，Goal已按规则立即切换到逐甲标注与原分辨率真值终审；已完成的“选图”不再保留为活动目标。候选mask只能辅助生成，预计69甲仍须逐一完成完整边沿、唯一性、多边形合法性和同图零交叠审核；规范索引与物化深审通过前全批`trainingUse=prohibited`，不构成训练、候选或发布门PASS。 **〔本段由 Codex 新增〕**
 
+### 12.16 困难正样本65mask真值终结与循环009信号测试证伪（2026-09-08）
+
+用户要求不走完整发布链、先做快速信号测试：只拿新增样本对循环007配方做单变量重训，看漏甲图片率是否显著下降。为此完成10张/10来源组精确选集的全链标注：YOLO预标注68候选→几何审计→SAM2.1逐甲候选→逐甲原分辨率视觉审核→人工多边形返修（0011#1、0074#5、0090#5人工重画；0039#9、0070#6、0070#7假候选删除；0070#4自交拓扑修复），最终65个完整甲面polygon全部通过合法性、同图零交叠与几何审计（64 pass/1新月嫌疑0011#9按`prompt_center_outside_polygon`+完全包含+零交叠豁免）。选集规格预计69甲与原图事实的差额按`visibleNailCountCorrection`逐图登记（0010/0017/0039复核确认甲面未完整可见，理由码`nail-not-fully-visible-on-recheck`），不是静默放宽。10张审核决定以`candidate58b-original-resolution-review-decision-*-v1.json`哈希绑定终结。 **〔本条由 WorkBuddy 编写〕**
+
+新增`finalize-candidate58b-real-material-development-positive-truth.py`与`build-candidate58b-combined-training-truth-index.py`完成真值终结与多报告索引合并：candidate58b合并索引为343张/2071 mask/127来源组，规范物化503张train图（343正+160负）、0孤儿，输入审计PASS。为保评估折不变，`build-source-group-development-folds.py`新增`--preserve-assignments-from`锁定重建模式：继承既有来源组折分配、仅对10个新来源组贪心分配到非评估折；fold-0 recordsSha256 `c87cc03e2fe32b251f89e63e29b52d52478b54bcc95f19e93791236ed4a783d7`与锁定前逐字节相同，v2与锁定v3计划均可从冻结输入确定性重放。循环009物化为train 337张（277正+60负）、评估106张（66正图/405实例+40负图），与cycle007评估折完全一致。 **〔本条由 WorkBuddy 编写〕**
+
+预注册计划`nail-texture-development-cycle-009-plan-v1.json`：起点=cycle004 best.pt（`64c85384…663a`），固定训练合同与cycle007完全一致，唯一变量=新增65个完整mask真实困难正样本；主判据=漏甲图片率相对下降≥25%（≤0.23863636，即漏甲图≤15张），护栏=逐甲召回≥0.8975，record-only=完整率/杂散率/直接提取率。训练9轮早停（best第5轮；合同12轮/patience 4与cycle007一致）。正式实例级质量报告（val/512/阈值0.25/matchIoU 0.5/completeMaskIoU 0.75）结果：漏甲图片率`0.42424242`（28/66，cycle007为0.31818182、21张）、逐甲召回`0.88148148`（护栏0.8975）、完整率`0.77777778`、加权杂散率`0.17283951`、直接提取率`0.36363636`、困难负图误检图1张。机器逐图复算纠正旧摘要：12张回归图当前漏17实例，其中baseline已漏3、净新增14；3张改善恢复3实例、91张不变，最终总漏甲37→48与净增11闭合。 **〔本条由 WorkBuddy 编写〕** **〔本段由 Codex 更新〕**
+
+判定`nail-texture-development-cycle-009-decision-v1.json`：主判据与护栏同时未过，假设`H-TRAINING-POSITIVE-SOURCE-ADDITION-009`证伪，decision=`signal_test_failed_close_direct_positive_addition_branch`，`releaseState=hold`，按预注册branchClosure关闭『追加真实困难正样本直接续训』分支。质量报告、计划、训练摘要与权重（`f8dda68f…710e`）哈希绑定全部复验通过；全程未读取旧val30、test100或发布留出，未扫描阈值，未导出、登记或部署。新增65 mask真值保留在candidate58b索引中可供后续非续训路径复用；下一步唯一活动为循环009逐图错误剖面分析后重新设计单变量并预注册。 **〔本条由 WorkBuddy 编写〕**
+
+### 12.17 完整甲面资格、循环009错误剖面与循环010蒸馏判定（2026-09-08）
+
+正式识别队列只接纳完整可见、未触边且轮廓可确认的甲面；残缺、触边、严重遮挡或轮廓不可确认甲面应退出自动识别并转人工流程，不得强行输出或计为成功。该策略会提高直接可用结果的精度，但会主动放弃残缺甲面召回；因此必须把“资格拒绝”和“模型漏检”分开记录，锁定真值中已确认完整可见的甲面不得事后移出分母。 **〔本段由 Codex 新增〕**
+
+错误剖面报告`nail-texture-development-cycle-009-missing-regression-profile-v1.json`绑定cycle007/cycle009质量报告和逐图原始图像SHA-256，SHA-256为`39d6ee583c00f95195e56c71ec66cf725b29fbcd4ec1e41619e10079c19a052f`。12张回归图的17个当前漏甲全部经原分辨率确认属于完整可见目标，覆盖普通清晰大目标以及透明/低对比、侧视、远小目标、弯曲遮挡风险和复杂背景；3张改善图也包含相同难例标签。因此循环009退化更符合能力保持/遗忘问题，而不是残缺甲面误入真值，残缺拒识不能替代训练修复。 **〔本段由 Codex 新增〕**
+
+循环010预注册计划SHA-256为`f8c716a9…3867`，保持cycle009的337张train、106张固定评估折、cycle004学生起点、12 epochs/patience 4及512/0.25逐实例合同不变，仅启用冻结cycle007教师的特征、软分数、框分布、软mask与边界蒸馏。训练12轮，最佳权重5,999,765 bytes、SHA-256 `fd9beb0d…76dc`；正式开发质量报告`b0a8cc61…019b`为漏甲图25、漏甲实例41、召回0.89876543、完整率0.77777778、加权杂散率0.16296296、直接可提取率0.36363636。相对cycle009有真实改善，但未恢复cycle007的21图/37实例/0.90864198，故预注册allRequired失败，决策`signal_improved_but_failed_close_current_distillation_recipe`，当前蒸馏配方关闭、不扫描权重、不晋升候选。 **〔本段由 Codex 新增〕**
+
+Goal已切换至循环011唯一变量`source-group-balanced replay sampler`：保持cycle010数据文件树、学生起点、损失、epoch、优化器、输入尺寸及评估合同不变，仅按`sourceGroup`均衡每个训练epoch的抽样分布，显式防止新增困难来源组挤占旧来源能力。实现须先以专项测试证明评估折、样本身份与角色隔离不变，再预注册并只运行一次短程训练。无正式候选或`releaseIdentity`，生产ONNX、`/ar-tryon`正式接入和产品发布继续HOLD。 **〔本段由 Codex 新增〕**
+
+### 12.18 循环011来源组均衡回放采样器：实现、预注册与allRequired失败（2026-09-08）
+
+按Goal预定的循环011里程碑实现`source-group-balanced replay sampler`：新增`nail_texture_balanced_sampler.py`（train分图stem→sourceGroup映射构建、largest-remainder等额配额、确定性种子轮转+组间交错、以及ultralytics `build_dataloader`补丁——仅train的`shuffle=True`路径注入批次级均衡采样器，每trainer epoch精确消费一个均衡块，评估折/导出路径保持原实现），训练入口新增`--source-group-balanced-sampler`并在预注册校验的`actual`合同与白名单中登记`sourceGroupBalancedReplaySampling`。专项测试4项（映射过滤与哈希绑定、重复stem拒绝、配额/覆盖/确定性/逐epoch变化不变量、补丁后DataLoader的train均衡与val顺序不变性）全部通过；`train-yolo-seg`相关既有测试27项无回归。 **〔本条由 WorkBuddy 编写〕**
+
+来源组映射由循环009物化报告确定性生成：337张train图/111来源组、每epoch每组3-4样本（`quotaMin=3`、`quotaMax=4`、种子20260908）、映射SHA-256 `e78591f9…4030`，自检8个epoch全覆盖、逐epoch顺序变化且确定性成立。预注册计划`nail-texture-development-cycle-011-plan-v1.json`（SHA-256 `6311c458…cb9e`）保持循环010完全相同的337张train、106张锁定评估折、cycle004学生起点、冻结cycle007教师多信号蒸馏与12 epochs/patience 4合同，唯一变量=每epoch来源组抽样分布；dry-run全绑定通过后完成一次短程训练（6轮早停，best@2，`dis_loss`约2.39证明蒸馏进入反向传播）。 **〔本条由 WorkBuddy 编写〕**
+
+正式实例级质量报告（val/512/0.25/0.5/0.75，权重`2d528876…04f3`，报告SHA-256见决策文件绑定）：漏甲图22（循环010为25、循环007为21）、漏甲实例41（010持平、007为37）、逐甲召回`0.89876543`、完整率`0.78765432`、加权杂散率`0.1382716`、直接可提取率`0.43939394`、困难负图误检1张。预注册allRequired四判据中两项通过且均创循环001-011历史最佳（杂散率最低、直接可提取率最高），但漏甲图22>21差1张、召回未达0.90864198，`H-SOURCE-GROUP-BALANCED-REPLAY-011`证伪，决策`signal_improved_but_failed_close_current_balanced_replay_recipe`按branchClosure关闭当前均衡回放配方。逐图剖面：相对cycle007新漏8图/8实例、恢复4图/4实例、13图持平（37+8-4=41闭合）；相对cycle010漏甲实例零和徘徊（7图改善/6图回归），但产品面指标大幅改善。全程未读取旧val30/test100/发布留出，未扫描种子/配额/阈值，未导出、登记或部署。 **〔本条由 WorkBuddy 编写〕**
+
 ## 13. 版本与变更记录
 
 | 日期 | 版本 | 变更摘要 | 影响范围 |
 | --- | --- | --- | --- |
+| 2026-09-09 | v1.1.623 | 按用户要求提交并推送 2026-09-08 全天工作区差异（收编 Codex 与 WorkBuddy 的 v1.1.619—v1.1.622 工作）。本次**未新增任何业务功能、模型、数据集或发布门禁变更**，仅为版本收编：新增`model/training/nail_texture_balanced_sampler.py`、`build-candidate58b-combined-training-truth-index.py`、`finalize-candidate58b-real-material-development-positive-truth.py`与`tests/nail-texture-balanced-sampler.test.ts`；更新`build-source-group-development-folds.py`（+201）、`train-yolo-seg.py`、Goal权威文件、完成度审计、本地推理进度/规格文档、README文档索引（v1.1.618→v1.1.623）、本日日志与本节条目。技术内容即循环011来源组均衡回放采样器实现、预注册短程复评与allRequired失败后按branchClosure关闭配方（漏甲图25→22、杂散率`0.1382716`与直接可提取率`0.43939394`创历史最佳，但漏甲图差1张未达21）。提交前确认Codex最后活动09-08 22:24、静止约2小时48分钟，未收编进行中半成品。验证：`npm.cmd run audit:encoding`通过；Python313置于PATH首位后专项测试采样器4/4、开发折5/5共9项全过；`git diff --check`仅既有LF/CRLF提示。candidate57 TEST HOLD与产品HOLD不变，无正式候选、无生产ONNX。**〔本条由 WorkBuddy 编写〕** | 提交推送、循环011、均衡回放采样器、分支关闭、产品HOLD |
+| 2026-09-08 | v1.1.622 | 按Goal预定的循环011里程碑完成来源组均衡回放采样器的实现、专项测试、预注册与一次短程复评。新增`nail_texture_balanced_sampler.py`（等额配额+种子轮转+组间交错+`build_dataloader`补丁，仅train路径生效、评估折逐字节不变）与训练入口`--source-group-balanced-sampler`开关及`sourceGroupBalancedReplaySampling`白名单/合同登记；专项测试4/4、既有训练入口测试27/27通过。映射337图/111组（每epoch每组3-4样本，种子20260908，`e78591f9…4030`），预注册计划`6311c458…cb9e`保持循环010同构合同（冻结cycle007教师蒸馏+12 epochs），唯一变量=每epoch来源组抽样分布。短程训练6轮早停best@2；正式实例级报告：漏甲图25→22、漏甲实例41持平、召回`0.89876543`、杂散率`0.1382716`与直接可提取率`0.43939394`均创循环001-011历史最佳，但漏甲图差1张未达21、召回未达0.90864198，allRequired失败，决策`signal_improved_but_failed_close_current_balanced_replay_recipe`按branchClosure关闭当前均衡回放配方，不扫描种子/配额/阈值、不晋升。逐图剖面：相对cycle007新漏8图集中于69f400a8/68cbdc00等少数来源组、恢复4图、13图持平；下一步唯一活动为循环011逐图错误剖面后重新设计单变量并预注册。验证：`audit:encoding`、专项与全量串行回归、`git fsck`见当日日志。无正式候选、无生产ONNX，candidate57 TEST HOLD与产品HOLD不变。**〔本条由 WorkBuddy 编写〕** | 循环011均衡回放采样器、预注册训练、allRequired失败、历史最佳杂散与直接提取率、分支关闭、产品HOLD |
+| 2026-09-08 | v1.1.621 | 完成循环009原分辨率错误剖面与循环010冻结教师多信号蒸馏单变量复评。机器复算纠正旧“12张回归图新漏16实例”：当前漏17，其中baseline已漏3，净新增14；3张改善恢复3、91张不变，总漏甲37→48闭合。17个当前漏甲均为完整可见甲面，故新增“完整可见甲面进入自动队列、残缺/触边/轮廓不可确认甲面转人工，锁定完整真值不得移出分母”的资格合同。循环010权重`fd9beb0d…76dc`把漏甲图28→25、漏甲48→41、召回升至0.89876543、杂散率降至0.16296296，但未恢复cycle007基线，当前蒸馏配方按预注册合同关闭、不晋升。Goal切换为循环011来源组均衡回放采样器实现、专项测试、预注册及一次短程复评。completion audit v3重放为18门5通过/13失败、530标记、`ok=false`、`decision=hold`，报告`6756cd63…7903`；无正式候选、无生产ONNX。 **〔本条由 Codex 编写〕** | 完整甲面资格、错误剖面纠偏、循环010蒸馏、循环011、动态Goal、产品HOLD |
+| 2026-09-08 | v1.1.620 | 按用户再次确认的动态Goal要求，将“每轮阶段任务完成后必须删除已完成/证伪活动目标并切换为下一唯一可执行里程碑”同步写入Goal核心要求和§1.3任务生命周期；同时明确纯治理说明不能伪造模型里程碑完成。只读核验确认该约束已存在于`AGENTS.md`，当前Goal也已由完成的循环009训练切换到“12张回归图错误剖面→下一单变量预注册”，因此本轮不把尚未完成的错误剖面错误标成完成，不改变candidate57 TEST HOLD、产品HOLD或任何模型/数据/发布状态。发现本轮接手时的旧标注分支已被更新后的candidate58b 65-mask及循环009机器证据超越，旧分支未晋升、未训练、未覆盖现有文档。`npm.cmd run audit:encoding`通过（964个文本文件、0失败），`git diff --check`通过且只有既有LF/CRLF提示。 **〔本条由 Codex 编写〕** | 动态Goal、任务生命周期、唯一活动目标、证据优先、产品HOLD |
+| 2026-09-08 | v1.1.619 | 按用户"先做快速信号测试、不走完整发布链"要求完成困难正样本10张/10来源组全链标注与循环009单变量重训：65个完整甲面mask（69甲规格对0010/0017/0039按`visibleNailCountCorrection`核减，3处人工返修+1处拓扑修复+3处假候选删除+1处新月豁免，全部逐甲原分辨率审核+零交叠+几何审计通过）终结并合并candidate58b索引为343张/2071 mask/127来源组，规范物化503张train、输入审计PASS。`build-source-group-development-folds.py`新增`--preserve-assignments-from`锁定重建，fold-0 recordsSha256 `c87cc03e…83d7`与cycle007逐字节相同保证严格同构对照。循环009（cycle004权重+cycle007同构合同，唯一变量=新增65 mask）训练9轮早停best@5，正式实例级报告：漏甲图片率未降反升至`0.42424242`（21→28张）、召回`0.88148148`低于护栏0.8975、完整率`0.77777778`、杂散率`0.17283951`；逐图12张回归/3张改善/91张不变。主判据（相对下降≥25%）与护栏同时未过，假设证伪，决策`signal_test_failed_close_direct_positive_addition_branch`按branchClosure关闭"追加真实困难正样本直接续训"分支；质量报告`c204555f…b3f4`、计划、训练摘要与权重`f8dda68f…710e`哈希绑定复验通过。全程未读取旧val30/test100/发布留出、未扫描阈值、未导出/登记/部署，无正式候选，candidate57 TEST HOLD与产品HOLD不变；新增真值保留供后续非续训路径复用，下一步为循环009逐图错误剖面分析后重新预注册。验证：`npm.cmd run audit:encoding`通过；相关测试与全量串行回归、`git fsck`结果见当日日志。**〔本条由 WorkBuddy 编写〕** | 困难正样本真值终结、candidate58b索引、评估折锁定、循环009信号测试证伪、分支关闭、产品HOLD |
 | 2026-09-08 | v1.1.618 | 按用户要求提交并推送 2026-09-07 下午至 2026-09-08 凌晨的工作区差异，本次**未改动任何业务源码、模型、数据集或发布门禁**。提交涵盖 Codex 的 v1.1.612—617 工作：09-07 下午的 candidate58 困难正样本增量与开发循环 006—008（v1.1.612）、循环 007 错误剖面（v1.1.616）、可持续 Goal 权威文件与稳定启动器（v1.1.614/615），以及 09-08 凌晨的来源隔离真实困难正样本精确选集（v1.1.617：原 469 张宽池按原分辨率事实止损、补审 2026-07-11/12 未用真实素材 90 张，最终 10 张/10 来源组/预计 69 甲，选择报告与条目重放确认与 train、旧 val、冻结 test、受保护困难负样本交叠 0、批内精确与感知近重复 0，两张边缘裁断风险图排除；Goal 由"选源"切换为"逐甲标注与真值终审"）。对应脚本与测试改动为 `audit-real-material-yolo-prelabels.py`、`build-development-instance-quality-report.py`、`build-sam-prompts-from-annotation-workspace.py`、`build-source-group-development-folds.py`、`finalize-candidate52-generated-positive-training-truth.py`、`materialize-source-group-development-dataset.py`、`train-yolo-seg.py` 及四个对应测试，另含新增 `profile-development-instance-errors.py` 与其测试。所有新增/改动文件经核验均为可执行脚本或测试代码，符合 §10 与 `AGENTS.md` 的仓库跟踪边界（只跟踪完整可运行代码，机器产物留本地），故纳入提交。**并发确认**：Codex 当日日志已完整（含署名与验证段）并明确"未提交或推送"，最后改动时间戳为 00:44，提交前复核静止约 8 分钟且期间无新增文件。**README 同步（提交前强制检查）**：文档索引白皮书版本由 `v1.1.611` 更正至 `v1.1.618`；Phase 4 把困难正样本条目由未完成改为完成（含 10 张/10 来源组/69 甲选集、交叠 0、近重复 0 与边缘裁断图排除），并补入"逐甲 mask 与真值终审"下一里程碑及"全批仍为 `trainingUse=prohibited`"约束。验证：`npm.cmd run audit:encoding` 通过（0 失败）；按项目规则把 Python 3.13 置于 PATH 首位后串行复验四个相关测试文件合计 10 项全部通过（`build-source-group-development-folds` 5/5、`profile-development-instance-errors` 2/2、`audit-real-material-yolo-prelabels` 2/2、`build-sam-prompts-from-annotation-workspace` 1/1）；`git diff --check` 通过，仅有既有 LF/CRLF 提示。暂存区为空（历次一致），显式 `git add` 指定文件、未用 `git add -A`。推送沿用 v1.1.594 更正后的完整模板（裸 `git push` 会挂起，不可依赖）；凭据本身始终有效，不需要用户提供任何凭证。未运行全量测试或生产构建；无正式候选、无生产 ONNX、candidate57 TEST HOLD 与产品 HOLD 状态均不变。**〔本条由 WorkBuddy 编写〕** | 提交推送、困难正样本选集、Goal切换、训练脚本、README同步、10项测试、无接口变化 |
 | 2026-09-08 | v1.1.617 | 完成来源隔离真实困难正样本精确选集：原469张宽池按原分辨率事实止损，并补审2026-07-11/12未用真实素材90张，最终保留10张/10来源组/预计69甲。选择报告`794662d8…b1fd`与条目`5ad48a50…b1c5`重放确认train、旧val、冻结test、受保护困难负样本交叠0，批内精确/感知近重复0；两张边缘裁断风险图从最终清单排除。按用户规则将Goal从“选源”切换为“逐甲标注、原分辨率真值终审、合法性与零交叠”，完成项不再沿用。completion audit v3报告`ba0bf5d3…bd16`仍为18门5通过/13失败、`ok=false`、`decision=hold`。未训练、读取发布集、导出、部署、提交或推送，产品继续HOLD。 **〔本条由 Codex 编写〕** | 动态Goal、困难正样本选集、角色隔离、原分辨率审核、产品HOLD |
 | 2026-09-07 | v1.1.616 | 落实“每轮任务完成后必须改写Goal活动目标”规则：`AGENTS.md`明确完成项必须移出下一步，目标段必须切换为下一轮唯一可执行里程碑，禁止沿用已完成/证伪的旧目标。循环007错误剖面报告`099d956f…568a`已深度重放并通过专项测试2/2；43个杂散事件中正图承担`60.5/64.5`加权质量，25张错误图有17张同时漏甲，因此下一变量从“待二选一”确定为来源隔离真实困难正样本补强。已核对Git外真实素材池三重隔离结果469张/68来源组及68张代表图/6张联系表；当前Goal活动目标改为原分辨率筛选、哈希绑定和完整mask准备。同步completion audit v3报告`3f57b504…baf33`仍为18门5通过/13失败、`ok=false`、`decision=hold`。未训练、读取旧val/test/holdout、导出、部署、提交或推送，产品继续HOLD。 **〔本条由 Codex 编写〕** | 动态Goal、错误剖面、困难正样本池、来源隔离、产品HOLD |

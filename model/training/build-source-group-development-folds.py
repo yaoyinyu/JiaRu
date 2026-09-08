@@ -361,6 +361,142 @@ def assign_groups(
     return sorted(assignment_rows, key=lambda item: (item["role"], item["sourceGroup"])), assignments
 
 
+def locked_assign_groups(
+    records: list[dict[str, Any]],
+    previous_assignments: dict[str, int],
+    fold_count: int,
+    evaluation_fold: int,
+    seed: str,
+) -> tuple[list[dict[str, Any]], dict[str, int], list[str]]:
+    """锁定分配：先前计划内的组逐字节继承；仅新增组按角色分层 greedy 分配。
+
+    新增组只允许进入非评估折（评估折成员锁定不变），其余排序与打分
+    规则与 assign_groups 完全一致，保证同输入下确定性可重放。
+    """
+    by_group: dict[str, list[dict[str, Any]]] = {}
+    group_role: dict[str, str] = {}
+    for record in records:
+        group = record["sourceGroup"]
+        role = record["role"]
+        if group in group_role and group_role[group] != role:
+            raise ValueError(f"同一sourceGroup跨越正负训练角色：{group}")
+        group_role[group] = role
+        by_group.setdefault(group, []).append(record)
+
+    assignments: dict[str, int] = {}
+    assignment_rows: list[dict[str, Any]] = []
+    inherited: list[str] = []
+    added: list[str] = []
+    for role in TRAIN_ROLES:
+        inherited_groups = []
+        added_groups = []
+        for group, items in by_group.items():
+            if group_role[group] != role:
+                continue
+            if group in previous_assignments:
+                inherited_groups.append(group)
+            else:
+                added_groups.append(group)
+        for group in inherited_groups:
+            fold = previous_assignments[group]
+            if fold < 0 or fold >= fold_count:
+                raise ValueError(f"先前分配折号越界：{group} -> {fold}")
+            items = by_group[group]
+            assignments[group] = fold
+            inherited.append(group)
+            assignment_rows.append(
+                {
+                    "sourceGroup": group,
+                    "role": role,
+                    "fold": fold,
+                    "imageCount": len(items),
+                    "maskCount": sum(int(item["maskCount"]) for item in items),
+                    "recordIdentitiesSha256": canonical_sha256(
+                        [
+                            {
+                                "fileName": item["fileName"],
+                                "imageSha256": item["imageSha256"],
+                            }
+                            for item in sorted(items, key=lambda value: value["fileName"])
+                        ]
+                    ),
+                }
+            )
+        groups = []
+        for group in added_groups:
+            items = by_group[group]
+            images = len(items)
+            masks = sum(int(item["maskCount"]) for item in items)
+            tie = hashlib.sha256(f"{seed}\0{role}\0{group}".encode("utf-8")).hexdigest()
+            groups.append((group, items, images, masks, tie))
+        groups.sort(key=lambda value: (-value[2], -value[3], value[4], value[0]))
+        allowed_folds = [fold for fold in range(fold_count) if fold != evaluation_fold]
+        images_by_fold = {fold: 0 for fold in range(fold_count)}
+        masks_by_fold = {fold: 0 for fold in range(fold_count)}
+        groups_by_fold = {fold: 0 for fold in range(fold_count)}
+        for group, fold in assignments.items():
+            items = by_group[group]
+            images_by_fold[fold] += len(items)
+            masks_by_fold[fold] += sum(int(item["maskCount"]) for item in items)
+            groups_by_fold[fold] += 1
+        total_images = sum(value[2] for value in groups)
+        total_masks = sum(value[3] for value in groups)
+        if not groups:
+            continue
+        existing_images = sum(images_by_fold.values())
+        existing_masks = sum(masks_by_fold.values())
+        target_images = (existing_images + total_images) / fold_count
+        target_masks = (
+            (existing_masks + total_masks) / fold_count
+            if (existing_masks + total_masks)
+            else 1.0
+        )
+        for group, items, images, masks, _ in groups:
+            def score(fold: int) -> tuple[float, float, int, int]:
+                image_ratio = (images_by_fold[fold] + images) / target_images
+                mask_ratio = (
+                    (masks_by_fold[fold] + masks) / target_masks
+                    if target_masks
+                    else 0.0
+                )
+                return (
+                    max(image_ratio, mask_ratio),
+                    image_ratio + mask_ratio,
+                    groups_by_fold[fold],
+                    fold,
+                )
+
+            fold = min(allowed_folds, key=score)
+            assignments[group] = fold
+            added.append(group)
+            images_by_fold[fold] += images
+            masks_by_fold[fold] += masks
+            groups_by_fold[fold] += 1
+            assignment_rows.append(
+                {
+                    "sourceGroup": group,
+                    "role": role,
+                    "fold": fold,
+                    "imageCount": images,
+                    "maskCount": masks,
+                    "recordIdentitiesSha256": canonical_sha256(
+                        [
+                            {
+                                "fileName": item["fileName"],
+                                "imageSha256": item["imageSha256"],
+                            }
+                            for item in sorted(items, key=lambda value: value["fileName"])
+                        ]
+                    ),
+                }
+            )
+    return (
+        sorted(assignment_rows, key=lambda item: (item["role"], item["sourceGroup"])),
+        assignments,
+        sorted(added),
+    )
+
+
 def build_document(
     index_path: Path,
     materialization_path: Path,
@@ -369,6 +505,7 @@ def build_document(
     fold_count: int,
     evaluation_fold: int,
     seed: str,
+    previous_plan_path: Path | None = None,
 ) -> dict[str, Any]:
     if fold_count < 3:
         raise ValueError("开发折至少需要3折")
@@ -380,7 +517,43 @@ def build_document(
         index_path, materialization_path, audit_path, dataset_yaml_path
     )
     records, excluded_val_groups = normalize_records(index, materialization)
-    group_rows, assignments = assign_groups(records, fold_count, seed)
+    assignment_mode = "role-stratified-largest-group-first-normalized-greedy/v1"
+    previous_binding: dict[str, Any] | None = None
+    added_groups: list[str] = []
+    if previous_plan_path is not None:
+        previous = read_json(previous_plan_path.resolve(), "先前折计划")
+        if (
+            previous.get("decision")
+            != "approved_train_internal_source_group_development_folds"
+            or previous.get("ok") is not True
+        ):
+            raise ValueError("先前折计划决策无效")
+        if int(previous.get("summary", {}).get("evaluationFold", -1)) != evaluation_fold:
+            raise ValueError("先前折计划评估折与本次不一致，拒绝锁定")
+        if int(previous.get("summary", {}).get("foldCount", -1)) != fold_count:
+            raise ValueError("先前折计划折数与本次不一致，拒绝锁定")
+        previous_assignments = {
+            str(row["sourceGroup"]): int(row["fold"])
+            for row in previous.get("sourceGroupAssignments", [])
+        }
+        missing_groups = [
+            group
+            for group in previous_assignments
+            if group not in {record["sourceGroup"] for record in records}
+        ]
+        if missing_groups:
+            raise ValueError(f"先前计划组在当前输入中缺失，拒绝锁定：{sorted(missing_groups)[:5]}")
+        group_rows, assignments, added_groups = locked_assign_groups(
+            records, previous_assignments, fold_count, evaluation_fold, seed
+        )
+        assignment_mode = "locked-from-previous-plan-greedy-new-groups-to-training-folds/v1"
+        previous_binding = {
+            "path": str(previous_plan_path.resolve()),
+            "sha256": sha256_file(previous_plan_path),
+            "contentSha256": require_sha(previous.get("contentSha256"), "先前折计划contentSha256"),
+        }
+    else:
+        group_rows, assignments = assign_groups(records, fold_count, seed)
     record_rows = [
         {
             **record,
@@ -463,6 +636,11 @@ def build_document(
                 "path": str(dataset_yaml_path),
                 "sha256": sha256_file(dataset_yaml_path),
             },
+            **(
+                {"previousDevelopmentPlan": previous_binding}
+                if previous_binding is not None
+                else {}
+            ),
         },
         "policy": {
             "purpose": "train-internal-development-only",
@@ -471,7 +649,8 @@ def build_document(
             "sourceGroupAtomic": True,
             "allSourceGroupsMutuallyExclusiveAcrossFolds": True,
             "positiveAndHardNegativeLoadsBalancedSeparately": True,
-            "assignmentAlgorithm": "role-stratified-largest-group-first-normalized-greedy/v1",
+            "assignmentAlgorithm": assignment_mode,
+            **({"lockedAddedGroups": added_groups} if previous_plan_path is not None else {}),
             "seed": seed,
             "fixedEvaluationFold": evaluation_fold,
             "oldValidationRecordsExcluded": True,
@@ -523,6 +702,14 @@ def verify_plan(path: Path) -> dict[str, Any]:
         bound_path = Path(str(binding.get("path", ""))).resolve()
         require_file_hash(bound_path, binding.get("sha256"), key)
         bindings[key] = bound_path
+    previous_plan_path: Path | None = None
+    if str(policy.get("assignmentAlgorithm", "")).startswith("locked-from-previous-plan"):
+        previous_binding = inputs.get("previousDevelopmentPlan")
+        if not isinstance(previous_binding, dict):
+            raise ValueError("锁定折计划缺少previousDevelopmentPlan绑定")
+        previous_plan_path = Path(str(previous_binding.get("path", ""))).resolve()
+        require_file_hash(previous_plan_path, previous_binding.get("sha256"), "previousDevelopmentPlan")
+        verify_plan(previous_plan_path)
     rebuilt = build_document(
         bindings["combinedTrainingTruthIndex"],
         bindings["materializationReport"],
@@ -531,6 +718,7 @@ def verify_plan(path: Path) -> dict[str, Any]:
         require_int(summary.get("foldCount"), "foldCount", 3),
         require_int(summary.get("evaluationFold"), "evaluationFold"),
         str(policy.get("seed", "")),
+        previous_plan_path=previous_plan_path,
     )
     if canonical_sha256(rebuilt) != canonical_sha256(document):
         raise ValueError("开发折计划不能从冻结输入确定性重建")
@@ -567,6 +755,11 @@ def main() -> int:
     parser.add_argument("--seed", default="jiaru-train-source-group-development-v1")
     parser.add_argument("--output", type=Path)
     parser.add_argument("--verify-plan", type=Path)
+    parser.add_argument(
+        "--preserve-assignments-from",
+        type=Path,
+        help="锁定模式：继承给定先前折计划的全部组分配，仅新增组确定性分配到非评估折",
+    )
     args = parser.parse_args()
     if args.verify_plan is not None:
         if any(
@@ -577,6 +770,7 @@ def main() -> int:
                 args.candidate_input_audit,
                 args.dataset_yaml,
                 args.output,
+                args.preserve_assignments_from,
             )
         ):
             raise ValueError("--verify-plan不能与构建参数并用")
@@ -615,6 +809,9 @@ def main() -> int:
         args.fold_count,
         args.evaluation_fold,
         args.seed,
+        previous_plan_path=(
+            args.preserve_assignments_from.resolve() if args.preserve_assignments_from else None
+        ),
     )
     input_snapshot = {
         path: sha256_file(path)
