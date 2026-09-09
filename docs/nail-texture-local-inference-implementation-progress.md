@@ -1,9 +1,9 @@
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-09-08
+更新日期：2026-09-09
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
-> **当前最高优先级（2026-09-08）：** candidate57保持TEST HOLD，旧val30/test100及发布留出继续只读。困难正样本选源阶段已完成：10张/10来源组/预计69甲精确清单通过角色隔离重放，报告`794662d8…b1fd`、条目`5ad48a50…b1c5`。当前活动已切换为这69个甲面的候选mask生成、逐甲原分辨率终审和真值终结；不再继续使用“选图”作为Goal。
+> **当前最高优先级（2026-09-09）：** 98图干净开发评估集与循环011唯一一次复评已冻结并深重放；实例召回`0.94067797`单项通过，但完整率`0.83898305`、漏甲图片率`0.22413793`、加权杂散率`0.0960452`仍失败。循环012唯一变量已预注册为13张/13个新来源组/65-mask真实困难正图增量；当前活动是完成该批源图筛选、原分辨率逐甲终审和隔离物化，训练启动门仍关闭。唯一目标与执行指针见`docs/nail-texture-current-goal.md`。 **〔本段由 Codex 更新〕**
 
 > **当前文档解释规则：** 下方candidate1—57条目是不可删除的历史账本，其中`PASS（流程完成，候选否决）`、`FAIL`、`VAL REJECT`和`TEST HOLD`记录当时生命周期与质量结果。它们不得改写成质量PASS，也不得继续作为当前发布要求。当前发布状态只读本页顶部dashboard和显式`gateRole=current-release; required=true`条目；audit v3已按此范围执行，历史非PASS不再永久阻断未来候选。
 
@@ -17,7 +17,7 @@
 - `⬜ PENDING`：当前发布要求尚未开始。
 - `🔴 HOLD`、`❌ FAIL/VAL REJECT/TEST HOLD`：质量或治理失败；历史终局必须保留，但`gateRole=historical|superseded`时不阻断未来候选。
 
-## 当前发布 dashboard（2026-09-06）
+## 当前发布 dashboard（2026-09-09）
 
 实现增量（v1.1.602）：audit v3已完成活动标记、统一`releaseIdentity`、固定逐实例正样本schema v3深度重放和一次性正样本发布留出台账接线。台账在读图前原子独占认领，只允许`aborted-no-data-read`重试；读图或预测开始后永久禁止再次消费。当前没有批准`releaseIdentity`，因此真实总审计仍按证据缺失保持HOLD，而不是由迁移占位门阻断。
 
@@ -25,18 +25,26 @@
 - **当前生产资产：** `public/models/nail-texture-seg/manifest.json`仍为640占位，所指生产ONNX不存在；历史33KB smoke ONNX只证明工程加载链。
 - **历史回归：** 旧val30、旧test100、编号261—360与361—460困难负样本及其他已消费holdout均只读保护，禁止训练、选择阈值或冒充全新发布证据。
 - **授权：** 项目范围standing商业开发授权已经生效；精确清单、来源、许可声明、角色和SHA-256继续机器追溯，但逐清单处理、训练启动和证据门后的原子freeze无需再次向用户确认。
-- **当前P0：** 新增5张/25 mask困难正样本已经通过规范输入门并在循环007显示召回收益，但杂散回退；循环008证明简单增加训练负样本数量不能修复。先完成循环007错误剖面，再只实施一个结构性候选抑制或针对性真实正样本补强变量；达到研发绝对门后才允许一个单阶段512配方进入全量训练。audit v3继续对缺少当前候选证据的各门保持HOLD。
+- **当前P0：** 执行循环012数据入口。98图评估文件树`c4a12153…e1bd`、物化`2bb9e1ca…1017`、质量报告`6b4ad90e…28d9`和错误剖面`d2c575ac…0f7b`均可重放；预注册`94869841…3e3e`要求13张/13个新来源组、每张5枚完整可见甲面并完成65个终审mask。全批终审与物化前禁止训练，旧66图/405-mask与106图报告保持历史失败。 **〔本段由 Codex 更新〕**
 - **随后顺序：** train内`sourceGroup`开发折和最多两个短程单变量实验；全新来源校准集；锁定单阶段512运行时；全新正样本发布留出；全新困难负样本；生产ONNX与多后端一致性；浏览器/桌面/四类真机/Beta100/产品质量/双版本回滚。
 
 | 标记 ID | 当前发布要求 | 状态 | 证据与下一步 |
 | --- | --- | --- | --- |
 | `REL-CURRENT-AUDIT-V3-001` | 可达且不可跨候选拼接的最终审计 | ✅ PASS（审计基础设施） | `lifecycle=closed; outcome=pass; gateRole=current-release; required=true`；audit v3已实现active marker、统一`releaseIdentity`、逐实例schema v3强门和正样本发布留出一次性消费台账。该PASS只证明审计可达且不可绕过；没有批准候选时正样本、运行时和产品门仍分别HOLD。 |
-| `REL-CURRENT-DEVELOPMENT-002` | train内来源组开发折与单阶段胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；candidate58b已形成343张/2071 mask/127来源组规范索引。循环009直接追加真值失败；错误剖面`39d6ee58…052f`确认12张回归图当前漏17个完整甲面、净新增14。循环010冻结教师蒸馏把漏甲图28→25、漏甲48→41、召回升至0.89876543但未恢复cycle007基线，配方关闭；旧val/test/发布留出读取0。当前唯一活动为循环011来源组均衡回放采样器实现、专项测试、预注册与一次短程复评，尚无胜出配方或正式候选。 **〔本行由 Codex 更新〕** |
+| `REL-CURRENT-DEVELOPMENT-002` | train内来源组开发折与单阶段胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；98图干净评估集（58正/354 mask+40负）已冻结，循环011锁定权重唯一一次复评为333匹配/21漏甲、13张漏甲图、297完整mask、加权杂散率`0.0960452`，仅召回单项过门，整体`fail_train_internal_development_floor`。循环012已预注册唯一变量=13图/13新来源组/65-mask真实困难正图增量；当前等待这批真值终审与隔离物化，尚无胜出配方或正式候选。 **〔本行由 Codex 更新〕** |
 | `REL-CURRENT-CALIBRATION-003` | 全新来源隔离校准集 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；配方锁定后不少于30张，只允许选择一次阈值。 |
 | `REL-CURRENT-POSITIVE-HOLDOUT-004` | 全新一次性正样本发布留出 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；运行时锁定后原子冻结不少于100张，只评估一次并通过召回≥0.90、完整mask≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02。 |
 | `REL-CURRENT-NEGATIVE-HOLDOUT-005` | 全新困难负样本与水印消融 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；候选锁定后不少于100张，三变体零误检/零delta，非右下水印增加对应区域变体。 |
 | `REL-CURRENT-RUNTIME-006` | 生产ONNX、manifest与多后端一致性 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；训练框架、ONNX、WebGPU、WASM及生产manifest绑定同一`releaseIdentity`。 |
 | `REL-CURRENT-PRODUCT-007` | 浏览器、桌面、四类真机、Beta、产品质量与回滚 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；fallback不得计模型成功，四类设备各至少20次、Beta不少于100张，并完成双版本回滚bootstrap/演练。 |
+
+### 循环011干净重基线与循环012入口（2026-09-09）
+
+58图/354-mask正图v2与原40张开发困难负图已物化为98图只读评估集；文件树SHA-256为`c4a1215383eb26cd2938774b772b5a55f1f07935263fbfd6a621f277d07ee1bd`，物化报告SHA-256为`2bb9e1ca6f082e1dc22ad4d8a3dd6af7a5b979540a457e82807f1df22eb51017`。重放确认98图逐项覆盖、40个零字节负标签、与训练折来源组和图片SHA交叠均为0；它仅是开发证据。 **〔本段由 Codex 新增〕**
+
+循环011权重`2d528876…04f3`按`85b5f443…652f`一次性锁完成唯一一次512/0.25/产品去重复评：333/354匹配、297完整mask、21漏甲、13张漏甲图、5重复、10假阳性、6无效mask，29/58图直接可提取。实例召回`0.94067797`通过单项门，但完整率`0.83898305`、漏甲图片率`0.22413793`、加权杂散率`0.0960452`失败；质量报告`6b4ad90e…28d9`和错误剖面`d2c575ac…0f7b`均深重放通过。旧106图报告、405-mask分母和历史FAIL没有改写。 **〔本段由 Codex 新增〕**
+
+错误剖面中正图承担`94.117647%`加权杂散质量，12张杂散错误图有8张同时漏甲，因此循环012只预注册`targetedSourceIsolatedRealPositiveAugmentation`。计划SHA-256 `948698411433640a8724d1a2076b5083b639ccf9625072aa028762479fdb3e3e`锁定13张/13个新来源组/65个终审mask、循环011相同起点和12轮合同、固定98图评估及最多1次实验；在精确真值物化前训练启动门保持关闭。 **〔本段由 Codex 新增〕**
 
 ## 里程碑 1：真实模型端侧冒烟
 
@@ -885,3 +893,15 @@ candidate57相对candidate50增加12个匹配与12个完整mask，减少12个漏
 - 正式候选只应自动识别完整可见、未触边且轮廓可确认的甲面；残缺、触边、严重遮挡或轮廓不可确认目标进入人工流程，不计成功。锁定真值中的完整目标仍必须识别，不能因漏检被移出分母。 **〔本段由 Codex 新增〕**
 - 循环010在同一337张train/106张评估折上仅启用冻结cycle007教师多信号蒸馏，完成12轮并生成权重`fd9beb0d…76dc`。固定512/0.25逐实例结果为漏甲图25、漏甲41、召回0.89876543、完整率0.77777778、加权杂散率0.16296296、直接可提取率0.36363636；相对cycle009改善但未恢复cycle007基线，质量报告`b0a8cc61…019b`与决策均为FAIL/HOLD。 **〔本段由 Codex 新增〕**
 - 当前蒸馏配方已关闭，Goal切换到循环011唯一变量：实现并测试按`sourceGroup`均衡的train回放采样器，保持其余输入、损失与评估合同不变。无正式候选、无生产ONNX，产品继续HOLD。 **〔本段由 Codex 新增〕**
+
+## 2026-09-09 循环011错误剖面与开发真值完整性HOLD
+
+12张变化图已完成原分辨率原图/叠加审查，5张源图排除、4张真值返修、3张暂未发现新增问题；上游annotation与现有标签逐字节一致。剖面`3c7aa1db…e041`深重放，迁移为新漏9、恢复5、持续漏32，8图计数回归/4图改善不能替代实例数。已冻结66图重审队列`d93efb30…7557`，先审剩余54图，禁止修改旧分母并重算通过。本轮研发里程碑完成不增加当前发布门PASS；历史循环011已完成且失败，当前步骤以本页顶部与唯一Goal为准。 **〔本段由 Codex 新增〕**
+
+固定队列剩余54张已逐图完成原分辨率源图、整图真值叠加及逐甲放大复核；与首轮合并后66/66张、405/405个旧mask审核闭合。全量结果为8张源图排除（51 mask）、16张标注返修（96 mask）、42张未发现新增问题（258 mask），待审0、最终批准0；结果`9769da17…52b9`逐项复验图片/标签哈希一致，处置清单`63b94764…07b5`冻结下一步16张替代标注和58图/预计354-mask新版本物化。旧快照、旧分母与失败判定不变，无发布门新增PASS。 **〔本段由 Codex 新增〕**
+
+## 2026-09-09 58图开发正图真值v2终审与物化
+
+16张返修图已从candidate58b规范annotation按稳定序号生成版本化替代：29个问题甲面采用已复核历史候选、SAM2.1 Large定向候选、人工完整边界或凸包补洞，连同67个保留polygon共96个；原分辨率整图及逐甲复核全部通过。第6项首批SAM只覆盖透明甲尖，视觉门拒绝后改为完整覆盖裸色甲床、法式线和透明甲尖。混合报告`f083186c…c204`、批准报告`0335975a…98e0`。 **〔本段由 Codex 新增〕**
+
+排除8张不合格源图后，42张无新增问题项与16张替代标注物化为58图/354 mask。42张旧标签语义逐点一致、16张替代标签变化；合法polygon 354/354、同图交叠0、排除图残留0，与开发训练折来源组及图片SHA交叠0。物化`8d6b97b3…1b63`和独立重放`cb352cee…a010`均为PASS，只授权开发实验。`REL-CURRENT-DEVELOPMENT-002`仍为running/pending；下一步冻结58正+40负新评估口径并以循环011锁定合同单次复评，未新增releaseIdentity、生产ONNX或发布门PASS。 **〔本段由 Codex 新增〕**
