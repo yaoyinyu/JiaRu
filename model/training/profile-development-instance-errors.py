@@ -16,6 +16,7 @@ from typing import Any
 
 HERE = Path(__file__).resolve().parent
 QUALITY_REPORT_SCRIPT = HERE / "build-development-instance-quality-report.py"
+REBASELINE_QUALITY_REPORT_SCRIPT = HERE / "build-development-clean-rebaseline-report.py"
 
 
 def load_module(name: str, path: Path):
@@ -105,15 +106,22 @@ def choose_next_variable(
 
 
 def build_report(quality_report_path: Path) -> dict[str, Any]:
+    quality_document = read_json(quality_report_path)
+    verifier = (
+        REBASELINE_QUALITY_REPORT_SCRIPT
+        if quality_document.get("schemaVersion") == 2
+        and quality_document.get("evaluationKind") == "single_read_only_clean_truth_rebaseline"
+        else QUALITY_REPORT_SCRIPT
+    )
     replay = subprocess.run(
-        [sys.executable, str(QUALITY_REPORT_SCRIPT), "--verify-report", str(quality_report_path)],
+        [sys.executable, str(verifier), "--verify-report", str(quality_report_path)],
         capture_output=True,
         text=True,
         check=False,
     )
     if replay.returncode != 0:
         raise ValueError(f"development quality report replay failed: {replay.stderr.strip()}")
-    report = read_json(quality_report_path)
+    report = quality_document
     inputs = report.get("inputs", {})
     materialization_path = require_bound_file(inputs.get("materializationReport"), "materialization report")
     artifact_path = require_bound_file(inputs.get("artifactIndex"), "artifact index")
