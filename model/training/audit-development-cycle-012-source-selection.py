@@ -229,6 +229,34 @@ def build(args: argparse.Namespace) -> dict[str, Any]:
             or inventoried.get("sourceGroup") != group
         ):
             raise ValueError(f"源图未绑定到未使用真实素材清单：{name}")
+        source_path = Path(str(inventoried.get("sourcePath") or "")).resolve()
+        if not source_path.is_file():
+            raise ValueError(f"源素材路径不存在：{name}")
+        derivation = str(inventoried.get("derivation") or "original")
+        if derivation == "original":
+            source_hash = require_sha(
+                inventoried.get("sourceSha256") or actual_hash,
+                f"源图清单第{index}项源素材",
+            )
+            if sha256_file(source_path) != source_hash or source_hash != actual_hash:
+                raise ValueError(f"原始源素材与候选图不一致：{name}")
+        elif derivation == "parent-crop":
+            parent_hash = require_sha(inventoried.get("parentSha256"), f"源图清单第{index}项父图")
+            crop_box = inventoried.get("cropBox")
+            if (
+                sha256_file(source_path) != parent_hash
+                or not isinstance(crop_box, list)
+                or len(crop_box) != 4
+                or any(not isinstance(value, int) for value in crop_box)
+            ):
+                raise ValueError(f"派生区域父图绑定无效：{name}")
+            with Image.open(source_path) as parent, Image.open(image_path) as candidate:
+                expected_crop = parent.convert("RGB").crop(tuple(crop_box))
+                actual_crop = candidate.convert("RGB")
+                if expected_crop.size != actual_crop.size or expected_crop.tobytes() != actual_crop.tobytes():
+                    raise ValueError(f"派生区域不能从绑定父图精确重放：{name}")
+        else:
+            raise ValueError(f"未知源图派生方式：{name}")
         reviewed = review_by_name.get(name)
         if not reviewed or (
             reviewed.get("sha256") != actual_hash

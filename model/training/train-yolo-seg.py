@@ -29,6 +29,7 @@ DEVELOPMENT_ONLY_VARIABLES = frozenset(
         "positiveSourceGroupResampling",
         "trainingPositiveSourceAddition",
         "sourceGroupBalancedReplaySampling",
+        "targetedSourceIsolatedRealPositiveAugmentation",
         "augmentationPolicy",
         "boundarySupervision",
         "distillationPolicy",
@@ -333,6 +334,26 @@ def load_development_materializer() -> ModuleType:
     return module
 
 
+def load_cycle012_materializer() -> ModuleType:
+    script_path = Path(__file__).with_name("materialize-development-cycle-012-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "materialize_development_cycle_012_dataset_for_training", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load cycle012 development materializer")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def verify_development_materialization(report_path: Path) -> dict[str, object]:
+    report = json.loads(report_path.read_text(encoding="utf-8"))
+    decision = report.get("decision") if isinstance(report, dict) else None
+    if decision == "development_cycle_012_dataset_materialized_for_single_short_experiment":
+        return load_cycle012_materializer().verify_report(report_path)
+    return load_development_materializer().verify_report(report_path)
+
+
 def experiment_plan_validation(
     args: argparse.Namespace,
     dataset_yaml: Path,
@@ -394,14 +415,13 @@ def experiment_plan_validation(
     materialization_path = Path(str(materialization_binding.get("path", ""))).resolve()
     if not materialization_path.is_file() or sha256(materialization_path) != materialization_binding.get("sha256"):
         raise ValueError("development materialization report is missing or hash-drifted")
-    materializer = load_development_materializer()
-    materialization = materializer.verify_report(materialization_path)
+    materialization = verify_development_materialization(materialization_path)
     if materialization.get("datasetFilesSha256") != materialization_binding.get("datasetFilesSha256"):
         raise ValueError("development dataset file-tree identity drifted")
     fold_path = Path(str(fold_binding.get("path", ""))).resolve()
     if not fold_path.is_file() or sha256(fold_path) != fold_binding.get("sha256"):
         raise ValueError("development fold plan is missing or hash-drifted")
-    fold_plan = materializer.FOLD_BUILDER.verify_plan(fold_path)
+    fold_plan = load_development_materializer().FOLD_BUILDER.verify_plan(fold_path)
     if fold_plan.get("contentSha256") != fold_binding.get("contentSha256"):
         raise ValueError("development fold plan content identity drifted")
     environment_path = Path(str(environment_binding.get("path", ""))).resolve()

@@ -55,10 +55,12 @@ def load_image_entries(
             "candidate8_annotation_workspace_ready_candidate_only",
             "candidate9_annotation_workspace_ready_candidate_only",
             "development_positive_annotation_workspace_ready_candidate_only",
+            "development_cycle_012_source_selection_pass_candidate_only",
         }
         if manifest.get("ok") is not True or manifest.get("decision") not in allowed_decisions:
             raise ValueError("workspace manifest must be a passing candidate-only annotation workspace")
-        if Path(str(manifest.get("imageDir", ""))).resolve() != image_dir:
+        manifest_image_dir = manifest.get("imageDir") or manifest.get("sourceRoot")
+        if Path(str(manifest_image_dir or "")).resolve() != image_dir:
             raise ValueError("workspace manifest imageDir does not match --image-dir")
         entries = manifest.get("items", [])
         by_file = {str(item.get("fileName", "")): item for item in entries}
