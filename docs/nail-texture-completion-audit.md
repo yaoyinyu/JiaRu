@@ -1,8 +1,8 @@
 # 美甲纹理端侧最终完成度审计
 
-文档版本：v1.10
-更新日期：2026-09-09
-当前状态：audit v3已接入活动标记、统一`releaseIdentity`、固定逐实例正样本深度重放和一次性消费台账；98图干净开发基线仍未过完整mask、漏甲图片和加权杂散开发门，循环012尚处13图/65-mask输入准备期，当前因无批准发布候选及其正式证据继续HOLD。下述v2问题说明只保留为迁移前诊断。
+文档版本：v1.11
+更新日期：2026-09-10
+当前状态：audit v3已接入活动标记、统一`releaseIdentity`、固定逐实例正样本深度重放和一次性消费台账；循环012的13图/65-mask入口、唯一训练和clean98复评已完成但五项相对信号全部失败，配方关闭并转入循环013两阶段mask替换原型。当前仍无批准发布候选及其正式证据，产品继续HOLD。下述v2问题说明只保留为迁移前诊断。
 
 历史v2会把每个历史FAIL/REJECT/HOLD永久当作当前阻断，并允许candidate5质量、candidate6桌面和candidate57状态混入同一profile。当前v3已经修复这两个P0：历史结果保持原文但不参与当前门，全部正式报告必须绑定同一不可变`releaseIdentity`；缺身份时明确返回`no_approved_release_candidate`。不得通过改写历史失败、忽略退出码、复制smoke模型或提前切换manifest绕过。
 
@@ -24,7 +24,15 @@ model/reports/nail-texture-local-inference-completion-audit.json
 
 98图干净开发评估集已经冻结并完成循环011锁定权重的唯一一次复评。报告`6b4ad90e…28d9`为实例召回`0.94067797`、完整mask比例`0.83898305`、漏甲图片率`0.22413793`、加权杂散率`0.0960452`，仅召回与逐图覆盖单项通过，整体`decision=fail_train_internal_development_floor`。该证据属于`REL-CURRENT-DEVELOPMENT-002`内部研发门，不新增正式发布PASS，也不创建`releaseIdentity`。
 
-循环012计划`94869841…3e3e`只预注册13张/13个新来源组/65-mask真实困难正图增量，训练启动门仍为`blocked_until_exact_13_image_65_mask_truth_is_final_reviewed_and_materialized`。完成度审计继续读取最近的发布快照`6756cd63…7903`：18门5通过/13失败、`ok=false`、`decision=hold`；本轮没有理由重跑受保护test或把开发结果映射为正式候选证据。
+循环012原计划`94869841…3e3e`的13张/13个新来源组/65-mask入口门已经通过并消费为唯一开发训练，但模型信号失败，不构成发布门PASS。完成度审计仍须按当前磁盘证据重放；受保护test不得重跑，开发结果不得映射为正式候选证据。 **〔本段由 Codex 更新〕**
+
+### 2026-09-10开发证据更新
+
+循环012已完成350图训练物化、唯一12 epoch训练和clean98单次评估。结果为召回`0.92937853`、完整mask比例`0.83615819`、漏甲图片率`0.31034483`、加权杂散率`0.12429379`、直接可提取率`0.4137931`；相对循环011基线五项预注册信号全部失败。决策`3621816e…995b`关闭该配方，权重`48aea423…8b75`不得晋升正式候选、导出或部署。 **〔本段由 Codex 新增〕**
+
+该失败不改变任何current-release门为PASS，也不创建`releaseIdentity`。下一活动为循环013真正替换mask的高分辨率ROI stage2开发原型；在它同时通过预注册相对门和开发绝对门前，校准、正负发布留出、生产ONNX、浏览器/真机/Beta/产品质量和回滚门继续保持未完成。 **〔本段由 Codex 新增〕**
+
+本轮已实际重跑当前completion audit v3，报告`3d154ccb…44f2`（2026-09-10T07:35:21.430Z）返回18门5通过/13失败、530个进度标记中1个PASS、6个current-release标记未完成，`ok=false`、`decision=hold`；`releaseIdentity`仍为`no_approved_release_candidate`。命令退出码1是预期HOLD结果；审计只复验既有证据绑定，没有重新推理或二次消费受保护评估。 **〔本段由 Codex 新增〕**
 
 ## 审计范围
 

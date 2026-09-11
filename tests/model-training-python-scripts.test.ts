@@ -235,7 +235,25 @@ test("development training plan accepts an explicit supported single variable an
     "assert 'optimizationDuration' in module.DEVELOPMENT_ONLY_VARIABLES",
     "assert 'trainingInputResolution' in module.DEVELOPMENT_ONLY_VARIABLES",
     "assert 'positiveSourceGroupResampling' in module.DEVELOPMENT_ONLY_VARIABLES",
+    "assert 'targetedSourceIsolatedRealPositiveAugmentation' in module.DEVELOPMENT_ONLY_VARIABLES",
     "assert 'thresholdScan' not in module.DEVELOPMENT_ONLY_VARIABLES",
+    "print('ok')",
+  ].join("; ");
+  const { stdout } = await execFileAsync("python", ["-c", code], { cwd: path.resolve(".") });
+  assert.equal(stdout.trim(), "ok");
+});
+
+test("cycle012 decision requires every pre-registered relative signal", async () => {
+  const code = [
+    "import importlib.util, pathlib",
+    "path=pathlib.Path('model/training/build-development-cycle-012-decision.py')",
+    "spec=importlib.util.spec_from_file_location('cycle012_decision', path)",
+    "module=importlib.util.module_from_spec(spec)",
+    "spec.loader.exec_module(module)",
+    "summary={'missingImages':18,'missing':25,'instanceRecall':0.92937853,'weightedSpuriousRate':0.12429379,'directlyExtractableRate':0.4137931}",
+    "thresholds={'maximumMissingImages':10,'maximumMissingInstances':16,'minimumInstanceRecall':0.94067797,'maximumWeightedSpuriousRate':0.0960452,'minimumDirectlyExtractableRate':0.5}",
+    "checks=module.metric_checks(summary, thresholds)",
+    "assert checks == {'missingImages':False,'missingInstances':False,'instanceRecall':False,'weightedSpuriousRate':False,'directlyExtractableRate':False}",
     "print('ok')",
   ].join("; ");
   const { stdout } = await execFileAsync("python", ["-c", code], { cwd: path.resolve(".") });

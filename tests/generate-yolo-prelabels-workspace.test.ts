@@ -47,3 +47,41 @@ test("YOLO prelabel dry-run preserves per-image source groups from the workspace
   assert.deepEqual(output.items.map((item: { sourceGroup: string }) => item.sourceGroup), ["group-1", "group-2"]);
   assert.ok(output.items.every((item: { sha256: string }) => item.sha256.length === 64));
 });
+
+test("循环012源图审计可直接作为预标注工作区清单", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "cycle012-yolo-workspace-"));
+  const imageDir = path.join(root, "images");
+  mkdirSync(imageDir);
+  const fileName = "candidate.jpg";
+  execFileSync("python", ["-c", `from PIL import Image; Image.new('RGB',(64,96),(30,40,50)).save(r'${path.join(imageDir, fileName)}')`]);
+  const manifest = path.join(root, "source-selection-audit.json");
+  writeFileSync(manifest, JSON.stringify({
+    ok: true,
+    decision: "development_cycle_012_source_selection_pass_candidate_only",
+    sourceRoot: imageDir,
+    items: [{
+      fileName,
+      sha256: hash(path.join(imageDir, fileName)),
+      sourceGroup: "cycle012-new-group-1",
+      trainingUse: "prohibited",
+      annotationTruthStatus: "not-started",
+    }],
+  }));
+  const model = path.join(root, "model.pt");
+  writeFileSync(model, "test model only");
+  const report = path.join(root, "report.json");
+  const result = spawnSync("python", [
+    script,
+    "--model", model,
+    "--image-dir", imageDir,
+    "--workspace-manifest", manifest,
+    "--annotation-dir", path.join(root, "annotations"),
+    "--overlay-dir", path.join(root, "overlays"),
+    "--report", report,
+    "--dry-run",
+  ], { encoding: "utf8" });
+  assert.equal(result.status, 0, result.stderr);
+  const output = JSON.parse(readFileSync(report, "utf8"));
+  assert.equal(output.imageCount, 1);
+  assert.equal(output.items[0].sourceGroup, "cycle012-new-group-1");
+});

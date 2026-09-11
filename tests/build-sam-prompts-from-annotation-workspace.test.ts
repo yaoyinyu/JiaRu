@@ -14,7 +14,7 @@ test("workspace SAM prompt builder binds evidence and preserves each source grou
   const annotations = path.join(root, "annotations");
   mkdirSync(annotations);
   const workspace = path.join(root, "workspace.json");
-  writeFileSync(workspace, JSON.stringify({ ok: true, decision: "development_positive_annotation_workspace_ready_candidate_only", items: [{ fileName: "a.jpg", sha256: "a", sourceGroup: "g1", expectedFullyVisibleNails: 2 }] }));
+  writeFileSync(workspace, JSON.stringify({ ok: true, decision: "development_cycle_012_source_selection_pass_candidate_only", items: [{ fileName: "a.jpg", sha256: "a", sourceGroup: "g1", expectedFullyVisibleNails: 2 }] }));
   const annotation = path.join(annotations, "a.json");
   writeFileSync(annotation, JSON.stringify({ image: { width: 100, height: 200 }, annotations: [{ polygon: [{ x: 10, y: 20 }, { x: 30, y: 20 }, { x: 30, y: 60 }, { x: 10, y: 60 }] }] }));
   const prelabel = path.join(root, "prelabel.json");
