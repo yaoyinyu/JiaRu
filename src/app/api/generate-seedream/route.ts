@@ -15,6 +15,11 @@ import {
   resolveSeedreamDimension,
   type SeedreamModel,
 } from "@/lib/seedream-image-size";
+import { requireUser } from "@/lib/auth/http";
+import {
+  getAiQuotaGuard,
+  guestIdentityFromHeaders,
+} from "@/lib/ai-quota";
 
 export const maxDuration = 300;
 
@@ -104,20 +109,40 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── 5. 组装 Seedream 专用精简提示词（与 Agnes 长提示词完全独立）──
+  // ── 6. 身份识别与配额预留（游客可用，但受服务端额度与预算熔断约束）──
+  const user = requireUser(req);
+  const guard = getAiQuotaGuard();
+  const identity = user ? `user:${user.id}` : guestIdentityFromHeaders(req.headers);
+  const quotaResult = guard.reserve({
+    identity,
+    authenticated: Boolean(user),
+    engine: "seedream",
+  });
+  if (!quotaResult.ok) {
+    return NextResponse.json(
+      { error: quotaResult.error },
+      { status: 429, headers: { "Retry-After": String(quotaResult.retryAfterSeconds) } }
+    );
+  }
+  const reservation = quotaResult.reservation;
+
+  // ── 7. 组装 Seedream 专用精简提示词（与 Agnes 长提示词完全独立）──
   const enhancedPrompt = image
     ? assembleSeedreamEditPrompt(prompt)
     : assembleSeedreamPrompt(prompt);
 
-  // ── 6. 调用火山方舟 Images API ──
+  // ── 8. 调用火山方舟 Images API ──
   try {
     const { imageUrl } = await generateSeedreamImage(enhancedPrompt, {
       model,
       imageDataUri: image || undefined,
       pixelSize,
     });
+    guard.commit(reservation);
     return NextResponse.json({ imageUrl });
   } catch (err) {
+    // 失败返还该身份当日次数（全局日计数保留，保守防刷）
+    guard.release(reservation);
     if (err instanceof SeedreamImageApiError) {
       return NextResponse.json(
         { error: err.message },

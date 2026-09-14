@@ -118,6 +118,41 @@ test("training truth finalizer accepts a hash-bound direct mask-review pass", as
   assert.equal(valReport.item.trainingUse, "prohibited");
   assert.equal(valReport.item.validationUse, "prohibited-until-materialization-audit");
 
+  const developmentRoleManifest = path.join(root, "development-evaluation-workspace.json");
+  writeFileSync(developmentRoleManifest, JSON.stringify({
+    ok: true,
+    decision: "development_cycle_015_generated_annotation_workspace_ready_candidate_only",
+    policy: {
+      workspaceDoesNotGrantTrainingUse: true,
+      originalResolutionPerNailReviewRequired: true,
+    },
+    items: [{
+      fileName: "direct.png",
+      sha256: hash(image),
+      sourceGroup: "g-direct",
+      assignedRole: "development-evaluation-extension",
+      expectedFullyVisibleNails: 2,
+      trainingUse: "prohibited",
+    }],
+  }));
+  const developmentOutput = path.join(root, "development-output.json");
+  const developmentRun = spawnSync("python", [
+    script,
+    "--mask-review-final", review,
+    "--annotation", annotation,
+    "--image", image,
+    "--truth-role", "development-evaluation",
+    "--role-manifest", developmentRoleManifest,
+    "--output", developmentOutput,
+  ], { encoding: "utf8" });
+  assert.equal(developmentRun.status, 0, developmentRun.stderr || developmentRun.stdout);
+  const developmentReport = JSON.parse(readFileSync(developmentOutput, "utf8"));
+  assert.equal(developmentReport.decision, "approved_as_development_evaluation_truth_candidate_pending_dataset_materialization");
+  assert.equal(developmentReport.inputs.truthRole, "development-evaluation");
+  assert.equal(developmentReport.item.annotationTruthStatus, "approved-as-development-evaluation-truth-candidate");
+  assert.equal(developmentReport.item.trainingUse, "prohibited");
+  assert.equal(developmentReport.item.evaluationUse, "prohibited-until-clean-development-materialization-audit");
+
   const releaseRoleManifest = path.join(root, "release-test-workspace.json");
   writeFileSync(releaseRoleManifest, JSON.stringify({
     ok: true,

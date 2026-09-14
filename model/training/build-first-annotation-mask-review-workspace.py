@@ -11,6 +11,23 @@ from typing import Any
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 
 
+def install_read_only_ultralytics_image_check() -> None:
+    """阻止Ultralytics扫描哈希绑定图片时原地重编码。"""
+    from PIL import Image as PilImage
+    from ultralytics.data import utils as data_utils
+
+    def check_image_read_only(im_file: str) -> tuple[str, tuple[int, int]]:
+        path = Path(im_file)
+        with PilImage.open(path) as image:
+            image.verify()
+        with PilImage.open(path) as image:
+            return str(path), image.size
+
+    data_utils.check_image = check_image_read_only
+    if data_utils.verify_image.__globals__.get("check_image") is not check_image_read_only:
+        raise RuntimeError("failed to install read-only Ultralytics image verifier")
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as source:
@@ -51,6 +68,7 @@ def contain(path: Path, size: tuple[int, int]) -> Image.Image:
 
 
 def main() -> None:
+    install_read_only_ultralytics_image_check()
     parser = argparse.ArgumentParser(
         description="Build a hash-bound original-resolution mask review workspace for the first real annotation batch."
     )
@@ -99,6 +117,7 @@ def main() -> None:
         "annotation_workspace_ready_candidate_only",
         "positive_reinforcement_annotation_workspace_ready_candidate_only",
         "candidate7_annotation_workspace_ready_candidate_only",
+        "development_cycle_015_generated_annotation_workspace_ready_candidate_only",
     }
     if workspace.get("ok") is not True or workspace.get("decision") not in allowed_workspace_decisions:
         errors.append("a passing candidate-only annotation workspace is required")
@@ -165,7 +184,14 @@ def main() -> None:
             errors.append(f"annotation image identity differs from workspace: {file_name}")
         geometry_rows = geometry_by_file.get(file_name, [])
         candidate_count = int(candidate_output.get("polygonCount", -1))
-        if candidate_count != len(annotation.get("annotations", [])) or candidate_count != int(prelabel_row["candidateCount"]):
+        prelabel_candidate_count = int(prelabel_row["candidateCount"])
+        expected_count = int(item.get("expectedFullyVisibleNails") or 0)
+        if candidate_count != len(annotation.get("annotations", [])):
+            errors.append(f"candidate count differs across evidence: {file_name}")
+        if manual_mode:
+            if candidate_count != expected_count:
+                errors.append(f"repaired manual candidate count differs from expected visible nails: {file_name}")
+        elif candidate_count != prelabel_candidate_count:
             errors.append(f"candidate count differs across evidence: {file_name}")
         if len(geometry_rows) != candidate_count:
             errors.append(f"geometry audit count differs from candidates: {file_name}")
@@ -175,7 +201,7 @@ def main() -> None:
             "fileName": file_name,
             "sha256": item_sha256,
             "sourceGroup": item.get("sourceGroup"),
-            "expectedFullyVisibleNails": int(item.get("expectedFullyVisibleNails") or 0),
+            "expectedFullyVisibleNails": expected_count,
             "candidateCount": candidate_count,
             "countDelta": candidate_count - int(item.get("expectedFullyVisibleNails") or 0),
             "geometrySuspectCount": len(suspect_rows),

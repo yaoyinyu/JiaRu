@@ -84,6 +84,73 @@ test("validation truth index accepts only validation reports and keeps training 
   assert.equal(index.policy.validationUse, "prohibited-until-materialization-audit");
 });
 
+test("development-evaluation truth index stays training-prohibited", () => {
+  const root = mkdtempSync(path.join(tmpdir(), "development-evaluation-truth-index-"));
+  const image = path.join(root, "dev-a.jpg");
+  const annotation = path.join(root, "dev-a.json");
+  const visualReview = path.join(root, "dev-a-review.json");
+  const roleManifest = path.join(root, "development-role.json");
+  writeFileSync(image, "development-image-bytes");
+  writeFileSync(annotation, JSON.stringify({ annotations: [] }));
+  writeFileSync(visualReview, JSON.stringify({ ok: true }));
+  writeFileSync(roleManifest, JSON.stringify({
+    ok: true,
+    decision: "development_cycle_015_generated_annotation_workspace_ready_candidate_only",
+    policy: {
+      workspaceDoesNotGrantTrainingUse: true,
+      originalResolutionPerNailReviewRequired: true,
+    },
+    items: [{
+      fileName: "dev-a.jpg",
+      sha256: hashFile(image),
+      sourceGroup: "dev-group-a",
+      assignedRole: "development-evaluation-extension",
+      expectedFullyVisibleNails: 3,
+      trainingUse: "prohibited",
+    }],
+  }));
+  const report = {
+    ok: true,
+    decision: "approved_as_development_evaluation_truth_candidate_pending_dataset_materialization",
+    inputs: {
+      truthRole: "development-evaluation",
+      visualReviewFinal: visualReview,
+      visualReviewFinalSha256: hashFile(visualReview),
+      image,
+      imageSha256: hashFile(image),
+      annotation,
+      annotationSha256: hashFile(annotation),
+      roleManifest,
+      roleManifestSha256: hashFile(roleManifest),
+    },
+    policy: {
+      datasetMaterializationAndSourceIsolationStillRequired: true,
+      trainingUse: "prohibited",
+      evaluationUse: "prohibited-until-clean-development-materialization-audit",
+    },
+    item: {
+      fileName: "dev-a.jpg",
+      sha256: hashFile(image),
+      sourceGroup: "dev-group-a",
+      completeMaskCount: 3,
+      annotationTruthStatus: "approved-as-development-evaluation-truth-candidate",
+      trainingUse: "prohibited",
+      evaluationUse: "prohibited-until-clean-development-materialization-audit",
+    },
+  };
+  writeFileSync(path.join(root, "development-evaluation-truth-001-dev-a-final.json"), `${JSON.stringify(report)}\n`);
+  const output = path.join(root, "report.json");
+  const run = spawnSync("python", [script, "--truth-dir", root, "--truth-role", "development-evaluation", "--output", output], { encoding: "utf8" });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+  const index = JSON.parse(readFileSync(output, "utf8"));
+  assert.equal(index.decision, "approved_unique_development_evaluation_truth_index");
+  assert.equal(index.inputs.reportPattern, "development-evaluation-truth-*-final.json");
+  assert.equal(index.summary.uniqueImageCount, 1);
+  assert.equal(index.summary.completeMaskCount, 3);
+  assert.equal(index.policy.trainingUse, "prohibited");
+  assert.equal(index.policy.evaluationUse, "prohibited-until-clean-development-materialization-audit");
+});
+
 test("release-test truth index rejects outer-only forged evidence", () => {
   const root = mkdtempSync(path.join(tmpdir(), "release-test-truth-index-"));
   const image = path.join(root, "release-a.jpg");

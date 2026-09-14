@@ -202,3 +202,11 @@ python model/training/check-training-environment.py --require-local-model
 ```
 
 This command does not train or access the network. It checks the materialized train/val/test image counts, Python version, Ultralytics/Torch availability, and whether the requested checkpoint is already local. If `yolo11n-seg.pt` is not present locally, the first real Ultralytics training run may download it.
+
+## Cycle015 development-evaluation annotation acceleration
+
+For source-frozen images whose complete-nail count matches the coarse candidate count, derive three internal SAM points from each coarse polygon: its centroid and two points along its PCA major axis. Run one SAM2.1 Large pass with a modestly expanded box and negative corner points, then perform the same original-resolution per-nail review. Only failed residual boundaries move to manual polygons; count-mismatch and complex multi-hand images stay on the reviewed hybrid-repair path.
+
+`finalize-first-annotation-training-truth.py --truth-role development-evaluation --role-manifest <workspace-manifest>` preserves the workspace role `development-evaluation-extension`. Its outputs use the `development-evaluation-truth-*-final.json` prefix and remain `trainingUse=prohibited`; index them with `audit-first-annotation-training-truths.py --truth-role development-evaluation`. Do not finalize these images as train or val.
+
+Replay the scoped speedup evidence with `audit-development-cycle-015-annotation-acceleration.py --verify-report <report>`. The first measured batch accepted 44/45 PCA-SAM boundaries after original-resolution review and required one residual manual edit; this result applies only to the exact-count subset and does not waive visual, topology, overlap, role-isolation, or materialization gates.

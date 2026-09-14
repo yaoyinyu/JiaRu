@@ -9,6 +9,15 @@ import test from "node:test";
 const script = path.resolve("model/training/generate-yolo-prelabels.py");
 const hash = (file: string) => createHash("sha256").update(readFileSync(file)).digest("hex");
 
+test("YOLO prelabel installs the read-only Ultralytics image verifier before loading the model", () => {
+  const source = readFileSync(script, "utf8");
+  const installIndex = source.indexOf("install_read_only_ultralytics_image_check()", source.indexOf("def main"));
+  const modelIndex = source.indexOf("model = YOLO(str(model_path))", source.indexOf("def main"));
+  assert.ok(installIndex >= 0, "read-only verifier installation is missing from main");
+  assert.ok(modelIndex > installIndex, "read-only verifier must be installed before YOLO loads the dataset");
+  assert.match(source, /data_utils\.verify_image\.__globals__\.get\("check_image"\)/);
+});
+
 test("YOLO prelabel dry-run preserves per-image source groups from the workspace", () => {
   const root = mkdtempSync(path.join(tmpdir(), "yolo-workspace-"));
   const imageDir = path.join(root, "images");

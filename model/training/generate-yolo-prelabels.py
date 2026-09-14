@@ -12,6 +12,29 @@ from ultralytics import YOLO
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 
+def install_read_only_ultralytics_image_check() -> None:
+    """阻止Ultralytics扫描哈希绑定图片时原地重编码。"""
+
+    from ultralytics.data import utils as data_utils
+
+    def check_image_read_only(im_file: str) -> tuple[str, tuple[int, int]]:
+        with Image.open(im_file) as image:
+            image.verify()
+        with Image.open(im_file) as image:
+            image.load()
+            shape = (int(image.height), int(image.width))
+            image_format = str(image.format or "").lower()
+        if shape[0] <= 9 or shape[1] <= 9:
+            raise AssertionError(f"image size {shape} <10 pixels")
+        if image_format not in data_utils.IMG_FORMATS:
+            raise AssertionError(f"Invalid image format {image_format}")
+        return "", shape
+
+    data_utils.check_image = check_image_read_only
+    if data_utils.verify_image.__globals__.get("check_image") is not check_image_read_only:
+        raise RuntimeError("failed to install read-only Ultralytics image verifier")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description="Generate review-only YOLO segmentation prelabels.")
     parser.add_argument("--model", required=True)
@@ -56,6 +79,7 @@ def load_image_entries(
             "candidate9_annotation_workspace_ready_candidate_only",
             "development_positive_annotation_workspace_ready_candidate_only",
             "development_cycle_012_source_selection_pass_candidate_only",
+            "development_cycle_015_generated_annotation_workspace_ready_candidate_only",
         }
         if manifest.get("ok") is not True or manifest.get("decision") not in allowed_decisions:
             raise ValueError("workspace manifest must be a passing candidate-only annotation workspace")
@@ -153,6 +177,7 @@ def main() -> None:
         print(json.dumps({"ok": True, "decision": report["decision"], "imageCount": len(image_paths)}))
         return
 
+    install_read_only_ultralytics_image_check()
     model = YOLO(str(model_path))
     predict_kwargs = {
         "conf": args.conf,

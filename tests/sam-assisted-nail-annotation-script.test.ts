@@ -49,6 +49,8 @@ test("SAM assisted annotation requires vision prompts and emits reviewed polygon
   assert.match(source, /candidate_only_not_training_truth/);
   assert.match(source, /sam_candidate_only_not_training_truth/);
   assert.match(source, /originalResolutionReviewRequired/);
+  assert.match(source, /install_read_only_ultralytics_image_check/);
+  assert.match(source, /failed to install read-only Ultralytics image verifier/);
 });
 
 test("SAM multimask selection prefers positive coverage without negative leakage", () => {
