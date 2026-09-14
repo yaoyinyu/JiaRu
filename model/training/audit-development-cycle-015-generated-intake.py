@@ -23,7 +23,7 @@ def decision_for_count(count: int) -> str:
 def next_action_for_count(count: int) -> str:
     if count == 3:
         return "generate_review_and_freeze_next_10_source_qualified_candidates_to_reach_13_of_133"
-    next_checkpoint = min(TARGET_SOURCE_QUALIFIED, count + (6 if count == 7 else 10))
+    next_checkpoint = 13 if count < 13 else min(TARGET_SOURCE_QUALIFIED, count + 10)
     return (
         f"generate_review_and_freeze_next_{next_checkpoint - count}_"
         f"source_qualified_candidates_to_reach_{next_checkpoint}_of_133"
@@ -71,6 +71,63 @@ def identity(record: dict[str, Any], label: str) -> tuple[str, str, str]:
     if not name or len(image_hash) != 64 or not group:
         raise ValueError(f"{label}身份不完整")
     return name, image_hash, group
+
+
+def validate_prior_corrections(
+    prior_items: list[dict[str, Any]], items: list[dict[str, Any]], corrections: Any, exclusions: Any = None
+) -> None:
+    corrections = [] if corrections is None else corrections
+    exclusions = [] if exclusions is None else exclusions
+    if not isinstance(corrections, list) or not isinstance(exclusions, list):
+        raise ValueError("前序冻结纠正或排除账本不是数组")
+    correction_by_file: dict[str, dict[str, Any]] = {}
+    for correction in corrections:
+        if not isinstance(correction, dict):
+            raise ValueError("前序冻结纠正项不是JSON对象")
+        name = str(correction.get("fileName") or "")
+        if not name or name in correction_by_file:
+            raise ValueError("前序冻结纠正项文件名为空或重复")
+        if correction.get("field") != "fullyVisibleNails":
+            raise ValueError("当前只允许显式纠正完整可见甲面计数")
+        if not isinstance(correction.get("reason"), str) or not correction["reason"].strip():
+            raise ValueError("前序冻结纠正项缺少原因")
+        correction_by_file[name] = correction
+    exclusion_by_file: dict[str, dict[str, Any]] = {}
+    for exclusion in exclusions:
+        if not isinstance(exclusion, dict):
+            raise ValueError("前序冻结排除项不是JSON对象")
+        name = str(exclusion.get("fileName") or "")
+        if not name or name in exclusion_by_file:
+            raise ValueError("前序冻结排除项文件名为空或重复")
+        if exclusion.get("oldSourceGateDecision") != "pass" or exclusion.get("newSourceGateDecision") != "exclude":
+            raise ValueError("前序冻结排除项状态转换无效")
+        if not isinstance(exclusion.get("reason"), str) or not exclusion["reason"].strip():
+            raise ValueError("前序冻结排除项缺少原因")
+        exclusion_by_file[name] = exclusion
+    if len(items) < len(prior_items):
+        raise ValueError("纠正后的累计声明少于前序冻结条目")
+    used: set[str] = set()
+    for prior, current in zip(prior_items, items, strict=False):
+        name = str(prior.get("fileName") or "")
+        expected = dict(prior)
+        correction = correction_by_file.get(name)
+        if correction is not None:
+            if correction.get("oldValue") != prior.get("fullyVisibleNails"):
+                raise ValueError(f"纠正旧值与前序冻结不一致：{name}")
+            expected["fullyVisibleNails"] = correction.get("newValue")
+            used.add(name)
+        exclusion = exclusion_by_file.get(name)
+        if exclusion is not None:
+            expected["sourceGateDecision"] = "exclude"
+            checks = dict(expected.get("originalResolutionChecks") or {})
+            checks["anatomyPlausible"] = False
+            expected["originalResolutionChecks"] = checks
+            expected["exclusionReason"] = exclusion["reason"]
+            used.add(name)
+        if current != expected:
+            raise ValueError(f"未登记或越权改写前序冻结条目：{name}")
+    if used != set(correction_by_file) | set(exclusion_by_file):
+        raise ValueError("纠正或排除账本含不属于前序冻结的图片")
 
 
 def role_identity_sets(source_supply: dict[str, Any]) -> tuple[dict[str, set[str]], dict[str, dict[str, int]]]:
@@ -155,16 +212,23 @@ def audit(declaration_path: Path, source_supply_path: Path, route_path: Path) ->
     items = declaration.get("items")
     if not isinstance(items, list) or not 1 <= len(items) <= TARGET_SOURCE_QUALIFIED:
         raise ValueError("累计生成冻结清单必须包含1至133张")
-    if prior_items and items[: len(prior_items)] != prior_items:
-        raise ValueError("累计声明改写了前序冻结条目")
+    if prior_items:
+        validate_prior_corrections(
+            prior_items, items, declaration.get("corrections"), declaration.get("exclusions")
+        )
     frozen: list[dict[str, Any]] = []
+    excluded: list[dict[str, Any]] = []
     batch_sets = {"fileName": set(), "imageSha256": set(), "sourceGroup": set()}
     for index, item in enumerate(items, start=1):
-        if item.get("sourceGateDecision") != "pass" or item.get("trainingUse") != "prohibited":
-            raise ValueError(f"第{index}项未通过源图门或被错误晋升")
+        source_gate = item.get("sourceGateDecision")
+        if source_gate not in {"pass", "exclude"} or item.get("trainingUse") != "prohibited":
+            raise ValueError(f"第{index}项源图门或训练角色无效")
         checks = item.get("originalResolutionChecks") or {}
         required_checks = ["allRequiredNailsFullyVisible", "noNailTouchesImageEdge", "sharpEnoughForCompleteBoundary", "noOcclusion", "noTextLogoOrWatermark", "anatomyPlausible"]
-        if any(checks.get(key) is not True for key in required_checks):
+        required_values = {key: True for key in required_checks}
+        if source_gate == "exclude":
+            required_values["anatomyPlausible"] = False
+        if any(checks.get(key) is not value for key, value in required_values.items()):
             raise ValueError(f"第{index}项原分辨率检查不完整")
         path = Path(str(item.get("path") or "")).resolve()
         if not path.is_file() or path.suffix.lower() != ".png":
@@ -173,6 +237,9 @@ def audit(declaration_path: Path, source_supply_path: Path, route_path: Path) ->
         width, height = png_dimensions(path)
         if image_hash != item.get("imageSha256") or [width, height] != item.get("dimensions"):
             raise ValueError(f"第{index}项图片身份漂移")
+        generator_output = Path(str(item.get("generatorOutputPath") or "")).resolve()
+        if not generator_output.is_file() or sha256_file(generator_output) != image_hash:
+            raise ValueError(f"第{index}项生成器原始输出缺失或与项目副本不一致")
         name, declared_hash, group = identity(item, f"第{index}项")
         values = {"fileName": name, "imageSha256": declared_hash, "sourceGroup": group}
         for field, value in values.items():
@@ -182,8 +249,21 @@ def audit(declaration_path: Path, source_supply_path: Path, route_path: Path) ->
                 raise ValueError(f"生成批次与受保护或已使用角色发生{field}交叠")
             batch_sets[field].add(value)
         nail_count = int(item.get("fullyVisibleNails") or 0)
-        if nail_count not in {5, 10}:
+        if not 1 <= nail_count <= 10:
             raise ValueError(f"第{index}项完整甲面数无效")
+        if source_gate == "exclude":
+            if not str(item.get("exclusionReason") or "").strip():
+                raise ValueError(f"第{index}项排除但缺少原因")
+            excluded.append({
+                "fileName": item["fileName"],
+                "path": str(path),
+                "imageSha256": image_hash,
+                "sourceGroup": group,
+                "sourceGateDecision": "exclude",
+                "exclusionReason": item["exclusionReason"],
+                "trainingUse": "prohibited",
+            })
+            continue
         frozen.append({
             "fileName": item["fileName"],
             "path": str(path),
@@ -214,21 +294,23 @@ def audit(declaration_path: Path, source_supply_path: Path, route_path: Path) ->
         },
         "currentRoleLedger": role_counts,
         "counts": {
-            "generatedImages": len(frozen),
+            "generatedImages": len(items),
             "sourceQualifiedImages": len(frozen),
-            "sourceGroups": len(batch_sets["sourceGroup"]),
+            "sourceGroups": len({item["sourceGroup"] for item in frozen}),
             "fullyVisibleNails": sum(item["fullyVisibleNails"] for item in frozen),
             "identityOrRoleOverlaps": 0,
             "targetSourceQualifiedImages": TARGET_SOURCE_QUALIFIED,
             "remainingSourceQualifiedImages": TARGET_SOURCE_QUALIFIED - len(frozen),
         },
         "items": frozen,
+        "excludedItems": excluded,
         "policy": {
             "frozenBeforeAnnotationOrModelAssistance": True,
             "exactModelIdClaimed": False,
             "sourceGateDoesNotApproveMasks": True,
             "sourceGateDoesNotPermitTraining": True,
             "protectedOrConsumedDataReused": False,
+            "supersededSourceGatePassesPreservedAsExcludedEvidence": True,
         },
         "trainingUse": "prohibited",
         "formalPromotionAllowed": False,

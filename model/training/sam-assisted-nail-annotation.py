@@ -10,6 +10,29 @@ from PIL import Image, ImageDraw
 from ultralytics import FastSAM, SAM
 
 
+def install_read_only_ultralytics_image_check() -> None:
+    """阻止Ultralytics扫描哈希绑定图片时原地重编码。"""
+
+    from ultralytics.data import utils as data_utils
+
+    def check_image_read_only(im_file: str) -> tuple[str, tuple[int, int]]:
+        with Image.open(im_file) as image:
+            image.verify()
+        with Image.open(im_file) as image:
+            image.load()
+            shape = (int(image.height), int(image.width))
+            image_format = str(image.format or "").lower()
+        if shape[0] <= 9 or shape[1] <= 9:
+            raise AssertionError(f"image size {shape} <10 pixels")
+        if image_format not in data_utils.IMG_FORMATS:
+            raise AssertionError(f"Invalid image format {image_format}")
+        return "", shape
+
+    data_utils.check_image = check_image_read_only
+    if data_utils.verify_image.__globals__.get("check_image") is not check_image_read_only:
+        raise RuntimeError("failed to install read-only Ultralytics image verifier")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Convert human/vision supplied nail boxes into reviewed SAM2 polygon annotations."
@@ -146,6 +169,7 @@ def main() -> None:
     if exclusions_path.exists():
         exclusions = json.loads(exclusions_path.read_text(encoding="utf-8"))
         excluded_files = {item["fileName"] for item in exclusions.get("items", [])}
+    install_read_only_ultralytics_image_check()
     model = SAM(args.model) if args.engine == "sam2" else FastSAM(args.model)
     annotation_dir.mkdir(parents=True, exist_ok=True)
     overlay_dir.mkdir(parents=True, exist_ok=True)

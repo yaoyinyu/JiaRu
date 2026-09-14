@@ -14,6 +14,29 @@ from typing import Any
 from PIL import Image
 
 
+def install_read_only_ultralytics_image_check() -> None:
+    """安装与训练器一致的只读图片守卫，保护哈希绑定源图。"""
+
+    from ultralytics.data import utils as data_utils
+
+    def check_image_read_only(im_file: str) -> tuple[str, tuple[int, int]]:
+        with Image.open(im_file) as image:
+            image.verify()
+        with Image.open(im_file) as image:
+            image.load()
+            shape = (int(image.height), int(image.width))
+            image_format = str(image.format or "").lower()
+        if shape[0] <= 9 or shape[1] <= 9:
+            raise AssertionError(f"image size {shape} <10 pixels")
+        if image_format not in data_utils.IMG_FORMATS:
+            raise AssertionError(f"Invalid image format {image_format}")
+        return "", shape
+
+    data_utils.check_image = check_image_read_only
+    if data_utils.verify_image.__globals__.get("check_image") is not check_image_read_only:
+        raise RuntimeError("failed to install read-only Ultralytics image verifier")
+
+
 def sha256_file(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as source:
@@ -95,6 +118,8 @@ def main() -> None:
         raise FileNotFoundError(f"missing image directory: {image_dir}")
     if output_dir.exists():
         raise ValueError(f"output directory must not already exist: {output_dir}")
+
+    install_read_only_ultralytics_image_check()
 
     prompts = read_json(prompts_path)
     sam_report = read_json(sam_report_path)

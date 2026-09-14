@@ -187,7 +187,7 @@ def main() -> None:
     parser = argparse.ArgumentParser(
         description=(
             "Approve one visually reviewed mask as a topology-safe train, validation, "
-            "or independent release-test truth candidate."
+            "development-evaluation extension, or independent release-test truth candidate."
         )
     )
     evidence_group = parser.add_mutually_exclusive_group(required=True)
@@ -201,14 +201,17 @@ def main() -> None:
     parser.add_argument("--output", required=True)
     parser.add_argument(
         "--truth-role",
-        choices=("train", "val", "release-test"),
+        choices=("train", "val", "development-evaluation", "release-test"),
         default="train",
-        help="Finalize a training, source-isolated validation, or independent release-test truth candidate.",
+        help=(
+            "Finalize a training, source-isolated validation, development-evaluation "
+            "extension, or independent release-test truth candidate."
+        ),
     )
     parser.add_argument(
         "--role-manifest",
         help=(
-            "Required for val and release-test; binds the image to an annotation workspace "
+            "Required for val, development-evaluation, and release-test; binds the image to an annotation workspace "
             "whose assignedRole matches --truth-role."
         ),
     )
@@ -293,8 +296,12 @@ def main() -> None:
         errors.append("source image identity or SHA-256 differs from the reviewed item")
 
     role_manifest_path = Path(args.role_manifest).resolve() if args.role_manifest else None
-    role_required = args.truth_role in {"val", "release-test"}
-    expected_assigned_role = "val" if args.truth_role == "val" else "independent-release-test"
+    role_required = args.truth_role in {"val", "development-evaluation", "release-test"}
+    expected_assigned_role = {
+        "val": "val",
+        "development-evaluation": "development-evaluation-extension",
+        "release-test": "independent-release-test",
+    }.get(args.truth_role)
     if role_required:
         if role_manifest_path is None:
             errors.append(f"--role-manifest is required for {args.truth_role} truth")
@@ -304,13 +311,25 @@ def main() -> None:
             role_manifest = read_json(role_manifest_path)
             protected_paths.update(collect_existing_files(role_manifest))
             ensure_safe_output(output_path, protected_paths)
-            if role_manifest.get("ok") is not True or role_manifest.get("decision") != "annotation_workspace_ready_candidate_only":
+            expected_manifest_decision = (
+                "development_cycle_015_generated_annotation_workspace_ready_candidate_only"
+                if args.truth_role == "development-evaluation"
+                else "annotation_workspace_ready_candidate_only"
+            )
+            if role_manifest.get("ok") is not True or role_manifest.get("decision") != expected_manifest_decision:
                 errors.append(f"{args.truth_role} role manifest is not an approved annotation workspace")
             policy = role_manifest.get("policy", {})
-            if (
-                policy.get("selectionMode") != expected_assigned_role
-                or policy.get("assignedRole") != expected_assigned_role
-            ):
+            if args.truth_role == "development-evaluation":
+                manifest_role_is_bound = (
+                    policy.get("workspaceDoesNotGrantTrainingUse") is True
+                    and policy.get("originalResolutionPerNailReviewRequired") is True
+                )
+            else:
+                manifest_role_is_bound = (
+                    policy.get("selectionMode") == expected_assigned_role
+                    and policy.get("assignedRole") == expected_assigned_role
+                )
+            if not manifest_role_is_bound:
                 errors.append(
                     "role manifest is not restricted to "
                     f"assignedRole={expected_assigned_role}"
@@ -390,15 +409,26 @@ def main() -> None:
         raise SystemExit(1)
 
     is_validation = args.truth_role == "val"
+    is_development_evaluation = args.truth_role == "development-evaluation"
     is_release_test = args.truth_role == "release-test"
-    truth_label = "validation" if is_validation else "release_test" if is_release_test else "training"
+    truth_label = (
+        "validation"
+        if is_validation
+        else "development_evaluation"
+        if is_development_evaluation
+        else "release_test"
+        if is_release_test
+        else "training"
+    )
     decision_suffix = (
         "pending_snapshot_freeze"
         if is_release_test
         else "pending_dataset_materialization"
     )
     training_use = (
-        "prohibited" if is_validation or is_release_test else "prohibited-until-materialization-audit"
+        "prohibited"
+        if is_validation or is_development_evaluation or is_release_test
+        else "prohibited-until-materialization-audit"
     )
     result = {
         "schemaVersion": 1,
@@ -425,7 +455,13 @@ def main() -> None:
             "snapshotFreezeAndSourceIsolationStillRequired": is_release_test,
             "trainingUse": training_use,
             "validationUse": "prohibited-until-materialization-audit" if is_validation else None,
-            "evaluationUse": "prohibited-until-snapshot-freeze" if is_release_test else None,
+            "evaluationUse": (
+                "prohibited-until-clean-development-materialization-audit"
+                if is_development_evaluation
+                else "prohibited-until-snapshot-freeze"
+                if is_release_test
+                else None
+            ),
         },
         "item": {
             "fileName": item["fileName"],
@@ -437,11 +473,19 @@ def main() -> None:
             "annotationTruthStatus": (
                 "approved-as-release-test-truth-candidate"
                 if is_release_test
+                else "approved-as-development-evaluation-truth-candidate"
+                if is_development_evaluation
                 else f"approved-as-{truth_label}-truth-candidate"
             ),
             "trainingUse": training_use,
             "validationUse": "prohibited-until-materialization-audit" if is_validation else None,
-            "evaluationUse": "prohibited-until-snapshot-freeze" if is_release_test else None,
+            "evaluationUse": (
+                "prohibited-until-clean-development-materialization-audit"
+                if is_development_evaluation
+                else "prohibited-until-snapshot-freeze"
+                if is_release_test
+                else None
+            ),
         },
         "errors": [],
     }

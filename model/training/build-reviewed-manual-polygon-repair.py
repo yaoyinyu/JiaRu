@@ -19,6 +19,29 @@ from shapely.geometry import Polygon
 from shapely.validation import make_valid
 
 
+def install_read_only_ultralytics_image_check() -> None:
+    """安装与训练器一致的只读图片守卫，保护哈希绑定源图。"""
+
+    from ultralytics.data import utils as data_utils
+
+    def check_image_read_only(im_file: str) -> tuple[str, tuple[int, int]]:
+        with Image.open(im_file) as image:
+            image.verify()
+        with Image.open(im_file) as image:
+            image.load()
+            shape = (int(image.height), int(image.width))
+            image_format = str(image.format or "").lower()
+        if shape[0] <= 9 or shape[1] <= 9:
+            raise AssertionError(f"image size {shape} <10 pixels")
+        if image_format not in data_utils.IMG_FORMATS:
+            raise AssertionError(f"Invalid image format {image_format}")
+        return "", shape
+
+    data_utils.check_image = check_image_read_only
+    if data_utils.verify_image.__globals__.get("check_image") is not check_image_read_only:
+        raise RuntimeError("failed to install read-only Ultralytics image verifier")
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Build and validate reviewed hybrid/manual nail polygon candidates."
@@ -374,6 +397,7 @@ def build_item(
 
 def main() -> None:
     args = build_parser().parse_args()
+    install_read_only_ultralytics_image_check()
     manifest_path = Path(args.manifest).resolve()
     image_dir = Path(args.image_dir).resolve()
     output_dir = Path(args.output_annotations).resolve()

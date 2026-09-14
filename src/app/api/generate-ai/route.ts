@@ -13,6 +13,11 @@ import {
   DEFAULT_AI_IMAGE_RATIO,
   DEFAULT_AI_IMAGE_SIZE,
 } from "@/lib/ai-image-size";
+import { requireUser } from "@/lib/auth/http";
+import {
+  getAiQuotaGuard,
+  guestIdentityFromHeaders,
+} from "@/lib/ai-quota";
 
 export const maxDuration = 300;
 
@@ -100,21 +105,41 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // ── 3. 构造美甲专用 prompt（用户提示词 → 场景后缀 → 隐藏系统提示词）──
+  // ── 4. 身份识别与配额预留（游客可用，但受服务端额度与预算熔断约束）──
+  const user = requireUser(req);
+  const guard = getAiQuotaGuard();
+  const identity = user ? `user:${user.id}` : guestIdentityFromHeaders(req.headers);
+  const quotaResult = guard.reserve({
+    identity,
+    authenticated: Boolean(user),
+    engine: "agnes",
+  });
+  if (!quotaResult.ok) {
+    return NextResponse.json(
+      { error: quotaResult.error },
+      { status: 429, headers: { "Retry-After": String(quotaResult.retryAfterSeconds) } }
+    );
+  }
+  const reservation = quotaResult.reservation;
+
+  // ── 5. 构造美甲专用 prompt（用户提示词 → 场景后缀 → 隐藏系统提示词）──
   //    有参考图时走图生图组装（保持原图手部，仅改指甲），否则文生图组装。
   const enhancedPrompt = image
     ? assembleAiImageEditPrompt(prompt)
     : assembleAiImagePrompt(prompt);
 
-  // ── 4. 调用 Agnes Images API ──
+  // ── 6. 调用 Agnes Images API ──
   try {
     const { imageUrl } = await generateAgnesImage(enhancedPrompt, {
       imageDataUri: image || undefined,
       ratio,
       size,
     });
+    guard.commit(reservation);
     return NextResponse.json({ imageUrl });
   } catch (err) {
+    // 失败返还该身份当日次数（全局日计数保留，保守防刷）
+    guard.release(reservation);
     if (err instanceof AgnesImageApiError) {
       return NextResponse.json(
         { error: err.message },

@@ -3,21 +3,22 @@ import { ImprovementProgramToggle } from "@/components/ImprovementProgramToggle"
 
 const principleSections = [
   { number: "01", icon: "shield", title: "本地优先", text: "「甲如」默认在浏览器本地完成照片、摄像头画面与识别计算的处理，让你的个人内容留在自己的设备上。" },
-  { number: "02", icon: "cloud-off", title: "数据由你掌控", text: "我们提供「用户改进计划」开关（默认开启，见下方）：开启期间，手部照片等数据可能被用于改进产品效果；你可以随时关闭，关闭后不再上传任何数据。" },
-  { number: "03", icon: "eye-off", title: "不追踪", text: "我们不使用 Cookie 追踪你的使用行为，没有广告追踪，也没有用户账户体系。改进计划收集的数据仅用于产品改进，不会被用于广告或出售。" },
+  { number: "02", icon: "cloud-off", title: "数据由你掌控", text: "我们提供「用户改进计划」开关（默认开启，见下方）：开启期间，手部照片等数据可能被用于改进产品效果；你可以随时关闭，关闭后不再上传改进计划数据。你在 AI 生图等功能的主动操作仍会按下方说明发送对应内容。" },
+  { number: "03", icon: "eye-off", title: "不追踪", text: "我们不使用 Cookie 追踪你的使用行为，没有广告追踪。账号体系完全可选：不登录也能使用全部核心功能，登录信息仅用于账号管理（见「账号与登录」），不会被用于广告或出售。" },
 ];
 
 const featureSections = [
   { number: "04", icon: "brush", title: "图片试色", badge: "数据：默认本地", text: "在试色编辑器中，上传的照片默认只在浏览器本地完成校验、解码与 Canvas 涂色；满意的结果由你主动点击「保存」下载到设备。若你开启「用户改进计划」，手部照片可能被上传用于改进产品。" },
-  { number: "05", icon: "sparkles", title: "AI 生图", badge: "数据：仅文字（可选参考图）→ 第三方", text: "AI 生成默认只发送你输入或选择的文字描述，绝不发送照片。服务端会把这段文字转发给第三方图像生成服务（Agnes AI）。若你使用「参考图」功能上传手部照片，该图片也会发送给第三方，仅用于本次生成、不用于训练或存储；不上传参考图则行为与以前完全一致。生成结果由你的浏览器直接访问第三方图片地址；请勿在描述中输入身份证号、电话等个人信息。" },
+  { number: "05", icon: "sparkles", title: "AI 生图", badge: "数据：仅文字（可选参考图）→ 第三方", text: "AI 生成默认只发送你输入或选择的文字描述，绝不发送照片。服务端会把这段文字转发给你所选引擎的第三方图像生成服务（当前支持 Agnes AI 与火山方舟 Seedream）。若你使用「参考图」功能上传手部照片，该图片也会发送给对应第三方，仅用于本次生成、不用于训练或存储；不上传参考图则行为与以前完全一致。为保护付费额度，生成请求受服务端身份与每日次数约束。生成结果由你的浏览器直接访问第三方图片地址；请勿在描述中输入身份证号、电话等个人信息。" },
   { number: "06", icon: "camera", title: "AR 实时预览", badge: "数据：默认仅内存", text: "AR 模式中摄像头画面默认仅在浏览器内存中实时处理（手部关键点检测与指甲绘制），不录制、不存储。若你开启「用户改进计划」，手部画面可能被上传用于改进产品。AR 预览不提供保存功能，关闭页面后画面即消失。" },
   { number: "07", icon: "search", title: "自动识别与图库", badge: "数据：默认本地", text: "美甲纹理的自动识别与参考图定位默认均在浏览器本地完成。灵感图库当前为内置素材，不涉及个人数据。" },
+  { number: "08", icon: "user", title: "账号与登录", badge: "数据：服务端数据库", text: "账号完全可选。手机验证码登录会向服务端提交你的手机号；微信登录会获取你的微信昵称与头像。两者仅用于创建账号、维持登录状态与账号管理，存储于服务端数据库，不用于广告或出售。不登录时，核心功能照常可用。" },
 ];
 
 const otherSections = [
-  { number: "08", icon: "link", title: "第三方服务", text: "除 AI 生图依赖第三方图像生成服务外，「甲如」不接入任何广告、统计或分析 SDK。第三方仅收到你输入的描述文字；只有当你主动上传参考图时，该图片才会被发送并仅用于本次生成，无法获取你的其他照片或摄像头画面。改进计划收集的数据仅用于产品改进，不会被出售。" },
-  { number: "09", icon: "shield-check", title: "你的权利", text: "你可以随时关闭下方的「用户改进计划」开关——关闭后所有处理回到浏览器本地，不再上传任何数据。已上传的数据如需删除，欢迎随时联系我们。" },
-  { number: "10", icon: "file-text", title: "政策更新", text: "本页会随功能变化及时更新，更新日期见页面底部。涉及数据流向的重大变化会在本页显著说明。" },
+  { number: "09", icon: "link", title: "第三方服务", text: "AI 生图依赖第三方图像生成服务（Agnes AI、火山方舟 Seedream，随你在生成页选择的引擎而定）；除此之外，「甲如」不接入任何广告、统计或分析 SDK。第三方仅收到你输入的描述文字；只有当你主动上传参考图时，该图片才会被发送并仅用于本次生成，无法获取你的其他照片或摄像头画面。改进计划收集的数据仅用于产品改进，不会被出售。" },
+  { number: "10", icon: "shield-check", title: "你的权利", text: "你可以随时关闭下方的「用户改进计划」开关——关闭后不再上传改进计划数据；你在 AI 生图等功能的主动操作仍会按上述说明发送对应内容。已上传的数据如需删除，欢迎随时联系我们。" },
+  { number: "11", icon: "file-text", title: "政策更新", text: "本页会随功能变化及时更新，更新日期见页面底部。涉及数据流向的重大变化会在本页显著说明。" },
 ];
 
 function Icon({ name }: { name: string }) {
@@ -94,6 +95,13 @@ function Icon({ name }: { name: string }) {
         <svg {...props}>
           <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
           <path d="m9 12 2 2 4-4" />
+        </svg>
+      );
+    case "user":
+      return (
+        <svg {...props}>
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
         </svg>
       );
     case "file-text":
@@ -173,7 +181,7 @@ export default function PrivacyPage() {
         </div>
         <a href="mailto:3181484805@qq.com" className="rounded-full bg-gradient-to-r from-[#4A4447] to-[#6B5F66] px-6 py-3 text-xs font-medium text-white shadow-md transition hover:from-[#D4749D] hover:to-[#B95F87] hover:shadow-lg">联系我们</a>
       </div>
-      <p className="mt-8 text-center text-xs tracking-wide text-[#B0A6AB]">最后更新：2026 年 8 月 15 日</p>
+      <p className="mt-8 text-center text-xs tracking-wide text-[#B0A6AB]">最后更新：2026 年 9 月 14 日</p>
     </AppShell>
   );
 }

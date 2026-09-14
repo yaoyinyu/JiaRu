@@ -60,7 +60,7 @@ test("first annotation mask review workspace binds candidates without approving 
   assert.match(csv, /a\.jpg/);
 });
 
-test("first annotation mask review workspace accepts hashable manual polygon candidates", () => {
+test("first annotation mask review workspace accepts repaired manual counts that match visible nails", () => {
   const root = mkdtempSync(path.join(tmpdir(), "manual-mask-review-"));
   const images = path.join(root, "images");
   const annotations = path.join(root, "annotations");
@@ -78,7 +78,7 @@ test("first annotation mask review workspace accepts hashable manual polygon can
   const workspace = path.join(root, "workspace.json");
   writeFileSync(workspace, JSON.stringify({ ok: true, decision: "annotation_workspace_ready_candidate_only", counts: { images: 1 }, items: [item] }));
   const reviewCsv = path.join(root, "prelabel-review.csv");
-  writeFileSync(reviewCsv, `fileName,sha256,sourceGroup,expectedFullyVisibleNails,candidateCount,countDelta,reviewPriority,machineGeometryStatus,machineIssueCodes,reviewStatus,note\na.jpg,${item.sha256},g1,1,1,0,low-exact,pass,,,\n`);
+  writeFileSync(reviewCsv, `fileName,sha256,sourceGroup,expectedFullyVisibleNails,candidateCount,countDelta,reviewPriority,machineGeometryStatus,machineIssueCodes,reviewStatus,note\na.jpg,${item.sha256},g1,1,0,-1,critical-zero,pass,,,\n`);
   const prelabel = path.join(root, "prelabel.json");
   writeFileSync(prelabel, JSON.stringify({ ok: true, decision: "prelabel_candidate_audit_pass_original_resolution_review_required", inputs: { workspaceManifestSha256: hash(workspace), reviewCsv, reviewCsvSha256: hash(reviewCsv) } }));
   const manual = path.join(root, "manual.json");
@@ -94,4 +94,11 @@ test("first annotation mask review workspace accepts hashable manual polygon can
   assert.equal(report.inputs.manualReport, manual);
   assert.equal(report.inputs.manualReportSha256, hash(manual));
   assert.equal(report.counts.images, 1);
+});
+
+test("first annotation mask review workspace installs the read-only Ultralytics image guard", () => {
+  const source = readFileSync(script, "utf8");
+  assert.match(source, /def install_read_only_ultralytics_image_check/);
+  assert.match(source, /data_utils\.check_image = check_image_read_only/);
+  assert.match(source, /install_read_only_ultralytics_image_check\(\)/);
 });

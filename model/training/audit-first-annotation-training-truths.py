@@ -113,6 +113,13 @@ def truth_contract(truth_role: str) -> tuple[str, str, str, str]:
             "approved_as_release_test_truth_candidate_pending_snapshot_freeze",
             "reject_release_test_truth_candidate",
         )
+    if truth_role == "development-evaluation":
+        return (
+            "development-evaluation",
+            "development_evaluation",
+            "approved_as_development_evaluation_truth_candidate_pending_dataset_materialization",
+            "reject_development-evaluation_truth_candidate",
+        )
     return (
         "training",
         "training",
@@ -227,6 +234,79 @@ def verify_release_test_candidate(
     return None
 
 
+def verify_development_evaluation_candidate(
+    path: Path, document: dict[str, Any], item: dict[str, Any], inputs: dict[str, Any]
+) -> str | None:
+    if inputs.get("truthRole") != "development-evaluation":
+        return f"{path.name}: development-evaluation report truthRole mismatch"
+    if (
+        item.get("annotationTruthStatus")
+        != "approved-as-development-evaluation-truth-candidate"
+        or item.get("trainingUse") != "prohibited"
+        or item.get("evaluationUse")
+        != "prohibited-until-clean-development-materialization-audit"
+    ):
+        return f"{path.name}: development-evaluation item role/use state is not eligible"
+    policy = document.get("policy", {})
+    if (
+        policy.get("datasetMaterializationAndSourceIsolationStillRequired") is not True
+        or policy.get("trainingUse") != "prohibited"
+        or policy.get("evaluationUse")
+        != "prohibited-until-clean-development-materialization-audit"
+    ):
+        return f"{path.name}: development-evaluation policy does not preserve isolation gates"
+
+    bindings = (
+        ("visualReviewFinal", "visualReviewFinalSha256"),
+        ("image", "imageSha256"),
+        ("annotation", "annotationSha256"),
+        ("roleManifest", "roleManifestSha256"),
+    )
+    resolved: dict[str, Path] = {}
+    for path_key, hash_key in bindings:
+        raw_path = inputs.get(path_key)
+        expected_hash = inputs.get(hash_key)
+        if not isinstance(raw_path, str) or not raw_path or not isinstance(expected_hash, str):
+            return f"{path.name}: development-evaluation report is missing {path_key} binding"
+        bound_path = Path(raw_path).resolve()
+        if not bound_path.is_file() or sha256_file(bound_path) != expected_hash:
+            return f"{path.name}: bound {path_key} is missing or changed"
+        resolved[path_key] = bound_path
+
+    if inputs.get("imageSha256") != item.get("sha256"):
+        return f"{path.name}: development-evaluation image hash differs from item identity"
+    try:
+        role_manifest = json.loads(resolved["roleManifest"].read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as error:
+        return f"{path.name}: development-evaluation role manifest is unreadable: {error}"
+    if (
+        role_manifest.get("ok") is not True
+        or role_manifest.get("decision")
+        != "development_cycle_015_generated_annotation_workspace_ready_candidate_only"
+        or role_manifest.get("policy", {}).get("workspaceDoesNotGrantTrainingUse") is not True
+        or role_manifest.get("policy", {}).get("originalResolutionPerNailReviewRequired") is not True
+    ):
+        return f"{path.name}: bound role manifest is not development-evaluation-extension"
+    matching_role_items = [
+        candidate
+        for candidate in role_manifest.get("items", [])
+        if candidate.get("fileName") == item.get("fileName")
+    ]
+    if len(matching_role_items) != 1:
+        return f"{path.name}: role manifest must contain exactly one matching image"
+    role_item = matching_role_items[0]
+    if (
+        role_item.get("sha256") != item.get("sha256")
+        or role_item.get("sourceGroup") != item.get("sourceGroup")
+        or role_item.get("assignedRole") != "development-evaluation-extension"
+        or role_item.get("trainingUse") != "prohibited"
+        or int(role_item.get("expectedFullyVisibleNails", -1))
+        != int(item.get("completeMaskCount", -2))
+    ):
+        return f"{path.name}: role manifest identity/count/use differs from truth report"
+    return None
+
+
 def read_candidate(path: Path, truth_role: str, prefix: str) -> tuple[dict[str, Any] | None, str | None, dict[str, Any] | None]:
     try:
         document = json.loads(path.read_text(encoding="utf-8"))
@@ -247,6 +327,12 @@ def read_candidate(path: Path, truth_role: str, prefix: str) -> tuple[dict[str, 
         release_error = verify_release_test_candidate(path, document, item, inputs)
         if release_error:
             return None, release_error, None
+    if truth_role == "development-evaluation":
+        development_error = verify_development_evaluation_candidate(
+            path, document, item, inputs
+        )
+        if development_error:
+            return None, development_error, None
     required = {
         "fileName": item.get("fileName"),
         "sha256": item.get("sha256"),
@@ -278,7 +364,9 @@ def main() -> None:
     parser.add_argument("--truth-dir", required=True)
     parser.add_argument("--output", required=True)
     parser.add_argument(
-        "--truth-role", choices=("train", "val", "release-test"), default="train"
+        "--truth-role",
+        choices=("train", "val", "development-evaluation", "release-test"),
+        default="train",
     )
     args = parser.parse_args()
     truth_dir = Path(args.truth_dir).resolve()
@@ -363,12 +451,14 @@ def main() -> None:
             "snapshotFreezeAndSourceIsolationStillRequired": args.truth_role == "release-test",
             "trainingUse": (
                 "prohibited"
-                if args.truth_role in {"val", "release-test"}
+                if args.truth_role in {"val", "development-evaluation", "release-test"}
                 else "prohibited-until-materialization-audit"
             ),
             "validationUse": "prohibited-until-materialization-audit" if args.truth_role == "val" else None,
             "evaluationUse": (
-                "prohibited-until-snapshot-freeze"
+                "prohibited-until-clean-development-materialization-audit"
+                if args.truth_role == "development-evaluation"
+                else "prohibited-until-snapshot-freeze"
                 if args.truth_role == "release-test"
                 else None
             ),

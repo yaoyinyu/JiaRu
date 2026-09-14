@@ -1,4 +1,6 @@
 import { DatabaseSync } from "node:sqlite";
+import { mkdirSync } from "node:fs";
+import path from "node:path";
 import type {
   ConsentRow,
   IdentityRow,
@@ -122,7 +124,25 @@ export interface UserDb {
 }
 
 export function createUserDb(dbPath: string): UserDb {
-  const db = new DatabaseSync(dbPath);
+  // 干净部署时数据目录可能不存在：node:sqlite 打开缺失父目录的文件路径
+  // 会抛 ERR_SQLITE_ERROR(errcode=14, unable to open database file)，
+  // 且按 /api/me → requireUser → getAuthService 的调用链，首次匿名请求
+  // 就会触发。这里先确保父目录存在（:memory: 除外）。
+  if (dbPath !== ":memory:") {
+    const dir = path.dirname(dbPath);
+    if (dir && dir !== ".") {
+      mkdirSync(dir, { recursive: true });
+    }
+  }
+  let db: DatabaseSync;
+  try {
+    db = new DatabaseSync(dbPath);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `无法打开用户数据库 ${dbPath}：${msg}（请确认该路径的父目录存在且可写，或调整 JIARU_DB_PATH）`
+    );
+  }
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec(SCHEMA);
 

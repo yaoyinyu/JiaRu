@@ -45,6 +45,7 @@ def main() -> None:
         "candidate7_annotation_workspace_ready_candidate_only",
         "development_positive_annotation_workspace_ready_candidate_only",
         "development_cycle_012_source_selection_pass_candidate_only",
+        "development_cycle_015_generated_annotation_workspace_ready_candidate_only",
     }
     if workspace.get("ok") is not True or workspace.get("decision") not in allowed_workspace_decisions:
         raise ValueError("annotation workspace must pass")
