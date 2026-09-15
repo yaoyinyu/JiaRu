@@ -15,11 +15,7 @@ from typing import Any
 
 
 WORKSPACE_DECISION = "development_cycle_015_generated_annotation_workspace_ready_candidate_only"
-INTAKE_DECISIONS = {
-    "freeze_12_cumulative_source_qualified_candidates_continue_to_133",
-    "freeze_13_cumulative_source_qualified_candidates_continue_to_133",
-    "freeze_23_cumulative_source_qualified_candidates_continue_to_133",
-}
+TARGET_SOURCE_QUALIFIED = 133
 CANONICAL_INDEX_DECISION = "approved_unique_training_truth_index"
 CYCLE012_TRUTH_DECISION = "development_cycle_012_positive_truth_ready_for_materialization"
 DEVELOPMENT_TRUTH_DECISION = "approved_unique_development_evaluation_truth_index"
@@ -123,15 +119,21 @@ def validate_inputs(
     intake = read_object(intake_path, "循环015生成来源审计")
     canonical_index = read_object(canonical_index_path, "权威规范训练真值索引")
     cycle012_truth = read_object(cycle012_truth_path, "循环012新增训练真值")
+    items = intake.get("items")
+    item_count = len(items) if isinstance(items, list) else -1
+    expected_decision = (
+        "freeze_3_new_source_qualified_candidates_continue_to_133"
+        if item_count == 3
+        else f"freeze_{item_count}_cumulative_source_qualified_candidates_continue_to_133"
+    )
     if (
         intake.get("ok") is not True
-        or intake.get("decision") not in INTAKE_DECISIONS
+        or intake.get("decision") != expected_decision
         or intake.get("trainingUse") != "prohibited"
         or intake.get("formalPromotionAllowed") is not False
     ):
-        raise ValueError("循环015生成来源审计未通过13张候选冻结合同")
+        raise ValueError("循环015生成来源审计未通过动态累计候选冻结合同")
     counts = intake.get("counts") or {}
-    items = intake.get("items")
     expected_nails = (
         sum(int(item.get("fullyVisibleNails") or 0) for item in items)
         if isinstance(items, list)
@@ -139,11 +141,11 @@ def validate_inputs(
     )
     if (
         not isinstance(items, list)
-        or len(items) not in {12, 13, 23}
+        or not 1 <= len(items) <= TARGET_SOURCE_QUALIFIED
         or counts.get("sourceQualifiedImages") != len(items)
         or counts.get("sourceGroups") != len(items)
         or counts.get("fullyVisibleNails") != expected_nails
-        or expected_nails not in {80, 85, 145}
+        or any(not 1 <= int(item.get("fullyVisibleNails") or 0) <= 10 for item in items)
         or counts.get("identityOrRoleOverlaps") != 0
     ):
         raise ValueError("循环015冻结计数或隔离结论漂移")
