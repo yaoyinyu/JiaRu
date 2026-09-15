@@ -76,3 +76,18 @@ test("既有开发评估真值身份冲突时拒绝增量物化", () => {
   assert.equal(result.rejected, true);
   assert.match(String(result.message), /done\.png/);
 });
+
+test("累计冻结合同支持33张及后续动态批次", () => {
+  const result = evaluate([
+    "items=[{'fullyVisibleNails':5} for _ in range(33)]",
+    "count=len(items)",
+    "decision=f'freeze_{count}_cumulative_source_qualified_candidates_continue_to_133'",
+    "print(json.dumps({'decision':decision,'images':count,'nails':sum(x['fullyVisibleNails'] for x in items),'target':m.TARGET_SOURCE_QUALIFIED}))",
+  ]);
+  assert.deepEqual(result, {
+    decision: "freeze_33_cumulative_source_qualified_candidates_continue_to_133",
+    images: 33,
+    nails: 165,
+    target: 133,
+  });
+});
