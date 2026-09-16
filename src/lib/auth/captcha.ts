@@ -7,6 +7,8 @@ import { randomInt, randomUUID } from "node:crypto";
  *
  * 说明：
  * - 答案只存服务端内存（5 分钟过期、一次性、错 5 次作废），响应只返回图片；
+ * - 字符以 5×7 点阵笔画渲染为 <polyline> 路径（不再使用 <text> 元素），
+ *   SVG 源码中不含明文答案，解析文本无法得到验证码（2026-09-05 评审 #7 修复）；
  * - 单实例内存 Map 对 MVP 足够；多实例/生产可替换为共享存储或专业人机验证服务
  *   （如腾讯云验证码、阿里云验证码），接口保持不变。
  */
@@ -14,7 +16,7 @@ import { randomInt, randomUUID } from "node:crypto";
 const CAPTCHA_TTL_MS = 5 * 60 * 1000; // 5 分钟有效
 const CAPTCHA_MAX_ATTEMPTS = 5; // 单次最多尝试 5 次
 const CAPTCHA_LENGTH = 4;
-// 去除易混淆字符（0/O/1/I/L）
+// 去除易混淆字符（0/O/1/I/L/S）
 const CHARS = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
 
 interface CaptchaRecord {
@@ -29,36 +31,95 @@ function randomChar(): string {
   return CHARS[randomInt(0, CHARS.length)];
 }
 
-function escapeXml(input: string): string {
-  return input.replace(/[<>&'"]/g, (c) => {
-    switch (c) {
-      case "<":
-        return "&lt;";
-      case ">":
-        return "&gt;";
-      case "&":
-        return "&amp;";
-      case "'":
-        return "&apos;";
-      case '"':
-        return "&quot;";
-      default:
-        return c;
-    }
-  });
+/**
+ * 5×7 点阵笔画字形表（col: 0-4, row: 0-6）。
+ * 每个字符由若干笔画（polyline 坐标序列）组成；渲染时整体缩放、加扰动并旋转。
+ * 覆盖 CHARS 全部 30 个字符；SVG 中只有路径坐标，无文本节点。
+ */
+const GLYPH_STROKES: Record<string, number[][][]> = {
+  "2": [[[0, 1], [1, 0], [3, 0], [4, 1], [4, 3], [2, 4], [1, 5], [0, 6], [4, 6]]],
+  "3": [[[0, 0], [3, 0], [4, 1], [3, 2], [1, 3], [3, 4], [4, 5], [3, 6], [0, 6]]],
+  "4": [[[3, 0], [0, 4], [4, 4]], [[3, 0], [3, 6]]],
+  "5": [[[4, 0], [0, 0], [0, 3], [3, 3], [4, 4], [4, 5], [3, 6], [1, 6], [0, 5]]],
+  "6": [[[3, 0], [1, 2], [0, 4], [0, 5], [1, 6], [3, 6], [4, 5], [4, 4], [3, 3], [0, 3]]],
+  "7": [[[0, 0], [4, 0], [2, 4], [2, 6]]],
+  "8": [
+    [[1, 0], [3, 0], [4, 1], [4, 2], [3, 3], [1, 3], [0, 2], [0, 1], [1, 0]],
+    [[1, 3], [3, 3], [4, 4], [4, 5], [3, 6], [1, 6], [0, 5], [0, 4], [1, 3]],
+  ],
+  "9": [[[3, 6], [4, 5], [4, 1], [3, 0], [1, 0], [0, 1], [0, 3], [1, 4], [3, 4], [4, 3]]],
+  A: [[[0, 6], [0, 2], [2, 0], [4, 2], [4, 6]], [[0, 3], [4, 3]]],
+  B: [
+    [[0, 0], [0, 6]],
+    [[0, 0], [3, 0], [4, 1], [4, 2], [3, 3], [0, 3], [3, 3], [4, 4], [4, 5], [3, 6], [0, 6]],
+  ],
+  C: [[[4, 1], [3, 0], [1, 0], [0, 1], [0, 5], [1, 6], [3, 6], [4, 5]]],
+  D: [[[0, 0], [0, 6]], [[0, 0], [3, 0], [4, 2], [4, 4], [3, 6], [0, 6]]],
+  E: [[[4, 0], [0, 0], [0, 6], [4, 6]], [[0, 3], [3, 3]]],
+  F: [[[4, 0], [0, 0], [0, 6]], [[0, 3], [3, 3]]],
+  G: [[[4, 1], [3, 0], [1, 0], [0, 1], [0, 5], [1, 6], [3, 6], [4, 5], [4, 4], [2, 4]]],
+  H: [[[0, 0], [0, 6]], [[4, 0], [4, 6]], [[0, 3], [4, 3]]],
+  J: [[[4, 0], [4, 5], [3, 6], [1, 6], [0, 5]]],
+  K: [[[0, 0], [0, 6]], [[4, 0], [0, 3], [4, 6]]],
+  M: [[[0, 6], [0, 0], [2, 2], [4, 0], [4, 6]]],
+  N: [[[0, 6], [0, 0], [4, 6], [4, 0]]],
+  P: [[[0, 6], [0, 0], [3, 0], [4, 1], [4, 2], [3, 3], [0, 3]]],
+  Q: [[[0, 1], [1, 0], [3, 0], [4, 1], [4, 5], [3, 6], [1, 6], [0, 5], [0, 1]], [[3, 5], [4, 6]]],
+  R: [[[0, 6], [0, 0], [3, 0], [4, 1], [4, 2], [3, 3], [0, 3]], [[1, 3], [4, 6]]],
+  T: [[[0, 0], [4, 0]], [[2, 0], [2, 6]]],
+  U: [[[0, 0], [0, 5], [1, 6], [3, 6], [4, 5], [4, 0]]],
+  V: [[[0, 0], [2, 6], [4, 0]]],
+  W: [[[0, 0], [1, 6], [2, 3], [3, 6], [4, 0]]],
+  X: [[[0, 0], [4, 6]], [[4, 0], [0, 6]]],
+  Y: [[[0, 0], [2, 3], [4, 0]], [[2, 3], [2, 6]]],
+  Z: [[[0, 0], [4, 0], [0, 6], [4, 6]]],
+};
+
+function round1(value: number): string {
+  return value.toFixed(1);
 }
 
-/** 生成一张干扰线+噪点+旋转字符的 SVG 验证码图片 */
+/** 把一行点阵坐标变换为画布坐标：缩放 + 扰动 + 绕字符中心旋转 */
+function strokePoints(
+  stroke: number[][],
+  originX: number,
+  originY: number,
+  scaleX: number,
+  scaleY: number,
+  rotate: number
+): string {
+  const cx = originX + 2 * scaleX;
+  const cy = originY + 3 * scaleY;
+  const cos = Math.cos(rotate);
+  const sin = Math.sin(rotate);
+  return stroke
+    .map(([col, row]) => {
+      const x = originX + col * scaleX + randomInt(-2, 3);
+      const y = originY + row * scaleY + randomInt(-2, 3);
+      const dx = x - cx;
+      const dy = y - cy;
+      return `${round1(cx + dx * cos - dy * sin)},${round1(cy + dx * sin + dy * cos)}`;
+    })
+    .join(" ");
+}
+
+/** 生成一张干扰线+噪点+旋转笔画的 SVG 验证码图片（无 <text> 节点，不含明文答案） */
 function renderSvg(answer: string): string {
   const width = 140;
   const height = 48;
-  const chars = answer.split("");
-  const positions = chars.map((_, i) => {
-    const x = 18 + i * 28 + randomInt(-4, 5);
-    const y = 32 + randomInt(-6, 7);
-    const rotate = randomInt(-24, 25);
-    const fontSize = randomInt(24, 31);
-    return { x, y, rotate, fontSize, fill: `hsl(${randomInt(0, 360)} 55% 40%)` };
+  const scaleX = 5.4;
+  const scaleY = 5.6;
+
+  const glyphs = answer.split("").map((ch, i) => {
+    const originX = 8 + i * 32;
+    const originY = 6 + randomInt(-2, 3);
+    const rotate = (randomInt(-24, 25) * Math.PI) / 180;
+    const color = `hsl(${randomInt(0, 360)} 55% 38%)`;
+    const strokeWidth = (randomInt(24, 34) / 10).toFixed(1);
+    const strokes = (GLYPH_STROKES[ch] ?? GLYPH_STROKES["2"]).map((stroke) =>
+      `<polyline points="${strokePoints(stroke, originX, originY, scaleX, scaleY, rotate)}" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round"/>`
+    );
+    return strokes.join("");
   });
 
   // 干扰线 3 条
@@ -78,14 +139,7 @@ function renderSvg(answer: string): string {
     return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="hsl(${randomInt(0, 360)} 50% 55%)" opacity="0.5"/>`;
   });
 
-  const text = chars
-    .map(
-      (ch, i) =>
-        `<text x="${positions[i].x}" y="${positions[i].y}" font-size="${positions[i].fontSize}" font-family="monospace, sans-serif" font-weight="bold" fill="${positions[i].fill}" transform="rotate(${positions[i].rotate} ${positions[i].x} ${positions[i].y})">${escapeXml(ch)}</text>`
-    )
-    .join("");
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="${width}" height="${height}" rx="8" fill="#fff6f8"/>${lines.join("")}${dots.join("")}${text}</svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}"><rect width="${width}" height="${height}" rx="8" fill="#fff6f8"/>${lines.join("")}${dots.join("")}${glyphs.join("")}</svg>`;
 }
 
 /** 惰性清理过期记录，防止 Map 无限增长 */

@@ -69,7 +69,8 @@ CREATE TABLE IF NOT EXISTS verification_codes (
   expires_at INTEGER NOT NULL,
   attempts INTEGER NOT NULL DEFAULT 0,
   created_at INTEGER NOT NULL,
-  day TEXT NOT NULL
+  day TEXT NOT NULL,
+  consumed_at INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_codes_phone ON verification_codes(phone);
 
@@ -109,10 +110,21 @@ export interface UserDb {
   upsertConsent(userId: string, improvementEnabled: number, agreementVersion: string | null, now: number): void;
   // verification codes
   getLatestCode(phone: string, purpose: string): VerificationCodeRow | undefined;
-  insertCode(row: Omit<VerificationCodeRow, "id">): void;
+  insertCode(row: Omit<VerificationCodeRow, "id" | "consumed_at">): void;
   incrementCodeAttempts(id: number): void;
   countCodesToday(phone: string, day: string): number;
-  deleteCode(id: number): void;
+  /**
+   * 消费（标记已使用）而非物理删除：发送台账必须与验证码生命周期分离，
+   * 否则成功登录会抹掉发送历史，60 秒节流与单日 10 条上限立即被绕过
+   * （2026-09-05 评审 #7：发送计数 1→0 复现缺陷）。
+   */
+  markCodeConsumed(id: number, now: number): void;
+  /** 事务封装：fn 抛错时回滚并原样抛出（用于换绑等跨表一致写） */
+  transaction(fn: () => void): void;
+  /** 换绑：同一 phone 身份原地改绑新手机号（UNIQUE 冲突由调用方转译） */
+  rebindIdentityPhone(userId: string, newPhone: string, now: number): void;
+  /** 解绑 phone 身份时同步清空 users.phone（资料与身份一致） */
+  clearUserPhone(userId: string): void;
   /** 审计日志（M5：登录/注销等敏感操作留痕） */
   insertAuditLog(row: {
     actor_id: string | null;
@@ -145,6 +157,12 @@ export function createUserDb(dbPath: string): UserDb {
   }
   db.exec("PRAGMA journal_mode = WAL;");
   db.exec(SCHEMA);
+  // 旧库迁移：consumed_at 列在 2026-09-16 引入（发送台账与验证码生命周期分离）。
+  // CREATE TABLE IF NOT EXISTS 不会给已存在的表补列，这里按 PRAGMA 结果补。
+  const codeColumns = db.prepare(`PRAGMA table_info(verification_codes)`).all() as Array<{ name: string }>;
+  if (!codeColumns.some((c) => c.name === "consumed_at")) {
+    db.exec(`ALTER TABLE verification_codes ADD COLUMN consumed_at INTEGER`);
+  }
 
   const stmt = {
     insertUser: db.prepare(
@@ -197,7 +215,11 @@ export function createUserDb(dbPath: string): UserDb {
     countCodesToday: db.prepare(
       `SELECT COUNT(*) AS n FROM verification_codes WHERE phone = ? AND day = ?`
     ),
-    deleteCode: db.prepare(`DELETE FROM verification_codes WHERE id = ?`),
+    markCodeConsumed: db.prepare(`UPDATE verification_codes SET consumed_at = ? WHERE id = ?`),
+    rebindIdentityPhone: db.prepare(
+      `UPDATE user_identities SET identifier = ?, last_used_at = ? WHERE user_id = ? AND provider = 'phone'`
+    ),
+    clearUserPhone: db.prepare(`UPDATE users SET phone = NULL WHERE id = ?`),
     insertAuditLog: db.prepare(
       `INSERT INTO audit_logs (actor_id, action, detail, ip, at) VALUES (?, ?, ?, ?, ?)`
     ),
@@ -291,8 +313,28 @@ export function createUserDb(dbPath: string): UserDb {
       const row = stmt.countCodesToday.get(phone, day) as { n: number };
       return Number(row?.n ?? 0);
     },
-    deleteCode(id) {
-      stmt.deleteCode.run(id);
+    markCodeConsumed(id, now) {
+      stmt.markCodeConsumed.run(now, id);
+    },
+    transaction(fn) {
+      db.exec("BEGIN IMMEDIATE");
+      try {
+        fn();
+        db.exec("COMMIT");
+      } catch (err) {
+        try {
+          db.exec("ROLLBACK");
+        } catch {
+          // 回滚失败时保留原错误
+        }
+        throw err;
+      }
+    },
+    rebindIdentityPhone(userId, newPhone, now) {
+      stmt.rebindIdentityPhone.run(newPhone, now, userId);
+    },
+    clearUserPhone(userId) {
+      stmt.clearUserPhone.run(userId);
     },
     insertAuditLog(row) {
       stmt.insertAuditLog.run(row.actor_id, row.action, row.detail, row.ip, row.at);

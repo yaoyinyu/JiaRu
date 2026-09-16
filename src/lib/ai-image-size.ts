@@ -97,3 +97,30 @@ export function resolveAiImageDimension(
 ): string {
   return AI_IMAGE_SIZE_TABLE[size][ratio];
 }
+
+/** "a:b" 形式的比例字符串 → 数值宽高比。 */
+function aiImageRatioValue(ratio: AiImageRatio): number {
+  const [w, h] = ratio.split(":").map(Number);
+  return w / h;
+}
+
+/**
+ * 按原图宽高比就近映射到 ratio 白名单（覆盖全部 8 种比例）。
+ * 在对数空间取距离，横竖图对称（r 与 1/r 映射为互为倒数的候选）；
+ * 修复旧实现按固定区间切分导致标准 3:4 被判为 2:3、标准 2:3 被判为 9:16
+ * 的错判（2026-09-05 评审 #9）。
+ */
+export function pickReferenceRatio(width: number, height: number): AiImageRatio {
+  const r = width / height;
+  if (!Number.isFinite(r) || r <= 0) return DEFAULT_AI_IMAGE_RATIO;
+  let best: AiImageRatio = AI_IMAGE_RATIOS[0];
+  let bestDist = Infinity;
+  for (const candidate of AI_IMAGE_RATIOS) {
+    const dist = Math.abs(Math.log(r) - Math.log(aiImageRatioValue(candidate)));
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = candidate;
+    }
+  }
+  return best;
+}

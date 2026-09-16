@@ -18,6 +18,8 @@ import { verifyCaptcha } from "./captcha.ts";
 const ACCESS_TTL_SEC = 2 * 60 * 60; // 2 小时
 const REFRESH_TTL_SEC = 30 * 24 * 60 * 60; // 30 天
 const SESSION_TTL_MS = REFRESH_TTL_SEC * 1000;
+// refresh 剩余寿命低于该阈值时，静默续期顺带滑动重签 refresh（避免 30 天后突然掉线）
+const REFRESH_SLIDE_THRESHOLD_SEC = 15 * 24 * 60 * 60;
 
 const PHONE_RE = /^1[3-9]\d{9}$/;
 
@@ -32,9 +34,17 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
 
   function issueTokens(userId: string, sessionId: string): AuthTokens {
     return {
-      accessToken: signJwt({ sub: userId, sid: sessionId, typ: "access", expiresInSec: accessTtl }, config.jwtSecret),
-      refreshToken: signJwt({ sub: userId, sid: sessionId, typ: "refresh", expiresInSec: refreshTtl }, config.jwtSecret),
+      accessToken: issueAccessToken(userId, sessionId),
+      refreshToken: issueRefreshToken(userId, sessionId),
     };
+  }
+
+  function issueAccessToken(userId: string, sessionId: string): string {
+    return signJwt({ sub: userId, sid: sessionId, typ: "access", expiresInSec: accessTtl }, config.jwtSecret);
+  }
+
+  function issueRefreshToken(userId: string, sessionId: string): string {
+    return signJwt({ sub: userId, sid: sessionId, typ: "refresh", expiresInSec: refreshTtl }, config.jwtSecret);
   }
 
   /** 创建会话记录并签发双令牌 */
@@ -88,6 +98,24 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     const tokens = openSession(resolved.user.id, ctx);
     db.insertAuditLog({ actor_id: resolved.user.id, action: "token_refresh", detail: "session rotated", ip: ctx.ip ?? null, at: Date.now() });
     return tokens;
+  }
+
+  /**
+   * 静默续期（并发安全）：refresh 有效时签发新 access，不改会话、不撤销任何令牌。
+   * 与 rotateTokens（轮换，会撤销旧会话）不同，并发的多个请求各自续期互不失效，
+   * 适合在 access 过期时由服务端顺带完成（2026-09-05 评审 #6：持续会话闭环）。
+   * refresh 剩余寿命不足 15 天时顺带滑动重签 refresh，避免活跃用户 30 天后突然掉线。
+   */
+  function renewFromRefresh(refreshToken: string | undefined | null): AuthTokens | null {
+    const resolved = resolveRefreshToken(refreshToken);
+    if (!resolved) return null;
+    const payload = refreshToken ? verifyJwt(refreshToken, config.jwtSecret) : null;
+    const remainingSec = payload ? payload.exp - Math.floor(Date.now() / 1000) : 0;
+    const nextRefresh =
+      remainingSec > 0 && remainingSec < REFRESH_SLIDE_THRESHOLD_SEC
+        ? issueRefreshToken(resolved.user.id, resolved.sessionId)
+        : (refreshToken as string);
+    return { accessToken: issueAccessToken(resolved.user.id, resolved.sessionId), refreshToken: nextRefresh };
   }
 
   /**
@@ -175,6 +203,29 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
   }
 
   /**
+   * 校验并消费一条手机验证码（过期/超次/错误/已消费一律拒绝）。
+   * 消费=标记 consumed_at，发送台账保留（60 秒节流与单日 10 条继续依据完整台账）。
+   */
+  function consumeValidatedCode(phone: string, code: string): void {
+    const now = Date.now();
+    const record = db.getLatestCode(phone, "login");
+    if (!record || isCodeExpired(record.expires_at, now)) {
+      throw new AuthError("code_expired", "验证码已过期，请重新获取", 401);
+    }
+    if (record.attempts >= CODE_MAX_ATTEMPTS) {
+      throw new AuthError("code_too_many_attempts", "尝试次数过多，请重新获取验证码", 429);
+    }
+    if (record.consumed_at !== null) {
+      throw new AuthError("code_expired", "验证码已被使用，请重新获取", 401);
+    }
+    if (record.code_hash !== hashCode(code)) {
+      db.incrementCodeAttempts(record.id);
+      throw new AuthError("bad_code", "验证码错误", 401);
+    }
+    db.markCodeConsumed(record.id, now);
+  }
+
+  /**
    * 手机号验证码登录/注册：验证码正确 → 手机号已绑定则登录；未绑定则创建账号。
    */
   async function phoneCodeLoginOrRegister(
@@ -187,19 +238,7 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     if (!/^\d{6}$/.test(code)) throw new AuthError("invalid_code", "验证码格式不正确");
 
     const now = Date.now();
-    const record = db.getLatestCode(phone, "login");
-    if (!record || isCodeExpired(record.expires_at, now)) {
-      throw new AuthError("code_expired", "验证码已过期，请重新获取", 401);
-    }
-    if (record.attempts >= CODE_MAX_ATTEMPTS) {
-      throw new AuthError("code_too_many_attempts", "尝试次数过多，请重新获取验证码", 429);
-    }
-    if (record.code_hash !== hashCode(code)) {
-      db.incrementCodeAttempts(record.id);
-      throw new AuthError("bad_code", "验证码错误", 401);
-    }
-    // 一次性使用
-    db.deleteCode(record.id);
+    consumeValidatedCode(phone, code);
 
     const existing = db.getUserByIdentity("phone", phone);
     if (existing) {
@@ -228,7 +267,12 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     return { user: db.getUserById(userId)!, tokens, isNewUser: true };
   }
 
-  /** 给当前账号补绑手机号（非手机号方式注册后，文档 §5.1 合规要求） */
+  /**
+   * 给当前账号绑定/换绑手机号（非手机号方式注册后补绑，或已有手机号换绑）。
+   * users.phone 与 phone identity 必须在同一事务内一致更新：换绑只改 identity 的
+   * identifier，否则出现"资料是新号、登录身份是旧号"，随后新号注册触发
+   * users.phone UNIQUE 冲突（2026-09-05 评审 #7 复现缺陷）。
+   */
   async function bindPhone(userId: string, phoneRaw: string, code: string): Promise<void> {
     const phone = phoneRaw.trim();
     if (!PHONE_RE.test(phone)) throw new AuthError("invalid_phone", "手机号格式不正确");
@@ -236,25 +280,37 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     if (existingByIdentity && existingByIdentity.id !== userId) {
       throw new AuthError("phone_taken", "该手机号已绑定其他账号", 409);
     }
+    consumeValidatedCode(phone, code);
     const now = Date.now();
-    const record = db.getLatestCode(phone, "login");
-    if (!record || isCodeExpired(record.expires_at, now)) {
-      throw new AuthError("code_expired", "验证码已过期，请重新获取", 401);
+    try {
+      db.transaction(() => {
+        const identities = db.listIdentities(userId);
+        const phoneIdentity = identities.find((i) => i.provider === "phone");
+        if (phoneIdentity) {
+          // 换绑（或重复绑定同一号码的幂等写）：users.phone 与 identity 原地一致更新
+          db.updateUserPhone(userId, phone);
+          db.rebindIdentityPhone(userId, phone, now);
+        } else {
+          // 补绑：此前没有任何 phone 身份
+          db.updateUserPhone(userId, phone);
+          db.insertIdentity(userId, "phone", phone, now);
+        }
+        db.insertAuditLog({
+          actor_id: userId,
+          action: "bind_phone",
+          detail: `phone=${phone} mode=${phoneIdentity ? "rebind" : "bind"}`,
+          ip: null,
+          at: now,
+        });
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("UNIQUE")) {
+        // users.phone / (provider, identifier) 唯一约束：号码已被其他账号占用
+        throw new AuthError("phone_taken", "该手机号已绑定其他账号", 409);
+      }
+      throw err;
     }
-    if (record.attempts >= CODE_MAX_ATTEMPTS) {
-      throw new AuthError("code_too_many_attempts", "尝试次数过多，请重新获取验证码", 429);
-    }
-    if (record.code_hash !== hashCode(code)) {
-      db.incrementCodeAttempts(record.id);
-      throw new AuthError("bad_code", "验证码错误", 401);
-    }
-    db.deleteCode(record.id);
-    db.updateUserPhone(userId, phone);
-    const identities = db.listIdentities(userId);
-    if (!identities.some((i) => i.provider === "phone")) {
-      db.insertIdentity(userId, "phone", phone, now);
-    }
-    db.insertAuditLog({ actor_id: userId, action: "bind_phone", detail: `phone=${phone}`, ip: null, at: now });
   }
 
   /** 查看账号登录方式（文档 §5.2 登录方式管理） */
@@ -266,7 +322,7 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     }));
   }
 
-  /** 解绑登录方式：至少保留一种（文档 §5.2） */
+  /** 解绑登录方式：至少保留一种（文档 §5.2）；解绑 phone 时资料与身份同步清空 */
   function removeIdentity(userId: string, provider: string): void {
     const identities = db.listIdentities(userId);
     const target = identities.find((i) => i.provider === provider);
@@ -274,11 +330,11 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     if (identities.length <= 1) {
       throw new AuthError("last_identity", "至少需要保留一种登录方式", 400);
     }
-    // phone 作为主身份时若还有其他方式可以解绑；但若 phone 是唯一主身份则不允许
-    if (provider === "phone" && identities.some((i) => i.provider === "phone" && i.provider !== provider)) {
-      // 不会走到：上面已按 provider 唯一
-    }
     db.deleteIdentity(userId, provider);
+    if (provider === "phone") {
+      // 资料与身份一致：identity 已删除，users.phone 不能残留（否则无法再次绑定同号）
+      db.clearUserPhone(userId);
+    }
     db.insertAuditLog({ actor_id: userId, action: "unbind_identity", detail: `provider=${provider}`, ip: null, at: Date.now() });
   }
 
@@ -343,6 +399,7 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     resolveAccessToken,
     resolveRefreshToken,
     rotateTokens,
+    renewFromRefresh,
     wechatLoginOrRegister,
     requestSmsCode,
     phoneCodeLoginOrRegister,

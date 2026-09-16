@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthService } from "@/lib/auth/server";
-import { handleAuthError, ok, requireUser, unauthorized } from "@/lib/auth/http";
+import {
+  applyRenewedCookies,
+  handleAuthError,
+  ok,
+  requireUserWithRenewal,
+  unauthorized,
+} from "@/lib/auth/http";
 
 /**
  * PATCH /api/me/improvement
@@ -8,8 +14,8 @@ import { handleAuthError, ok, requireUser, unauthorized } from "@/lib/auth/http"
  * 账号级「用户改进计划」偏好（§5.6，联动浏览器 localStorage）。
  */
 export async function PATCH(req: NextRequest) {
-  const user = requireUser(req);
-  if (!user) return unauthorized();
+  const session = requireUserWithRenewal(req);
+  if (!session) return unauthorized();
   try {
     let body: { enabled?: unknown };
     try {
@@ -21,8 +27,8 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "缺少 enabled 布尔值" }, { status: 400 });
     }
     const auth = getAuthService();
-    auth.setImprovementPreference(user.id, body.enabled);
-    return ok({ improvementEnabled: body.enabled });
+    auth.setImprovementPreference(session.user.id, body.enabled);
+    return applyRenewedCookies(ok({ improvementEnabled: body.enabled }), session);
   } catch (err) {
     return handleAuthError(err);
   }
