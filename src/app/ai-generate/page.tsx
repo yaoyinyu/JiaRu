@@ -12,6 +12,7 @@ import {
   AI_IMAGE_SIZES,
   DEFAULT_AI_IMAGE_SIZE,
   isAiImageSize,
+  pickReferenceRatio,
   resolveAiImageDimension,
   type AiImageRatio,
 } from "@/lib/ai-image-size";
@@ -56,18 +57,7 @@ function engineSizeOptions(engine: Engine): readonly string[] {
 const MAX_REFERENCE_FILE_SIZE = 10 * 1024 * 1024; // 10MB 原始文件上限
 const MAX_REFERENCE_EDGE = 1024; // 压缩后最长边
 
-/** 按原图宽高比就近映射到 Agnes 支持的 ratio 白名单（覆盖全部 8 种比例）。 */
-function pickReferenceRatio(width: number, height: number): AiImageRatio {
-  const r = width / height;
-  if (r >= 2.0) return "21:9";
-  if (r >= 1.65) return "16:9";
-  if (r >= 1.4) return "3:2";
-  if (r >= 1.2) return "4:3";
-  if (r >= 0.95) return "1:1";
-  if (r >= 0.85) return "3:4";
-  if (r >= 0.7) return "2:3";
-  return "9:16";
-}
+// pickReferenceRatio 已抽取到 @/lib/ai-image-size（就近映射修复见评审 #9），此处直接复用。
 
 /** 压缩参考图源到最长边 1024 并转 JPEG Data URI（透明底色填白）。 */
 function compressReferenceSource(

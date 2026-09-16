@@ -94,7 +94,9 @@ export default function TextureCropper({
 
     img.onload = () => {
       if (cancelled) {
-        URL.revokeObjectURL(img.src);
+        // 不在这里 revoke：blob URL 由页面 prepareUploadUrl 统一管理，
+        // StrictMode 双挂载时两次 effect 共用同一 URL，此处吊销会让
+        // 第二次挂载的图片与确认时的 extractTexture 重新加载失败（#11 回归发现）。
         return;
       }
       imgRef.current = img;
@@ -121,7 +123,7 @@ export default function TextureCropper({
 
     img.onerror = () => {
       if (!cancelled) {
-        URL.revokeObjectURL(img.src);
+        // 同上：不吊销共享 blob URL（页面生命周期统一管理）
         setError("图片加载失败，请重试");
         setLoading(false);
       }

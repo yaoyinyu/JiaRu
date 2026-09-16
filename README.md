@@ -60,7 +60,7 @@
 
 ### 前置要求
 
-- **Node.js** ≥ 20（当前开发环境 v24.16.0）
+- **Node.js** ≥ 22.15（`node:sqlite` 需要；当前开发环境 v24.16.0，`package.json` `engines` 已约束）
 - **npm** ≥ 10（Windows 下必须使用 `npm.cmd` 而非裸 `npm`，避免触发 System32 零字节文件）
 
 ### 本地开发
@@ -92,7 +92,8 @@ npm.cmd run start
 
 ```powershell
 npm.cmd run lint          # ESLint 检查
-npm.cmd run test           # 全量测试（当前 163 个测试文件，串行执行）
+npm.cmd run test           # 全量测试（当前 214 个测试文件，串行执行）
+npx.cmd playwright test    # 浏览器端到端回归（评审 #11 六条关键行为用例）
 npm.cmd run audit:encoding # 文本文件编码审计（当前 485 个文件）
 npm.cmd run build          # Next.js 生产构建
 ```
@@ -117,7 +118,7 @@ JiaRu/
 │   │   ├── account/page.tsx      # 账号页（档案/登录方式/改进计划/退出）
 │   │   ├── api/generate-ai/route.ts  # AI 生图 API（Agnes）
 │   │   ├── api/generate-seedream/route.ts  # AI 生图 API（火山方舟 Seedream）
-│   │   ├── api/auth/             # 认证 API（验证码/人机验证/微信 OAuth/登出/绑手机）
+│   │   ├── api/auth/             # 认证 API（验证码/人机验证/微信 OAuth/登出/绑手机/refresh 静默续期）
 │   │   └── api/me/               # 账号 API（档案/登录方式/改进计划偏好）
 │   │
 │   ├── components/               # 可复用组件
@@ -178,6 +179,7 @@ JiaRu/
 │
 ├── scripts/                      # 审计/验证/发布治理脚本
 ├── tests/                        # 测试文件（当前 350+ 项）
+├── e2e/                          # Playwright 浏览器端到端回归（评审 #11 六用例）
 ├── docs/                         # 项目文档（见下方索引）
 ├── dev-log/                      # 开发日志（按天，2026-06-21 至今）
 ├── output/                       # 本地审核/调试产物（不进入 Git）
@@ -244,9 +246,9 @@ Git 与远端只保存完整可运行的业务、训练和审计代码，测试�
 ### 👤 用户系统（初始注册登录已落地）
 
 - **登录即注册**：手机号+验证码或微信扫码，任一方式首次验证通过即自动创建账号并绑定
-- 手机号+验证码：发送前需通过自研 SVG 图形验证码（人机验证），60 秒节流 / 单日 10 条 / 尝试 5 次锁定；未配置短信服务商时进入开发模式（接口返回 devCode 仅供本地联调）
+- 手机号+验证码：发送前需通过自研 SVG 图形验证码（人机验证，笔画路径渲染、源码不含明文答案），60 秒节流 / 单日 10 条 / 尝试 5 次锁定；未配置短信服务商时进入开发模式（接口返回 devCode 仅供本地联调）
 - 微信 OAuth：`GET /api/auth/oauth/wechat` 授权跳转 + `/callback` 回调登录，state 存 httpOnly Cookie 防 CSRF；首次登录须在 `/account` 补绑手机号；未配置 `WECHAT_APP_ID/SECRET` 时按钮显示「未配置」
-- 认证实现：自研 HS256 JWT（access 2h + refresh 30d）+ SQLite 会话表（可踢下线），数据库 `data/jiaru-user.db`（Node 内置 `node:sqlite`，生产换 Postgres 时仅替换 `src/lib/auth/db.ts` 边界）
+- 认证实现：自研 HS256 JWT（access 2h + refresh 30d）+ SQLite 会话表（可踢下线）；access 失效时 `/api/auth/refresh` 以 refresh 静默续期（不轮换会话、并发安全，剩余寿命不足 15 天自动滑动重签），数据库 `data/jiaru-user.db`（Node 内置 `node:sqlite`，生产换 Postgres 时仅替换 `src/lib/auth/db.ts` 边界）
 - `/account` 账号页：档案查看、登录方式管理（解绑，至少保留一种）、账号级「用户改进计划」偏好（与 `/privacy` 开关联动）、退出登录
 - 完整设计见 [`docs/user-system-plan.md`](docs/user-system-plan.md)（v0.2）；商户体系、云端作品/配额、注销导出为后续 Phase 1 项
 
@@ -302,7 +304,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.656 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.659 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |

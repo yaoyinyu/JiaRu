@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthService } from "@/lib/auth/server";
-import { handleAuthError, ok, requireUser, unauthorized } from "@/lib/auth/http";
+import {
+  applyRenewedCookies,
+  handleAuthError,
+  ok,
+  requireUserWithRenewal,
+  unauthorized,
+} from "@/lib/auth/http";
 
 /**
  * POST /api/auth/bind-phone
@@ -9,8 +15,8 @@ import { handleAuthError, ok, requireUser, unauthorized } from "@/lib/auth/http"
  * 需要先请求手机验证码（/api/auth/request-code）。
  */
 export async function POST(req: NextRequest) {
-  const user = requireUser(req);
-  if (!user) return unauthorized();
+  const session = requireUserWithRenewal(req);
+  if (!session) return unauthorized();
   try {
     let body: { phone?: unknown; code?: unknown };
     try {
@@ -22,8 +28,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "缺少手机号或验证码" }, { status: 400 });
     }
     const auth = getAuthService();
-    await auth.bindPhone(user.id, body.phone, body.code);
-    return ok({ ok: true, user: auth.getMe(user.id) });
+    await auth.bindPhone(session.user.id, body.phone, body.code);
+    return applyRenewedCookies(ok({ ok: true, user: auth.getMe(session.user.id) }), session);
   } catch (err) {
     return handleAuthError(err);
   }

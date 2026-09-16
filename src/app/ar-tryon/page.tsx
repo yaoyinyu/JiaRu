@@ -11,6 +11,7 @@ import { disposeAllTextures } from "@/lib/texture";
 import type { NailAssignment } from "@/components/NailArtPicker";
 import { validateImageUpload } from "@/lib/image-upload-validation";
 import { loadReferenceFromParams } from "@/lib/gallery-bridge";
+import { releaseRemovedBitmaps } from "@/lib/ar-texture-release";
 
 const TextureCropper = dynamic(() => import("@/components/TextureCropper"), {
   ssr: false,
@@ -226,19 +227,13 @@ function ArTryonPageBody({
       return;
     }
 
-    const updated = nailTextures.map((texture, index) => {
-      if (index === activeFinger) return texture;
-      if (texture && texture !== activeTexture) {
-        const otherRefs = nailTextures.some(
-          (otherTexture, otherIndex) =>
-            otherIndex !== index &&
-            otherIndex !== activeFinger &&
-            otherTexture === texture
-        );
-        if (!otherRefs) texture.close();
-      }
-      return activeTexture;
-    });
+    const updated = nailTextures.map(() => activeTexture);
+
+    // 释放不再保留的资源：比较更新前后仍在使用的唯一 bitmap 集合。
+    // 旧实现逐项检查"其他手指是否还有共享引用"——A 被多指共享时每个槽
+    // 都能看到另一个 A 而全部跳过 close（评审复现：A 四指共享、第五指 B
+    // 应用全部后 A 无槽位引用但 close 0 次）。
+    releaseRemovedBitmaps(nailTextures, updated);
 
     setNailTextures(updated);
   };

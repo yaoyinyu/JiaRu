@@ -56,6 +56,7 @@ export interface VerificationCodeRow {
   attempts: number;
   created_at: number;
   day: string; // YYYY-MM-DD（本地时区，用于单日上限）
+  consumed_at: number | null; // 非空=已被成功使用；发送台账保留不删（§5.1 节流/日限依据）
 }
 
 export interface AuthTokens {

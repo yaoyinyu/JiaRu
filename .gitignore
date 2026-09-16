@@ -89,6 +89,9 @@ model/exports/
 /runs/
 /review-temp/
 /.playwright-cli/
+/test-results/
+/playwright-report/
+/.playwright-tmp/
 /output/
 /.archive/
 
