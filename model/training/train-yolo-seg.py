@@ -30,6 +30,11 @@ DEVELOPMENT_ONLY_VARIABLES = frozenset(
         "trainingPositiveSourceAddition",
         "sourceGroupBalancedReplaySampling",
         "targetedSourceIsolatedRealPositiveAugmentation",
+        "realMaterialPositiveAugmentation",
+        "realMaterialSupplyScaleBatch2",
+        "realMaterialSupplyScaleBatch3",
+        "realMaterialSupplyScaleBatch4",
+        "realMaterialSupplyScaleBatch5",
         "augmentationPolicy",
         "boundarySupervision",
         "distillationPolicy",
@@ -346,11 +351,81 @@ def load_cycle012_materializer() -> ModuleType:
     return module
 
 
+def load_cycle015_real_material_materializer() -> ModuleType:
+    script_path = Path(__file__).with_name("materialize-development-cycle-015-real-material-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "materialize_development_cycle_015_real_material_dataset_for_training", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load cycle015 real-material development materializer")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_cycle015_batch2_materializer() -> ModuleType:
+    script_path = Path(__file__).with_name("materialize-development-cycle-015-real-material-batch2-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "materialize_development_cycle_015_real_material_batch2_dataset_for_training", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load cycle015 batch2 real-material development materializer")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_cycle015_batch3_materializer() -> ModuleType:
+    script_path = Path(__file__).with_name("materialize-development-cycle-015-real-material-batch3-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "materialize_development_cycle_015_real_material_batch3_dataset_for_training", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load cycle015 batch3 real-material development materializer")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_cycle015_batch4_materializer() -> ModuleType:
+    script_path = Path(__file__).with_name("materialize-development-cycle-015-real-material-batch4-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "materialize_development_cycle_015_real_material_batch4_dataset_for_training", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load cycle015 batch4 real-material development materializer")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_cycle015_batch5_materializer() -> ModuleType:
+    script_path = Path(__file__).with_name("materialize-development-cycle-015-real-material-batch5-dataset.py")
+    spec = importlib.util.spec_from_file_location(
+        "materialize_development_cycle_015_real_material_batch5_dataset_for_training", script_path
+    )
+    if spec is None or spec.loader is None:
+        raise RuntimeError("cannot load cycle015 batch5 real-material development materializer")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
 def verify_development_materialization(report_path: Path) -> dict[str, object]:
     report = json.loads(report_path.read_text(encoding="utf-8"))
     decision = report.get("decision") if isinstance(report, dict) else None
     if decision == "development_cycle_012_dataset_materialized_for_single_short_experiment":
         return load_cycle012_materializer().verify_report(report_path)
+    if decision == "development_cycle_015_real_material_dataset_materialized_for_single_short_experiment":
+        return load_cycle015_real_material_materializer().verify_report(report_path)
+    if decision == "development_cycle_015_real_material_batch2_dataset_materialized_for_single_short_experiment":
+        return load_cycle015_batch2_materializer().verify_report(report_path)
+    if decision == "development_cycle_015_real_material_batch3_dataset_materialized_for_single_short_experiment":
+        return load_cycle015_batch3_materializer().verify_report(report_path)
+    if decision == "development_cycle_015_real_material_batch4_dataset_materialized_for_single_short_experiment":
+        return load_cycle015_batch4_materializer().verify_report(report_path)
+    if decision == "development_cycle_015_real_material_batch5_dataset_materialized_for_single_short_experiment":
+        return load_cycle015_batch5_materializer().verify_report(report_path)
     return load_development_materializer().verify_report(report_path)
 
 
