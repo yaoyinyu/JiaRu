@@ -161,7 +161,67 @@ npm.cmd audit       # 复验
 
 ---
 
-## 六、建议的修复顺序
+## 六、复核验证结果（2026-09-24）
+
+上一版结论基于静态代码审计；本节对每条做**实测复核**，标注验证方式与证据。
+
+### 6.1 C1 Next.js RCE —— 已证实（静态 + 版本差异对比）
+
+| 验证项 | 证据 |
+|---|---|
+| 实际安装版本 | `node -p require('./node_modules/next/package.json').version` → **16.2.9**；`eslint-config-next` 同为 16.2.9 |
+| 落在受影响区间 | 公告影响 `>=16.0.0 <16.3.3`，16.2.9 命中 |
+| 漏洞文件存在 | `node_modules/next/dist/shared/lib/router/utils/escape-path-delimiters.js` 与 `.../incremental-cache/file-system-cache.js` 均存在 |
+| **补丁差异** | 16.2.9：`segment.replace(new RegExp("([/#?]...)"))`；16.3.6：`([/#?\\\\]...)` —— **修复内容正是加入反斜杠转义**，已装版本明确缺失 |
+| 路径构造 | `file-system-cache.js:313-332` `getFilePath()` 直接 `path.join(serverDistDir, 'app', pathname)`，未对 `pathname` 做分隔符合法性校验 |
+
+> 说明：未实际构造并运行利用代码（不编写针对真实 RCE 的 exploit）。以上为版本区间 + 源码差异 + npm audit 三方一致的证据。
+
+### 6.2 运行时实测（本地 dev 实例，端口 3111，仅 localhost）
+
+| 编号 | 结论 | 实测证据 |
+|---|---|---|
+| **H2** 安全头缺失 | **证实** | `curl -D - http://localhost:3111/` 响应头仅有 `HTTP/1.1 200 OK`，无 CSP / X-Frame-Options / X-Content-Type-Options / Referrer-Policy / HSTS |
+| **H1** 验证码明文回传 | **证实** | 单元级调用 `auth.requestSmsCode("13800138000", captcha)` 返回 `{"devCode":"030586"}`，且服务端日志输出 `[dev-sms] 13800138000 验证码: 030586`。当前 `SMS_PROVIDER` 未设置、`NODE_ENV` 未设为 production |
+| **M1** 无 IP 限流 | **证实** | 连续 30 次 `GET /api/auth/captcha` → **30/30 全部 200**，无任何限流 |
+| **M5** 游客可触达付费接口 | **证实** | 无 Cookie 直接 `POST /api/generate-ai` 与 `/api/generate-seedream` → 均返回 **400（参数校验）而非 401（未登录）**，说明匿名可达 |
+| **M5** 游客身份可伪造 | **证实** | `guestIdentityFromHeaders` 在 `XFF=1.2.3.4` → `guest:6694f83c...`，`XFF=5.6.7.8` → `guest:0a29e59e...`，不同头得到不同身份键，每 IP 5 次/日的软限制可绕过 |
+| **M4** 手机号可枚举 | **证实** | 账号 user-B 用**完全错误且从未申请过**的验证码 `000000` 绑定他人号码 → 返回 `phone_taken / 409 该手机号已绑定其他账号`；对照组：未注册号码返回 `code_expired`。**响应码本身即探测凭据**（409=已注册，code_expired=未注册） |
+| **M2** refresh 不轮换 | **证实** | 续期前后 `sid` 完全不变（`6a772bcf-...`），且旧 refresh token 续期后 `resolveRefreshToken()` **仍返回有效**；`rotateTokens` 全仓仅在 `service.ts:94` 定义、`:401` 导出，**无任何调用点** |
+| **M3** 无 CSRF 校验 | **证实（静态）** | 全仓 grep：`src/middleware.ts` 不存在；API 路由中出现的 `origin` 全部是 `req.nextUrl.origin`（用于拼接跳转 URL）或无关变量，**无任何 `Origin` / `Sec-Fetch-Site` 校验** |
+| 生产登录不可用 | **证实** | 以 `NODE_ENV=production` 运行：`getJwtSecret()` 抛 `JWT_SECRET 未配置…`；`deliverSmsCode()` 抛 `SMS_PROVIDER 未配置…`；`getWechatConfig()` 返回 `null` |
+| 鉴权本身正常 | 通过 | 未登录 `GET /api/me` → `401 {"error":"请先登录"}` |
+| captcha 一次性 | 通过 | 同一 id 二次校验 → `false`；错误答案 → `false` |
+
+### 6.3 当前密钥配置实测状态
+
+| 变量 | 状态 |
+|---|---|
+| `AGNES_API_KEY` | **已配置（长度 51）** |
+| `VOLCENGINE_ARK_API_KEY` | **已配置（长度 46）** |
+| `JWT_SECRET` | 未配置 / 占位符 |
+| `SMS_PROVIDER` | 未配置 |
+| `WECHAT_APP_ID` | 未配置 |
+
+**由此得到一个比原报告更严重的组合**：两个付费生图密钥是**真实可用的**，而三种登录方式（手机 / 微信 / JWT）在生产环境**全部不可用**。即线上任何人只能以游客身份访问，却可以消耗真实计费额度；唯一硬约束是全局 200 次/日熔断，且该熔断为进程内存态、重启清零。
+
+### 6.4 未做运行时验证、仅有静态证据的条目
+
+出于不触发真实计费与不编写 exploit 的考虑，以下条目**仅经源码逐行确认**，未做运行时触发：
+
+- **H3** 内部错误回显：`auth/http.ts:53`、`generate-ai/route.ts:151`、`generate-seedream/route.ts:154` 三处 `服务器错误: ${msg}`（已在源码中逐行确认，未构造真实 500）
+- **L1** `cookies.ts:43-47` 无条件信任 `x-forwarded-for`
+- **L2** `ar-demo/page.tsx:32-37` iframe 无 `sandbox`、指向 `http://localhost:8080`
+- **L3** `jwt.ts` 未校验 `iss` / `aud`
+- **L4** `captcha.ts:28` 模块级 `Map` 无条数上限
+
+### 6.5 复核未发现误报
+
+原报告 13 条结论中，运行时或静态复核**全部成立**，无一条需要撤回或降级。复核过程未产生对项目的持久化改动：临时验证脚本已删除，测试用 dev 实例已关闭。
+
+---
+
+## 七、建议的修复顺序
 
 1. **立即**：升级 `next`（及 `eslint-config-next`）到 16.3.6 → C1
 2. **本周**：补齐全站安全响应头 → H2；统一 500 错误脱敏 → H3

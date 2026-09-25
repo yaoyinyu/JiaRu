@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthService } from "@/lib/auth/server";
+import { getClientIp } from "@/lib/auth/cookies";
+import { getRateLimiter, resolveClientIp } from "@/lib/rate-limit";
 import { handleAuthError, ok } from "@/lib/auth/http";
 
 /**
@@ -26,11 +28,26 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "请先完成人机验证" }, { status: 400 });
     }
 
+    // 2026-09-24 安全审计修复：按来源 IP 限流（默认 5 次 / 10 分钟），
+    // 短信验证码此前只有按手机号的节流，可被轮换号码轰炸。
+    const limited = getRateLimiter().consume("requestCode", resolveClientIp(req.headers));
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: "操作过于频繁，请稍后再试" },
+        { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+      );
+    }
+
     const auth = getAuthService();
-    const { devCode } = await auth.requestSmsCode(body.phone, {
-      id: body.captchaId,
-      answer: body.captchaAnswer,
-    });
+    const { devCode } = await auth.requestSmsCode(
+      body.phone,
+      {
+        id: body.captchaId,
+        answer: body.captchaAnswer,
+      },
+      // 2026-09-24 安全审计修复：开发模式验证码仅对本机/私网来源签发
+      getClientIp(req)
+    );
     return ok(devCode ? { sent: true, devCode } : { sent: true });
   } catch (err) {
     return handleAuthError(err);

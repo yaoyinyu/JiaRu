@@ -7,6 +7,7 @@ import {
   requireUserWithRenewal,
   unauthorized,
 } from "@/lib/auth/http";
+import { getRateLimiter, resolveClientIp } from "@/lib/rate-limit";
 
 /**
  * POST /api/auth/bind-phone
@@ -18,6 +19,15 @@ export async function POST(req: NextRequest) {
   const session = requireUserWithRenewal(req);
   if (!session) return unauthorized();
   try {
+    // 2026-09-24 安全审计修复：按来源 IP 限制绑号频次（默认 10 次 / 10 分钟），
+    // 防止利用绑号接口批量探测手机号是否已注册。
+    const limited = getRateLimiter().consume("bindPhone", resolveClientIp(req.headers));
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: "操作过于频繁，请稍后再试" },
+        { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+      );
+    }
     let body: { phone?: unknown; code?: unknown };
     try {
       body = await req.json();

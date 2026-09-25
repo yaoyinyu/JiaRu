@@ -168,7 +168,8 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
    */
   async function requestSmsCode(
     phoneRaw: string,
-    captcha: { id: string; answer: string }
+    captcha: { id: string; answer: string },
+    clientIp?: string | null
   ): Promise<{ devCode: string | null }> {
     const phone = phoneRaw.trim();
     if (!PHONE_RE.test(phone)) throw new AuthError("invalid_phone", "手机号格式不正确");
@@ -189,7 +190,7 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     }
 
     const code = generateCode();
-    const { mode } = await deliverSmsCode(phone, code);
+    const { mode } = await deliverSmsCode(phone, code, clientIp);
     db.insertCode({
       phone,
       purpose: "login",
@@ -276,11 +277,14 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
   async function bindPhone(userId: string, phoneRaw: string, code: string): Promise<void> {
     const phone = phoneRaw.trim();
     if (!PHONE_RE.test(phone)) throw new AuthError("invalid_phone", "手机号格式不正确");
+    // 2026-09-24 安全审计修复：先消费验证码，再判断号码归属。
+    // 原实现先查归属，未持验证码的攻击者可以凭 409("已绑定其他账号") 与
+    // code_expired 的差异枚举已注册手机号；现在两者在未通过验证码时返回一致。
+    consumeValidatedCode(phone, code);
     const existingByIdentity = db.getUserByIdentity("phone", phone);
     if (existingByIdentity && existingByIdentity.id !== userId) {
       throw new AuthError("phone_taken", "该手机号已绑定其他账号", 409);
     }
-    consumeValidatedCode(phone, code);
     const now = Date.now();
     try {
       db.transaction(() => {

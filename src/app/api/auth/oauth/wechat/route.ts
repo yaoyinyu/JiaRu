@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildWechatAuthUrl, createOauthState, getWechatConfig } from "@/lib/auth/wechat";
+import { getRateLimiter, resolveClientIp } from "@/lib/rate-limit";
 
 export const OAUTH_STATE_COOKIE = "jiaru_oauth_state";
 
@@ -9,6 +10,14 @@ export const OAUTH_STATE_COOKIE = "jiaru_oauth_state";
  * （state 存 httpOnly Cookie，回调时校验防 CSRF，§9.1）。
  */
 export async function GET(req: NextRequest) {
+  // 2026-09-24 安全审计修复：按来源 IP 限制发起 OAuth 的频次
+  const limited = getRateLimiter().consume("oauthStart", resolveClientIp(req.headers));
+  if (!limited.ok) {
+    return NextResponse.json(
+      { error: "操作过于频繁，请稍后再试" },
+      { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+    );
+  }
   const cfg = getWechatConfig();
   if (!cfg) {
     return NextResponse.json(
