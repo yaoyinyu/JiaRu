@@ -223,9 +223,17 @@ test("bind phone rejects a phone owned by another account", async () => {
   seedCode(db, "13500135000");
   await auth.bindPhone(a.user.id, "13500135000", "123456");
 
-  // b 尝试绑定已被 a 占用的手机号 → 409（先于验证码校验）
+  // 枚举防护：验证码未通过时一律 401，不得借返回码区分该手机号是否已被占用
+  seedCode(db, "13500135000");
   await assert.rejects(
     () => auth.bindPhone(b.user.id, "13500135000", "000000"),
+    (err: unknown) => err instanceof AuthError && err.status === 401 && err.code === "bad_code"
+  );
+
+  // 重新种入有效验证码后，归属冲突才暴露为 409
+  seedCode(db, "13500135000");
+  await assert.rejects(
+    () => auth.bindPhone(b.user.id, "13500135000", "123456"),
     (err: unknown) => err instanceof AuthError && err.status === 409
   );
 });

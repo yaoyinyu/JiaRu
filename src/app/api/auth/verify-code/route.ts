@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAuthService } from "@/lib/auth/server";
 import { getClientIp, setAuthCookies } from "@/lib/auth/cookies";
+import { getRateLimiter, resolveClientIp } from "@/lib/rate-limit";
 import { handleAuthError, ok } from "@/lib/auth/http";
 
 /**
@@ -18,6 +19,15 @@ export async function POST(req: NextRequest) {
     }
     if (typeof body.phone !== "string" || typeof body.code !== "string") {
       return NextResponse.json({ error: "缺少手机号或验证码" }, { status: 400 });
+    }
+
+    // 2026-09-24 安全审计修复：按来源 IP 限制验证码校验频次（默认 20 次 / 10 分钟）
+    const limited = getRateLimiter().consume("verifyCode", resolveClientIp(req.headers));
+    if (!limited.ok) {
+      return NextResponse.json(
+        { error: "操作过于频繁，请稍后再试" },
+        { status: 429, headers: { "Retry-After": String(limited.retryAfterSeconds) } }
+      );
     }
 
     const auth = getAuthService();

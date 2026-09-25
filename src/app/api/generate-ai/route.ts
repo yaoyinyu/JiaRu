@@ -146,10 +146,8 @@ export async function POST(req: NextRequest) {
         { status: err.statusCode }
       );
     }
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.json(
-      { error: `服务器错误: ${msg}` },
-      { status: 500 }
-    );
+    // 2026-09-24 安全审计修复：内部异常原文不外泄，只写服务端日志。
+    console.error("[generate-ai] unexpected error:", err);
+    return NextResponse.json({ error: "服务器内部错误，请稍后重试" }, { status: 500 });
   }
 }

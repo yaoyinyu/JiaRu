@@ -48,9 +48,10 @@ export function handleAuthError(err: unknown): NextResponse {
   if (err instanceof AuthError) {
     return NextResponse.json({ error: err.message }, { status: err.status });
   }
-  const msg = err instanceof Error ? err.message : String(err);
+  // 2026-09-24 安全审计修复：内部异常原文可能含数据库路径、文件结构等侦察信息，
+  // 只写服务端日志，客户端返回固定文案。
   console.error("[auth] unexpected error:", err);
-  return NextResponse.json({ error: `服务器错误: ${msg}` }, { status: 500 });
+  return NextResponse.json({ error: "服务器内部错误，请稍后重试" }, { status: 500 });
 }
 
 export function ok(data: Record<string, unknown>, init?: ResponseInit): NextResponse {

@@ -37,14 +37,56 @@ export function todayString(now: number): string {
 }
 
 /**
- * 发送验证码。返回 true 表示已成功投递（发送或开发模式）。
- * 短信服务商未配置时抛错（生产环境禁止把验证码写入日志）。
+ * 2026-09-24 安全审计修复：开发模式验证码是否允许。
+ *
+ * 原实现只看 `NODE_ENV !== "production"`，一旦以 `next dev` 经隧道对外暴露，
+ * 任何人请求任意手机号即可从响应 `devCode` 字段拿到明文验证码并登录任意账号。
+ * 现在收紧为：
+ *  - production 一律禁止；
+ *  - 非 production 时，仅当调用方来自回环/私网地址才允许（保障本地联调）；
+ *  - 需要强制开启（如局域网联调被误判）时显式设置 `JIARU_DEV_SMS=1`。
+ *
+ * @param clientIp 客户端 IP（来自 getClientIp，可为 null）
  */
-export async function deliverSmsCode(phone: string, code: string): Promise<{ mode: "dev" | "provider" }> {
+export function isDevSmsAllowed(clientIp?: string | null): boolean {
+  if (process.env.NODE_ENV === "production") return false;
+  if (process.env.JIARU_DEV_SMS === "1") return true;
+  // 没有任何代理头 = 直连（本地 `next dev` 场景），保留本地联调能力。
+  // 经隧道/反代对外暴露时必然带 X-Forwarded-For，此时按来源地址判定。
+  if (!clientIp) return true;
+  return isLoopbackOrPrivateIp(clientIp);
+}
+
+function isLoopbackOrPrivateIp(ip: string): boolean {
+  const value = ip.trim().toLowerCase();
+  if (value === "::1" || value === "localhost" || value === "unknown") return false;
+  if (value.startsWith("127.")) return true;
+  if (value.startsWith("10.")) return true;
+  if (value.startsWith("192.168.")) return true;
+  const m = /^172\.(\d{1,3})\./.exec(value);
+  if (m) {
+    const second = Number(m[1]);
+    if (second >= 16 && second <= 31) return true;
+  }
+  return false;
+}
+
+/**
+ * 发送验证码。返回 true 表示已成功投递（发送或开发模式）。
+ * 短信服务商未配置时，仅在本机/私网联调场景允许开发模式（验证码写入日志），
+ * 公网来源一律拒绝，避免明文验证码外泄。
+ */
+export async function deliverSmsCode(
+  phone: string,
+  code: string,
+  clientIp?: string | null
+): Promise<{ mode: "dev" | "provider" }> {
   const provider = process.env.SMS_PROVIDER;
   if (!provider) {
-    if (process.env.NODE_ENV === "production") {
-      throw new Error("SMS_PROVIDER 未配置：生产环境禁止开发模式发送验证码");
+    if (!isDevSmsAllowed(clientIp)) {
+      throw new Error(
+        "SMS_PROVIDER 未配置：不允许以开发模式发送验证码（需本机/私网访问，或显式设置 JIARU_DEV_SMS=1）"
+      );
     }
     // 开发模式：验证码由路由层返回给前端（仅本地联调），此处不落日志以外的敏感信息
     console.log(`[dev-sms] ${phone} 验证码: ${code}`);
