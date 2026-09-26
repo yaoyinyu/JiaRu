@@ -63,14 +63,14 @@ export async function exchangeWechatCode(
     const tokenResp = await httpFetch(`https://api.weixin.qq.com/sns/oauth2/access_token?${tokenParams.toString()}`);
     tokenData = (await tokenResp.json()) as Record<string, unknown>;
   } catch (err) {
-    throw new AuthError("wechat_oauth_failed", `微信授权请求失败: ${err instanceof Error ? err.message : String(err)}`, 502);
+    // 2026-09-24 安全审计修复：网络层异常原文（可能含内网地址/DNS 信息）只写服务端日志。
+    console.error("[wechat] oauth token request failed:", err);
+    throw new AuthError("wechat_oauth_failed", "微信授权请求失败，请稍后重试", 502);
   }
   if (typeof tokenData.openid !== "string" || !tokenData.openid) {
-    throw new AuthError(
-      "wechat_oauth_failed",
-      `微信授权失败${tokenData.errmsg ? `: ${String(tokenData.errmsg)}` : ""}`,
-      401
-    );
+    // errmsg 来自上游，属不可信输入，同样只记日志，不回填给客户端。
+    console.error("[wechat] oauth rejected:", tokenData.errmsg);
+    throw new AuthError("wechat_oauth_failed", "微信授权失败，请重新登录", 401);
   }
   const openid = tokenData.openid;
 

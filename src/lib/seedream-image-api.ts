@@ -199,10 +199,12 @@ export async function generateSeedreamImage(
       // 单图场景防御：若首项返回 error 则视为失败。
       const firstItem = data?.data?.[0];
       if (firstItem?.error) {
-        throw new SeedreamImageApiError(
-          `火山方舟 API 错误: ${String(firstItem.error.message ?? "生成失败")}`,
-          502
-        );
+      // 这是上游「业务级」拒绝（如内容审核未通过），属产品需要回传给用户的提示，
+      // 不属于内部异常泄漏，故保留上游文本；非预期异常统一在下方 catch 中脱敏。
+      throw new SeedreamImageApiError(
+        `火山方舟 API 错误: ${String(firstItem.error.message ?? "生成失败")}`,
+        502
+      );
       }
       const imageUrl = firstItem?.url;
       if (typeof imageUrl !== "string" || !imageUrl.startsWith("https://")) {
@@ -224,8 +226,9 @@ export async function generateSeedreamImage(
         504
       );
     }
-    const message = error instanceof Error ? error.message : String(error);
-    throw new SeedreamImageApiError(`服务器错误: ${message}`, 500);
+    // 2026-09-24 安全审计修复：内部异常原文只写服务端日志。
+    console.error("[seedream] unexpected error:", error);
+    throw new SeedreamImageApiError("服务器内部错误，请稍后重试", 500);
   } finally {
     clearTimeout(timeout);
   }

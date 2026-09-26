@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { resolveClientIp } from "./rate-limit.ts";
 
 /**
  * AI 生图配额与预算熔断（服务端专用，勿在客户端组件引入）。
@@ -108,12 +109,19 @@ function secondsUntilNextDay(nowMs: number): number {
   return Math.max(1, Math.ceil((next.getTime() - nowMs) / 1000));
 }
 
-/** 由请求头提取游客身份键（隧道/反代场景读 x-forwarded-for 首段） */
-export function guestIdentityFromHeaders(headers: {
-  get(name: string): string | null;
-}): string {
-  const forwarded = headers.get("x-forwarded-for") ?? "";
-  const ip = forwarded.split(",")[0]?.trim() || "unknown";
+/**
+ * 由请求头提取游客身份键（2026-09-24 安全审计修复 M5）。
+ *
+ * 旧实现无条件采信 `x-forwarded-for` 首段——即客户端可自行伪造的第一个值，
+ * 换一个头就换一份 5 次/日的额度。现改为与限流模块同一套判定：只有显式声明
+ * `JIARU_TRUST_PROXY=1`（反向代理会覆盖该头并注入 `X-Real-IP`）时才采信，
+ * 否则一律归为 `guest:<hash("unknown")>`（共享额度，宁紧勿松）。
+ */
+export function guestIdentityFromHeaders(
+  headers: { get(name: string): string | null },
+  env: Record<string, string | undefined> = process.env
+): string {
+  const ip = resolveClientIp(headers, env);
   const hash = createHash("sha256").update(ip).digest("hex").slice(0, 16);
   return `guest:${hash}`;
 }
