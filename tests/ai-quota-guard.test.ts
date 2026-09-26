@@ -149,12 +149,21 @@ test("invalid env values fall back to defaults", () => {
   assert.equal(reserveFail(guard, "guest:a1").ok, false);
 });
 
-test("guestIdentityFromHeaders hashes forwarded IP into a stable key", () => {
+test("guestIdentityFromHeaders 默认不采信伪造代理头", () => {
   const fromIp1 = guestIdentityFromHeaders({ get: (n) => (n === "x-forwarded-for" ? "203.0.113.7, 70.41.3.25" : null) });
-  const fromIp1Again = guestIdentityFromHeaders({ get: (n) => (n === "x-forwarded-for" ? "203.0.113.7" : null) });
+  const fromIp2 = guestIdentityFromHeaders({ get: (n) => (n === "x-forwarded-for" ? "198.51.100.9" : null) });
   const fromMissing = guestIdentityFromHeaders({ get: () => null });
   assert.match(fromIp1, /^guest:[0-9a-f]{16}$/);
-  assert.equal(fromIp1, fromIp1Again, "first forwarded hop decides the key");
   assert.match(fromMissing, /^guest:[0-9a-f]{16}$/);
-  assert.notEqual(fromIp1, fromMissing);
+  // 未声明可信代理时，改一个 XFF 不能换到一份独立额度（M5：伪造即共享桶）
+  assert.equal(fromIp1, fromIp2);
+  assert.equal(fromIp1, fromMissing);
+});
+
+test("guestIdentityFromHeaders 在 JIARU_TRUST_PROXY=1 下按真实来源分桶", () => {
+  const env = { JIARU_TRUST_PROXY: "1" };
+  const real1 = guestIdentityFromHeaders({ get: (n) => (n === "x-real-ip" ? "203.0.113.7" : null) }, env);
+  const real2 = guestIdentityFromHeaders({ get: (n) => (n === "x-real-ip" ? "198.51.100.9" : null) }, env);
+  assert.match(real1, /^guest:[0-9a-f]{16}$/);
+  assert.notEqual(real1, real2, "反代注入的 X-Real-IP 应产生不同身份");
 });

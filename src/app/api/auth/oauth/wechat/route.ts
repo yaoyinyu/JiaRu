@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildWechatAuthUrl, createOauthState, getWechatConfig } from "@/lib/auth/wechat";
 import { getRateLimiter, resolveClientIp } from "@/lib/rate-limit";
+import { publicOrigin } from "@/lib/request-origin";
 
 export const OAUTH_STATE_COOKIE = "jiaru_oauth_state";
 
@@ -25,7 +26,7 @@ export async function GET(req: NextRequest) {
       { status: 503 }
     );
   }
-  const origin = req.nextUrl.origin;
+  const origin = publicOrigin(req);
   const redirectUri = `${origin}/api/auth/oauth/wechat/callback`;
   const state = createOauthState();
 

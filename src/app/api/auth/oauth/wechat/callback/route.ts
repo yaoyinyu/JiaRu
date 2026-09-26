@@ -3,6 +3,7 @@ import { getAuthService } from "@/lib/auth/server";
 import { getClientIp, setAuthCookies } from "@/lib/auth/cookies";
 import { exchangeWechatCode, getWechatConfig } from "@/lib/auth/wechat";
 import { OAUTH_STATE_COOKIE } from "../route";
+import { publicOrigin } from "@/lib/request-origin";
 
 /**
  * GET /api/auth/oauth/wechat/callback
@@ -11,21 +12,22 @@ import { OAUTH_STATE_COOKIE } from "../route";
  */
 export async function GET(req: NextRequest) {
   const { searchParams } = req.nextUrl;
+  const origin = publicOrigin(req);
   const code = searchParams.get("code");
   const state = searchParams.get("state");
   const cookieState = req.cookies.get(OAUTH_STATE_COOKIE)?.value;
 
   // 校验 state：缺失或不匹配 → 拒绝（防 CSRF，§9.1）
   if (!state || !cookieState || state !== cookieState) {
-    return NextResponse.redirect(new URL("/login?error=state_mismatch", req.nextUrl.origin));
+    return NextResponse.redirect(new URL("/login?error=state_mismatch", origin));
   }
   if (!code) {
-    return NextResponse.redirect(new URL("/login?error=wechat_canceled", req.nextUrl.origin));
+    return NextResponse.redirect(new URL("/login?error=wechat_canceled", origin));
   }
 
   const cfg = getWechatConfig();
   if (!cfg) {
-    return NextResponse.redirect(new URL("/login?error=wechat_not_configured", req.nextUrl.origin));
+    return NextResponse.redirect(new URL("/login?error=wechat_not_configured", origin));
   }
 
   try {
@@ -37,12 +39,14 @@ export async function GET(req: NextRequest) {
 
     // 新微信用户没有手机号 → 跳 /account?bind=1 提示补绑
     const target = isNewUser || !user.phone ? "/account?bind=1" : "/account";
-    const res = NextResponse.redirect(new URL(target, req.nextUrl.origin));
+    const res = NextResponse.redirect(new URL(target, origin));
     setAuthCookies(res, tokens.accessToken, tokens.refreshToken);
     res.cookies.set(OAUTH_STATE_COOKIE, "", { httpOnly: true, sameSite: "lax", path: "/", maxAge: 0 });
     return res;
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return NextResponse.redirect(new URL(`/login?error=wechat_failed&detail=${encodeURIComponent(msg)}`, req.nextUrl.origin));
+    // 2026-09-24 安全审计修复：异常原文不再拼进重定向 URL（会落到登录页并被渲染，
+    // 既泄露内部信息又构成反射点），只写服务端日志，URL 只带固定错误码。
+    console.error("[wechat-callback] oauth failed:", err);
+    return NextResponse.redirect(new URL("/login?error=wechat_failed", origin));
   }
 }

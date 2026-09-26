@@ -33,6 +33,10 @@ export default function ArDemoPage() {
             title="JiaRu Nail AR 模型 Demo"
             src={demoUrl}
             allow="camera; microphone; autoplay; fullscreen"
+            // 2026-09-24 安全审计修复 L2：此前 iframe 完全无 sandbox，被嵌入的
+            // 本地 demo 服务可自由顶层导航（把整页带到任意地址）。这里放开脚本与
+            // 同源（摄像头 demo 需要执行脚本并保持自身源），但禁止顶层导航与插件。
+            sandbox="allow-scripts allow-same-origin allow-forms allow-popups"
             className="h-[72vh] min-h-[620px] w-full border-0"
           />
         </div>

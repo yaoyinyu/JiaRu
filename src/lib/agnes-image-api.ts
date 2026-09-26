@@ -179,8 +179,9 @@ export async function generateAgnesImage(
         504
       );
     }
-    const message = error instanceof Error ? error.message : String(error);
-    throw new AgnesImageApiError(`服务器错误: ${message}`, 500);
+    // 2026-09-24 安全审计修复：内部异常原文（可能含内网地址、依赖栈信息）只写服务端日志。
+    console.error("[agnes-image] unexpected error:", error);
+    throw new AgnesImageApiError("服务器内部错误，请稍后重试", 500);
   } finally {
     clearTimeout(timeout);
   }

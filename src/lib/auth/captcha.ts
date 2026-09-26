@@ -15,6 +15,8 @@ import { randomInt, randomUUID } from "node:crypto";
 
 const CAPTCHA_TTL_MS = 5 * 60 * 1000; // 5 分钟有效
 const CAPTCHA_MAX_ATTEMPTS = 5; // 单次最多尝试 5 次
+/** 待验证验证码的内存硬上限（详见 sweepExpired） */
+const CAPTCHA_MAX_PENDING = 5000;
 const CAPTCHA_LENGTH = 4;
 // 去除易混淆字符（0/O/1/I/L/S）
 const CHARS = "23456789ABCDEFGHJKMNPQRSTUVWXYZ";
@@ -147,6 +149,16 @@ function sweepExpired(): void {
   const now = Date.now();
   for (const [id, rec] of store) {
     if (now > rec.expiresAt) store.delete(id);
+  }
+  // 2026-09-24 安全审计修复 L4：除过期清理外再加硬上限。5 分钟窗口内若仍有大量
+  // 未过期记录（高频签发），按插入顺序淘汰最旧的，杜绝内存无界增长。
+  if (store.size > CAPTCHA_MAX_PENDING) {
+    let excess = store.size - CAPTCHA_MAX_PENDING;
+    for (const id of store.keys()) {
+      if (excess <= 0) break;
+      store.delete(id);
+      excess -= 1;
+    }
   }
 }
 
