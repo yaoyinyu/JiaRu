@@ -19,7 +19,7 @@
 
 ## 2. 当前机器证据
 
-- Git基线：`master`，HEAD `3e4561c80abe79b21c317168f652a5088df540ee`，单worktree，工作区和暂存区干净。
+- Git基线：`master`，HEAD `d83f68b676f8f5a3c45354edb779991f04367297`，单worktree，工作区和暂存区干净。
 - `public/models/nail-texture-seg/manifest.json`声明`nail-texture-seg-v1.onnx`，但该文件在磁盘不存在；WebGPU与WASM初始化均失败属于当前已知阻塞，不是本次通过辅助算法可以伪装消除的错误。
 - 现场截图裁出的903×1195参考图区在真实页面复现为局部近景3/5，而不是稳定5/5；保留的中心约为拇指、中指、小指，食指与无名指漏检，控制台0 error。
 - 导出诊断记录`backend=fallback`，模型失败后进入局部近景路径；正式saliency候选仍仅供诊断，没有进入用户可确认区域。
