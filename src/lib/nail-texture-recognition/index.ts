@@ -6,14 +6,17 @@ export {
   detectNailTextureRuntimeEnvironment,
   getSessionIoNames,
   getNailTextureModelRuntime,
+  getNailTextureStage2Runtime,
   loadNailTextureModelManifest,
   resetNailTextureModelRuntimeCache,
   resolveModelUrl,
   resolveOrtExecutionProviders,
+  resolveStage2ModelUrl,
   validateNailTextureModelManifest,
 } from "./model-runtime.ts";
 export type {
   NailTextureRuntimeEnvironment,
+  NailTextureStage2Runtime,
 } from "./model-runtime.ts";
 export {
   serializeModelOutputs,
@@ -82,8 +85,10 @@ export {
 export {
   estimateMaskPrincipalAngle,
   postprocessNailTextureDetections,
+  readDetectionRows,
   stabilizeNailTextureCandidateAngles,
 } from "./postprocess.ts";
+export type { NailTextureDetectionRow } from "./postprocess.ts";
 export {
   preprocessNailTextureImage,
 } from "./preprocess.ts";
@@ -99,11 +104,23 @@ export {
 export {
   recognizeNailTextures,
 } from "./recognize.ts";
+export {
+  CANDIDATE57_COMPOSITION,
+  cropProposalRoi,
+  runTwoStageComposition,
+} from "./two-stage.ts";
+export type {
+  Stage2ProposalEvaluation,
+  TwoStageCompositionDefaults,
+  TwoStageRunResult,
+} from "./two-stage.ts";
 export type {
   NailMask,
   NailTextureModelBackend,
   NailTextureModelInfo,
   NailTextureModelManifest,
+  NailTextureCompositionManifest,
+  NailTextureStage2Manifest,
   NailTextureTensorSummary,
   NailTextureCandidate,
   NailTextureCandidateConfidence,

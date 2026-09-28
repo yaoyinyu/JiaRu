@@ -102,7 +102,7 @@ test("recognizeNailTextures falls back when manifest is invalid", async () => {
       modelFile: "../bad.onnx",
       labels: ["nail_texture"],
     }),
-  })) as typeof fetch;
+  })) as unknown as typeof fetch;
 
   try {
     const result = await recognizeNailTextures(
@@ -129,12 +129,12 @@ test("recognizeNailTextures falls back when manifest is invalid", async () => {
     if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (navigatorDescriptor) {
       Object.defineProperty(globalThis, "navigator", navigatorDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { navigator?: unknown }).navigator;
+      delete (globalThis as Record<string, unknown>).navigator;
     }
   }
 });
@@ -163,7 +163,7 @@ test("runtime environment detector recognizes a browser worker without window", 
   };
 
   try {
-    delete (globalThis as typeof globalThis & { window?: unknown }).window;
+    delete (globalThis as Record<string, unknown>).window;
     Object.defineProperty(globalThis, "self", {
       configurable: true,
       value: globalThis,
@@ -199,7 +199,7 @@ test("model runtime initializes inside a browser worker without window", async (
   const originalFetch = globalThis.fetch;
 
   try {
-    delete (globalThis as typeof globalThis & { window?: unknown }).window;
+    delete (globalThis as Record<string, unknown>).window;
     Object.defineProperty(globalThis, "self", {
       configurable: true,
       value: globalThis,
@@ -240,7 +240,7 @@ test("model runtime initializes inside a browser worker without window", async (
         scoreThreshold: 0.25,
         labels: ["nail_texture"],
       }),
-    })) as typeof fetch;
+    })) as unknown as typeof fetch;
 
     const runtime = await getNailTextureModelRuntime(
       "/models/nail-texture-seg/manifest.json"
@@ -307,7 +307,7 @@ test("model runtime retries wasm when webgpu session initialization fails", asyn
       modelFile: "nail-texture-seg-provider-fallback.onnx",
       labels: ["nail_texture"],
     }),
-  })) as typeof fetch;
+  })) as unknown as typeof fetch;
 
   try {
     const runtime = await getNailTextureModelRuntime(
@@ -445,7 +445,7 @@ test("recognizeNailTextures reports model elapsed time on successful model infer
       scoreThreshold: 0.25,
       labels: ["nail_texture"],
     }),
-  })) as typeof fetch;
+  })) as unknown as typeof fetch;
 
   try {
     const result = await recognizeNailTextures(
@@ -471,17 +471,17 @@ test("recognizeNailTextures reports model elapsed time on successful model infer
     if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (navigatorDescriptor) {
       Object.defineProperty(globalThis, "navigator", navigatorDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { navigator?: unknown }).navigator;
+      delete (globalThis as Record<string, unknown>).navigator;
     }
     if (performanceDescriptor) {
       Object.defineProperty(globalThis, "performance", performanceDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { performance?: unknown }).performance;
+      delete (globalThis as Record<string, unknown>).performance;
     }
   }
 });
@@ -543,7 +543,7 @@ test("recognizeNailTextures respects maxCandidates on successful model inference
       modelFile: "nail-texture-seg-v-capped.onnx",
       labels: ["nail_texture"],
     }),
-  })) as typeof fetch;
+  })) as unknown as typeof fetch;
 
   try {
     const result = await recognizeNailTextures(
@@ -567,12 +567,12 @@ test("recognizeNailTextures respects maxCandidates on successful model inference
     if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (navigatorDescriptor) {
       Object.defineProperty(globalThis, "navigator", navigatorDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { navigator?: unknown }).navigator;
+      delete (globalThis as Record<string, unknown>).navigator;
     }
   }
 });
@@ -627,7 +627,7 @@ test("recognizeNailTextures distinguishes model inference failures from manifest
       modelFile: "nail-texture-seg-v-run-fails.onnx",
       labels: ["nail_texture"],
     }),
-  })) as typeof fetch;
+  })) as unknown as typeof fetch;
 
   try {
     const result = await recognizeNailTextures(
@@ -655,12 +655,12 @@ test("recognizeNailTextures distinguishes model inference failures from manifest
     if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (navigatorDescriptor) {
       Object.defineProperty(globalThis, "navigator", navigatorDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { navigator?: unknown }).navigator;
+      delete (globalThis as Record<string, unknown>).navigator;
     }
   }
 });
@@ -728,7 +728,7 @@ test("model runtime cache is isolated by manifest url", async () => {
         labels: ["nail_texture"],
       }),
     } as Response;
-  }) as typeof fetch;
+  }) as unknown as typeof fetch;
 
   try {
     const runtimeV1 = await getNailTextureModelRuntime(
@@ -765,12 +765,12 @@ test("model runtime cache is isolated by manifest url", async () => {
     if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (navigatorDescriptor) {
       Object.defineProperty(globalThis, "navigator", navigatorDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { navigator?: unknown }).navigator;
+      delete (globalThis as Record<string, unknown>).navigator;
     }
   }
 });

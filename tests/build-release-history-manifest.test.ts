@@ -153,6 +153,8 @@ test("build-release-history-manifest summarizes multiple release trace indexes",
       failureCategoryTotal: number;
       failureSummaryCsvRows: number;
       failureSummaryInferredRecordFailures: number;
+      visualEvidenceTraceIndexes: number;
+      recognitionMaskEvidenceTraceIndexes: number;
     };
     decisionCounts: Record<string, number>;
     finalAuditStatusCounts: Record<string, number>;

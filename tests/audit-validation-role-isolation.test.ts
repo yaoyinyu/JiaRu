@@ -116,7 +116,7 @@ function fixture() {
   const trainDocument = {
     ok: true,
     decision: "approved_unique_training_truth_index",
-    inputs: { truthRole: "train" },
+    inputs: { truthRole: "train" } as Record<string, unknown>,
     summary: { uniqueImageCount: trainTruths.length },
     canonicalTruths: trainTruths,
     conflicts: [],
@@ -202,6 +202,20 @@ function save(item: Fixture) {
   );
 }
 
+type IsolationReport = {
+  status: string;
+  decision: string;
+  overlaps: {
+    fileName: string[];
+    imageSha256: string[];
+    sourceGroup: string[];
+  };
+  roles: Record<string, { images: number }>;
+  inputs: Record<string, { sha256: string }>;
+  errors: string[];
+  allRolesSha256: string;
+};
+
 function run(
   item: Fixture,
   withHardNegatives = true,
@@ -222,10 +236,10 @@ function run(
     args.push("--hard-negative-manifest", item.hardManifest);
   }
   const result = spawnSync("python", args, { encoding: "utf8" });
-  let report: Record<string, unknown> | undefined;
+  let report: IsolationReport | undefined;
   if (existsSync(output)) {
     try {
-      report = JSON.parse(readFileSync(output, "utf8"));
+      report = JSON.parse(readFileSync(output, "utf8")) as IsolationReport;
     } catch {
       report = undefined;
     }
@@ -241,23 +255,23 @@ test("approves deterministic hash-bound isolation across all four roles", () => 
   const item = fixture();
   const first = run(item);
   assert.equal(first.status, 0, first.stderr || first.stdout);
-  assert.equal(first.report.status, "PASS");
-  assert.equal(first.report.decision, "approved_validation_role_isolation");
-  assert.deepEqual(first.report.overlaps, {
+  assert.equal(first.report!.status, "PASS");
+  assert.equal(first.report!.decision, "approved_validation_role_isolation");
+  assert.deepEqual(first.report!.overlaps, {
     fileName: [],
     imageSha256: [],
     sourceGroup: [],
   });
-  assert.equal(first.report.roles.val.images, 30);
-  assert.equal(first.report.roles["hard-negative"].images, 100);
-  for (const input of Object.values(first.report.inputs) as Array<{
+  assert.equal(first.report!.roles.val.images, 30);
+  assert.equal(first.report!.roles["hard-negative"].images, 100);
+  for (const input of Object.values(first.report!.inputs) as Array<{
     sha256: string;
   }>) {
     assert.match(input.sha256, /^[a-f0-9]{64}$/);
   }
   const second = run(item);
   assert.equal(second.status, 0, second.stderr || second.stdout);
-  assert.equal(second.report.allRolesSha256, first.report.allRolesSha256);
+  assert.equal(second.report!.allRolesSha256, first.report!.allRolesSha256);
 });
 
 test("accepts the hash-bound legacy training-truth contract without truthRole", () => {
@@ -278,7 +292,7 @@ test("accepts the hash-bound legacy training-truth contract without truthRole", 
   save(item);
   const result = run(item);
   assert.equal(result.status, 0, result.stderr || result.stdout);
-  assert.equal(result.report.status, "PASS");
+  assert.equal(result.report!.status, "PASS");
 });
 
 test("excludes the in-dataset materialization report from the exact file inventory", () => {
@@ -293,7 +307,7 @@ test("excludes the in-dataset materialization report from the exact file invento
   item.valReport = report;
   const result = run(item);
   assert.equal(result.status, 0, result.stderr || result.stdout);
-  assert.equal(result.report.status, "PASS");
+  assert.equal(result.report!.status, "PASS");
 });
 
 test("places cross-role fileName, image hash, or source group overlap on HOLD", async (t) => {
@@ -317,8 +331,8 @@ test("places cross-role fileName, image hash, or source group overlap on HOLD", 
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.equal(result.report.status, "HOLD");
-    assert.equal(result.report.overlaps.fileName.length, 1);
+    assert.equal(result.report!.status, "HOLD");
+    assert.equal(result.report!.overlaps.fileName.length, 1);
   });
   await t.test("image SHA-256", () => {
     const item = fixture();
@@ -341,7 +355,7 @@ test("places cross-role fileName, image hash, or source group overlap on HOLD", 
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.equal(result.report.overlaps.imageSha256.length, 1);
+    assert.equal(result.report!.overlaps.imageSha256.length, 1);
   });
   await t.test("sourceGroup including frozen parent group", () => {
     const item = fixture();
@@ -350,7 +364,7 @@ test("places cross-role fileName, image hash, or source group overlap on HOLD", 
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.equal(result.report.overlaps.sourceGroup.length, 1);
+    assert.equal(result.report!.overlaps.sourceGroup.length, 1);
   });
 });
 
@@ -361,9 +375,9 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /sourceGroup is missing/);
+    assert.match(result.report!.errors.join("\n"), /sourceGroup is missing/);
     assert.equal(
-      result.report.inputs.hardNegativeManifest.sha256,
+      result.report!.inputs.hardNegativeManifest.sha256,
       shaFile(item.hardManifest),
     );
   });
@@ -374,7 +388,7 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /duplicate fileName/);
+    assert.match(result.report!.errors.join("\n"), /duplicate fileName/);
   });
   await t.test("validation below 30", () => {
     const item = fixture();
@@ -382,7 +396,7 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /only 29 images/);
+    assert.match(result.report!.errors.join("\n"), /only 29 images/);
   });
   await t.test("validation orphan", () => {
     const item = fixture();
@@ -390,7 +404,7 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /orphan files/);
+    assert.match(result.report!.errors.join("\n"), /orphan files/);
   });
   await t.test("unlisted physical validation orphan despite clean report counters", () => {
     const item = fixture();
@@ -398,7 +412,7 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     const result = run(item);
     assert.notEqual(result.status, 0);
     assert.match(
-      result.report.errors.join("\n"),
+      result.report!.errors.join("\n"),
       /file inventory differs from datasetFiles.*orphan\.txt/,
     );
   });
@@ -411,7 +425,7 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     writeFileSync(target, "changed");
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /dataset file hash drift/);
+    assert.match(result.report!.errors.join("\n"), /dataset file hash drift/);
   });
   await t.test("train final report drift", () => {
     const item = fixture();
@@ -419,7 +433,7 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     writeFileSync(report, `${readFileSync(report, "utf8")} `);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /final report hash drift/);
+    assert.match(result.report!.errors.join("\n"), /final report hash drift/);
   });
   await t.test("frozen manifest aggregate drift", () => {
     const item = fixture();
@@ -430,7 +444,7 @@ test("rejects missing fields, duplicate identities, weak val evidence, and hash 
     );
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /items SHA-256 drift/);
+    assert.match(result.report!.errors.join("\n"), /items SHA-256 drift/);
   });
 });
 
@@ -464,7 +478,7 @@ test("requires an explicitly approved and hash-bound hard-negative manifest", as
       save(item);
       const result = run(item);
       assert.notEqual(result.status, 0);
-      assert.match(result.report.errors.join("\n"), scenario.pattern);
+      assert.match(result.report!.errors.join("\n"), scenario.pattern);
     });
   }
 
@@ -477,7 +491,7 @@ test("requires an explicitly approved and hash-bound hard-negative manifest", as
     );
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /itemsSha256.*SHA-256/);
+    assert.match(result.report!.errors.join("\n"), /itemsSha256.*SHA-256/);
   });
 
   await t.test("itemsSha256 must match items", () => {
@@ -489,7 +503,7 @@ test("requires an explicitly approved and hash-bound hard-negative manifest", as
     );
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /items SHA-256 drift/);
+    assert.match(result.report!.errors.join("\n"), /items SHA-256 drift/);
   });
 });
 
@@ -501,7 +515,7 @@ test("rejects unsafe frozen-test lane values before resolving image evidence", a
       save(item);
       const result = run(item);
       assert.notEqual(result.status, 0);
-      assert.match(result.report.errors.join("\n"), /invalid lane/);
+      assert.match(result.report!.errors.join("\n"), /invalid lane/);
     });
   }
 
@@ -515,7 +529,7 @@ test("rejects unsafe frozen-test lane values before resolving image evidence", a
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /invalid lane/);
+    assert.match(result.report!.errors.join("\n"), /invalid lane/);
   });
 
   await t.test("unknown single-segment lane", () => {
@@ -524,7 +538,7 @@ test("rejects unsafe frozen-test lane values before resolving image evidence", a
     save(item);
     const result = run(item);
     assert.notEqual(result.status, 0);
-    assert.match(result.report.errors.join("\n"), /invalid lane/);
+    assert.match(result.report!.errors.join("\n"), /invalid lane/);
   });
 });
 

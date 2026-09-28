@@ -20,9 +20,17 @@ def sha256_file(path: Path) -> str:
     return digest.hexdigest()
 
 
+def flattened_pixels(image: Image.Image) -> list[int]:
+    """逐像素扁平序列；Pillow >= 12.1 用 get_flattened_data()，旧版本回退 getdata()。"""
+    getter = getattr(image, "get_flattened_data", None)
+    if getter is not None:
+        return list(getter())
+    return list(image.getdata())
+
+
 def difference_hash(image: Image.Image, size: int = 8) -> str:
     grayscale = image.convert("L").resize((size + 1, size))
-    pixels = list(grayscale.get_flattened_data())
+    pixels = flattened_pixels(grayscale)
     bits = 0
     for y in range(size):
         for x in range(size):

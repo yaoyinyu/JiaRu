@@ -121,9 +121,11 @@ test("run-real-model-final-audit writes final report and first-run record", asyn
   const finalReport = JSON.parse(await readFile(summary.finalReportPath, "utf8")) as {
     decision: { status: string };
     failureSummary: { totals: { inferredRecordFailure: number } };
+    firstRunOutputs: { recognitionMaskPath?: string | null };
   };
   const firstRunRecord = JSON.parse(await readFile(summary.recordPath, "utf8")) as {
     decision: { status: string };
+    outputs: { recognitionMaskPath?: string | null };
   };
   const failureSummary = JSON.parse(await readFile(summary.failureSummaryPath, "utf8")) as {
     totals: { inferredRecordFailure: number };

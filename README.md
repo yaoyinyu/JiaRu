@@ -122,7 +122,7 @@ JiaRu/
 │   │   └── api/me/               # 账号 API（档案/登录方式/改进计划偏好）
 │   │
 │   ├── components/               # 可复用组件
-│   │   ├── ArView.tsx            # AR 核心：摄像头 + MediaPipe + 指甲绘制（~1150 行）
+│   │   ├── ArView.tsx            # AR 核心：摄像头 + MediaPipe + 指甲绘制（~1374 行）
 │   │   ├── NailCanvas.tsx        # 涂色画布组件
 │   │   ├── ColorPalette.tsx      # 颜色选择器（20 种预设色 + 自定义取色）
 │   │   ├── UploadButton.tsx      # 图片上传按钮
@@ -178,8 +178,9 @@ JiaRu/
 │   └── reports/                  # 本地机器报告目录（不进入 Git）
 │
 ├── scripts/                      # 审计/验证/发布治理脚本
-├── tests/                        # 测试文件（当前 350+ 项）
+├── tests/                        # 测试文件（当前 950+ 项；ML/数据治理用例需 Python 环境，缺依赖自动 skip）
 ├── e2e/                          # Playwright 浏览器端到端回归（评审 #11 六用例）
+├── .github/workflows/            # CI：类型检查（产品/测试双 tsconfig）、ESLint、全量测试、生产构建
 ├── docs/                         # 项目文档（见下方索引）
 ├── dev-log/                      # 开发日志（按天，2026-06-21 至今）
 ├── output/                       # 本地审核/调试产物（不进入 Git）
@@ -309,7 +310,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.718 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.766 | 模块状态、接口契约、使用方式、已知限制——项目唯一总入口 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
@@ -356,7 +357,7 @@ copy .env.local.example .env.local
 ### Phase 1: MVP ✅ 完成
 
 - [x] 首页、编辑器、图库、隐私页
-- [x] ESLint 0 errors、350+ 测试通过、生产构建通过
+- [x] ESLint 0 errors、950+ 项测试、生产构建通过
 
 ### Phase 2: AI 生成 ✅ 完成
 
@@ -429,7 +430,7 @@ copy .env.local.example .env.local
 - [x] API 安全加固（2026-09-24 审计修复）：Next 16.2.9→16.3.6 修复 CVE-2026-75604（Windows 主机未授权 RCE，CVSS 9.0），`npm audit` 归零；新增按 IP 限流与 `/api/*` 状态变更 Origin 校验（CSRF）、错误响应脱敏、换绑接口状态枚举消除、`poweredByHeader: false`；云端 Nginx 反向代理上线（移除 3000 公网暴露、放行 443、安全响应头与 `limit_req`），部署配置留档 `deploy/nginx/`
 - [ ] SSH 22 端口来源 IP 收敛、域名与 TLS/443/HSTS 配置（待授予 CAM 服务角色）
 - [ ] 正式 API 鉴权与内容安全
-- [ ] ArView.tsx 拆分（1150 行 → 多模块）
+- [ ] ArView.tsx 拆分（1374 行 → 多模块）
 
 ---
 

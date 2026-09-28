@@ -121,6 +121,42 @@ export function validateNailTextureModelManifest(manifest: unknown): string[] {
   ) {
     errors.push("manifest_output_contract_must_be_non_empty_string");
   }
+  if (manifest.stage2 != null) {
+    if (!isPlainObject(manifest.stage2)) {
+      errors.push("manifest_stage2_must_be_object");
+    } else {
+      const stage2 = manifest.stage2 as Record<string, unknown>;
+      const stage2ModelFile = stage2.modelFile;
+      const stage2InputSize = stage2.inputSize;
+      const stage2CropContextRatio = stage2.cropContextRatio;
+      const stage2PromotionMargin = stage2.promotionMarginThreshold;
+
+      if (typeof stage2ModelFile !== "string" || !isSafeModelFileName(stage2ModelFile)) {
+        errors.push("manifest_stage2_model_file_must_be_safe_onnx_basename");
+      }
+      if (typeof stage2InputSize !== "number" || !Number.isInteger(stage2InputSize) || stage2InputSize <= 0) {
+        errors.push("manifest_stage2_input_size_must_be_positive_integer");
+      }
+      if (
+        typeof stage2CropContextRatio !== "number" ||
+        !Number.isFinite(stage2CropContextRatio) ||
+        stage2CropContextRatio < 0
+      ) {
+        errors.push("manifest_stage2_crop_context_ratio_must_be_non_negative_number");
+      }
+      if (
+        typeof stage2PromotionMargin !== "number" ||
+        !Number.isFinite(stage2PromotionMargin)
+      ) {
+        errors.push("manifest_stage2_promotion_margin_must_be_number");
+      }
+    }
+  }
+
+  if (manifest.testOnly != null && typeof manifest.testOnly !== "boolean") {
+    errors.push("manifest_test_only_must_be_boolean");
+  }
+
   if (
     manifest.scoreThreshold != null &&
     (typeof manifest.scoreThreshold !== "number" ||
@@ -372,4 +408,106 @@ export async function getNailTextureModelRuntime(
 export function resetNailTextureModelRuntimeCache(): void {
   manifestCache.clear();
   runtimeCache.clear();
+  stage2RuntimeCache.clear();
+}
+
+export interface NailTextureStage2Runtime {
+  available: boolean;
+  backend: NailTextureModelBackend;
+  session?: unknown;
+  ort?: OrtModuleLike;
+  warnings: string[];
+  modelUrl?: string;
+  inputSize: number;
+}
+
+const stage2RuntimeCache = new Map<string, Promise<NailTextureStage2Runtime>>();
+
+export function resolveStage2ModelUrl(
+  manifest: NailTextureModelManifest,
+  manifestUrl = "/models/nail-texture-seg/manifest.json"
+): string | null {
+  if (!manifest.stage2) return null;
+  const base = new URL(manifestUrl, getRuntimeBaseHref());
+  return new URL(manifest.stage2.modelFile, base).toString();
+}
+
+export async function getNailTextureStage2Runtime(
+  manifest: NailTextureModelManifest,
+  manifestUrl = "/models/nail-texture-seg/manifest.json"
+): Promise<NailTextureStage2Runtime> {
+  const stage2 = manifest.stage2;
+  if (!stage2) {
+    return {
+      available: false,
+      backend: "fallback",
+      warnings: ["stage2_not_configured"],
+      inputSize: 0,
+    };
+  }
+
+  const cacheKey = `${manifestUrl}::${stage2.modelFile}`;
+  let cached = stage2RuntimeCache.get(cacheKey);
+  if (!cached) {
+    cached = (async (): Promise<NailTextureStage2Runtime> => {
+      const environment = detectNailTextureRuntimeEnvironment();
+      if (environment === "server") {
+        return {
+          available: false,
+          backend: "fallback",
+          warnings: ["model_runtime_unavailable_on_server"],
+          inputSize: stage2.inputSize,
+        };
+      }
+
+      const modelUrl = resolveStage2ModelUrl(manifest, manifestUrl);
+      if (!modelUrl) {
+        return {
+          available: false,
+          backend: "fallback",
+          warnings: ["stage2_model_url_unresolved"],
+          inputSize: stage2.inputSize,
+        };
+      }
+
+      const hasWebGpu = typeof navigator !== "undefined" && typeof navigator.gpu !== "undefined";
+      const warnings: string[] = [];
+      const candidates = getBackendCandidates(manifest.backendPreferences, hasWebGpu);
+
+      for (const backend of candidates) {
+        const ort = await loadOrtModule(backend);
+        if (!ort) {
+          warnings.push(`stage2_onnx_runtime_import_failed:${backend}`);
+          continue;
+        }
+        try {
+          const session = await createOrtSession(ort, modelUrl, backend);
+          return {
+            available: true,
+            backend,
+            session,
+            ort,
+            warnings,
+            modelUrl,
+            inputSize: stage2.inputSize,
+          };
+        } catch (error) {
+          warnings.push(
+            error instanceof Error
+              ? `stage2_onnx_session_init_failed:${backend}:${error.message}`
+              : `stage2_onnx_session_init_failed:${backend}`
+          );
+        }
+      }
+
+      return {
+        available: false,
+        backend: "fallback",
+        warnings: [...warnings, "stage2_runtime_unavailable"],
+        inputSize: stage2.inputSize,
+      };
+    })();
+    stage2RuntimeCache.set(cacheKey, cached);
+  }
+  return cached;
 }

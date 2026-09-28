@@ -38,6 +38,14 @@ export interface SessionRow {
   created_at: number;
   expires_at: number;
   revoked_at: number | null;
+  /**
+   * refresh 令牌轮换凭据（2026-09-27 修复 M2）。
+   * `refresh_nonce` = 当前有效的 refresh jti；`prev_refresh_nonce` 与其过期时间
+   * 构成宽限窗口，用于容纳并发请求（多个请求同时携带同一旧令牌）。
+   */
+  refresh_nonce: string | null;
+  prev_refresh_nonce: string | null;
+  prev_nonce_expires_at: number | null;
 }
 
 export interface ConsentRow {

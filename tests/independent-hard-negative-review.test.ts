@@ -496,7 +496,7 @@ test("independent review rejects drift in the freeze-bound registry", () => {
   writeFileSync(item.protectedRegistry, "{}\n");
   const built = buildIndependentFixture(item);
   assert.notEqual(built.status, 0);
-  assert.match(built.stderr, /registry.*SHA-256.*drift|registry binding drift/is);
+  assert.match(built.stderr, /registry[\s\S]*SHA-256[\s\S]*drift|registry binding drift/i);
   assert.equal(existsSync(item.workspace), false);
 });
 

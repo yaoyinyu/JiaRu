@@ -338,7 +338,7 @@ test("verify-freeze deeply rejects protected registry drift and omission", () =>
     { encoding: "utf8" },
   );
   assert.notEqual(drifted.status, 0);
-  assert.match(drifted.stderr, /registry.*SHA-256.*drift|registry binding drift/is);
+  assert.match(drifted.stderr, /registry[\s\S]*SHA-256[\s\S]*drift|registry binding drift/i);
 
   const freeze = JSON.parse(readFileSync(manifestPath, "utf8"));
   delete freeze.inputs.protectedHardNegativeRegistry;
@@ -508,7 +508,7 @@ test("fixed perceptual duplicate gate rejects visually identical re-encodings", 
 
   const result = runRecorder(item);
   assert.notEqual(result.status, 0);
-  assert.match(result.stderr, /perceptual near-duplicate gate failed.*pairs=/s);
+  assert.match(result.stderr, /perceptual near-duplicate gate failed[\s\S]*pairs=/);
   assert.equal(existsSync(path.join(item.images, freezeDirectory)), false);
 });
 

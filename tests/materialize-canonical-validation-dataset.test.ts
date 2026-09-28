@@ -20,10 +20,45 @@ const script = path.resolve(
 const sha = (file: string) =>
   createHash("sha256").update(readFileSync(file)).digest("hex");
 
+type CanonicalTruth = {
+  reportPath: string;
+  reportName: string;
+  reportSha256: string;
+  sequence: number;
+  fileName: string;
+  imageSha256: string;
+  sourceGroup: string;
+  completeMaskCount: number;
+  annotationPath: string;
+  annotationSha256: string;
+};
+
+type TruthIndex = {
+  schemaVersion: number;
+  ok: boolean;
+  decision: string;
+  inputs: { truthRole: string; truthDir: string };
+  policy: Record<string, string>;
+  summary: {
+    approvedReportCount: number;
+    rejectedReportCount: number;
+    uniqueImageCount: number;
+    completeMaskCount: number;
+    redundantReportCount: number;
+    redundantImageCount: number;
+    conflictingImageCount: number;
+  };
+  canonicalTruths: CanonicalTruth[];
+  rejectedReports: unknown[];
+  redundantReports: unknown[];
+  conflicts: unknown[];
+  errors: unknown[];
+};
+
 type Fixture = {
   root: string;
   indexPath: string;
-  index: Record<string, unknown>;
+  index: TruthIndex;
 };
 
 async function fixture(): Promise<Fixture> {

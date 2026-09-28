@@ -185,6 +185,10 @@ test("build-release-trace-index links batch release decision promotion and regis
     release: {
       finalAuditStatus: string | null;
       derivedAnnotationFailures: number;
+      firstRunOutputs?: {
+        debugJsonPath?: string | null;
+        recognitionMaskPath?: string | null;
+      } | null;
       failureCategoryCounts: Record<string, number> | null;
       failureSummaryTotals: {
         csvRows?: number;

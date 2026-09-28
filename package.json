@@ -10,6 +10,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "typecheck:tests": "tsc --noEmit -p tsconfig.tests.json",
     "test": "node --no-warnings --experimental-strip-types --test --test-concurrency=1 tests/*.test.ts",
     "audit:encoding": "node --no-warnings --experimental-strip-types scripts/audit-text-encoding.ts",
     "audit:mvp-readiness": "node --no-warnings --experimental-strip-types scripts/audit-nail-texture-mvp-readiness.ts",

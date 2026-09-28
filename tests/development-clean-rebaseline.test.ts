@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import test from "node:test";
 
@@ -39,10 +40,16 @@ test("干净开发评估物化器冻结58正图、354 mask和40负图", () => {
   assert.deepEqual(result, { ok: true, records: 98 });
 });
 
-test("循环012计划锁定唯一变量、样本数量和开发绝对门", async () => {
+test("循环012计划锁定唯一变量、样本数量和开发绝对门", async (t) => {
+  // 该计划是本机治理证据文件（.gitignore 隔离，不进 Git）；新克隆环境缺失时跳过而非硬失败。
+  const planPath = "model/training/nail-texture-development-cycle-012-plan-v1.json";
+  if (!existsSync(planPath)) {
+    t.skip("循环012计划 JSON 为本机 gitignored 治理证据，当前环境不存在");
+    return;
+  }
   const plan = JSON.parse(
     await (await import("node:fs/promises")).readFile(
-      "model/training/nail-texture-development-cycle-012-plan-v1.json",
+      planPath,
       "utf8",
     ),
   );

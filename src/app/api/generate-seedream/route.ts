@@ -15,7 +15,7 @@ import {
   resolveSeedreamDimension,
   type SeedreamModel,
 } from "@/lib/seedream-image-size";
-import { requireUser } from "@/lib/auth/http";
+import { applyRenewedCookies, requireUserWithRenewal } from "@/lib/auth/http";
 import {
   getAiQuotaGuard,
   guestIdentityFromHeaders,
@@ -110,7 +110,10 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 6. 身份识别与配额预留（游客可用，但受服务端额度与预算熔断约束）──
-  const user = requireUser(req);
+  // 2026-09-27 修复 M2：refresh 令牌现在每次续期都轮换，本路由必须把新令牌写回
+  // Cookie，否则轮换出来的新 refresh 会丢失、用户 2 小时后被登出。
+  const session = requireUserWithRenewal(req);
+  const user = session?.user ?? null;
   const guard = getAiQuotaGuard();
   const identity = user ? `user:${user.id}` : guestIdentityFromHeaders(req.headers);
   const quotaResult = guard.reserve({
@@ -139,7 +142,7 @@ export async function POST(req: NextRequest) {
       pixelSize,
     });
     guard.commit(reservation);
-    return NextResponse.json({ imageUrl });
+    return applyRenewedCookies(NextResponse.json({ imageUrl }), session);
   } catch (err) {
     // 失败返还该身份当日次数（全局日计数保留，保守防刷）
     guard.release(reservation);

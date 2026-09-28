@@ -31,6 +31,8 @@ interface JwtPayload {
   exp: number;
   iss: string;
   aud: string;
+  /** refresh 令牌的一次性轮换凭据（2026-09-27 修复 M2）；access 令牌不带 */
+  jti?: string;
 }
 
 export function signJwt(
@@ -48,6 +50,8 @@ export function signJwt(
       exp: now + payload.expiresInSec,
       iss: JWT_ISSUER,
       aud: JWT_AUDIENCE,
+      // refresh 令牌的一次性轮换凭据（M2）；access 不带，保持令牌体积最小
+      ...(payload.jti ? { jti: payload.jti } : {}),
     })
   );
   const signingInput = `${header}.${body}`;

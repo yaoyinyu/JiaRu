@@ -1,12 +1,32 @@
 import type { ImagePixels } from "../nail-image-detection.ts";
 import { recognizeNailTexturesWithFallback } from "./fallback-adapter.ts";
-import { getNailTextureModelRuntime } from "./model-runtime.ts";
+import {
+  getNailTextureModelRuntime,
+  getNailTextureStage2Runtime,
+  loadNailTextureModelManifest,
+} from "./model-runtime.ts";
 import { serializeModelOutputs, summarizeModelOutputs } from "./debug.ts";
 import {
   postprocessNailTextureDetections,
   type ModelTensorLike,
 } from "./postprocess.ts";
-import { preprocessNailTextureImage } from "./preprocess.ts";
+import { preprocessNailTextureImage, type NailTexturePreprocessResult } from "./preprocess.ts";
+import { runTwoStageComposition } from "./two-stage.ts";
+
+function toPreprocessInfo(preprocess: NailTexturePreprocessResult) {
+  return {
+    inputSize: preprocess.inputSize,
+    originalWidth: preprocess.originalWidth,
+    originalHeight: preprocess.originalHeight,
+    scaleX: preprocess.scaleX,
+    scaleY: preprocess.scaleY,
+    resizeScale: preprocess.resizeScale,
+    resizedWidth: preprocess.resizedWidth,
+    resizedHeight: preprocess.resizedHeight,
+    padLeft: preprocess.padLeft,
+    padTop: preprocess.padTop,
+  };
+}
 import type {
   RecognizeNailTexturesOptions,
   NailTextureRecognitionResult,
@@ -85,6 +105,81 @@ export async function recognizeNailTextures(
     const rawModelOutputs = options.debugRawModelOutputs
       ? serializeModelOutputs(outputs as Record<string, ModelTensorLike>)
       : undefined;
+    const manifest = await loadNailTextureModelManifest(options.manifestUrl);
+
+    // 两阶段组合运行时：仅当 manifest 显式声明 stage2 时启用，单模型路径完全不受影响。
+    if (manifest.stage2) {
+      const stage2Runtime = await getNailTextureStage2Runtime(manifest, options.manifestUrl);
+      const stage2 =
+        stage2Runtime.available && stage2Runtime.session && stage2Runtime.ort?.Tensor
+          ? {
+              session: stage2Runtime.session,
+              ort: stage2Runtime.ort as unknown as {
+                Tensor: new (
+                  type: string,
+                  data: Float32Array,
+                  dims: readonly number[]
+                ) => unknown;
+              },
+              inputSize: stage2Runtime.inputSize,
+            }
+          : null;
+
+      const twoStage = await runTwoStageComposition({
+        source,
+        manifest,
+        stage1Outputs: outputs as Record<string, ModelTensorLike>,
+        preprocess,
+        stage2,
+        postprocess: (stageOutputs, stagePreprocess, stageOptions) =>
+          postprocessNailTextureDetections(stageOutputs, stagePreprocess, stageOptions),
+        maxCandidates: options.maxCandidates ?? 10,
+        includeLowConfidenceCandidates: options.includeLowConfidenceCandidates,
+      });
+
+      const stage2Diagnostics = {
+        evaluatedProposals: twoStage.evaluatedProposals,
+        promotedProposals: twoStage.promotedProposals,
+        acceptedByPrimaryRule: twoStage.acceptedByPrimaryRule,
+        stage2ModelVersion: manifest.stage2.modelFile,
+      };
+      const twoStageWarnings = [
+        ...runtime.warnings,
+        ...stage2Runtime.warnings,
+        ...twoStage.warnings,
+        ...(manifest.testOnly ? ["test_only_manifest_not_production_identity"] : []),
+      ];
+
+      if (twoStage.candidates.length === 0) {
+        const fallback = getFallback();
+        return {
+          ...fallback,
+          debugOutputs,
+          rawModelOutputs,
+          stage2: stage2Diagnostics,
+          preprocess: toPreprocessInfo(preprocess),
+          warnings: [
+            ...fallback.warnings,
+            ...twoStageWarnings,
+            "model_outputs_empty_used_fallback",
+          ],
+        };
+      }
+
+      return {
+        candidates: twoStage.candidates,
+        backend: "model",
+        elapsedMs: nowMs() - startedAt,
+        modelVersion: runtime.info.version,
+        modelInfo: runtime.info,
+        warnings: twoStageWarnings,
+        debugOutputs,
+        rawModelOutputs,
+        stage2: stage2Diagnostics,
+        preprocess: toPreprocessInfo(preprocess),
+      };
+    }
+
     const candidates = postprocessNailTextureDetections(
       outputs as Record<string, ModelTensorLike>,
       preprocess,

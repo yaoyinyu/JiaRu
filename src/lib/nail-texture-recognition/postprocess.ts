@@ -19,6 +19,12 @@ export interface PostprocessModelOutputsOptions {
   nmsThreshold?: number;
   preNmsTopK?: number;
   includeLowConfidenceCandidates?: boolean;
+  /**
+   * 直接提供已解析的检测行，跳过张量布局推断。
+   * 两阶段路径必须走这个入口：重建的入选张量形状为 [1, 属性数, 入选数]，
+   * 当入选数不超过 256 时 flattenDetectionRows 的布局启发式会误判为行主序。
+   */
+  detectionRows?: NailTextureDetectionRow[];
 }
 
 interface CandidateAngleEvidence {
@@ -395,13 +401,56 @@ export function stabilizeNailTextureCandidateAngles(
   });
 }
 
+export interface NailTextureDetectionRow {
+  cx: number;
+  cy: number;
+  width: number;
+  length: number;
+  score: number;
+  coefficients: number[];
+}
+
+/**
+ * 读取模型原始检测行（模型输入坐标系），供两阶段 stage2 取存在性分数复用。
+ * 分数语义与既有单模型路径一致：直接取自检测张量第 5 列。
+ */
+export function readDetectionRows(
+  outputs: Record<string, ModelTensorLike>
+): NailTextureDetectionRow[] {
+  const detectionTensor = selectDetectionTensor(outputs);
+  if (!detectionTensor) return [];
+
+  return flattenDetectionRows(detectionTensor)
+    .filter((row) => row.length >= 5)
+    .map((row) => {
+      const [cx, cy, width, length, score] = row;
+      return {
+        cx: Number(cx) || 0,
+        cy: Number(cy) || 0,
+        width: Number(width) || 0,
+        length: Number(length) || 0,
+        score: Number(score) || 0,
+        coefficients: row.slice(5),
+      };
+    })
+    .filter(
+      (row) =>
+        Number.isFinite(row.cx) &&
+        Number.isFinite(row.cy) &&
+        Number.isFinite(row.score) &&
+        row.width > 0 &&
+        row.length > 0
+    );
+}
+
 export function postprocessNailTextureDetections(
   outputs: Record<string, ModelTensorLike>,
   preprocess: NailTexturePreprocessResult,
   options: PostprocessModelOutputsOptions = {}
 ): NailTextureCandidate[] {
-  const detectionTensor = selectDetectionTensor(outputs);
-  if (!detectionTensor) return [];
+  const providedRows = options.detectionRows;
+  const detectionTensor = providedRows ? null : selectDetectionTensor(outputs);
+  if (!providedRows && !detectionTensor) return [];
   const prototypeTensor = selectPrototypeTensor(outputs, detectionTensor);
 
   const scoreThreshold = options.includeLowConfidenceCandidates
@@ -411,7 +460,18 @@ export function postprocessNailTextureDetections(
   const maskThreshold = options.maskThreshold ?? 0.5;
   const nmsThreshold = options.nmsThreshold ?? 0.55;
   const preNmsTopK = Math.max(maxCandidates, options.preNmsTopK ?? 100);
-  const rows = flattenDetectionRows(detectionTensor);
+  const rows = providedRows
+    ? providedRows.map((row) => [
+        row.cx,
+        row.cy,
+        row.width,
+        row.length,
+        row.score,
+        ...row.coefficients,
+      ])
+    : detectionTensor
+      ? flattenDetectionRows(detectionTensor)
+      : [];
 
   const rawCandidates = rows
     .filter((row) => row.length >= 5)

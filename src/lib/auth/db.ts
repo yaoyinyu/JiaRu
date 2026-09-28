@@ -50,7 +50,10 @@ CREATE TABLE IF NOT EXISTS user_sessions (
   last_seen INTEGER NOT NULL,
   created_at INTEGER NOT NULL,
   expires_at INTEGER NOT NULL,
-  revoked_at INTEGER
+  revoked_at INTEGER,
+  refresh_nonce TEXT,
+  prev_refresh_nonce TEXT,
+  prev_nonce_expires_at INTEGER
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_user ON user_sessions(user_id);
 
@@ -105,6 +108,8 @@ export interface UserDb {
   getSession(sessionId: string): SessionRow | undefined;
   revokeSession(sessionId: string, now: number): void;
   touchSession(sessionId: string, now: number, ip?: string | null): void;
+  /** 轮换 refresh 凭据：旧 nonce 退到宽限位并记宽限到期时间 */
+  rotateRefreshNonce(sessionId: string, nonce: string, prevExpiresAt: number): void;
   // consents
   getConsent(userId: string): ConsentRow | undefined;
   upsertConsent(userId: string, improvementEnabled: number, agreementVersion: string | null, now: number): void;
@@ -163,6 +168,17 @@ export function createUserDb(dbPath: string): UserDb {
   if (!codeColumns.some((c) => c.name === "consumed_at")) {
     db.exec(`ALTER TABLE verification_codes ADD COLUMN consumed_at INTEGER`);
   }
+  // 旧库迁移：refresh 轮换凭据列在 2026-09-27 引入（M2：refresh token 轮换与重放检测）。
+  const sessionColumns = db.prepare(`PRAGMA table_info(user_sessions)`).all() as Array<{ name: string }>;
+  for (const [column, ddl] of [
+    ["refresh_nonce", "TEXT"],
+    ["prev_refresh_nonce", "TEXT"],
+    ["prev_nonce_expires_at", "INTEGER"],
+  ] as const) {
+    if (!sessionColumns.some((c) => c.name === column)) {
+      db.exec(`ALTER TABLE user_sessions ADD COLUMN ${column} ${ddl}`);
+    }
+  }
 
   const stmt = {
     insertUser: db.prepare(
@@ -189,12 +205,17 @@ export function createUserDb(dbPath: string): UserDb {
       `UPDATE user_identities SET last_used_at = ? WHERE provider = ? AND identifier = ?`
     ),
     insertSession: db.prepare(
-      `INSERT INTO user_sessions (session_id, user_id, device_fingerprint, ip, location, last_seen, created_at, expires_at, revoked_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO user_sessions (session_id, user_id, device_fingerprint, ip, location, last_seen, created_at, expires_at, revoked_at, refresh_nonce)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ),
     getSession: db.prepare(`SELECT * FROM user_sessions WHERE session_id = ?`),
     revokeSession: db.prepare(`UPDATE user_sessions SET revoked_at = ? WHERE session_id = ?`),
     touchSession: db.prepare(`UPDATE user_sessions SET last_seen = ?, ip = COALESCE(?, ip) WHERE session_id = ?`),
+    rotateRefreshNonce: db.prepare(
+      `UPDATE user_sessions
+       SET prev_refresh_nonce = refresh_nonce, refresh_nonce = ?, prev_nonce_expires_at = ?
+       WHERE session_id = ?`
+    ),
     getConsent: db.prepare(`SELECT * FROM user_consents WHERE user_id = ?`),
     upsertConsent: db.prepare(
       `INSERT INTO user_consents (user_id, agreement_version, improvement_enabled, improvement_updated_at)
@@ -282,7 +303,8 @@ export function createUserDb(dbPath: string): UserDb {
         row.last_seen,
         row.created_at,
         row.expires_at,
-        row.revoked_at
+        row.revoked_at,
+        row.refresh_nonce ?? null
       );
     },
     getSession(sessionId) {
@@ -293,6 +315,9 @@ export function createUserDb(dbPath: string): UserDb {
     },
     touchSession(sessionId, now, ip) {
       stmt.touchSession.run(now, ip ?? null, sessionId);
+    },
+    rotateRefreshNonce(sessionId, nonce, prevExpiresAt) {
+      stmt.rotateRefreshNonce.run(nonce, prevExpiresAt, sessionId);
     },
     getConsent(userId) {
       return stmt.getConsent.get(userId) as ConsentRow | undefined;

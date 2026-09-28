@@ -92,6 +92,10 @@ test("regionNeedsReview becomes true for low confidence warnings or extraction q
       extractionDiagnostics: {
         quality: {
           ok: false,
+          foregroundPixels: 0,
+          boundsArea: 0,
+          fillRatio: 0,
+          touchesEdge: true,
           warnings: ["mask_crop_touches_edge"],
         },
         highlightRepair: {
@@ -133,6 +137,10 @@ test("summarizeRegionQuality dedupes user-facing review messages", () => {
     extractionDiagnostics: {
       quality: {
         ok: false,
+        foregroundPixels: 0,
+        boundsArea: 0,
+        fillRatio: 0,
+        touchesEdge: true,
         warnings: ["mask_crop_touches_edge"],
       },
       highlightRepair: {
@@ -158,6 +166,10 @@ test("summarizeExtractionDiagnostics builds readable extraction summary", () => 
   const summary = summarizeExtractionDiagnostics({
     quality: {
       ok: false,
+      foregroundPixels: 0,
+      boundsArea: 0,
+      fillRatio: 0,
+      touchesEdge: true,
       warnings: ["mask_crop_touches_edge", "dirty_mask_crop"],
     },
     highlightRepair: {
@@ -178,7 +190,14 @@ test("summarizeExtractionDiagnostics builds readable extraction summary", () => 
 
 test("summarizeExtractionDiagnostics explains the default highlight preservation policy", () => {
   const summary = summarizeExtractionDiagnostics({
-    quality: { ok: true, warnings: [] },
+    quality: {
+      ok: true,
+      foregroundPixels: 100,
+      boundsArea: 100,
+      fillRatio: 1,
+      touchesEdge: false,
+      warnings: [],
+    },
     highlightRepair: {
       strategy: "preserve",
       highlightPixels: 2,

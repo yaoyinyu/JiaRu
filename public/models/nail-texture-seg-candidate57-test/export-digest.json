@@ -1,0 +1,18 @@
+{
+  "stage1": {
+    "file": "candidate57-stage1-512-fp16.onnx",
+    "bytes": 44876273,
+    "sha256": "75165b8895bdf6b56621dedda2cf185334859d052475804a8406bd2864315f6a",
+    "imgsz": 512,
+    "sourcePt": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate56-square-stage1-recall-2026-09-04-v1\\candidate56-stage1\\weights\\best.pt",
+    "sourceSha256": "64628504735887655c45e494fbc19e9bdf2522f8391ade6e04d62d519dbdc272"
+  },
+  "stage2": {
+    "file": "candidate57-stage2-256-fp16.onnx",
+    "bytes": 5802686,
+    "sha256": "1195b0b5169f7f46991623455ffd99f900c4328a0ba423e3f9e4c32d344941e6",
+    "imgsz": 256,
+    "sourcePt": "E:\\AI Project\\Codex\\JiaRu_image\\训练输出\\nail-texture-candidate55-proposal-conditioned-roi-2026-09-04-v1\\candidate55-stage2\\weights\\best.pt",
+    "sourceSha256": "5e47bd7f684b7e05139c2df3569104e7d0ac5fe254fab29642821a92546a1e1f"
+  }
+}

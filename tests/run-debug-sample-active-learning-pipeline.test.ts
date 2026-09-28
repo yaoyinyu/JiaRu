@@ -250,7 +250,7 @@ test("run-debug-sample-active-learning-pipeline prioritizes imports and runs dat
   assert.deepEqual(releaseTraceDraft.activeLearning.prioritySummary?.warningBreakdown, {
     onnx_runtime_not_loaded: 1,
   });
-  assert.equal(releaseTraceDraft.activeLearning.readinessSnapshot?.imageCountGate.actual, 1);
+  assert.equal(releaseTraceDraft.activeLearning.readinessSnapshot?.imageCountGate?.actual, 1);
 
   const handoff = JSON.parse(
     await readFile(report.artifacts!.activeLearningHandoffPath!, "utf8")

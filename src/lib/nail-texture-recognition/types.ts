@@ -62,6 +62,16 @@ export interface NailTextureRecognitionResult {
   warnings: string[];
   debugOutputs?: NailTextureTensorSummary[];
   rawModelOutputs?: Record<string, { dims?: number[]; data: number[] }>;
+  /**
+   * 两阶段诊断。stage2 只提供存在性提升分数，
+   * promotedProposals 为通过晋级规则的提案数（历史证据下应为 0）。
+   */
+  stage2?: {
+    evaluatedProposals: number;
+    promotedProposals: number;
+    acceptedByPrimaryRule: number;
+    stage2ModelVersion?: string;
+  };
   preprocess?: {
     inputSize: number;
     originalWidth: number;
@@ -107,6 +117,31 @@ export interface RecognizeNailTextureResponse {
   modelInfo?: NailTextureModelInfo;
 }
 
+/**
+ * 两阶段运行时的第二阶段描述。
+ * 契约来源：model/training/candidate57-runtime-selection-lock-v1.json
+ * stage2 只提供存在性提升分数，最终 polygon 始终来自 stage1（selectedPolygon=stage1Polygon）。
+ */
+export interface NailTextureStage2Manifest {
+  modelFile: string;
+  inputSize: number;
+  cropContextRatio: number;
+  promotionMarginThreshold: number;
+}
+
+export interface NailTextureCompositionManifest {
+  proposalThreshold: number;
+  acceptanceThreshold: number;
+  promotionBandMinimum: number;
+  maximumProposalsPerImage: number;
+  dedup: {
+    maskIouThreshold: number;
+    maskContainmentThreshold: number;
+    maskScoreTolerance: number;
+    boxIouThreshold: number;
+  };
+}
+
 export interface NailTextureModelManifest {
   version: string;
   inputSize: number;
@@ -120,4 +155,13 @@ export interface NailTextureModelManifest {
   resizeMode?: "letterbox";
   outputContract?: string;
   scoreThreshold?: number;
+  /** 存在时启用两阶段运行时；缺省则沿用既有单模型路径。 */
+  stage2?: NailTextureStage2Manifest;
+  /** 两阶段阈值与去重契约；仅在 stage2 存在时生效。 */
+  composition?: NailTextureCompositionManifest;
+  /**
+   * 显式标记该 manifest 不得作为生产身份使用。
+   * 仅为 true 时不影响 /models/nail-texture-seg/ 生产 manifest 与 releaseIdentity。
+   */
+  testOnly?: boolean;
 }

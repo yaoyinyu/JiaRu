@@ -5,11 +5,11 @@ import { extractTextureFromMaskDetailed } from "../src/lib/nail-texture-recognit
 
 class FakeImageData implements ImageData {
   readonly colorSpace = "srgb";
-  data: Uint8ClampedArray;
+  data: Uint8ClampedArray<ArrayBuffer>;
   width: number;
   height: number;
 
-  constructor(data: Uint8ClampedArray, width: number, height: number) {
+  constructor(data: Uint8ClampedArray<ArrayBuffer>, width: number, height: number) {
     this.data = data;
     this.width = width;
     this.height = height;

@@ -18,8 +18,14 @@ import { verifyCaptcha } from "./captcha.ts";
 const ACCESS_TTL_SEC = 2 * 60 * 60; // 2 小时
 const REFRESH_TTL_SEC = 30 * 24 * 60 * 60; // 30 天
 const SESSION_TTL_MS = REFRESH_TTL_SEC * 1000;
-// refresh 剩余寿命低于该阈值时，静默续期顺带滑动重签 refresh（避免 30 天后突然掉线）
-const REFRESH_SLIDE_THRESHOLD_SEC = 15 * 24 * 60 * 60;
+// refresh 剩余寿命滑动阈值已随 M2 轮换移除：每次续期都重签 refresh，不再仅在末期滑动。
+/**
+ * 轮换宽限窗口（2026-09-27 修复 M2）：旧 refresh 在被替换后仍可继续使用的时长。
+ * 用于容纳并发请求（浏览器同时发多个请求、携带的是同一个旧 Cookie），
+ * 以及上一次响应 Cookie 未落盘的情况。窗口内命中旧 nonce 视为正常轮换；
+ * 窗口外仍使用旧 nonce 即判定为「重放」，整条会话吊销。
+ */
+const DEFAULT_REFRESH_GRACE_MS = 5 * 60 * 1000;
 
 const PHONE_RE = /^1[3-9]\d{9}$/;
 
@@ -32,25 +38,23 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
   const accessTtl = config.accessTtlSec ?? ACCESS_TTL_SEC;
   const refreshTtl = config.refreshTtlSec ?? REFRESH_TTL_SEC;
 
-  function issueTokens(userId: string, sessionId: string): AuthTokens {
-    return {
-      accessToken: issueAccessToken(userId, sessionId),
-      refreshToken: issueRefreshToken(userId, sessionId),
-    };
-  }
-
   function issueAccessToken(userId: string, sessionId: string): string {
     return signJwt({ sub: userId, sid: sessionId, typ: "access", expiresInSec: accessTtl }, config.jwtSecret);
   }
 
-  function issueRefreshToken(userId: string, sessionId: string): string {
-    return signJwt({ sub: userId, sid: sessionId, typ: "refresh", expiresInSec: refreshTtl }, config.jwtSecret);
+  /**
+   * 签发 refresh 令牌。`jti` 为该份 refresh 的一次性凭据，落库在会话行上，
+   * 续期时逐个轮换并可据以识别重放（2026-09-27 修复 M2）。
+   */
+  function issueRefreshToken(userId: string, sessionId: string, jti = randomUUID()): string {
+    return signJwt({ sub: userId, sid: sessionId, typ: "refresh", jti, expiresInSec: refreshTtl }, config.jwtSecret);
   }
 
-  /** 创建会话记录并签发双令牌 */
+  /** 创建会话记录并签发双令牌（refresh 带一次性 jti 并落库） */
   function openSession(userId: string, ctx: AuthSessionContext): AuthTokens {
     const sessionId = randomUUID();
     const now = Date.now();
+    const refreshJti = randomUUID();
     db.insertSession({
       session_id: sessionId,
       user_id: userId,
@@ -61,9 +65,15 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
       created_at: now,
       expires_at: now + SESSION_TTL_MS,
       revoked_at: null,
+      refresh_nonce: refreshJti,
+      prev_refresh_nonce: null,
+      prev_nonce_expires_at: null,
     });
     db.insertAuditLog({ actor_id: userId, action: "login", detail: "session opened", ip: ctx.ip ?? null, at: now });
-    return issueTokens(userId, sessionId);
+    return {
+      accessToken: issueAccessToken(userId, sessionId),
+      refreshToken: issueRefreshToken(userId, sessionId, refreshJti),
+    };
   }
 
   /** 校验 access token → 会话 → 用户；失败返回 null（未登录） */
@@ -101,21 +111,65 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
   }
 
   /**
-   * 静默续期（并发安全）：refresh 有效时签发新 access，不改会话、不撤销任何令牌。
-   * 与 rotateTokens（轮换，会撤销旧会话）不同，并发的多个请求各自续期互不失效，
-   * 适合在 access 过期时由服务端顺带完成（2026-09-05 评审 #6：持续会话闭环）。
-   * refresh 剩余寿命不足 15 天时顺带滑动重签 refresh，避免活跃用户 30 天后突然掉线。
+   * 静默续期（2026-09-27 修复 M2，改为「轮换 + 宽限 + 重放检测」）。
+   *
+   * 旧行为：refresh 有效就签发新 access，refresh 原样返回、永不失效——
+   * 一旦 refresh 泄露，攻击者可在 30 天内无限次换 access，且无法被发现。
+   *
+   * 新行为：每次续期都签发一份带新 `jti` 的 refresh，旧 jti 退到宽限位；
+   *  - 宽限窗口内使用旧 jti → 视为并发请求，正常轮换（并发安全不退化）；
+   *  - 宽限窗口外仍用旧 jti → 判定为重放，吊销整条会话并记审计日志；
+   *  - 会话行尚无 nonce（本次部署前建的老会话）→ 兼容放行并补写 nonce。
+   *
+   * 调用方必须用 {@link applyRenewedCookies} 把新 refresh 写回 Cookie，
+   * 否则轮换出的新令牌会丢失（本项目 13 处 requireUser 调用点均已回写）。
    */
   function renewFromRefresh(refreshToken: string | undefined | null): AuthTokens | null {
     const resolved = resolveRefreshToken(refreshToken);
     if (!resolved) return null;
     const payload = refreshToken ? verifyJwt(refreshToken, config.jwtSecret) : null;
-    const remainingSec = payload ? payload.exp - Math.floor(Date.now() / 1000) : 0;
-    const nextRefresh =
-      remainingSec > 0 && remainingSec < REFRESH_SLIDE_THRESHOLD_SEC
-        ? issueRefreshToken(resolved.user.id, resolved.sessionId)
-        : (refreshToken as string);
-    return { accessToken: issueAccessToken(resolved.user.id, resolved.sessionId), refreshToken: nextRefresh };
+    if (!payload) return null;
+
+    const now = Date.now();
+    const session = db.getSession(resolved.sessionId);
+    if (!session) return null;
+
+    const graceMs = graceWindowMs();
+    const jti = payload.jti ?? null;
+    const isCurrent = jti !== null && jti === session.refresh_nonce;
+    const withinGrace =
+      jti !== null &&
+      jti === session.prev_refresh_nonce &&
+      session.prev_nonce_expires_at !== null &&
+      now < session.prev_nonce_expires_at;
+
+    // 老会话兼容：部署前建立的会话没有 nonce，首次续期时补上，不误判为重放。
+    const legacySession = session.refresh_nonce === null;
+
+    if (!legacySession && !isCurrent && !withinGrace) {
+      db.revokeSession(resolved.sessionId, now);
+      db.insertAuditLog({
+        actor_id: resolved.user.id,
+        action: "refresh_replay_detected",
+        detail: `sid=${resolved.sessionId} jti=${jti ?? "none"}`,
+        ip: null,
+        at: now,
+      });
+      return null;
+    }
+
+    const nextJti = randomUUID();
+    db.rotateRefreshNonce(resolved.sessionId, nextJti, now + graceMs);
+    return {
+      accessToken: issueAccessToken(resolved.user.id, resolved.sessionId),
+      refreshToken: issueRefreshToken(resolved.user.id, resolved.sessionId, nextJti),
+    };
+  }
+
+  function graceWindowMs(): number {
+    const raw = Number(process.env.JIARU_REFRESH_GRACE_SEC);
+    if (!Number.isFinite(raw) || raw <= 0) return DEFAULT_REFRESH_GRACE_MS;
+    return Math.min(raw, 24 * 60 * 60) * 1000;
   }
 
   /**

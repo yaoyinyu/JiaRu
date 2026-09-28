@@ -1189,7 +1189,7 @@ test("completion audit v3 rejects forged, drifted, weak, and incomplete evidence
       scenarioGroups: [{ name: "stress", dimension: "skin-tone", sampleCount: 100, ok: true, boxMap50Delta: -0.021, maskMap50Delta: -0.02 }],
     }, /scenarioGroups does not match replay/],
     ["scenario-missing-dimension", {
-      scenarioGroups: fixture.productQuality.scenarioGroups.filter((group) => group.dimension !== "device-backend"),
+      scenarioGroups: fixture.productQuality.scenarioGroups.filter((group: { dimension: string }) => group.dimension !== "device-backend"),
     }, /scenarioGroups does not match replay/],
   ];
   for (const [name, mutation, expected] of weakCases) {
@@ -1208,7 +1208,7 @@ test("completion audit v3 rejects forged, drifted, weak, and incomplete evidence
   await t.test("rejects forged rollback PASS without verified release integrity", async () => {
     await writeJson(fixture.files.rollback, {
       ...fixture.rollback,
-      releases: fixture.rollback.releases.map((release, index) => index === 0 ? { ...release, integrityOk: false } : release),
+      releases: fixture.rollback.releases.map((release: Record<string, unknown>, index: number) => index === 0 ? { ...release, integrityOk: false } : release),
     });
     const output = path.join(root, "forged-rollback.json");
     const result = runAudit(fixture, output);
@@ -1232,7 +1232,7 @@ test("completion audit v3 rejects forged, drifted, weak, and incomplete evidence
       },
       ok: true,
       decision: "approved_release_rollback_audit",
-      releases: fixture.rollback.releases.map((release) => ({
+      releases: fixture.rollback.releases.map((release: Record<string, unknown>) => ({
         ...release,
         ok: true,
         integrityOk: true,

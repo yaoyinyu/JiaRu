@@ -4,6 +4,7 @@ import { createInMemoryUserDb } from "../src/lib/auth/db.ts";
 import { createAuthService } from "../src/lib/auth/service.ts";
 import { createCaptcha, verifyCaptcha } from "../src/lib/auth/captcha.ts";
 import { hashCode, todayString } from "../src/lib/auth/sms.ts";
+import { signJwt } from "../src/lib/auth/jwt.ts";
 import { AuthError } from "../src/lib/auth/types.ts";
 
 /**
@@ -13,6 +14,9 @@ import { AuthError } from "../src/lib/auth/types.ts";
  *  - 换绑在事务内一致更新 users.phone 与 phone identity；
  *  - 解绑 phone 同步清空资料，可再绑定；
  *  - refresh 静默续期并发安全（不轮换会话）+ 临近过期滑动重签。
+ *
+ * 2026-09-27 修复 M2 后，最后一行的语义已变更：续期不再"不轮换"，而是
+ * 「每次轮换 + 宽限窗口容忍并发 + 窗口外判定重放并吊销会话」。
  */
 
 const SECRET = "test-secret-at-least-16-chars";
@@ -145,7 +149,7 @@ test("unbind phone clears profile phone and allows binding again", async () => {
 
 // ── refresh 静默续期 ──
 
-test("renewFromRefresh issues working access token without rotating session", async () => {
+test("renewFromRefresh 轮换 refresh，并在宽限窗口内容忍并发", async () => {
   const { auth } = makeAuth();
   const { user, tokens } = auth.wechatLoginOrRegister("openid-renew-1", {});
 
@@ -153,35 +157,91 @@ test("renewFromRefresh issues working access token without rotating session", as
   assert.ok(renewed, "refresh 有效时应可续期");
   assert.equal(auth.resolveAccessToken(renewed.accessToken)?.id, user.id);
 
-  // 并发安全：旧 refresh 不被撤销，可再次续期（对比 rotateTokens 的轮换语义）
-  assert.equal(auth.resolveAccessToken(tokens.accessToken)?.id, user.id);
+  // 2026-09-27 修复 M2：每次续期都签发新 refresh，不再原样返回
+  assert.notEqual(renewed.refreshToken, tokens.refreshToken, "续期应轮换 refresh");
+
+  // 并发安全：同一旧令牌在宽限窗口内仍可续期（浏览器并发请求携带同一 Cookie）
   const again = auth.renewFromRefresh(tokens.refreshToken);
-  assert.ok(again);
+  assert.ok(again, "宽限窗口内旧令牌应仍可用（并发容忍）");
   assert.equal(auth.resolveAccessToken(again!.accessToken)?.id, user.id);
 
-  // 长寿命 refresh 不滑动重签（剩余 > 15 天）
-  assert.equal(renewed.refreshToken, tokens.refreshToken);
+  // 轮换出的新令牌自身也必须可用
+  const chained = auth.renewFromRefresh(renewed.refreshToken);
+  assert.ok(chained);
+  assert.equal(auth.resolveAccessToken(chained!.accessToken)?.id, user.id);
 
   // 注销后不可续期
-  auth.logout(tokens.refreshToken, {});
-  assert.equal(auth.renewFromRefresh(tokens.refreshToken), null);
+  const { tokens: t2 } = auth.wechatLoginOrRegister("openid-renew-2", {});
+  auth.logout(t2.refreshToken, {});
+  assert.equal(auth.renewFromRefresh(t2.refreshToken), null);
   assert.equal(auth.renewFromRefresh(undefined), null);
   assert.equal(auth.renewFromRefresh("garbage"), null);
 });
 
-test("renewFromRefresh slides refresh forward when close to expiry", (t) => {
-  // JWT payload 无随机成分（iat/exp 均为秒级时钟），登录与续期同秒时
-  // 重签结果与原 token 字节级相同，真实时钟下 notEqual 断言依赖秒边界
-  // 碰运气 → 用 mock 时钟确定性构造"临近过期"场景。
+test("旧 refresh 超出宽限窗口后再次使用 → 判定重放并吊销整条会话", (t) => {
   t.mock.timers.enable({ apis: ["Date"] });
-  const { auth } = makeAuth({ refreshTtlSec: 3600 }); // 1 小时 << 15 天阈值
+  const { auth } = makeAuth();
+  const { tokens } = auth.wechatLoginOrRegister("openid-replay-1", {});
+
+  const renewed = auth.renewFromRefresh(tokens.refreshToken);
+  assert.ok(renewed);
+
+  // 宽限窗口默认 5 分钟，前进 6 分钟后再用旧令牌
+  t.mock.timers.tick(6 * 60 * 1000);
+  assert.equal(auth.renewFromRefresh(tokens.refreshToken), null, "窗口外旧令牌应被拒");
+  assert.equal(auth.resolveRefreshToken(renewed.refreshToken), null, "判定重放后会话应已吊销");
+});
+
+test("宽限窗口可通过 JIARU_REFRESH_GRACE_SEC 调整", (t) => {
+  const prev = process.env.JIARU_REFRESH_GRACE_SEC;
+  process.env.JIARU_REFRESH_GRACE_SEC = "1";
+  t.after(() => {
+    if (prev === undefined) delete process.env.JIARU_REFRESH_GRACE_SEC;
+    else process.env.JIARU_REFRESH_GRACE_SEC = prev;
+  });
+  t.mock.timers.enable({ apis: ["Date"] });
+  const { auth } = makeAuth();
+  const { tokens } = auth.wechatLoginOrRegister("openid-grace-1", {});
+  auth.renewFromRefresh(tokens.refreshToken);
+  t.mock.timers.tick(3 * 1000); // 超过 1 秒宽限
+  assert.equal(auth.renewFromRefresh(tokens.refreshToken), null);
+});
+
+test("部署前建立的老会话（无 nonce）首次续期兼容放行", () => {
+  const { db, auth } = makeAuth();
+  const { user } = auth.wechatLoginOrRegister("openid-legacy-1", {});
+  // 直接插入一条没有轮换凭据的会话，模拟本次部署之前创建的会话
+  const sessionId = "legacy-session-no-nonce";
+  const now = Date.now();
+  db.insertSession({
+    session_id: sessionId,
+    user_id: user.id,
+    device_fingerprint: null,
+    ip: null,
+    location: null,
+    last_seen: now,
+    created_at: now,
+    expires_at: now + 30 * 24 * 3600 * 1000,
+    revoked_at: null,
+    refresh_nonce: null,
+    prev_refresh_nonce: null,
+    prev_nonce_expires_at: null,
+  });
+  const legacyRefresh = signJwt({ sub: user.id, sid: sessionId, typ: "refresh", expiresInSec: 3600 }, SECRET);
+  const renewed = auth.renewFromRefresh(legacyRefresh);
+  assert.ok(renewed, "老会话不应被误判为重放");
+  assert.equal(auth.resolveAccessToken(renewed!.accessToken)?.id, user.id);
+});
+
+test("renewFromRefresh 不再依赖临近过期才重签（全程轮换）", (t) => {
+  t.mock.timers.enable({ apis: ["Date"] });
+  const { auth } = makeAuth({ refreshTtlSec: 3600 });
   const { user, tokens } = auth.wechatLoginOrRegister("openid-slide-1", {});
 
-  // 前进 30 分钟：refresh 剩余 30 分钟 < 15 天阈值，但尚未过期 → 应滑动重签
   t.mock.timers.tick(30 * 60 * 1000);
   const renewed = auth.renewFromRefresh(tokens.refreshToken);
   assert.ok(renewed);
-  assert.notEqual(renewed.refreshToken, tokens.refreshToken, "临近过期应滑动重签 refresh");
+  assert.notEqual(renewed.refreshToken, tokens.refreshToken, "任何时点续期都应轮换 refresh");
   assert.equal(auth.resolveAccessToken(renewed.accessToken)?.id, user.id);
-  assert.ok(auth.resolveRefreshToken(renewed.refreshToken), "重签后的 refresh 仍然有效");
+  assert.ok(auth.resolveRefreshToken(renewed.refreshToken), "轮换后的 refresh 仍然有效");
 });

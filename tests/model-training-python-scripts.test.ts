@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { execFile } from "node:child_process";
+import { execFile, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { promisify } from "node:util";
@@ -8,6 +8,10 @@ import path from "node:path";
 import test from "node:test";
 
 const execFileAsync = promisify(execFile);
+
+const pythonBin = process.env.PYTHON ?? "python";
+const hasTorch = (): boolean =>
+  spawnSync(pythonBin, ["-c", "import torch"], { encoding: "utf8" }).status === 0;
 
 async function runPython(script: string, args: string[] = []) {
   const { stdout } = await execFileAsync(
@@ -129,7 +133,11 @@ test("train script freezes full-resolution boundary-preserving settings", async 
   assert.equal((result.hard_boundary as { kernel_size: number }).kernel_size, 3);
 });
 
-test("hard polygon boundary signal is differentiable and reacts to edge displacement", async () => {
+test("hard polygon boundary signal is differentiable and reacts to edge displacement", async (t) => {
+  if (!hasTorch()) {
+    t.skip("PyTorch is unavailable in this Python runtime");
+    return;
+  }
   const code = [
     "import sys, torch",
     "sys.path.insert(0, 'model/training')",
@@ -199,7 +207,7 @@ test("development materializer resamples complete train-positive source groups o
   ].join("\n");
   const result = await runPython("-c", [code]);
   assert.equal(result.ok, true);
-  assert.deepEqual(result.selected.slice(-2), ["resample01__a.jpg", "resample01__b.jpg"]);
+  assert.deepEqual((result.selected as string[]).slice(-2), ["resample01__a.jpg", "resample01__b.jpg"]);
 });
 
 test("train-positive difficulty analyzer derives replayable mask and contrast features", async () => {
@@ -343,7 +351,11 @@ test("train script hash-binds an interrupted checkpoint for exact resume", async
   assert.equal(resume.quality_parameters_unchanged, true);
 });
 
-test("checkpoint interpolation creates a hash-bound student artifact", async () => {
+test("checkpoint interpolation creates a hash-bound student artifact", async (t) => {
+  if (!hasTorch()) {
+    t.skip("PyTorch is unavailable in this Python runtime");
+    return;
+  }
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-checkpoint-interpolation-"));
   const base = path.join(root, "base.pt");
   const candidate = path.join(root, "candidate.pt");

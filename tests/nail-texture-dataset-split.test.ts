@@ -2,12 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildDatasetSplit,
+  NAIL_TEXTURE_DATASET_VERSION,
   type NailTextureAnnotationDocument,
 } from "../src/lib/nail-texture-dataset.ts";
 
 function documentFixture(fileName: string, sourceGroup: string): NailTextureAnnotationDocument {
   return {
-    version: "nail-texture-annotation/v1",
+    version: NAIL_TEXTURE_DATASET_VERSION,
     image: {
       id: fileName.replace(/\.[^.]+$/, ""),
       fileName,
@@ -27,8 +28,6 @@ function documentFixture(fileName: string, sourceGroup: string): NailTextureAnno
         ],
       },
     ],
-    createdAt: "2026-07-04T00:00:00.000Z",
-    updatedAt: "2026-07-04T00:00:00.000Z",
   };
 }
 

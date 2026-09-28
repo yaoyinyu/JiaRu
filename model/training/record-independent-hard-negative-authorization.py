@@ -148,12 +148,20 @@ def load_exact_authorization_builder() -> ModuleType:
     return module
 
 
+def flattened_pixels(image: Image.Image) -> list[int]:
+    """逐像素扁平序列；Pillow >= 12.1 用 get_flattened_data()，旧版本回退 getdata()。"""
+    getter = getattr(image, "get_flattened_data", None)
+    if getter is not None:
+        return list(getter())
+    return list(image.getdata())
+
+
 def difference_hash(image: Image.Image, size: int = 16) -> str:
     grayscale = image.convert("L").resize(
         (size + 1, size),
         Image.Resampling.LANCZOS,
     )
-    pixels = list(grayscale.get_flattened_data())
+    pixels = flattened_pixels(grayscale)
     bits = 0
     for row in range(size):
         offset = row * (size + 1)

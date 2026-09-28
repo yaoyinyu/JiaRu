@@ -119,7 +119,7 @@ test("recognizeNailTexturesInWorker preserves modelInfo from worker response", a
             outputNames: ["output0"],
           },
         },
-      } as MessageEvent<RecognizeNailTextureResponse>);
+      } as unknown as MessageEvent<RecognizeNailTextureResponse>);
     }
 
     terminate() {}
@@ -188,26 +188,26 @@ Object.defineProperty(globalThis, "window", {
         if (performanceDescriptor) {
       Object.defineProperty(globalThis, "performance", performanceDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { performance?: unknown }).performance;
+      delete (globalThis as Record<string, unknown>).performance;
     }if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (workerDescriptor) {
       Object.defineProperty(globalThis, "Worker", workerDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { Worker?: unknown }).Worker;
+      delete (globalThis as Record<string, unknown>).Worker;
     }
     if (imageDataDescriptor) {
       Object.defineProperty(globalThis, "ImageData", imageDataDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { ImageData?: unknown }).ImageData;
+      delete (globalThis as Record<string, unknown>).ImageData;
     }
     if (createImageBitmapDescriptor) {
       Object.defineProperty(globalThis, "createImageBitmap", createImageBitmapDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { createImageBitmap?: unknown }).createImageBitmap;
+      delete (globalThis as Record<string, unknown>).createImageBitmap;
     }
   }
 });
@@ -264,7 +264,7 @@ test("recognizeNailTexturesInWorker forwards explicit recognition options to wor
           elapsedMs: 3,
           warnings: [],
         },
-      } as MessageEvent<RecognizeNailTextureResponse>);
+      } as unknown as MessageEvent<RecognizeNailTextureResponse>);
     }
 
     terminate() {}
@@ -314,22 +314,22 @@ test("recognizeNailTexturesInWorker forwards explicit recognition options to wor
     if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (workerDescriptor) {
       Object.defineProperty(globalThis, "Worker", workerDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { Worker?: unknown }).Worker;
+      delete (globalThis as Record<string, unknown>).Worker;
     }
     if (imageDataDescriptor) {
       Object.defineProperty(globalThis, "ImageData", imageDataDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { ImageData?: unknown }).ImageData;
+      delete (globalThis as Record<string, unknown>).ImageData;
     }
     if (createImageBitmapDescriptor) {
       Object.defineProperty(globalThis, "createImageBitmap", createImageBitmapDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { createImageBitmap?: unknown }).createImageBitmap;
+      delete (globalThis as Record<string, unknown>).createImageBitmap;
     }
   }
 });
@@ -431,29 +431,29 @@ test("recognizeNailTexturesInWorker rejects with AbortError when cancelled", asy
           elapsedMs: 1,
           warnings: [],
         },
-      } as MessageEvent<RecognizeNailTextureResponse>);
+      } as unknown as MessageEvent<RecognizeNailTextureResponse>);
     }
   } finally {
     disposeNailTextureRecognitionWorker();
     if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (workerDescriptor) {
       Object.defineProperty(globalThis, "Worker", workerDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { Worker?: unknown }).Worker;
+      delete (globalThis as Record<string, unknown>).Worker;
     }
     if (imageDataDescriptor) {
       Object.defineProperty(globalThis, "ImageData", imageDataDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { ImageData?: unknown }).ImageData;
+      delete (globalThis as Record<string, unknown>).ImageData;
     }
     if (createImageBitmapDescriptor) {
       Object.defineProperty(globalThis, "createImageBitmap", createImageBitmapDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { createImageBitmap?: unknown }).createImageBitmap;
+      delete (globalThis as Record<string, unknown>).createImageBitmap;
     }
   }
 });
@@ -546,29 +546,29 @@ test("recognizeNailTexturesInWorker falls back when worker recognition times out
           elapsedMs: 1,
           warnings: [],
         },
-      } as MessageEvent<RecognizeNailTextureResponse>);
+      } as unknown as MessageEvent<RecognizeNailTextureResponse>);
     }
   } finally {
     disposeNailTextureRecognitionWorker();
     if (windowDescriptor) {
       Object.defineProperty(globalThis, "window", windowDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { window?: unknown }).window;
+      delete (globalThis as Record<string, unknown>).window;
     }
     if (workerDescriptor) {
       Object.defineProperty(globalThis, "Worker", workerDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { Worker?: unknown }).Worker;
+      delete (globalThis as Record<string, unknown>).Worker;
     }
     if (imageDataDescriptor) {
       Object.defineProperty(globalThis, "ImageData", imageDataDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { ImageData?: unknown }).ImageData;
+      delete (globalThis as Record<string, unknown>).ImageData;
     }
     if (createImageBitmapDescriptor) {
       Object.defineProperty(globalThis, "createImageBitmap", createImageBitmapDescriptor);
     } else {
-      delete (globalThis as typeof globalThis & { createImageBitmap?: unknown }).createImageBitmap;
+      delete (globalThis as Record<string, unknown>).createImageBitmap;
     }
   }
 });

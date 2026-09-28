@@ -56,7 +56,8 @@ const writeJson = (file: string, value: unknown) =>
 
 // Fixture documents intentionally mix several report schemas; `unknown` keeps
 // the helper generic without weakening the repository's no-explicit-any rule.
-type Json = Record<string, unknown>;
+// 测试夹具动态构建的异构 JSON 文档；显式 any 以允许任意字段读写。
+type Json = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 type Fixture = ReturnType<typeof fixture>;
 
 function datasetYaml(root: string, version: string) {

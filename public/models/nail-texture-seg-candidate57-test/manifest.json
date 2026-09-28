@@ -1,0 +1,85 @@
+{
+  "version": "nail-texture-seg-candidate57-test-v1",
+  "inputSize": 512,
+  "inputLayout": "NCHW",
+  "colorOrder": "RGB",
+  "normalization": "zero_to_one",
+  "resizeMode": "letterbox",
+  "task": "segment",
+  "backendPreferences": ["webgpu", "wasm"],
+  "modelFile": "candidate57-stage1-512-fp16.onnx",
+  "outputContract": "ultralytics-seg-raw-v1",
+  "labels": ["nail_texture"],
+  "testOnly": true,
+  "stage2": {
+    "modelFile": "candidate57-stage2-256-fp16.onnx",
+    "inputSize": 256,
+    "cropContextRatio": 0.35,
+    "promotionMarginThreshold": 0.55
+  },
+  "composition": {
+    "proposalThreshold": 0.1,
+    "acceptanceThreshold": 0.4,
+    "promotionBandMinimum": 0.3,
+    "maximumProposalsPerImage": 10,
+    "dedup": {
+      "maskIouThreshold": 0.6,
+      "maskContainmentThreshold": 0.85,
+      "maskScoreTolerance": 0.12,
+      "boxIouThreshold": 0.55
+    }
+  },
+  "provenance": {
+    "purpose": "用户授权的两阶段测试部署，用于实测 candidate57 在浏览器端的真实表现",
+    "runtimeSelectionLock": "model/training/candidate57-runtime-selection-lock-v1.json",
+    "selectionLockPolicy": {
+      "exportAuthorized": false,
+      "frontendIntegrationAuthorized": false,
+      "deploymentAuthorized": false,
+      "note": "选择锁未授权导出/接入/部署；本次为 2026-09-27 用户显式授权的测试专用通道，不写入生产 manifest、不建立 releaseIdentity、不降低正式发布门"
+    },
+    "releaseGate": {
+      "protectedTest100": {
+        "missingNailImageRate": 0.13,
+        "limit": 0.1,
+        "weightedStrayRate": 0.04693141,
+        "strayLimit": 0.02,
+        "decision": "hold_positive_recognition_gate"
+      },
+      "note": "candidate57 未通过受保护 test100 正式门，仍处于 TEST HOLD"
+    },
+    "stage1": {
+      "sourceWeights": "candidate56-square-stage1-recall-2026-09-04-v1/candidate56-stage1/weights/best.pt",
+      "sourceSha256": "64628504735887655c45e494fbc19e9bdf2522f8391ade6e04d62d519dbdc272",
+      "architecture": "YOLO11m-seg",
+      "parameters": 22359987,
+      "trainedImgsz": 512,
+      "onnxFile": "candidate57-stage1-512-fp16.onnx",
+      "onnxBytes": 44876273,
+      "onnxSha256": "75165b8895bdf6b56621dedda2cf185334859d052475804a8406bd2864315f6a",
+      "precision": "fp16",
+      "opset": 17,
+      "nms": false
+    },
+    "stage2": {
+      "sourceWeights": "candidate55-proposal-conditioned-roi-2026-09-04-v1/candidate55-stage2/weights/best.pt",
+      "sourceSha256": "5e47bd7f684b7e05139c2df3569104e7d0ac5fe254fab29642821a92546a1e1f",
+      "architecture": "YOLO11n-seg",
+      "trainedImgsz": 256,
+      "onnxFile": "candidate57-stage2-256-fp16.onnx",
+      "onnxBytes": 5802686,
+      "onnxSha256": "1195b0b5169f7f46991623455ffd99f900c4328a0ba423e3f9e4c32d344941e6",
+      "precision": "fp16",
+      "opset": 17,
+      "nms": false,
+      "role": "仅为 0.30 至 0.40 低置信带提供存在性提升分数；最终 polygon 始终取自 stage1"
+    },
+    "knownEvidence": "候选57在受保护 test100 中没有任何 stage2 晋级，最终 polygon 始终来自 stage1；stage2 是否真的无收益由本次测试实测确认",
+    "numericalCheck": {
+      "method": "同一随机输入下 ONNX 与 PyTorch 输出逐分量比较",
+      "stage1RelativeToTorchMax": [0.0031920004984411733, 0.0023716091058485727],
+      "stage2RelativeToTorchMax": [0.0014163902749875262, 0.0030175109962721457],
+      "conclusion": "偏差处于 FP16 舍入量级，导出未改变模型行为"
+    }
+  }
+}
