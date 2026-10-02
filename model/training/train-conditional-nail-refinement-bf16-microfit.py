@@ -39,11 +39,15 @@ def validate(plan):
     previous=a.read(a.checked(plan['inputs']['previousCapacityPlan']))
     failure=a.read(a.checked(plan['inputs']['previousExecutionFailure']))
     gradient=a.read(a.checked(plan['inputs']['bf16Gradient']))
+    for binding in previous['inputs'].values():a.checked(binding)
+    for binding in failure['inputs'].values():a.checked(binding)
     for binding in gradient['inputs'].values():a.checked(binding)
+    if failure['inputs']['plan']!=plan['inputs']['previousCapacityPlan']:raise ValueError('failure belongs to a different consumed plan')
     for key in ['candidateIds','approval','training','loss','gates','cacheCleanupRoots','full30PilotAllowed']:
         if plan[key]!=previous[key]:raise ValueError(f'numerical repair changed fixed contract: {key}')
     if not failure['budget']['attemptConsumed'] or failure['budget']['originalAttemptMayRestart']:raise ValueError('old consumed budget')
     if gradient['optimizerSteps']!=0 or gradient['candidateIds']!=plan['candidateIds'] or len(gradient['batches'])!=23 or not gradient['ok']:raise ValueError('BF16 initial gate')
+    if any(b['logitDtype']!='torch.bfloat16' or b['usedFiniteParameterTensors']!=302 or not b['conditionGradientNonzero'] for b in gradient['batches']):raise ValueError('BF16 all-batch finite gradients')
     if plan['precision']!={'autocast':'bfloat16','loss':'float32','lossScaling':False,'gradientNormClip':1.0}:raise ValueError('BF16 fixed precision')
     if plan['repairBudget']['maximumExperiments']!=1 or plan['repairBudget']['oldAttemptMayRestart']:raise ValueError('separate once-only repair budget')
     return records,feasibility
@@ -104,7 +108,7 @@ def train(plan_path,output):
                 forensic_checkpoint(output/'latest-forensic-checkpoint.pt',model,optimizer,scheduler,generator,history,state.copy(),plan_path)
             if epoch==1 or epoch%8==0:print(json.dumps({'epoch':epoch,'epochs':config['epochs'],'optimizerSteps':steps,'loss':state['lastMeanTrainLoss']}),flush=True)
         if steps!=config['expectedOptimizerSteps']:raise ValueError('384 optimizer steps not fulfilled')
-        state.update(phase='final-evaluation');atomic_json(output/'progress.json',state)
+        state.update(phase='final-evaluation',finalEvaluationStarted=True);atomic_json(output/'progress.json',state)
         model.eval();model.backbone.gradient_checkpointing_disable();outputs=[]
         with torch.inference_mode():
             for begin in range(0,len(records),config['batchSize']):
