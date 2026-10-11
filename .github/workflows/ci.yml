@@ -16,10 +16,6 @@ jobs:
           node-version: 22
           cache: npm
 
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.13"
-
       - name: Install Node dependencies
         run: npm ci
 
@@ -31,16 +27,6 @@ jobs:
 
       - name: ESLint
         run: npm run lint
-
-      - name: Install Python dependencies for ML/data-governance tests
-        run: |
-          python -m pip install --upgrade pip
-          pip install pillow
-          pip install torch --index-url https://download.pytorch.org/whl/cpu
-          pip install ultralytics
-
-      - name: Run full test suite
-        run: npm test
 
       - name: Production build
         run: npm run build

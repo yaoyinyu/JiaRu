@@ -180,7 +180,7 @@ JiaRu/
 ├── scripts/                      # 审计/验证/发布治理脚本
 ├── tests/                        # 测试文件（当前 950+ 项；ML/数据治理用例需 Python 环境，缺依赖自动 skip）
 ├── e2e/                          # Playwright 浏览器端到端回归（评审 #11 六用例）
-├── .github/workflows/            # CI：类型检查（产品/测试双 tsconfig）、ESLint、全量测试、生产构建
+├── .github/workflows/            # CI：类型检查（产品/测试双 tsconfig）、ESLint、生产构建（测试在本地全量执行，CI 无本地数据不跑）
 ├── docs/                         # 项目文档（见下方索引）
 ├── dev-log/                      # 开发日志（按天，2026-06-21 至今）
 ├── output/                       # 本地审核/调试产物（不进入 Git）
@@ -310,7 +310,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.1.982 | 模块状态、接口契约、已知限制——项目唯一总入口；§12.339 整图批量与源质量资格 |
+| [技术白皮书](docs/technical-whitepaper.md) v1.1.983 | 模块状态、接口契约、已知限制——项目唯一总入口；§13 CI移除云端测试步骤（测试回归本地全量执行） |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
