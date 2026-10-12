@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-"""静态验证 v2：MD 标题与 HTML 标题一致性。"""
+"""静态验证 v2：MD 标题与 HTML 标题一致性。
+
+注意（2026-10-12）：本脚本绑定本机固定 HTML 快照
+`C:\\Users\\YaoYinyu\\Downloads\\JiaRu_whitepaper_v1.1.467_updated.html`。白皮书 v1.2.0 结构重构后
+（§12 实验史与 §13 变更表迁至 docs/archive/），该对比只代表 v1.1.467 历史快照与当前 MD 的差异，
+不得作为当前结构一致性门禁使用；当前结构一致性以白皮书§1.3/§1.4 维护规则（变更记录并入 dev-log 当日条目）与人工复核为准。
+"""
 import re, sys
 sys.stdout.reconfigure(encoding='utf-8')
 

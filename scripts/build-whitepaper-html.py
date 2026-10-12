@@ -159,7 +159,7 @@ def collapse_candidate6_rows(rows):
     """展示层压缩：将『候选6正样本补强』系列行（含全部 batch 增量行）合并为 1 行摘要。
 
     仅作用于 HTML 展示，不改动 MD 原文；最终张数/mask 与索引 SHA 从最后一条
-    batch 行结论中自动提取，摘要保留关键事实并指向 §13 变更记录。
+    batch 行结论中自动提取，摘要保留关键事实并指向变更记录归档（v1.2.0 起变更记录并入 dev-log）。
     """
     if not rows or len(rows) < 2:
         return rows
@@ -194,7 +194,7 @@ def collapse_candidate6_rows(rows):
             f"candidate6 正样本逐批返修（batch001—110，含查重审计与源图止损）已完结：最终权威训练真值索引"
             f"{n_img}张/{n_mask} mask、0拒绝/冗余/冲突，索引SHA-256 `{sha8}…`；该索引已用于candidate6训练并经"
             f"val30校准候选阈值0.50，冻结test100逐实例门否决结论见本表“candidate6冻结test100”行，"
-            f"逐批明细与哈希见§13版本与变更记录。"
+            f"逐批明细与哈希见变更记录归档 docs/archive/whitepaper-changelog-archive.md。"
         ),
     ]
     return rows[:c6_idx] + [summary] + rows[c6_idx + c6_count:]
