@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.2.16
+> 文档版本：v1.2.39
 >
 > 基线日期：2026-07-12
 >
@@ -120,7 +120,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 
 ## 3. 功能状态总表
 
-现行模型开发口径以§11.1及 `docs/nail-texture-current-goal.md` 为准：容量54/66+2拒识及全68双阶段追踪保真保持；末级Conv64全68分解闭合，WASM40同坐标输入传播约98.8%。下一四分支尾链数学反事实诊断，原完整数值失败、内部val及正式HOLD保持。接口见§8.9，证据见 dev-log/2026-10-13.md。
+现行模型开发口径以§11.1及 `docs/nail-texture-current-goal.md` 为准：全74 enc3首GN至输出链数学计算及独立重算闭合，WASM分支40/41/74仍超1e-4（最大0.000306129）；CUDA首卷积输入分支全通过仅为条件诊断。该范围不足，下一纳入实际池化及enc3首卷积，原完整部署失败/参考与正式HOLD保持。 接口见§8.9，证据见 dev-log/2026-10-15.md。
 
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
@@ -135,10 +135,10 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | AR 纹理试戴 | `/ar-tryon` | 待验证 | 上传含完整手背的参考图时优先通过MediaPipe Hands逐指定位；完整手部关键点失败后，局部近景先用甲色连通域定位黑色、彩色、银色和镜面甲；甲面为裸色/半透明且被肤色种子吞掉时，再以闭合甲缘、甲板内部/肤色邻环和4—5枚同手连续链复合定位，仍失败才进入人工补选。两条辅助路径均没有像素级mask，低对比边界候选固定低置信并要求用户检查；实时AR支持拇/食/中/无/小指各自独立的长度75%—140%、宽度70%—145%及甲尖/指根位置±20%校准，摄像头最终贴合仍需多设备真机验收 |
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
 | 视频自适应展示 | `calculateCoverVideoLayout()` | 已完成 | 保持比例，采用居中 cover 裁切，不拉伸 |
-| 美甲纹理自动识别 | `recognizeNailTextures()`、`detectNailsFromHandImage()`、`detectPartialCloseupNails()` | 进行中（卷积解析闭合；WASM/正式HOLD） | 全68 Conv64分解残差0；WASM40在原最大差坐标主要为输入传播。下一四分支尾链数学反事实，不能批准FP32修补或证明全模型不可达；原数值失败、内部val禁入及正式发布门保持，见§8.9、§11.1及Goal。 |
+| 美甲纹理自动识别 | `recognizeNailTextures()`、`detectNailsFromHandImage()`、`detectPartialCloseupNails()` | 进行中（enc3首GN链范围不足） | 全74 enc3首GN至输出链数学计算及独立重算闭合，WASM分支40/41/74仍超1e-4（最大0.000306129）；CUDA首卷积输入分支全通过仅为条件诊断。该范围不足，下一纳入实际池化及enc3首卷积，原完整部署失败/参考与正式HOLD保持。 见§8.9、§11.1及Goal。 |
 | 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 进行中（语义缺陷待修） | 底层规则候选和MediaPipe/局部近景辅助定位均可在模型失败时返回；这些结果没有生产模型身份，局部近景候选也没有像素级mask。当前`NailArtPicker`仍会在局部近景达到4个区域时显示绿色“可直接提取”，因此尚未满足正式fallback合同。修复后必须持续显示“模型不可用/辅助定位、需人工确认”，并从模型成功率和Beta直接可用率排除。 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
-| 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（candidate57受保护test100失败） | 当前生产manifest仍没有批准ONNX。candidate57选择锁`35374464…9910`绑定candidate56 stage1、candidate55 stage2及0.40/0.30/0.55组合；唯一一次test100取得531匹配、479完整mask、23漏甲、16重复、5背景误检、0无效mask，召回95.85%与完整率86.46%通过，但13%漏甲图片率和4.69%加权杂散率未达10%/2%上限。质量报告`5f1463c5…ff65`重放一致，候选轨迹终止且禁止据test反调或重复评估。全新train证据、全新发布留出、生产资产、浏览器/真机、Beta和回滚门均未完成，不得导出、登记、接入或部署，产品继续HOLD。更正（v1.1.742）：2026-09-28 用户已就「测试使用」显式授权一次例外，candidate57 以测试专用通道部署到服务器供浏览器实测；该授权**不构成正式发布门通过**，选择锁的 `exportAuthorized`/`frontendIntegrationAuthorized`/`deploymentAuthorized` 三项标志仍为 false 且未改写，生产 manifest 与 `releaseIdentity` 保持原状，产品与 `/ar-tryon` 继续 HOLD。 |
+| 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（无批准生产模型） | 生产manifest仍无批准ONNX或新releaseIdentity，正式训练准入v7及新来源val/正负留出、角标捷径消融、生产运行时/产品、真机/Beta与双批准权重回滚均未闭合。当前内部val诊断质量/数值未过且有上游训练历史，禁止据此正式校准、登记或部署。candidate57受保护test100失败保持，历史测试部署例外不构成正式发布；当前证据与下一路线见§11.1、Goal及当日日志。 |
 | 数据集治理 | `model/datasets/nail-texture-v1`及候选物化报告 | 进行中（发布角色需重建） | 仓库历史基础数据集仍为409图/2142 mask、split=300/46/63；正式训练输入已演进三代：candidate52/56（328张正图/1981 mask/112来源组加160张train困难负样本，物化train488/val30/test0）→ candidate58b（343张/2071 mask/127来源组，train503）→ 循环011/012开发口径（唯一一次12 epoch训练为循环012，350图训练文件树`34fe0a85…1edf`、124来源组均衡采样）。train内来源组开发折已由循环001—015落地为现行评估主线，clean98开发基线（58图/354-mask v2加40困难负图）与循环015扩容（源图供给55图/55来源组/322甲冻结、开发评估真值43图/265甲、训练禁用）为当前事实；旧val30、旧test100及编号261—360、361—460等已消费holdout现在只作受保护历史回归，禁止训练、配方/阈值选择或再次冒充未见证据；候选锁定后的全新校准集、一次性正样本发布留出与全新困难负样本要求保持不变；当前无批准发布候选。 |
 | 验证真值当前快照 | 外部`val-annotation-workspace-v1/validation-truth-index-v1.json` | 已完成 | v1.1.189：30个批准报告归并为30张唯一图片/144个完整mask、0拒绝、0冗余、0冲突，索引SHA-256为`2ccde9420141e5e67a9696959cc18e78aaee808ba29b592670990967bdc4b92d`。批次014—018严格排除裁断、遮挡或甲数错误源图，透明甲尖和全部附着装饰均经整图与逐甲2×复核；所有polygon合法且同图严格零交叠。规范val-only数据集物化为30图/30 annotation/30 label/144 mask、train/test均0、孤儿0，物化报告SHA-256为`200b087b…b1776`。来源隔离审计对当前train 100张和冻结test 67张重新读取、复算身份，文件名、图片SHA-256和来源组均零重叠，报告SHA-256为`7372d14d…f6479e`。最终审计SHA-256为`5152dc52…66a3a`，决定`approved_as_calibration_truth`、`calibrationTruthEligible=true`，同时保持`trainingUse=prohibited` |
 | 规范候选训练数据与输入门 | `finalize-reviewed-hard-negative-manifest.py`、`materialize-canonical-candidate-training-dataset.py`、`audit-candidate-training-input.py`、`train-yolo-seg.py --candidate-mode` | 已完成（第二候选输入PASS） | 固定正式下限为train正样本100、正式hard negative 100、val30且CLI不得下调。第二候选包为train258（100张正样本/521 mask + 158张零字节标签困难负样本）、val30/144 mask、test0、孤儿0，物化与输入深审分别为`033b8d02…2ec`和`b9bd6897…94dd`，文件树SHA-256为`8709fa80…1170`。GPU训练前后均重放通过，Ultralytics缓存仅出现在隔离runtime并已清理；输入PASS只授权本次候选训练，不授权模型发布 |
@@ -779,13 +779,77 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 `audit-native-trace-observability-control.py`及`audit-native-trace-observability-copy-control.py`以 `--execution <冻结控制> --output <新目录>`执行CPU合成控制并准备浏览器页，`--serve`仅回环捕获，`--audit`/`--verify-report`重放每变体对同后端原单输出的字节保真。合成控制中直接公开向量失败，副本观测通过；不证明学得模型质量。`audit-native-trace-observability-combined-control.py`提供组合观测执行；其旧审核44/68计数缺陷保留，组合结果必须经 `audit-native-trace-observability-combined-replay.py --capture-root <目录> --output <报告> --contract <新只读合同> [--verify-report]` 按完整模型/输入清单派生张量分母。只读修复不重跑控制或追认原工具通过。全68副本追踪须另立范围，仅允许4个不馈入原节点的Identity副本，原节点/学习参数及最终输出不变；先过各后端原算子结果字节保真门才解释中间值。
 
-`onnx-native-joint-fullmodel-v2.py`按每图冻结的四个比例Div输出及末级GN语义节点新增resizeRatios float32[4]，仅替换四Div为Gather，并在末级GN原128分块后追加128级求和；回剥须恢复原图字节，权重、epsilon及其余9个GN不变。`audit-native-joint-fullmodel.py --execution <冻结执行> --stage control|learned --output <新目录>`执行CPU全68并准备捕获页；`--serve`仅监听回环、按一次性认领捕获WASM/WebGPU，逐输入核验四比例字节；`--audit`/`--verify-report`重建全204两头、开始事件、源与运行时绑定。任一学得输入前须重放全204非零控制通过；ok=true仅表示重建通过，allThreeBackendStageGatesPassed与fullModelLearnedGatePassed单列。当前控制通过、学得WASM40失败。既有hostRatios float32[2]隔离工具及全612结果保持；新完整候选接口仅用于本地开发证据，生产接口与manifest不变。正式1e-4/0像素门不变。
+`onnx-native-joint-fullmodel-v2.py`按每图冻结的四个比例Div输出及末级GN语义节点新增resizeRatios float32[4]，仅替换四Div为Gather，并在末级GN原128分块后追加128级求和；回剥须恢复原图字节，权重、epsilon及其余9个GN不变。`audit-native-joint-fullmodel.py --execution <冻结执行> --stage control|learned --output <新目录>`执行CPU全68并准备捕获页；`--serve`仅监听回环、按一次性认领捕获WASM/WebGPU，逐输入核验四比例字节；`--audit`/`--verify-report`重建全204两头、开始事件、源与运行时绑定。任一学得输入前须重放全204非零控制通过；ok=true仅表示重建通过，allThreeBackendStageGatesPassed与fullModelLearnedGatePassed单列。旧父图控制通过、学得WASM40失败保留；现行首GN修补完整图接口见下文。既有hostRatios float32[2]隔离工具及全612结果保持；新完整候选接口仅用于本地开发证据，生产接口与manifest不变。正式1e-4/0像素门不变。
 
 `audit-native-joint-fulltrace.py --execution <冻结执行> --stage control|learned --output <新目录>`只执行新增31输出图的CPU全68并准备回环页；`--serve`按独占事件捕获WASM/WebGPU实际33输出，`--audit`/`--verify-report`按真实输出名、原尺寸、float32有限值、完整候选与存储字节重建。先重放控制204对各自未插桩双头的字节保真，才允许学得输入；学得204全保真后才返回31层误差。ok=true是重建通过，allOwnHeadsBitwiseIdenticalAllBackends与layerConclusionsAllowed单列，首次跨门不证明根因。当前双阶段保真通过、WASM40首跨门在dec1.4；原完整候选1e-4数值失败不变。GN64解析已闭合，当前接口见下文；原float32 CUDA参考、epsilon与参数存储域不变，生产接口与manifest保持。
 
 `analyze-native-groupnorm-decomposition.py --execution <冻结执行> --output <新目录>`以完整同候选CUDA/WASM原float32输入、原仿射及epsilon计算136次GN64数学结果，保存float64 RAW、统计和逐坐标输入传播/两端舍入分解；`--verify-report`按全68身份、原模型初始化器字节、原存储域、开始事件和GN64闭式结果重放，分解残差门1e-12。数学参考不替换CUDA或生产输出，ok=true只表示完整解析重建，fullModelLearnedGatePassed保持false。当前WASM40理想GN仍在该层超1e-4，末级Conv64已闭合，现行接口见下文；生产接口与manifest不变。
 
-`analyze-native-convolution-decomposition.py --execution <冻结执行> --output <新目录>`以完整同候选CUDA/WASM原float32输入和原无bias核计算136次Conv64数学结果。单线程BLAS及动态库字节固定，4096输出像素分块覆盖完整原尺寸与零填充邻域；原卷积节点/核初始化器字节不变，持久化float64 RAW、全68有符号分解和开始事件。`--verify-report`逐字节重放数学输出、统计、身份与原追踪层差异，残差门1e-12。当前WASM40同最大差坐标主要为输入传播；ok=true只表示完整解析重建。下一四分支尾链反事实范围已预检，原最终mask的seed+delta字节保真；952次新数学阶段未消费，执行器未实现。反事实不批准实际FP32修补、不证明全模型不可达，正式接口和manifest保持。
+`analyze-native-convolution-decomposition.py --execution <冻结执行> --output <新目录>`以完整同候选CUDA/WASM原float32输入和原无bias核计算136次Conv64数学结果。单线程BLAS及动态库字节固定，4096输出像素分块覆盖完整原尺寸与零填充邻域；原卷积节点/核初始化器字节不变，持久化float64 RAW、全68有符号分解和开始事件。`--verify-report`逐字节重放数学输出、统计、身份与原追踪层差异，残差门1e-12。当前WASM40同最大差坐标主要为输入传播；ok=true只表示完整解析重建。四分支尾链反事实已闭合，原最终mask的seed+delta字节保真；当前接口见下文。反事实不批准实际FP32修补、不证明全模型不可达，正式接口和manifest保持。
+
+`analyze-native-tail-counterfactual.py --execution <冻结执行> --output <新目录>`以全68四分支解析GN64/GELU64/delta64及最终mask相加，136份GN64继承、952数学阶段另记；原参数、float32常量位值及CUDA参考保持，最终mask只舍入一次float32、presence继承原分支。单线程BLAS与SciPy Erf二进制固定，持久化952开始事件、1224原尺寸RAW和68记录。`--verify-report`逐阶段/逐字节重放结果、原seed+delta保真与原双头比较；ok=true仅表示完整重建，actualFp32RepairOrWholeModelUnreachableProven和fullModelLearnedGatePassed始终false。当前两个WASM分支仍仅40数值失败，两个CUDA分支通过数学诊断门；不支持只修末级Conv/GN，以dec1.0实际输出为起点的双分支已闭合，当前接口见下文。正式接口和manifest保持。
+
+`analyze-native-decoder-counterfactual.py --execution <冻结执行> --output <新目录>`以全68原dec1.0输出双分支计算两组GN/GELU、中间无bias卷积、真实bias的delta及原seed相加；首输入float32提升一次，保持float64传播至最终mask舍入一次float32，presence继承。单线程BLAS/SciPy运行时固定，952阶段事件、1088原尺寸RAW与68记录持久化；`--verify-report`逐阶段逐字节重建原参数/常量、原输出头保真及双头比较。当前两分支通过数学诊断门、WASM余量约4.51e-6；actualFp32RepairOrWholeModelUnreachableProven/fullModelLearnedGatePassed仍false。首GN实际隔离已闭合，接口见下文；数学结果仍不证明完整模型通过。正式接口和manifest保持。
+
+`audit-native-first-decoder-gn.py --execution <冻结执行> --stage original|patched --output <新目录>`固定原始/候选图与全68双来源136上下文，各阶段CPU/WASM/WebGPU共408，原始全408同输入float64参考及原尺寸float32有限门通过前禁止候选。`--serve`通过独占页面/输入UUID、开始事件、精确RAW及ACK捕获真实浏览器；`--audit`/`--verify-report`重建全分母、原始准入、来源/环境/字节及数值门。当前816全部闭合，ok=true只证明重建，allOperatorNumericGatesPassed另列；完整模型/Torch/优化/val/保护输入0。
+
+`analyze-native-operator-stage-comparison.py --execution <冻结执行> --output <新目录>`只读重建原始/候选全部408配对上下文，同FP64参考不舍入；逐项保留改善、退化与同值，核验68项原始WASM同来源输出与完整图首GN字节一致。`--verify-report <报告>`逐缓冲重放；当前WASM最大误差改善约8.14倍仍仅是算子诊断。后续完整图已闭合，当前接口见下文；正式manifest/身份及质量门保持。
+
+`audit-native-first-gn-fullmodel.py --execution <冻结执行> --stage control|learned --output <新目录>`按两图实际首GN语义目标205/191，仅追加mean/variance的128级求和并精确逆变换恢复父图；全68原输入、四主机比例、非零控制与严格CUDA原双头参考固定。先控制204全门通过才允许学得204；`--serve`独占页面/输入事件并捕获真实两头RAW，`--audit`/`--verify-report`重建全分母、原尺寸float32有限、数值1e-4、解码0像素与presence门。当前控制/学得全部通过，ok=true仅为重建，fullModelLearnedGatePassed另列且仅覆盖开发输入；生产接口/manifest不变。后续完整内部val已执行，数值/质量未过，现行接口见下文；原train通过及val失败分别保留，禁止推定正式来源独立或发布通过。
+
+`verify-reviewed-internal-val-inputs.py --scope <冻结范围> --output <新报告>`安装只读图片守卫后，独立重建内部val全部56原像素RGB/粗mask归一化输入及主机比例的112个float32文件，逐项核验角色、候选/目标/裁框与原像素SHA。完整10源50甲、49正候选/7拒识与1无候选甲不缩减；缺候选真值禁止伪造模型输入。`--verify-report <报告>`只读重建相同结果，结束清理cache；ok=true只证明输入及分母保真，新模型调用0，禁止回训、正式阈值校准或来源独立晋升。
+
+`audit-reviewed-internal-val-native.py --execution <冻结执行> --stage control|learned --output <新目录>`对完整内部val56候选先严格CUDA56再CPU56，并由`--serve`独占回环页捕获WASM/WebGPU各56；控制224全部数值/解码/presence门通过前禁止学得224。原norm、权重、候选与原尺寸float32两头固定，CUDA/cuDNN TF32及autocast关闭；`--audit`/`--verify-report`只读重建开始事件、RAW、实际环境/源及全预算，不重跑模型。严格CUDA的自比较不冒充独立后端证据。学得质量按uint8 L/128真值、原float32 logits/0及presence/0解码，全10源50甲含1无候选甲，49正候选/7拒识分别报告原图2像素边界、逐甲/源汇总与Wilson95；拒识空目标只约束同候选，不宣称RGB无甲或自动标背景误检。ok=true只证明重建，internalValNumericGatePassed及qualityDiagnostics分列；当前WASM4项数值失败、边界联合0/50，内部val有上游训练历史且禁训/禁止正式校准或模型选择，正式接口/manifest及HOLD不变。
+
+`analyze-reviewed-internal-val-outcomes.py --scope <冻结范围> --output <新报告>`只读重建完整val阶段及四端解码，固定原候选/真值一一分配、uint8 L/128粗mask/真值与float32 logits/0、presence/0；按原像素2像素边界比较粗mask、实际输出与取消presence拒绝的反事实，全10源50甲含1无候选甲，7拒识保持同候选语义。`analyze-reviewed-internal-val-outcomes-v2.py --scope <范围> --prior-report <v1> --output <新报告>`完整重建v1后，只将超出0..N的不可达统计差值改为null，保留原浮点端点、旧报告及失败；`--verify-report <报告>`只读重建，不执行模型。相对诊断包含Wilson95、同分母最小可判别差和二项规划样本量，未设相对分支验收门且同源相关/上游训练历史不被当作独立泛化。当前三视图边界0/50，正常StageB路线仅冻结train-only供给及待审缺口，未授予新训练预算、角色晋升或正式发布资格。
+
+`audit-reviewed-stage-b-supply.py`保留首版绝对路径读取失败；`audit-reviewed-stage-b-supply-v2.py --execution <冻结执行> --output <新报告>`按同一冻结scope重建全角色、质量97源投影、train/独立val真值槽、父保护角色、71库存、38未决train源与全组采集资产。v2仅兼容固定项目根下历史相对审核页，保持原路径字符串/SHA并拒绝越界、重复身份、文件漂移或分母不一致；`--verify-report <报告>`完整只读重建同报告。ok=true仅证明供给盘点保真，当前原v2盘点没有新增训练资格或预算；后续v3单图对关系投影只保留新增候选，不授权训练。整图审核依用户政策v5记录请求遥测未知并核验有界发送、真实载荷/原RGB；旧实审只继承图片事实，不继承旧图对结论或批准来源独立。扩充供给闭环另绑定实际StageA权重、单源新预算、整图误检裁决与71甲一一ROI证据；`cycle016-stage-b-expanded-native-input-plan-v1.json`约束全74个train候选原尺寸物化；当前222个原尺寸文件已完整重放，不分配训练预算，不引入内部val或新推理/优化/图片输入。空目标只否定同粗mask候选，不标整块RGB为无甲面；原124输入/745文件、正式manifest/HOLD保持。
+
+`materialize-reviewed-stage-b-train-inputs.py --execution <冻结执行> --output <新目录>`独立物化全train候选；保留旧124个train/val物化器及产物，拒绝内部val回流。执行前逐项重建当前完整角色/父血缘、源质真值、已保存预测、一一分配、整图拒识及分母，验证新候选与全部继承train身份/目标/粗mask。每候选只写原尺寸RGB、粗mask和目标三份无损PNG，不生成384参考资产；正例须完整真值/整数逆映射零像素差，拒识只否定同候选且不回退粗mask。只读图片守卫先于像素读取，finally清cache；`--verify-report <报告>`重建全部像素、源绑定、报告完整JSON字节及目录精确清单，缺文件、篡改、角色/分母漂移或不完整真值均失败。当前74输入/222文件通过，全部旧68train原尺寸像素一致；74输入无目标冲突仅证明表示可达；后续正常100轮已执行且质量失败，现行合同及下一诊断见下文，不证明正式独立或解除HOLD。
+
+`train-reviewed-stage-b-normal-development.py --plan <冻结合同> --preflight-output <新目录>`从头初始化原尺寸条件U-Net，全74原图RGB/同候选粗mask前向反向但优化0，逐项核验有限双头/损失/所需梯度和初始化不变；拒识只训练presence，不对含邻甲RGB施加空mask像素损失。`--plan <合同> --preflight <报告> --output <新目录>`在完整预检后一次100轮/1900步训练，整数D4与有限光度增强不插值真值，固定原像素边界损失/类别平衡presence和最终轮验收，无旧权重/优化器或val选型。严格FP32/TF32关闭，唯一事件逐步fsync、10轮取证checkpoint和独占终态/异常报告绑定；取证不授予恢复权限。当前预算已消费，训练质量未过，不得追加或恢复。
+
+`verify-reviewed-stage-b-normal-training.py --report <训练报告> --output <新审核>`只读重建全74预检、11376事件、100轮1900成功步/7400增强输入/74最终输入、10取证checkpoint及原尺寸float32 RAW。全71甲按整数ROI放回完整原图，2原像素Boundary IoU/F1、IoU、全positive presence及3拒识零输出门不变；`--verify-report <审核>`重建完整JSON字节。ok=true只表示执行/审核可重放，trainQualityGatePassed必须单列，当前false。存档RAW的粗mask/实际/取消presence反事实为全71边界0/5/5，固定mask的presence修复上限5低于57；后续独立分支VJP测量与唯一去增强对照设计见下文；原质量失败和全部预算保持，不批准新权重/正式发布。
+
+`audit-reviewed-stage-b-shared-gradients.py --execution <合同> --output <新目录>`为原双头RAW/共享梯度重建诊断，原分量和门失败，禁止据该报告归因或恢复预算。`inspect-reviewed-stage-b-gradient-reconstruction.py --execution <单候选合同> --output <新目录>`独立取证保存原FP32分支/整项梯度及误差，`--verify-report <报告>`只读复算，ok=true仅表示取证可重放，原门仍false。
+
+`measure-reviewed-stage-b-branch-vjps.py --execution <独立分支测量合同> --output <新目录>`逐候选保存原mask损失及类别平衡presence损失的独立FP32 VJP、实际双头RAW和稳定身份；同候选拒识mask梯度为精确0，不把RGB中的邻甲标空。全74/71正例/3拒识/11源9组两头与训练存档逐字节相同后，才按存档向量作FP64统计；不把两次反传代数和冒充整项FP32反传，原重建门失败不改写。`--verify-report <报告>`无模型调用，完整重建逐向量/双头字节、参数身份、事件/预算及统计；固定权重瞬时方向不证明训练冲突根因、AdamW更新或质量改善。后续去增强单变量对照已完整执行但presence门失败并关闭；现行接口与下一固定特征判决见下文及Goal。
+
+`train-reviewed-stage-b-augmentation-control.py --plan <新合同> --preflight-output <新目录>`复用冻结正常训练循环及目标，从头初始化，完整全74原尺寸零优化预检；`--plan <合同> --preflight <报告> --output <新目录>`执行独立一次100轮/1900步。适配点仅把实际输入增强应用改为identity，原增强参数仍完整抽样，逐训练事件同时保存抽样参数、实际identity及RGB/粗mask/目标原像素哈希；不改冻结基线源文件、不读旧权重/优化器，不通过内部val选型。底层兼容字段augmentedTrainingInputs保留为训练输入计数，当前7400实际为未增强输入；固定质量门/只读守卫/不可覆盖事件与异常取证保持，当前预算已消费且整体质量失败，不可恢复。
+
+`verify-reviewed-stage-b-augmentation-control.py --preflight <预检> --output <新审核>`只读核验完整预检及相对基线的初始张量一致；`--report <训练> --output <新审核>`独立复用原质量/事件审核，再按冻结seed重建全部epoch排列和7400抽样参数，逐项等于基线并验证实际输入哈希等于原尺寸物化记录。`--verify-report <审核>`重建完整审核字节；ok=true表示执行和单变量合同可重放，trainQualityGatePassed另列，当前false。
+
+`compare-reviewed-stage-b-development-runs.py --baseline-audit <审核> --control-audit <审核> --output <新报告>`不调用模型，完整重建同71真值/3拒识的粗mask、基线、对照及取消presence反事实，全图2原像素边界与逐实例迁移必须等于权威审核后才给出诊断。相对差附Wilson95/同分母最小可判别差/最小规划样本量，不能替代绝对质量门；反事实拒识输出与上限不代表可部署。`--verify-report <报告>`只读重建完整字节；后续全74固定特征保真与精确可分性已闭合，现行接口和下一独立凸头拟合见下文；阈值及旧失败保持。
+
+`capture-reviewed-presence-features.py --execution <新捕获合同> --output <新目录>`固定失败控制权重和严格FP32，对完整74原尺寸train输入仅安装presence线性层输入的非干预观测hook，逐候选保存1×128 float32特征/实际双头RAW/稳定身份。两头必须相对该权重存档逐字节一致，全部权重不变，失败拒绝特征归因；完整非零合成控制先验验证hook返回None、不改两头。`--verify-report <报告>`无模型调用，重建全部特征/头字节、角色、150事件及预算，不授予头部训练或权重物化。
+
+`certify-reviewed-presence-separability.py --execution <数学合同> --capture <完整捕获> --output <新目录/report.json>`先只读复验全74捕获保真，再一次HiGHS求解全71正例/3同候选拒识的带偏置线性间隔可行性；FP32特征和binary64数学见证按精确有理数逐行验证全部有符号间隔≥1。求解器不可行但缺精确证书时仅inconclusive；对立标签完全重复特征可给精确不可行证书。`--verify-report <报告>`只验原精确证书与完整JSON字节，不重新求解LP/调用模型。证书见证永不加载为模型，不证明FP32 CUDA或浏览器质量；后续独立拟合及开发候选验收已闭合，现行接口见下文，原证书与控制模型失败保留。
+
+`fit-reviewed-convex-presence-head.py --execution <新冻结执行合同> --output <新目录>`只用完整74×128已存FP32 train特征，新一次HiGHS带偏置L1最小化求解有符号间隔≥2；执行前登记固定倍数2，scaled binary64头须逐行精确有理数间隔≥2，再一次完整float32舍入。缩放头不声称精确L1最优，原诊断见证不加载为模型。只改presence.weight/presence.bias，74缓存CUDA头与74完整原尺寸模型逐项事件/RAW持久化；全部非presence权重及74 RAW mask字节须与失败控制保持，零logit/完整原图绝对质量门不变。不恢复旧优化器、自动重试或使用内部val/保护数据。
+
+`verify-reviewed-convex-presence-head.py --training <完整报告> --output <新审核报告>`及`--verify-report <审核报告>`不调用模型或重解LP；复算原捕获与精确资格、全74拟合间隔/单次舍入、候选权重、300不可覆盖事件、全部mask字节、71正例/3拒识与完整原图质量。ok仅表示重建正确，trainQualityGatePassed独立判读；当前二者均true，仅批准保留本地开发候选。本候选隔离部署验收已执行，现行完整数值失败及下一保真诊断见本节下文与§11.1；生产接口/manifest与正式HOLD保持。
+
+`materialize-reviewed-native-deployment.py`仅物化绑定完整train清单的原尺寸F32输入/主机比例及新参数图；参数逐字节对应、回剥须恢复模板完整字节，不执行导出追踪前向。`capture-reviewed-native-control.py`在独立冻结预算内一次捕获确定性非零未训练完整模型的严格CUDA双头参考，实际TF32/autocast关闭；其只读重放不调用模型。
+
+`audit-reviewed-native-deployment-v2.py --execution <冻结合同> --stage learned --output <唯一目录>`须先继承全清单CPU/WASM/WebGPU控制实际通过，再执行学得CPU；CPU通过才可用`--serve --port <本机端口>`启动仅127.0.0.1隔离验收页。页面按完整清单串行执行WASM/WebGPU，开始事件与双头RAW不可覆盖持久化；仅允许相同上传字节的ACK恢复，禁止重启模型输入。`--audit`及`--verify-report`按完整清单重建report-v2.json，不调用模型；原v1范围重建失败与原捕获保留，v2只修三处旧范围上界，承接剩余预算。ok表示重建正确，allThreeBackendStageGatesPassed/fullModelLearnedGatePassed须独立判读；当前控制true、学得false。任一新图仍须重新完整控制/学得验收，门为双头最大误差1e-4、presence一致及解码零像素差。
+
+`analyze-reviewed-native-head-errors.py --report <完整审核报告> --output <新报告>`及`--verify-report <分头报告>`从全后端/全候选F32 RAW逐项重建原判定后分别统计mask/presence误差；身份、分母或原判定不一致即reconstruction_mismatch并拒绝归因。当前WASM仅mask第40/41/74项超差，所有presence均通过；分头定位不证明算子根因。现行全74观测保真及末级GN64层内分解见下文与§11.1；原完整模型数值失败不变。
+
+`prepare-reviewed-native-observation.py`按每份实际图语义解析31个Conv/GroupNorm/GELU端点，追加float32输出后须回剥恢复完整原图字节；静态同构不证明运行保真。`audit-reviewed-native-observation.py --execution <新冻结合同> --output <唯一阶段目录>`复用既有不可覆盖捕获传输，按当前输出清单独立派生形状、张量数与字节分母。先独立非零合成基线/观测三后端，再全74项目非零控制保真，全部通过才开放学得观测；`--serve`仅监听127.0.0.1，`--audit`/`--verify-report`只从原RAW重建。独立基线不是保真通过证据，任何完整范围保真失败均禁止逐层解释。
+
+`capture-reviewed-native-observation-cuda.py --execution <冻结合同> --output <唯一目录>`仅在新全74项目控制通过后捕获严格CUDA的完整模块输出，钩子不得反馈计算，全部原双头须逐字节保持；开始/确认事件与终态独占持久化。`--verify-report <报告>`不调用模型，复算权重、精度政策、原双头、全部31层形状/存储域/有限值及完整事件。当前全74×3学得后端及严格CUDA原双头均保真，layerConclusionsAllowed=true；原完整模型WASM1e-4失败仍为false，观测通过不批准模型。
+
+`analyze-reviewed-decoder-counterfactual.py --execution <冻结数学合同> --output <唯一目录>`先核验原coarse+delta完整F32字节保真，从各自实际dec1.0沿原两级GN/GELU/Conv及最终头传播FP64并仅最终转F32；`--verify-report`独立逐字节重算完整清单、事件、原最终头门和同坐标有符号分解。原F32参数、epsilon及GELU常量位值保留，分解残差门1e-12，链内残差是累计误差。该尾链数学失败与原CUDA参考保留，当前扩展范围见下文。
+
+`analyze-reviewed-upstream-counterfactual.py --execution <冻结数学合同> --output <唯一目录>`从完整同候选CUDA/WASM的enc1.5、dec2.5和主机比例出发，仅用NumPy解释实际图的形状/坐标子图，保持F32坐标及权重位值，再以FP64进行原顺序的可分离插值、跳连拼接、无bias首卷积及末级尾链。`--verify-report`重算全部阶段、坐标绑定、RAW字节与最终头门。未捕获Resize/Concat不能冒充实际观测，数学结果不能替换原冻结参考。
+
+`analyze-reviewed-feature-cross-counterfactual.py --execution <新冻结合同> --output <唯一目录>`继承完整两域和148份上采样结果，只新计算全74两条深层/跳连交叉路径；按原失败坐标分解深层、跳连与非线性交互，presence固定同候选原WASM头。`--verify-report`独立重算交叉路径及四格恒等式；CUDA存档深层替换仅为诊断oracle，不批准实际修复。现行更上游数学范围与下一计划见下文及§11.1。
+
+`analyze-reviewed-deep-decoder-counterfactual.py --execution <冻结合同> --output <唯一目录>`从完整两域enc2.5/enc3.5计算首上采样及完整dec2，再衔接末级链，两个分支固定原WASM enc1.5/presence。实际图语义解析、原F32坐标/常量/参数保持，特征F64传播且仅最终转F32；阶段开始/完成事件及完整数组形状、域、字节数和SHA不可覆盖，只保存深层边界及最终RAW。`--verify-report`重新计算全部阶段并逐哈希、统计、保存RAW及原双头门重放；摘要或哈希本身不替代重算。完整两域及后续enc2/enc3四格定位均闭合，当前结论与下一范围见下文和§11.1；历史失败保持，数学输出不证明实际修复或整体不可达。旧产物、原1e-4/解码零差及全部正式门保持。
+
+`analyze-reviewed-encoder-cross-counterfactual.py --execution <冻结合同> --output <唯一目录>`继承完整两域enc2/enc3纯域证据及独立重算绑定，只新增两条交叉路径；每个候选明确两路原特征来源，固定原WASM enc1.5/presence。按原实际WASM最终最大误差坐标分解enc2、enc3和交互项，完整四格与原分母保持。全部阶段持久化完整数组哈希及开始/完成事件，仅存必要边界/最终RAW；`--verify-report`独立重算新交叉全部阶段、字节/统计/输入链、保存RAW、原双头门和四格恒等式。编码四格条件oracle及全部旧失败保留，现行扩大范围与下一计划见下文和§11.1；不证明单算子根因或批准实际部署。全部旧证据与发布门不变。
+
+`analyze-reviewed-enc3-chain-counterfactual.py --execution <冻结合同> --output <唯一目录>`从各自已存CUDA/WASM enc3.0卷积输出起算原两级GN4/GELU及第二卷积，再接完整dec2/末级链，固定原WASM enc2.5/enc1.5跳连及presence。按实际图解析64通道无bias卷积、GN仿射/epsilon及GELU原F32常量位值，特征F64跨全部阶段传播，仅最终转F32；全部阶段独占持久化开始/完成事件及完整数组哈希/统计，只存enc3边界与最终RAW。`--verify-report`独立重算全部阶段、输入链、完整字节、统计、保存RAW及原双头门。当前WASM三项原失败仍超门，该范围不足；下一设计前移至实际池化及enc3首卷积。数学诊断不批准实际FP32图或正式发布，全部旧失败和预算保留。
 
 ## 9. 验证与质量门
 
@@ -956,6 +1020,7 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 - `AGNES_API_KEY`只能存在于服务端环境变量；本机`.env.local`受`.gitignore`保护，文档、日志和源码不得记录真实密钥；
 - `ImageBitmap`、对象 URL、MediaStream track、Worker 和动画帧循环必须在取消或卸载时释放；
 - 用户素材、训练图片、大模型权重和生成数据默认不应加入 Git；应通过 `.gitignore`、对象存储或独立数据盘管理；
+- `model/reviews/`的已冻结二进制采用原路径、原字节不变的NTFS透明无损压缩；完全相同内容可共享只读硬链接。维护须冻结终态清单及完整SHA、拒绝链接越界和并发写、独占持久化操作事件，并在原子替换失败时恢复原文件；结束后按全部原路径重验SHA与终态报告。禁止单独解除共享别名只读后改写内容；新产物须另建版本。现行维护清单及验真见`model/training/oneoff/reviews-storage-maintenance-20261014-v2/verification-report.json`，未决/近期写入目录保持跳过，旧质量失败与模型发布HOLD不变。
 - Git与远端的跟踪边界固定为完整可运行的业务、训练和审计代码，测试、配置模板、浏览器运行时必需资产与必要说明。模型权重、数据集、逐文件开发清单、训练计划/判定JSON、训练输出、评估明细、机器报告与review、审核截图、浏览器调试快照及其他可重建证据仅保留本地并由`.gitignore`隔离；小型稳定测试fixture可保留。历史`辅助材料`只跟踪必要Markdown说明，图片、标注、CSV/JSON/YAML和审核产物不再进入当前Git树。
 - 正式 API 上线前需增加鉴权、限流、内容安全、审计、费用保护和错误信息脱敏。
 - `/privacy`是待纠正的产品文案，不构成法律合规验收：仍称无账户体系、只列Agnes、关闭改进计划后不再上传任何数据，与已有账户、Seedream和主动生图数据流不符。账户数据库可保存手机号、身份、会话IP和审计记录；个人收录保存在本地IndexedDB。第三方“不用于训练或存储”不能仅凭本项目代码保证，需要实际服务条款/协议依据。
@@ -965,14 +1030,13 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 
 ### 11.1 阻塞项
 
+旧微拟合学得权重与全部68候选的严格FP32复验独立通过train-only容量门：66正例全部保留、严格联合54/66（要求53）、拒识2/2且输出0像素，mean IoU/Boundary IoU/F1=0.972076/0.794394/0.978412。旧TF32容量、4096新头更新、11968分割步和全部历史失败保留。
 
-同一学得权重与全部68候选的严格FP32复验独立通过train-only容量门：66正例全部保留、严格联合54/66（要求53）、拒识2/2且输出0像素，mean IoU/Boundary IoU/F1=0.972076/0.794394/0.978412。旧TF32容量、4096新头更新、11968分割步和全部历史失败保留。
+完整内部val全50甲零推理归因已闭合：粗mask/实际精修/取消presence拒绝的反事实IoU≥0.75为47/43/47，三者原像素边界联合均0/50；4新增IoU失败来自presence拒绝，实际精修的边界IoU及F1单门各0/50，6/7拒识仍输出。四端解码完全相同，固定CUDA参考的数值修补不能恢复边界或拒识质量，当前权重不晋升；WASM4项和全部旧失败保持，正式HOLD。
 
-全68末级Conv64解析136次闭合，原16×16×3×3核、无bias及原尺寸保持，分解残差0（门1e-12）。WASM40原最大差坐标的卷积差异1.52587890625e-5中，输入传播为1.5077847148381451e-5，约98.8%；该层自身舍入贡献较小。GN解析和完整WASM40数值失败保持；下一用四分支尾链反事实诊断尾部修补的可能收益，不以单层结果证明全模型根因、可达或发布通过。
+全74 enc3首GN至输出链数学计算及独立重算闭合，WASM分支40/41/74仍超1e-4（最大0.000306129）；CUDA首卷积输入分支全通过仅为条件诊断。该范围不足，下一纳入实际池化及enc3首卷积，原完整部署失败/参考与正式HOLD保持。 开发训练69/71联合边界保持，本轮新模型调用0。286角色/父保护、原尺寸数据及源树保持，内部val禁止回训/正式校准/选择；正式合同v7仍admission_hold_missing_evidence，无批准生产ONNX或新releaseIdentity。
 
-正常StageA已完整30轮/150步，不重启；当前内部val10源50甲含上游训练历史及1缺候选，仅可作诊断。正式合同v7仍admission_hold_missing_evidence、正式训练/来源独立资格未通过，无批准生产ONNX或新releaseIdentity，PRODUCT HOLD。角标暂缓不改变正式发布前消融、新独立val/正负留出、真机/Beta/回滚和completion audit v3门。
-
-下一实现并冻结全68四分支尾链数学反事实执行器：复用原CUDA/WASM卷积输出的136份GN64及两端136份Conv64结果，按实际float32参数和常量位值作GN64/GELU64/delta64/最终mask相加；4×68分支、952次新数学阶段，最终mask仅在冻结边界舍入float32，presence继承原分支。先重建原seed+delta字节，再与原严格CUDA双头比较，数值1e-4、解码0像素差和presence门不变。FP64结果仅诊断，不批准实际FP32修补或证明全模型不可达；Torch/ONNX/优化/val/保护输入0，既有预算不重启。工具接口见§8.9，过程与哈希证据只记当日日志。
+下一全74完整enc3支路数学充分性：从各自已存CUDA/WASM enc2.5出发，新增实际2×2/stride2无补边池化及enc3首卷积，再衔接已验首GN至输出链；固定同候选原WASM enc2跳连、enc1跳连及presence。原F32坐标/参数/常量和严格CUDA参考不变，特征F64传播仅最终转F32；冻结全阶段及必要边界存储、完整独立重算后判定能否覆盖原三项失败，再决定实际FP32修复。原1e-4/解码零差及全部正式门不变。 接口见§8.9，过程与逐项证据仅记当日日志。
 
 ### 11.2 暂停交接与恢复进展快照（2026-07-30）
 

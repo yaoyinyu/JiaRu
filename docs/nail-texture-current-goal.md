@@ -1,13 +1,13 @@
 # 甲如美甲纹理正式模型目标
 
-更新日期：2026-10-13
+更新日期：2026-10-15
 状态：ACTIVE / PRODUCT HOLD
 
 ## 目标
 
 交付可商用、在浏览器本地运行并接入 /ar-tryon 的正式模型：每枚完整可见、边界可确认的甲面输出且只输出一个可映回原图的完整像素级 mask，可直接提取美甲纹理。
 
-下一轮唯一目标：实现并冻结全68四分支尾链数学反事实执行器：复用原CUDA/WASM卷积输出的136份GN64及两端136份Conv64结果，按实际float32参数和常量位值作GN64/GELU64/delta64/最终mask相加；4×68分支、952次新数学阶段，最终mask仅在冻结边界舍入float32，presence继承原分支。先重建原seed+delta字节，再与原严格CUDA双头比较，数值1e-4、解码0像素差和presence门不变。FP64结果仅诊断，不批准实际FP32修补或证明全模型不可达；Torch/ONNX/优化/val/保护输入0，既有预算不重启。
+下一轮唯一目标：全74完整enc3支路数学充分性：从各自已存CUDA/WASM enc2.5出发，新增实际2×2/stride2无补边池化及enc3首卷积，再衔接已验首GN至输出链；固定同候选原WASM enc2跳连、enc1跳连及presence。原F32坐标/参数/常量和严格CUDA参考不变，特征F64传播仅最终转F32；冻结全阶段及必要边界存储、完整独立重算后判定能否覆盖原三项失败，再决定实际FP32修复。原1e-4/解码零差及全部正式门不变。
 
 ## 核心要求
 
@@ -18,14 +18,16 @@
 
 ## 当前状态
 
-- 同权重严格FP32 train-only容量54/66、66正例全部保留及2/2拒识0像素通过；正常StageA完整30轮/150步、旧4096头更新/11968分割步与全部历史失败保留，不重启。
-- 全68末级Conv64解析136次闭合，原16×16×3×3核、无bias及原尺寸保持，分解残差0（门1e-12）。WASM40原最大差坐标的卷积差异1.52587890625e-5中，输入传播为1.5077847148381451e-5，约98.8%；该层自身舍入贡献较小。GN解析和完整WASM40数值失败保持；下一用四分支尾链反事实诊断尾部修补的可能收益，不以单层结果证明全模型根因、可达或发布通过。
-- 新完整图的控制及学得追踪各204自身双头字节保真、原31层首跨门及最终parity保持。原完整图WASM40/GPU42失败、失真追踪、44-68计数缺陷、WASM22缺层及参数读取失败不改写。
-- 内部val10源50甲含上游训练历史及1缺候选，只可诊断；正式合同v7、来源独立和发布门仍未过，无批准生产ONNX或新releaseIdentity，PRODUCT HOLD。角标暂缓不改变发布前消融及新独立发布证据要求。
-- 本轮136次Conv64结果、68记录及开始事件持久化，单线程BLAS绑定；4项串行只读重放通过，124输入/745文件/116真值及角色/父血缘保持。新完整模型/ONNX算子/Torch/优化/val/保护输入/审核图片发送0。证据：`model/reviews/cycle016-native-tail-conv-decomposition-v1/report.json`与`model/reviews/cycle016-native-tail-conv-decomposition-tail-v1.json`。
-- 下一`model/reviews/cycle016-native-tail-counterfactual-scope-v1/scope.json`四分支全68、实际尾链参数/常量及原CUDA/WASM最终mask的seed+delta字节保真预检通过；952次新数学阶段未消费，执行器未实现/冻结。生产manifest与releaseIdentity未变。
+- 新凸presence候选开发训练69/71联合边界、71正例接受/3拒识零输出保持，正式泛化未证。原完整部署CPU/WebGPU通过，WASM40/41/74 mask数值失败；presence及解码零差不能覆盖该失败。
+- 全74从各自已存enc3.0卷积输出起算两次GN/GELU、中间卷积、完整dec2及末级链的数学计算与独立重算闭合；两分支固定同候选原WASM enc2.5/enc1.5跳连及presence，原F32坐标/参数/常量和严格CUDA参考不变，特征F64仅最终转F32。
+- CUDA首卷积输入分支全74通过（最大7.6592e-05）；WASM输入分支40/41/74分别0.000125647、0.000231236、0.000306129，仍失败。该范围不足以覆盖三项原失败，不证明单算子根因、实际修复或所有FP32实现不可达；旧四格oracle及全部失败保留。
+- 本轮3404数学阶段、148最终F32转换、3552全数组哈希及7104开始/完成事件预算关闭，独立重算完整报告一致；仅296份enc3边界/最终RAW共250777656字节。全部旧证据、失败及已消费预算保留。
+- 62项Python/Node10包装、ESLint、类型检查与原WASM失败、全74/原124输入及两源树重放均通过；286角色/父保护及未决来源状态保持。新模型调用、优化/反传、内部val/保护/审核图片输入均0，无新权重或生产资产。
+- 现行闭环`model/reviews/cycle016-reviewed-enc3-chain-closeout-v1/report.json`；下一`model/reviews/cycle016-reviewed-enc3-chain-closeout-v1/next-scope.json`仅设计，数学及模型预算尚未分配。正式合同v7、批准生产ONNX、新releaseIdentity及全部发布门未过，ACTIVE / PRODUCT HOLD。
+
+- reviews存储维护已完成：79378份冻结二进制原路径/SHA全量重验通过，透明压缩及只读硬链接去重合计释放20.566 GiB；逻辑内容、数据角色、旧失败和下一模型里程碑不变。报告`model/training/oneoff/reviews-storage-maintenance-20261014-v2/verification-report.json`。
 
 ## 下一步计划
 
-1. 实现并冻结全68四分支尾链数学反事实执行器：复用原CUDA/WASM卷积输出的136份GN64及两端136份Conv64结果，按实际float32参数和常量位值作GN64/GELU64/delta64/最终mask相加；4×68分支、952次新数学阶段，最终mask仅在冻结边界舍入float32，presence继承原分支。先重建原seed+delta字节，再与原严格CUDA双头比较，数值1e-4、解码0像素差和presence门不变。FP64结果仅诊断，不批准实际FP32修补或证明全模型不可达；Torch/ONNX/优化/val/保护输入0，既有预算不重启。
-2. 开发部署及完整内部val诊断闭合后推进新来源正式val/留出、角标捷径消融与同releaseIdentity全部发布门；不得复用已消费留出、改写旧失败或降低正式质量门。
+1. 全74完整enc3支路数学充分性：从各自已存CUDA/WASM enc2.5出发，新增实际2×2/stride2无补边池化及enc3首卷积，再衔接已验首GN至输出链；固定同候选原WASM enc2跳连、enc1跳连及presence。原F32坐标/参数/常量和严格CUDA参考不变，特征F64传播仅最终转F32；冻结全阶段及必要边界存储、完整独立重算后判定能否覆盖原三项失败，再决定实际FP32修复。原1e-4/解码零差及全部正式门不变。
+2. 拟议实际修复须新图完整非零控制与学得CPU/WASM/WebGPU验收，之后才推进新来源隔离val≥30、正负留出与角标消融，同releaseIdentity的/ar-tryon、真机、Beta及双批准回滚；旧内部val禁止回训/正式校准/选择，已消费留出不复用。
