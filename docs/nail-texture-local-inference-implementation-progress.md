@@ -7,7 +7,7 @@
 
 > **历史发布距离核对（2026-10-02，v1.1.805快照）：** 仍在数据闭合阶段；活动72图413甲、正式训练批准0，72源待审/25标记资格隔离。后续30轮训练、新val≥30/正负留出各≥100、同身份生产及四设备各≥20次、Beta≥100均待完成。d1212ff9…67ef只读重建通过，历史18门5通过/13未闭合未重跑；不代表完成比例或支持上线日期。V8完整20源审核仍是当前唯一执行目标，见白皮书§12.165/§13 v1.1.805及规范§101。
 
-> **当前最高优先级（2026-10-15）：** 全74 enc3首GN至输出链数学计算及独立重算闭合，WASM分支40/41/74仍超1e-4（最大0.000306129）；CUDA首卷积输入分支全通过仅为条件诊断。该范围不足，下一纳入实际池化及enc3首卷积，原完整部署失败/参考与正式HOLD保持。 下一全74完整enc3支路数学充分性：从各自已存CUDA/WASM enc2.5出发，新增实际2×2/stride2无补边池化及enc3首卷积，再衔接已验首GN至输出链；固定同候选原WASM enc2跳连、enc1跳连及presence。原F32坐标/参数/常量和严格CUDA参考不变，特征F64传播仅最终转F32；冻结全阶段及必要边界存储、完整独立重算后判定能否覆盖原三项失败，再决定实际FP32修复。原1e-4/解码零差及全部正式门不变。 见白皮书§3/§8.9/§11.1、Goal及 dev-log/2026-10-15.md。
+> **当前最高优先级（2026-10-15）：** 661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 下一闭合全118项presence分支的实际特征保真与误差归因：先冻结独立非零观测控制并验证原两头字节不变，再捕获全118严格CUDA/WASM的128维特征，按同一特征来源拆分编码/池化与线性头算术误差。观测保真失败即拒绝归因；不重启已消费预算，不改mask、权重、原严格参考或1e-4门。
 
 > **发布距离核对（2026-10-12）：** train-only容量54/66+2/2零误输出已过；实际候选部署ONNX/真实浏览器未过，正式合同/来源独立仍false。内部val10源50甲不作正式校准；新val/留出、角标、同身份真机/Beta/回滚及最终全部门仍待闭合。见§12.351/§13 v1.1.995。
 
@@ -34,13 +34,13 @@
 - **历史回归：** 旧val30、旧test100、编号261—360与361—460困难负样本及其他已消费holdout均只读保护，禁止训练、选择阈值或冒充全新发布证据。
 - **授权：** 项目范围standing商业开发授权已经生效；精确清单、来源、许可声明、角色和SHA-256继续机器追溯，但逐清单处理、训练启动和证据门后的原子freeze无需再次向用户确认。
 - **历史P0（§12.176，已结束）：** 按427f390e…6b68对全部七源27失败甲逐段密集取点精修，原样继承9已审轮廓并复审完整36甲，再重建处置；完整原图决定透明尖部与甲根，不用颜色边界或稀疏直线代替甲缘。 七源28失败甲全部人工绘制并首版原像素复审：1新通过/27失败，8旧轮廓同polygon/同页保留，当前9/36逐甲通过、整源新通过0。本轮93唯一原像素文件实审（28坐标页/36mask页/28完整源页/1旧mask补看）。活动80图465甲、保留真值101图588甲及正式批准0保持；全train80记录/25隔离/93源质排除/7返修/32待源审，完整30轮未启动。 见§12.176及Goal。
-- **当前P0：** 按28f47bde…ca4f审核首组note-c31843aa0ff4b420全部9源45甲的完整原图标记位置，冻结整组标记/空白控制变体方案；维持内部val角色及完整甲面分母。 见Goal/§12.239。
+- **当前P0：** 闭合全118项presence分支的实际特征保真与误差归因：先冻结独立非零观测控制并验证原两头字节不变，再捕获全118严格CUDA/WASM的128维特征，按同一特征来源拆分编码/池化与线性头算术误差。观测保真失败即拒绝归因；不重启已消费预算，不改mask、权重、原严格参考或1e-4门。 见`model/reviews/cycle016-full118-presence-observation-preflight-v1/next-scope.json`。
 - **随后顺序：** 来源组隔离清洁真值与提示可达性；预注册单变量train-only微拟合；通过全split门后完整30轮统一选best；全新来源校准集；锁定实际两阶段部署尺寸、候选规则与运行时；全新正/负发布留出；生产ONNX与多后端一致性；浏览器/桌面/四类真机/Beta100/产品质量/双版本回滚。旧“单阶段512运行时”描述改为实际两阶段身份，依据§12.129，正式质量门不变。
 
 | 标记 ID | 当前发布要求 | 状态 | 证据与下一步 |
 | --- | --- | --- | --- |
 | `REL-CURRENT-AUDIT-V3-001` | 可达且不可跨候选拼接的最终审计 | ✅ PASS（审计基础设施） | `lifecycle=closed; outcome=pass; gateRole=current-release; required=true`；audit v3已实现active marker、统一`releaseIdentity`、逐实例schema v3强门和正样本发布留出一次性消费台账。该PASS只证明审计可达且不可绕过；没有批准候选时正样本、运行时和产品门仍分别HOLD。 |
-| `REL-CURRENT-DEVELOPMENT-002` | 正常开发训练与胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；新头129参数4096更新、分割0更新，完整容量54/66+2/2零输出通过，旧失败/11968步保持。实际学得权重部署与正式来源独立/准入未闭合，下一全68部署核验；发布HOLD。见§12.351/§13 v1.1.995。 |
+| `REL-CURRENT-DEVELOPMENT-002` | 正常开发训练与胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；训练105/106边界；661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 下一presence观测；原第110质量失败不变。 |
 | `REL-CURRENT-CALIBRATION-003` | 全新来源隔离校准集 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；配方锁定后不少于30张，只允许选择一次阈值。 |
 | `REL-CURRENT-POSITIVE-HOLDOUT-004` | 全新一次性正样本发布留出 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；运行时锁定后原子冻结不少于100张，只评估一次并通过召回≥0.90、完整mask≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02。 |
 | `REL-CURRENT-NEGATIVE-HOLDOUT-005` | 全新困难负样本与水印消融 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；候选锁定后不少于100张，三变体零误检/零delta，非右下水印增加对应区域变体。 |

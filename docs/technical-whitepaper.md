@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.2.39
+> 文档版本：v1.2.64
 >
 > 基线日期：2026-07-12
 >
@@ -120,7 +120,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 
 ## 3. 功能状态总表
 
-现行模型开发口径以§11.1及 `docs/nail-texture-current-goal.md` 为准：全74 enc3首GN至输出链数学计算及独立重算闭合，WASM分支40/41/74仍超1e-4（最大0.000306129）；CUDA首卷积输入分支全通过仅为条件诊断。该范围不足，下一纳入实际池化及enc3首卷积，原完整部署失败/参考与正式HOLD保持。 接口见§8.9，证据见 dev-log/2026-10-15.md。
+现行模型开发口径以§11.1及Goal为准：661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 训练域105/106边界通过不代表独立泛化。见§8.9及当日日志。
 
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
@@ -135,7 +135,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | AR 纹理试戴 | `/ar-tryon` | 待验证 | 上传含完整手背的参考图时优先通过MediaPipe Hands逐指定位；完整手部关键点失败后，局部近景先用甲色连通域定位黑色、彩色、银色和镜面甲；甲面为裸色/半透明且被肤色种子吞掉时，再以闭合甲缘、甲板内部/肤色邻环和4—5枚同手连续链复合定位，仍失败才进入人工补选。两条辅助路径均没有像素级mask，低对比边界候选固定低置信并要求用户检查；实时AR支持拇/食/中/无/小指各自独立的长度75%—140%、宽度70%—145%及甲尖/指根位置±20%校准，摄像头最终贴合仍需多设备真机验收 |
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
 | 视频自适应展示 | `calculateCoverVideoLayout()` | 已完成 | 保持比例，采用居中 cover 裁切，不拉伸 |
-| 美甲纹理自动识别 | `recognizeNailTextures()`、`detectNailsFromHandImage()`、`detectPartialCloseupNails()` | 进行中（enc3首GN链范围不足） | 全74 enc3首GN至输出链数学计算及独立重算闭合，WASM分支40/41/74仍超1e-4（最大0.000306129）；CUDA首卷积输入分支全通过仅为条件诊断。该范围不足，下一纳入实际池化及enc3首卷积，原完整部署失败/参考与正式HOLD保持。 见§8.9、§11.1及Goal。 |
+| 美甲纹理自动识别 | `recognizeNailTextures()`、`detectNailsFromHandImage()`、`detectPartialCloseupNails()` | 阻塞（WASM六项presence数值超门） | 661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 见§8.9、§11.1及Goal。 |
 | 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 进行中（语义缺陷待修） | 底层规则候选和MediaPipe/局部近景辅助定位均可在模型失败时返回；这些结果没有生产模型身份，局部近景候选也没有像素级mask。当前`NailArtPicker`仍会在局部近景达到4个区域时显示绿色“可直接提取”，因此尚未满足正式fallback合同。修复后必须持续显示“模型不可用/辅助定位、需人工确认”，并从模型成功率和Beta直接可用率排除。 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
 | 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（无批准生产模型） | 生产manifest仍无批准ONNX或新releaseIdentity，正式训练准入v7及新来源val/正负留出、角标捷径消融、生产运行时/产品、真机/Beta与双批准权重回滚均未闭合。当前内部val诊断质量/数值未过且有上游训练历史，禁止据此正式校准、登记或部署。candidate57受保护test100失败保持，历史测试部署例外不构成正式发布；当前证据与下一路线见§11.1、Goal及当日日志。 |
@@ -749,7 +749,9 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 ### 8.8 来源关系分型与必要重看合同
 
-现行分型合同1区分同摄影帧变换、拍摄系列视觉关联、仅风格相似、可见不同及不确定；拍摄系列关联不作为像素复制正控，数值候选继续禁止，native源图对复核须完整源/现行角色父血缘/实际查看绑定且无缩放。来源独立、源质量、完整mask与训练许可仍分别验收。必要重看只允许单图对两幅已见原图、页≤4MiB、发送前当前线程新鲜压缩请求≤8MiB，未知/超限拒发；实际缩放拒原像素结论，旧关系/失败/分母及资格隔离保留。具体证据和I016下一准备见实验历史归档§12.302。
+现行分型合同1区分同摄影帧变换、拍摄系列视觉关联、仅风格相似、可见不同及不确定；拍摄系列关联不作像素复制正控，数值候选继续禁止，完整源/角色父血缘/实际查看及无缩放分别绑定。完整图片输入遵循用户整图政策v5（`model/reviews/cycle016-user-whole-image-batch-review-policy-v5.json`）：单批及单张作为批的一部分≤50000000字节、每响应≤6独立整图、不另设整轮上限；已看完整事实按精确SHA继承，不重发旧分块。发送前冻结实际文件/页面SHA及字节，尝试采集当前线程近时请求；遥测缺失如实记未知并允许有界发送，不记为测量门通过，已观测准备请求≥100000000字节时停止增图。文件、base64估算及实际网络流量分别记录，实际缩放拒绝原像素结论。旧I016等4MiB页/8MiB请求及未知拒发限制只作历史保留，不能覆盖后来用户明确的50MB单批政策。该更正不放宽原像素质量、来源/完整mask、数据角色或发布门；具体历史编号见实验归档§12.302，最新整组实例见当日日志。
+
+现行完整组审核投影与原尺寸供给分别见`model/reviews/cycle016-6cba-group-review-v1/`和`cycle016-6cba-supply-closeout-v1/`：18源11组106甲/118输入、354文件、原84像素一致和完整真值零丢失保持；当前开发训练结果见§8.9/§11.1。原286角色、父保护、组内4源质量排除、10源50甲内部val及处置v56/registry v57保持，不能转授正式来源独立或发布资格。
 
 ### 8.9 学得原尺寸候选的精度复验接口
 
@@ -805,7 +807,7 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 `audit-reviewed-stage-b-supply.py`保留首版绝对路径读取失败；`audit-reviewed-stage-b-supply-v2.py --execution <冻结执行> --output <新报告>`按同一冻结scope重建全角色、质量97源投影、train/独立val真值槽、父保护角色、71库存、38未决train源与全组采集资产。v2仅兼容固定项目根下历史相对审核页，保持原路径字符串/SHA并拒绝越界、重复身份、文件漂移或分母不一致；`--verify-report <报告>`完整只读重建同报告。ok=true仅证明供给盘点保真，当前原v2盘点没有新增训练资格或预算；后续v3单图对关系投影只保留新增候选，不授权训练。整图审核依用户政策v5记录请求遥测未知并核验有界发送、真实载荷/原RGB；旧实审只继承图片事实，不继承旧图对结论或批准来源独立。扩充供给闭环另绑定实际StageA权重、单源新预算、整图误检裁决与71甲一一ROI证据；`cycle016-stage-b-expanded-native-input-plan-v1.json`约束全74个train候选原尺寸物化；当前222个原尺寸文件已完整重放，不分配训练预算，不引入内部val或新推理/优化/图片输入。空目标只否定同粗mask候选，不标整块RGB为无甲面；原124输入/745文件、正式manifest/HOLD保持。
 
-`materialize-reviewed-stage-b-train-inputs.py --execution <冻结执行> --output <新目录>`独立物化全train候选；保留旧124个train/val物化器及产物，拒绝内部val回流。执行前逐项重建当前完整角色/父血缘、源质真值、已保存预测、一一分配、整图拒识及分母，验证新候选与全部继承train身份/目标/粗mask。每候选只写原尺寸RGB、粗mask和目标三份无损PNG，不生成384参考资产；正例须完整真值/整数逆映射零像素差，拒识只否定同候选且不回退粗mask。只读图片守卫先于像素读取，finally清cache；`--verify-report <报告>`重建全部像素、源绑定、报告完整JSON字节及目录精确清单，缺文件、篡改、角色/分母漂移或不完整真值均失败。当前74输入/222文件通过，全部旧68train原尺寸像素一致；74输入无目标冲突仅证明表示可达；后续正常100轮已执行且质量失败，现行合同及下一诊断见下文，不证明正式独立或解除HOLD。
+`materialize-reviewed-stage-b-train-inputs.py --execution <冻结执行> --output <新目录>`独立物化全train候选；保留旧124个train/val物化器及产物，拒绝内部val回流。执行前逐项重建当前完整角色/父血缘、源质真值、已保存预测、一一分配、整图拒识及分母，验证新候选与全部继承train身份/目标/粗mask。每候选只写原尺寸RGB、粗mask和目标三份无损PNG，不生成384参考资产；正例须完整真值/整数逆映射零像素差，拒识只否定同候选且不回退粗mask。只读图片守卫先于像素读取，finally清cache；`--verify-report <报告>`重建全部像素、源绑定、报告完整JSON字节及目录精确清单，缺文件、篡改、角色/分母漂移或不完整真值均失败。当前13源84输入/252文件及完整81甲通过，全部旧74输入像素一致。扩充合同由`model/training/oneoff/materialize-cycle016-b225-native-v1.py freeze|run|verify`适配现行角色/诊断/完整整图裁决；只替换资源校验入口，冻结像素引擎与零丢失门不变，原11源物化及失败保留。84输入无冲突仅证明表示可达；后续全84独立正常训练及拒识拟合已闭合训练容量，现行合同见下文与Goal，不批准正式来源独立或发布。
 
 `train-reviewed-stage-b-normal-development.py --plan <冻结合同> --preflight-output <新目录>`从头初始化原尺寸条件U-Net，全74原图RGB/同候选粗mask前向反向但优化0，逐项核验有限双头/损失/所需梯度和初始化不变；拒识只训练presence，不对含邻甲RGB施加空mask像素损失。`--plan <合同> --preflight <报告> --output <新目录>`在完整预检后一次100轮/1900步训练，整数D4与有限光度增强不插值真值，固定原像素边界损失/类别平衡presence和最终轮验收，无旧权重/优化器或val选型。严格FP32/TF32关闭，唯一事件逐步fsync、10轮取证checkpoint和独占终态/异常报告绑定；取证不授予恢复权限。当前预算已消费，训练质量未过，不得追加或恢复。
 
@@ -849,7 +851,33 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 `analyze-reviewed-encoder-cross-counterfactual.py --execution <冻结合同> --output <唯一目录>`继承完整两域enc2/enc3纯域证据及独立重算绑定，只新增两条交叉路径；每个候选明确两路原特征来源，固定原WASM enc1.5/presence。按原实际WASM最终最大误差坐标分解enc2、enc3和交互项，完整四格与原分母保持。全部阶段持久化完整数组哈希及开始/完成事件，仅存必要边界/最终RAW；`--verify-report`独立重算新交叉全部阶段、字节/统计/输入链、保存RAW、原双头门和四格恒等式。编码四格条件oracle及全部旧失败保留，现行扩大范围与下一计划见下文和§11.1；不证明单算子根因或批准实际部署。全部旧证据与发布门不变。
 
-`analyze-reviewed-enc3-chain-counterfactual.py --execution <冻结合同> --output <唯一目录>`从各自已存CUDA/WASM enc3.0卷积输出起算原两级GN4/GELU及第二卷积，再接完整dec2/末级链，固定原WASM enc2.5/enc1.5跳连及presence。按实际图解析64通道无bias卷积、GN仿射/epsilon及GELU原F32常量位值，特征F64跨全部阶段传播，仅最终转F32；全部阶段独占持久化开始/完成事件及完整数组哈希/统计，只存enc3边界与最终RAW。`--verify-report`独立重算全部阶段、输入链、完整字节、统计、保存RAW及原双头门。当前WASM三项原失败仍超门，该范围不足；下一设计前移至实际池化及enc3首卷积。数学诊断不批准实际FP32图或正式发布，全部旧失败和预算保留。
+`analyze-reviewed-enc3-chain-counterfactual.py --execution <冻结合同> --output <唯一目录>`从各自已存CUDA/WASM enc3.0卷积输出起算原两级GN4/GELU及第二卷积，再接完整dec2/末级链，固定原WASM enc2.5/enc1.5跳连及presence。按实际图解析64通道无bias卷积、GN仿射/epsilon及GELU原F32常量位值，特征F64跨全部阶段传播，仅最终转F32；全部阶段独占持久化开始/完成事件及完整数组哈希/统计，只存enc3边界与最终RAW。`--verify-report`独立重算全部阶段、输入链、完整字节、统计、保存RAW及原双头门。该首GN范围及后续完整enc3范围均不足，当前结论和下一计划见下文与§11.1。数学诊断不批准实际FP32图或正式发布，全部旧失败和预算保留。
+
+`analyze-reviewed-full-enc3-counterfactual.py --execution <冻结合同> --output <唯一目录>`从各自已存CUDA/WASM enc2.5特征，经实际2×2/stride2无补边池化、32→64无bias首卷积和原enc3首GN至完整输出链，固定原WASM enc2/enc1跳连及presence。按实际语义节点冻结池化及首卷积参数位值；池化数学值不冒充实际F32捕获，特征F64连续传播、原坐标/常量和参考保持、仅最终转F32。所有26阶段完整数组哈希与开始/完成事件不可覆盖，只存enc3边界及最终RAW；`--verify-report`独立重算全数组、全部输入/字节/统计/保存RAW和原双头门。该条件enc3范围不足，原失败保持；后续原输入完整mask链已闭合，当前结论与下一实际运行时控制见下文及§11.1。数学结果不批准实际部署或整体不可达，旧失败与全部正式门保持。
+
+`analyze-reviewed-full-mask-counterfactual.py --execution <冻结合同> --output <唯一目录>`从原4通道F32候选及主机比例计算完整mask支路；参数/常量按原F32位值提升，编码、池化、两处计算跳连及全部解码连续F64传播，坐标和coarse seed保持原F32顺序，仅最终mask转F32，presence固定原WASM。按原图解析前端参数/池化并保留旧完整分支、参考与输入角色；39阶段均绑定全数组形状/域/长度/SHA、输入链及独占开始/完成事件，仅存最终mask。`--verify-report`独立重算全数组、全部字节/统计/保存RAW及原双头对照门；数学通过与实际部署修复严格分列。当前结果及下一控制见§11.1和Goal；实际CPU/WASM/WebGPU新运行时仍须完整非零控制、真实两头捕获及学得验收，不批准正式发布。
+
+`model/runtime/nail-mask-f64.c`与`nail-mask-f64-v2.mjs`是隔离验收的真实SIMD WASM mask路径：F32参数按位提升、F64 Conv/GN/GELU/池化/resize及残差，仅最终mask转F32；坐标与coarse seed保留F32顺序，exp显式调用主机Math.exp。两段输入卷积避免Concat物化，尾部空闲回收及全74实测工作地址均在固定256 MiB线性内存内；该界不等于浏览器总峰值。`nail-two-head-route.mjs`的WASM路由从同次原F32 ONNX实际读取presence，mask采用同输入F64模块，原ONNX mask另存诊断；WebGPU保留原双头图。`nail-mask-f64-coordinate-observer.c`只扩展原核的坐标观测出口。`build-reviewed-mask-wasm.py --compiler <clang> --output <新目录>`冻结编译器/链接器/头文件/源码及模块；Windows须把TEMP/TMP置于工作区隔离目录。当前全74新控制、学得原生双头数值及保存输出的原图Canvas往返均通过，尚无正式泛化验收或生产manifest接入。
+
+`prepare-reviewed-mask-wasm-control.py --output <新目录>`仅从确定性未训练控制图提取原参数并生成独立合成输入及F64参考，不读取项目图片作模型输入。`audit-reviewed-mask-wasm-node.mjs <参考报告> <新目录>`与`serve-reviewed-mask-wasm-control.py --reference <报告> --output <新目录> --port <回环端口>`分别执行Node/浏览器完整mask控制；页面独占认领、输入开始事件和输出不可覆盖持久化，HTTP ACK只允许原路径同字节恢复。`verify-reviewed-mask-wasm-control.py --reference <报告> --node <目录> --browser <目录> --output <新报告>`不调用WASM/神经模型，重新计算全部144参考数组，并重建已保存原生数组比较、预算及事件。合成门与后续新双头控制分列，当前全74三后端控制及下一学得验收见下文；控制原生像素差不冒充原图逆映射或正式质量。
+
+`prepare-two-head-route-control.py`在零神经输入下绑定完整74候选、严格CUDA控制参考、实际图坐标和F32参数；Node及浏览器分别重放1184份实际坐标字节。`audit-two-head-route-control-v2.py cpu|serve|audit|verify --root <冻结目录>`保留原控制执行器，仅修正Windows来源键读取；CPU全74先过门才允许浏览器唯一页面消费WASM/WebGPU各74项。每次ONNX及额外mask执行前独占持久化开始事件，保存实际两头及未使用原WASM mask，原请求同字节可继承ACK但不得重跑；verify只从原RAW、事件和资产独立重建。完整新控制已闭合，见`model/reviews/cycle016-two-head-route-closeout-v1/report.json`。后续学得验收及下一原图回放见下文、Goal及当日日志。
+
+`prepare-two-head-route-learned.py --design <设计> --output <新目录>`在零推理下重放严格CUDA学得参考、实际图参数/坐标及权重保真，绑定相同已验运行时。`audit-two-head-route-learned.py freeze|cpu|serve|audit|verify --root <冻结目录>`复用原捕获/数值协议，仅另立learned参考、预算/显示和报告记账；CPU全74先过门才允许浏览器WASM/WebGPU执行，完整两头RAW、未用原WASM mask和唯一开始/确认事件保持不可覆盖。当前222项ONNX学得输入及额外74次F64 mask全部原生门通过，保存输出的原图整数往返与逐甲质量已另行零模型回放通过；见`model/reviews/cycle016-two-head-route-learned-closeout-v1/report.json`。
+
+`audit-native-canvas-roundtrip.py prepare|serve|audit|verify --root <新目录>`只读取已保存严格CUDA/三后端双头，先重放权威原尺寸物化、完整来源真值、角色及父保护，再按presence与F32 logits零阈值解码、原cropBox整数平移；不新增推理、缩放或概率插值。真实浏览器先通过非零边缘/非方形和拒识控制，逐项独占持久化开始/确认事件，实际写入/读回OffscreenCanvas。完整原图二值画布以little-bitorder bitpack保存，明确长度与零尾部位；verify从全部字节、身份和事件独立重建。`verify-native-canvas-quality.py --root <目录> --output <新报告>`及`--verify-report`直接从浏览器实际画布对原图真值重算逐甲质量；候选拒识不代表RGB ROI没有邻甲。当前完整证据见`model/reviews/cycle016-original-canvas-closeout-v1/report.json`，仅为train-only工程/质量回放，不批准正式发布。
+
+`model/training/oneoff/train-cycle016-full84-pixels-v1.py`另立全84正常微调合同：仅从既有开发权重初始化，不恢复优化器；原尺寸/原角标、恒等增强，正例BCE+Dice+0.2 soft Boundary IoU+2倍4原像素边界带，拒识像素损失0、presence参数冻结。完整零步预检后固定100轮/2100成功步及最终轮验收；取证checkpoint不授予重启。`verify-cycle016-full84-pixels-v1.py`按全部21270事件、100轮顺序、10 checkpoint、84原尺寸输出/特征与完整原图分母重建；像素强制接受诊断与实际双头门分列。开发全train原联合率≥0.8保持，新增10甲另须≥0.8；正式质量阈值不变。
+
+`model/training/oneoff/fit-cycle016-full84-presence-v1.py prepare|run|verify`先对新像素权重的完整84×128特征建立精确线性可分证据，再独立一次L1求解、固定倍数和一次F32舍入；数学见证不得初始化头。实际缓存CUDA Linear及完整模型各84输入须全部presence符号正确、mask原始字节/非presence参数不变，按同81真值与3拒识验收；当前81/81联合、新10/10、3拒识零输出，仍仅train-only容量。`materialize-cycle016-full84-deployment-v1.py freeze|build|verify`只适配权威资源入口，复用通用图参数双射/精确逆变换及原像素引擎，零前向物化隔离新图和全84输入/学得参考。`capture-cycle016-full84-control-v1.py freeze|run|verify`复用控制捕获引擎，另立84个确定性非零未训练严格CUDA参考和168事件，独立验真完整新分母。完整三后端新控制已过门，学得数值失败和当前下一范围见下文；旧74控制/数值/Canvas不得转授新权重。
+
+`model/training/oneoff/prepare-cycle016-full84-route-v1.py control|learned`零推理解析完整84图参数与1344坐标；`audit-cycle016-full84-route-v1.py freeze|cpu|serve|audit|verify --kind control|learned`只适配冻结计数/资源/参考槽，每阶段252项ONNX及额外84次F64 mask预算分别冻结，非零控制全部通过后才准学得。`browser-two-head-control-v2.mjs`仅将显示分母改为实际清单，捕获协议不变。实际控制3端通过；学得CPU84/84、WASM/WebGPU83/84，第41mask超1e-4，presence及解码零差仍不晋升。`close-cycle016-full84-route-v1.py write|verify`从全252实际记录逐头重建504张量误差，原WASM回退7项失败另列。Canvas适配入口已按数值前置拒绝，无浏览器Canvas或新增神经输入；根因未证，不把F64数学更高精度直接等同修复。原数值失败证据`model/reviews/cycle016-full84-route-closeout-v1/report.json`保持，现行观测与下一范围见下文。
+
+`model/training/oneoff/observe-cycle016-full84-mask-v1.py`与同名`.mjs`另立非零观测控制及全84只读捕获合同；先验证4个独立非零输入观测前后CUDA两头/WASM mask字节保真，再捕获新预算的完整84原头，仅第41项保存完整模块层级RAW。全168个CUDA头与84个WASM mask均须等于原冻结输出，否则拒绝层归因。`analyze-cycle016-mask41-local-arithmetic-v1.py`对20个同原输入GN/GELU数学数组及两份完整头数组保存独占事件/全数组SHA并独立重算，同坐标拆分传播与本层算术；不把独立最大值相加或把WASM结果归因WebGPU。原观测证据`model/reviews/cycle016-full84-mask-observation-v1/closeout.json`，未修改运行时/权重、未通过数值修复或正式质量门。
+
+`prepare-native-coordinate-graph-v3.py`的`transform/verify`保留18输入合同：candidate、resizeRatios和`nativeCoord_{dec2|dec1}_{y|x}_{lower|upper|weight0|weight1}`；lower/upper为int64，weight0/weight1为F32广播轴。16个端点改为主机输入并直接连接全部32处消费者，移除Identity中转；按原节点位置和消费者映射逆变换须恢复原图所有字节，新增输入完整类型/动态形状、权重和两头均不得漂移。原v1/v2构建器及Identity版失败保持。`nail-native-coordinates.mjs`、`nail-two-head-native-coordinates.mjs`及原生坐标C内核继续用于隔离路由；CPU/WebGPU实际执行18输入ONNX双头，WASM执行实际ONNX presence及同输入F64 mask，未采用输出伪造或修改严格CUDA参考。新直连图完整84非零控制和学得三端、两阶段Chrome1344坐标及原图Canvas均已通过，接口与捕获重放见`model/training/oneoff/audit-cycle016-native-coordinate-route-v2.py`、`audit-cycle016-native-coordinate-canvas-v2.py`及`model/reviews/cycle016-native-coordinate-actual-closeout-v1/`。仅训练域开发证据；生产manifest/ar-tryon尚未接入新路由，真机性能和独立质量未批准。
+
+现行118候选见`model/reviews/cycle016-full118-runtime-closeout-v1/`：661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 `nail-mask-f64-v3.mjs`仅将调度域扩至661，两头及浏览器v3模块绑定新调度器，坐标模块v2、实际图与参数保持；旧628调度器中止及全部历史失败不改写。完整三端708张量逐头重放定位仅WASM presence失败，mask最大误差5.1022e-5；不以零像素/符号一致替代原数值门。`prepare-cycle016-full118-presence-observation-v1.py`冻结零推理可达性及128维特征观测图，移除新增输出须恢复原图全部字节；结构保真不等于运行保真，实际观测预算0。接口来源与下一控制/观测见其next-scope，不批准生产或独立泛化。
 
 ## 9. 验证与质量门
 
@@ -1020,7 +1048,7 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 - `AGNES_API_KEY`只能存在于服务端环境变量；本机`.env.local`受`.gitignore`保护，文档、日志和源码不得记录真实密钥；
 - `ImageBitmap`、对象 URL、MediaStream track、Worker 和动画帧循环必须在取消或卸载时释放；
 - 用户素材、训练图片、大模型权重和生成数据默认不应加入 Git；应通过 `.gitignore`、对象存储或独立数据盘管理；
-- `model/reviews/`的已冻结二进制采用原路径、原字节不变的NTFS透明无损压缩；完全相同内容可共享只读硬链接。维护须冻结终态清单及完整SHA、拒绝链接越界和并发写、独占持久化操作事件，并在原子替换失败时恢复原文件；结束后按全部原路径重验SHA与终态报告。禁止单独解除共享别名只读后改写内容；新产物须另建版本。现行维护清单及验真见`model/training/oneoff/reviews-storage-maintenance-20261014-v2/verification-report.json`，未决/近期写入目录保持跳过，旧质量失败与模型发布HOLD不变。
+- `model/reviews/`的已冻结二进制采用原路径、原字节不变的NTFS透明无损压缩；完全相同内容可共享只读硬链接。维护须冻结终态清单及完整SHA、拒绝链接越界和并发写、独占持久化操作事件，并在原子替换失败时恢复原文件；结束后按全部原路径重验SHA与终态报告。禁止单独解除共享别名只读后改写内容；新产物须另建版本。终态目录的稳定大文本报告使用同一透明压缩原语并逐文件完整SHA验真；增量维护先压缩未共享的可写文件，再精确去重，已有压缩/共享文件跳过重复操作。当前91019份二进制/大文本原路径全量核验及前轮记录见`model/training/oneoff/reviews-storage-maintenance-20261015-v7/combined-report.json`和`model/training/oneoff/reviews-storage-maintenance-20261014-v2/verification-report.json`；未决/近期写入目录保持跳过，旧质量失败与模型发布HOLD不变。
 - Git与远端的跟踪边界固定为完整可运行的业务、训练和审计代码，测试、配置模板、浏览器运行时必需资产与必要说明。模型权重、数据集、逐文件开发清单、训练计划/判定JSON、训练输出、评估明细、机器报告与review、审核截图、浏览器调试快照及其他可重建证据仅保留本地并由`.gitignore`隔离；小型稳定测试fixture可保留。历史`辅助材料`只跟踪必要Markdown说明，图片、标注、CSV/JSON/YAML和审核产物不再进入当前Git树。
 - 正式 API 上线前需增加鉴权、限流、内容安全、审计、费用保护和错误信息脱敏。
 - `/privacy`是待纠正的产品文案，不构成法律合规验收：仍称无账户体系、只列Agnes、关闭改进计划后不再上传任何数据，与已有账户、Seedream和主动生图数据流不符。账户数据库可保存手机号、身份、会话IP和审计记录；个人收录保存在本地IndexedDB。第三方“不用于训练或存储”不能仅凭本项目代码保证，需要实际服务条款/协议依据。
@@ -1032,11 +1060,11 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 
 旧微拟合学得权重与全部68候选的严格FP32复验独立通过train-only容量门：66正例全部保留、严格联合54/66（要求53）、拒识2/2且输出0像素，mean IoU/Boundary IoU/F1=0.972076/0.794394/0.978412。旧TF32容量、4096新头更新、11968分割步和全部历史失败保留。
 
-完整内部val全50甲零推理归因已闭合：粗mask/实际精修/取消presence拒绝的反事实IoU≥0.75为47/43/47，三者原像素边界联合均0/50；4新增IoU失败来自presence拒绝，实际精修的边界IoU及F1单门各0/50，6/7拒识仍输出。四端解码完全相同，固定CUDA参考的数值修补不能恢复边界或拒识质量，当前权重不晋升；WASM4项和全部旧失败保持，正式HOLD。
+完整内部val全50甲零推理归因已闭合：粗mask/实际精修/取消presence拒绝的反事实IoU≥0.75为47/43/47，三者原像素边界联合均0/50；4新增IoU失败来自presence拒绝，实际精修的边界IoU及F1单门各0/50，6/7拒识仍输出。四端解码完全相同，固定CUDA参考的数值修补不能恢复边界或拒识质量，该历史权重不晋升；WASM4项和全部旧失败保持，正式HOLD。
 
-全74 enc3首GN至输出链数学计算及独立重算闭合，WASM分支40/41/74仍超1e-4（最大0.000306129）；CUDA首卷积输入分支全通过仅为条件诊断。该范围不足，下一纳入实际池化及enc3首卷积，原完整部署失败/参考与正式HOLD保持。 开发训练69/71联合边界保持，本轮新模型调用0。286角色/父保护、原尺寸数据及源树保持，内部val禁止回训/正式校准/选择；正式合同v7仍admission_hold_missing_evidence，无批准生产ONNX或新releaseIdentity。
+18源11组106甲/118候选训练边界联合105/106、新25甲24/25、旧10甲10/10、12拒识零输出，第110质量失败保持。661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 旧内部val失败与上游训练历史保持；正式合同v7仍admission_hold_missing_evidence。
 
-下一全74完整enc3支路数学充分性：从各自已存CUDA/WASM enc2.5出发，新增实际2×2/stride2无补边池化及enc3首卷积，再衔接已验首GN至输出链；固定同候选原WASM enc2跳连、enc1跳连及presence。原F32坐标/参数/常量和严格CUDA参考不变，特征F64传播仅最终转F32；冻结全阶段及必要边界存储、完整独立重算后判定能否覆盖原三项失败，再决定实际FP32修复。原1e-4/解码零差及全部正式门不变。 接口见§8.9，过程与逐项证据仅记当日日志。
+下一闭合全118项presence分支的实际特征保真与误差归因：先冻结独立非零观测控制并验证原两头字节不变，再捕获全118严格CUDA/WASM的128维特征，按同一特征来源拆分编码/池化与线性头算术误差。观测保真失败即拒绝归因；不重启已消费预算，不改mask、权重、原严格参考或1e-4门。 先前部署控制活动已完成，下一合同见`cycle016-full118-presence-observation-preflight-v1/next-scope.json`。来源隔离val≥30、新正负留出各≥100、角标消融、生产/ar-tryon、真机/Beta和双批准回滚仍待闭合。
 
 ### 11.2 暂停交接与恢复进展快照（2026-07-30）
 
