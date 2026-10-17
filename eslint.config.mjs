@@ -23,6 +23,9 @@ const eslintConfig = defineConfig([
     ".archive/**",
     "docs/**",
     "dev-log/**",
+    // 本地冻结证据与一次性审核脚本单独验真，不作为业务lint输入。
+    "model/reviews/**",
+    "model/training/oneoff/**",
     "scripts/**",
     "public/vendor/**",
     "辅助材料/**",

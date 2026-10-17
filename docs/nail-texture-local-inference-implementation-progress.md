@@ -1,13 +1,21 @@
+# 2026-10-17 当前执行：Stage A导出成功但数值门失败，下一骨干保真探针
+
+**部署一致性：**新Stage A输入8项合成及Node/Chrome各18源字节同构保持。当前Stage A单次ONNX导出成功，实际3次导出前向及CPU非零参考/ORT各1；框坐标头最大0.0008087158203125、402值超1e-4，原型头最大4.00543212890625e-5，控制门失败，Chrome/原18源未调用。v1探针因线程1不复现导出器实际线程8而保真失败；v2按原设置CPU/ORT各1，最终两头逐字节重建，logits差3.3617e-5经DFL/步长放大。已保存ORT logits的两种固定DFL64路径仍失败，下一查骨干/回归分支。原学得Worker118门、训练105/106、第110失败和12拒识保持；产品未切换、无新未见质量。证据：`model/reviews/cycle016-stage-a-export-control-v1/report.json`及`model/reviews/cycle016-stage-a-dfl-probe-v2/report.json`、`arithmetic-report-v1.json`及各自replay。
+
+下一轮唯一里程碑：按`model/reviews/cycle016-stage-a-dfl-probe-v2/next-backbone-probe-plan-v1.json`对当前失败Stage A图做全23骨干层及3回归分支保真探针，新增CPU/CPU ORT非零控制各1，导出/Chrome/原18源/训练/受保护输入0。设备选择后CPU线程8，原输入/权重/图节点和参数不变，先逐字节重建旧CPU/ORT两头及DFL捕获，再定位上游误差并冻结一个修复分支；保留0.0008087/402坐标超差及线程探针旧失败，不改1e-4门。
+
+PRODUCT HOLD；原失败、角色与正式门不变。
+
 # 美甲纹理端侧实施进度与审核标记
 
-更新日期：2026-10-15
+更新日期：2026-10-16
 依据：`docs/nail-texture-local-inference-implementation-spec.md`
 
 > **文档定位（2026-10-12）：** 本文件是 `scripts/audit-nail-texture-local-inference-completion.ts` 依赖的审核标记账本，标记表行（含历史 `❌ VAL REJECT`/`TEST HOLD`）直接参与完成度审计计数，因此历史流水账不迁出、不删除、不改写。当前状态口径以白皮书§3/§11.1 与 `docs/nail-texture-current-goal.md` 为准；新增实验记录按天写入 `dev-log/YYYY-MM-DD.md`，不再向本文件追加长篇过程叙述（只允许更新 dashboard、当前最高优先级与必要的结构化标记行）。
 
 > **历史发布距离核对（2026-10-02，v1.1.805快照）：** 仍在数据闭合阶段；活动72图413甲、正式训练批准0，72源待审/25标记资格隔离。后续30轮训练、新val≥30/正负留出各≥100、同身份生产及四设备各≥20次、Beta≥100均待完成。d1212ff9…67ef只读重建通过，历史18门5通过/13未闭合未重跑；不代表完成比例或支持上线日期。V8完整20源审核仍是当前唯一执行目标，见白皮书§12.165/§13 v1.1.805及规范§101。
 
-> **当前最高优先级（2026-10-15）：** 661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 下一闭合全118项presence分支的实际特征保真与误差归因：先冻结独立非零观测控制并验证原两头字节不变，再捕获全118严格CUDA/WASM的128维特征，按同一特征来源拆分编码/池化与线性头算术误差。观测保真失败即拒绝归因；不重启已消费预算，不改mask、权重、原严格参考或1e-4门。
+> **当前最高优先级（2026-10-16）：** 完成当前候选的新来源开发评估准入与首轮固定权重质量基线：先冻结来源/角色、完整真值、指标、完整分母及一次执行预算；缺合格素材先补齐，不复用旧受保护集合。报告必须区分候选覆盖、精修边界、拒识和逐图可用率，并据此决定继续改模型还是投入运行时修复。 训练105/106、WASM112/118及PRODUCT HOLD保持；F64仅为有界待验证方案，不自动晋升。
 
 > **发布距离核对（2026-10-12）：** train-only容量54/66+2/2零误输出已过；实际候选部署ONNX/真实浏览器未过，正式合同/来源独立仍false。内部val10源50甲不作正式校准；新val/留出、角标、同身份真机/Beta/回滚及最终全部门仍待闭合。见§12.351/§13 v1.1.995。
 
@@ -34,13 +42,13 @@
 - **历史回归：** 旧val30、旧test100、编号261—360与361—460困难负样本及其他已消费holdout均只读保护，禁止训练、选择阈值或冒充全新发布证据。
 - **授权：** 项目范围standing商业开发授权已经生效；精确清单、来源、许可声明、角色和SHA-256继续机器追溯，但逐清单处理、训练启动和证据门后的原子freeze无需再次向用户确认。
 - **历史P0（§12.176，已结束）：** 按427f390e…6b68对全部七源27失败甲逐段密集取点精修，原样继承9已审轮廓并复审完整36甲，再重建处置；完整原图决定透明尖部与甲根，不用颜色边界或稀疏直线代替甲缘。 七源28失败甲全部人工绘制并首版原像素复审：1新通过/27失败，8旧轮廓同polygon/同页保留，当前9/36逐甲通过、整源新通过0。本轮93唯一原像素文件实审（28坐标页/36mask页/28完整源页/1旧mask补看）。活动80图465甲、保留真值101图588甲及正式批准0保持；全train80记录/25隔离/93源质排除/7返修/32待源审，完整30轮未启动。 见§12.176及Goal。
-- **当前P0：** 闭合全118项presence分支的实际特征保真与误差归因：先冻结独立非零观测控制并验证原两头字节不变，再捕获全118严格CUDA/WASM的128维特征，按同一特征来源拆分编码/池化与线性头算术误差。观测保真失败即拒绝归因；不重启已消费预算，不改mask、权重、原严格参考或1e-4门。 见`model/reviews/cycle016-full118-presence-observation-preflight-v1/next-scope.json`。
-- **随后顺序：** 来源组隔离清洁真值与提示可达性；预注册单变量train-only微拟合；通过全split门后完整30轮统一选best；全新来源校准集；锁定实际两阶段部署尺寸、候选规则与运行时；全新正/负发布留出；生产ONNX与多后端一致性；浏览器/桌面/四类真机/Beta100/产品质量/双版本回滚。旧“单阶段512运行时”描述改为实际两阶段身份，依据§12.129，正式质量门不变。
+- **当前P0：** 完成当前候选的新来源开发评估准入与首轮固定权重质量基线：先冻结来源/角色、完整真值、指标、完整分母及一次执行预算；缺合格素材先补齐，不复用旧受保护集合。报告必须区分候选覆盖、精修边界、拒识和逐图可用率，并据此决定继续改模型还是投入运行时修复。 当前具体执行与分支停止条件只维护于`docs/nail-texture-current-goal.md`；原head-only0/6与生产构建失败保持。
+- **随后顺序：** 新来源开发质量基线 → 按覆盖/边界/拒识改进候选 → 运行时与端侧成本验证 → 新来源正式校准/一次性正负留出/产品接入 → 四类真机/Beta/双批准回滚/同身份总审计。既有Stage A完整30轮等冻结训练约束继续有效，全部原角色与已消费预算保持。
 
 | 标记 ID | 当前发布要求 | 状态 | 证据与下一步 |
 | --- | --- | --- | --- |
 | `REL-CURRENT-AUDIT-V3-001` | 可达且不可跨候选拼接的最终审计 | ✅ PASS（审计基础设施） | `lifecycle=closed; outcome=pass; gateRole=current-release; required=true`；audit v3已实现active marker、统一`releaseIdentity`、逐实例schema v3强门和正样本发布留出一次性消费台账。该PASS只证明审计可达且不可绕过；没有批准候选时正样本、运行时和产品门仍分别HOLD。 |
-| `REL-CURRENT-DEVELOPMENT-002` | 正常开发训练与胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；训练105/106边界；661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 下一presence观测；原第110质量失败不变。 |
+| `REL-CURRENT-DEVELOPMENT-002` | 正常开发训练与胜出配方 | 🟠 PARTIAL | `lifecycle=running; outcome=pending; gateRole=current-release; required=true`；训练105/106及第110失败、CPU/WebGPU118/118与WASM112/118保持。当前转为新来源开发质量基线，随后以质量/端侧证据选择有预算与停止条件的分支；F64完整presence链待证，head-only0/6关闭。无生产ONNX/releaseIdentity，PRODUCT HOLD。 |
 | `REL-CURRENT-CALIBRATION-003` | 全新来源隔离校准集 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；配方锁定后不少于30张，只允许选择一次阈值。 |
 | `REL-CURRENT-POSITIVE-HOLDOUT-004` | 全新一次性正样本发布留出 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；运行时锁定后原子冻结不少于100张，只评估一次并通过召回≥0.90、完整mask≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02。 |
 | `REL-CURRENT-NEGATIVE-HOLDOUT-005` | 全新困难负样本与水印消融 | ⬜ PENDING | `lifecycle=planned; outcome=pending; gateRole=current-release; required=true`；候选锁定后不少于100张，三变体零误检/零delta，非右下水印增加对应区域变体。 |

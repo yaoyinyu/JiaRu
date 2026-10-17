@@ -143,6 +143,8 @@ export interface NailTextureCompositionManifest {
 }
 
 export interface NailTextureModelManifest {
+  /** 未部署时保留计划接口，但禁止加载模型或作为发布资产使用。缺省兼容既有候选。 */
+  deploymentStatus?: "deployed" | "not-deployed";
   version: string;
   inputSize: number;
   task: "segment";

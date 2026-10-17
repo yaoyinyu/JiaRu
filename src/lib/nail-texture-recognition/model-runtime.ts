@@ -77,6 +77,10 @@ export function validateNailTextureModelManifest(manifest: unknown): string[] {
   if (!isPlainObject(manifest)) {
     return ["manifest_must_be_object"];
   }
+  if (manifest.deploymentStatus !== undefined &&
+      manifest.deploymentStatus !== "deployed" && manifest.deploymentStatus !== "not-deployed") {
+    errors.push("manifest_deployment_status_invalid");
+  }
 
   if (typeof manifest.version !== "string" || manifest.version.trim().length === 0) {
     errors.push("manifest_version_required");
@@ -241,6 +245,7 @@ export function resolveModelUrl(
   manifestUrl = "/models/nail-texture-seg/manifest.json"
 ): string {
   assertValidNailTextureModelManifest(manifest);
+  if (manifest.deploymentStatus === "not-deployed") throw new Error("model_not_deployed");
   const base = new URL(manifestUrl, getRuntimeBaseHref());
   return new URL(manifest.modelFile, base).toString();
 }
@@ -340,6 +345,9 @@ export async function getNailTextureModelRuntime(
       }
 
       const manifest = await loadNailTextureModelManifest(manifestUrl);
+      if (manifest.deploymentStatus === "not-deployed") {
+        return { available: false, backend: "fallback", warnings: ["model_not_deployed"] };
+      }
       const hasWebGpu = typeof navigator !== "undefined" && typeof navigator.gpu !== "undefined";
       const modelUrl = resolveModelUrl(manifest, manifestUrl);
       const warnings: string[] = [];
@@ -436,6 +444,9 @@ export async function getNailTextureStage2Runtime(
   manifest: NailTextureModelManifest,
   manifestUrl = "/models/nail-texture-seg/manifest.json"
 ): Promise<NailTextureStage2Runtime> {
+  if (manifest.deploymentStatus === "not-deployed") {
+    return { available: false, backend: "fallback", warnings: ["model_not_deployed"], inputSize: 0 };
+  }
   const stage2 = manifest.stage2;
   if (!stage2) {
     return {

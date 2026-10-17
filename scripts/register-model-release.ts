@@ -4,6 +4,7 @@ import process from "node:process";
 import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 
 interface ManifestLike {
+  deploymentStatus?: string;
   version: string;
   inputSize: number;
   task: string;
@@ -73,6 +74,9 @@ async function readRegistry(filePath: string): Promise<ReleaseRegistry> {
 }
 
 const manifest = JSON.parse(await readFile(manifestPath, "utf8")) as ManifestLike;
+if (manifest.deploymentStatus !== undefined && manifest.deploymentStatus !== "deployed") {
+  throw new Error("model_not_deployed: cannot register an unavailable model");
+}
 const manifestDir = path.dirname(manifestPath);
 const modelPath = path.resolve(manifestDir, manifest.modelFile);
 const modelStats = await stat(modelPath);

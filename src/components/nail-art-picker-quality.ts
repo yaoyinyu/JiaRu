@@ -76,6 +76,7 @@ const CANDIDATE_WARNING_MESSAGES: Record<string, NailArtPickerWarningPresentatio
 };
 
 const RECOGNITION_WARNING_MESSAGES: Record<string, string> = {
+  model_not_deployed: "生产模型尚未部署，当前仅提供辅助定位，请逐个确认甲面边界。",
   no_candidates_detected: "没有检测到可用的美甲候选区域。",
   worker_unavailable_used_main_thread: "当前环境未启用 Worker，已回退到主线程识别。",
   worker_timeout_used_main_thread: "后台识别超时，已切换到主线程处理。",
@@ -99,6 +100,20 @@ const RECOGNITION_WARNING_MESSAGES: Record<string, string> = {
   fallback_candidates_hidden_manual_selection_required:
     "正式识别模型暂不可用；为避免误选衣物或背景，规则候选已隐藏。请直接在图片上逐个点击完整甲面。",
 };
+
+export function auxiliaryDetectionNotice(
+  backend: "model" | "fallback" | undefined,
+  warnings: readonly string[],
+  regionCount: number
+): string | null {
+  if (backend !== "fallback") return null;
+  const status = warnings.includes("model_not_deployed")
+    ? "生产模型尚未部署，当前仅提供辅助定位。"
+    : "模型识别当前不可用，以下为辅助定位结果。";
+  return status + (regionCount > 0
+    ? `已找到 ${regionCount} 个候选区域，请逐个人工确认边界后再提取。`
+    : "请在图片上手动添加完整甲面，并确认边界后再提取。");
+}
 
 const RECOGNITION_WARNING_PREFIX_MESSAGES: Array<[prefix: string, message: string]> = [
   ["model_manifest_error", "模型清单加载或校验失败，已回退到规则识别。"],

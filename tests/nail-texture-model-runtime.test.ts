@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { getNailTextureStage2Runtime } from "../src/lib/nail-texture-recognition/model-runtime.ts";
 import {
   choosePreferredModelBackend,
   detectNailTextureRuntimeEnvironment,
@@ -12,6 +13,57 @@ import {
   resolveOrtExecutionProviders,
   validateNailTextureModelManifest,
 } from "../src/lib/nail-texture-recognition/index.ts";
+
+test("undeployed manifests stop before model sessions in window and worker", async () => {
+  const names = ["window", "self", "location", "postMessage", "navigator", "ort"] as const;
+  const descriptors = new Map(names.map((name) => [name, Object.getOwnPropertyDescriptor(globalThis, name)]));
+  const originalFetch = globalThis.fetch;
+  const manifest = {
+    version: "planned", deploymentStatus: "not-deployed" as const, inputSize: 640,
+    task: "segment" as const, backendPreferences: ["wasm" as const],
+    modelFile: "absent.onnx", labels: ["nail_texture"],
+  };
+  let sessionCalls = 0;
+  let requests = 0;
+  try {
+    for (const worker of [false, true]) {
+      resetNailTextureModelRuntimeCache();
+      delete (globalThis as Record<string, unknown>).window;
+      const globals = {
+        self: globalThis, location: { href: "https://example.com/ar-tryon" }, postMessage: () => {}, navigator: {},
+        ort: { InferenceSession: { create: async () => { sessionCalls++; throw new Error("must not load undeployed ONNX"); } } },
+      };
+      for (const [name, value] of Object.entries(globals)) Object.defineProperty(globalThis, name, { configurable: true, value });
+      if (!worker) Object.defineProperty(globalThis, "window", { configurable: true, value: { location: globals.location } });
+      globalThis.fetch = (async () => {
+        requests++;
+        return { ok: true, json: async () => manifest };
+      }) as unknown as typeof fetch;
+      const runtime = await getNailTextureModelRuntime();
+      assert.equal(runtime.available, false);
+      assert.equal(runtime.backend, "fallback");
+      assert.deepEqual(runtime.warnings, ["model_not_deployed"]);
+      const result = await recognizeNailTextures({ width: 8, height: 8, data: new Uint8ClampedArray(256) }, { preferModel: true });
+      assert.equal(result.backend, "fallback");
+      assert.ok(result.warnings.includes("model_not_deployed"));
+      assert.throws(() => resolveModelUrl(manifest), /model_not_deployed/);
+      const stage2 = await getNailTextureStage2Runtime({ ...manifest, stage2: {
+        modelFile: "also-absent.onnx", inputSize: 96, cropContextRatio: 0.1, promotionMarginThreshold: 0,
+      } });
+      assert.equal(stage2.available, false);
+      assert.deepEqual(stage2.warnings, ["model_not_deployed"]);
+    }
+    assert.equal(sessionCalls, 0);
+    assert.equal(requests, 2, "only one manifest request in each environment");
+    for (const invalidStatus of ["unknown", null, false]) {
+      assert.ok(validateNailTextureModelManifest({ ...manifest, deploymentStatus: invalidStatus }).includes("manifest_deployment_status_invalid"));
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+    for (const name of names) restoreGlobalProperty(name, descriptors.get(name));
+    resetNailTextureModelRuntimeCache();
+  }
+});
 
 function restoreGlobalProperty(
   name: string,

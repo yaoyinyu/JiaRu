@@ -62,6 +62,12 @@ const entry = registry.releases.find((item) => item.version === version);
 if (!entry) {
   throw new Error(`version not found in registry: ${version}`);
 }
+const snapshot = JSON.parse(await readFile(entry.manifestSnapshotPath, "utf8")) as {
+  deploymentStatus?: string;
+};
+if (snapshot.deploymentStatus !== undefined && snapshot.deploymentStatus !== "deployed") {
+  throw new Error("model_not_deployed: cannot activate an unavailable model");
+}
 
 assertIntegrityMetadata(entry);
 await access(entry.manifestSnapshotPath);

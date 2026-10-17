@@ -12,7 +12,7 @@ const nextConfig = {
     '*.ngrok-free.app',
   ],
   async headers() {
-    // 安全响应头（HSTS 与 CSP 放在 Nginx TLS 终结层，见 deploy/nginx/jiaru.conf）。
+    // 通用安全响应头；Nginx模板尚未启用CSP，HSTS仅在HTTPS示例中列出，部署时另行验证。
     // 这里只放不会破坏 WASM/worker/blob 运行时也不依赖 HTTPS 的通用头。
     const baseSecurityHeaders = [
       { key: "X-Content-Type-Options", value: "nosniff" },

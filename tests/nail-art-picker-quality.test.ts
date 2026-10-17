@@ -2,12 +2,28 @@
 import test from "node:test";
 
 import {
+  auxiliaryDetectionNotice,
   presentCandidateWarning,
   presentRecognitionWarning,
   regionNeedsReview,
   summarizeExtractionDiagnostics,
   summarizeRegionQuality,
 } from "../src/components/nail-art-picker-quality.ts";
+
+test("all auxiliary paths require manual review regardless of count or added regions", () => {
+  for (const warning of ["model_not_deployed", "model_unavailable_used_mediapipe_geometry",
+    "model_unavailable_used_partial_closeup", "model_outputs_empty_used_fallback"]) {
+    for (const count of [0, 1, 3, 4, 5, 10]) {
+      const notice = auxiliaryDetectionNotice("fallback", [warning], count);
+      assert.ok(notice);
+      assert.match(notice, count === 0 ? /手动添加/ : /候选区域.*人工确认边界/);
+      assert.doesNotMatch(notice, /可直接提取/);
+    }
+  }
+  assert.match(auxiliaryDetectionNotice("fallback", ["model_not_deployed"], 4)!, /生产模型尚未部署/);
+  assert.equal(auxiliaryDetectionNotice("model", [], 5), null);
+  assert.equal(auxiliaryDetectionNotice(undefined, [], 0), null);
+});
 
 test("presentRecognitionWarning maps known runtime warnings to readable text", () => {
   assert.equal(

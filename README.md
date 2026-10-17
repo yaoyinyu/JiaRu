@@ -92,11 +92,14 @@ npm.cmd run start
 
 ```powershell
 npm.cmd run lint          # ESLint 检查
-npm.cmd run test           # 全量测试（当前 318 个测试文件，串行执行）
+npm.cmd run test           # 全量测试，串行执行；数据治理用例需本地证据及Python依赖
+npm.cmd run test:ci        # 13份独立产品/发布契约套件；83项，本地通过并接入CI
 npx.cmd playwright test    # 浏览器端到端回归（评审 #11 六条关键行为用例）
-npm.cmd run audit:encoding # 文本文件编码审计（当前 485 个文件）
+npm.cmd run audit:encoding # 文本文件编码审计
 npm.cmd run build          # Next.js 生产构建
 ```
+
+2026-10-16本地独立83项、双类型检查和Lint通过（1条既有登录页警告）；默认Turbopack构建子进程连接失败，Webpack诊断构建内存分配失败，生产构建仍待解决。CI工作流已加入`test:ci`，尚未取得GitHub远端运行结果。共享OAuth cookie常量位于`src/lib/auth/wechat.ts`，路由文件仅保留Next允许的导出；cookie值和鉴权行为不变。
 
 ---
 
@@ -174,7 +177,7 @@ JiaRu/
 │
 ├── model/                        # 模型代码与稳定小型测试夹具
 │   ├── datasets/nail-texture-v1/ # 数据集目录骨架；数据和逐文件 metadata 只留本地
-│   ├── runtime/                  # 隔离原生坐标直连双头路由；全84三端数值/Canvas通过，正式HOLD
+│   ├── runtime/                  # 隔离原尺寸双头路由；全118实际特征观测闭合，WASM6项presence失败/HOLD
 │   ├── training/                 # 训练、标注和审计代码；计划/清单/判定 JSON 只留本地
 │   ├── reviews/                  # 本地冻结审核证据；透明压缩与只读去重，不进入 Git
 │   └── reports/                  # 本地机器报告目录（不进入 Git）
@@ -267,7 +270,7 @@ Git 与远端只保存完整可运行的业务、训练和审计代码，测试�
 - candidate5 已被训练后全新困难负样本留出否决，禁止部署或改名复用
 - candidate6 正样本真值为120张/636 mask，训练、val30校准和冻结test100审计均已完成；候选因逐实例完整识别门失败而否决
 - candidate7、candidate8均已完成训练与冻结test100并因逐实例完整识别门失败而否决；candidate8已显著降低漏甲，但仍需全新来源正样本继续补强
-- candidate57 为当前 TEST HOLD 的历史候选，旧失败保持。661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 下一presence实际特征/算术保真，见Goal及白皮书§8.9/§11.1。
+- candidate57 为当前 TEST HOLD 的历史候选，旧失败保持。新权重训练边界105/106仅为训练域；CPU/WebGPU118/118、WASM112/118且六项presence超绝对1e-4。下一优先建立新来源开发质量基线，再按覆盖/边界/拒识及实际端侧成本选择有预算、可停止的改进方案；F64完整链仅为待验证分支。无生产ONNX/releaseIdentity，PRODUCT HOLD，默认manifest显式not-deployed。当前路线见唯一Goal及白皮书§9.4/§11.1。
 - 正式模型不可用时可以进入规则降级或人工框选，但 UI 必须明确告知降级，不能显示为“模型识别成功”
 
 ---
@@ -312,7 +315,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.2.64 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
+| [技术白皮书](docs/technical-whitepaper.md) v1.2.95 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
 | [实验历史归档](docs/archive/whitepaper-experiment-history.md) | 原白皮书§12.9—§12.351实验叙事（343节）及§3/§11.1历史快照，2026-10-12归档，证据链完整保留 |
 | [历史变更记录归档](docs/archive/whitepaper-changelog-archive.md) | 原白皮书§13逐条变更表（v1.0.0—v1.1.995），2026-10-12归档 |
 | [数据集契约历史归档](docs/archive/whitepaper-dataset-contract-history.md) | 原白皮书§8.1历史执行叙事（标注返修/审核批次流水、困难负样本批次）与§8.4/§9.7/§9.8/§9.9/§11.2复核原文，2026-10-12归档 |

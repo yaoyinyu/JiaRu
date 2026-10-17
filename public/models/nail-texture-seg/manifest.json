@@ -1,4 +1,5 @@
 {
+  "deploymentStatus": "not-deployed",
   "version": "nail-texture-seg-v1",
   "inputSize": 640,
   "inputLayout": "NCHW",

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getAuthService } from "@/lib/auth/server";
 import { getClientIp, setAuthCookies } from "@/lib/auth/cookies";
 import { exchangeWechatCode, getWechatConfig } from "@/lib/auth/wechat";
-import { OAUTH_STATE_COOKIE } from "../route";
+import { OAUTH_STATE_COOKIE } from "@/lib/auth/wechat";
 import { publicOrigin } from "@/lib/request-origin";
 
 /**

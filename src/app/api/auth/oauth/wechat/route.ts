@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { buildWechatAuthUrl, createOauthState, getWechatConfig } from "@/lib/auth/wechat";
+import { buildWechatAuthUrl, createOauthState, getWechatConfig, OAUTH_STATE_COOKIE } from "@/lib/auth/wechat";
 import { getRateLimiter, resolveClientIp } from "@/lib/rate-limit";
 import { publicOrigin } from "@/lib/request-origin";
-
-export const OAUTH_STATE_COOKIE = "jiaru_oauth_state";
 
 /**
  * GET /api/auth/oauth/wechat

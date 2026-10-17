@@ -4,6 +4,7 @@ import process from "node:process";
 import { access, readFile, stat } from "node:fs/promises";
 
 interface ManifestLike {
+  deploymentStatus?: string;
   version: string;
   inputSize: number;
   task: string;
@@ -81,6 +82,9 @@ const manifest = JSON.parse(await readFile(absoluteManifestPath, "utf8")) as Man
 
 const errors: string[] = [];
 const warnings: string[] = [];
+if (manifest.deploymentStatus !== undefined && manifest.deploymentStatus !== "deployed") {
+  errors.push("manifest.deploymentStatus must be deployed for model assets");
+}
 if (!manifest.version) errors.push("manifest.version is required");
 if (!Number.isFinite(manifest.inputSize) || manifest.inputSize <= 0) {
   errors.push("manifest.inputSize must be a positive number");

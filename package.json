@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "typecheck:tests": "tsc --noEmit -p tsconfig.tests.json",
     "test": "node --no-warnings --experimental-strip-types --test --test-concurrency=1 tests/*.test.ts",
+    "test:ci": "node --no-warnings --experimental-strip-types --test --test-concurrency=1 tests/nail-art-picker-quality.test.ts tests/nail-art-picker-text.test.ts tests/nail-texture-model-runtime.test.ts tests/nail-texture-deployment-status.test.ts tests/nail-texture-preprocess-postprocess.test.ts tests/nail-texture-mask-extract.test.ts tests/nail-texture-input-scaling.test.ts tests/nail-texture-finger-assignment.test.ts tests/nail-image-detection.test.ts tests/nail-partial-closeup-detection.test.ts tests/nail-texture-native-domain661.test.ts tests/verify-model-artifact.test.ts tests/audit-release-rollback.test.ts",
     "audit:encoding": "node --no-warnings --experimental-strip-types scripts/audit-text-encoding.ts",
     "audit:mvp-readiness": "node --no-warnings --experimental-strip-types scripts/audit-nail-texture-mvp-readiness.ts",
     "audit:mvp-readiness:deferred": "node --no-warnings --experimental-strip-types scripts/audit-nail-texture-mvp-readiness.ts --defer-real-assets",

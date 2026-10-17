@@ -17,16 +17,19 @@ jobs:
           cache: npm
 
       - name: Install Node dependencies
-        run: npm ci
+        run: npm.cmd ci
 
       - name: Type-check product code
-        run: npm run typecheck
+        run: npm.cmd run typecheck
 
       - name: Type-check tests
-        run: npm run typecheck:tests
+        run: npm.cmd run typecheck:tests
 
       - name: ESLint
-        run: npm run lint
+        run: npm.cmd run lint
+
+      - name: Independent product and release-contract tests
+        run: npm.cmd run test:ci
 
       - name: Production build
-        run: npm run build
+        run: npm.cmd run build

@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.2.64
+> 文档版本：v1.2.95
 >
 > 基线日期：2026-07-12
 >
@@ -120,7 +120,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 
 ## 3. 功能状态总表
 
-现行模型开发口径以§11.1及Goal为准：661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 训练域105/106边界通过不代表独立泛化。见§8.9及当日日志。
+现行模型开发口径以§11.1及Goal为准：隔离学得Worker118门、原Canvas/训练105/106及第110失败保持，新Stage A输入18源同构已过。当前Stage A隔离导出成功但CPU非零控制框坐标402值超原1e-4；保真DFL探针和固定算术诊断表明上游logits误差仍须修复，下一23骨干/3回归分支定位，Chrome/原18源模型输入尚未消费。生产manifest、来源/质量/设备缺口保持，PRODUCT HOLD。
 
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
@@ -135,8 +135,8 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | AR 纹理试戴 | `/ar-tryon` | 待验证 | 上传含完整手背的参考图时优先通过MediaPipe Hands逐指定位；完整手部关键点失败后，局部近景先用甲色连通域定位黑色、彩色、银色和镜面甲；甲面为裸色/半透明且被肤色种子吞掉时，再以闭合甲缘、甲板内部/肤色邻环和4—5枚同手连续链复合定位，仍失败才进入人工补选。两条辅助路径均没有像素级mask，低对比边界候选固定低置信并要求用户检查；实时AR支持拇/食/中/无/小指各自独立的长度75%—140%、宽度70%—145%及甲尖/指根位置±20%校准，摄像头最终贴合仍需多设备真机验收 |
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
 | 视频自适应展示 | `calculateCoverVideoLayout()` | 已完成 | 保持比例，采用居中 cover 裁切，不拉伸 |
-| 美甲纹理自动识别 | `recognizeNailTextures()`、`detectNailsFromHandImage()`、`detectPartialCloseupNails()` | 阻塞（WASM六项presence数值超门） | 661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 见§8.9、§11.1及Goal。 |
-| 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 进行中（语义缺陷待修） | 底层规则候选和MediaPipe/局部近景辅助定位均可在模型失败时返回；这些结果没有生产模型身份，局部近景候选也没有像素级mask。当前`NailArtPicker`仍会在局部近景达到4个区域时显示绿色“可直接提取”，因此尚未满足正式fallback合同。修复后必须持续显示“模型不可用/辅助定位、需人工确认”，并从模型成功率和Beta直接可用率排除。 |
+| 美甲纹理自动识别 | `/ar-tryon`图片纹理识别 | 研发进行中 / PRODUCT HOLD | 隔离学得Worker118门及Stage A新输入18源同构保持，仍训练105/106、第110失败。当前Stage A导出成功但CPU数值控制402框坐标超1e-4；DFL保真探针已定位上游误差放大，下一23骨干/3回归分支定位。Chrome/原18源未调用，产品未切换，见§8.9/§11.1及Goal。 |
+| 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 已实现（辅助定位提示；正式模型HOLD） | 所有fallback候选数均显示琥珀色辅助定位/人工确认提示，0候选提示手工添加；未部署标记在window/worker会话创建前返回明确warning。MediaPipe/局部近景无像素级mask，不计模型成功或Beta直接可用率。行为及发布拦截本地独立测试通过，真实浏览器产品路径待验收。 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
 | 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（无批准生产模型） | 生产manifest仍无批准ONNX或新releaseIdentity，正式训练准入v7及新来源val/正负留出、角标捷径消融、生产运行时/产品、真机/Beta与双批准权重回滚均未闭合。当前内部val诊断质量/数值未过且有上游训练历史，禁止据此正式校准、登记或部署。candidate57受保护test100失败保持，历史测试部署例外不构成正式发布；当前证据与下一路线见§11.1、Goal及当日日志。 |
 | 数据集治理 | `model/datasets/nail-texture-v1`及候选物化报告 | 进行中（发布角色需重建） | 仓库历史基础数据集仍为409图/2142 mask、split=300/46/63；正式训练输入已演进三代：candidate52/56（328张正图/1981 mask/112来源组加160张train困难负样本，物化train488/val30/test0）→ candidate58b（343张/2071 mask/127来源组，train503）→ 循环011/012开发口径（唯一一次12 epoch训练为循环012，350图训练文件树`34fe0a85…1edf`、124来源组均衡采样）。train内来源组开发折已由循环001—015落地为现行评估主线，clean98开发基线（58图/354-mask v2加40困难负图）与循环015扩容（源图供给55图/55来源组/322甲冻结、开发评估真值43图/265甲、训练禁用）为当前事实；旧val30、旧test100及编号261—360、361—460等已消费holdout现在只作受保护历史回归，禁止训练、配方/阈值选择或再次冒充未见证据；候选锁定后的全新校准集、一次性正样本发布留出与全新困难负样本要求保持不变；当前无批准发布候选。 |
@@ -516,7 +516,7 @@ interface NailTextureCandidate {
 5. 手部几何定位成功时生成`source: "mediapipe"`候选并按五指索引自动分配；无完整手部或无可靠几何时，再调用`detectPartialCloseupNails()`尝试局部近景定位；兼容入口`detectPartialCloseupNailCandidates()`仍只返回候选数组；
 6. 局部近景先运行甲色路径：以小核开/闭运算处理非皮肤且未过曝连通域，并通过面积、形状、方差、触边、手部支持域、原始肤色环和局部RGB距离复合门；同手空间簇有2—5枚时直接返回。甲色路径不足2枚时才运行低对比边界路径：固定5×5平滑与Sobel梯度，两档边缘阈值经5×5闭运算后提取不接触图像边界的内部区域；候选必须同时通过面积/长短轴/长宽比/填充率、内部及邻环肤色、手部支持、内部非暗且平滑、边界梯度，并跨阈值去重。只有单一4—5枚候选以最长边21%相邻距离形成连续链时才返回，否则整条边界路径为空。两路五候选均按手部支持域中心极角弧排序；甲色路径4—5个为`medium`、2—3个为`low`，低对比路径固定为`low`并带`partial_closeup_low_contrast_boundary`复核warning；全部为`source: "partial-closeup"`；
 7. 模型候选经过置信度评估、角度稳定、手指建议和mask纹理提取；MediaPipe、局部近景与人工候选使用透明椭圆裁剪；
-8. UI必须展示真正影响当前候选的低置信度与提取质量告警，并允许用户点击新增、拖动/按钮调整、重新分配、删除或取消。局部近景已成功接管时，底层模型/Worker/MediaPipe基础设施warning继续保留在诊断摘要与导出JSON中，但展示层不重复呈现这些已被接管的技术失败；4—5枚连贯候选显示“已定位”，2—3枚则明确提示用户补充漏框甲面。
+8. UI必须展示真正影响当前候选的低置信度与提取质量告警，并允许用户点击新增、拖动/按钮调整、重新分配、删除或取消。所有`backend: "fallback"`均持续显示辅助定位及逐个人工确认边界提示，不因局部近景或候选数≥4显示“可直接提取”；零候选提示手工添加。技术warning可保留诊断摘要和导出，但不得隐藏明确降级状态；`model_not_deployed`显示生产模型尚未部署。
 
 当前 `NailArtPicker` 将正式模型检测输入最长边限制在 800 像素，最多请求 10 个候选，Worker 超时为 15 秒。fallback原候选不会进入可确认区域；MediaPipe静态图检测超时为20秒，使用`modelComplexity: 1`、最多1只手、检测/跟踪阈值0.5。局部近景分析会再次把最长边限制为640像素。甲色路径初始前景要求像素不属于皮肤且灰度低于225，连通域填充率下限0.32、原始肤色环下限0.52、最大手部支持环下限0.38、局部RGB均值距离下限18；平滑肤色只参与评分，同一空间簇至少2枚、最多5枚。低对比路径只在甲色候选不足2枚时运行：Sobel阈值22/24，边缘闭运算半径2；内部区域面积占比0.0014—0.015、短轴至少最长边3.4%、长轴不超过18%、长宽比不超过2.7、填充率至少0.34；内部肤色至少0.88、邻环肤色至少0.82、手部支持至少0.72、内部平均灰度至少90且标准差不超过15、邻环平均梯度至少36；跨阈值中心距离在最长边5.5%内去重，最终只接受以21%相邻距离形成的单一4—5枚链。`detectPartialCloseupNails()`诊断新增`strategy`及低对比组件、合格、选中和拒绝计数；UI只把数值写入本地诊断JSON，不上传原图像素。两条路径都是本地几何候选生成器，不提供像素mask或正式模型质量承诺。人工新增区域默认按源图短边约8%宽、短边约16%长建立，并限制在原图边界内。候选确认后以 `NailAssignment[]` 返回，每个 `ImageBitmap` 的所有权转移给 `/ar-tryon` 页面，页面在替换或卸载时负责释放。
 
@@ -538,7 +538,7 @@ NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL=/models/nail-texture-seg-smoke/manif
 
 `.env.local.example` 默认不再启用 manifest 覆盖；直接复制时由代码使用 `/models/nail-texture-seg/manifest.json`。只有受控 smoke 验证才应临时取消示例注释并指向 smoke manifest。回归测试会拒绝示例文件中任何启用状态的 `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL`，避免测试模型成为共享默认值。在正式 ONNX 缺失期间，默认正式路径仍会进入 fallback，不代表正式模型已经可用。
 
-截至v1.1.273，默认manifest实际存在但相邻的`nail-texture-seg-v1.onnx`不存在；页面出现`backend: "fallback"`或“模型会话初始化失败”时，应明确解释为未运行正式训练模型。candidate5的PyTorch权重只允许在既有模型诊断授权范围内离线评估，不得复制、导出、登记或通过环境变量指向产品路径。复杂拼图现场的candidate5诊断为五枚真实甲面加一个标题文字误检，不能据此把候选写入生产manifest。
+默认生产manifest明确登记`deploymentStatus: "not-deployed"`，计划文件名仍保留但ONNX尚未部署；运行时会在创建会话前返回`model_not_deployed`及fallback。历史候选及训练域精修权重均未获生产发布资格，禁止用其补齐默认目录或共享环境变量以消除该提示。当前正式模型状态以§3/§11.1与Goal为准。
 
 烟雾/合成模型只验证工程链路，不得用于宣称真实美甲识别质量。结果顶层 `backend: "model"` 只表示走了模型路径；实际执行提供程序 `webgpu`/`wasm` 位于 `modelInfo.backend`。
 
@@ -583,9 +583,12 @@ disposeAllTextures(bitmaps): void
 
 正式 manifest 路径：`public/models/nail-texture-seg/manifest.json`。
 
+`deploymentStatus`为可选枚举`deployed | not-deployed`，缺省兼容旧候选，显式非法值（含null）拒绝。当前默认为`not-deployed`：window/worker共用加载器及Stage B入口均在ORT会话前返回fallback和`model_not_deployed`；`resolveModelUrl`拒绝解析。资产审核、发布登记及切换拒绝未部署/非法状态，且不创建登记或覆盖活动manifest。`deployed`仅表示声明可加载，仍须资产完整性、同一发布身份及全部质量门，不自动授予发布资格。
+
 ```json
 {
   "version": "nail-texture-seg-v1",
+  "deploymentStatus": "not-deployed",
   "inputSize": 640,
   "inputLayout": "NCHW",
   "colorOrder": "RGB",
@@ -614,7 +617,7 @@ disposeAllTextures(bitmaps): void
 - 通过 fixture、真实图片、浏览器集成和性能门；
 - 具备版本、SHA-256、体积、指标、发布和回滚记录。
 
-当前结论：v6 ONNX 已在隔离导出目录通过资产、输出协议与桌面 WebGPU 性能门，但冻结67张扩展发布测试在部署512下未通过质量门，因此不再是可发布候选；生产 manifest 仍指向缺失的 `nail-texture-seg-v1.onnx`，`real-model-final-audit-report.json` 的生产决策继续为 `blocked`。现有 synthetic 与 smoke 模型仍只能作为工程测试资源。
+当前生产ONNX与releaseIdentity均未批准；默认manifest为显式未部署占位，正式资产审核仍必须拒绝。历史v6及synthetic/smoke只承担原绑定诊断/工程用途，不能充当正式模型或回滚批准版本；当前训练候选状态见§8.9/§11.1。
 
 ## 8. 数据集与训练接口
 
@@ -877,7 +880,7 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 `prepare-native-coordinate-graph-v3.py`的`transform/verify`保留18输入合同：candidate、resizeRatios和`nativeCoord_{dec2|dec1}_{y|x}_{lower|upper|weight0|weight1}`；lower/upper为int64，weight0/weight1为F32广播轴。16个端点改为主机输入并直接连接全部32处消费者，移除Identity中转；按原节点位置和消费者映射逆变换须恢复原图所有字节，新增输入完整类型/动态形状、权重和两头均不得漂移。原v1/v2构建器及Identity版失败保持。`nail-native-coordinates.mjs`、`nail-two-head-native-coordinates.mjs`及原生坐标C内核继续用于隔离路由；CPU/WebGPU实际执行18输入ONNX双头，WASM执行实际ONNX presence及同输入F64 mask，未采用输出伪造或修改严格CUDA参考。新直连图完整84非零控制和学得三端、两阶段Chrome1344坐标及原图Canvas均已通过，接口与捕获重放见`model/training/oneoff/audit-cycle016-native-coordinate-route-v2.py`、`audit-cycle016-native-coordinate-canvas-v2.py`及`model/reviews/cycle016-native-coordinate-actual-closeout-v1/`。仅训练域开发证据；生产manifest/ar-tryon尚未接入新路由，真机性能和独立质量未批准。
 
-现行118候选见`model/reviews/cycle016-full118-runtime-closeout-v1/`：661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 `nail-mask-f64-v3.mjs`仅将调度域扩至661，两头及浏览器v3模块绑定新调度器，坐标模块v2、实际图与参数保持；旧628调度器中止及全部历史失败不改写。完整三端708张量逐头重放定位仅WASM presence失败，mask最大误差5.1022e-5；不以零像素/符号一致替代原数值门。`prepare-cycle016-full118-presence-observation-v1.py`冻结零推理可达性及128维特征观测图，移除新增输出须恢复原图全部字节；结构保真不等于运行保真，实际观测预算0。接口来源与下一控制/观测见其next-scope，不批准生产或独立泛化。
+当前学得权重在不变`model/runtime/native-conditional-worker-service.mjs`/`native-conditional-worker.mjs`真实Chrome118/118通过原两头绝对1e-4、解码零差与presence决策，输入及原Chrome两头逐字节相同，原Canvas绑定继承后仍训练105/106、第110失败、12拒识零输出；证据`model/reviews/cycle016-native4-worker-learned-v1/report.json`及`replay.json`。局部模型P95约2351.64ms，不含Stage A/完整产品或进程峰值。新隔离`model/runtime/stage-a-linear-input.mjs`导出`packStageALinearInput(rgb,width,height)`：接收准确解码的RGB Uint8Array与1..8192整数边长，拒绝长度不符或缩放为空的输入；返回512×512×3 HWC uint8 `letterbox`、3×512×512 CHW Float32 `tensor`及resizedWidth/resizedHeight/padLeft/padTop。采用冻结OpenCV5.0.0 INTER_LINEAR uint8缩放、中心填114及CPU除255存储语义；8项合成控制和Node/真实Chrome各18源的几何/完整像素/F32字节同构，证据`model/reviews/cycle016-stage-a-linear-v1/report.json`及`replay.json`。这是固定RGB到当前CPU输入的接口验证，不证明JPEG浏览器解码、历史CUDA字节、新未见质量或Stage A输出。首项合成捕获EEXIST旧失败与显式重复账保留，v2只改捕获路径、算法不变。原产品最近邻18/18失败及生产预处理不改；当前Stage A已完成一次FP32/opset17/static512隔离导出、3次顶层导出前向和CPU非零参考/ORT各1，图检查通过但原绝对1e-4数值控制失败：检测头最大0.0008087158203125、402超差值全为框坐标，原型头4.00543212890625e-5。导出成功与report/replay重建ok均不等于数值门通过，Chrome/原18源尚未调用；证据`model/reviews/cycle016-stage-a-export-control-v1/report.json`。原线程探针保真失败保留，v2复现导出器CPU实际线程8后CPU/ORT最终两头逐字节重建；logits/概率/DFL距离最大差3.3617e-5/7.2122e-6/4.9591e-5，捕获距离按原算术解码均重建对应框。两种固定DFL64路径在原CPU logits上过框门、在原ORT logits上仍失败，不能仅改DFL或放宽坐标门；证据`model/reviews/cycle016-stage-a-dfl-probe-v2/report.json`及`arithmetic-report-v1.json`和replay。下一全23骨干/3回归分支保真定位再选修复，生产manifest及全部旧失败保持。
 
 ## 9. 验证与质量门
 
@@ -955,21 +958,11 @@ Git 推送若出现`Failed to connect to github.com port 443`，应先用只读�
 
 ### 9.4 推荐的正式模型落地Goal
 
-2026-09-05复核确认，旧Goal把standing授权与逐批人工确认、已消费留出禁用与继续使用旧val30/test100、历史进度账本与当前完成门混在一起，已经不能原样执行。完整问题清单和可复制文本见`docs/nail-texture-goal-and-reference-docs-review-2026-09-05.md`；当前Goal应以“正式美甲识别语义、全新校准/发布留出、单一release identity和可达的audit v3”为核心。
+唯一可持续目标文件为`docs/nail-texture-current-goal.md`，只维护目标、核心要求、当前状态和下一步计划；本节不再复制启动指令、当前里程碑或旧技术配方。旧推荐文本已原样追加到`docs/archive/whitepaper-changelog-archive.md`的“2026-10-16 v1.2.67：§9.4旧Goal推荐文本”条目，不构成当前单阶段512合同。
 
-> 目标：交付可商用、浏览器本地运行并接入`/ar-tryon`的正式美甲纹理识别模型。正式成功要求对每枚完整可见甲面输出且只输出一个可映回原图的完整像素mask；模型不可用或只有MediaPipe/颜色/边界/矩形/椭圆辅助区域时，必须标明“辅助定位、需要人工确认”，不得计入模型成功率或Beta直接可用率。candidate57已经在唯一一次有效test100上因漏甲图片率`0.13`和加权杂散率`0.04693141`失败并固定为TEST HOLD；旧val30/test100只保留为受保护历史回归，不再作为下一候选的独立校准或最终未见发布证据。
->
-> 用户已对本项目范围内由其提供或放置、且有权授权并可由Codex访问的图像资源与本机计算资源授予持续商业模型开发使用权。逐清单处理、标注、物化、训练启动和满足机器证据门后的原子freeze无需再次请求人工授权；系统仍须记录来源、许可声明、用途角色、精确清单、SHA-256和冻结时间。该授权不改变train/dev/calibration/test/holdout隔离，不允许已消费测试或留出回流训练，也不替代外部付费服务、Beta人工判断和物理设备真实证据。
->
-> 下一正式候选前先实现completion audit v3：历史实验的生命周期与质量结果分开，总门只读取当前发布要求；历史REJECT/HOLD必须保留且不得改写成PASS。所有正式证据必须绑定同一不可变`releaseIdentity`，至少包含candidate、运行时选择锁、全部模型SHA、输入尺寸、阈值/组合、预后处理实现和生产manifest SHA；禁止跨候选拼接正负留出、ONNX、浏览器、桌面、真机、Beta、产品质量或回滚证据。
->
-> 训练主线保留单阶段YOLO实例分割、部署一致的512方形letterbox和产品去重，暂停当前只重新打分且不替换mask的ROI stage2。每轮预注册一个可证伪假设，在train内按`sourceGroup`建立互斥开发折并至多做两个短程单变量实验；失败关闭分支，禁止同输入原样重训、用正式测试调参或微小阈值/插值循环。优先增加透明/低对比、相邻长甲、侧视、多手和复杂背景的独立父图，禁止用大量近重复ROI代替来源多样性。水印图可进入train，但水印不得进入甲面mask，必须登记位置/类型并完成无水印、去除/遮挡/模糊和位置变化消融。
->
-> 配方锁定后建立不少于30张全新来源隔离校准集，只允许选择一次阈值；随后冻结权重、512预处理、阈值、后处理和`releaseIdentity`，再原子冻结不少于100张全新正样本发布留出并只正式评估一次，固定要求实例召回≥0.90、完整mask比例≥0.85、漏甲图片率≤0.10、加权杂散率≤0.02。候选锁定后另建不少于100张、未被模型筛选的全新困难负样本；部署512的原图、裁右下12%、模糊右下角均须误检图片=0、误检检测=0、delta=0，非右下水印还须增加对应区域变体。
->
-> 质量门通过后导出并登记生产ONNX，验证训练框架、ONNX、WebGPU和WASM在同一冻结样本上的候选、坐标与mask一致性。使用同一`releaseIdentity`完成Worker与`/ar-tryon`、真实浏览器、Windows桌面性能/重复运行内存、真实用户失败案例、Android手机/平板、iPhone/iPad各至少20次真机、Beta不少于100张、正式产品质量和双版本回滚bootstrap/演练。只有audit v3对同一发布身份的全部当前门重放为`ok=true`且`decision=complete`，才解除HOLD。仅在Beta人工判断或物理设备确需真实外部输入时，先完成验收包再一次性请求用户；未经明确要求不执行git commit或git push。
+当前唯一活动以Goal为准。Stage A单次导出已完成，CPU原始数值控制失败且按停止合同未调用Chrome/原18源；DFL/线程保真与四项保存张量算术诊断已闭合，下一26层一次CPU/ORT保真探针，导出/训练/受保护输入0。原1e-4、参考及全部旧失败保持；控制全过后才推进原候选/ROI与全链成本。第110失败、新来源质量、正式val/留出、生产/ar-tryon、真机/Beta/回滚及同身份总审计仍须完成，131缺新直接证据不重检。
 
-单个训练完成、开发折或校准集通过、ONNX导出成功、网页加载模型都只是中间里程碑。当前Goal接口是否已由用户在外部设置不由仓库文档判断；本节只维护推荐文本与完成边界。
+最终范围与门限沿用§9.5、`docs/nail-texture-completion-audit.md`及现行audit v3：同一releaseIdentity全部当前门`ok=true、decision=complete`之前保持PRODUCT HOLD。既有训练合同、数据角色、原数值参考与全部历史失败不因本次执行编排重整而失效； standing商业开发授权与真实设备/人工证据边界继续按AGENTS执行。
 
 ### 9.5 正样本识别质量门（schema v2 加权模式）
 
@@ -1062,9 +1055,9 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 
 完整内部val全50甲零推理归因已闭合：粗mask/实际精修/取消presence拒绝的反事实IoU≥0.75为47/43/47，三者原像素边界联合均0/50；4新增IoU失败来自presence拒绝，实际精修的边界IoU及F1单门各0/50，6/7拒识仍输出。四端解码完全相同，固定CUDA参考的数值修补不能恢复边界或拒识质量，该历史权重不晋升；WASM4项和全部旧失败保持，正式HOLD。
 
-18源11组106甲/118候选训练边界联合105/106、新25甲24/25、旧10甲10/10、12拒识零输出，第110质量失败保持。661调度域与全118新非零控制已闭合；新权重学得CPU/WebGPU各118/118通过，WASM112/118，6项presence原始数值超1e-4，最大0.0002772808075。三端mask、解码像素及presence符号均通过，仍不能覆盖presence数值失败。Canvas前置已拒绝；无生产ONNX/releaseIdentity，PRODUCT HOLD。 旧内部val失败与上游训练历史保持；正式合同v7仍admission_hold_missing_evidence。
+18源11组106甲/118候选训练边界联合105/106、12拒识零输出，第110失败保持。隔离学得Worker118门和Stage A新输入18源同构已过；当前Stage A导出成功但CPU控制框坐标402值超1e-4，Chrome/原18源模型输入0。DFL保真定位与固定DFL64算术均不批准模型，下一23骨干/3回归分支定位。产品未切换，旧WASM六失败、内部val/上游历史及正式来源缺口保留，无批准生产ONNX/releaseIdentity，PRODUCT HOLD。
 
-下一闭合全118项presence分支的实际特征保真与误差归因：先冻结独立非零观测控制并验证原两头字节不变，再捕获全118严格CUDA/WASM的128维特征，按同一特征来源拆分编码/池化与线性头算术误差。观测保真失败即拒绝归因；不重启已消费预算，不改mask、权重、原严格参考或1e-4门。 先前部署控制活动已完成，下一合同见`cycle016-full118-presence-observation-preflight-v1/next-scope.json`。来源隔离val≥30、新正负留出各≥100、角标消融、生产/ar-tryon、真机/Beta和双批准回滚仍待闭合。
+新来源开发评估尚未准入。1,223原图仍为780既有角色家族、36源质量排除、7待来源/完整真值、400待审；131来源恢复失败、79/134隔离和新增准入0保持。Stage A输入同构、导出及数值探针不证明未见质量，当前控制仍失败；Stage A严格浏览器输出/候选/ROI、全链成本/稳定性、构建中断、独立val≥30、新正负留出各≥100、角标消融、生产/ar-tryon、真机/Beta和双批准回滚仍缺，见§8.9、Goal及当日日志。
 
 ### 11.2 暂停交接与恢复进展快照（2026-07-30）
 

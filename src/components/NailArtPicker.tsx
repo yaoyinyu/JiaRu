@@ -23,6 +23,7 @@ import {
   createNailDebugSampleFilename,
 } from "@/lib/nail-texture-debug-sample";
 import {
+  auxiliaryDetectionNotice,
   presentRecognitionWarning,
   regionNeedsReview,
   summarizeExtractionDiagnostics,
@@ -408,6 +409,9 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
     [detectionSummary]
   );
   const hasRegionsNeedingReview = regions.some((region) => regionNeedsReview(region));
+  const auxiliaryNotice = auxiliaryDetectionNotice(
+    detectionSummary?.backend, detectionSummary?.warnings ?? [], regions.length
+  );
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current;
@@ -918,16 +922,10 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                 ))}
               </ul>
             )}
-            {detectionSummary?.assistedByPartialCloseup ? (
-              regions.length >= 4 ? (
-                <div className="rounded-xl bg-emerald-50 px-3 py-2 text-xs text-emerald-700">
-                  已自动定位 {regions.length} 个甲面，可直接提取；如边界有偏差可点击调整。
-                </div>
-              ) : (
-                <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
-                  已自动定位 {regions.length} 个甲面；如照片中还有未框选甲面，请点击图片补充。
-                </div>
-              )
+            {auxiliaryNotice ? (
+              <div role="status" className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
+                {auxiliaryNotice}
+              </div>
             ) : hasRegionsNeedingReview ? (
               <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
                 部分区域需要检查位置、角度或大小后再提取。

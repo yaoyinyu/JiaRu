@@ -1,6 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { AuthError } from "./types.ts";
 
+export const OAUTH_STATE_COOKIE = "jiaru_oauth_state";
+
 /**
  * 微信开放平台「网站应用」OAuth 2.0 登录（文档 §5.1 / §9.1）。
  *
