@@ -7,7 +7,7 @@ type Feature = {
   title: string;
   description: string;
   href: string;
-  icon: "upload" | "gallery" | "sparkles" | "camera";
+  icon: "upload" | "gallery" | "sparkles" | "camera" | "analysis";
 };
 
 const features: Feature[] = [
@@ -34,6 +34,12 @@ const features: Feature[] = [
     description: "打开摄像头，美甲实时贴合手指，动一动就能看效果",
     href: "/ar-tryon",
     icon: "camera",
+  },
+  {
+    title: "个性化分析",
+    description: "分析手型、肤色与甲面状况，给出甲型与色系建议（本地计算）",
+    href: "/nail-analysis",
+    icon: "analysis",
   },
 ];
 
@@ -66,6 +72,15 @@ function FeatureIcon({ name }: { name: Feature["icon"] }) {
         <path d="m14 3 2.5 7.5L24 13l-7.5 2.5L14 23l-2.5-7.5L4 13l7.5-2.5L14 3Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
         <circle cx="21" cy="20" r="2" stroke="currentColor" strokeWidth="1.5" />
         <circle cx="7" cy="21" r="1.5" stroke="currentColor" strokeWidth="1.5" />
+      </svg>
+    );
+  }
+
+  if (name === "analysis") {
+    return (
+      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
+        <path d="M5 21V13M11 21V6M17 21v-7M23 21V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        <path d="M3 24h22" stroke="currentColor" strokeWidth="1.5" opacity=".4" />
       </svg>
     );
   }

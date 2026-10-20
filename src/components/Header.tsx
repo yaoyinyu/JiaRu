@@ -10,6 +10,7 @@ const navigation = [
   { href: "/gallery", label: "灵感" },
   { href: "/ai-generate", label: "AI 设计" },
   { href: "/ar-tryon", label: "AR 试戴" },
+  { href: "/nail-analysis", label: "个性化" },
 ];
 
 export function Header() {

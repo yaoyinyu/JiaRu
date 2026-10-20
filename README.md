@@ -14,10 +14,11 @@
 
 | 模块 | 入口 | 状态 | 说明 |
 | --- | --- | :---: | --- |
-| 首页 | `/` | ✅ | 品牌展示 + 四大功能入口 |
-| 涂色编辑器 | `/editor` | ✅ | 上传照片 → 五指独立选色 → Canvas 涂抹 → 本地保存 |
+| 首页 | `/` | ✅ | 品牌展示 + 五大功能入口 |
+| 涂色编辑器 | `/editor` | ✅ | 上传照片 → 五指独立选色 → Canvas 涂抹 → 本地保存（支持 `?gallery=` 灵感色与 `?preset=` 个性化分析推荐色预涂） |
 | AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → 生成引擎可选（Agnes Image 2.1 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite）；用户已完成真实功能验收并再次确认 |
 | 灵感图库 | `/gallery` | ✅ | 6 张 Seedream 灵感图；卡片三入口（试色 / AI 相似款 / AR 试戴）打通到 `/editor`、`/ai-generate`、`/ar-tryon` 链路，AI 生成结果可一键本地 IndexedDB 收录至「我的收录」区块（无服务端后台；真实内容后台见待规划） |
+| 个性化分析 | `/nail-analysis` | 📌 | 上传手背照片 → 本地甲面候选识别 → 手型/甲床比例、肤色（ITA°/底调）、指甲健康启发式 + 场景问卷 → 规则引擎推荐甲型/长度/色系并附解释 → 一键跳转 `/editor?preset=` 预涂；纯规则启发式，不训练模型，工程门通过、真实照片待验收 |
 | AR 纯色试戴 | `/ar-tryon` | 🚧 | 摄像头实时手部追踪 + 五指贴色 |
 | AR 纹理试戴 | `/ar-tryon` | ⛔ | 上传参考图 → 美甲识别/mask 提取 → 纹理贴合；正式识别模型尚未发布 |
 | 独立 AR 演示 | `/ar-demo` | 📌 | 桥接外部 Python demo 的 iframe 占位 |
@@ -55,6 +56,14 @@
 - 正式发布还需生产ONNX登记、真实浏览器回归、Android手机/平板、iPhone/iPad真机、至少100张Beta人工审核和双版本回滚验证。只有完成度审计返回`ok=true`且`decision=complete`才解除HOLD。
 
 ---
+
+## 消费者端新版设计提案
+
+独立预览：运行 `node scripts/serve-consumer-design.mjs`，打开 `http://127.0.0.1:4318`。手机、平板优先，采用米白／深墨／珊瑚与五指多款式贴图；包含为你／试戴／创作／我的，以及引导、详情、发布、个人主页和可下载方案卡。
+
+当前预览遵循“设计不一定是加法”：精简说明、图形入口、本地宋体标题，手机／平板／桌面布局配合触控与键盘焦点、中文输入、返回续编和短过渡；尊重系统“减少动态效果”。方案卡在支持时交给系统分享面板，否则下载 PNG。浏览器视口与功能降级检查已执行，Android／iOS 真机、系统分享及最后紧凑试戴卡的浏览器复验仍待补充，不代表全部平台验收。
+
+这是设计评审原型：真实 AI、账号／云同步、摄像头与公开社区尚未接入。偏好和收藏写入独立本地空间，照片只在本次内存预览，不上传。旧版已按当前磁盘备份并保留，尚未切换。备份逐文件恢复及四页开发访问已验证；生产构建恢复仍有报错，详见[设计与恢复说明](docs/consumer-redesign-design-brief.md)。源码位于 `design/consumer-v1/`，预览服务位于 `scripts/serve-consumer-design.mjs`，不依赖生产环境密钥。
 
 ## 快速开始
 
@@ -116,6 +125,7 @@ JiaRu/
 │   │   ├── ai-generate/page.tsx  # AI 文生图
 │   │   ├── ar-tryon/page.tsx     # AR 实时试戴
 │   │   ├── ar-demo/page.tsx      # 独立 AR 演示桥接
+│   │   ├── nail-analysis/page.tsx  # 个性化美甲分析推荐（上传→识别→问卷→推荐）
 │   │   ├── privacy/page.tsx      # 隐私政策
 │   │   ├── login/page.tsx        # 登录页（手机号+验证码 / 微信）
 │   │   ├── account/page.tsx      # 账号页（档案/登录方式/改进计划/退出）
@@ -133,6 +143,8 @@ JiaRu/
 │   │   ├── NailArtPicker.tsx     # 纹理自动识别与五指分配
 │   │   ├── GalleryGrid.tsx       # 图库网格
 │   │   ├── Header.tsx            # 顶部导航
+│   │   ├── NailAnalysisForm.tsx  # 个性化分析场景问卷
+│   │   ├── NailAnalysisResult.tsx  # 个性化分析结果卡片（含琥珀辅助声明）
 │   │   ├── AppShell.tsx          # 页面壳（导航 + 页脚）
 │   │   ├── Icon.tsx              # 内联 SVG 矢量图标组件（15 个图标）
 │   │   └── FlowingShell.tsx      # 流式布局壳
@@ -156,6 +168,16 @@ JiaRu/
 │   │   ├── nail-texture-debug-sample.ts    # 调试样本
 │   │   ├── nail-texture-debug-priority.ts  # 调试优先级
 │   │   ├── auth/                 # 用户认证库（SQLite/JWT/图形验证码/短信/微信 OAuth/登录即注册）
+│   │   ├── nail-personalization/ # 个性化美甲分析（纯函数规则引擎，无 DOM 依赖）
+│   │   │   ├── index.ts          # 编排入口 analyzeNailPersonalization + barrel
+│   │   │   ├── types.ts          # 共享类型（含 OriginalImagePixels 防误用降采样图）
+│   │   │   ├── color-science.ts  # sRGB→Lab / ITA° 分档 / Monk ITA° 近似 / 底调判定 / ΔE76
+│   │   │   ├── skin-sampling.ts  # 甲周椭圆环采样 + 甲面自污染排除 + 双条件质量门
+│   │   │   ├── hand-profile.ts   # 手轴旋转归一化 + 四类手型 + completeness
+│   │   │   ├── nail-health.ts    # 均匀度/高光/条纹三类启发式（复用 isSpecularHighlightPixel）
+│   │   │   ├── rules.ts          # 11 条甲型 + 15 条颜色规则、安全硬过滤、组合分归一化
+│   │   │   ├── present.ts        # 中文文案层 + 提示去重 + 琥珀声明
+│   │   │   └── bridge.ts         # /editor?preset= 出站参数桥接
 │   │   └── nail-texture-recognition/     # 浏览器端美甲纹理识别子系统
 │   │       ├── index.ts          # 公共 barrel（Worker/主线程入口）
 │   │       ├── recognize.ts      # 主识别流程
@@ -273,6 +295,21 @@ Git 与远端只保存完整可运行的业务、训练和审计代码，测试�
 - candidate57 为当前 TEST HOLD 的历史候选，旧失败保持。新权重训练边界105/106仅为训练域；CPU/WebGPU118/118、WASM112/118且六项presence超绝对1e-4。下一优先建立新来源开发质量基线，再按覆盖/边界/拒识及实际端侧成本选择有预算、可停止的改进方案；F64完整链仅为待验证分支。无生产ONNX/releaseIdentity，PRODUCT HOLD，默认manifest显式not-deployed。当前路线见唯一Goal及白皮书§9.4/§11.1。
 - 正式模型不可用时可以进入规则降级或人工框选，但 UI 必须明确告知降级，不能显示为“模型识别成功”
 
+### 💅 个性化分析推荐（本地规则引擎，工程门通过）
+
+纯规则启发式分析，**不引入任何新模型训练**，与纹理模型发布链路零冲突：
+
+- **输入**：一张五指清晰的手背照片（复用同一上传校验：JPG/PNG/WebP、≤10MB、320–4096px）+ 场景问卷（场合必填；风格/劳作强度/长度偏好/甲面状况可选，未填按 unknown 处理，不会被当作否定值）
+- **三路本地分析**：
+  - 手型与甲床比例：候选长宽比、相对宽度、掌心跨度近似（按候选 `angle` 中位数做手轴旋转归一化，斜拍/竖拍结果与正视一致），四类手型（纤长/短宽/收窄修长/均衡）；候选不足或 `suggestedFinger` 缺失时标记「不可判定」而非伪装成均衡
+  - 肤色与底调：甲周椭圆环采样（24 角向 × 3 径向）→ 逐通道中位数聚合 → CIELAB → ITA° 六档 + 底调四类（橄榄优先于暖）+ Monk ITA° 近似；**甲面自污染排除**（落在甲面/邻甲内的点不计入分子分母）；**双条件质量门**（`quality<0.35` 或采样点少于下限即隐藏结果，不允许低质量采样冒充测量值）
+  - 指甲健康启发式：颜色均匀度（L* MAD）、高光占比（复用 `isSpecularHighlightPixel`）、条纹指标（横断面梯度 / 沿轴梯度）；**恒带非医疗声明，不做任何疾病分类**
+- **规则引擎**：11 条甲型规则 + 15 条颜色规则（覆盖场合、风格、劳作强度、底调、ITA 档位、甲面状况）；安全硬过滤（重劳作/薄软甲排除长甲）、同一甲型组合取最高权重不重复计分、组合分归一化后加权
+- **可解释性**：每条推荐带「为什么适合」文案、置信度与命中规则 id；测试强制每条规则有命中 fixture、规则 id 唯一、`presetNames` 全部存在于 20 种预设色
+- **边界**：正式模型未部署期间识别 100% 走辅助定位且无像素级 mask，指甲健康通道恒不可用（隐藏而非降级展示）；0 候选时不产出任何推荐；`season` 仅为展示标签（四季色彩无同行评审效度验证）；深肤色在阴影下会被系统性压低 ITA°，`color-ita-deep-jewel` 因此设采样质量门
+- **隐私**：照片、候选与采样全部浏览器本地处理，不新增上传通道；即使开启「用户改进计划」也不外发分析结果
+- 设计与依据：[`docs/nail-personalization-design.md`](docs/nail-personalization-design.md)、[`docs/nail-personalization-research.md`](docs/nail-personalization-research.md)（含反面证据与检索维护说明）
+
 ---
 
 ## 环境变量
@@ -313,9 +350,11 @@ copy .env.local.example .env.local
 
 ### 核心文档
 
+- [消费者端新版设计提案](docs/consumer-redesign-design-brief.md)：页面、流程、视觉、数据边界、备份与评审清单。
+
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.2.95 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
+| [技术白皮书](docs/technical-whitepaper.md) v1.2.143 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
 | [实验历史归档](docs/archive/whitepaper-experiment-history.md) | 原白皮书§12.9—§12.351实验叙事（343节）及§3/§11.1历史快照，2026-10-12归档，证据链完整保留 |
 | [历史变更记录归档](docs/archive/whitepaper-changelog-archive.md) | 原白皮书§13逐条变更表（v1.0.0—v1.1.995），2026-10-12归档 |
 | [数据集契约历史归档](docs/archive/whitepaper-dataset-contract-history.md) | 原白皮书§8.1历史执行叙事（标注返修/审核批次流水、困难负样本批次）与§8.4/§9.7/§9.8/§9.9/§11.2复核原文，2026-10-12归档 |
@@ -324,6 +363,8 @@ copy .env.local.example .env.local
 | [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
 | [开发规范](docs/coding-standards.md) | 代码风格、命名规范、工作流程 |
 | [用户管理系统文档](docs/user-system-plan.md) | 角色权限/资源/配额/流程/API/合规/分阶段路线（v0.2，初始注册登录已实现） |
+| [个性化分析推荐·设计](docs/nail-personalization-design.md) | `/nail-analysis` 功能设计：模块契约、色彩科学、环采样、手型/健康启发式、规则表、测试计划与里程碑（2026-10-20 修订） |
+| [个性化分析推荐·资料汇编](docs/nail-personalization-research.md) | 竞品矩阵、学术注释、领域知识库、技术方法、市场数据、公开数据集与来源 URL；§2.5 争议/失效证据、§9 检索与维护说明 |
 
 ### AR 专项文档
 
@@ -353,6 +394,7 @@ copy .env.local.example .env.local
 | AR 试戴 | 摄像头帧默认仅存内存，不录制 |
 | AI 生图 | 默认仅发送文字描述到所选引擎的第三方（Agnes AI / 火山方舟 Seedream）；上传参考图时该图片也会发送（仅用于本次生成）；生成请求受服务端身份与每日配额约束 |
 | 纹理识别 | 浏览器 Worker 本地推理 |
+| 个性化分析 | 照片、甲面候选与肤色采样全部浏览器本地处理，分析结果不上传（开启「用户改进计划」时同样不外发本功能结果） |
 | 用户改进计划 | 开关默认开启：手部照片等数据可能被上传用于产品改进；关闭后不再上传改进计划数据（开关位于 `/privacy`，登录用户可在 `/account` 同步） |
 | 用户系统 | 登录信息（手机号/微信身份、JWT 会话）仅存服务端数据库，用于登录与账号管理；账号完全可选，核心功能不登录也可用，账号数据不出售 |
 
@@ -429,6 +471,16 @@ copy .env.local.example .env.local
 - [ ] 移动真机 WebGPU 性能验证
 - [ ] Beta 人工质量审核（100 张）
 - [ ] 两个独立批准版本的回滚验证与最终`ok=true / decision=complete`审计
+
+### Phase 5: 个性化分析推荐 📌 工程门通过，待真实照片与真机验收
+
+- [x] 资料汇编与功能设计两份文档（竞品/学术/领域知识/市场；含争议与失效证据、检索维护说明）
+- [x] `src/lib/nail-personalization/` 九个纯函数模块：色彩科学（Lab/ITA°/Monk/底调/ΔE76）、甲周环采样（自污染排除 + 双条件质量门）、手型分析（手轴旋转归一化 + 四类手型）、健康启发式（均匀度/高光/条纹，恒非医疗声明）、规则引擎（11 甲型 + 15 颜色 + 安全硬过滤 + 组合分归一化）、中文文案层、`/editor?preset=` 桥接、纯编排入口
+- [x] `/nail-analysis` 页面（上传→识别→问卷→推荐）、问卷与结果组件、首页与导航入口、`/editor` 出站消费、`/privacy` 数据流向登记
+- [x] 11 个测试文件 / 73 项测试（含 ITA 六档×底调四类公平性矩阵、光照漂移、规则覆盖 meta-test、4096² 采样性能预算）；typecheck / typecheck:tests / lint / 全量串行测试 / 生产构建通过
+- [ ] 真实手背照片原分辨率视觉验收（含不同肤色、光照、斜拍/竖拍、五指不全、0 候选路径）
+- [ ] 规则阈值与质量门预注册假设的标定（须使用与模型训练/评估来源隔离的新样本）
+- [ ] 若后续接入手部 landmarks，可把手型从「甲面派生近似」升级为掌宽/掌长口径（不触碰现有识别管线）
 
 ### 待规划
 

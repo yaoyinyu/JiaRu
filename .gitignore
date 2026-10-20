@@ -155,3 +155,6 @@ __pycache__/
 
 # 循环审计一次性专项脚本（绑定单图/分片序号，本地保留不跟踪）
 model/training/oneoff/
+
+# 消费者端设计稿的大尺寸位图素材（单张 2MB 以上，仓库只跟踪页面代码与字体/说明文档）
+design/consumer-v1/assets/*.png

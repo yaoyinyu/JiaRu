@@ -8,7 +8,7 @@ import { UploadButton } from "@/components/UploadButton";
 import { NailCanvas } from "@/components/NailCanvas";
 import { ColorPalette } from "@/components/ColorPalette";
 import { GalleryInspirationCard } from "@/components/GalleryInspiration";
-import { FINGER_NAMES, GALLERY_IMAGES } from "@/lib/utils";
+import { FINGER_NAMES, GALLERY_IMAGES, PRESET_COLORS } from "@/lib/utils";
 import { validateImageUpload } from "@/lib/image-upload-validation";
 
 /** 未选灵感色时的默认甲色（与历史行为一致）。 */
@@ -27,15 +27,23 @@ export default function EditorPage() {
 function EditorPageInner() {
   const searchParams = useSearchParams();
   const galleryParam = searchParams.get("gallery");
+  const presetParam = searchParams.get("preset");
   const look =
     GALLERY_IMAGES.find((item) => String(item.id) === galleryParam) ?? null;
-  return <EditorPageBody look={look} />;
+  // ?preset=（来自 /nail-analysis）与 ?gallery= 同时传入时 gallery 优先，
+  // preset 被忽略并沿用既有灵感预涂行为，避免改动现有图库链路。
+  const presetFromAnalysis = galleryParam
+    ? null
+    : PRESET_COLORS.find((item) => item.name === presetParam) ?? null;
+  return <EditorPageBody look={look} presetFromAnalysis={presetFromAnalysis} />;
 }
 
 function EditorPageBody({
   look,
+  presetFromAnalysis,
 }: {
   look: (typeof GALLERY_IMAGES)[number] | null;
+  presetFromAnalysis: { name: string; color: string } | null;
 }) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [nailColors, setNailColors] = useState<string[]>(
@@ -61,10 +69,12 @@ function EditorPageBody({
       setUploadError(validation.message);
       return;
     }
-    // 从灵感页进入时，把推导出的灵感预设色作为五指初始甲色。
+    // 优先级：灵感推导色 > 个性化分析出站色（?preset=）> 默认色。
     setNailColors(
       Array(5).fill(
-        look && inspiredPreset ? inspiredPreset.color : DEFAULT_NAIL_COLOR
+        look && inspiredPreset
+          ? inspiredPreset.color
+          : presetFromAnalysis?.color ?? DEFAULT_NAIL_COLOR
       )
     );
     setImageUrl(URL.createObjectURL(file));
