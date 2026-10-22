@@ -1,10 +1,10 @@
-# 2026-10-20 当前执行：独立仿射零差，下一完整图操作数跟踪
+# 2026-10-21 当前执行：Stage B合成部署门闭合，下一真实训练154保真
 
-原仿射依赖闭包三后端各9全部零误差，未复现完整图偏移；关闭GPU空闲缓冲池复用后完整WebGPU仍0/9、最大3.760623，分支关闭。64节点CPU请求未生效：实际分发包走JS分支且不实现forceCpuNodeNames，GPU18头与原失败全字节相同，不构成有效混合执行证据。原完整图/权重/参考及失败保持；147/149仅训练域，PRODUCT HOLD。
+Stage B真实训练权重的九尺寸合成完整图已通过CPU ORT/WASM/WebGPU各9/9：两头最大差6.10352e-5/6.53267e-5/6.72340e-5，解码零像素差及presence一致；完整300状态/原权重不变，见`model/reviews/cycle016-presence-stable-learned-v1/report.json`。当前仅合成接口资格，下一真实训练154保真合同已冻结要求且预算0，显式排除已消费保留8；未通过来源隔离质量、Stage A+B产品链或正式发布，PRODUCT HOLD。
 
-下一唯一活动：按cycle016-runtime-trace-v1/next-capture-requirements.json实现原完整图的参数/缓冲身份跟踪：先验证实际JS执行分支、补丁逆变换与日志/资源上限，再冻结WASM/WebGPU各9；完整36原最终头逐字节保真、初始化及九次运行日志完整后，才判断操作数来源或生命周期冲突。缺项或保真失配拒绝归因，不重启旧预算。
+唯一活动：按cycle016-learned-train154-deployment-v1/next-execution-requirements.json冻结并执行真实训练域Stage B部署保真：154训练身份（149正/5同候选拒识）与保留8显式分开，先复验300状态、原输入pack/坐标和资源门，再执行新严格CUDA/CPU ORT各154；CPU完整通过后才执行WASM/WebGPU各154。保留616输入/1232RAW完整分母及异常终态；原1e-4、解码零像素和presence门不变，不作为未见质量或整条链性能证据。
 
-第10次成果本地交付：`model/reviews/cycle016-adjustment10-results-v1/index.html`；全部23完整训练源和真实冻结RAW，147/149不是正式泛化准确率。浏览器file协议禁止自动打开，未新增图片模型输入或视觉批准。
+模型调整13次、微调6次，下一第20次集中展示。下方保留历史审核标记与失败账本，当前事实只读本页顶部、Goal及白皮书。
 
 # 美甲纹理端侧实施进度与审核标记
 

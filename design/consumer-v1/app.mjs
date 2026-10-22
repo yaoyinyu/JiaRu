@@ -116,7 +116,7 @@ function toast(message) {
 }
 function modal(title, body) {
   const dialog = $("#sheet");
-  modalTrigger = focusIdentity();
+  modalTrigger = { selector: focusIdentity(), hash: renderedHash };
   dialog.innerHTML = `<div class="dialog-header"><h2 id="sheet-title">${esc(title)}</h2>${action("close-modal", icon("close"), "round-button", 'aria-label="关闭"')}</div><div class="dialog-body">${body}</div>`;
   dialog.setAttribute("aria-labelledby", "sheet-title");
   if (!dialog.open) { dialog.showModal(); document.body.classList.add("sheet-open"); }
@@ -502,8 +502,11 @@ window.addEventListener("hashchange", () => {
   $("#sheet").close(); focusAfterRoute = true; render();
 });
 $("#sheet").addEventListener("close", () => {
+  if ($("#sheet").open) return;
   document.body.classList.remove("sheet-open");
-  if (modalTrigger) { $(modalTrigger)?.focus({ preventScroll: true }); modalTrigger = null; }
+  const trigger = modalTrigger;
+  modalTrigger = null;
+  if (trigger?.selector && trigger.hash === renderedHash) $(trigger.selector)?.focus({ preventScroll: true });
   updateViewport();
 });
 $("#sheet").addEventListener("click", (event) => {

@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.2.143
+> 文档版本：v1.2.146
 >
 > 基线日期：2026-07-12
 >
@@ -120,13 +120,13 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 
 ## 3. 功能状态总表
 
-原仿射依赖闭包三后端各9全部零误差，未复现完整图偏移；关闭GPU空闲缓冲池复用后完整WebGPU仍0/9、最大3.760623，分支关闭。64节点CPU请求未生效：实际分发包走JS分支且不实现forceCpuNodeNames，GPU18头与原失败全字节相同，不构成有效混合执行证据。原完整图/权重/参考及失败保持；147/149仅训练域，PRODUCT HOLD。 下一完整图参数/缓冲只读跟踪，见§8.9/§11.1。
+Stage B真实训练权重的九尺寸合成完整图已通过CPU ORT/WASM/WebGPU各9/9：两头最大差6.10352e-5/6.53267e-5/6.72340e-5，解码零像素差及presence一致；完整300状态/原权重不变，见`model/reviews/cycle016-presence-stable-learned-v1/report.json`。当前仅合成接口资格，下一真实训练154保真合同已冻结要求且预算0，显式排除已消费保留8；未通过来源隔离质量、Stage A+B产品链或正式发布，PRODUCT HOLD。 当前唯一活动见Goal及§8.9/§11.1。
 
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
 | --- | --- | --- | --- |
 | 首页与统一导航 | `/` | 已完成 | 提供功能入口与统一视觉框架 |
-| 消费者端新版设计提案 | 独立本机预览 `127.0.0.1:4318`，见 §4.7 | 待验证（终端适配与设计评审） | 视觉方向已认可；减法设计、响应式布局、轻动效与返回续编已实现，真机验收待补；旧版保留，真实模型、云同步与公开社区未接入 |
+| 消费者端新版设计提案 | 独立本机预览 `127.0.0.1:4318`，见 §4.7 | 待验证（真机与设计评审） | 最终手机／短横屏、触控模拟和Windows Chrome／Edge检查通过；原生分享与移动真机待验；旧版保留，真实模型、云同步与公开社区未接入 |
 | 登录与账号原型 | `/login`、`/account`、`/api/auth/*`、`/api/me` | 进行中（生产闭环未完成） | 已有JWT/SQLite、手机号/微信身份与偏好接口；生图路由身份与配额/预算熔断、SQLite目录预检已由v1.1.649修复（见§5更正段）；剩余缺口为真实短信、refresh入口及身份一致性/验证码治理。详见§5补充及§9.7。 |
 | 灵感图库 | `/gallery` | AI 素材 + 编辑器灵感参数消费 + 图库→AR/AI 链路打通 + 本地收录（2026-09-03，v1.1.580/581/583） | 6 张 Seedream pro 文生图素材本地落盘 `public/nail-gallery/ai-look-1..6.jpg` 并逐张通过视觉审核；`/editor?gallery=` 已实现灵感卡 + 灵感色预涂（v1.1.581，见 §4.3）；v1.1.583 起图库卡片新增「AI 相似款」(`/ai-generate?gallery=<id>`) 与「AR 试戴」(`/ar-tryon?gallery=<id>`) 入口，图库款式到 AR 的纹理传递已打通（§4.5）；AI 生成结果可一键收录到浏览器本地 IndexedDB 图库（`/gallery`「我的收录」区块，§4.3），真实内容后端与跨设备同步仍无 |
 | 图片试色编辑器 | `/editor` | 已完成 | 本地上传、MIME/大小/分辨率/解码校验、逐指选色、Canvas 涂抹与本地保存链路均已实现并通过浏览器审核 |
@@ -137,7 +137,7 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
 | 视频自适应展示 | `calculateCoverVideoLayout()` | 已完成 | 保持比例，采用居中 cover 裁切，不拉伸 |
 | 个性化美甲分析推荐 | `/nail-analysis` | 待验证（工程门通过；真实照片与真机验收待补） | 纯规则启发式，不引入新模型训练：浏览器本地完成甲面候选识别、甲床/手型派生比例、甲周肤色采样（Lab/ITA°/底调，含甲面自污染排除与采样质量门）、指甲健康三类启发式，结合场景问卷由确定性规则引擎推荐甲型、长度与色系并附中文解释，可一键跳转 `/editor?preset=` 预涂。全部本地计算，不新增上传通道；即使开启「用户改进计划」分析结果也不外发。正式模型未部署期间识别100%走辅助定位且无像素级mask，指甲健康通道不可用（隐藏而非降级展示），琥珀辅助声明页面级常显，不得表述为自动分析成功，也不计入正式识别成功率或Beta直接可用率；0候选时不产出任何推荐。设计文档：`docs/nail-personalization-design.md`、`docs/nail-personalization-research.md`。 |
-| 美甲纹理自动识别 | `/ar-tryon`图片纹理识别 | 研发进行中 / PRODUCT HOLD | 仿射模块27/27零误差；完整图禁用空闲池仍失败，64节点配置请求未生效。下一实际JS运行时操作数/缓冲跟踪，见§8.9/§11.1。 |
+| 美甲纹理自动识别 | `/ar-tryon`图片纹理识别 | 研发进行中 / PRODUCT HOLD | Stage B学得图九尺寸CPU/WASM/WebGPU各9/9；下一真实训练154保真，正式来源质量及产品链仍缺，见§8.9/§11.1。 |
 | 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 已实现（辅助定位提示；正式模型HOLD） | 所有fallback候选数均显示琥珀色辅助定位/人工确认提示，0候选提示手工添加；未部署标记在window/worker会话创建前返回明确warning。MediaPipe/局部近景无像素级mask，不计模型成功或Beta直接可用率。行为及发布拦截本地独立测试通过，真实浏览器产品路径待验收。 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
 | 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（无批准生产模型） | 生产manifest仍无批准ONNX或新releaseIdentity，正式训练准入v7及新来源val/正负留出、角标捷径消融、生产运行时/产品、真机/Beta与双批准权重回滚均未闭合。当前内部val诊断质量/数值未过且有上游训练历史，禁止据此正式校准、登记或部署。candidate57受保护test100失败保持，历史测试部署例外不构成正式发布；当前证据与下一路线见§11.1、Goal及当日日志。 |
@@ -386,12 +386,12 @@ function analyzeNailPersonalization(input: PersonalizationInput): Personalizatio
 
 - **入口与范围**：`node scripts/serve-consumer-design.mjs`，浏览器访问 `http://127.0.0.1:4318`。消费者设计提案位于 `design/consumer-v1/`，不注册 Next.js 正式路由，不导入旧版样式。米白／深墨／珊瑚与五种甲型、工艺的手背贴图方向已获用户认可；继续遵循“设计不一定是加法”，未切换或部署。
 - **页面与流程**：为你／试戴／创作／我的，另含可跳过的轻问答、可编辑偏好模板、款式详情、收藏、发布与个人主页布局、美甲方案卡。说明收进可展开区域，保留必要标签与模拟状态；摄像头、语言模型总结、真正生成、个性化推荐、账号认证、跨设备同步和公开社区均未接入。
-- **终端与动效**：按可用宽度和输入能力适配手机、平板、横屏与桌面，包含安全区、动态视口、触控目标、键盘焦点和输入时底部导航避让；保留浏览器缩放。标题使用 OFL 许可的本地 Noto Serif SC 衍生子集，正文用系统字体。路由、收藏、卡片和弹层使用短过渡，遵从 `prefers-reduced-motion`；缺少动画、观察器或 VisualViewport 时保留基本操作。中文合成输入不重建输入节点，返回恢复页面位置；原生 dialog 支持 Esc、焦点回返与背景滚动锁定。
+- **终端与动效**：按可用宽度和输入能力适配手机、平板、横屏与桌面，包含安全区、动态视口、触控目标、键盘焦点和输入时底部导航避让；保留浏览器缩放。短横屏压缩页头与重复引导，两张试戴卡以紧凑横向图形排列。标题使用 OFL 许可的本地 Noto Serif SC 衍生子集，正文用系统字体。路由、收藏、卡片和弹层使用短过渡，遵从 `prefers-reduced-motion`；缺少动画、观察器或 VisualViewport 时保留基本操作。中文合成输入不重建输入节点，返回恢复页面位置；原生 dialog 支持 Esc、焦点回返与背景滚动锁定。关闭只向原页面恢复焦点，跨页返回聚焦主体；已重新打开的弹层不被旧 close 事件解锁。
 - **数据与草稿隔离**：仅使用 `jiaru-consumer-design-v1` 保存文字偏好和互动选项；图片为本次会话内存对象 URL，刷新需重选。本人／他人照片分离且沿用账号审美；照片试戴／创作分别持有草稿、模拟生成状态与结果，方案返回对应编辑页。未保存的偏好改动与已保存档案分开；发布图、来源及授权选项在模拟登录后保留。未读写旧版账号、数据库或既有存储键。
 - **方案导出与分享**：预先生成本地 PNG，用户点击后在支持文件分享的浏览器调用 `navigator.share`；不支持或分享失败时下载，用户取消不显示成功。仅声明已交给系统面板，不宣称送达；不分享本机预览地址。旧方案异步完成不能提前启用当前方案分享。原生分享尚待真机验证。
 - **预览服务**：只绑定 `127.0.0.1`，默认4318，可用 `--port` 指定；仅白名单 GET／HEAD 提供原型、必要图片与本地 WOFF2，禁止写请求与任意工作区文件访问。CSP 禁止页面网络连接，摄像头等权限关闭；无需密钥或环境配置。
 - **备份与恢复边界**：实施前当前磁盘版本（包括未提交修改）已保存至本地 `.backup-consumer-20261020-v1/`，含源码、必要运行时资产、锁文件和配置模板；不含真实密钥／用户库／训练产物。逐文件恢复验真与四页开发服务访问已验证；恢复副本的生产构建尚未通过，不宣称完成生产恢复验收。机器记录见本地 `output/frontend-redesign/backup-verification.json`。
-- **验收边界**：本轮 Chrome 核心75项检查（含六种视口／六条路径的36组布局检查）及修复后的补充12项检查通过；补充项覆盖中文合成、异步状态、能力降级和分享模拟。最后手机紧凑试戴卡仅完成静态检查，尚未浏览器截图复验；补充 Android 触控检查因自动审批服务额度不足未执行。视口／API模拟不代替 Android／iOS 真机、原生分享、真实服务或生产功能验收。服务选型与正式切换仍待确认。完整设计、检查范围与恢复说明见 `docs/consumer-redesign-design-brief.md`；机器记录位于本地 `output/frontend-redesign-v2/`。
+- **验收边界**：最终 Chrome 核心75项与补充12项、独立Pixel 7触控模拟55项、Windows Edge补充24项检查通过；紧凑竖屏及短横屏入口完成完整截图复查。覆盖中文输入、异步状态、粗指针 tap、返回与弹层、减少动态效果、分享／编码／剪贴板失败恢复，绑定最终源码的记录见本地 `output/frontend-redesign-final-20261021/`。Android／iOS真机、iOS Safari／WebKit、真实系统键盘／安全区与原生分享仍未验收；模拟不代替真实服务或生产质量。旧审批服务额度故障已解除，历史失败保持。服务选型与正式切换仍待确认。完整设计、检查范围与恢复说明见 `docs/consumer-redesign-design-brief.md`。
 
 ## 5. HTTP API 契约
 
@@ -813,7 +813,7 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 粗候选自动提示SAM2.1-L有限基线现见`model/reviews/cycle016-seeded-semantic8-v2/quality-report.json`/`quality-replay.json`及完整`preview/index.html`：先新增过滤前全量观察控制，续接原未消费单次完整8甲真图，权重/提示/公开conf不改。原控制4/8失败保留，现行全8项真实输出严格联合0/8、IoU0.58981且皮肤/缎面污染，固定分支关闭，不扩提示。峰值CUDA allocated1498892288字节、单真图主机墙钟2.805秒含RAW保存，不代表浏览器性能或完整峰值成本。
 
-当前开发结构`model/training/native-pretrained-context-refiner.py`继承原生四通道RGB+粗mask、mask/presence两头及固定先验/阈值，在原上下文精修上复用现有StageA已训练骨干4/6/10层的stride8/16/32特征；骨干冻结、始终eval，三个零初始化1×1投影仅向mask路径添加语义残差。输入RGB从现行float32 ImageNet归一化反变换、舍入回原整数格点后/255，仅右下pad32（114/255），不缩放RGB；骨干原点0、原生quarter中心4*i+1.5显式双线性采样，禁止将pad范围压缩映射回ROI。presence仍读取原e3；60张量414802可训练参数及1365472冻结骨干参数（240状态含BN）。原完整损失和0.25距离辅助项保持，原像素真值/角色不变。8项针对性测试、独立1536非零控制/全162热启动两头精确/462梯度预检重放通过；学得权重尚无新完整图部署资格；独立控制当前口径见下方，不继承旧数值通过。
+当前开发结构`model/training/native-pretrained-context-refiner.py`继承原生四通道RGB+粗mask、mask/presence两头及固定先验/阈值，在原上下文精修上复用现有StageA已训练骨干4/6/10层的stride8/16/32特征；骨干冻结、始终eval，三个零初始化1×1投影仅向mask路径添加语义残差。输入RGB从现行float32 ImageNet归一化反变换、舍入回原整数格点后/255，仅右下pad32（114/255），不缩放RGB；骨干原点0、原生quarter中心4*i+1.5显式双线性采样，禁止将pad范围压缩映射回ROI。presence仍读取原e3；60张量414802可训练参数及1365472冻结骨干参数（240状态含BN）。原完整损失和0.25距离辅助项保持，原像素真值/角色不变。8项针对性测试、独立1536非零控制/全162热启动两头精确/462梯度预检重放通过；学得图当前合成接口资格见下方；真实图片、完整产品及正式部署资格未授予，不继承旧数值通过。
 
 上一上下文结构分支见`model/reviews/cycle016-context143-v1/run/report.json`及`training-replay.json`；原开发门false、固定分支关闭，作为本次新监督配方的显式初始化和基线，不追认旧失败或转授部署资格。
 
@@ -825,19 +825,19 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 离线Qwen仅定位试验见`cycle016-qwen3-v1/localization-closure-v2.json`：冻结3整图22甲，原裸StageA资格门仍可达且未执行；重建实际接受集合22/22、0额外后，当前端到端仅定位严格增益余量0，基于目标相关收益关闭分支。Qwen图像输入0、无蒸馏/效果结论，部分官方权重下载已停止，不能据此否定像素教师或SAM能力。
 
-当前技术实施总合同见`docs/nail-texture-local-inference-implementation-spec.md`v1.10 §6.1/§6.3：Stage A 512候选、Stage B原尺寸四通道及mask/presence双头、完整原图坐标逆映射；与旧384精修/六通道边界模块或仅重打分stage2明确分开。浏览器接口和产品发布仍须新学得完整图验证，旧单阶段manifest例子不构成新双阶段生产合同。
+当前技术实施总合同见`docs/nail-texture-local-inference-implementation-spec.md`v1.11 §6.1/§6.3：Stage A 512候选、Stage B原尺寸四通道及mask/presence双头、完整原图坐标逆映射。当前修复仅Stage B合成接口通过；真实输入、Stage A+B完整Worker/Canvas及发布身份仍须验收，旧单阶段manifest例子不构成双阶段生产合同。
 
 上一冻结RGB基线完整执行见`model/reviews/cycle016-pretrained-context-v2/plan.json`、`preflight-replay.json`、`run/report.json`及`training-replay.json`：23源149正/5同候选拒识154训练身份、462视图，独立固定60轮/9240训练输入/2340更新，全部162最终RAW/157真值及143训练基线保留、6取证checkpoint和全部事件重放。训练域旧123/123、新17/18及新两源7/8，143基线零退化、149正presence全接受、5拒识零像素，开发门true；147/149属于训练域，不是正式准确率。原保留开发8训练0、最终诊断0/8，不用于选择。全部60训练张量改变、240骨干状态完全不变；预检与训练CUDA allocated1273385984/559591424字节不代表浏览器/完整流程成本。此前距离分支开发门false仍保持`cycle016-distance154-v1/`原报告；距离目标/损失合同见`normal-stage-b-distance-loss.py`和其`loss-value-replay.json`，不将本轮增量全归因新结构。已完成的新图独立导出/控制见下段；该阶段展示账为3次微调，当前调整计数见本轮训练段；无新成果视觉通过或生产切换。
 
-当前新图独立部署接口`export-pretrained-native-candidate-v2.py --plan <冻结范围> --output <新目录>`支持需骨干构造的完整300状态严格加载、动态原尺寸输入与两头导出，事件区分导出追踪及CUDA/CPU Torch/CPU ORT调用；`--verify-report <报告> --output <重放>`从完整RAW/事件复算。`onnx-blocked-group-normalization.py`仅按实际图解析恒等InstanceNorm内核，改为同float32/原epsilon的三级128分块均值及中心方差；原其余节点与全部初始常量回剥恢复原图字节。当前16核修复只覆盖独立控制ONNX，不是已导出的学得模型，不改变训练前向/权重/阈值。
+当前完整图导出接口`export-native-trained-fullchain.py`提供真实300状态严格加载、原尺寸双头导出、严格FP32 CUDA/CPU ORT及完整RAW/事件重放。`onnx-native-fullchain-repairs.py`组合16处同epsilon的float32分块归一化、4处3×3空间分段和最终1×1分段；其后`onnx-blocked-presence-reductions.py`仅改三处Sum/Mean为同float32三级128分块累加。各变换逆序恢复原完整ONNX字节，全部原权重、偏置、阈值不变。生产接入仍须真实输入与整条链验收。
 
-当前完整部署控制见`model/reviews/cycle016-fullresolution-partition-v1/report.json`：三处剩余原尺寸卷积已实际分段修复并全27输入/54头重放：CPU/WASM各9/9通过；WebGPU最大差由47.930836降至5.825952，1536解码差7605降为0，第2/6项仍各1像素，全部9数值仍失败。五输出旧观察全36/180完整，但WebGPU1536两头失配，保留reconstruction_mismatch并拒绝层差归因。仅独立合成控制，非学得部署；调整9/10、微调6次，PRODUCT HOLD。 `audit-native-partitioned-fullchain-controls.py`与原两头服务保存完整RAW/事件/HTTP及原严格CUDA参考迁移。新修复仅覆盖独立控制ONNX，未导出学得模型。固定本机ORT源码显示NCHW Conv2DMatMul原尺寸调度x=73728超过设备65535，通用折叠不保持原二维索引；实际执行核/布局未追踪，静态风险与本次输出变化不能单独证明全部根因。转换对enc1.3、dec1.0、dec1.3保留原权重与halo，逆变换恢复原图字节。旧首Conv分段全9失败/47.930836与更早失败均保留。完整进程峰值及端到端P95未验收，不改1e-4/零像素/presence或缩小域。
+当前完整部署控制见`cycle016-presence-stable-independent-v1/report.json`和`cycle016-presence-stable-learned-v1/report.json`：独立非零及真实训练权重分别全27输入54RAW，各三后端九尺寸达到两头绝对1e-4、解码零像素差和presence一致门，包含1536方形与极端长宽比。真实模型未改300状态；同一实际图修复不因独立/学得验证重复计数。旧`cycle016-fullresolution-partition-v1/report.json`、首次学得WASM7/9及全部历史失败保持；合成通过不授正式质量、性能或发布资格。
 
 当前边界观测接口`audit-pretrained-native-boundary.py`提供实际图只增enc1.0输出、原图字节回剥、严格CUDA捕获及`verify-cuda`/`verify-all`零推理重放；`serve-pretrained-boundary-capture.py`提供绑定完整9输入的WASM/WebGPU捕获。最终头保真按全部输入逐后端原始字节校验，全部27输入/81张量完整有限及54最终头通过后才允许层统计，否则`reconstruction_mismatch`且拒绝归因；同请求SHA/长度/身份一致的有界传输重试不重跑模型。当前完整门通过见`model/reviews/cycle016-pretrained-first-boundary-v1/report.json`：WASM首卷积全9最大差1.90735e-6，WebGPU前8为2.38419e-6，1536为8.602846。首卷积同输入隔离已完成，当前结论见下段；较小8例最终失败仍需后续定位，学得模型与正式发布资格不变。浏览器完整进程峰值与端到端成本未验收，文件/HTTP载荷字节不能冒充实际网络流量。
 
 当前单卷积隔离接口`audit-onnx-conv-isolation.py`保留原节点/初始权重、同9输入及严格CUDA边界，提供CPU执行与完整RAW/事件重放；旧28控制及原WebGPU1536失败保持`cycle016-firstconv-isolation-v1/report.json`。现行分段转换`onnx-spatial-partition-convolution.py`对原3×3/stride1/pad1无bias卷积采用显式零padding、4个动态高度段/完整halo及Concat，全部原权重不变，原图可逐字节回剥，16..1536整数高度覆盖无丢失/重复。`audit-partitioned-conv-controls.py`及`serve-single-output-controls-v2.py`提供同9三后端单输出捕获、实际ORT设备limits及零推理重放；实际申请描述符未拦截，不把源码策略当申请实测。当前`model/reviews/cycle016-partitioned-firstconv-v1/report.json`全27数值通过，WebGPU最大3.33786e-6；实测/实际ORT设备上限65535、分段最大18432。完整图已实际验收但WebGPU未过，现行失败见上段；单算子通过不得转授完整图或学得部署。
 
-`onnx-observe-tensor-output-v2.py`保持检查点回剥及原最终头保真硬门；三点与逆序完整证据已确认第二归一化Add偏移受运行历史影响。`onnx-extract-boundary-subgraph.py`按显式输入切口保留原节点/常量字节，`audit-affine-module-controls.py`及`serve-affine-module-controls.py`完整捕获/重放九输入三后端两输出。原仿射依赖闭包三后端各9全部零误差，未复现完整图偏移；关闭GPU空闲缓冲池复用后完整WebGPU仍0/9、最大3.760623，分支关闭。64节点CPU请求未生效：实际分发包走JS分支且不实现forceCpuNodeNames，GPU18头与原失败全字节相同，不构成有效混合执行证据。原完整图/权重/参考及失败保持；147/149仅训练域，PRODUCT HOLD。 `cycle016-cpu-affine-v1/option-effectiveness.json`区分配置请求与生效资格，原无效请求及预算保留。下一`cycle016-runtime-trace-v1/next-capture-requirements.json`要求同步元数据日志、不新增GPU命令/读回，并先完整36原最终头保真后才解释缓冲身份与操作数来源。局部通过、源码字段和无效配置均不转授完整图、学得或正式发布资格；全部旧失败保持。
+只读诊断接口`onnx-observe-normalization-moments.py`与`onnx-observe-presence-reductions.py`仅增加既有输出，配套服务独占保存RAW；原图字节回剥、CPU/WASM全九尺寸36原最终头全字节保真后才允许层统计。当前分别18输入612RAW及18输入126RAW通过保真，首次学得WASM两项失败仅presence标量；同输入float64归约反事实不是实际模型输出。新float32归约修复实际全27通过见上段。提交原因跟踪已分开7948计算、144观察读回、2179独立上传及9空flush；原7948=8065错误合同失败不追认，原未加观察的117读回与本观察新增27读回分开，见`cycle016-submit-boundary-v1/report.json`。最新完整真实训练域合同见Goal，所有旧跟踪/缓存/准备失败及已消费预算保持。
 
 `export-trained-native-candidate.py --scope <冻结范围> --output <新目录>`仅导出开发候选并核验全68存档Torch/CPU ORT；输出隔离ONNX、float32缓冲及`report.json`，CPU门失败时禁止浏览器准入，不修改生产manifest。
 
@@ -1043,7 +1043,7 @@ Git 推送若出现`Failed to connect to github.com port 443`，应先用只读�
 
 唯一可持续目标文件为`docs/nail-texture-current-goal.md`，只维护目标、核心要求、当前状态和下一步计划；本节不再复制启动指令、当前里程碑或旧技术配方。旧推荐文本已原样追加到`docs/archive/whitepaper-changelog-archive.md`的“2026-10-16 v1.2.67：§9.4旧Goal推荐文本”条目，不构成当前单阶段512合同。
 
-当前唯一活动以Goal为准：按cycle016-runtime-trace-v1/next-capture-requirements.json实现原完整图的参数/缓冲身份跟踪：先验证实际JS执行分支、补丁逆变换与日志/资源上限，再冻结WASM/WebGPU各9；完整36原最终头逐字节保真、初始化及九次运行日志完整后，才判断操作数来源或生命周期冲突。缺项或保真失配拒绝归因，不重启旧预算。
+当前唯一活动以Goal为准：按cycle016-learned-train154-deployment-v1/next-execution-requirements.json冻结并执行真实训练域Stage B部署保真：154训练身份（149正/5同候选拒识）与保留8显式分开，先复验300状态、原输入pack/坐标和资源门，再执行新严格CUDA/CPU ORT各154；CPU完整通过后才执行WASM/WebGPU各154。保留616输入/1232RAW完整分母及异常终态；原1e-4、解码零像素和presence门不变，不作为未见质量或整条链性能证据。
 
 最终范围与门限沿用§9.5、`docs/nail-texture-completion-audit.md`及现行audit v3：同一releaseIdentity全部当前门`ok=true、decision=complete`之前保持PRODUCT HOLD。既有训练合同、数据角色、原数值参考与全部历史失败不因本次执行编排重整而失效； standing商业开发授权与真实设备/人工证据边界继续按AGENTS执行。
 
@@ -1138,7 +1138,7 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 
 完整内部val全50甲零推理归因已闭合：粗mask/实际精修/取消presence拒绝的反事实IoU≥0.75为47/43/47，三者原像素边界联合均0/50；4新增IoU失败来自presence拒绝，实际精修的边界IoU及F1单门各0/50，6/7拒识仍输出。四端解码完全相同，固定CUDA参考的数值修补不能恢复边界或拒识质量，该历史权重不晋升；WASM4项和全部旧失败保持，正式HOLD。
 
-当前质量状态：光度规范化开发门false，原147/149训练域模型保留。原仿射依赖闭包三后端各9全部零误差，未复现完整图偏移；关闭GPU空闲缓冲池复用后完整WebGPU仍0/9、最大3.760623，分支关闭。64节点CPU请求未生效：实际分发包走JS分支且不实现forceCpuNodeNames，GPU18头与原失败全字节相同，不构成有效混合执行证据。原完整图/权重/参考及失败保持；147/149仅训练域，PRODUCT HOLD。 新来源val/留出、角标消融、学得完整图、端侧成本、真机/Beta/回滚仍缺，无批准生产身份。
+当前质量状态：原147/149仅训练域，光度规范化开发门false及旧失败保持。Stage B真实训练权重的九尺寸合成完整图已通过CPU ORT/WASM/WebGPU各9/9：两头最大差6.10352e-5/6.53267e-5/6.72340e-5，解码零像素差及presence一致；完整300状态/原权重不变，见`model/reviews/cycle016-presence-stable-learned-v1/report.json`。当前仅合成接口资格，下一真实训练154保真合同已冻结要求且预算0，显式排除已消费保留8；未通过来源隔离质量、Stage A+B产品链或正式发布，PRODUCT HOLD。 新来源val/留出、角标消融、整条链成本、真机/Beta/回滚仍缺，无批准生产身份。
 
 两种原像素修边分支仍关闭、没有接入产品；旧GrabCut总2/141及置信度图割131/141、139候选3429像素变化保持原报告，不能因当前真值错误而改写成通过，也不能据其证明真实甲缘能力。最新完整18源训练前/最终预测/新真值对照为`model/reviews/cycle016-requalified134-training-v1/preview/index.html`。旧未终审参考预览及其错误提示原样保留作历史证据，现行训练资格只读§8.8新域报告。
 
