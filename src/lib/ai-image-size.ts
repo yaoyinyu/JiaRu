@@ -1,7 +1,7 @@
 /**
  * AI 生图输出尺寸与画面比例（宽高比）共享定义。
  *
- * 与 Agnes Image 2.1 Flash 技术文档「尺寸与宽高比」「输出尺寸参考」保持一致：
+ * 与 Agnes Image 2.5 Flash 技术文档「尺寸与宽高比」「输出尺寸参考」保持一致：
  * - 尺寸档位 size：`1K`、`2K`、`3K`、`4K`（推荐档位式写法）。
  * - 画面比例 ratio：`1:1`、`3:4`、`4:3`、`16:9`、`9:16`、`2:3`、`3:2`、`21:9`（默认 `1:1`）。
  * - 期望的可预期输出尺寸由「尺寸档位 + 画面比例」组合决定（见 AI_IMAGE_SIZE_TABLE）。
@@ -31,7 +31,7 @@ export const DEFAULT_AI_IMAGE_SIZE: AiImageSize = "1K";
 export const DEFAULT_AI_IMAGE_RATIO: AiImageRatio = "1:1";
 
 /**
- * 输出尺寸参考表（横向档位 × 纵向比例），数值取自 Agnes Image 2.1 Flash 技术文档。
+ * 输出尺寸参考表（横向档位 × 纵向比例），数值取自 Agnes Image 2.5 Flash 技术文档。
  * 键为 `size:ratio`，值为最终像素尺寸字符串（如 "2048x2048"）。
  */
 export const AI_IMAGE_SIZE_TABLE: Record<

@@ -15,7 +15,7 @@ test("Agnes 配置拒绝缺失密钥", () => {
   );
 });
 
-test("Agnes 图像请求遵循 Image 2.1 Flash 协议", async () => {
+test("Agnes 图像请求遵循 Image 2.5 Flash 协议", async () => {
   let requestedUrl = "";
   let requestedInit: RequestInit | undefined;
   const fetchImpl = async (input: string | URL | Request, init?: RequestInit) => {
@@ -31,7 +31,7 @@ test("Agnes 图像请求遵循 Image 2.1 Flash 协议", async () => {
     env: {
       AGNES_API_KEY: "test-secret",
       AGNES_API_BASE_URL: "https://apihub.agnes-ai.cn/v1/",
-      AGNES_IMAGE_MODEL: "agnes-image-2.1-flash",
+      AGNES_IMAGE_MODEL: "agnes-image-2.5-flash",
     },
     fetchImpl: fetchImpl as typeof fetch,
   });
@@ -46,7 +46,7 @@ test("Agnes 图像请求遵循 Image 2.1 Flash 协议", async () => {
   );
   const body = JSON.parse(String(requestedInit?.body));
   assert.deepEqual(body, {
-    model: "agnes-image-2.1-flash",
+    model: "agnes-image-2.5-flash",
     prompt: "pink chrome manicure",
     size: "1024x1024",
     extra_body: { response_format: "url" },
@@ -55,7 +55,7 @@ test("Agnes 图像请求遵循 Image 2.1 Flash 协议", async () => {
   assert.equal("response_format" in body, false);
   assert.deepEqual(result, {
     imageUrl: "https://images.example/design.png",
-    model: "agnes-image-2.1-flash",
+    model: "agnes-image-2.5-flash",
   });
 });
 
@@ -122,7 +122,7 @@ test("Agnes 图生图请求携带 Data URI 图片与 ratio", async () => {
 
   const body = JSON.parse(String(requestedInit?.body));
   assert.deepEqual(body, {
-    model: "agnes-image-2.1-flash",
+    model: "agnes-image-2.5-flash",
     prompt: "银色亮片美甲",
     size: "1K",
     ratio: "3:4",
@@ -178,7 +178,7 @@ test("Agnes 支持用户指定的尺寸档位与画面比例（文生图）", as
 
   const body = JSON.parse(String(requestedInit?.body));
   assert.deepEqual(body, {
-    model: "agnes-image-2.1-flash",
+    model: "agnes-image-2.5-flash",
     prompt: "银河渐变长甲",
     size: "2K",
     ratio: "16:9",

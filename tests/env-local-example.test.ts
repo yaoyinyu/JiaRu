@@ -22,7 +22,7 @@ test("example environment configures Agnes without committing a real key", async
     source,
     /^AGNES_API_BASE_URL=https:\/\/apihub\.agnes-ai\.com\/v1$/m
   );
-  assert.match(source, /^AGNES_IMAGE_MODEL=agnes-image-2\.1-flash$/m);
+  assert.match(source, /^AGNES_IMAGE_MODEL=agnes-image-2\.5-flash$/m);
   assert.doesNotMatch(source, /AGNES_API_KEY=sk-/);
   assert.doesNotMatch(source, /^OPENAI_API_KEY=/m);
 });

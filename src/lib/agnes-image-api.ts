@@ -1,5 +1,5 @@
 export const DEFAULT_AGNES_API_BASE_URL = "https://apihub.agnes-ai.com/v1";
-export const DEFAULT_AGNES_IMAGE_MODEL = "agnes-image-2.1-flash";
+export const DEFAULT_AGNES_IMAGE_MODEL = "agnes-image-2.5-flash";
 export const DEFAULT_AGNES_IMAGE_SIZE = "1024x1024";
 
 const DEFAULT_TIMEOUT_MS = 180_000;

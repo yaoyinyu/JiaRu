@@ -20,7 +20,7 @@ const state = {
   profile: typeof persisted.profile === "string" ? persisted.profile.slice(0, 600) : "",
   styles: textList(persisted.styles), scenes: textList(persisted.scenes), length: ["短甲", "中长甲", "长甲"].includes(persisted.length) ? persisted.length : "短甲",
   learned: persisted.learned === true, onboarded: persisted.onboarded === true,
-  loggedIn: false, filter: "全部", query: "", otherPerson: false,
+  loggedIn: false, cameraColor: null, filter: "全部", query: "", otherPerson: false,
   selectedLook: 1, generationByMode: { photo: "idle", create: "idle" }, resultLooks: { photo: 1, create: 1 },
   createDraft: "", photoDraft: "", preferenceNote: "", publishDraft: "", publishTitle: "", posts: [],
   profileDraft: typeof persisted.profile === "string" ? persisted.profile.slice(0, 600) : "",
@@ -116,6 +116,7 @@ function toast(message) {
 }
 function modal(title, body) {
   const dialog = $("#sheet");
+  if (modalExit) { const aborted = modalExit; modalExit = null; aborted.cancel(); }
   modalTrigger = { selector: focusIdentity(), hash: renderedHash };
   dialog.innerHTML = `<div class="dialog-header"><h2 id="sheet-title">${esc(title)}</h2>${action("close-modal", icon("close"), "round-button", 'aria-label="关闭"')}</div><div class="dialog-body">${body}</div>`;
   dialog.setAttribute("aria-labelledby", "sheet-title");
@@ -150,8 +151,8 @@ function lookCard(look) {
   return `<article class="look-card"><div class="look-cover"><a href="#look/${look.id}" aria-label="查看${look.name}"><img src="${photo(look.id)}" alt="${look.original}，AI 演示款式" loading="lazy" width="500" height="625"></a><span class="image-label">AI 灵感</span>${action("save", icon("bookmark"), `save-button${saved ? " is-saved" : ""}`, `data-id="${look.id}" aria-label="${saved ? "取消收藏" : "收藏"}${look.name}" aria-pressed="${saved}"`)}</div><div class="card-title-row"><h3>${link(`look/${look.id}`, look.name, "")}</h3><span class="color-dots" aria-hidden="true">${look.colors.map((color) => `<i style="background:${color}"></i>`).join("")}</span></div><p class="card-caption">${look.tag} · ${look.scene}</p></article>`;
 }
 function home() {
-  const hero = `<section class="hero"><div class="hero-copy"><p class="eyebrow coral season-label">THE EVERYDAY MUSE</p><h1>把喜欢的自己，<br>留在<em>每一次抬手。</em></h1><p class="hero-desc">让喜欢，轻轻落在指尖。</p>${link("tryon", `试戴这一款 ${icon("arrow")}`, "primary")}</div><div class="hero-art" aria-label="本期纤细手背与五种精致美甲灵感"><img class="main-photo" src="/assets/hero-hand-diversity-v3.png" alt="纤细白皙的手背，五指分别展示短圆冰透、长梯形猫眼、椭圆贝母、尖杏仁碎钻与短方圆几何美甲，AI 拼贴主视觉" width="1122" height="1402" fetchpriority="high"><span class="art-number">JIARU EDIT / 01 · AI 灵感</span><i class="art-dot"></i><span class="art-caption">A little more you.</span></div></section>`;
-  return `${hero}<aside class="onboarding-callout"><span class="callout-mark">${icon("sparkle")}</span><div class="callout-copy"><h2>找到你的风格</h2><p>${state.profile ? esc(state.profile.slice(0, 35)) : "从几个喜欢的词开始。"}</p></div>${link("onboarding/1", `${icon("arrow")}`, "text-button", 'aria-label="了解或调整我的偏好"')}</aside><div class="section-heading"><div><p class="eyebrow muted">CURATED FOR YOU</p><h2>此刻心动</h2></div>${link("saved", icon("bookmark"), "round-button", 'aria-label="查看我的收藏"')}</div><div class="search-box">${icon("search")}<input type="search" id="look-search" placeholder="法式、裸粉、通勤…" aria-label="搜索款式" value="${esc(state.query)}"></div><div class="filters" role="group" aria-label="款式分类">${["全部", "自然", "简约", "轻闪", "复古", "通勤"].map((tag) => action("filter", tag, "chip", `data-filter="${tag}" aria-pressed="${state.filter === tag}"`)).join("")}</div><div id="look-results" aria-live="polite">${lookResults()}</div>`;
+  const hero = `<section class="hero"><div class="hero-copy"><p class="eyebrow coral season-label">THE EVERYDAY MUSE</p><h1>把喜欢的自己，<br>留在<em>每一次抬手。</em></h1><p class="hero-desc">让喜欢，轻轻落在指尖。</p>${link("tryon", `开始试戴 ${icon("arrow")}`, "primary")}</div><div class="hero-art" aria-label="本期纤细手背与五种精致美甲灵感"><img class="main-photo" src="/assets/hero-hand-diversity-v3.png" alt="纤细白皙的手背，五指分别展示短圆冰透、长梯形猫眼、椭圆贝母、尖杏仁碎钻与短方圆几何美甲，AI 拼贴主视觉" width="1122" height="1402" fetchpriority="high"><span class="art-number">JIARU EDIT / 01 · AI 灵感</span><i class="art-dot"></i><span class="art-caption">A little more you.</span></div></section>`;
+  return `${hero}<aside class="onboarding-callout"><span class="callout-mark">${icon("sparkle")}</span><div class="callout-copy"><h2>找到你的风格</h2><p>${state.profile ? esc(state.profile.slice(0, 35)) : "从几个喜欢的词开始。"}</p></div>${link("onboarding/1", `${icon("arrow")}`, "text-button", 'aria-label="了解或调整我的偏好"')}</aside><div class="section-heading"><div><p class="eyebrow muted">CURATED FOR YOU</p><h2>此刻心动</h2></div>${link("saved", icon("bookmark"), "round-button", 'aria-label="查看我的收藏"')}</div><div class="search-box">${icon("search")}<input type="search" id="look-search" placeholder="法式、裸粉、通勤…" aria-label="搜索款式" value="${esc(state.query)}"></div><div class="filters-wrap"><div class="filters" role="group" aria-label="款式分类">${action("filter", "全部", "chip", `data-filter="全部" aria-pressed="${state.filter === "全部"}"`)}<span class="filter-group" role="group" aria-label="按风格筛选">${["自然", "简约", "轻闪", "复古"].map((tag) => action("filter", tag, "chip", `data-filter="${tag}" aria-pressed="${state.filter === tag}"`)).join("")}</span><span class="filter-group" role="group" aria-label="按场景筛选">${["日常", "通勤", "约会", "出游", "聚会", "婚礼"].map((tag) => action("filter", tag, "chip", `data-filter="${tag}" aria-pressed="${state.filter === tag}"`)).join("")}</span></div></div><div id="look-results" aria-live="polite">${lookResults()}</div>`;
 }
 function lookResults() {
   const filtered = looks.filter((look) => (state.filter === "全部" || look.tag === state.filter || look.scene === state.filter) && `${look.name}${look.original}${look.tag}${look.scene}`.includes(state.query.trim()));
@@ -159,7 +160,7 @@ function lookResults() {
 }
 function empty(title, description, buttons = "") { return `<section class="empty-state">${icon("sparkle")}<h2>${title}</h2><p>${description}</p>${buttons}</section>`; }
 function tryon() {
-  return `${intro("A LOOK ON YOU", "指尖，换一种心情", "选一种方式，开始试戴。")}<label class="switch-row"><input type="checkbox" id="other-person" ${state.otherPerson ? "checked" : ""}>为身边的人试戴</label>${state.otherPerson ? note("沿用你的审美，只更换本次照片，不覆盖本人档案。") : ""}<div class="choice-grid"><a href="#photo" class="mode-card" aria-label="用一张照片"><span class="mode-illustration">${icon("photo")}</span><h2>照片试戴</h2><p>AI 上手参考</p><span class="text-button" aria-hidden="true">${icon("arrow")}</span></a><a href="#camera" class="mode-card" aria-label="打开摄像头"><span class="mode-illustration">${icon("camera")}</span><h2>摄像头试戴</h2><p>实时 AR · 流程预览</p><span class="text-button" aria-hidden="true">${icon("arrow")}</span></a></div>${note("设计预览不会上传照片或启动摄像头，真实 AI 与 AR 尚未接入。")}`;
+  return `${intro("A LOOK ON YOU", "指尖，换一种心情", "选一种方式，开始试戴。")}<label class="switch-row"><input type="checkbox" id="other-person" ${state.otherPerson ? "checked" : ""}>为身边的人试戴</label>${state.otherPerson ? note("沿用你的审美，只更换本次照片，不覆盖本人档案。") : ""}<div class="choice-grid"><a href="#photo" class="mode-card" aria-label="用一张照片"><span class="mode-illustration">${icon("photo")}</span><p class="eyebrow mode-eyebrow">PHOTO TRY-ON</p><h2>照片试戴</h2><p>AI 上手参考</p><span class="text-button" aria-hidden="true">${icon("arrow")}</span></a><a href="#camera" class="mode-card" aria-label="打开摄像头"><span class="mode-illustration">${icon("camera")}</span><p class="eyebrow mode-eyebrow">LIVE TRY-ON</p><h2>摄像头试戴</h2><p>实时 AR · 流程预览</p><span class="text-button" aria-hidden="true">${icon("arrow")}</span></a></div>${note("设计预览不会上传照片或启动摄像头，真实 AI 与 AR 尚未接入。")}`;
 }
 function uploadBox(slot, label) {
   const uploaded = state.uploads[slot];
@@ -174,13 +175,13 @@ function resultPanel(mode) {
 function photoTryon() {
   const slot = state.otherPerson ? "other" : "own";
   const look = byId(state.selectedLook);
-  return `${link("tryon", `${icon("back")} 选择其他试戴方式`, "back-link")}${intro("PHOTO TRY-ON", "在你的手上，想象新风格", "AI 上手参考 · 帮你找到搭配灵感。")}<div class="split"><section class="panel"><h2>${state.otherPerson ? "对方这次的手部照片" : "你的手部照片"}</h2>${uploadBox(slot, "选择一张手背清晰、光线均匀的照片")}<p class="inline-note">照片仅留在本次浏览器内存；刷新后需重新选择。</p><div class="field"><label for="selected-look">这次想试的款</label><select id="selected-look">${looks.map((item) => `<option value="${item.id}" ${item.id === look.id ? "selected" : ""}>${item.original} · ${item.name}</option>`).join("")}</select></div><div class="field"><label for="photo-prompt">还想调整什么？</label><textarea id="photo-prompt" data-draft="photoDraft" maxlength="300" placeholder="比如：保留法式白边，底色更偏奶茶一些…">${esc(state.photoDraft)}</textarea></div>${note("正式版将向选定 AI 服务发送照片与描述；具体服务、费用与处理条款待确认。当前预览不上传。")}<div class="action-row">${action("generate", state.uploads[slot] ? "预览上手结果布局" : "先添加手部照片", "primary", `data-mode="photo" ${state.generationByMode.photo === "loading" ? "disabled" : ""}`)}</div><p class="inline-note">此按钮只演示交互状态，不执行生成。</p></section><div>${resultPanel("photo")}</div></div>`;
+  return `${link("tryon", `${icon("back")} 选择其他试戴方式`, "back-link")}${intro("PHOTO TRY-ON", "在你的手上，想象新风格", "AI 上手参考 · 帮你找到搭配灵感。")}<div class="split"><section class="panel"><h2>${state.otherPerson ? "对方这次的手部照片" : "你的手部照片"}</h2>${uploadBox(slot, "选择一张手背清晰、光线均匀的照片")}<p class="inline-note">照片与未提交的草稿仅留在本次浏览器内存；刷新后需重新选择、重新填写。</p><div class="field"><label for="selected-look">这次想试的款</label><select id="selected-look">${looks.map((item) => `<option value="${item.id}" ${item.id === look.id ? "selected" : ""}>${item.original} · ${item.name}</option>`).join("")}</select></div><div class="field"><label for="photo-prompt">还想调整什么？</label><textarea id="photo-prompt" data-draft="photoDraft" maxlength="300" placeholder="比如：保留法式白边，底色更偏奶茶一些…">${esc(state.photoDraft)}</textarea></div>${note("正式版将向选定 AI 服务发送照片与描述；具体服务、费用与处理条款待确认。当前预览不上传。")}<div class="action-row">${action("generate", state.uploads[slot] ? "预览上手结果布局" : "先添加手部照片", "primary", `data-mode="photo" ${state.generationByMode.photo === "loading" ? "disabled" : ""}`)}</div><p class="inline-note">此按钮只演示交互状态，不执行生成。</p></section><div>${resultPanel("photo")}</div></div>`;
 }
 function camera() {
-  return `${link("tryon", `${icon("back")} 选择其他试戴方式`, "back-link")}${intro("LIVE TRY-ON", "换个颜色，看看此刻的你", "实时摄像头体验将在独立验收后接入。此提案不启动摄像头，也不加载模型。")}<div class="split"><section>${empty("把手轻轻放进画面", "靠近自然光，让手背与五指清晰可见。", action("camera-info", `${icon("camera")} 查看摄像头开启流程`, "primary"))}</section><section class="panel"><h2>先选一种心情</h2><div class="tag-options">${looks.slice(0, 4).map((look) => action("camera-color", look.original, "chip", `data-id="${look.id}"`)).join("")}</div>${note("需覆盖：权限询问、用户拒绝、未找到设备、模型加载、未检测到手和重新尝试。当前只呈现流程，未证明 AR 贴合质量。")}${link("photo", "也可以用照片开始", "secondary")}</section></div>`;
+  return `${link("tryon", `${icon("back")} 选择其他试戴方式`, "back-link")}${intro("LIVE TRY-ON", "换个颜色，看看此刻的你", "实时摄像头体验将在独立验收后接入。此提案不启动摄像头，也不加载模型。")}<div class="split"><section>${empty("把手轻轻放进画面", "靠近自然光，让手背与五指清晰可见。", action("camera-info", `${icon("camera")} 查看摄像头开启流程`, "primary"))}</section><section class="panel"><h2>先选一种心情</h2><div class="tag-options">${looks.slice(0, 4).map((look) => action("camera-color", look.original, "chip", `data-id="${look.id}" aria-pressed="${state.cameraColor === look.id}"`)).join("")}</div>${note("需覆盖：权限询问、用户拒绝、未找到设备、模型加载、未检测到手和重新尝试。当前只呈现流程，未证明 AR 贴合质量。")}${link("photo", "也可以用照片开始", "secondary")}</section></div>`;
 }
 function create() {
-  return `${intro("YOUR NAIL ATELIER", "让灵感，成为一款美甲", "说说喜欢的颜色与质感。")}<div class="split"><section class="panel"><p class="eyebrow coral">START WITH A FEELING</p><h2>今天，想要怎样的美？</h2><div class="tag-options">${["奶油裸色", "极简法式", "低调微闪", "复古暖调"].map((word) => action("prompt", word, "chip", `data-prompt="${word}"`)).join("")}</div><div class="field"><label for="create-prompt">描述你的灵感</label><textarea id="create-prompt" maxlength="300" data-draft="createDraft" placeholder="比如：适合通勤的奶茶色短甲，加一点细细的金色线条…">${esc(state.createDraft)}</textarea></div><div class="field"><label>参考图，可选</label>${uploadBox("reference", "添加喜欢的款式或手部照片")}</div>${action("advanced", "画面比例与生成设置", "text-button")}${note("正式生成会发送文字及你主动选择的参考图。当前不连接任何服务，也不产生费用。")}<div class="action-row">${action("generate", `${icon("sparkle")} 预览创作结果布局`, "primary", `data-mode="create" ${state.generationByMode.create === "loading" ? "disabled" : ""}`)}</div></section><div>${resultPanel("create")}</div></div>`;
+  return `${intro("YOUR NAIL ATELIER", "让灵感，成为一款美甲", "说说喜欢的颜色与质感。")}<div class="split"><section class="panel"><p class="eyebrow coral">START WITH A FEELING</p><h2>今天，想要怎样的美？</h2><div class="tag-options">${["奶油裸色", "极简法式", "低调微闪", "复古暖调"].map((word) => action("prompt", word, "chip", `data-prompt="${word}"`)).join("")}</div><div class="field"><label for="create-prompt">描述你的灵感</label><textarea id="create-prompt" maxlength="300" data-draft="createDraft" placeholder="比如：适合通勤的奶茶色短甲，加一点细细的金色线条…">${esc(state.createDraft)}</textarea></div><p class="inline-note">未提交的描述草稿仅留在本次浏览器内存；刷新后需重新填写。</p><div class="field"><label>参考图，可选</label>${uploadBox("reference", "添加喜欢的款式或手部照片")}</div>${action("advanced", "画面比例与生成设置", "text-button")}${note("正式生成会发送文字及你主动选择的参考图。当前不连接任何服务，也不产生费用。")}<div class="action-row">${action("generate", `${icon("sparkle")} 预览创作结果布局`, "primary", `data-mode="create" ${state.generationByMode.create === "loading" ? "disabled" : ""}`)}</div></section><div>${resultPanel("create")}</div></div>`;
 }
 function detail(id) {
   const look = byId(id);
@@ -195,13 +196,13 @@ function profile() {
   return `${intro("A STYLE THAT GROWS WITH YOU", "你的偏好，由你定义", "喜欢与不喜欢，都由你决定。")}<div class="split"><section><div class="preference-card"><p class="eyebrow">MY STYLE NOTES · 偏好描述</p><blockquote>${esc(state.profile || "还没有写下你的偏好。几个关键词，就能开始认识自己喜欢什么。")}</blockquote>${link("onboarding/1", "重新选择偏好", "text-button")}</div><form id="profile-form"><div class="field"><label for="profile-text">直接修改你的描述</label><textarea id="profile-text" data-draft="profileDraft" maxlength="600" placeholder="说说自己喜欢与不喜欢的设计…">${esc(state.profileDraft)}</textarea></div><label class="switch-row"><input type="checkbox" id="learn-toggle" ${state.profileLearnDraft ? "checked" : ""}>允许用后续收藏完善偏好（未来功能，此处只记录选择）</label><button class="primary full-width" type="submit">保存到本地预览</button></form></section><aside class="panel"><h2>让推荐理解你，也听你的</h2><p>收藏与标签是主要线索，手部特点只是较轻的参考。为他人试戴只更换本次照片。</p>${note("此原型的描述来自选项模板，不是语言模型分析。收藏不会在后台悄悄触发任何模型调用。")}${action("cloud-info", "查看跨设备保存方案", "secondary")}</aside></div>`;
 }
 function me() {
-  return `<div class="profile-head"><span class="avatar">J</span><div><h1>${state.loggedIn ? "我的指尖日记" : "你的美甲日记"}</h1><p>${state.loggedIn ? "模拟登录态 · 仅用于评审布局" : "收藏、灵感，还有一点喜欢。"}</p></div></div><div class="stats"><div><strong>${state.posts.length}</strong>本地发布预览</div><div><strong>${state.saved.length}</strong>收藏灵感</div><div><strong>${state.following ? 1 : 0}</strong>预览关注</div></div><div class="split"><section><div class="preference-card"><p class="eyebrow">MY STYLE NOTES</p><blockquote>${esc(state.profile || "审美没有标准答案，喜欢就是很好的开始。")}</blockquote>${link("profile", `我的偏好描述 ${icon("arrow")}`)}</div>${link("saved", `${icon("bookmark")} 我的收藏 ${icon("arrow")}`, "list-row")}${link("publish", `${icon("upload")} 发布一份新灵感 ${icon("arrow")}`, "list-row")}${link("creator/me", `${icon("user")} 我的公开主页 ${icon("arrow")}`, "list-row")}${action("cloud-info", `${icon("lock")} 本地照片与跨设备保存 ${icon("arrow")}`, "list-row")}${action("login", `${icon("user")} ${state.loggedIn ? "查看模拟账号说明" : "登录后的空间，先体验看看"} ${icon("arrow")}`, "list-row")}</section><aside class="panel"><h2>一些属于自己的空间</h2><p>收藏、灵感、创作与方案，慢慢汇成你的美甲日记。登录后的云端同步将单独建设。</p>${note("原照片默认本地，特点关键词同步云端是已确认的正式版方向。此预览两者都不会上传。")}${link("tryon", "为身边的人试一款", "secondary")}</aside></div>`;
+  return `<div class="profile-head"><span class="avatar">J</span><div><h1>${state.loggedIn ? "我的指尖日记" : "你的美甲日记"}</h1><p>${state.loggedIn ? "模拟登录态 · 仅用于评审布局" : "收藏、灵感，还有一点喜欢。"}</p></div></div><div class="stats"><div><strong>${state.posts.length}</strong>本地发布预览</div><div><strong>${state.saved.length}</strong>收藏灵感</div><div><strong>${state.liked.length}</strong>喜欢灵感</div><div><strong>${state.following ? 1 : 0}</strong>预览关注</div></div><div class="split"><section><div class="preference-card"><p class="eyebrow">MY STYLE NOTES</p><blockquote>${esc(state.profile || "审美没有标准答案，喜欢就是很好的开始。")}</blockquote>${link("profile", `我的偏好描述 ${icon("arrow")}`)}</div>${link("saved", `${icon("bookmark")} 我的收藏 ${icon("arrow")}`, "list-row")}${link("publish", `${icon("upload")} 发布一份新灵感 ${icon("arrow")}`, "list-row")}${link("creator/me", `${icon("user")} 我的公开主页 ${icon("arrow")}`, "list-row")}${action("cloud-info", `${icon("lock")} 本地照片与跨设备保存 ${icon("arrow")}`, "list-row")}${action("login", `${icon("user")} ${state.loggedIn ? "查看模拟账号说明" : "登录后的空间，先体验看看"} ${icon("arrow")}`, "list-row")}</section><aside class="panel"><h2>一些属于自己的空间</h2><p>收藏、灵感、创作与方案，慢慢汇成你的美甲日记。登录后的云端同步将单独建设。</p>${note("原照片默认本地，特点关键词同步云端是已确认的正式版方向。此预览两者都不会上传。")}${link("tryon", "为身边的人试一款", "secondary")}</aside></div>`;
 }
 function creator(mine) {
   return `${link(mine ? "me" : `look/${state.selectedLook}`, `${icon("back")} 返回`, "back-link")}<div class="profile-head"><span class="avatar">J</span><div><h1>${mine ? "我的灵感小馆" : "甲如灵感编辑部"}</h1><p>${mine ? "公开主页布局预览，尚未实际公开" : "演示账号 · 收集日常里细小而确定的美"}</p></div></div>${mine ? note("这里只呈现你在本次会话提交的发布预览。刷新后不保留上传照片，没有真实公开地址。") : action("follow", state.following ? "已关注" : "+ 关注", "secondary", `aria-pressed="${state.following}"`)}<div class="section-heading"><div><p class="eyebrow muted">STYLE JOURNAL</p><h2>${mine ? "发布的灵感" : "编辑精选"}</h2></div></div>${mine ? state.posts.length ? `<div class="look-grid">${state.posts.map((post) => `<article class="look-card"><div class="look-cover"><img src="${post.url}" alt="本地发布预览：${esc(post.title)}"><span class="image-label">仅本地 · 未公开</span></div><h3 class="card-title-row">${esc(post.title)}</h3><p class="card-caption">${esc(post.description)}</p></article>`).join("")}</div>` : empty("让第一份灵感，从这里开始", "分享你的美甲审美与喜欢的款式。正式公开发布与审核尚未接入。", link("publish", "预览发布流程", "primary")) : `<div class="look-grid">${looks.slice(0, 3).map(lookCard).join("")}</div>`}`;
 }
 function publish() {
-  return `${intro("SHARE A LITTLE BEAUTY", "分享一点美", "整理作品 · 仅本地预览")}<div class="split"><form id="publish-form" class="panel">${uploadBox("publish", "上传你想分享的美甲款式")}<div class="field"><label for="publish-title">给这份灵感起个名字</label><input id="publish-title" type="text" maxlength="40" required data-draft="publishTitle" value="${esc(state.publishTitle)}" placeholder="比如：我的秋日奶茶法式"></div><div class="field"><label for="publish-text">风格、场景与创作说明</label><textarea id="publish-text" maxlength="300" data-draft="publishDraft" placeholder="说说它让你心动的地方…">${esc(state.publishDraft)}</textarea></div><div class="field"><label for="publish-source">图片来源</label><select id="publish-source">${["本人拍摄或创作", "已获授权转载", "AI 生成设计"].map((source) => `<option ${source === state.publishSource ? "selected" : ""}>${source}</option>`).join("")}</select></div><label class="switch-row"><input type="checkbox" id="publish-rights" ${state.publishRights ? "checked" : ""} required>我有权分享这张图片，并愿意在正式发布时公开。</label><button class="primary full-width" type="submit">${state.loggedIn ? "生成本地发布预览" : "体验登录后，再预览发布"}</button></form><aside class="panel"><h2>分享风格，也尊重创作</h2><p>记录来源，区分实拍与 AI 设计。个人主页、点赞、收藏与关注先行；评论和私信后续再加入。</p>${note("此原型不会把照片上传或公开；公开内容后端、审核机制和真实账号关联均待实施。")}</aside></div>`;
+  return `${intro("SHARE A LITTLE BEAUTY", "分享一点美", "整理作品 · 仅本地预览")}<div class="split"><form id="publish-form" class="panel">${uploadBox("publish", "上传你想分享的美甲款式")}<div class="field"><label for="publish-title">给这份灵感起个名字</label><input id="publish-title" type="text" maxlength="40" data-draft="publishTitle" value="${esc(state.publishTitle)}" placeholder="比如：我的秋日奶茶法式"></div><div class="field"><label for="publish-text">风格、场景与创作说明</label><textarea id="publish-text" maxlength="300" data-draft="publishDraft" placeholder="说说它让你心动的地方…">${esc(state.publishDraft)}</textarea></div><div class="field"><label for="publish-source">图片来源</label><select id="publish-source">${["本人拍摄或创作", "已获授权转载", "AI 生成设计"].map((source) => `<option ${source === state.publishSource ? "selected" : ""}>${source}</option>`).join("")}</select></div><label class="switch-row"><input type="checkbox" id="publish-rights" ${state.publishRights ? "checked" : ""}>我有权分享这张图片，并愿意在正式发布时公开。</label><p class="inline-note">未提交的标题与说明草稿仅留在本次浏览器内存；刷新后需重新填写。</p><button class="primary full-width" type="submit">${state.loggedIn ? "生成本地发布预览" : "体验登录后，再预览发布"}</button></form><aside class="panel"><h2>分享风格，也尊重创作</h2><p>记录来源，区分实拍与 AI 设计。个人主页、点赞、收藏与关注先行；评论和私信后续再加入。</p>${note("此原型不会把照片上传或公开；公开内容后端、审核机制和真实账号关联均待实施。模拟登录态仅在本次浏览器会话有效，刷新后需重新进入。")}</aside></div>`;
 }
 function scheme(id) {
   const look = byId(id);
@@ -216,7 +217,7 @@ function onboarding(step) {
   if (stage === 1) content = `<p class="step-number">01.</p><h1 class="step-title">哪些感觉，让你心动？</h1><p class="step-description">不用急着给风格下定义。先选几个喜欢的词，也可以不选。</p><fieldset class="tag-options"><legend class="skip-link">喜欢的风格，可多选</legend>${["自然", "简约", "轻闪", "复古", "温柔", "个性"].map((word) => tagOption(word, "styles", state.styles.includes(word))).join("")}</fieldset><div class="field"><label for="onboarding-note">用自己的话补充一点</label><textarea id="onboarding-note" data-draft="preferenceNote" maxlength="300" placeholder="比如：低饱和、不夸张，但希望有一点细节…">${esc(state.preferenceNote)}</textarea></div>`;
   if (stage === 2) content = `<p class="step-number">02.</p><h1 class="step-title">美，也要适合你的日常。</h1><p class="step-description">长期喜好与这次需求可以不同，以后都能调整。</p><fieldset class="field"><legend>主要使用场景，可多选</legend><div class="tag-options">${["日常", "通勤", "约会", "出游", "聚会", "婚礼"].map((word) => tagOption(word, "scenes", state.scenes.includes(word))).join("")}</div></fieldset><fieldset class="field"><legend>平时更舒服的长度</legend><div class="tag-options">${["短甲", "中长甲", "长甲"].map((word) => tagOption(word, "length", state.length === word, true)).join("")}</div></fieldset>`;
   if (stage === 3) content = `<p class="step-number">03.</p><h1 class="step-title">也可以，认识你的手。</h1><p class="step-description">加一张手背照片，也可以跳过。</p><div class="field">${uploadBox("own", "添加一张清晰手背照片，可跳过")}</div>${note("正式版可将照片交给视觉模型提取特点，原照片默认本地保存，特点关键词同步云端。此预览不分析、不上传，也不把照片写入本地持久存储。")}`;
-  if (stage === 4) content = `<p class="step-number">04.</p><h1 class="step-title">这份描述，像你吗？</h1><p class="step-description">描述应帮助你表达喜好，而不是限制你的选择。</p><div class="field"><label for="onboarding-summary">偏好描述，可直接修改</label><textarea id="onboarding-summary" data-draft="onboardingSummaryDraft" maxlength="600">${esc(state.onboardingSummaryDraft ?? preferenceText())}</textarea><small>选项模板 · 可修改</small></div><label class="switch-row"><input type="checkbox" id="onboarding-learn" ${state.onboardingLearnDraft ? "checked" : ""}>逐渐了解我的偏好（未来功能）</label>`;
+  if (stage === 4) content = `<p class="step-number">04.</p><h1 class="step-title">这份描述，像你吗？</h1><p class="step-description">描述应帮助你表达喜好，而不是限制你的选择。</p><div class="field"><label for="onboarding-summary">偏好描述，可直接修改</label><textarea id="onboarding-summary" data-draft="onboardingSummaryDraft" maxlength="600">${esc(state.onboardingSummaryDraft ?? (state.profile?.trim() ? state.profile : preferenceText()))}</textarea><small>${state.profile?.trim() ? "已保存的描述 · 可修改" : "选项模板 · 可修改"}</small></div><label class="switch-row"><input type="checkbox" id="onboarding-learn" ${state.onboardingLearnDraft ? "checked" : ""}>逐渐了解我的偏好（未来功能）</label>`;
   return `${link("home", `${icon("back")} 随时回去逛逛`, "back-link")}<div class="onboard-layout"><div class="onboard-photo"><img src="${photo(2)}" alt="法式美甲的氛围参考，AI 演示素材"><span class="image-label">A LITTLE MORE YOU · AI 灵感</span></div><section class="onboard-form"><p class="eyebrow coral">A LITTLE MORE YOU · ${stage} / 4</p><div class="progress-line"><span style="width:${stage * 25}%"></span></div><form id="onboarding-form" data-step="${stage}">${content}<div class="action-row">${stage > 1 ? link(`onboarding/${stage - 1}`, "上一步", "secondary") : ""}<button class="primary" type="submit">${stage === 4 ? "保存偏好，去遇见喜欢" : stage === 3 && !state.uploads.own ? "暂不加照片，继续" : "继续"} ${icon("arrow")}</button></div></form>${action("skip-onboarding", "先逛逛，之后再了解", "text-button")}</section></div>`;
 }
 function render() {
@@ -231,7 +232,8 @@ function render() {
   const views = { home, tryon, photo: photoTryon, camera, create, me, profile, saved, publish, look: () => detail(parameter), scheme: () => scheme(parameter), creator: () => creator(parameter === "me"), onboarding: () => onboarding(parameter) };
   routeAnimation?.cancel();
   shell((Object.hasOwn(views, currentRoute) ? views[currentRoute] : home)());
-  document.title = `${({ home: "为你", tryon: "试戴", create: "创作", me: "我的", onboarding: "了解你的偏好", scheme: "我的美甲方案" })[currentRoute] ?? "灵感空间"} · 甲如设计提案`;
+  const routeTitles = { home: "为你", tryon: "试戴", photo: "照片试戴", camera: "摄像头试戴", create: "创作", me: "我的", profile: "我的偏好", saved: "我的收藏", publish: "发布灵感", onboarding: "了解你的偏好", scheme: "我的美甲方案", creator: parameter === "me" ? "我的灵感小馆" : "灵感主页", look: byId(parameter).name };
+  document.title = `${routeTitles[currentRoute] ?? "灵感空间"} · 甲如设计提案`;
   if (routeChanged || focusAfterRoute) {
     const target = pendingNavigation?.restore ? scrollPositions.get(hash) ?? 0 : 0;
     window.scrollTo(0, target);
@@ -253,7 +255,7 @@ function render() {
   if (currentRoute === "scheme") prepareScheme(parameter);
 }
 function showLogin(then) {
-  modal("先体验登录后的空间", `<p>这是独立设计提案，不连接真实登录服务。继续后只切换本地模拟状态，不代表账号已认证，也不会开启云同步。</p><div class="action-row">${action("simulate-login", "进入模拟登录态", "primary", then ? `data-then="${then}"` : "")}</div>`);
+  modal("先体验登录后的空间", `<p>这是独立设计提案，不连接真实登录服务。继续后只切换本地模拟状态，不代表账号已认证，也不会开启云同步。</p><p>模拟登录态仅在本次浏览器会话有效，刷新后需重新进入。</p><div class="action-row">${action("simulate-login", "进入模拟登录态", "primary", then ? `data-then="${then}"` : "")}</div>`);
 }
 function toggle(list, id) {
   if (state[list].includes(id)) state[list] = state[list].filter((value) => value !== id);
@@ -288,6 +290,18 @@ async function validateUpload(file) {
   const valid = size.width >= 320 && size.height >= 320 && size.width <= 4096 && size.height <= 4096;
   if (!valid) throw new Error("图片宽高需各为 320–4096 像素，请换一张清晰照片。");
 }
+async function acceptFile(slot, file, input = null) {
+  const sequence = (uploadSequence[slot] ?? 0) + 1; uploadSequence[slot] = sequence;
+  try {
+    await validateUpload(file);
+    if (uploadSequence[slot] !== sequence) return;
+    if (state.uploads[slot]) URL.revokeObjectURL(state.uploads[slot].url);
+    state.uploads[slot] = { name: file.name, url: URL.createObjectURL(file) };
+    const mode = slot === "reference" ? "create" : ["own", "other"].includes(slot) ? "photo" : null;
+    if (mode) { clearTimeout(jobTimers[mode]); state.generationByMode[mode] = "idle"; }
+    focusAfterRoute = false; render(); toast("照片仅已加入本次本地预览，没有上传。");
+  } catch (error) { if (input) input.value = ""; toast(error instanceof Error ? error.message : "图片解码失败，请更换照片。"); }
+}
 async function buildSchemeFile(id) {
   const look = byId(id);
   const description = state.schemeOrigin === "create" ? state.createDraft : state.photoDraft;
@@ -301,7 +315,7 @@ async function buildSchemeFile(id) {
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("当前浏览器不能创建方案图片，可复制文字。");
   ctx.fillStyle = "#f7f4ee"; ctx.fillRect(0, 0, 1000, 1540);
-  ctx.fillStyle = "#292a27"; ctx.font = "italic 52px Georgia"; ctx.fillText("JiaRu", 70, 100);
+  ctx.fillStyle = "#292a27"; ctx.font = 'italic 52px "Segoe Script", "Snell Roundhand", "Brush Script MT", "Iowan Old Style", serif'; ctx.fillText("JiaRu", 70, 100);
   ctx.font = "18px sans-serif"; ctx.fillText("MY NAIL NOTE / 美甲方案参考", 580, 94);
   ctx.drawImage(image, 70, 145, 860, 860);
   await document.fonts?.load('400 36px "JiaRu Editorial"');
@@ -312,7 +326,7 @@ async function buildSchemeFile(id) {
   for (const line of lines) {
     let current = "";
     for (const char of line) {
-      if (ctx.measureText(current + char).width > 850) { if (y > 1410) break; ctx.fillText(current, 70, y); y += 38; current = ""; }
+      if (ctx.measureText(current + char).width > 850) { if (y > 1410) { ctx.fillText(`${current.slice(0, -1)}…`, 70, y); break; } ctx.fillText(current, 70, y); y += 38; current = ""; }
       current += char;
     }
     if (y <= 1410) { ctx.fillText(current, 70, y); y += 45; }
@@ -369,8 +383,22 @@ function updateViewport() {
   const keyboard = Boolean(viewport && editing && Math.abs(viewport.scale - 1) < .02 && inset > Math.max(120, innerHeight * .18));
   document.body.classList.toggle("keyboard-open", keyboard);
   document.documentElement.style.setProperty("--keyboard-inset", keyboard ? `${inset}px` : "0px");
+  document.querySelectorAll(".filters-wrap").forEach((wrap) => {
+    const list = wrap.firstElementChild;
+    if (list) wrap.classList.toggle("is-overflowing", list.scrollWidth > list.clientWidth + 1);
+  });
 }
-function closeModal() { $("#sheet").close(); }
+let modalExit;
+function closeModal() {
+  const dialog = $("#sheet");
+  if (!dialog.open) return;
+  const exit = motion(dialog, [{ opacity: 1, transform: "translateY(0) scale(1)" }, { opacity: 0, transform: "translateY(10px) scale(.98)" }], { duration: 170, easing: "cubic-bezier(.4,0,1,1)" });
+  if (!exit) { dialog.close(); return; }
+  modalExit = exit;
+  const finish = () => { const closing = modalExit === exit; modalExit = null; if (closing) dialog.close(); };
+  exit.onfinish = finish;
+  exit.oncancel = finish;
+}
 function updateSearch() {
   const results = $("#look-results");
   if (!results) return;
@@ -382,7 +410,7 @@ document.addEventListener("click", async (event) => {
   if (anchor && !event.ctrlKey && !event.metaKey && !event.shiftKey && !event.altKey && event.button === 0) {
     event.preventDefault();
     if (anchor.classList.contains("skip-link")) { $("#main").focus({ preventScroll: true }); return; }
-    $("#sheet").close();
+    closeModal();
     navigate(anchor.getAttribute("href").slice(1), { restore: anchor.classList.contains("back-link") || anchor.hasAttribute("data-return-editor") });
     return;
   }
@@ -413,7 +441,7 @@ document.addEventListener("click", async (event) => {
     if (name === "skip-onboarding") { state.onboarded = true; persist(); navigate("home"); toast("可以先随意逛逛，之后在“我的”补充偏好。"); }
     if (name === "cloud-info") modal("你的照片，与你的偏好", "<p>已确认的正式版方向：手部原照片默认本地；特点关键词、偏好和作品支持登录后跨设备。为他人使用不覆盖主人手部档案。</p><p>此提案没有云端接口。文字与收藏只写入独立本地预览空间；上传图片仅存内存，关闭或刷新页面后需重新选择。</p>");
     if (name === "camera-info") modal("摄像头流程提案", "<p>正式版流程：主动点击开启 → 浏览器询问权限 → 加载识别资源 → 放入手背 → 选择颜色或纹理。</p><p>权限被拒绝时，说明如何重新授权，并始终提供照片入口。当前提案不申请权限，也未启动摄像头。</p>");
-    if (name === "camera-color") toast(`已选择${byId(button.dataset.id).original}，摄像头仍未开启。`);
+    if (name === "camera-color") { state.cameraColor = byId(button.dataset.id).id; render(); toast(`已预选${byId(button.dataset.id).original}，开启摄像头后生效。`); }
     if (name === "advanced") modal("生成设置的位置", "<p>普通用户先表达想法。画面比例、尺寸与引擎放入次级设置，保留默认值，并说明不同服务的费用和等待时间。</p><p>当前未选择模型服务，此提案不展示未经实测的价格或速度承诺。</p>");
     if (name === "show-notes") modal("这是一份可交互设计提案", "<p>已经可体验：页面导航、轻问答、偏好模板与纠正、本地收藏、上传预览、模拟登录后的发布布局、方案卡下载。</p><p>尚未接入：语言模型、真实生成、自动推荐、跨设备同步、真实登录、公开发布与关注、摄像头和 AR。全部图片为既有 AI 演示素材。</p><p>旧版页面、账户数据库和模型发布状态保持原状。</p>");
     if (name === "show-error") { clearTimeout(jobTimers.create); state.generationByMode.create = "error"; if (currentRoute === "create") render(); else navigate("create"); }
@@ -456,20 +484,37 @@ document.addEventListener("change", async (event) => {
   if (input.id === "publish-source") state.publishSource = input.value;
   if (["styles", "scenes"].includes(input.name)) state[input.name] = [...document.querySelectorAll(`input[name="${input.name}"]:checked`)].map((item) => item.value);
   if (input.name === "length") state.length = input.value;
-  if (input.dataset.upload && input.files[0]) {
-    const slot = input.dataset.upload;
-    const sequence = (uploadSequence[slot] ?? 0) + 1; uploadSequence[slot] = sequence;
-    try {
-      const file = input.files[0];
-      await validateUpload(file);
-      if (uploadSequence[slot] !== sequence) return;
-      if (state.uploads[slot]) URL.revokeObjectURL(state.uploads[slot].url);
-      state.uploads[slot] = { name: file.name, url: URL.createObjectURL(file) };
-      const mode = slot === "reference" ? "create" : ["own", "other"].includes(slot) ? "photo" : null;
-      if (mode) { clearTimeout(jobTimers[mode]); state.generationByMode[mode] = "idle"; }
-      focusAfterRoute = false; render(); toast("照片仅已加入本次本地预览，没有上传。");
-    } catch (error) { input.value = ""; toast(error.message || "图片解码失败，请更换照片。"); }
-  }
+  if (input.dataset.upload && input.files[0]) acceptFile(input.dataset.upload, input.files[0], input);
+});
+const hasFiles = (transfer) => transfer ? Array.from(transfer.types ?? []).includes("Files") || (transfer.files?.length ?? 0) > 0 : false;
+const uploadBoxFrom = (element) => element?.closest?.(".upload-box") ?? null;
+const visibleUploadBox = () => document.querySelector(".page-view .upload-box input[data-upload]")?.closest(".upload-box") ?? null;
+document.addEventListener("dragover", (event) => {
+  if (!hasFiles(event.dataTransfer)) return;
+  event.preventDefault();
+  uploadBoxFrom(event.target)?.classList.add("is-dragover");
+});
+document.addEventListener("dragleave", (event) => {
+  const box = uploadBoxFrom(event.target);
+  if (box && !box.contains(event.relatedTarget)) box.classList.remove("is-dragover");
+});
+document.addEventListener("drop", async (event) => {
+  if (!hasFiles(event.dataTransfer)) return;
+  event.preventDefault();
+  const box = uploadBoxFrom(event.target);
+  box?.classList.remove("is-dragover");
+  const input = box?.querySelector("input[data-upload]");
+  const file = event.dataTransfer?.files?.[0];
+  if (input && file) await acceptFile(input.dataset.upload, file);
+});
+document.addEventListener("paste", (event) => {
+  const file = event.clipboardData?.files?.[0];
+  if (!file) return;
+  const box = uploadBoxFrom(event.target) ?? visibleUploadBox();
+  const input = box?.querySelector("input[data-upload]");
+  if (!input) return;
+  event.preventDefault();
+  acceptFile(input.dataset.upload, file);
 });
 document.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -477,16 +522,16 @@ document.addEventListener("submit", (event) => {
   focusAfterRoute = false;
   if (form.id === "onboarding-form") {
     const step = Number(form.dataset.step);
-    if (step < 4) navigate(`onboarding/${step + 1}`);
+    if (step < 4) { if (step === 3 && state.onboardingSummaryDraft === null && state.profile?.trim()) state.onboardingSummaryDraft = state.profile; navigate(`onboarding/${step + 1}`); }
     else { state.profile = $("#onboarding-summary").value.trim(); state.learned = $("#onboarding-learn").checked; state.profileDraft = state.profile; state.profileLearnDraft = state.learned; state.onboarded = true; persist(); navigate("home"); toast("偏好已保存到本地预览，未调用语言模型。"); }
   }
   if (form.id === "profile-form") { state.profile = $("#profile-text").value.trim(); state.learned = $("#learn-toggle").checked; state.profileDraft = state.profile; persist(); toast("偏好已更新到本地预览。"); }
   if (form.id === "publish-form") {
     if (!state.loggedIn) { showLogin(); return; }
-    if (!state.uploads.publish) { toast("请先添加款式图片。"); return; }
-    if (!$("#publish-rights").checked) { toast("请确认图片分享权利。"); return; }
     const title = $("#publish-title").value.trim();
     if (!title) { toast("请给作品起一个名字。"); return; }
+    if (!state.uploads.publish) { toast("请先添加款式图片。"); return; }
+    if (!$("#publish-rights").checked) { toast("请确认图片分享权利。"); return; }
     state.posts.push({ title, source: state.publishSource, description: $("#publish-text").value.trim(), url: state.uploads.publish.url });
     // 转移 URL 所有权，后续换图不会释放已发布的本地预览图片。
     state.uploads.publish = null; state.publishTitle = ""; state.publishDraft = ""; state.publishRights = false;
@@ -499,8 +544,9 @@ function releaseUploads() {
 }
 window.addEventListener("hashchange", () => {
   if (!pendingNavigation) { scrollPositions.set(renderedHash, window.scrollY); pendingNavigation = { restore: true }; }
-  $("#sheet").close(); focusAfterRoute = true; render();
+  closeModal(); focusAfterRoute = true; render();
 });
+$("#sheet").addEventListener("cancel", (event) => { event.preventDefault(); closeModal(); });
 $("#sheet").addEventListener("close", () => {
   if ($("#sheet").open) return;
   document.body.classList.remove("sheet-open");
@@ -514,11 +560,38 @@ $("#sheet").addEventListener("click", (event) => {
   const box = event.currentTarget.getBoundingClientRect();
   if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) closeModal();
 });
+function toggleDetails(details) {
+  const summary = details.querySelector("summary");
+  if (!summary) return;
+  if (reducedMotion.matches || !details.animate) { details.open = !details.open; return; }
+  details.__detailsAnimation?.cancel();
+  const collapsed = summary.getBoundingClientRect().height;
+  details.style.height = ""; details.style.overflow = "";
+  if (!details.open) {
+    details.open = true;
+    const expanded = details.getBoundingClientRect().height;
+    details.style.overflow = "hidden";
+    const animation = details.animate([{ height: `${collapsed}px` }, { height: `${expanded}px` }], { duration: 300, easing: "cubic-bezier(.22,.68,.2,1)" });
+    details.__detailsAnimation = animation;
+    animation.onfinish = () => { details.style.height = ""; details.style.overflow = ""; details.__detailsAnimation = null; };
+  } else {
+    const expanded = details.getBoundingClientRect().height;
+    details.style.overflow = "hidden";
+    const animation = details.animate([{ height: `${expanded}px` }, { height: `${collapsed}px` }], { duration: 260, easing: "cubic-bezier(.4,0,1,1)" });
+    details.__detailsAnimation = animation;
+    animation.onfinish = () => { details.open = false; details.style.height = ""; details.style.overflow = ""; details.__detailsAnimation = null; };
+  }
+}
+document.addEventListener("click", (event) => {
+  const summary = event.target.closest("details > summary");
+  if (!summary || event.defaultPrevented) return;
+  event.preventDefault();
+  toggleDetails(summary.parentElement);
+});
 document.addEventListener("keydown", (event) => { if (event.key === "Tab" || event.key.startsWith("Arrow")) document.body.dataset.input = "keyboard"; });
 document.addEventListener("pointerdown", (event) => {
+  // 新拟态交互统一：按压反馈由 CSS :active 凹陷阴影承担（Extrude to Intrude），不再做缩放位移
   document.body.dataset.input = ["touch", "pen"].includes(event.pointerType) ? "touch" : "mouse";
-  const control = event.target.closest("button, .primary, .secondary, .chip");
-  if (control && !control.disabled) motion(control, [{ transform: "scale(1)" }, { transform: "scale(.97)" }, { transform: "scale(1)" }], { duration: 180 });
 }, { passive: true });
 document.addEventListener("focusin", updateViewport);
 document.addEventListener("focusout", () => requestAnimationFrame(updateViewport));

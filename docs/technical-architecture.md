@@ -10,7 +10,7 @@
 | UI交互 | Canvas API | — | 涂色编辑器 + AR 指甲贴图 |
 | 手部追踪 | MediaPipe Hands (Tasks Vision) | — | AR模式，21 关键点 3D 检测 |
 | 3D渲染 | Three.js | — | AR模式（预留） |
-| AI生成 | Agnes Image 2.1 Flash API | — | AI模式（Phase 2） |
+| AI生成 | Agnes Image 2.5 Flash API | — | AI模式（Phase 2） |
 | 部署 | Vercel | — | 免费托管+HTTPS |
 
 ## 2. 架构图
@@ -28,7 +28,7 @@
 │     Next.js API Routes (后端)       │
 │  ┌──────────────────────────────┐   │
 │  │  /api/generate-ai            │   │
-│  │  → Agnes Image 2.1 Flash     │   │
+│  │  → Agnes Image 2.5 Flash     │   │
 │  └──────────────────────────────┘   │
 ├─────────────────────────────────────┤
 │            Vercel 部署              │

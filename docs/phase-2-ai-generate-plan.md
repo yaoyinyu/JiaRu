@@ -11,7 +11,7 @@
     ↓
 [POST /api/generate-ai]  ← 服务端，持有 API Key
     ↓
-[Agnes Image 2.1 Flash API] ← 图像生成
+[Agnes Image 2.5 Flash API] ← 图像生成
     ↓
 [返回 image URL]
     ↓
@@ -33,7 +33,7 @@
 **实现要点**:
 - POST 请求，body: `{ prompt: string }`
 - 校验 prompt 非空，长度 1-500
-- 调用Agnes Images API（`agnes-image-2.1-flash`、1024x1024、URL输出）
+- 调用Agnes Images API（`agnes-image-2.5-flash`、1024x1024、URL输出）
 - prompt 加后缀：`", nail art design on fingernails, manicure, close-up, beautiful"`
 - 返回 `{ imageUrl: string }`
 - 错误处理：

@@ -21,7 +21,7 @@ import {
 
 export const maxDuration = 300;
 
-/** 允许的画面比例白名单（来自 Agnes Image 2.1 Flash 技术文档）。 */
+/** 允许的画面比例白名单（来自 Agnes Image 2.5 Flash 技术文档）。 */
 const ALLOWED_RATIOS = new Set<string>(AI_IMAGE_RATIOS);
 /** 允许的输出尺寸档位白名单（1K/2K/3K/4K）。 */
 const ALLOWED_SIZES = new Set<string>(AI_IMAGE_SIZES);
@@ -37,7 +37,7 @@ const IMAGE_DATA_URI_MAX_LENGTH = 9_000_000;
  * Body: { prompt: string, image?: string, ratio?: string, size?: string }
  * Returns: { imageUrl: string } | { error: string }
  *
- * 使用 Agnes Image 2.1 Flash 生成美甲效果图。
+ * 使用 Agnes Image 2.5 Flash 生成美甲效果图。
  * - 无 image：文生图（text-to-image）。
  * - 有 image（Data URI）：图生图（image-to-image），在参考图基础上绘制美甲，
  *   保持原图手部姿势与场景不变。

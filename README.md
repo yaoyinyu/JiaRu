@@ -16,7 +16,7 @@
 | --- | --- | :---: | --- |
 | 首页 | `/` | ✅ | 品牌展示 + 五大功能入口 |
 | 涂色编辑器 | `/editor` | ✅ | 上传照片 → 五指独立选色 → Canvas 涂抹 → 本地保存（支持 `?gallery=` 灵感色与 `?preset=` 个性化分析推荐色预涂） |
-| AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → 生成引擎可选（Agnes Image 2.1 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite）；用户已完成真实功能验收并再次确认 |
+| AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → 生成引擎可选（Agnes Image 2.5 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite）；用户已完成真实功能验收并再次确认 |
 | 灵感图库 | `/gallery` | ✅ | 6 张 Seedream 灵感图；卡片三入口（试色 / AI 相似款 / AR 试戴）打通到 `/editor`、`/ai-generate`、`/ar-tryon` 链路，AI 生成结果可一键本地 IndexedDB 收录至「我的收录」区块（无服务端后台；真实内容后台见待规划） |
 | 个性化分析 | `/nail-analysis` | 📌 | 上传手背照片 → 本地甲面候选识别 → 手型/甲床比例、肤色（ITA°/底调）、指甲健康启发式 + 场景问卷 → 规则引擎推荐甲型/长度/色系并附解释 → 一键跳转 `/editor?preset=` 预涂；纯规则启发式，不训练模型，工程门通过、真实照片待验收 |
 | AR 纯色试戴 | `/ar-tryon` | 🚧 | 摄像头实时手部追踪 + 五指贴色 |
@@ -318,7 +318,7 @@ Git 与远端只保存完整可运行的业务、训练和审计代码，测试�
 | --- | --- | :---: |
 | `AGNES_API_KEY` | Agnes API 密钥（仅服务端读取） | AI 生成功能需要 |
 | `AGNES_API_BASE_URL` | Agnes API 基础地址 | 否（默认 `https://apihub.agnes-ai.com/v1`） |
-| `AGNES_IMAGE_MODEL` | Agnes 图片模型 ID | 否（默认 `agnes-image-2.1-flash`） |
+| `AGNES_IMAGE_MODEL` | Agnes 图片模型 ID | 否（默认 `agnes-image-2.5-flash`） |
 | `VOLCENGINE_ARK_API_KEY` | 火山方舟 API 密钥（仅服务端读取） | Seedream 引擎需要 |
 | `ARK_SEEDREAM_PRO_MODEL` | Seedream 5.0 pro Model ID（控制台查询） | Seedream 引擎需要 |
 | `ARK_SEEDREAM_LITE_MODEL` | Seedream 5.0 lite Model ID（控制台查询） | Seedream 引擎需要 |
@@ -354,7 +354,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.2.146 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
+| [技术白皮书](docs/technical-whitepaper.md) v1.2.149 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
 | [实验历史归档](docs/archive/whitepaper-experiment-history.md) | 原白皮书§12.9—§12.351实验叙事（343节）及§3/§11.1历史快照，2026-10-12归档，证据链完整保留 |
 | [历史变更记录归档](docs/archive/whitepaper-changelog-archive.md) | 原白皮书§13逐条变更表（v1.0.0—v1.1.995），2026-10-12归档 |
 | [数据集契约历史归档](docs/archive/whitepaper-dataset-contract-history.md) | 原白皮书§8.1历史执行叙事（标注返修/审核批次流水、困难负样本批次）与§8.4/§9.7/§9.8/§9.9/§11.2复核原文，2026-10-12归档 |
@@ -411,7 +411,7 @@ copy .env.local.example .env.local
 
 ### Phase 2: AI 生成 ✅ 完成
 
-- [x] Agnes Image 2.1 Flash API 集成、10 风格 × 50 段提示词库
+- [x] Agnes Image 2.5 Flash API 集成（2026-10-22 由 2.1 Flash 升级）、10 风格 × 50 段提示词库
 - [x] 前端状态机、错误处理、图片保存
 - [x] 用户真实生图功能验收通过（2026-08-10；2026-08-12再次确认）
 
@@ -505,7 +505,7 @@ copy .env.local.example .env.local
 | 手部关键点 | MediaPipe Hands | 浏览器端，CDN 加载 |
 | 纹理推理 | ONNX Runtime Web | 1.27.0（WebGPU/WASM） |
 | 3D | Three.js | 0.184.0（已安装，未使用） |
-| AI 生图 | Agnes Image 2.1 Flash + 火山方舟 Seedream 5.0（pro/lite，引擎可选） | 服务端 API |
+| AI 生图 | Agnes Image 2.5 Flash + 火山方舟 Seedream 5.0（pro/lite，引擎可选） | 服务端 API |
 | 部署 | Vercel | 待配置 |
 
 来源图审核工具支持整图优先：`build-native-source-pair-review-v3.py`构建无重采样schema3页，`audit-native-source-review-pages-v3.py`重放完整RGB/全覆盖与实际查看绑定；旧分块证据保持，缩放图不能用于原像素批准。接口及回退方式见技术白皮书§8.5。
