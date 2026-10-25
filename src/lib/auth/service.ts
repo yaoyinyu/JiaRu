@@ -14,6 +14,8 @@ import {
 } from "./sms.ts";
 import { AuthError, type AuthConfig, type AuthSessionContext, type AuthTokens, type IdentityProvider, type MeResult, type UserRow } from "./types.ts";
 import { verifyCaptcha } from "./captcha.ts";
+import { isContactType, firstProfileError, parseAvatarDataUrl, validateProfileInput } from "../profile/profile.ts";
+import type { UserProfilePatch } from "./db.ts";
 
 const ACCESS_TTL_SEC = 2 * 60 * 60; // 2 小时
 const REFRESH_TTL_SEC = 30 * 24 * 60 * 60; // 30 天
@@ -408,6 +410,9 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
         email: user.email,
         nickname: user.nickname,
         avatar: user.avatar,
+        bio: user.bio ?? null,
+        contact: user.contact ?? null,
+        contactType: user.contact_type ?? null,
         ageGroup: user.age_group,
         status: user.status,
         createdAt: user.created_at,
@@ -420,20 +425,86 @@ export function createAuthService(db: UserDb, config: AuthConfig) {
     };
   }
 
-  /** 更新昵称/头像（PATCH /api/me） */
-  function updateProfile(userId: string, patch: { nickname?: string; avatar?: string | null; ageGroup?: string | null }): void {
+  /**
+   * 更新个人档案（PATCH /api/me）：昵称、简介、公开联系方式与头像。
+   * 校验口径与前端共用 `src/lib/profile/profile.ts`；简介/联系方式传空串表示清空。
+   * 只写本次显式提交的字段，未提交的字段保持原值。
+   */
+  function updateProfile(
+    userId: string,
+    patch: {
+      nickname?: string;
+      bio?: string;
+      contact?: string;
+      contactType?: string | null;
+      avatar?: string | null;
+      ageGroup?: string | null;
+    }
+  ): void {
     const user = db.getUserById(userId);
     if (!user) throw new AuthError("user_not_found", "用户不存在", 404);
-    const nickname = patch.nickname?.trim();
-    if (nickname !== undefined) {
-      if (nickname.length < 1 || nickname.length > 30) {
-        throw new AuthError("invalid_nickname", "昵称长度需在 1-30 字之间");
+
+    const write: UserProfilePatch = {};
+    const changedFields: string[] = [];
+
+    if (patch.contactType !== undefined && patch.contactType !== null && !isContactType(patch.contactType)) {
+      throw new AuthError("invalid_profile", "联系方式类型不正确");
+    }
+
+    const touchesProfileFields =
+      patch.nickname !== undefined ||
+      patch.bio !== undefined ||
+      patch.contact !== undefined ||
+      patch.contactType !== undefined;
+
+    if (touchesProfileFields) {
+      // 联系方式类型与值必须成对判定，未提交的一半用库内现值补齐
+      const validation = validateProfileInput({
+        nickname: patch.nickname !== undefined ? patch.nickname : user.nickname,
+        bio: patch.bio !== undefined ? patch.bio : user.bio,
+        contactType: patch.contactType !== undefined ? patch.contactType : user.contact_type,
+        contact: patch.contact !== undefined ? patch.contact : user.contact,
+      });
+      const message = firstProfileError(validation.errors);
+      if (message) throw new AuthError("invalid_profile", message);
+      const value = validation.value;
+
+      if (patch.nickname !== undefined) {
+        write.nickname = value.nickname;
+        changedFields.push("nickname");
+      }
+      if (patch.bio !== undefined) {
+        write.bio = value.bio ? value.bio : null;
+        changedFields.push("bio");
+      }
+      if (patch.contact !== undefined || patch.contactType !== undefined) {
+        write.contact = value.contact ? value.contact : null;
+        write.contact_type = value.contact ? value.contactType : null;
+        changedFields.push("contact");
       }
     }
-    db.updateUserProfile(userId, {
-      nickname: nickname !== undefined ? nickname : undefined,
-      avatar: patch.avatar !== undefined ? patch.avatar : undefined,
-      age_group: patch.ageGroup !== undefined ? patch.ageGroup : undefined,
+
+    if (patch.avatar !== undefined) {
+      const parsed = parseAvatarDataUrl(patch.avatar);
+      if (!parsed.ok) throw new AuthError("invalid_avatar", parsed.error);
+      write.avatar = parsed.dataUrl;
+      changedFields.push("avatar");
+    }
+
+    if (patch.ageGroup !== undefined) {
+      write.age_group = patch.ageGroup;
+      changedFields.push("ageGroup");
+    }
+
+    if (changedFields.length === 0) return;
+
+    db.updateUserProfile(userId, write);
+    db.insertAuditLog({
+      actor_id: userId,
+      action: "update_profile",
+      detail: `fields=${changedFields.join(",")}`,
+      ip: null,
+      at: Date.now(),
     });
   }
 

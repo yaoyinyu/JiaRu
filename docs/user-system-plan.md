@@ -249,7 +249,7 @@
 
 | 实体 | 关键字段 | 说明 |
 | --- | --- | --- |
-| `users` | id, phone, email, password_hash?, nickname, avatar, age_group, status(active/suspended/pending_deletion/deleted), agreement_version, created_at, deleted_at | 账号主表；phone 为主身份（非手机号方式注册后补绑），email 可选；status 实现生命周期状态机 |
+| `users` | id, phone, email, password_hash?, nickname, avatar, age_group, bio, contact, contact_type, status(active/suspended/pending_deletion/deleted), agreement_version, created_at, deleted_at | 账号主表；phone 为主身份（非手机号方式注册后补绑），email 可选；`bio`/`contact`/`contact_type` 为 2026-10-23 起的个人资料字段（公开联系方式，不参与登录）；status 实现生命周期状态机 |
 | `user_identities` | user_id, provider(phone/email/wechat/github), identifier, created_at, last_used_at | 多登录方式绑定同一账号（统一存放，users 表不重复存 openid） |
 | `user_sessions` | session_id, user_id, device_fingerprint, ip, location, last_seen, revoked_at | 设备管理与踢下线 |
 | `user_consents` | user_id, agreement_version, improvement_enabled, improvement_updated_at | 协议版本记录 + 账号级改进计划偏好 |

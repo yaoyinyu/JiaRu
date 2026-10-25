@@ -4,21 +4,16 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
+import { ProfileEditor, ProfileSkeleton } from "@/components/ProfileEditor";
+import type { ProfileUser } from "@/lib/profile/profile";
 
 type MeResponse = {
-  user: {
-    id: string;
-    phone: string | null;
-    email: string | null;
-    nickname: string;
-    avatar: string | null;
-    ageGroup: string | null;
-    status: string;
-    createdAt: number;
-  };
+  user: ProfileUser;
   identities: Array<{ provider: "phone" | "email" | "wechat" | "github"; identifier: string; lastUsedAt: number }>;
   consent: { improvementEnabled: boolean; agreementVersion: string | null };
 };
+
+type LoadState = "loading" | "ready" | "unauthorized" | "error";
 
 const PROVIDER_LABEL: Record<string, string> = {
   phone: "手机号",
@@ -31,15 +26,15 @@ const IMPROVEMENT_KEY = "jiaru-improvement-program";
 
 /**
  * /account 账号中心（登录后可访问）
- * 展示档案、登录方式管理（§5.2）、账号级改进计划偏好（§5.6）、退出登录。
+ * 个人资料查看与编辑（头像/昵称/简介/联系方式）、登录方式管理（§5.2）、
+ * 账号级改进计划偏好（§5.6）、退出登录。
+ * 加载中显示骨架卡片；读取失败与未登录分开呈现，失败可原地重试。
  */
 export default function AccountPage() {
   const router = useRouter();
   const [me, setMe] = useState<MeResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [notLoggedIn, setNotLoggedIn] = useState(false);
-  const [nickname, setNickname] = useState("");
-  const [savingNickname, setSavingNickname] = useState(false);
+  const [loadState, setLoadState] = useState<LoadState>("loading");
+  const [loadError, setLoadError] = useState("");
   const [notice, setNotice] = useState("");
   const [improvementEnabled, setImprovementEnabled] = useState(true);
 
@@ -54,58 +49,67 @@ export default function AccountPage() {
   const [bindCaptchaVisible, setBindCaptchaVisible] = useState(false);
   const [binding, setBinding] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    fetch("/api/me")
-      .then(async (resp) => {
-        if (resp.status === 401) {
-          if (!cancelled) setNotLoggedIn(true);
-          return null;
-        }
-        if (!resp.ok) throw new Error(`加载失败 (${resp.status})`);
-        const data = (await resp.json()) as { user: MeResponse };
-        if (cancelled) return null;
-        setMe(data.user);
-        setNickname(data.user.user.nickname);
-        setImprovementEnabled(data.user.consent.improvementEnabled);
+  /** 纯取数：不在请求过程中改状态，便于在 effect 中安全调用并统一落库到状态 */
+  const fetchMe = useCallback(async (): Promise<
+    { state: "ready"; payload: MeResponse } | { state: "unauthorized" } | { state: "error"; error: string }
+  > => {
+    try {
+      const resp = await fetch("/api/me", { cache: "no-store" });
+      if (resp.status === 401) return { state: "unauthorized" };
+      if (!resp.ok) throw new Error(`加载失败（${resp.status}）`);
+      const data = (await resp.json()) as { user: MeResponse };
+      return { state: "ready", payload: data.user };
+    } catch (err) {
+      return { state: "error", error: err instanceof Error ? err.message : String(err) };
+    }
+  }, []);
+
+  const applyLoadResult = useCallback(
+    (result: Awaited<ReturnType<typeof fetchMe>>) => {
+      if (result.state === "ready") {
+        setMe(result.payload);
+        setImprovementEnabled(result.payload.consent.improvementEnabled);
+        setLoadState("ready");
         // 账号偏好同步写回设备 localStorage（§5.6）
         try {
-          localStorage.setItem(IMPROVEMENT_KEY, data.user.consent.improvementEnabled ? "on" : "off");
+          localStorage.setItem(IMPROVEMENT_KEY, result.payload.consent.improvementEnabled ? "on" : "off");
         } catch {
           // localStorage 不可用时忽略
         }
-        return null;
-      })
-      .catch((err: unknown) => {
-        if (!cancelled) setNotice(err instanceof Error ? err.message : String(err));
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+        return;
+      }
+      if (result.state === "unauthorized") {
+        setMe(null);
+        setLoadState("unauthorized");
+        return;
+      }
+      setLoadError(result.error);
+      setLoadState("error");
+    },
+    []
+  );
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const result = await fetchMe();
+      if (!cancelled) applyLoadResult(result);
+    })();
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [applyLoadResult, fetchMe]);
 
-  const handleSaveNickname = async () => {
-    if (!me) return;
-    setSavingNickname(true);
+  /** 加载失败后的原地重试：先回到骨架态再取数 */
+  const retryLoad = async () => {
+    setLoadState("loading");
+    setLoadError("");
     setNotice("");
-    try {
-      const resp = await fetch("/api/me", {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ nickname }),
-      });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data?.error || "保存失败");
-      setMe(data.user);
-      setNotice("昵称已保存");
-    } catch (err) {
-      setNotice(err instanceof Error ? err.message : String(err));
-    } finally {
-      setSavingNickname(false);
-    }
+    applyLoadResult(await fetchMe());
+  };
+
+  const handleProfileSaved = (updated: ProfileUser) => {
+    setMe((prev) => (prev ? { ...prev, user: updated } : prev));
   };
 
   const handleToggleImprovement = async (enabled: boolean) => {
@@ -250,17 +254,55 @@ export default function AccountPage() {
     }
   };
 
-  const cardCls = "rounded-3xl border border-pink-100 bg-white/75 p-6 shadow-[0_16px_48px_rgba(159,95,122,.08)] backdrop-blur-sm";
+  const cardCls =
+    "rounded-3xl border border-pink-100 bg-white/75 p-6 shadow-[0_16px_48px_rgba(159,95,122,.08)] backdrop-blur-sm";
+  const metaValue = "font-medium text-[#4A4A4A] break-all";
 
-  if (loading) {
+  if (loadState === "loading") {
     return (
-      <AppShell eyebrow="会员中心" title="账号中心" description="加载中…">
-        <p className="text-center text-sm text-[#b9a8ae]">正在读取账号信息…</p>
+      <AppShell eyebrow="会员中心" title="账号中心" description="登录后查看云端作品、收藏与配额">
+        <div className="mx-auto grid w-full max-w-2xl gap-5" aria-busy="true">
+          <ProfileSkeleton />
+          <section className={`${cardCls} animate-pulse`} aria-hidden>
+            <span className="block h-4 w-24 rounded-full bg-pink-100/80" />
+            <span className="mt-4 block h-3 w-2/3 rounded-full bg-pink-50" />
+            <span className="mt-2 block h-3 w-1/2 rounded-full bg-pink-50" />
+          </section>
+          <p className="text-center text-xs text-[#b9a8ae]">正在读取账号信息…</p>
+        </div>
       </AppShell>
     );
   }
 
-  if (notLoggedIn || !me) {
+  if (loadState === "error") {
+    return (
+      <AppShell eyebrow="会员中心" title="账号中心" description="账号信息暂时无法读取">
+        <div className={`${cardCls} mx-auto max-w-md text-center`} role="alert">
+          <p className="text-[15px] font-semibold text-[#403b3e]">账号信息加载失败</p>
+          <p className="mt-2 text-sm leading-relaxed text-[#938b90]">
+            {loadError || "网络不稳定或服务暂时不可用，请稍后重试。"}
+          </p>
+          <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={() => void retryLoad()}
+              className="rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-200/60 transition hover:opacity-90"
+            >
+              重新加载
+            </button>
+            <Link
+              href="/"
+              className="rounded-xl border border-pink-200 bg-white/70 px-6 py-2.5 text-sm font-medium text-[#6a5f64] transition hover:bg-white"
+            >
+              返回首页
+            </Link>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (loadState === "unauthorized" || !me) {
     return (
       <AppShell eyebrow="会员中心" title="账号中心" description="登录后查看云端作品、收藏与配额">
         <div className={`${cardCls} mx-auto max-w-md text-center`}>
@@ -281,50 +323,35 @@ export default function AccountPage() {
     <AppShell eyebrow="会员中心" title="账号中心" description={`你好，${me.user.nickname}！管理你的账号信息与登录方式。`}>
       <div className="mx-auto grid w-full max-w-2xl gap-5">
         {notice && (
-          <p className="rounded-xl border border-pink-100 bg-pink-50/80 px-4 py-2.5 text-sm text-[#cf6f99]">{notice}</p>
+          <p role="status" aria-live="polite" className="rounded-xl border border-pink-100 bg-pink-50/80 px-4 py-2.5 text-sm text-[#cf6f99]">
+            {notice}
+          </p>
         )}
 
-        {/* 档案 */}
+        {/* 个人资料：查看 / 编辑（头像、昵称、简介、公开联系方式） */}
+        <ProfileEditor user={me.user} onSaved={handleProfileSaved} />
+
+        {/* 账号信息（只读） */}
         <section className={cardCls}>
-          <h2 className="mb-4 text-base font-bold text-[#403b3e]">账号档案</h2>
-          <dl className="mb-5 grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
-            <div>
-              <dt className="mb-0.5 text-xs text-[#b9a8ae]">昵称</dt>
-              <dd className="font-medium text-[#4A4A4A]">{me.user.nickname}</dd>
-            </div>
+          <h2 className="mb-4 text-base font-bold text-[#403b3e]">账号信息</h2>
+          <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="mb-0.5 text-xs text-[#b9a8ae]">手机号</dt>
-              <dd className="font-medium text-[#4A4A4A]">{me.user.phone ?? "未绑定"}</dd>
+              <dd className={metaValue}>{me.user.phone ?? "未绑定"}</dd>
             </div>
             <div>
               <dt className="mb-0.5 text-xs text-[#b9a8ae]">邮箱</dt>
-              <dd className="font-medium text-[#4A4A4A]">{me.user.email ?? "未绑定"}</dd>
+              <dd className={metaValue}>{me.user.email ?? "未绑定"}</dd>
             </div>
             <div>
               <dt className="mb-0.5 text-xs text-[#b9a8ae]">注册时间</dt>
-              <dd className="font-medium text-[#4A4A4A]">{new Date(me.user.createdAt).toLocaleDateString("zh-CN")}</dd>
+              <dd className={metaValue}>{new Date(me.user.createdAt).toLocaleDateString("zh-CN")}</dd>
+            </div>
+            <div>
+              <dt className="mb-0.5 text-xs text-[#b9a8ae]">账号状态</dt>
+              <dd className={metaValue}>{me.user.status === "active" ? "正常" : me.user.status}</dd>
             </div>
           </dl>
-          <div className="flex flex-wrap items-end gap-3">
-            <div className="min-w-[180px] flex-1">
-              <label htmlFor="nickname" className="mb-1 block text-xs text-[#b9a8ae]">修改昵称</label>
-              <input
-                id="nickname"
-                value={nickname}
-                onChange={(e) => setNickname(e.target.value)}
-                maxLength={30}
-                className="w-full rounded-xl border border-pink-200 bg-white/80 px-3 py-2 text-sm outline-none transition focus:border-pink-400 focus:ring-2 focus:ring-pink-100"
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleSaveNickname}
-              disabled={savingNickname || !nickname.trim()}
-              className="rounded-xl bg-pink-400 px-5 py-2 text-sm font-semibold text-white transition hover:bg-pink-500 disabled:opacity-50"
-            >
-              {savingNickname ? "保存中…" : "保存"}
-            </button>
-          </div>
         </section>
 
         {/* 绑定手机号（微信新用户合规补绑，§5.1） */}

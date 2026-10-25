@@ -24,6 +24,9 @@ CREATE TABLE IF NOT EXISTS users (
   nickname TEXT NOT NULL DEFAULT '',
   avatar TEXT,
   age_group TEXT,
+  bio TEXT,
+  contact TEXT,
+  contact_type TEXT,
   status TEXT NOT NULL DEFAULT 'active',
   agreement_version TEXT,
   created_at INTEGER NOT NULL,
@@ -89,13 +92,31 @@ CREATE INDEX IF NOT EXISTS idx_audit_actor ON audit_logs(actor_id);
 CREATE INDEX IF NOT EXISTS idx_audit_at ON audit_logs(at);
 `;
 
+/** 档案写入补丁：只写出现的键；显式 null 表示清空该字段（不出现的键保持原值） */
+export interface UserProfilePatch {
+  nickname?: string | null;
+  avatar?: string | null;
+  age_group?: string | null;
+  bio?: string | null;
+  contact?: string | null;
+  contact_type?: string | null;
+}
+
+/** 新用户插入参数：档案可选字段可省略（默认 null） */
+export type NewUserRow = Omit<UserRow, "created_at" | "bio" | "contact" | "contact_type"> & {
+  created_at?: number;
+  bio?: string | null;
+  contact?: string | null;
+  contact_type?: string | null;
+};
+
 export interface UserDb {
   close(): void;
   // users
-  insertUser(row: Omit<UserRow, "created_at"> & { created_at?: number }): void;
+  insertUser(row: NewUserRow): void;
   getUserById(id: string): UserRow | undefined;
   getUserByIdentity(provider: string, identifier: string): UserRow | undefined;
-  updateUserProfile(id: string, patch: { nickname?: string; avatar?: string | null; age_group?: string | null }): void;
+  updateUserProfile(id: string, patch: UserProfilePatch): void;
   updateUserPhone(id: string, phone: string): void;
   // identities
   insertIdentity(userId: string, provider: string, identifier: string, now: number): void;
@@ -179,20 +200,28 @@ export function createUserDb(dbPath: string): UserDb {
       db.exec(`ALTER TABLE user_sessions ADD COLUMN ${column} ${ddl}`);
     }
   }
+  // 旧库迁移：个人档案列在 2026-10-23 引入（简介/公开联系方式由 /account 资料编辑写入）。
+  const userColumns = db.prepare(`PRAGMA table_info(users)`).all() as Array<{ name: string }>;
+  for (const [column, ddl] of [
+    ["bio", "TEXT"],
+    ["contact", "TEXT"],
+    ["contact_type", "TEXT"],
+  ] as const) {
+    if (!userColumns.some((c) => c.name === column)) {
+      db.exec(`ALTER TABLE users ADD COLUMN ${column} ${ddl}`);
+    }
+  }
 
   const stmt = {
     insertUser: db.prepare(
-      `INSERT INTO users (id, phone, email, password_hash, nickname, avatar, age_group, status, agreement_version, created_at, deleted_at)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO users (id, phone, email, password_hash, nickname, avatar, age_group, bio, contact, contact_type, status, agreement_version, created_at, deleted_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     ),
     getUserById: db.prepare(`SELECT * FROM users WHERE id = ?`),
     getUserByIdentity: db.prepare(
       `SELECT u.* FROM users u
        JOIN user_identities i ON i.user_id = u.id
        WHERE i.provider = ? AND i.identifier = ?`
-    ),
-    updateUserProfile: db.prepare(
-      `UPDATE users SET nickname = COALESCE(?, nickname), avatar = COALESCE(?, avatar), age_group = COALESCE(?, age_group) WHERE id = ?`
     ),
     updateUserPhone: db.prepare(`UPDATE users SET phone = ? WHERE id = ?`),
     insertIdentity: db.prepare(
@@ -259,6 +288,9 @@ export function createUserDb(dbPath: string): UserDb {
         row.nickname,
         row.avatar,
         row.age_group,
+        row.bio ?? null,
+        row.contact ?? null,
+        row.contact_type ?? null,
         row.status,
         row.agreement_version,
         row.created_at ?? Date.now(),
@@ -272,7 +304,15 @@ export function createUserDb(dbPath: string): UserDb {
       return stmt.getUserByIdentity.get(provider, identifier) as UserRow | undefined;
     },
     updateUserProfile(id, patch) {
-      stmt.updateUserProfile.run(patch.nickname ?? null, patch.avatar ?? null, patch.age_group ?? null, id);
+      // 只写调用方显式提供的列：值为 null 时清空（头像/简介/联系方式可被移除），
+      // 未出现的列保持原值。列名来自固定白名单，值全部走占位符。
+      const columns = ["nickname", "avatar", "age_group", "bio", "contact", "contact_type"] as const;
+      const entries = columns
+        .filter((column) => patch[column] !== undefined)
+        .map((column) => [column, patch[column] ?? null] as const);
+      if (entries.length === 0) return;
+      const sql = `UPDATE users SET ${entries.map(([column]) => `${column} = ?`).join(", ")} WHERE id = ?`;
+      db.prepare(sql).run(...entries.map(([, value]) => value), id);
     },
     updateUserPhone(id, phone) {
       stmt.updateUserPhone.run(phone, id);

@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.2.149
+> 文档版本：v1.2.153
 >
 > 基线日期：2026-07-12
 >
@@ -149,7 +149,7 @@ Stage B真实训练权重的九尺寸合成完整图已通过CPU ORT/WASM/WebGPU
 | 训练/评估/导出 | `model/training/*` | 进行中（candidate8拒绝，准备下一轮数据） | nano分支早停于epoch23、最佳epoch3；val30阈值0.55通过后一次性冻结test100逐实例门失败。高容量分支早停于epoch51，最佳权重`2be3104e…6081`，仅用val30比较时阈值0.60召回0.76389，低于nano的0.80556，故不运行test。下一步以新来源完整甲面真值提升召回；继续禁止ONNX导出、登记和部署。 |
 | 模型发布治理 | `scripts/*release*` | 进行中 | 已有注册、切换、回滚、质量门、逐图失败画像、规范val30阈值深审、三路候选编排、最终完成度审计和外部验收证据构建器。独立留出链固定100张下限、训练用途禁止、权重/阈值绑定、首次推理账本、512输入、确定性三变体和推理重放。首个正式发布采用“双批准版本”启动：先以`--set-current false`登记独立通过全部发布门的fallback，再激活另一个不同版本；仍需两个版本全部manifest/模型字节完整且至少一个非当前候选，禁止synthetic/smoke或已拒绝模型充当回滚。真实candidate4独立留出3/2/3张误检仍按预期HOLD；当前没有合格生产资产 |
 | 隐私说明 | `/privacy` | 已完成（产品文案；法律合规审核仍待外部） | 静态说明页覆盖核心原则（本地优先/数据由你掌控/不追踪）、「用户改进计划」开关（客户端组件，默认开启，可随时关闭，状态存 localStorage）、各功能数据流向（试色默认本地、AI生图仅文字并经第三方Agnes、AR默认内存处理不录制、识别与图库本地）、第三方与用户权利；v1.1.470 已将“不上传照片”承诺修订为改进计划模式；当前尚无实际上传通道，开关为偏好记录；法律/产品合规审计不构成 |
-| 用户账户（注册/登录） | `/login`、`/account`、`/api/auth/*`、`/api/me` | 进行中（Phase 1 初始注册登录已实现；商户/云同步未开始） | v1.1.475 已落地初始注册登录功能：手机号+验证码「登录即注册」，自研 HS256 JWT（access 2h + refresh 30d）+ SQLite 会话表（可踢下线）；`/api/me` 档案与登录方式管理（查看/解绑，至少保留一种）、账号级「用户改进计划」偏好（§5.6 联动 localStorage）。v1.1.476 起发送短信验证码前必须通过人机验证（自研 SVG 图形验证码 `GET /api/auth/captcha`，5 分钟有效、一次性、错 5 次作废、60 秒节流保持不变）。v1.1.477 起按用户要求仅保留**手机号 + 微信**两种登录：新增微信 OAuth 全流程（`GET /api/auth/oauth/wechat` 授权跳转 + `/callback` 回调登录，state 存 httpOnly Cookie 防 CSRF，code 换 openid，首次登录须在 `/account` 补绑手机号，`/status` 探测配置），**邮箱与 GitHub 登录入口已移除**（email-register 路由删除、bcryptjs 依赖卸载、/login 页邮箱 tab 与 GitHub 占位按钮删除、/account 新增「绑定手机号」卡片含人机验证）。微信登录需 `WECHAT_APP_ID`/`WECHAT_APP_SECRET`（开放平台企业认证，300 元/年），未配置时按钮显示「未配置」、接口返回 503。数据库为本地 SQLite（Node 内置 node:sqlite，路径 `data/jiaru-user.db`），生产换 Postgres 时仅替换 `src/lib/auth/db.ts` 边界。短信验证码在未配置服务商时进入开发模式（接口返回 devCode 仅供本地联调），生产须配置短信服务商。完整设计见 `docs/user-system-plan.md`（v0.2，Phase 1 目标）；商户体系、云端作品/收藏/历史/色板、配额、注销导出、游客数据合并仍为后续 Phase 1 项 |
+| 用户账户（注册/登录） | `/login`、`/account`、`/api/auth/*`、`/api/me` | 进行中（Phase 1 初始注册登录已实现；商户/云同步未开始） | v1.1.475 已落地初始注册登录功能：手机号+验证码「登录即注册」，自研 HS256 JWT（access 2h + refresh 30d）+ SQLite 会话表（可踢下线）；`/api/me` 档案与登录方式管理（查看/解绑，至少保留一种）、账号级「用户改进计划」偏好（§5.6 联动 localStorage）。v1.1.476 起发送短信验证码前必须通过人机验证（自研 SVG 图形验证码 `GET /api/auth/captcha`，5 分钟有效、一次性、错 5 次作废、60 秒节流保持不变）。v1.1.477 起按用户要求仅保留**手机号 + 微信**两种登录：新增微信 OAuth 全流程（`GET /api/auth/oauth/wechat` 授权跳转 + `/callback` 回调登录，state 存 httpOnly Cookie 防 CSRF，code 换 openid，首次登录须在 `/account` 补绑手机号，`/status` 探测配置），**邮箱与 GitHub 登录入口已移除**（email-register 路由删除、bcryptjs 依赖卸载、/login 页邮箱 tab 与 GitHub 占位按钮删除、/account 新增「绑定手机号」卡片含人机验证）。微信登录需 `WECHAT_APP_ID`/`WECHAT_APP_SECRET`（开放平台企业认证，300 元/年），未配置时按钮显示「未配置」、接口返回 503。数据库为本地 SQLite（Node 内置 node:sqlite，路径 `data/jiaru-user.db`），生产换 Postgres 时仅替换 `src/lib/auth/db.ts` 边界。短信验证码在未配置服务商时进入开发模式（接口返回 devCode 仅供本地联调），生产须配置短信服务商。v1.2.153 起 `/account` 个人资料可编辑头像/昵称/简介/公开联系方式（契约见 §5.3），页面含查看/编辑双态、字段校验、保存取消、成功失败反馈与加载骨架/失败重试；头像为 256×256 压缩 data URL，旧库由 `createUserDb` 自动补 `bio`/`contact`/`contact_type` 列。完整设计见 `docs/user-system-plan.md`（v0.2，Phase 1 目标）；商户体系、云端作品/收藏/历史/色板、配额、注销导出、游客数据合并仍为后续 Phase 1 项 |
 
 ## 4. 页面与用户使用接口
 
@@ -386,7 +386,7 @@ function analyzeNailPersonalization(input: PersonalizationInput): Personalizatio
 
 - **入口与范围**：`node scripts/serve-consumer-design.mjs`，浏览器访问 `http://127.0.0.1:4318`。消费者设计提案位于 `design/consumer-v1/`，不注册 Next.js 正式路由，不导入旧版样式。米白／深墨／珊瑚与五种甲型、工艺的手背贴图方向已获用户认可；继续遵循“设计不一定是加法”，未切换或部署。2026-10-22 起按新拟态（Neumorphism / Soft UI）规范完成品牌适配迭代：基底仍为品牌米白、强调色仍为珊瑚，交互面统一为双光源阴影语言；渐变背景、描边按钮与位移悬停已从原型移除（线框诊断态除外），适配范围与偏差登记见 `docs/consumer-redesign-design-brief.md` §8。
 - **页面与流程**：为你／试戴／创作／我的，另含可跳过的轻问答、可编辑偏好模板、款式详情、收藏、发布与个人主页布局、美甲方案卡。说明收进可展开区域，保留必要标签与模拟状态；摄像头、语言模型总结、真正生成、个性化推荐、账号认证、跨设备同步和公开社区均未接入。
-- **终端与动效**：按可用宽度和输入能力适配手机、平板、横屏与桌面，包含安全区、动态视口、触控目标、键盘焦点和输入时底部导航避让；保留浏览器缩放。短横屏压缩页头与重复引导，两张试戴卡以紧凑横向图形排列。标题使用 OFL 许可的本地 Noto Serif SC 衍生子集，正文用系统字体。路由、收藏、卡片和弹层使用短过渡，遵从 `prefers-reduced-motion`；缺少动画、观察器或 VisualViewport 时保留基本操作。中文合成输入不重建输入节点，返回恢复页面位置；原生 dialog 支持 Esc、焦点回返与背景滚动锁定。关闭只向原页面恢复焦点，跨页返回聚焦主体；已重新打开的弹层不被旧 close 事件解锁。新拟态适配后（2026-10-22）：可交互面以凸起／凹陷（inset）区分可点与已选／输入态；悬停为阴影缩小（遮光）、按压为凸起转凹陷且无位移，输入聚焦时内阴影深度减小（通道开放）；双光源方向全局锁定为左上亮／右下暗，阴影尺寸随断点缩放（移动端小、桌面端大）；墨底引用卡与 toast 保留柔和环境投影；按压反馈统一由 CSS `:active` 承担，脚本不再做缩放位移。
+- **终端与动效**：按可用宽度和输入能力适配手机、平板、横屏与桌面，包含安全区、动态视口、触控目标、键盘焦点和输入时底部导航避让；保留浏览器缩放。短横屏压缩页头与重复引导，两张试戴卡以紧凑横向图形排列。标题使用 OFL 许可的本地 Noto Serif SC 衍生子集，正文用系统字体。路由、收藏、卡片和弹层使用短过渡，遵从 `prefers-reduced-motion`；缺少动画、观察器或 VisualViewport 时保留基本操作。中文合成输入不重建输入节点，返回恢复页面位置；原生 dialog 支持 Esc、焦点回返与背景滚动锁定。关闭只向原页面恢复焦点，跨页返回聚焦主体；已重新打开的弹层不被旧 close 事件解锁。新拟态适配后（2026-10-22）：可交互面以凸起／凹陷（inset）区分可点与已选／输入态；悬停为阴影缩小（遮光）、按压为凸起转凹陷且无位移，输入聚焦时内阴影深度减小（通道开放）；双光源方向全局锁定为左上亮／右下暗，阴影尺寸随断点缩放（移动端小、桌面端大）；墨底引用卡与 toast 保留柔和环境投影。2026-10-23 起按压反馈为 `.is-pressed` 140ms 下沉 `scale(.96)`＋释放 340ms 弹簧（`cubic-bezier(.34,1.56,.64,1)`）过冲后落位：缩放只做原地反馈，不产生平移、布局位移，阴影不参与形变。同日按 `docs/consumer-redesign-motion-plan.md` 落地 11 项交互动效——指针落点为原点的水波、成功档粒子爆散（轻档 9 粒／中档 13 粒，失败不爆散）、勾选逐笔绘制、开关滑块起步挤压＋磁吸回弹、液态滑杆 `--v` 单时间轴 400ms 同频、统计与滑杆数字 320ms 起强减速滚动、骨架与真实内容同格等量替换（高度差 ≤1px）、卡片 3D 翻面双面隐藏背面、汉堡单组线条形变、堆叠卡抽走与放回；`prefers-reduced-motion` 下关闭脚本水波／爆散／回弹，勾选完成与弹层显隐瞬时到位。本地浏览器验证见 `output/design-motion-verify.mjs`（93 项：11 项规格＋16 路由回归＋reduced-motion），截图 `output/design-review-shots/v11-motion-*.png`；真机验收边界不变。喜欢/收藏自 2026-10-23 起改为就地更新：点击只改被点控件（及同页可见计数），不重建页面或区块、不重设滚动、不发起任何数据请求；卡片图标钮与详情文字钮共用 `is-saved`/`is-liked`＋`aria-pressed` 选中态（珊瑚底/珊瑚字＋实心图标）、340ms 回弹脉冲与轻档爆散，成功与失败（本地存储不可用时回滚）各有明确文案；收藏页取消收藏只收起该卡并在清空后换空态。验证见 `output/design-reaction-verify.mjs`（49 项，含快速连点、取消再点、移动端与 reduced-motion），截图 `output/design-review-shots/v12-reaction-*.png`。同日完成同类交互的整页重渲染清理：关注只改关注按钮（`is-following`＋`aria-pressed`，与收藏共用选中态与 340ms 脉冲）与可见计数，标签切换只重排结果网格并同步选中态，灵感词只补写描述框文本（保留焦点与光标），换款只复位结果面板，上传只替换上传位与生成按钮文案，生成开始只把结果面板切到骨架；上述交互均不重建页面、不重设滚动、不发起请求。仅登录态切换、路由切换、诊断场景（错误/空态/重置）与骨架缺失兜底保留整页渲染。验证见 `output/design-local-update-verify.mjs`（37 项），截图 `output/design-review-shots/v13-*.png`。
 - **数据与草稿隔离**：仅使用 `jiaru-consumer-design-v1` 保存文字偏好和互动选项；图片为本次会话内存对象 URL，刷新需重选。本人／他人照片分离且沿用账号审美；照片试戴／创作分别持有草稿、模拟生成状态与结果，方案返回对应编辑页。未保存的偏好改动与已保存档案分开；发布图、来源及授权选项在模拟登录后保留。未读写旧版账号、数据库或既有存储键。
 - **方案导出与分享**：预先生成本地 PNG，用户点击后在支持文件分享的浏览器调用 `navigator.share`；不支持或分享失败时下载，用户取消不显示成功。仅声明已交给系统面板，不宣称送达；不分享本机预览地址。旧方案异步完成不能提前启用当前方案分享。原生分享尚待真机验证。
 - **预览服务**：只绑定 `127.0.0.1`，默认4318，可用 `--port` 指定；仅白名单 GET／HEAD 提供原型、必要图片与本地 WOFF2，禁止写请求与任意工作区文件访问。CSP 禁止页面网络连接，摄像头等权限关闭；无需密钥或环境配置。
@@ -482,6 +482,27 @@ Content-Type: application/json
 | 503 | 未配置`VOLCENGINE_ARK_API_KEY`或 Model ID |
 
 服务端环境变量：`VOLCENGINE_ARK_API_KEY`（必填）、`ARK_SEEDREAM_PRO_MODEL`/`ARK_SEEDREAM_LITE_MODEL`（Model ID，必须带版本日期后缀）、可选 `ARK_BASE_URL`（默认 `https://ark.cn-beijing.volces.com/api/v3`）、可选 `ARK_IMAGE_WATERMARK`（默认 `false`）。`sequential_image_generation` 等组图参数禁止用于 pro；本路由为扁平 body，无 Agnes 的 `extra_body` 包装，也无 `ratio` 参数。身份与配额/预算熔断已随 v1.1.649 与 §5.1 同步接入（同一 `src/lib/ai-quota.ts` 守卫，`engine:"seedream"`）；内容审核记录、请求幂等、结果持久化和计费仍未实现。
+
+### 5.3 `GET/PATCH /api/me`（个人档案）
+
+状态：已实现（本地 SQLite 账户原型口径，见 §3「用户账户」行）。`/account` 个人资料卡片使用本接口；服务端校验与前端实时校验共用 `src/lib/profile/profile.ts`。
+
+GET 响应：`{"user":{user,identities,consent}}`，`user` 字段为 `id/phone/email/nickname/avatar/bio/contact/contactType/ageGroup/status/createdAt`；旧库迁移后 `bio`/`contact`/`contactType` 为 `null`。
+
+PATCH 请求体（字段均可选，只写本次提交的字段；未提交字段保持原值）：
+
+| 字段 | 类型 | 约束 |
+| --- | --- | --- |
+| `nickname` | string | 去首尾空格后 1–30 字符（按码点计），禁止换行/控制字符 |
+| `bio` | string | 去首尾空格后 ≤120 字符；空串清空（存 `null`） |
+| `contact` | string | ≤40 字符；非空时必须符合所选类型；空串清空 |
+| `contactType` | `wechat`\|`email`\|`phone`\|`other`\|`null` | 未知值返回 400；与 `contact` 成对写入，无联系方式时两者同存 `null` |
+| `avatar` | string\|null | PNG/JPEG/WebP data URL（`/account` 端压缩为 256×256 JPEG），解码后 ≤300KB 且文件签名须与 MIME 一致；`null` 移除头像；`https://…` 等非 data URL 返回 400 |
+| `ageGroup` | string\|null | 既有字段，未新增约束 |
+
+联系方式校验：`wechat` 为 `wxid_…` 或以字母开头的 6–20 位字母/数字/下划线/减号；`email` 为常规邮箱格式；`phone` 归一去掉空格、连字符与 `+86` 前缀后须为 11 位大陆手机号；`other` 至少 2 字符且无控制字符。任一字段校验失败返回 400 `{"error":"<字段级中文原因>"}` 且不写库；成功返回更新后的 `{"user":{user,identities,consent}}`，并以 `audit_logs` 记录 `update_profile` 的变更字段名（不含字段值）。
+
+`/account` 交互口径：查看态展示头像/昵称/简介/联系方式，空字段给出补充入口；编辑态支持头像上传与移除、字段实时校验、保存与取消（存在未保存修改时需确认），保存成功/失败在卡片内分别以 `role=status`/`role=alert` 反馈；读取中显示骨架卡片，读取失败与未登录分开呈现且失败可原地重试。头像以 data URL 存入 `users.avatar`；`bio`/`contact`/`contact_type` 由 `createUserDb` 对旧库自动补列。仍为账户原型：未接入对象存储、头像内容审核与跨设备同步。
 
 ## 6. 浏览器端美甲纹理识别接口
 

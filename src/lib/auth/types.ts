@@ -11,6 +11,12 @@ export interface UserRow {
   nickname: string;
   avatar: string | null;
   age_group: string | null;
+  /** 个人简介（≤120 字，可为空） */
+  bio: string | null;
+  /** 公开联系方式（展示在个人主页，不参与登录） */
+  contact: string | null;
+  /** 联系方式类型：wechat / email / phone / other；无联系方式时为 null */
+  contact_type: string | null;
   status: UserStatus;
   agreement_version: string | null;
   created_at: number;
@@ -90,6 +96,9 @@ export interface MeResult {
     email: string | null;
     nickname: string;
     avatar: string | null;
+    bio: string | null;
+    contact: string | null;
+    contactType: string | null;
     ageGroup: string | null;
     status: UserStatus;
     createdAt: number;
