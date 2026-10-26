@@ -354,7 +354,7 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.2.153 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
+| [技术白皮书](docs/technical-whitepaper.md) v1.2.157 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
 | [实验历史归档](docs/archive/whitepaper-experiment-history.md) | 原白皮书§12.9—§12.351实验叙事（343节）及§3/§11.1历史快照，2026-10-12归档，证据链完整保留 |
 | [历史变更记录归档](docs/archive/whitepaper-changelog-archive.md) | 原白皮书§13逐条变更表（v1.0.0—v1.1.995），2026-10-12归档 |
 | [数据集契约历史归档](docs/archive/whitepaper-dataset-contract-history.md) | 原白皮书§8.1历史执行叙事（标注返修/审核批次流水、困难负样本批次）与§8.4/§9.7/§9.8/§9.9/§11.2复核原文，2026-10-12归档 |

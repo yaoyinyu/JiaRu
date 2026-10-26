@@ -137,7 +137,6 @@ test("release across a day boundary does not resurrect yesterday's counts", () =
 test("invalid env values fall back to defaults", () => {
   const { guard } = makeGuard({
     AI_QUOTA_GUEST_DAILY: "not-a-number",
-    AI_QUOTA_USER_DAILY: "0",
     AI_QUOTA_GLOBAL_DAILY: "-5",
     AI_QUOTA_GLOBAL_CONCURRENCY: "abc",
   });
@@ -147,6 +146,45 @@ test("invalid env values fall back to defaults", () => {
     guard.commit(r);
   }
   assert.equal(reserveFail(guard, "guest:a1").ok, false);
+  // 负数：次数上限类同样视为非法并回退（只有 0 是合法关闭语义）
+  const negative = makeGuard({ AI_QUOTA_USER_DAILY: "-1" }).guard;
+  const r = reserveOk(negative, "user:u1", true);
+  negative.commit(r);
+});
+
+test("次数上限支持 0：可显式关闭游客生成（安全审计 M5）", () => {
+  const { guard } = makeGuard({ AI_QUOTA_GUEST_DAILY: "0" });
+  const denied = reserveFail(guard, "guest:a1");
+  assert.equal(denied.status, 429);
+  assert.match(denied.error, /游客生成已关闭/);
+  assert.doesNotMatch(denied.error, /0 次\/天/, "关闭态不应复用「已用完」文案");
+  // 关闭游客通道不应影响已登录用户（userDaily 仍为默认 20）
+  const userReserve = reserveOk(guard, "user:u1", true);
+  guard.commit(userReserve);
+});
+
+test("次数上限支持 0：可显式关闭登录用户生成与全局预算", () => {
+  const userClosed = makeGuard({ AI_QUOTA_USER_DAILY: "0" }).guard;
+  assert.match(reserveFail(userClosed, "user:u1", true).error, /当前账号的生成功能已关闭/);
+  // 登录通道关闭不影响游客默认额度
+  const guestOk = reserveOk(userClosed, "guest:a1");
+  userClosed.commit(guestOk);
+
+  const globalClosed = makeGuard({ AI_QUOTA_GLOBAL_DAILY: "0" }).guard;
+  assert.match(reserveFail(globalClosed, "user:u1", true).error, /服务端生成已暂停/);
+  assert.match(reserveFail(globalClosed, "guest:a1").error, /服务端生成已暂停/);
+});
+
+test("并发上限不接受 0：0 视为非法并回退默认", () => {
+  // 并发 0 会让所有请求无恢复路径地被拒，因此保持 ≥1 约束
+  const { guard } = makeGuard({ AI_QUOTA_GLOBAL_CONCURRENCY: "0", AI_QUOTA_GLOBAL_DAILY: "100" });
+  const held: Reservation[] = [];
+  for (let i = 0; i < AI_QUOTA_DEFAULTS.globalConcurrency; i++) {
+    held.push(reserveOk(guard, `guest:c${i}`));
+  }
+  assert.match(reserveFail(guard, "guest:overflow").error, /并发上限/);
+  held.forEach((r) => guard.commit(r));
+  reserveOk(guard, "guest:after-release");
 });
 
 test("guestIdentityFromHeaders 默认不采信伪造代理头", () => {

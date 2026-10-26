@@ -1,7 +1,7 @@
 # 手部美甲纹理抠图模型端侧实施技术规范
 
-版本：v1.11
-日期：2026-10-21
+版本：v1.12
+日期：2026-10-25
 状态：当前研发与端侧验收合同；Stage A+原尺寸Stage B研发中，PRODUCT HOLD，生产not-deployed
 适用项目：JiaRu 美甲参考图纹理提取与 AR 试戴
 
@@ -87,7 +87,7 @@ MVP 不包含：
 
 1. 生产manifest仍not-deployed，没有批准的生产ONNX或releaseIdentity；当前Stage B不能算已接入正式自动队列。
 2. 训练域严格完整mask和光照鲁棒性仍按当前固定门裁决，最新实证见白皮书§8.9；局部容量或几何覆盖不等于新来源质量。
-3. 独立非零控制及真实训练权重的Stage B九尺寸合成完整图均已通过CPU ORT/WASM/WebGPU各9/9、两头绝对1e-4、零解码差与presence门。真实训练154输入保真、Stage A+B产品链及正式来源质量仍待验，不能把合成接口通过当发布通过；当前证据见白皮书§8.9。
+3. 独立非零控制及真实训练权重的Stage B九尺寸合成完整图均已通过CPU ORT/WASM/WebGPU各9/9、两头绝对1e-4、零解码差与presence门；真实训练154输入随后仅完成严格CUDA/CPU ORT各154，140例通过、14例mask数值超门，`cpuFullGatePassed=false`，WASM/WebGPU未执行。原生Resize实际算子控制已完成32调用/32RAW，12输入后端不同、4个精确2倍轴一致，CUDA符合融合逆乘、CPU ORT符合正比例除法；当前须实现四Resize主机坐标显式化完整图并先过字节逆变换、九尺寸覆盖、逆映射和内存门，再执行18次CPU控制。真实完整图保真、Stage A+B产品链及正式来源质量仍未闭合。当前证据见白皮书§8.9。
 4. 新来源隔离val≥30、冻结后另建新正负发布留出各≥100及角标三变体/捷径消融尚缺；旧val/test/holdout及父血缘继续保护，不回训。
 5. 同身份多模型manifest/Worker组合、端到端P95、完整流程峰值内存与稳定性、四类真机各≥20、Beta≥100和两个不同批准权重回滚未闭合。全部当前门ok=true、decision=complete之前保持HOLD。
 

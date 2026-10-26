@@ -1,8 +1,10 @@
-# 2026-10-21 当前执行：Stage B合成部署门闭合，下一真实训练154保真
+# 2026-10-25 当前执行：Resize坐标控制支持，下一显式坐标完整图18次CPU控制
 
-Stage B真实训练权重的九尺寸合成完整图已通过CPU ORT/WASM/WebGPU各9/9：两头最大差6.10352e-5/6.53267e-5/6.72340e-5，解码零像素差及presence一致；完整300状态/原权重不变，见`model/reviews/cycle016-presence-stable-learned-v1/report.json`。当前仅合成接口资格，下一真实训练154保真合同已冻结要求且预算0，显式排除已消费保留8；未通过来源隔离质量、Stage A+B产品链或正式发布，PRODUCT HOLD。
+Stage B真实训练权重的九尺寸合成完整图已通过CPU ORT/WASM/WebGPU各9/9；真实训练域154随后严格CUDA/CPU ORT各154次，140例通过、14例仅mask数值超1e-4，最大差2.40326e-4，`cpuFullGatePassed=false`，WASM/WebGPU未执行。原616输入/1232RAW合同保留，实际消费308输入/616RAW；保留8未读取、300状态未变。
 
-唯一活动：按cycle016-learned-train154-deployment-v1/next-execution-requirements.json冻结并执行真实训练域Stage B部署保真：154训练身份（149正/5同候选拒识）与保留8显式分开，先复验300状态、原输入pack/坐标和资源门，再执行新严格CUDA/CPU ORT各154；CPU完整通过后才执行WASM/WebGPU各154。保留616输入/1232RAW完整分母及异常终态；原1e-4、解码零像素和presence门不变，不作为未见质量或整条链性能证据。
+原生Resize实际算子控制已按32调用/32RAW闭合：12个输入CUDA/CPU输出不同、4个精确2倍轴一致，最大差4.57763671875e-05；CUDA实际输出符合逆比例融合预测，CPU ORT符合正比例除法，学得完整图根因仍未证明。证据`cycle016-native-resize-v1/report.json`及`closeout.json`。
+
+唯一活动：按`cycle016-native-coordinate-explicit-v1/next-execution-requirements.json`冻结并实现四Resize主机坐标显式化完整图，先过权重不变、逐字节逆变换、九尺寸坐标覆盖/逆映射和256MiB资源门；仅门通过后执行独立非零控制与学得候选各9次CPU ORT，共18次并复用既有各9份严格CUDA参考。CUDA/浏览器/154新预算0，不读项目图片；CPU通过前不启动浏览器控制，PRODUCT HOLD。
 
 模型调整13次、微调6次，下一第20次集中展示。下方保留历史审核标记与失败账本，当前事实只读本页顶部、Goal及白皮书。
 

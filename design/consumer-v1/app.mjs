@@ -240,13 +240,6 @@ function rollNumber(strong, from, to) {
     );
   });
 }
-/* 局部重渲染会移除原按钮（含其中的水波）：在新元件上按原坐标补一次，保持反馈完整 */
-function respawnRipple(control, clientX, clientY, detail) {
-  const target = typeof control === "string" ? $(control) : control;
-  if (!target) return;
-  if (detail) spawnRipple(target, clientX, clientY);
-  else spawnRipple(target);
-}
 function upgradeStats() {
   document.querySelectorAll(".stats .stat-value").forEach((strong) => {
     const key = strong.dataset.stat;

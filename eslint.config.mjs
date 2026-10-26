@@ -29,6 +29,13 @@ const eslintConfig = defineConfig([
     "scripts/**",
     "public/vendor/**",
     "辅助材料/**",
+    // 本地机器产物与变更前备份：均由 .gitignore 隔离、从不入库，但默认 `eslint`
+    // 无参数运行时会扫描整个工作区。此前它们贡献了 2654 条问题中的绝大多数
+    // （.backup-consumer-*/restored-app/.next 下的构建产物与 vendor bundle），
+    // 既让 `npm run lint` 长期退出码 1、无法作为 CI 门禁，也把 src 下唯一一条
+    // 真实警告淹没在噪音里。这里与 .gitignore 边界对齐。
+    "output/**",
+    ".backup-consumer-*/**",
   ]),
 ]);
 

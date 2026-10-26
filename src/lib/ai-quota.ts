@@ -24,10 +24,14 @@ import { resolveClientIp } from "./rate-limit.ts";
  *   重启清零。多实例共享与持久化台账属后续增强，不虚称分布式配额。
  *
  * 环境变量（均可选，非法值回退默认）：
- * - AI_QUOTA_GUEST_DAILY       游客单日生成上限（默认 5）
- * - AI_QUOTA_USER_DAILY        登录用户单日生成上限（默认 20）
- * - AI_QUOTA_GLOBAL_DAILY      全局单日生成上限（默认 200，预算熔断）
- * - AI_QUOTA_GLOBAL_CONCURRENCY 全局同时生成任务上限（默认 3）
+ * - AI_QUOTA_GUEST_DAILY       游客单日生成上限（默认 5）；**0 = 关闭游客生成**
+ * - AI_QUOTA_USER_DAILY        登录用户单日生成上限（默认 20）；0 = 关闭登录用户生成
+ * - AI_QUOTA_GLOBAL_DAILY      全局单日生成上限（默认 200，预算熔断）；0 = 全局熔断
+ * - AI_QUOTA_GLOBAL_CONCURRENCY 全局同时生成任务上限（默认 3）；必须 ≥1，0 视为非法
+ *
+ * 三条"次数上限"支持 0 是 2026-09-23 安全审计 M5 的遗留项：审计建议"直接关闭
+ * 游客生成（AI_QUOTA_GUEST_DAILY 无法设 0，需代码支持）"，而旧 `intFromEnv` 把
+ * `parsed < 1` 一律回退默认，运营无法按建议关停匿名付费接口。见 §10。
  */
 
 export type AiEngine = "agnes" | "seedream";
@@ -87,10 +91,18 @@ export const AI_QUOTA_DEFAULTS = {
   globalConcurrency: 3,
 } as const;
 
-function intFromEnv(value: string | undefined, fallback: number): number {
+/**
+ * 读取整数环境变量，非法值回退默认。
+ *
+ * `allowZero` 只对"次数上限"类配额开放：0 表示完全关闭该通道，是合法且必要的
+ * 运营语义（安全审计 M5）。并发上限不属于此类——0 并发会让所有请求被拒且没有
+ * 恢复路径，因此仍要求 ≥1。
+ */
+function intFromEnv(value: string | undefined, fallback: number, allowZero = false): number {
   if (!value) return fallback;
   const parsed = Number.parseInt(value, 10);
-  if (!Number.isFinite(parsed) || parsed < 1) return fallback;
+  if (!Number.isFinite(parsed)) return fallback;
+  if (parsed < (allowZero ? 0 : 1)) return fallback;
   return parsed;
 }
 
@@ -140,9 +152,9 @@ export function createAiQuotaGuard(options: QuotaGuardOptions = {}): AiQuotaGuar
   function limits() {
     const env = envOf();
     return {
-      guestDaily: intFromEnv(env.AI_QUOTA_GUEST_DAILY, AI_QUOTA_DEFAULTS.guestDaily),
-      userDaily: intFromEnv(env.AI_QUOTA_USER_DAILY, AI_QUOTA_DEFAULTS.userDaily),
-      globalDaily: intFromEnv(env.AI_QUOTA_GLOBAL_DAILY, AI_QUOTA_DEFAULTS.globalDaily),
+      guestDaily: intFromEnv(env.AI_QUOTA_GUEST_DAILY, AI_QUOTA_DEFAULTS.guestDaily, true),
+      userDaily: intFromEnv(env.AI_QUOTA_USER_DAILY, AI_QUOTA_DEFAULTS.userDaily, true),
+      globalDaily: intFromEnv(env.AI_QUOTA_GLOBAL_DAILY, AI_QUOTA_DEFAULTS.globalDaily, true),
       globalConcurrency: intFromEnv(
         env.AI_QUOTA_GLOBAL_CONCURRENCY,
         AI_QUOTA_DEFAULTS.globalConcurrency
@@ -171,7 +183,9 @@ export function createAiQuotaGuard(options: QuotaGuardOptions = {}): AiQuotaGuar
       // 1. 全局预算熔断（今日供应商请求量上限）
       if (globalCount >= globalDaily) {
         return deny(
-          `今日服务端生成额度已用完（全局上限 ${globalDaily} 次），请明天再试`,
+          globalDaily === 0
+            ? "服务端生成已暂停，请稍后再试"
+            : `今日服务端生成额度已用完（全局上限 ${globalDaily} 次），请明天再试`,
           secondsUntilNextDay(now())
         );
       }
@@ -191,7 +205,11 @@ export function createAiQuotaGuard(options: QuotaGuardOptions = {}): AiQuotaGuar
       const used = identityCounts.get(input.identity) ?? 0;
       if (used >= identityLimit) {
         return deny(
-          `今日生成次数已用完（${identityLimit} 次/天），请明天再试或登录后重试`,
+          identityLimit === 0
+            ? input.authenticated
+              ? "当前账号的生成功能已关闭，请联系管理员"
+              : "游客生成已关闭，请登录后重试"
+            : `今日生成次数已用完（${identityLimit} 次/天），请明天再试或登录后重试`,
           secondsUntilNextDay(now())
         );
       }

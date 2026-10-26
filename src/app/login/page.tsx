@@ -160,6 +160,10 @@ function LoginForm() {
   };
 
   const handleWechatLogin = () => {
+    // 这里必须整页导航，不能用 useRouter().push()：目标是 Route Handler
+    // （服务端直接 302 到微信授权页），客户端路由跳转会去取 RSC 负载而不是
+    // 跟随重定向。故定向豁免该规则，行为保持不变。
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
     window.location.href = "/api/auth/oauth/wechat";
   };
 
