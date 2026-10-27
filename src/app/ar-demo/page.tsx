@@ -14,21 +14,21 @@ export default function ArDemoPage() {
       />
 
       <GlassPanel className="overflow-hidden p-4 sm:p-5">
-        <div className="mb-4 flex flex-col gap-3 rounded-3xl border border-[#e8a0bf]/15 bg-white/60 p-4 text-sm leading-6 text-gray-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mb-4 flex flex-col gap-3 rounded-3xl border border-[#ac5145]/15 bg-[var(--surface)] p-4 text-sm leading-6 text-gray-500 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="font-semibold text-[#4a4a4a]">测试服务地址：{demoUrl}</p>
+            <p className="font-semibold text-[#292a27]">测试服务地址：{demoUrl}</p>
             <p>需要先保持 Python demo 服务运行在 8080 端口。点击 iframe 内的“启动摄像头”后，浏览器权限弹窗请选择允许。</p>
           </div>
           <Link
             href={demoUrl}
             target="_blank"
-            className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#d4749d] px-5 py-2.5 text-sm font-semibold text-white shadow-[0_8px_20px_rgba(212,116,157,0.22)] transition hover:-translate-y-0.5"
+            className="inline-flex shrink-0 items-center justify-center rounded-full bg-[#ac5145] px-5 py-2.5 text-sm font-semibold text-white shadow-[var(--neu-out-sm)] transition hover:-translate-y-0.5"
           >
             新窗口打开
           </Link>
         </div>
 
-        <div className="overflow-hidden rounded-[28px] border border-white/70 bg-black shadow-[0_18px_60px_rgba(0,0,0,0.16)]">
+        <div className="overflow-hidden rounded-[28px] border border-[var(--line)] bg-black shadow-[var(--neu-out-md)]">
           <iframe
             title="JiaRu Nail AR 模型 Demo"
             src={demoUrl}

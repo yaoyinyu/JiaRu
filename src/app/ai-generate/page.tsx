@@ -158,10 +158,10 @@ function AiGeneratePageBody({
 
   /** 尺寸/比例选择 chip 的样式。 */
   const chipClass = (active: boolean) =>
-    `rounded-full border px-3 py-1.5 text-xs transition ${
+    `inline-flex min-h-11 items-center rounded-full border px-3 py-1.5 text-xs transition ${
       active
-        ? "border-pink-300 bg-pink-100 text-[#A4506F]"
-        : "border-pink-100 bg-pink-50/65 text-[#B96A8C] hover:bg-white"
+        ? "border-pink-300 bg-pink-100 text-[#ac5145]"
+        : "border-pink-100 bg-pink-50/65 text-[#a34b3f] hover:bg-[var(--surface)]"
     }`;
 
   // Track the last shown prompt index for each style label to avoid immediate repeats.
@@ -326,39 +326,39 @@ function AiGeneratePageBody({
 
   return (
     <AppShell shiftUp eyebrow="AI Nail Atelier" title="把一句灵感，变成一套美甲设计" description="描述你脑海里的颜色、材质与情绪，AI 会为你生成独一无二的视觉参考。">
-      <div className="fade-in-up fade-in-up-slow grid overflow-hidden rounded-[30px] border border-white/80 bg-white/58 shadow-[0_28px_80px_rgba(116,73,92,.11)] backdrop-blur-2xl lg:grid-cols-[.9fr_1.1fr]">
+      <div className="fade-in-up fade-in-up-slow grid overflow-hidden rounded-[30px] bg-[var(--surface)] shadow-[var(--neu-out-md)]  lg:grid-cols-[.9fr_1.1fr]">
         <section className="p-5 sm:p-8">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#CF6F99]">Creative brief</p>
-            <span className="text-[11px] text-[#B1A7AC]">{prompt.length}/{promptLimit}</span>
+            <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#ac5145]">Creative brief</p>
+            <span className="text-[11px] text-[#8a8b81]">{prompt.length}/{promptLimit}</span>
           </div>
-          <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节……" maxLength={promptLimit} className="mt-4 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-white/75 p-4 text-sm leading-7 text-[#544C50] outline-none transition placeholder:text-[#BEB4B9] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
-          <p className="mt-5 text-xs font-medium text-[#7F767B]">参考图（可选）</p>
+          <textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节……" maxLength={promptLimit} className="mt-4 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-[var(--surface)] p-4 text-sm leading-7 text-[#292a27] outline-none transition placeholder:text-[#8a8b81] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
+          <p className="mt-5 text-xs font-medium text-[#75766c]">参考图（可选）</p>
           {referenceImage ? (
-            <div className="mt-3 flex items-center gap-3 rounded-2xl border border-pink-100/70 bg-white/75 p-3">
+            <div className="mt-3 flex items-center gap-3 rounded-2xl border border-pink-100/70 bg-[var(--surface)] p-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={referenceImage} alt="手部参考图" className="h-16 w-16 rounded-xl object-cover" />
-              <div className="flex-1 text-xs text-[#8B8287]">
-                <p className="font-medium text-[#5A5156]">{refSourceName ? `已带入灵感「${refSourceName}」` : "已添加参考图"}</p>
+              <div className="flex-1 text-xs text-[#8a8b81]">
+                <p className="font-medium text-[#292a27]">{refSourceName ? `已带入灵感「${refSourceName}」` : "已添加参考图"}</p>
                 <p className="mt-1">生成结果将直接呈现在图中手部指甲上</p>
               </div>
-              <button onClick={removeReferenceImage} className="rounded-full border border-pink-100 bg-pink-50/65 px-3 py-1.5 text-xs text-[#B96A8C] transition hover:bg-white">移除</button>
+              <button onClick={removeReferenceImage} className="rounded-full border border-pink-100 bg-pink-50/65 px-3 py-1.5 text-xs text-[#a34b3f] transition hover:bg-[var(--surface)]">移除</button>
             </div>
           ) : (
-            <label className="mt-3 flex h-20 w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-pink-200 bg-white/45 text-xs text-[#B98AA4] transition hover:border-pink-300 hover:bg-white/70">
+            <label className="mt-3 flex h-20 w-full cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed border-pink-200 bg-[var(--surface)] text-xs text-[#8a8b81] transition hover:border-pink-300 hover:bg-[var(--surface)]">
               <Icon name="camera" className="h-6 w-6" />
               点击上传手部照片
               <input type="file" accept="image/*" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) handleReferenceFile(file); event.target.value = ""; }} />
             </label>
           )}
-          {referenceError ? <p className="mt-2 text-[11px] text-red-400">{referenceError}</p> : <p className="mt-2 text-[11px] text-[#AAA1A6]">上传的图片会发送给 AI 服务，仅用于本次生成；不上传则按文字直接生成</p>}
-          <p className="mt-5 text-xs font-medium text-[#7F767B]">从一个风格开始</p>
+          {referenceError ? <p className="mt-2 text-[11px] text-red-400">{referenceError}</p> : <p className="mt-2 text-[11px] text-[#75766c]">上传的图片会发送给 AI 服务，仅用于本次生成；不上传则按文字直接生成</p>}
+          <p className="mt-5 text-xs font-medium text-[#75766c]">从一个风格开始</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            {AI_STYLE_PROMPTS.map((group) => <button key={group.label} onClick={() => handleStyleClick(group.label)} className="rounded-full border border-pink-100 bg-pink-50/65 px-3 py-2 text-xs text-[#B96A8C] transition hover:-translate-y-0.5 hover:bg-white hover:shadow-sm">{group.label}</button>)}
+            {AI_STYLE_PROMPTS.map((group) => <button key={group.label} onClick={() => handleStyleClick(group.label)} className="inline-flex min-h-11 items-center rounded-full border border-pink-100 bg-pink-50/65 px-3 py-2 text-xs text-[#a34b3f] transition hover:-translate-y-0.5 hover:bg-[var(--surface)] hover:shadow-sm">{group.label}</button>)}
           </div>
           <div className="mt-5 space-y-4">
             <div>
-              <p className="text-xs font-medium text-[#7F767B]">生成引擎</p>
+              <p className="text-xs font-medium text-[#75766c]">生成引擎</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {ENGINE_OPTIONS.map((opt) => (
                   <button key={opt.value} type="button" onClick={() => handleEngineClick(opt.value)} className={chipClass(engine === opt.value)}>{opt.label}</button>
@@ -366,7 +366,7 @@ function AiGeneratePageBody({
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-[#7F767B]">画面比例</p>
+              <p className="text-xs font-medium text-[#75766c]">画面比例</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {AI_IMAGE_RATIOS.map((r) => (
                   <button key={r} type="button" onClick={() => setRatio(r)} className={chipClass(ratio === r)}>{r}</button>
@@ -374,31 +374,31 @@ function AiGeneratePageBody({
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-[#7F767B]">输出尺寸</p>
+              <p className="text-xs font-medium text-[#75766c]">输出尺寸</p>
               <div className="mt-2 flex flex-wrap gap-1.5">
                 {engineSizeOptions(engine).map((s) => (
                   <button key={s} type="button" onClick={() => setSize(s)} className={chipClass(size === s)}>{s}</button>
                 ))}
               </div>
             </div>
-            <p className="text-[11px] text-[#AAA1A6]">输出尺寸：{resolvedDimension.replace("x", " × ")}（{size} · {ratio}）</p>
+            <p className="text-[11px] text-[#75766c]">输出尺寸：{resolvedDimension.replace("x", " × ")}（{size} · {ratio}）</p>
           </div>
-          <button onClick={handleGenerate} disabled={status === "loading" || !prompt.trim()} className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#C96591] text-sm font-semibold text-white shadow-[0_12px_28px_rgba(207,111,153,.25)] transition hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(207,111,153,.32)] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40">
+          <button onClick={handleGenerate} disabled={status === "loading" || !prompt.trim()} className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-[var(--coral)] text-sm font-semibold text-white shadow-[var(--neu-out-sm)] transition hover:-translate-y-0.5 hover:shadow-[var(--neu-out-md)] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40">
             {status === "loading" ? <span key="btn-loading" className="fade-in-up inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />正在生成设计</span> : <span key="btn-idle" className="fade-in-up inline-flex items-center gap-2">生成我的美甲设计 <span aria-hidden="true"><Icon name="sparkles" className="h-4 w-4" /></span></span>}
           </button>
-          <p className="mt-4 text-center text-[11px] text-[#AAA1A6]">文字描述始终发送给 AI 服务；仅当你上传参考图时，图片也会发送并只用于本次生成；「用户改进计划」可在隐私页管理</p>
+          <p className="mt-4 text-center text-[11px] text-[#75766c]">文字描述始终发送给 AI 服务；仅当你上传参考图时，图片也会发送并只用于本次生成；「用户改进计划」可在隐私页管理</p>
         </section>
-        <section className="relative flex min-h-[390px] items-center justify-center overflow-hidden border-t border-white/80 bg-[radial-gradient(circle_at_35%_25%,rgba(238,176,204,.55),transparent_40%),radial-gradient(circle_at_75%_75%,rgba(255,213,146,.48),transparent_42%),linear-gradient(145deg,#fff8fb,#faf6ff)] p-5 lg:border-l lg:border-t-0 sm:p-8">
+        <section className="relative flex min-h-[390px] items-center justify-center overflow-hidden border-t border-[var(--line)] bg-[var(--paper)] p-5 lg:border-l lg:border-t-0 sm:p-8">
           {status === "success" && imageUrl ? (
             <div key="success" className="fade-in-up w-full">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt="AI 生成的美甲设计" className="mx-auto max-h-[520px] w-full rounded-[22px] object-contain shadow-[0_20px_60px_rgba(80,52,67,.18)]" />
+              <img src={imageUrl} alt="AI 生成的美甲设计" className="mx-auto max-h-[520px] w-full rounded-[22px] object-contain shadow-[var(--neu-out-md)]" />
               <div className="mx-auto mt-4 flex w-fit gap-2">
-                <button onClick={handleSave} className="flex rounded-full bg-white/85 px-5 py-2.5 text-xs font-medium text-[#B95F87] shadow-sm backdrop-blur transition hover:bg-white">保存设计到本地</button>
+                <button onClick={handleSave} className="flex rounded-full bg-[var(--surface)] px-5 py-2.5 text-xs font-medium text-[#a34b3f] shadow-sm transition hover:bg-[var(--surface)]">保存设计到本地</button>
                 <button
                   onClick={handleCollect}
                   disabled={collectState === "saving" || collectState === "saved"}
-                  className="flex items-center gap-1.5 rounded-full bg-[#A583C4]/90 px-5 py-2.5 text-xs font-medium text-white shadow-sm backdrop-blur transition hover:bg-[#A583C4] disabled:cursor-not-allowed disabled:opacity-55"
+                  className="flex items-center gap-1.5 rounded-full bg-[#8a947f]/90 px-5 py-2.5 text-xs font-medium text-white shadow-sm transition hover:bg-[#8a947f] disabled:cursor-not-allowed disabled:opacity-55"
                 >
                   {collectState === "saved" ? (
                     <>已收录到图库</>
@@ -414,23 +414,23 @@ function AiGeneratePageBody({
               )}
             </div>
           ) : status === "error" ? (
-            <div key="error" className="fade-in-up max-w-sm rounded-3xl border border-red-100 bg-white/80 p-6 text-center shadow-lg">
+            <div key="error" className="fade-in-up max-w-sm rounded-3xl border border-red-100 bg-[var(--surface)] p-6 text-center shadow-lg">
               <Icon name="circle" className="h-8 w-8 text-red-400" /><h2 className="mt-3 font-semibold text-red-500">生成没有完成</h2><p className="mt-2 text-xs leading-5 text-red-400">{errorMsg}</p><button onClick={handleGenerate} className="mt-4 text-xs font-medium text-red-500 underline">再试一次</button>
             </div>
           ) : status === "loading" ? (
             <>
               <div className="shimmer-sweep pointer-events-none" />
               <div key="loading" role="status" aria-live="polite" className="fade-in-up text-center">
-                <div className="mx-auto grid h-28 w-28 place-items-center rounded-[32px] border border-white/80 bg-white/45 shadow-[0_18px_50px_rgba(126,77,99,.10)] backdrop-blur-xl"><Icon name="sparkles" className="shimmer-spark h-10 w-10 text-[#CF6F99]" /></div>
-                <h2 className="mt-6 text-lg font-semibold text-[#5A5156]">正在凝聚你的灵感…</h2>
-                <p className="mt-2 text-xs text-[#9D9298]">色彩与材质正在生成，请稍候</p>
+                <div className="mx-auto grid h-28 w-28 place-items-center rounded-[32px] bg-[var(--surface)] shadow-[var(--neu-out-md)] "><Icon name="sparkles" className="shimmer-spark h-10 w-10 text-[#ac5145]" /></div>
+                <h2 className="mt-6 font-[var(--serif)] text-xl font-medium text-[var(--ink)]">正在凝聚你的灵感…</h2>
+                <p className="mt-2 text-xs text-[var(--muted)]">色彩与材质正在生成，请稍候</p>
               </div>
             </>
           ) : (
             <div key="idle" className="fade-in-up text-center">
-              <div className="mx-auto grid h-28 w-28 place-items-center rounded-[32px] border border-white/80 bg-white/45 shadow-[0_18px_50px_rgba(126,77,99,.10)] backdrop-blur-xl"><Icon name="diamond" className="h-10 w-10 text-[#D9A7BC]" /></div>
-              <h2 className="mt-6 text-lg font-semibold text-[#5A5156]">你的设计将在这里出现</h2>
-              <p className="mt-2 text-xs text-[#9D9298]">描述越具体，生成结果越贴近想象</p>
+              <div className="mx-auto grid h-28 w-28 place-items-center rounded-[32px] bg-[var(--surface)] shadow-[var(--neu-out-md)] "><Icon name="diamond" className="h-10 w-10 text-[var(--coral)]" /></div>
+              <h2 className="mt-6 font-[var(--serif)] text-xl font-medium text-[var(--ink)]">你的设计将在这里出现</h2>
+              <p className="mt-2 text-xs text-[var(--muted)]">描述越具体，生成结果越贴近想象</p>
             </div>
           )}
         </section>

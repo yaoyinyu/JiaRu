@@ -20,7 +20,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="zh-CN">
-      <body className="min-h-dvh flex flex-col bg-[#FFF5F7] text-[#4A4A4A]">
+      <body className="min-h-dvh flex flex-col bg-[var(--paper)] text-[var(--ink)]">
         {children}
       </body>
     </html>

@@ -1,137 +1,104 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
-import { AmbientMotion } from "@/components/AmbientMotion";
+import { BottomNav } from "@/components/BottomNav";
+import { Eyebrow, NeuCard, SectionHead } from "@/components/ui/primitives";
+import { Icon } from "@/components/Icon";
+import { GALLERY_IMAGES } from "@/lib/utils";
 import styles from "./page.module.css";
 
-type Feature = {
-  title: string;
-  description: string;
-  href: string;
-  icon: "upload" | "gallery" | "sparkles" | "camera" | "analysis";
-};
-
-const features: Feature[] = [
-  {
-    title: "上传试色",
-    description: "拍张手的照片，选喜欢的颜色涂在指甲上",
-    href: "/editor",
-    icon: "upload",
-  },
-  {
-    title: "灵感图库",
-    description: "浏览精选美甲款式，找到你的心动设计",
-    href: "/gallery",
-    icon: "gallery",
-  },
-  {
-    title: "AI 生成",
-    description: "用文字描述你想要的风格，AI 帮你生成美甲效果",
-    href: "/ai-generate",
-    icon: "sparkles",
-  },
-  {
-    title: "AR 试戴",
-    description: "打开摄像头，美甲实时贴合手指，动一动就能看效果",
-    href: "/ar-tryon",
-    icon: "camera",
-  },
-  {
-    title: "个性化分析",
-    description: "分析手型、肤色与甲面状况，给出甲型与色系建议（本地计算）",
-    href: "/nail-analysis",
-    icon: "analysis",
-  },
-];
-
-function FeatureIcon({ name }: { name: Feature["icon"] }) {
-  if (name === "upload") {
-    return (
-      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-        <rect x="3" y="9" width="22" height="15" rx="3" stroke="currentColor" strokeWidth="2" />
-        <path d="m9 17 3-3 4 5 3-3 3 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-        <circle cx="10" cy="6" r="3" stroke="currentColor" strokeWidth="2" />
-        <path d="M14 6h8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      </svg>
-    );
-  }
-
-  if (name === "gallery") {
-    return (
-      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-        <rect x="3" y="3" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2" />
-        <rect x="16" y="3" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2" />
-        <rect x="3" y="16" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2" />
-        <rect x="16" y="16" width="9" height="9" rx="2" stroke="currentColor" strokeWidth="2" />
-      </svg>
-    );
-  }
-
-  if (name === "sparkles") {
-    return (
-      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-        <path d="m14 3 2.5 7.5L24 13l-7.5 2.5L14 23l-2.5-7.5L4 13l7.5-2.5L14 3Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-        <circle cx="21" cy="20" r="2" stroke="currentColor" strokeWidth="1.5" />
-        <circle cx="7" cy="21" r="1.5" stroke="currentColor" strokeWidth="1.5" />
-      </svg>
-    );
-  }
-
-  if (name === "analysis") {
-    return (
-      <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-        <path d="M5 21V13M11 21V6M17 21v-7M23 21V9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        <path d="M3 24h22" stroke="currentColor" strokeWidth="1.5" opacity=".4" />
-      </svg>
-    );
-  }
-
-  return (
-    <svg viewBox="0 0 28 28" fill="none" aria-hidden="true">
-      <rect x="4" y="8" width="20" height="14" rx="3" stroke="currentColor" strokeWidth="2" />
-      <circle cx="14" cy="15" r="4" stroke="currentColor" strokeWidth="2" />
-      <circle cx="14" cy="15" r="1.5" fill="currentColor" />
-      <path d="M4 12h16" stroke="currentColor" opacity=".3" />
-    </svg>
-  );
-}
-
 export default function Home() {
+  const curated = GALLERY_IMAGES.slice(0, 4);
+
   return (
     <div className={styles.page}>
-      <div className={styles.ambientLayer} aria-hidden="true">
-        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientA}`} />
-        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientB}`} />
-        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientC}`} />
-        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientD}`} />
-        <span data-ambient-blob className={`${styles.ambientBlob} ${styles.ambientE}`} />
-      </div>
-      <div className={styles.frostGlass} aria-hidden="true" />
-      <AmbientMotion />
-
+      <a href="#main-content" className={styles.skipLink}>跳到主要内容</a>
       <Header />
 
-      <main>
+      <main id="main-content" tabIndex={-1} className={styles.main}>
         <section className={styles.hero} aria-labelledby="hero-title">
-          <div className={styles.heroContent}>
-            <p className={styles.badge}>你的随身美甲师</p>
-            <h1 id="hero-title" className={styles.heroTitle}>找到属于你的完美甲色</h1>
-            <p className={styles.heroDescription}>
-              上传照片或开启摄像头，即时预览美甲效果。无需下载，浏览器打开就能用。
-            </p>
+          <div className={styles.heroCopy}>
+            <Eyebrow>The Everyday Muse</Eyebrow>
+            <h1 id="hero-title" className={styles.heroTitle}>
+              把喜欢的自己，
+              <span className={styles.heroAccent}>留在每一次抬手。</span>
+            </h1>
+            <p className={styles.heroLede}>让喜欢，轻轻落在指尖。</p>
+            <div className={styles.heroActions}>
+              <Link href="/ar-tryon" className={styles.primaryAction}>
+                开始试戴
+                <Icon name="arrow-up-right" />
+              </Link>
+              <Link href="/editor" className={styles.ghostAction}>上传照片试色</Link>
+            </div>
           </div>
 
-          <div id="features" className={styles.bentoGrid}>
-            {features.map((feature) => (
-              <Link key={feature.href} href={feature.href} className={styles.card}>
-                <span className={styles.cardIcon}>
-                  <FeatureIcon name={feature.icon} />
-                </span>
-                <span className={styles.cardTitle}>{feature.title}</span>
-                <span className={styles.cardDescription}>{feature.description}</span>
-              </Link>
-            ))}
-          </div>
+          <figure className={styles.heroFigure}>
+            <div className={styles.heroFrame}>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/nail-gallery/hero-hand.jpg"
+                alt="手部美甲示例：五指分别呈现不同质感与色调"
+                width={1200}
+                height={1499}
+                className={styles.heroImage}
+              />
+              <span className={styles.heroVertical} aria-hidden="true">A Muse, Illustrated · AI 灵感</span>
+              <figcaption className={styles.heroCaption}>
+                <span className={styles.captionDot} aria-hidden="true" />
+                A little more you.
+              </figcaption>
+            </div>
+          </figure>
         </section>
+
+        <Link href="/nail-analysis" className={styles.styleCard}>
+          <span className={styles.styleIcon} aria-hidden="true">
+            <Icon name="sparkles" />
+          </span>
+          <span className={styles.styleText}>
+            <strong>找到你的风格</strong>
+            <em>从几个喜欢的词开始。</em>
+          </span>
+          <span className={styles.styleArrow} aria-hidden="true">
+            <svg viewBox="0 0 20 20" fill="none">
+              <path d="M4 10h11M11 5.5 15.5 10 11 14.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </span>
+        </Link>
+
+        <SectionHead
+          eyebrow="Curated for You"
+          title="此刻心动"
+          action={
+            <Link href="/gallery" className={styles.roundAction} aria-label="查看全部灵感款式">
+              <Icon name="bookmark" />
+            </Link>
+          }
+        />
+
+        <Link href="/gallery" className={styles.searchPill}>
+          <Icon name="search" />
+          <span>法式、裸粉、通勤…</span>
+        </Link>
+
+        <ul className={styles.lookGrid}>
+          {curated.map((look) => (
+            <li key={look.id}>
+              <Link href={`/editor?gallery=${look.id}`} className={styles.lookItem}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={look.src} alt={`${look.name}款式示例`} width={1024} height={1024} loading="lazy" className={styles.lookImage} />
+                <span className={styles.lookName}>{look.name}</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+
+        <NeuCard className={styles.boundaryCard}>
+          <p>
+            试戴需摄像头权限与安全连接（HTTPS 或本机地址）；AI 生成需联网。识别结果用于辅助定位，
+            不作为正式纹理识别能力的承诺。图片默认不离开本机。
+          </p>
+        </NeuCard>
       </main>
 
       <footer id="about" className={styles.footer}>
@@ -160,6 +127,8 @@ export default function Home() {
           <span>数据默认本地处理，改进计划可随时关闭</span>
         </div>
       </footer>
+
+      <BottomNav />
     </div>
   );
 }

@@ -1205,7 +1205,7 @@ export function ArView({
 
   return (
     <div
-      className="relative mx-auto w-full overflow-hidden rounded-[24px] bg-black shadow-[0_24px_70px_rgba(24,18,21,.28)]"
+      className="relative mx-auto w-full overflow-hidden rounded-[24px] bg-black shadow-[var(--neu-out-md)]"
       style={{ aspectRatio: frameAspectRatio }}
     >
       <video
@@ -1232,7 +1232,7 @@ export function ArView({
             ref={startBtnRef}
             type="button"
             onClick={handleStartCamera}
-            className="px-8 py-4 bg-gradient-to-r from-pink-400 to-rose-500 rounded-full text-lg font-bold shadow-lg active:scale-95 transition-transform"
+            className="px-8 py-4 bg-[var(--coral)] rounded-full text-lg font-bold shadow-lg active:scale-95 transition-transform"
             style={{ touchAction: "manipulation", minHeight: "60px" }}
           >
             <span className="inline-flex items-center gap-2"><Icon name="camera" className="h-5 w-5" />开启摄像头</span>
@@ -1285,14 +1285,14 @@ export function ArView({
               <button
                 type="button"
                 onClick={resetCameraStart}
-                className="rounded-full bg-white px-4 py-2 text-xs font-semibold text-[#d4749d] shadow-sm active:scale-95"
+                className="rounded-full bg-[var(--surface)] px-4 py-2 text-xs font-semibold text-[#ac5145] shadow-sm active:scale-95"
               >
                 我已允许，重新尝试
               </button>
             </div>
           )}
           <div className="mt-4 w-32 h-1 bg-white/20 rounded-full overflow-hidden">
-            <div className="h-full w-3/5 bg-[#E8A0BF] rounded-full animate-pulse" />
+            <div className="h-full w-3/5 bg-[#ac5145] rounded-full animate-pulse" />
           </div>
         </div>
       )}
@@ -1309,7 +1309,7 @@ export function ArView({
                 return next;
               });
             }}
-            className={`px-2.5 py-1 text-[10px] rounded-full backdrop-blur-sm border transition-all
+            className={`px-2.5 py-1 text-[10px] rounded-full border transition-all
               ${handFlip
                 ? "bg-pink-500/60 text-white border-pink-400/60 shadow-sm shadow-pink-500/20"
                 : "bg-black/40 text-white/60 border-white/20 hover:bg-black/50"
@@ -1327,7 +1327,7 @@ export function ArView({
             <>
               {/* 朝向 + 左右手 */}
               <span
-                className={`inline-block text-xs px-3 py-1 rounded-full backdrop-blur-sm ${
+                className={`inline-block text-xs px-3 py-1 rounded-full ${
                   orientationPresentation.tone === "dorsum"
                     ? "text-green-300 bg-green-900/40"
                     : orientationPresentation.tone === "palm"
@@ -1345,7 +1345,7 @@ export function ArView({
                 {["拇","食","中","无","小"].map((name, i) => (
                   <span
                     key={i}
-                    className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full backdrop-blur-sm ${
+                    className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full ${
                       fingerVisible[i]
                         ? "text-green-300 bg-green-900/40"
                         : "text-gray-500 bg-gray-800/30"
@@ -1360,7 +1360,7 @@ export function ArView({
               </div>
             </>
           )}
-          <span className="inline-block text-xs text-white/70 bg-black/30 px-3 py-1 rounded-full backdrop-blur-sm">
+          <span className="inline-block text-xs text-white/70 bg-black/30 px-3 py-1 rounded-full ">
             {handCnt > 0
               ? "检测到 " + handCnt + " 只手"
               : handCnt === 0

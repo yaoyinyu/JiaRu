@@ -11,7 +11,7 @@
  * 修改本模块不得影响 Agnes 链路。
  */
 
-import { AI_IMAGE_SCENE_SUFFIX } from "./ai-hand-anatomy-prompt.ts";
+import { AI_IMAGE_SCENE_SUFFIX, extractNailDesign } from "./ai-hand-anatomy-prompt.ts";
 
 /** Seedream 文生图系统提示词（用户不可见，前置注入）。 */
 export const SEEDREAM_T2I_SYSTEM_PROMPT =
@@ -23,7 +23,8 @@ export const SEEDREAM_T2I_SYSTEM_PROMPT =
 export const SEEDREAM_I2I_SYSTEM_PROMPT =
   "以上传参考图为唯一基准：保持手部数量、五指结构、姿势、肤色、服装与背景完全不变，" +
   "仅在参考图中可见的指甲上绘制所描述的美甲设计；" +
-  "禁止改动指甲以外的任何内容，禁止增删指甲或改变手势。以下内容为美甲设计描述：";
+  "禁止改动指甲以外的任何内容，禁止增删指甲或改变手势；" +
+  "描述中的场景、道具、光线与美肤语句一律忽略，只取指甲设计。以下内容为美甲设计描述：";
 
 /**
  * 组装 Seedream 文生图完整提示词：
@@ -34,9 +35,18 @@ export function assembleSeedreamPrompt(userPrompt: string): string {
 }
 
 /**
+ * Seedream 图生图专用后缀（不可复用 `AI_IMAGE_SCENE_SUFFIX`）。
+ *
+ * `AI_IMAGE_SCENE_SUFFIX` 含 "close-up hand photo, beautiful, high detail"，
+ * 在图生图里会诱导模型重新构图并整体美化，导致背景、光线与皮肤被重绘。
+ */
+export const SEEDREAM_EDIT_SUFFIX =
+  "仅在参考图原有指甲上上色，构图、画幅、背景、道具、光线、色温、景深与肤质保持原样，禁止重绘与美化。";
+
+/**
  * 组装 Seedream 图生图完整提示词：
- * 精简图生图约束 → 用户提示词 → 美甲场景后缀。
+ * 精简图生图约束 → 用户提示词 → 图生图专用后缀。
  */
 export function assembleSeedreamEditPrompt(userPrompt: string): string {
-  return `${SEEDREAM_I2I_SYSTEM_PROMPT}${userPrompt}, ${AI_IMAGE_SCENE_SUFFIX}`;
+  return `${SEEDREAM_I2I_SYSTEM_PROMPT}${extractNailDesign(userPrompt)}, ${SEEDREAM_EDIT_SUFFIX}`;
 }

@@ -88,8 +88,8 @@ export function GalleryInspirationCard({
 
   const swatch = (
     <span
-      className="h-9 w-9 shrink-0 rounded-full border-2 border-white shadow-[0_3px_12px_rgba(0,0,0,.12)]"
-      style={{ backgroundColor: preset ? preset.color : "#EEE4E9" }}
+      className="h-9 w-9 shrink-0 rounded-full border-2 border-white shadow-[var(--neu-out-sm)]"
+      style={{ backgroundColor: preset ? preset.color : "#f0e2db" }}
       title={preset ? `灵感色：${preset.name}` : "正在提取灵感色"}
     />
   );
@@ -99,34 +99,34 @@ export function GalleryInspirationCard({
       <button
         type="button"
         onClick={() => preset && onApplyPreset?.(preset)}
-        className="flex w-full items-center gap-3 rounded-2xl border border-pink-100/70 bg-white/70 p-3 text-left transition hover:border-pink-200"
+        className="flex w-full items-center gap-3 rounded-2xl border border-pink-100/70 bg-[var(--surface)] p-3 text-left transition hover:border-pink-200"
         title={preset ? `点击把「${preset.name}」涂到当前手指` : undefined}
       >
-        <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-white/80">
+        <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-[var(--line)]">
           <Image src={src} alt={name} width={44} height={44} className="h-full w-full object-cover" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[10px] uppercase tracking-[.14em] text-[#CF6F99]">灵感参考</span>
-          <span className="block truncate text-sm font-medium text-[#554D51]">{name}</span>
-          <span className="mt-0.5 block text-[10px] text-[#A49A9F]">
+          <span className="block text-[10px] uppercase tracking-[.14em] text-[#ac5145]">灵感参考</span>
+          <span className="block truncate text-sm font-medium text-[#292a27]">{name}</span>
+          <span className="mt-0.5 block text-[10px] text-[#75766c]">
             {preset ? `推荐色：${preset.name}` : "正在提取灵感色…"}
           </span>
         </span>
         {swatch}
-        <Icon name="arrow-up-right" className="h-4 w-4 shrink-0 text-[#C96690]" />
+        <Icon name="arrow-up-right" className="h-4 w-4 shrink-0 text-[#ac5145]" />
       </button>
     );
   }
 
   return (
-    <div className="flex items-center gap-4 rounded-[24px] border border-white/80 bg-white/62 p-4 shadow-[0_18px_48px_rgba(116,73,92,.08)] backdrop-blur-2xl sm:p-5">
-      <span className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-white/80 sm:h-24 sm:w-24">
+    <div className="flex items-center gap-4 rounded-[24px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)]  sm:p-5">
+      <span className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-[var(--line)] sm:h-24 sm:w-24">
         <Image src={src} alt={name} width={96} height={96} className="h-full w-full object-cover" priority />
       </span>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-[#CF6F99]">灵感款式</p>
-        <h2 className="mt-1 text-lg font-semibold text-[#4A4447]">{name}</h2>
-        <p className="mt-1.5 text-xs leading-5 text-[#90878C]">
+        <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-[#ac5145]">灵感款式</p>
+        <h2 className="mt-1 text-lg font-semibold text-[#292a27]">{name}</h2>
+        <p className="mt-1.5 text-xs leading-5 text-[#8a8b81]">
           {preset
             ? <>已为你预选相近的预设色「{preset.name}」，上传手部照片后自动作为初始甲色。</>
             : "上传一张手部照片，以此为灵感开始试色。"}
@@ -134,7 +134,7 @@ export function GalleryInspirationCard({
       </div>
       <div className="hidden shrink-0 flex-col items-center gap-1.5 sm:flex">
         {swatch}
-        <span className="text-[10px] text-[#A49A9F]">{preset ? preset.name : "提取中"}</span>
+        <span className="text-[10px] text-[#75766c]">{preset ? preset.name : "提取中"}</span>
       </div>
     </div>
   );

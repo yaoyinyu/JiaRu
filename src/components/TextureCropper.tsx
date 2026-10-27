@@ -17,7 +17,7 @@ interface Rect {
 }
 
 const OVERLAY_ALPHA = 0.55;
-const BORDER_COLOR = "#E8A0BF";
+const BORDER_COLOR = "#ac5145";
 const BORDER_WIDTH = 2;
 // MIN_SELECTION_PX 预留（未使用）
 // const MIN_SELECTION_PX = 30;
@@ -303,7 +303,7 @@ export default function TextureCropper({
   if (error && !imgLoaded) {
     return (
       <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 p-4">
-        <div className="bg-white rounded-2xl p-6 text-center max-w-sm">
+        <div className="bg-[var(--surface)] rounded-2xl p-6 text-center max-w-sm">
           <p className="text-red-500 mb-4">{error}</p>
           <button
             onClick={onCancel}

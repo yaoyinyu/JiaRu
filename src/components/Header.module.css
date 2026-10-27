@@ -1,17 +1,125 @@
-.header { position: fixed; z-index: 40; top: 0; right: 0; left: 0; padding: 12px 20px 0; pointer-events: none; }
-.inner { display: flex; width: min(100%, 1280px); height: 60px; padding: 0 10px 0 18px; margin: 0 auto; align-items: center; justify-content: space-between; border: 1px solid rgba(255,255,255,.72); border-radius: 20px; background: rgba(255,255,255,.85); box-shadow: 0 12px 40px rgba(105,76,91,.08), inset 0 1px 0 rgba(255,255,255,.9); pointer-events: auto; }
-.brand { display: flex; align-items: center; gap: 10px; color: #3f3a3d; font-size: 18px; font-weight: 700; letter-spacing: -.02em; text-decoration: none; }
-.brandMark { display: grid; width: 34px; height: 34px; border-radius: 11px; place-items: center; background: linear-gradient(145deg,#f4bfd5 0%,#cf6f99 100%); box-shadow: 0 7px 18px rgba(212,116,157,.25), inset 0 1px 0 rgba(255,255,255,.5); color: white; font-family: Georgia,serif; font-size: 17px; font-style: italic; }
-.nav { display: flex; align-items: center; gap: 6px; }
-.nav a { padding: 8px 13px; border-radius: 12px; color: #8e878b; font-size: 14px; text-decoration: none; transition: color .2s ease,background .2s ease; }
-.nav a:hover,.nav a:focus-visible,.nav a.active { background: rgba(255,238,245,.8); color: #c7648e; }
-.action { display: flex; height: 42px; padding: 0 16px; border-radius: 14px; align-items: center; gap: 8px; background: linear-gradient(180deg,#e9a8c4 0%,#cf6f99 100%); box-shadow: 0 8px 20px rgba(207,111,153,.22),inset 0 1px 0 rgba(255,255,255,.35); color: white; font-size: 13px; font-weight: 600; text-decoration: none; transition: transform .2s ease,box-shadow .2s ease; }
-.action:hover,.action:focus-visible { transform: translateY(-1px); box-shadow: 0 10px 24px rgba(207,111,153,.3),inset 0 1px 0 rgba(255,255,255,.4); }
-.actionActive { box-shadow: 0 0 0 3px rgba(255,255,255,.8),0 8px 20px rgba(207,111,153,.25); }
-.actionShort { display: none; }
-.actions { display: flex; align-items: center; gap: 8px; }
-.account { display: flex; height: 42px; padding: 0 14px; border-radius: 14px; align-items: center; border: 1px solid rgba(212,116,157,.22); background: rgba(255,255,255,.6); color: #cf6f99; font-size: 13px; font-weight: 600; text-decoration: none; transition: transform .2s ease,background .2s ease,box-shadow .2s ease; }
-.account:hover,.account:focus-visible { background: rgba(255,238,245,.85); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(207,111,153,.14); }
-.brand:focus-visible,.nav a:focus-visible,.action:focus-visible,.account:focus-visible { outline: 3px solid rgba(212,116,157,.35); outline-offset: 3px; }
-@media (max-width:700px) { .header{padding:8px 12px 0}.inner{height:56px;padding-left:12px;border-radius:18px}.nav{display:none}.action{height:38px;padding:0 13px}.actionFull{display:none}.actionShort{display:inline}.account{height:38px;padding:0 12px} }
-@media (prefers-reduced-motion:reduce) { .nav a,.action,.account{transition-duration:.01ms} }
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  padding-top: env(safe-area-inset-top, 0px);
+  background: var(--paper);
+}
+
+.inner {
+  display: flex;
+  width: min(calc(100% - 72px), 1200px);
+  min-height: 88px;
+  margin: 0 auto;
+  align-items: center;
+  gap: 24px;
+}
+
+/* ---- 品牌锁定组合 ---- */
+.brand {
+  display: inline-flex;
+  min-height: 48px;
+  flex: none;
+  align-items: center;
+  gap: 16px;
+  color: var(--ink);
+  text-decoration: none;
+}
+.lockup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.wordmark {
+  font: italic 30px/1 "Segoe Script", "Snell Roundhand", "Brush Script MT", "Iowan Old Style", serif;
+  letter-spacing: -.02em;
+}
+.atelier {
+  color: #8b8c81;
+  font-family: var(--serif);
+  font-size: 9px;
+  letter-spacing: .16em;
+  text-transform: lowercase;
+  font-variant: small-caps;
+}
+.divider {
+  width: 1px;
+  height: 30px;
+  background: #c9c6ba;
+}
+.brandCn {
+  font-family: var(--serif);
+  font-size: 15px;
+  letter-spacing: .18em;
+}
+
+/* ---- 中央胶囊导航 ---- */
+.nav {
+  display: flex;
+  margin: 0 auto;
+  gap: 4px;
+}
+.nav a {
+  display: flex;
+  min-height: 38px;
+  padding: 0 18px;
+  border-radius: var(--radius-capsule);
+  align-items: center;
+  color: #5f6058;
+  font-size: 13.5px;
+  letter-spacing: .04em;
+  text-decoration: none;
+  transition: color .22s var(--ease-soft), background .22s var(--ease-soft), box-shadow .22s var(--ease-soft);
+}
+.nav a:hover { color: var(--ink); }
+.nav a[aria-current="page"] {
+  background: var(--surface);
+  box-shadow: var(--neu-out-sm);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* ---- 右侧圆形图标 ---- */
+.actions {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+}
+.iconButton {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  border: 1px solid #e2dfd3;
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  box-shadow: 0 2px 5px rgba(41, 42, 39, .05);
+  color: #4a4b44;
+  transition: box-shadow .22s var(--ease-soft), color .22s var(--ease-soft), border-color .22s var(--ease-soft);
+}
+.iconButton svg { width: 17px; height: 17px; }
+.iconButton:hover { box-shadow: var(--neu-out-sm); color: var(--coral-deep); border-color: #d8c9c1; }
+.iconButton:active { box-shadow: var(--neu-in-sm); }
+.iconButton[aria-current="page"] { box-shadow: var(--neu-in-sm); color: var(--coral-deep); border-color: #d8c9c1; }
+
+@media (max-width: 1099px) {
+  .inner { width: min(calc(100% - 44px), 1200px); min-height: 76px; gap: 14px; }
+  .wordmark { font-size: 26px; }
+  .nav a { padding: 0 13px; font-size: 13px; }
+}
+
+@media (max-width: 767px) {
+  .inner { width: min(calc(100% - 32px), 1200px); min-height: 64px; gap: 10px; }
+  .wordmark { font-size: 22px; }
+  .atelier { font-size: 7.5px; letter-spacing: .24em; }
+  .divider { height: 24px; }
+  .brandCn { font-size: 13px; }
+  .nav { display: none; }
+  .iconButton { width: 44px; height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav a, .iconButton { transition: none; }
+}

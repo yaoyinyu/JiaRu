@@ -259,7 +259,7 @@ function ArTryonPageBody({
       description="实时追踪手部动作，让颜色与纹理自然贴合指甲。所有摄像头画面都只在本地内存中处理。"
     >
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_390px]">
-        <section className="overflow-hidden rounded-[30px] border border-white/80 bg-white/55 p-3 shadow-[0_26px_80px_rgba(71,49,60,.12)] backdrop-blur-2xl sm:p-5">
+        <section className="overflow-hidden rounded-[30px] bg-[var(--surface)] p-3 shadow-[var(--neu-out-md)]  sm:p-5">
           <ArView
             nailColors={nailColors}
             nailTextures={nailTextures}
@@ -267,18 +267,17 @@ function ArTryonPageBody({
             nailAdjustments={nailFits}
           />
         </section>
-        <aside className="rounded-[28px] border border-white/80 bg-white/68 p-5 shadow-[0_22px_65px_rgba(91,59,74,.09)] backdrop-blur-2xl xl:sticky xl:top-24">
+        <aside className="rounded-[28px] bg-[var(--surface)] p-5 shadow-[var(--neu-out-md)]  xl:sticky xl:top-24">
           <div className="mb-5">
-            <p className="text-xs font-semibold tracking-[.16em] text-[#CF6F99]">试戴控制</p>
-            <h2 className="mt-1 text-lg font-semibold text-[#4A4447]">试戴设置</h2>
+            <h2 className="text-lg font-semibold text-[#292a27]">试戴设置</h2>
           </div>
         <div className="w-full">
           <div className="mb-3 flex gap-1 rounded-xl bg-pink-50 p-1">
             <button
               onClick={() => setMode("color")}
-              className={`flex-1 rounded-lg py-1.5 text-xs transition-all ${
+              className={`flex-1 rounded-lg min-h-11 py-1.5 text-xs transition-all ${
                 mode === "color"
-                  ? "bg-white text-[#E8A0BF] font-medium shadow-sm"
+                  ? "bg-[var(--surface)] text-[#ac5145] font-medium shadow-sm"
                   : "text-gray-400"
               }`}
             >
@@ -286,9 +285,9 @@ function ArTryonPageBody({
             </button>
             <button
               onClick={() => setMode("texture")}
-              className={`flex-1 rounded-lg py-1.5 text-xs transition-all ${
+              className={`flex-1 rounded-lg min-h-11 py-1.5 text-xs transition-all ${
                 mode === "texture"
-                  ? "bg-white text-[#E8A0BF] font-medium shadow-sm"
+                  ? "bg-[var(--surface)] text-[#ac5145] font-medium shadow-sm"
                   : "text-gray-400"
               }`}
             >
@@ -296,23 +295,23 @@ function ArTryonPageBody({
             </button>
           </div>
 
-          <div className="mb-4 rounded-2xl border border-pink-100 bg-white/70 p-3">
+          <div className="mb-4 rounded-2xl border border-pink-100 bg-[var(--surface)] p-3">
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-xs font-medium text-[#665C61]">
-                {FINGER_NAMES[activeFinger]}逐指校准
+              <span className="text-xs font-medium text-[#75766c]">
+                逐指校准 · {FINGER_NAMES[activeFinger]}
               </span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   onClick={() => updateActiveNailFit(DEFAULT_NAIL_FIT)}
-                  className="text-[11px] text-[#CF6F99] hover:text-[#B85C86]"
+                  className="-my-2.5 inline-flex min-h-11 items-center px-1 text-[11px] text-[#ac5145] hover:text-[#ac5145]"
                 >
                   重置本指
                 </button>
                 <button
                   type="button"
                   onClick={() => setNailFits(createDefaultNailFits())}
-                  className="text-[11px] text-gray-400 hover:text-gray-600"
+                  className="-my-2.5 inline-flex min-h-11 items-center px-1 text-[11px] text-gray-400 hover:text-gray-600"
                 >
                   重置全部
                 </button>
@@ -330,7 +329,7 @@ function ArTryonPageBody({
                 onChange={(event) => updateActiveNailFit({
                   lengthScale: Number(event.target.value) / 100,
                 })}
-                className="accent-[#D4749D]"
+                className="h-11 w-full accent-[#ac5145]"
               />
               <span className="text-right">{Math.round(activeNailFit.lengthScale * 100)}%</span>
             </label>
@@ -346,7 +345,7 @@ function ArTryonPageBody({
                 onChange={(event) => updateActiveNailFit({
                   widthScale: Number(event.target.value) / 100,
                 })}
-                className="accent-[#D4749D]"
+                className="h-11 w-full accent-[#ac5145]"
               />
               <span className="text-right">{Math.round(activeNailFit.widthScale * 100)}%</span>
             </label>
@@ -362,7 +361,7 @@ function ArTryonPageBody({
                 onChange={(event) => updateActiveNailFit({
                   rootOffset: Number(event.target.value) / 100,
                 })}
-                className="accent-[#D4749D]"
+                className="h-11 w-full accent-[#ac5145]"
               />
               <span className="text-right">
                 {activeNailFit.rootOffset === 0
@@ -379,9 +378,9 @@ function ArTryonPageBody({
               <button
                 key={index}
                 onClick={() => setActiveFinger(index)}
-                className={`relative rounded-full px-3 py-1.5 text-xs transition-all ${
+                className={`relative min-h-11 rounded-full px-3 py-1.5 text-xs transition-all ${
                   activeFinger === index
-                    ? "bg-[#E8A0BF] text-white shadow-sm"
+                    ? "bg-[#ac5145] text-white shadow-sm"
                     : "bg-pink-50 text-gray-400 hover:bg-pink-100"
                 }`}
               >
@@ -416,8 +415,8 @@ function ArTryonPageBody({
                 </p>
               )}
 
-              <div className="flex justify-center gap-2">
-                <label className="cursor-pointer rounded-full bg-pink-50 px-3 py-1.5 text-xs text-[#E8A0BF] transition-colors hover:bg-pink-100">
+              <div className="flex flex-wrap justify-center gap-2">
+                <label className="inline-flex min-h-11 cursor-pointer items-center rounded-full bg-pink-50 px-3 text-xs text-[#ac5145] transition-colors hover:bg-pink-100">
                   <span className="inline-flex items-center justify-center gap-1.5"><Icon name="camera" className="h-4 w-4" />上传美甲照片</span>
                   <input
                     ref={fileInputRef}
@@ -427,7 +426,7 @@ function ArTryonPageBody({
                     className="hidden"
                   />
                 </label>
-                <label className="cursor-pointer rounded-full bg-purple-50 px-3 py-1.5 text-xs text-purple-500 transition-colors hover:bg-purple-100">
+                <label className="inline-flex min-h-11 cursor-pointer items-center rounded-full bg-purple-50 px-3 text-xs text-purple-500 transition-colors hover:bg-purple-100">
                   <span className="inline-flex items-center justify-center gap-1.5"><Icon name="sparkles" className="h-4 w-4" />多纹理提取</span>
                   <input
                     type="file"
@@ -439,7 +438,7 @@ function ArTryonPageBody({
                 {hasAnyTexture && (
                   <button
                     onClick={applyTextureToAll}
-                    className="rounded-full bg-pink-50 px-3 py-1.5 text-xs text-[#E8A0BF] transition-colors hover:bg-pink-100"
+                    className="inline-flex min-h-11 items-center rounded-full bg-pink-50 px-3 text-xs text-[#ac5145] transition-colors hover:bg-pink-100"
                   >
                     应用到全部
                   </button>
@@ -458,7 +457,7 @@ function ArTryonPageBody({
                 <span className="text-xs text-gray-400">{FINGER_NAMES[activeFinger]}颜色</span>
                 <button
                   onClick={applyToAll}
-                  className="text-xs text-[#E8A0BF] underline hover:text-[#D4749D]"
+                  className="inline-flex min-h-11 items-center px-1 text-xs text-[#ac5145] underline hover:text-[#ac5145]"
                 >
                   应用到全部
                 </button>
@@ -470,7 +469,7 @@ function ArTryonPageBody({
                     key={item.name}
                     title={item.name}
                     onClick={() => changeColor(item.color)}
-                    className={`h-9 w-9 rounded-full border-2 shadow-sm transition-all hover:scale-110 ${
+                    className={`h-11 w-11 rounded-full border-2 shadow-sm transition-all hover:scale-110 ${
                       nailColors[activeFinger] === item.color
                         ? "scale-110 ring-2 ring-pink-400 ring-offset-2"
                         : ""
@@ -490,7 +489,7 @@ function ArTryonPageBody({
                   type="color"
                   value={nailColors[activeFinger]}
                   onChange={(e) => changeColor(e.target.value)}
-                  className="h-9 w-9 cursor-pointer rounded-full border-0 p-0"
+                  className="h-11 w-11 cursor-pointer rounded-full border-0 p-0"
                 />
               </div>
             </>
@@ -516,8 +515,8 @@ function ArTryonPageBody({
         )}
 
         <div className="mx-auto mt-5 grid w-full max-w-3xl gap-3 text-center sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl"><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />摄像头画面默认仅在内存中处理，不录制；「用户改进计划」可在隐私页关闭</div>
-          <div className="rounded-2xl border border-white/75 bg-white/55 p-4 text-xs leading-5 text-[#94898F] backdrop-blur-xl"><Icon name="lightbulb" className="mr-1.5 inline h-4 w-4 align-[-3px]" />首次加载大约需要 5-10 秒，建议在光线充足的环境使用。</div>
+          <div className="rounded-2xl bg-[var(--surface)] p-4 text-xs leading-5 text-[#8a8b81] "><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />摄像头画面默认仅在内存中处理，不录制；「用户改进计划」可在隐私页关闭</div>
+          <div className="rounded-2xl bg-[var(--surface)] p-4 text-xs leading-5 text-[#8a8b81] "><Icon name="lightbulb" className="mr-1.5 inline h-4 w-4 align-[-3px]" />首次加载大约需要 5-10 秒，建议在光线充足的环境使用。</div>
         </div>
     </AppShell>
   );

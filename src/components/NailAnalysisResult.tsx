@@ -14,7 +14,7 @@ import type { PersonalizationResult, Recommendation } from "@/lib/nail-personali
 const SEVERITY_CLASS: Record<"ok" | "review" | "info", string> = {
   ok: "border-emerald-200 bg-emerald-50/70 text-emerald-800",
   review: "border-amber-200 bg-amber-50/80 text-amber-900",
-  info: "border-slate-200 bg-white/70 text-[#6B6167]",
+  info: "border-slate-200 bg-[var(--surface)] text-[#67685f]",
 };
 
 function SummaryCard({
@@ -39,8 +39,8 @@ function SummaryCard({
       {stats && stats.length > 0 ? (
         <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-3">
           {stats.map((stat) => (
-            <div key={stat.label} className="rounded-xl bg-white/70 px-2 py-1">
-              <dt className="text-[#A0969B]">{stat.label}</dt>
+            <div key={stat.label} className="rounded-xl bg-[var(--surface)] px-2 py-1">
+              <dt className="text-[#75766c]">{stat.label}</dt>
               <dd className="font-medium">{stat.value}</dd>
             </div>
           ))}
@@ -77,7 +77,7 @@ export function NailAnalysisResult({ result }: NailAnalysisResultProps) {
       {result.notices
         .filter((code) => code !== "auxiliary_analysis_notice")
         .map((code) => (
-          <p key={code} className="rounded-2xl border border-slate-200 bg-white/70 px-4 py-2 text-xs text-[#6B6167]">
+          <p key={code} className="rounded-2xl border border-slate-200 bg-[var(--surface)] px-4 py-2 text-xs text-[#67685f]">
             {describeWarning(code)}
           </p>
         ))}
@@ -97,7 +97,7 @@ export function NailAnalysisResult({ result }: NailAnalysisResultProps) {
           stats={skinTone.stats}
         />
       ) : (
-        <p className="rounded-2xl border border-slate-200 bg-white/60 px-4 py-2 text-xs text-[#8C7F84]">
+        <p className="rounded-2xl border border-slate-200 bg-[var(--surface)] px-4 py-2 text-xs text-[#75766c]">
           肤色采样质量不足，已隐藏肤色分析，颜色建议改用场合与风格规则。
         </p>
       )}
@@ -105,14 +105,14 @@ export function NailAnalysisResult({ result }: NailAnalysisResultProps) {
       {nailHealth ? (
         <SummaryCard title={nailHealth.title} severity={nailHealth.severity} messages={nailHealth.messages} />
       ) : (
-        <p className="rounded-2xl border border-slate-200 bg-white/60 px-4 py-2 text-xs text-[#8C7F84]">
+        <p className="rounded-2xl border border-slate-200 bg-[var(--surface)] px-4 py-2 text-xs text-[#75766c]">
           {describeWarning("nail_health_requires_mask")}
         </p>
       )}
 
       {result.recommendations.length > 0 ? (
         <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-[#544C50]">推荐方案</h3>
+          <h3 className="text-sm font-semibold text-[#292a27]">推荐方案</h3>
           {result.recommendations.map((rec: Recommendation) => {
             const summary = presentRecommendation(rec);
             const params = buildAnalysisBridgeParams(rec);
@@ -135,7 +135,7 @@ export function NailAnalysisResult({ result }: NailAnalysisResultProps) {
                     <Link
                       key={name}
                       href={`/editor?preset=${encodeURIComponent(name)}`}
-                      className="rounded-full border border-white/80 bg-white/80 px-3 py-1.5 text-xs font-medium shadow-sm transition hover:bg-white"
+                      className="rounded-full bg-[var(--surface)] px-3 py-1.5 text-xs font-medium shadow-sm transition hover:bg-[var(--surface)]"
                     >
                       用「{name}」去试色
                     </Link>

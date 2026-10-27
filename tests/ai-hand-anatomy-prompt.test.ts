@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  AI_IMAGE_EDIT_SUFFIX,
   AI_IMAGE_SCENE_SUFFIX,
   HAND_ANATOMY_SYSTEM_PROMPT,
   HAND_COUNT_PREFIX,
@@ -8,6 +9,7 @@ import {
   IMAGE_EDIT_SYSTEM_PROMPT,
   assembleAiImageEditPrompt,
   assembleAiImagePrompt,
+  extractNailDesign,
 } from "../src/lib/ai-hand-anatomy-prompt.ts";
 
 test("assembleAiImagePrompt orders prefix, user prompt, suffix, then hidden system prompt", () => {
@@ -106,21 +108,78 @@ test("assembleAiImageEditPrompt keeps reference image, changes only nails", () =
   const assembled = assembleAiImageEditPrompt(user);
   const prefixIndex = assembled.indexOf(IMAGE_EDIT_PREFIX);
   const userIndex = assembled.indexOf(user);
-  const suffixIndex = assembled.indexOf(AI_IMAGE_SCENE_SUFFIX);
+  const suffixIndex = assembled.indexOf(AI_IMAGE_EDIT_SUFFIX);
   const systemIndex = assembled.indexOf(IMAGE_EDIT_SYSTEM_PROMPT);
   assert.ok(prefixIndex === 0, "image-edit prefix must come first");
   assert.ok(userIndex > prefixIndex, "user prompt must follow the prefix");
-  assert.ok(suffixIndex > userIndex, "scene suffix must follow user prompt");
+  assert.ok(suffixIndex > userIndex, "edit suffix must follow user prompt");
   assert.ok(systemIndex > suffixIndex, "image-edit system prompt must follow suffix");
   assert.ok(assembled.endsWith(IMAGE_EDIT_SYSTEM_PROMPT));
   // 图生图前缀必须要求以参考图为唯一基准、保持结构、只改指甲
   assert.ok(IMAGE_EDIT_PREFIX.includes("以用户上传的参考图为唯一基准"));
   assert.ok(IMAGE_EDIT_PREFIX.includes("保持手部数量"));
   assert.ok(IMAGE_EDIT_PREFIX.includes("只针对参考图中可见的指甲区域进行美甲修改"));
+  // 内置风格提示词自带"生活照/捧着茶杯/柔焦光线/美颜风格"等场景描述，图生图必须先声明忽略
+  assert.ok(IMAGE_EDIT_PREFIX.includes("一律忽略"));
+  assert.ok(IMAGE_EDIT_PREFIX.includes("只提取其中的美甲设计信息"));
   // 图生图路径不得使用文生图系统提示词（第二套独立）
   assert.ok(!assembled.includes(HAND_ANATOMY_SYSTEM_PROMPT));
+  // 图生图路径不得携带文生图场景后缀：它是"重新构图成手部特写"的指令来源
+  assert.ok(
+    !assembled.includes(AI_IMAGE_SCENE_SUFFIX),
+    "image-edit prompt must not reuse the text-to-image scene suffix"
+  );
+  assert.ok(!assembled.includes("close-up hand photo"));
   // 确定性
   assert.equal(assembleAiImageEditPrompt(user), assembleAiImageEditPrompt(user));
+});
+
+test("extractNailDesign strips built-in style scene sentences before image editing", () => {
+  const stylePrompt =
+    "展现甜美少女风美甲的女性手部近景生活照。浅粉色底色、白色法式指尖的短杏仁甲。" +
+    "装饰有精致的3D白色树脂蝴蝶结、手工点缀的微型白珍珠和细微的银色星星闪粉。" +
+    "双手自然地捧着一个复古瓷茶杯。温暖、柔焦的美学光线，温馨的背景。" +
+    "带有柔光细节的自然手部肌肤，精致美颜风格。";
+  const design = extractNailDesign(stylePrompt);
+  for (const kept of ["浅粉色底色", "白色法式指尖的短杏仁甲", "3D白色树脂蝴蝶结", "银色星星闪粉"]) {
+    assert.ok(design.includes(kept), `design sentence must be kept: ${kept}`);
+  }
+  for (const dropped of ["生活照", "捧着", "瓷茶杯", "柔焦", "背景", "肌肤", "美颜"]) {
+    assert.ok(!design.includes(dropped), `scene sentence must be stripped: ${dropped}`);
+  }
+  // 纯设计输入原样保留
+  assert.equal(extractNailDesign("银色亮片渐变"), "银色亮片渐变");
+  // 组装的图生图提示词里不得再出现内置场景句
+  const assembled = assembleAiImageEditPrompt(stylePrompt);
+  assert.ok(!assembled.includes("复古瓷茶杯"));
+  assert.ok(!assembled.includes("温馨的背景"));
+  assert.ok(assembled.includes("浅粉色底色"));
+});
+
+test("AI_IMAGE_EDIT_SUFFIX pins composition, background, lighting and skin", () => {
+  for (const keyword of [
+    "only apply the described design on the nail surfaces that already exist",
+    "keep the original composition, framing, crop, camera angle, perspective",
+    "background objects, props",
+    "lighting direction and intensity",
+    "color temperature, white balance",
+    "depth of field",
+    "skin texture",
+    "构图、取景、画幅与裁剪",
+    "机位与透视",
+    "背景物件与道具",
+    "光线方向与强度",
+    "色温与白平衡",
+    "景深与虚化",
+    "皮肤质感",
+  ]) {
+    assert.ok(
+      AI_IMAGE_EDIT_SUFFIX.includes(keyword),
+      `image-edit suffix must contain: ${keyword}`
+    );
+  }
+  assert.ok(!AI_IMAGE_EDIT_SUFFIX.includes("close-up hand photo"));
+  assert.ok(!AI_IMAGE_EDIT_SUFFIX.includes("beautiful"));
 });
 
 test("IMAGE_EDIT_SYSTEM_PROMPT is a dedicated second system prompt for reference-image editing", () => {
@@ -149,16 +208,29 @@ test("IMAGE_EDIT_SYSTEM_PROMPT is a dedicated second system prompt for reference
     // 着重强调：以参考图为基准做针对性修改
     "唯一基准",
     "针对性",
+    "一律忽略",
+    "它们描述的是另一幅画面，不是本图的修改依据",
     "针对参考图中实际存在的内容进行",
     "禁止新增或删除指甲",
     "禁止改变指甲的数量、大小与位置",
     "NO adding nails",
     "NO removing nails",
     "all edits must be targeted and based on the reference image",
-    // 保底：基本条件正常（五指、无畸形、无穿模）
+    // 保底：基本条件正常（手指以参考图实际可见为准、无畸形、无穿模）
     "基本条件正常",
-    "手指数量保持每只手恰好五根",
+    "手指数量严格以参考图实际可见为准",
+    "不得增减、补全或重排",
     "手部与道具、场景不得相互穿模",
+    // 环境元素严格保留：画幅、色温、景深、禁止美化
+    "画幅与裁剪比例",
+    "色温与白平衡",
+    "改变景深或虚化背景",
+    "禁止美化与重绘",
+    "禁止磨皮、美颜、锐化、HDR、滤镜、色彩分级、风格迁移、背景虚化或替换、重新打光、重新构图、重新取景",
+    "NO recomposing, NO reframing, NO cropping change, NO aspect-ratio change",
+    "NO relighting, NO white-balance shift",
+    "NO skin smoothing, NO beautify filter, NO background blur, NO background replacement",
+    "NO adding or removing background objects",
   ]) {
     assert.ok(
       IMAGE_EDIT_SYSTEM_PROMPT.includes(keyword),

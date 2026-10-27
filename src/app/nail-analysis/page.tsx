@@ -168,7 +168,7 @@ export default function NailAnalysisPage() {
       description="照片只在你的浏览器中处理。分析基于甲面候选与场景问卷，属于启发式建议，不构成医疗或诊断结论。"
     >
       <div className="grid gap-5 md:grid-cols-[1.05fr_.95fr]">
-        <section className="rounded-[28px] border border-white/80 bg-white/65 p-3 shadow-[0_24px_70px_rgba(116,73,92,.10)] backdrop-blur-2xl sm:p-5">
+        <section className="rounded-[28px] bg-[var(--surface)] p-3 shadow-[var(--neu-out-md)]  sm:p-5">
           {!previewUrl ? (
             <UploadButton onUpload={runAnalysis} />
           ) : (
@@ -176,19 +176,19 @@ export default function NailAnalysisPage() {
             <img
               src={previewUrl}
               alt="已上传的手部照片"
-              className="w-full rounded-[24px] border border-white/80 object-contain"
+              className="w-full rounded-[24px] border border-[var(--line)] object-contain"
             />
           )}
           {error ? (
             <p role="alert" className="px-3 pb-2 pt-3 text-center text-sm text-red-600">{error}</p>
           ) : null}
-          <p className="px-3 pb-2 pt-3 text-center text-xs text-[#A0969B]">{status}</p>
+          <p className="px-3 pb-2 pt-3 text-center text-xs text-[#75766c]">{status}</p>
           {previewUrl ? (
             <div className="flex justify-center pb-1">
               <button
                 type="button"
                 onClick={reset}
-                className="rounded-full border border-pink-100 bg-white/80 px-4 py-2 text-xs font-medium text-[#C96690] shadow-sm"
+                className="rounded-full border border-pink-100 bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[#ac5145] shadow-sm"
               >
                 重新上传
               </button>
@@ -196,21 +196,21 @@ export default function NailAnalysisPage() {
           ) : null}
         </section>
 
-        <section className="space-y-4 rounded-[28px] border border-white/80 bg-white/65 p-4 shadow-[0_24px_70px_rgba(116,73,92,.10)] backdrop-blur-2xl sm:p-5">
+        <section className="space-y-4 rounded-[28px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)]  sm:p-5">
           <div>
-            <h2 className="text-sm font-semibold text-[#544C50]">场景问卷</h2>
-            <p className="mt-1 text-xs text-[#A0969B]">未填写的项按「未知」处理，不会被当作否定值。</p>
+            <h2 className="text-sm font-semibold text-[#292a27]">场景问卷</h2>
+            <p className="mt-1 text-xs text-[#75766c]">未填写的项按「未知」处理，不会被当作否定值。</p>
           </div>
           <NailAnalysisForm value={scenario} onChange={setScenario} disabled={stage === "analyzing"} />
         </section>
       </div>
 
       {analysis ? (
-        <section className="mt-5 rounded-[28px] border border-white/80 bg-white/70 p-4 shadow-[0_24px_70px_rgba(116,73,92,.10)] backdrop-blur-2xl sm:p-5">
+        <section className="mt-5 rounded-[28px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)]  sm:p-5">
           <NailAnalysisResult result={analysis} />
         </section>
       ) : stage === "analyzing" ? (
-        <p className="mt-5 text-center text-sm text-[#A0969B]">正在分析中……</p>
+        <p className="mt-5 text-center text-sm text-[#75766c]">正在分析中……</p>
       ) : null}
     </AppShell>
   );

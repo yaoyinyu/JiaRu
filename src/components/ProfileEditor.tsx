@@ -27,14 +27,14 @@ type ProfileEditorProps = {
 type Feedback = { kind: "success" | "error"; message: string } | null;
 
 const CARD =
-  "rounded-3xl border border-pink-100 bg-white/75 p-6 shadow-[0_16px_48px_rgba(159,95,122,.08)] backdrop-blur-sm";
+  "rounded-3xl border border-pink-100 bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] ";
 const INPUT_BASE =
-  "rounded-xl border bg-white/80 px-3 py-2.5 text-sm text-[#4A4A4A] outline-none transition placeholder:text-[#c3b6bb] focus:ring-2 disabled:cursor-not-allowed disabled:opacity-60";
+  "rounded-xl border bg-[var(--surface)] px-3 py-2.5 text-sm text-[#292a27] outline-none transition placeholder:text-[#8a8b81] focus:ring-2 disabled:cursor-not-allowed disabled:opacity-60";
 /** 独占整行的输入控件；联系方式行里由 flex-1 决定宽度，不能再叠加 w-full，否则会撑出栅格列 */
 const INPUT_FULL = `${INPUT_BASE} w-full`;
 const INPUT_OK = "border-pink-200 focus:border-pink-400 focus:ring-pink-100";
 const INPUT_BAD = "border-red-300 bg-red-50/50 focus:border-red-400 focus:ring-red-100";
-const LABEL = "mb-1.5 block text-xs font-medium text-[#938b90]";
+const LABEL = "mb-1.5 block text-xs font-medium text-[#75766c]";
 
 function avatarInitial(nickname: string): string {
   const first = Array.from(nickname.trim())[0];
@@ -53,7 +53,7 @@ function AvatarView({ avatar, nickname, size }: { avatar: string | null; nicknam
         width={size}
         height={size}
         style={dimension}
-        className="h-full w-full rounded-full object-cover shadow-[0_10px_26px_rgba(159,95,122,.18)]"
+        className="h-full w-full rounded-full object-cover shadow-[var(--neu-out-sm)]"
       />
     );
   }
@@ -61,7 +61,7 @@ function AvatarView({ avatar, nickname, size }: { avatar: string | null; nicknam
     <span
       aria-hidden
       style={dimension}
-      className="flex items-center justify-center rounded-full bg-gradient-to-br from-pink-200 via-pink-100 to-purple-100 text-2xl font-semibold text-[#b95f87] shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_10px_26px_rgba(159,95,122,.12)]"
+      className="flex items-center justify-center rounded-full bg-[var(--coral-soft)] text-2xl font-semibold text-[#a34b3f] shadow-[inset_0_1px_0_rgba(255,255,255,.9),0_10px_26px_rgba(41,42,39,.12)]"
     >
       {avatarInitial(nickname)}
     </span>
@@ -238,7 +238,7 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
       className={`rounded-xl border px-4 py-2.5 text-sm ${
         feedback.kind === "error"
           ? "border-red-200 bg-red-50/80 text-red-600"
-          : "border-pink-200 bg-pink-50/80 text-[#cf6f99]"
+          : "border-pink-200 bg-pink-50/80 text-[#ac5145]"
       }`}
     >
       {feedback.message}
@@ -252,10 +252,10 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
     <section className={CARD} aria-labelledby={`${errorPrefix}-profile-heading`} aria-busy={saving}>
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 id={`${errorPrefix}-profile-heading`} className="text-base font-bold text-[#403b3e]">
+          <h2 id={`${errorPrefix}-profile-heading`} className="text-base font-bold text-[#292a27]">
             个人资料
           </h2>
-          <p className="mt-1 text-xs leading-relaxed text-[#b9a8ae]">
+          <p className="mt-1 text-xs leading-relaxed text-[#8a8b81]">
             头像、昵称、简介与联系方式会展示在你的个人主页；联系方式仅用于对外联系，不参与登录。
           </p>
         </div>
@@ -263,7 +263,7 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
           <button
             type="button"
             onClick={startEditing}
-            className="shrink-0 rounded-xl border border-pink-200 bg-pink-50 px-4 py-2 text-sm font-semibold text-[#cf6f99] transition hover:bg-pink-100"
+            className="shrink-0 rounded-xl border border-pink-200 bg-pink-50 px-4 py-2 text-sm font-semibold text-[#ac5145] transition hover:bg-pink-100"
           >
             编辑资料
           </button>
@@ -280,7 +280,7 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
               <span className="relative h-[76px] w-[76px] shrink-0">
                 <AvatarView avatar={avatar} nickname={draft.nickname || user.nickname} size={76} />
                 {avatarBusy && (
-                  <span className="absolute inset-0 flex items-center justify-center rounded-full bg-white/70 text-[10px] font-medium text-[#cf6f99]">
+                  <span className="absolute inset-0 flex items-center justify-center rounded-full bg-[var(--surface)] text-[10px] font-medium text-[#ac5145]">
                     处理中…
                   </span>
                 )}
@@ -291,7 +291,7 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     disabled={avatarBusy}
-                    className="rounded-xl border border-pink-200 bg-white/80 px-4 py-2 text-sm font-medium text-[#cf6f99] transition hover:bg-pink-50 disabled:opacity-50"
+                    className="rounded-xl border border-pink-200 bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[#ac5145] transition hover:bg-pink-50 disabled:opacity-50"
                   >
                     {avatar ? "更换头像" : "上传头像"}
                   </button>
@@ -300,13 +300,13 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
                       type="button"
                       onClick={() => setAvatar(null)}
                       disabled={avatarBusy}
-                      className="rounded-xl border border-[#eee3e8] bg-white/70 px-4 py-2 text-sm font-medium text-[#938b90] transition hover:bg-white disabled:opacity-50"
+                      className="rounded-xl border border-[#f0e2db] bg-[var(--surface)] px-4 py-2 text-sm font-medium text-[#75766c] transition hover:bg-[var(--surface)] disabled:opacity-50"
                     >
                       移除头像
                     </button>
                   )}
                 </div>
-                <p className="mt-2 text-xs leading-relaxed text-[#b9a8ae]">
+                <p className="mt-2 text-xs leading-relaxed text-[#8a8b81]">
                   支持 JPG / PNG / WebP，单张不超过 5MB；保存时会自动裁切为 {PROFILE_LIMITS.avatarSize}×
                   {PROFILE_LIMITS.avatarSize} 后再存储。
                 </p>
@@ -325,7 +325,7 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
               {/* 昵称 */}
               <div className="min-w-0">
                 <label htmlFor={`${errorPrefix}-nickname`} className={LABEL}>
-                  昵称 <span className="text-[#cf6f99]">*</span>
+                  昵称 <span className="text-[#ac5145]">*</span>
                 </label>
                 <input
                   id={`${errorPrefix}-nickname`}
@@ -342,7 +342,7 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
                 />
                 <p
                   id={`${errorPrefix}-nickname-hint`}
-                  className={`mt-1 text-xs ${errors.nickname ? "text-red-500" : "text-[#b9a8ae]"}`}
+                  className={`mt-1 text-xs ${errors.nickname ? "text-red-500" : "text-[#8a8b81]"}`}
                 >
                   {errors.nickname ?? `${nicknameCount}/${PROFILE_LIMITS.nicknameMax} 个字符`}
                 </p>
@@ -380,7 +380,7 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
                 </div>
                 <p
                   id={`${errorPrefix}-contact-hint`}
-                  className={`mt-1 text-xs ${errors.contact ? "text-red-500" : "text-[#b9a8ae]"}`}
+                  className={`mt-1 text-xs ${errors.contact ? "text-red-500" : "text-[#8a8b81]"}`}
                 >
                   {errors.contact ?? "选填，留空则不在主页展示"}
                 </p>
@@ -406,7 +406,7 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
               />
               <p
                 id={`${errorPrefix}-bio-hint`}
-                className={`mt-1 text-xs ${errors.bio ? "text-red-500" : "text-[#b9a8ae]"}`}
+                className={`mt-1 text-xs ${errors.bio ? "text-red-500" : "text-[#8a8b81]"}`}
               >
                 {errors.bio ?? `${bioCount}/${PROFILE_LIMITS.bioMax} 个字符`}
               </p>
@@ -418,20 +418,20 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
               type="button"
               onClick={cancelEditing}
               disabled={saving}
-              className="rounded-xl border border-[#eee3e8] bg-white/70 px-5 py-2.5 text-sm font-medium text-[#6a5f64] transition hover:bg-white disabled:opacity-50"
+              className="rounded-xl border border-[#f0e2db] bg-[var(--surface)] px-5 py-2.5 text-sm font-medium text-[#67685f] transition hover:bg-[var(--surface)] disabled:opacity-50"
             >
               取消
             </button>
             <button
               type="submit"
               disabled={saving || avatarBusy || !dirty}
-              className="rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-200/60 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-xl bg-[var(--coral)] px-6 py-2.5 text-sm font-semibold text-white shadow-[var(--neu-out-sm)] transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               {saving ? "保存中…" : "保存"}
             </button>
           </div>
           {!dirty && (
-            <p className="mt-2 text-right text-xs text-[#c3b6bb]">修改内容后可保存，按 Esc 可退出编辑</p>
+            <p className="mt-2 text-right text-xs text-[#8a8b81]">修改内容后可保存，按 Esc 可退出编辑</p>
           )}
         </form>
       ) : (
@@ -441,21 +441,21 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
               <AvatarView avatar={user.avatar} nickname={user.nickname} size={72} />
             </span>
             <div className="min-w-0">
-              <h3 className="truncate text-lg font-semibold text-[#403b3e]">{user.nickname}</h3>
-              <p className="mt-0.5 text-xs text-[#b9a8ae]">
+              <h3 className="truncate text-lg font-semibold text-[#292a27]">{user.nickname}</h3>
+              <p className="mt-0.5 text-xs text-[#8a8b81]">
                 加入于 {new Date(user.createdAt).toLocaleDateString("zh-CN")}
               </p>
             </div>
           </div>
 
           <div>
-            <p className="mb-1 text-xs text-[#b9a8ae]">简介</p>
+            <p className="mb-1 text-xs text-[#8a8b81]">简介</p>
             {user.bio ? (
-              <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#4A4A4A]">{user.bio}</p>
+              <p className="whitespace-pre-line break-words text-sm leading-relaxed text-[#292a27]">{user.bio}</p>
             ) : (
-              <p className="rounded-xl border border-dashed border-pink-200/70 bg-pink-50/40 px-4 py-3 text-sm text-[#b9a8ae]">
+              <p className="rounded-xl border border-dashed border-pink-200/70 bg-pink-50/40 px-4 py-3 text-sm text-[#8a8b81]">
                 还没有填写简介，
-                <button type="button" onClick={startEditing} className="font-medium text-[#cf6f99] underline-offset-2 hover:underline">
+                <button type="button" onClick={startEditing} className="font-medium text-[#ac5145] underline-offset-2 hover:underline">
                   补充一句
                 </button>
                 让主页更有辨识度。
@@ -464,14 +464,14 @@ export function ProfileEditor({ user, onSaved }: ProfileEditorProps) {
           </div>
 
           <div>
-            <p className="mb-1 text-xs text-[#b9a8ae]">联系方式</p>
+            <p className="mb-1 text-xs text-[#8a8b81]">联系方式</p>
             {user.contact ? (
-              <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-pink-100 bg-pink-50/70 px-3.5 py-1.5 text-sm text-[#4A4A4A]">
-                <span className="shrink-0 text-xs text-[#cf6f99]">{contactTypeLabel(user.contactType)}</span>
+              <p className="inline-flex max-w-full items-center gap-2 rounded-full border border-pink-100 bg-pink-50/70 px-3.5 py-1.5 text-sm text-[#292a27]">
+                <span className="shrink-0 text-xs text-[#ac5145]">{contactTypeLabel(user.contactType)}</span>
                 <span className="truncate">{user.contact}</span>
               </p>
             ) : (
-              <p className="text-sm text-[#b9a8ae]">未填写，点击「编辑资料」添加</p>
+              <p className="text-sm text-[#8a8b81]">未填写，点击「编辑资料」添加</p>
             )}
           </div>
         </div>

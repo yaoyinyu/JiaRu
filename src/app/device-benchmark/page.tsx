@@ -163,20 +163,20 @@ export default function DeviceBenchmarkPage() {
       description="在目标手机或平板浏览器中预热模型并连续采集 20 次端到端推理。图片和采样结果只保留在当前浏览器，导出由你主动触发。"
     >
       <div className="mx-auto grid max-w-3xl gap-5">
-        <section className="rounded-[28px] border border-white/80 bg-white/70 p-5 shadow-[0_22px_65px_rgba(91,59,74,.09)] backdrop-blur-2xl">
+        <section className="rounded-[28px] bg-[var(--surface)] p-5 shadow-[var(--neu-out-md)] ">
           <div className="grid gap-4 sm:grid-cols-2">
-            <label className="grid gap-2 text-sm font-medium text-slate-700">
+            <label className="grid min-w-0 gap-2 text-sm font-medium text-slate-700">
               设备类别
               <select
                 value={deviceFamily}
                 disabled={running}
                 onChange={(event) => setDeviceFamily(event.target.value as NailTextureDeviceFamily)}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2"
+                className="w-full min-w-0 rounded-xl border border-slate-200 bg-[var(--surface)] px-3 py-2"
               >
                 {NAIL_TEXTURE_DEVICE_FAMILIES.map((family) => <option key={family}>{family}</option>)}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-slate-700">
+            <label className="grid min-w-0 gap-2 text-sm font-medium text-slate-700">
               测试图片
               <input
                 type="file"
@@ -186,7 +186,7 @@ export default function DeviceBenchmarkPage() {
                   setFile(event.target.files?.[0] ?? null);
                   setSession(null);
                 }}
-                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm"
+                className="w-full min-w-0 rounded-xl border border-slate-200 bg-[var(--surface)] px-3 py-2 text-sm"
               />
             </label>
           </div>
@@ -199,7 +199,7 @@ export default function DeviceBenchmarkPage() {
               type="button"
               disabled={!file || running}
               onClick={() => void runBenchmark()}
-              className="rounded-full bg-[#CF6F99] px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+              className="rounded-full bg-[#ac5145] px-5 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               {running ? "采集中…" : "开始真机基准"}
             </button>

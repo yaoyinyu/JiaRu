@@ -221,7 +221,7 @@ export function NailCanvas({
     <div className="flex flex-col items-center gap-4">
       <canvas
         ref={canvasRef}
-        className="w-full max-w-[640px] rounded-[22px] bg-white shadow-[0_18px_55px_rgba(75,52,63,.12)] touch-none"
+        className="w-full max-w-[640px] rounded-[22px] bg-[var(--surface)] shadow-[var(--neu-out-md)] touch-none"
         onMouseDown={handleStart}
         onMouseMove={handleMove}
         onMouseUp={handleEnd}
@@ -235,20 +235,20 @@ export function NailCanvas({
         <button
           onClick={handleUndo}
           disabled={strokeCount < 1}
-          className="h-12 flex-1 rounded-2xl border border-pink-100 bg-white/80 text-sm font-medium text-[#71676C] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
+          className="h-12 flex-1 rounded-2xl border border-pink-100 bg-[var(--surface)] text-sm font-medium text-[#67685f] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[var(--surface)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
         >
           <span className="inline-flex items-center justify-center gap-1.5"><Icon name="undo" className="h-4 w-4" />撤销</span>
         </button>
         <button
           onClick={handleReset}
           disabled={strokeCount < 1}
-          className="h-12 flex-1 rounded-2xl border border-pink-100 bg-white/80 text-sm font-medium text-[#71676C] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-white active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
+          className="h-12 flex-1 rounded-2xl border border-pink-100 bg-[var(--surface)] text-sm font-medium text-[#67685f] shadow-sm transition-all hover:-translate-y-0.5 hover:bg-[var(--surface)] active:scale-95 disabled:cursor-not-allowed disabled:opacity-30"
         >
           <span className="inline-flex items-center justify-center gap-1.5"><Icon name="reset" className="h-4 w-4" />重置</span>
         </button>
         <button
           onClick={handleSave}
-          className="h-12 flex-1 rounded-2xl bg-gradient-to-r from-[#E8A0BF] to-[#C96591] text-sm font-medium text-white shadow-[0_10px_22px_rgba(207,111,153,.22)] transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_28px_rgba(207,111,153,.3)] active:scale-95"
+          className="h-12 flex-1 rounded-2xl bg-[var(--coral)] text-sm font-medium text-white shadow-[var(--neu-out-sm)] transition-all hover:-translate-y-0.5 hover:shadow-[var(--neu-out-sm)] active:scale-95"
         >
           <span className="inline-flex items-center justify-center gap-1.5"><Icon name="save" className="h-4 w-4" />保存</span>
         </button>

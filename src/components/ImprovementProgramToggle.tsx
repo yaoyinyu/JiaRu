@@ -49,23 +49,23 @@ export function ImprovementProgramToggle() {
   };
 
   return (
-    <div className="rounded-[26px] border border-pink-100/70 bg-white/60 p-6 shadow-[0_18px_50px_rgba(116,73,92,.07)] backdrop-blur-xl">
+    <div className="rounded-[26px] border border-pink-100/70 bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] ">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-100/90 to-purple-100/90 text-[#B95F87] shadow-[inset_0_1px_0_rgba(255,255,255,.8)]">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--coral-soft)] text-[#a34b3f] shadow-[inset_0_1px_0_rgba(255,255,255,.8)]">
             <svg viewBox="0 0 24 24" width={20} height={20} fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
               <circle cx="12" cy="12" r="3" />
             </svg>
           </span>
           <div>
-            <h2 className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-lg font-semibold text-[#4D464A]">
+            <h2 className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-lg font-semibold text-[#292a27]">
               用户改进计划
-              <span className="rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#B95F87]">
+              <span className="rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#a34b3f]">
                 {enabled ? "已开启（默认）" : "已关闭"}
               </span>
             </h2>
-            <p className="mt-1 text-xs leading-5 text-[#9E9499]">
+            <p className="mt-1 text-xs leading-5 text-[#75766c]">
               {enabled
                 ? "开启时，手部照片等数据可能被上传，用于改进识别与生成效果。你随时可以关闭。"
                 : "已关闭：所有处理均在浏览器本地完成，不会上传任何数据。可随时重新开启。"}
@@ -77,12 +77,12 @@ export function ImprovementProgramToggle() {
           role="switch"
           aria-checked={enabled}
           onClick={handleToggle}
-          className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200 ${
-            enabled ? "border-pink-200 bg-gradient-to-r from-[#D4749D] to-[#B95F87]" : "border-[#E3D9DD] bg-[#EFE7EA]"
+          className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200 after:absolute after:-inset-[6px] after:rounded-full after:content-[''] ${
+            enabled ? "border-pink-200 bg-[var(--coral)]" : "border-[#f0e2db] bg-[#f0e2db]"
           }`}
         >
           <span
-            className={`inline-block h-6 w-6 transform rounded-full bg-white shadow transition-transform duration-200 ${
+            className={`inline-block h-6 w-6 transform rounded-full bg-[var(--surface)] shadow transition-transform duration-200 ${
               enabled ? "translate-x-7" : "translate-x-1"
             }`}
           />

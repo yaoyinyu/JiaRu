@@ -122,22 +122,22 @@ function Icon({ name }: { name: string }) {
 
 function SectionCard({ number, icon, title, text, badge }: { number: string; icon: string; title: string; text: string; badge?: string }) {
   return (
-    <section className="group relative overflow-hidden rounded-[26px] border border-white/80 bg-white/60 p-6 shadow-[0_18px_50px_rgba(116,73,92,.07)] backdrop-blur-xl transition hover:-translate-y-1 hover:bg-white/75 hover:shadow-[0_24px_60px_rgba(116,73,92,.10)]">
-      <span aria-hidden className="pointer-events-none absolute right-0 -top-3 select-none bg-gradient-to-bl from-pink-200/90 via-pink-100/45 to-transparent bg-clip-text text-[120px] font-black leading-none text-transparent transition duration-300 group-hover:from-pink-300/95 group-hover:via-pink-200/60">
+    <section className="group relative overflow-hidden rounded-[26px] bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] transition hover:-translate-y-1 hover:bg-[var(--surface)] hover:shadow-[var(--neu-out-md)]">
+      <span aria-hidden className="pointer-events-none absolute right-0 -top-3 select-none text-[120px] font-black leading-none text-[var(--coral-soft)] transition-colors duration-300 group-hover:text-[#e6d3c9]">
         {number}
       </span>
       <div className="relative">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-pink-100/90 to-purple-100/90 text-[#B95F87] shadow-[inset_0_1px_0_rgba(255,255,255,.8)]">
+        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[var(--coral-soft)] text-[#a34b3f] shadow-[inset_0_1px_0_rgba(255,255,255,.8)]">
           <Icon name={icon} />
         </span>
       </div>
-      <h2 className="relative mt-5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-lg font-semibold text-[#4D464A]">
+      <h2 className="relative mt-5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-lg font-semibold text-[#292a27]">
         {title}
         {badge ? (
-          <span className="rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#B95F87]">{badge}</span>
+          <span className="rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#a34b3f]">{badge}</span>
         ) : null}
       </h2>
-      <p className="relative mt-3 text-sm leading-7 text-[#8F868B]">{text}</p>
+      <p className="relative mt-3 text-sm leading-7 text-[#8a8b81]">{text}</p>
     </section>
   );
 }
@@ -145,9 +145,9 @@ function SectionCard({ number, icon, title, text, badge }: { number: string; ico
 function GroupHeader({ text }: { text: string }) {
   return (
     <div className="mb-6 mt-10 flex items-center gap-3">
-      <span className="h-px flex-1 bg-gradient-to-r from-transparent to-pink-200/70" />
-      <span className="text-base font-bold tracking-[.12em] text-[#4D464A]">{text}</span>
-      <span className="h-px flex-1 bg-gradient-to-l from-transparent to-pink-200/70" />
+      <span className="h-px flex-1 bg-[var(--line)]" />
+      <span className="text-base font-bold tracking-[.12em] text-[#292a27]">{text}</span>
+      <span className="h-px flex-1 bg-[var(--line)]" />
     </div>
   );
 }
@@ -175,14 +175,14 @@ export default function PrivacyPage() {
           <SectionCard key={section.number} {...section} />
         ))}
       </div>
-      <div className="mt-10 flex flex-col items-center justify-between gap-3 rounded-[26px] border border-pink-100/70 bg-white/55 px-6 py-6 text-center shadow-[0_14px_40px_rgba(116,73,92,.07)] backdrop-blur-xl sm:flex-row sm:text-left">
+      <div className="mt-10 flex flex-col items-center justify-between gap-3 rounded-[26px] border border-pink-100/70 bg-[var(--surface)] px-6 py-6 text-center shadow-[var(--neu-out-sm)] sm:flex-row sm:text-left">
         <div>
-          <p className="text-sm font-medium text-[#5A5156]">仍有关于隐私的问题？</p>
-          <p className="mt-1 text-xs text-[#9E9499]">我们乐意说明每一个处理环节。</p>
+          <p className="text-sm font-medium text-[#292a27]">仍有关于隐私的问题？</p>
+          <p className="mt-1 text-xs text-[#75766c]">我们乐意说明每一个处理环节。</p>
         </div>
-        <a href="mailto:3181484805@qq.com" className="rounded-full bg-gradient-to-r from-[#4A4447] to-[#6B5F66] px-6 py-3 text-xs font-medium text-white shadow-md transition hover:from-[#D4749D] hover:to-[#B95F87] hover:shadow-lg">联系我们</a>
+        <a href="mailto:3181484805@qq.com" className="inline-flex min-h-11 items-center rounded-full bg-[var(--ink)] px-6 py-3 text-xs font-medium text-white shadow-[var(--neu-out-sm)] transition hover:bg-[var(--coral-deep)] hover:shadow-[var(--neu-out-hover)]">联系我们</a>
       </div>
-      <p className="mt-8 text-center text-xs tracking-wide text-[#B0A6AB]">最后更新：2026 年 9 月 14 日</p>
+      <p className="mt-8 text-center text-xs tracking-wide text-[#8a8b81]">最后更新：2026 年 9 月 14 日</p>
     </AppShell>
   );
 }

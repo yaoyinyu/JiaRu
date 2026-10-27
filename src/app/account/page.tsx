@@ -255,8 +255,8 @@ export default function AccountPage() {
   };
 
   const cardCls =
-    "rounded-3xl border border-pink-100 bg-white/75 p-6 shadow-[0_16px_48px_rgba(159,95,122,.08)] backdrop-blur-sm";
-  const metaValue = "font-medium text-[#4A4A4A] break-all";
+    "rounded-3xl border border-pink-100 bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] ";
+  const metaValue = "font-medium text-[#292a27] break-all";
 
   if (loadState === "loading") {
     return (
@@ -268,7 +268,7 @@ export default function AccountPage() {
             <span className="mt-4 block h-3 w-2/3 rounded-full bg-pink-50" />
             <span className="mt-2 block h-3 w-1/2 rounded-full bg-pink-50" />
           </section>
-          <p className="text-center text-xs text-[#b9a8ae]">正在读取账号信息…</p>
+          <p className="text-center text-xs text-[#8a8b81]">正在读取账号信息…</p>
         </div>
       </AppShell>
     );
@@ -278,21 +278,21 @@ export default function AccountPage() {
     return (
       <AppShell eyebrow="会员中心" title="账号中心" description="账号信息暂时无法读取">
         <div className={`${cardCls} mx-auto max-w-md text-center`} role="alert">
-          <p className="text-[15px] font-semibold text-[#403b3e]">账号信息加载失败</p>
-          <p className="mt-2 text-sm leading-relaxed text-[#938b90]">
+          <p className="text-[15px] font-semibold text-[#292a27]">账号信息加载失败</p>
+          <p className="mt-2 text-sm leading-relaxed text-[#75766c]">
             {loadError || "网络不稳定或服务暂时不可用，请稍后重试。"}
           </p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
             <button
               type="button"
               onClick={() => void retryLoad()}
-              className="rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-pink-200/60 transition hover:opacity-90"
+              className="rounded-xl bg-[var(--coral)] px-6 py-2.5 text-sm font-semibold text-white shadow-[var(--neu-out-sm)] transition hover:opacity-90"
             >
               重新加载
             </button>
             <Link
               href="/"
-              className="rounded-xl border border-pink-200 bg-white/70 px-6 py-2.5 text-sm font-medium text-[#6a5f64] transition hover:bg-white"
+              className="rounded-xl border border-pink-200 bg-[var(--surface)] px-6 py-2.5 text-sm font-medium text-[#67685f] transition hover:bg-[var(--surface)]"
             >
               返回首页
             </Link>
@@ -306,14 +306,14 @@ export default function AccountPage() {
     return (
       <AppShell eyebrow="会员中心" title="账号中心" description="登录后查看云端作品、收藏与配额">
         <div className={`${cardCls} mx-auto max-w-md text-center`}>
-          <p className="mb-4 text-[15px] text-[#6a5f64]">你还没有登录</p>
+          <p className="mb-4 text-[15px] text-[#67685f]">你还没有登录</p>
           <Link
             href="/login"
-            className="inline-block rounded-xl bg-gradient-to-r from-pink-400 to-pink-500 px-8 py-3 text-[15px] font-semibold text-white shadow-lg shadow-pink-200/60 transition hover:opacity-90"
+            className="inline-block rounded-xl bg-[var(--coral)] px-8 py-3 text-[15px] font-semibold text-white shadow-[var(--neu-out-sm)] transition hover:opacity-90"
           >
             去登录 / 注册
           </Link>
-          <p className="mt-4 text-xs text-[#b9a8ae]">不登录也能继续使用试色、AI 生图与 AR 试戴</p>
+          <p className="mt-4 text-xs text-[#8a8b81]">不登录也能继续使用试色、AI 生图与 AR 试戴</p>
         </div>
       </AppShell>
     );
@@ -323,7 +323,7 @@ export default function AccountPage() {
     <AppShell eyebrow="会员中心" title="账号中心" description={`你好，${me.user.nickname}！管理你的账号信息与登录方式。`}>
       <div className="mx-auto grid w-full max-w-2xl gap-5">
         {notice && (
-          <p role="status" aria-live="polite" className="rounded-xl border border-pink-100 bg-pink-50/80 px-4 py-2.5 text-sm text-[#cf6f99]">
+          <p role="status" aria-live="polite" className="rounded-xl border border-pink-100 bg-pink-50/80 px-4 py-2.5 text-sm text-[#ac5145]">
             {notice}
           </p>
         )}
@@ -333,22 +333,22 @@ export default function AccountPage() {
 
         {/* 账号信息（只读） */}
         <section className={cardCls}>
-          <h2 className="mb-4 text-base font-bold text-[#403b3e]">账号信息</h2>
+          <h2 className="mb-4 text-base font-bold text-[#292a27]">账号信息</h2>
           <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="mb-0.5 text-xs text-[#b9a8ae]">手机号</dt>
+              <dt className="mb-0.5 text-xs text-[#8a8b81]">手机号</dt>
               <dd className={metaValue}>{me.user.phone ?? "未绑定"}</dd>
             </div>
             <div>
-              <dt className="mb-0.5 text-xs text-[#b9a8ae]">邮箱</dt>
+              <dt className="mb-0.5 text-xs text-[#8a8b81]">邮箱</dt>
               <dd className={metaValue}>{me.user.email ?? "未绑定"}</dd>
             </div>
             <div>
-              <dt className="mb-0.5 text-xs text-[#b9a8ae]">注册时间</dt>
+              <dt className="mb-0.5 text-xs text-[#8a8b81]">注册时间</dt>
               <dd className={metaValue}>{new Date(me.user.createdAt).toLocaleDateString("zh-CN")}</dd>
             </div>
             <div>
-              <dt className="mb-0.5 text-xs text-[#b9a8ae]">账号状态</dt>
+              <dt className="mb-0.5 text-xs text-[#8a8b81]">账号状态</dt>
               <dd className={metaValue}>{me.user.status === "active" ? "正常" : me.user.status}</dd>
             </div>
           </dl>
@@ -357,8 +357,8 @@ export default function AccountPage() {
         {/* 绑定手机号（微信新用户合规补绑，§5.1） */}
         {!me.user.phone && (
           <section className={`${cardCls} border-amber-200`}>
-            <h2 className="mb-1 text-base font-bold text-[#403b3e]">绑定手机号</h2>
-            <p className="mb-4 text-xs leading-relaxed text-[#b9a8ae]">
+            <h2 className="mb-1 text-base font-bold text-[#292a27]">绑定手机号</h2>
+            <p className="mb-4 text-xs leading-relaxed text-[#8a8b81]">
               你的微信账号还没有绑定手机号。绑定后可用手机号登录，也是找回账号的重要凭证（合规要求）。
             </p>
             <div className="space-y-3">
@@ -368,7 +368,7 @@ export default function AccountPage() {
                 onChange={(e) => setBindPhone(e.target.value)}
                 placeholder="11 位手机号"
                 inputMode="numeric"
-                className="w-full rounded-xl border border-pink-200 bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-pink-400"
+                className="w-full rounded-xl border border-pink-200 bg-[var(--surface)] px-3 py-2.5 text-sm outline-none transition focus:border-pink-400"
               />
               <div className="flex gap-2">
                 <input
@@ -378,13 +378,13 @@ export default function AccountPage() {
                   placeholder="6 位验证码"
                   inputMode="numeric"
                   maxLength={6}
-                  className="min-w-0 flex-1 rounded-xl border border-pink-200 bg-white/80 px-3 py-2.5 text-sm outline-none transition focus:border-pink-400"
+                  className="min-w-0 flex-1 rounded-xl border border-pink-200 bg-[var(--surface)] px-3 py-2.5 text-sm outline-none transition focus:border-pink-400"
                 />
                 <button
                   type="button"
                   onClick={handleRequestBindCode}
                   disabled={bindCountdown > 0 || binding}
-                  className="shrink-0 rounded-xl border border-pink-200 bg-pink-50 px-4 text-sm font-semibold text-[#cf6f99] transition hover:bg-pink-100 disabled:opacity-50"
+                  className="shrink-0 rounded-xl border border-pink-200 bg-pink-50 px-4 text-sm font-semibold text-[#ac5145] transition hover:bg-pink-100 disabled:opacity-50"
                 >
                   {bindCountdown > 0 ? `${bindCountdown}s` : "获取验证码"}
                 </button>
@@ -392,25 +392,25 @@ export default function AccountPage() {
               {bindCaptchaVisible && (
                 <div className="rounded-xl border border-pink-100 bg-pink-50/60 p-3">
                   <div className="mb-2 flex items-center justify-between">
-                    <p className="text-xs font-medium text-[#6a5f64]">人机验证：请输入图中的字符</p>
+                    <p className="text-xs font-medium text-[#67685f]">人机验证：请输入图中的字符</p>
                     <button
                       type="button"
                       onClick={fetchBindCaptcha}
-                      className="text-xs text-[#cf6f99] underline-offset-2 hover:underline"
+                      className="text-xs text-[#ac5145] underline-offset-2 hover:underline"
                     >
                       换一张
                     </button>
                   </div>
                   <div className="flex items-center gap-3">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={bindCaptchaUrl} alt="人机验证码" width={140} height={48} className="rounded-lg border border-pink-200 bg-white" />
+                    <img src={bindCaptchaUrl} alt="人机验证码" width={140} height={48} className="rounded-lg border border-pink-200 bg-[var(--surface)]" />
                     <input
                       type="text"
                       value={bindCaptchaInput}
                       onChange={(e) => setBindCaptchaInput(e.target.value)}
                       placeholder="输入字符"
                       maxLength={6}
-                      className="min-w-0 flex-1 rounded-xl border border-pink-200 bg-white/80 px-3 py-2 text-sm uppercase outline-none transition focus:border-pink-400"
+                      className="min-w-0 flex-1 rounded-xl border border-pink-200 bg-[var(--surface)] px-3 py-2 text-sm uppercase outline-none transition focus:border-pink-400"
                     />
                   </div>
                 </div>
@@ -424,7 +424,7 @@ export default function AccountPage() {
                 type="button"
                 onClick={handleBindPhone}
                 disabled={binding}
-                className="w-full rounded-xl bg-gradient-to-r from-amber-400 to-pink-500 py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                className="w-full rounded-xl bg-[var(--coral)] py-2.5 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
               >
                 {binding ? "绑定中…" : "确认绑定"}
               </button>
@@ -434,20 +434,20 @@ export default function AccountPage() {
 
         {/* 登录方式管理（§5.2） */}
         <section className={cardCls}>
-          <h2 className="mb-1 text-base font-bold text-[#403b3e]">登录方式</h2>
-          <p className="mb-4 text-xs text-[#b9a8ae]">任一方式均可登录同一账号，至少保留一种</p>
+          <h2 className="mb-1 text-base font-bold text-[#292a27]">登录方式</h2>
+          <p className="mb-4 text-xs text-[#8a8b81]">任一方式均可登录同一账号，至少保留一种</p>
           <ul className="space-y-2.5">
             {me.identities.map((id) => (
-              <li key={id.provider} className="flex items-center justify-between rounded-xl border border-pink-100 bg-white/70 px-4 py-3">
+              <li key={id.provider} className="flex items-center justify-between rounded-xl border border-pink-100 bg-[var(--surface)] px-4 py-3">
                 <div>
-                  <p className="text-sm font-semibold text-[#4A4A4A]">{PROVIDER_LABEL[id.provider] ?? id.provider}</p>
-                  <p className="text-xs text-[#b9a8ae]">{id.identifier}</p>
+                  <p className="text-sm font-semibold text-[#292a27]">{PROVIDER_LABEL[id.provider] ?? id.provider}</p>
+                  <p className="text-xs text-[#8a8b81]">{id.identifier}</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => handleUnbind(id.provider)}
                   disabled={me.identities.length <= 1}
-                  className="rounded-lg border border-pink-200 px-3 py-1.5 text-xs font-medium text-[#cf6f99] transition hover:bg-pink-50 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="rounded-lg border border-pink-200 px-3 py-1.5 text-xs font-medium text-[#ac5145] transition hover:bg-pink-50 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   解绑
                 </button>
@@ -460,8 +460,8 @@ export default function AccountPage() {
         <section className={cardCls}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="mb-1 text-base font-bold text-[#403b3e]">用户改进计划</h2>
-              <p className="text-xs leading-relaxed text-[#b9a8ae]">
+              <h2 className="mb-1 text-base font-bold text-[#292a27]">用户改进计划</h2>
+              <p className="text-xs leading-relaxed text-[#8a8b81]">
                 开启时手部照片等数据可能被用于产品改进（去标识化后使用）；关闭后不会上传任何数据。
                 此偏好以账号为准，并同步到当前设备。
               </p>
@@ -471,10 +471,10 @@ export default function AccountPage() {
               role="switch"
               aria-checked={improvementEnabled}
               onClick={() => handleToggleImprovement(!improvementEnabled)}
-              className={`relative h-7 w-12 shrink-0 rounded-full transition ${improvementEnabled ? "bg-pink-400" : "bg-gray-300"}`}
+              className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200 after:absolute after:-inset-[6px] after:rounded-full after:content-[''] ${improvementEnabled ? "border-pink-200 bg-[var(--coral)]" : "border-[#f0e2db] bg-[#f0e2db]"}`}
             >
               <span
-                className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${improvementEnabled ? "left-[22px]" : "left-0.5"}`}
+                className={`absolute top-0.5 h-6 w-6 rounded-full bg-[var(--surface)] shadow transition-all ${improvementEnabled ? "left-7" : "left-1"}`}
               />
             </button>
           </div>

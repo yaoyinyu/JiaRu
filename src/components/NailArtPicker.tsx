@@ -100,7 +100,7 @@ const NAIL_TEXTURE_MODEL_MANIFEST_URL =
   process.env.NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL?.trim() || undefined;
 const MIN_NAIL_SIZE = 15;
 const BORDER_COLOR = "#22c55e";
-const SELECTED_COLOR = "#ec4899";
+const SELECTED_COLOR = "#ac5145";
 const HANDLE_BG = "#ffffff";
 
 const PARTIAL_CLOSEUP_HIDDEN_WARNING_CODES = new Set([
@@ -835,7 +835,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
   const assignedCount = regions.filter((region) => region.assignedFinger !== null).length;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 bg-black/70 ">
       <div className="mx-auto flex h-full max-w-7xl flex-col p-4 lg:flex-row lg:gap-4">
         <div className="flex min-h-0 flex-1 items-center justify-center rounded-3xl bg-neutral-950 p-3">
           <div className="relative max-h-full max-w-full overflow-auto rounded-2xl bg-black">
@@ -873,7 +873,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
           </div>
         </div>
 
-        <div className="mt-4 w-full shrink-0 overflow-auto rounded-3xl bg-white p-4 shadow-xl lg:mt-0 lg:w-[380px]">
+        <div className="mt-4 w-full shrink-0 overflow-auto rounded-3xl bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)] lg:mt-0 lg:w-[380px]">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">美甲纹理提取</h2>
@@ -891,10 +891,10 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
 
           <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
             <div className="flex flex-wrap gap-2 text-xs text-slate-600">
-              <span className="rounded-full bg-white px-2 py-1">区域：{regions.length}</span>
-              <span className="rounded-full bg-white px-2 py-1">已分配：{assignedCount}</span>
+              <span className="rounded-full bg-[var(--surface)] px-2 py-1">区域：{regions.length}</span>
+              <span className="rounded-full bg-[var(--surface)] px-2 py-1">已分配：{assignedCount}</span>
               {detectionSummary && (
-                <span className="rounded-full bg-white px-2 py-1">
+                <span className="rounded-full bg-[var(--surface)] px-2 py-1">
                   {detectionSummary.assistedByHandGeometry
                     ? "手部自动定位"
                     : detectionSummary.assistedByPartialCloseup
@@ -975,7 +975,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                         className={`w-full rounded-2xl border px-3 py-3 text-left transition ${
                           active
                             ? "border-pink-400 bg-pink-50"
-                            : "border-slate-200 bg-white hover:border-slate-300"
+                            : "border-slate-200 bg-[var(--surface)] hover:border-slate-300"
                         }`}
                       >
                         <div className="flex items-center justify-between gap-2">

@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import { Header } from "./Header";
-import { AmbientMotion } from "./AmbientMotion";
+import { BottomNav } from "./BottomNav";
 import styles from "./AppShell.module.css";
 
 type AppShellProps = { eyebrow: string; title: string; description: string; children: ReactNode; wide?: boolean; shiftUp?: boolean };
@@ -8,17 +8,9 @@ type AppShellProps = { eyebrow: string; title: string; description: string; chil
 export function AppShell({ eyebrow, title, description, children, wide = false, shiftUp = false }: AppShellProps) {
   return (
     <div className={styles.shell}>
-      <div className={styles.ambient} aria-hidden="true">
-        <span data-ambient-blob className={styles.pink} />
-        <span data-ambient-blob className={styles.purple} />
-        <span data-ambient-blob className={styles.gold} />
-        <span data-ambient-blob className={styles.rose} />
-        <span data-ambient-blob className={styles.white} />
-      </div>
-      <div className={styles.frostGlass} aria-hidden="true" />
-      <AmbientMotion />
+      <a href="#main-content" className={styles.skipLink}>跳到主要内容</a>
       <Header />
-      <main className={`${styles.main} ${wide ? styles.wide : ""} ${shiftUp ? styles.shiftUp : ""}`}>
+      <main id="main-content" tabIndex={-1} className={`${styles.main} ${wide ? styles.wide : ""} ${shiftUp ? styles.shiftUp : ""}`}>
         <header className={styles.pageHeader}>
           <p className={styles.eyebrow}>{eyebrow}</p>
           <h1>{title}</h1>
@@ -30,6 +22,7 @@ export function AppShell({ eyebrow, title, description, children, wide = false, 
         <span>甲如 JiaRu</span>
         <span>在指尖，遇见更好的选择</span>
       </footer>
+      <BottomNav />
     </div>
   );
 }

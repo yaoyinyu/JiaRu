@@ -1,35 +1,128 @@
 @import "tailwindcss";
 
-/* 甲如品牌色定义 */
+/* ==========================================================================
+   甲如 · 新设计（Neumorphism / Soft UI）品牌令牌
+   来源：design/consumer-v1/style.css（用户确认的设计蓝本）
+   旧设计（玫瑰粉渐变 + 流动色块 + 毛玻璃）已废弃，不再提供对应令牌。
+   ========================================================================== */
 :root {
-  --background: #FFF5F7;
-  --foreground: #4A4A4A;
+  color-scheme: light;
+  --paper: #f7f4ee;
+  --surface: #f7f4ee;
+  --ink: #292a27;
+  --muted: #67685f;
+  --coral: #ac5145;
+  --coral-text: #a34b3f;
+  --coral-deep: #884338;
+  --coral-soft: #f0e2db;
+  --sage: #e3e7dd;
+  --line: #deddd4;
+  --radius-capsule: 999px;
+  --shadow-dark: #d3ccbd;
+  --shadow-light: #fffdf8;
+  --neu-out-sm: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+  --neu-out-md: 6px 6px 12px var(--shadow-dark), -6px -6px 12px var(--shadow-light);
+  --neu-out-lg: 8px 8px 18px var(--shadow-dark), -8px -8px 18px var(--shadow-light);
+  --neu-out-hover: 3px 3px 6px var(--shadow-dark), -3px -3px 6px var(--shadow-light);
+  --neu-in-sm: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light);
+  --neu-in-md: inset 6px 6px 12px var(--shadow-dark), inset -6px -6px 12px var(--shadow-light);
+  --neu-in-focus: inset 2px 2px 4px var(--shadow-dark), inset -2px -2px 4px var(--shadow-light);
+  --neu-in-press-ink: inset 4px 4px 8px rgba(20, 21, 18, .45), inset -4px -4px 8px rgba(255, 255, 255, .14);
+  --serif: "JiaRu Editorial", "Iowan Old Style", "Palatino Linotype", "Songti SC", "STSong", "Noto Serif CJK SC", "SimSun", serif;
+  --ease-soft: cubic-bezier(.4, 0, .2, 1);
+  --dur-soft: .3s;
+  --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  /* 兼容旧变量名，避免残留引用失效 */
+  --background: var(--paper);
+  --foreground: var(--ink);
+}
+
+/* 桌面端阴影放大，光源方向不变（左上亮 / 右下暗） */
+@media (min-width: 768px) {
+  :root {
+    --neu-out-sm: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+    --neu-out-md: 8px 8px 16px var(--shadow-dark), -8px -8px 16px var(--shadow-light);
+    --neu-out-lg: 10px 10px 24px var(--shadow-dark), -10px -10px 24px var(--shadow-light);
+    --neu-out-hover: 4px 4px 8px var(--shadow-dark), -4px -4px 8px var(--shadow-light);
+    --neu-in-md: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
+  }
+}
+
+/* 本地衬线标题字（OFL 许可，见 public/fonts/OFL.txt） */
+@font-face {
+  font-family: "JiaRu Editorial";
+  src: url("/fonts/jiaru-editorial-serif.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+}
+
+/* 旧 Tailwind 粉色刻度整体改映射到新品牌色：页面 class 不变，视觉切换 */
+@theme {
+  --color-pink-50: #f7f4ee;
+  --color-pink-100: #f0e2db;
+  --color-pink-200: #e6cfc4;
+  --color-pink-300: #d9b3a6;
+  --color-pink-400: #ac5145;
+  --color-pink-500: #a34b3f;
+  --color-pink-600: #884338;
+  --color-pink-700: #6f352c;
+  --color-pink-800: #5a2b24;
+  --color-pink-900: #452119;
+  --color-rose-50: #f7f4ee;
+  --color-rose-100: #f0e2db;
+  --color-rose-200: #e6cfc4;
+  --color-rose-300: #d9b3a6;
+  --color-rose-400: #ac5145;
+  --color-rose-500: #a34b3f;
+  --color-rose-600: #884338;
+  --color-purple-50: #e3e7dd;
+  --color-purple-100: #e3e7dd;
+  --color-purple-200: #d4dbc9;
+  --color-purple-400: #8a947f;
+  --color-purple-500: #7a8471;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Noto Sans SC", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--serif);
+  letter-spacing: -.01em;
 }
 
 /* 自定义滚动条 */
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: transparent;
-}
-::-webkit-scrollbar-thumb {
-  background: #E8A0BF;
-  border-radius: 2px;
-}
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--shadow-dark); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--coral); }
 
 /* 选中文本 */
-::selection {
-  background-color: #E8A0BF;
-  color: white;
+::selection { background-color: var(--coral-soft); color: var(--coral-deep); }
+
+/* 统一焦点可见性（WCAG：不使用 outline:none） */
+a:focus-visible, button:focus-visible, input:focus-visible,
+textarea:focus-visible, select:focus-visible, summary:focus-visible {
+  outline: 2px solid var(--coral);
+  outline-offset: 3px;
+}
+
+/* 新拟态通用面：凸起=可交互/卡片；凹陷=选中/输入托盘 */
+.neu-card {
+  background: var(--surface);
+  border-radius: 24px;
+  box-shadow: var(--neu-out-md);
+}
+.neu-inset {
+  background: var(--surface);
+  box-shadow: var(--neu-in-sm);
 }
 
 /* AI 生成页：右侧展示区柔和 shimmer 加载效果 */

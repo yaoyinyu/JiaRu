@@ -55,8 +55,8 @@ const CONDITION_OPTIONS: ReadonlyArray<{ value: NailCondition; label: string }> 
 const UNSET = "";
 
 const fieldClass =
-  "w-full rounded-2xl border border-white/80 bg-white/75 px-3 py-2 text-sm text-[#544C50] shadow-sm outline-none transition focus:border-[#D4749D]";
-const labelClass = "mb-1 block text-xs font-medium text-[#8C7F84]";
+  "min-h-11 w-full rounded-2xl bg-[var(--surface)] px-3 py-2 text-sm text-[#292a27] shadow-sm outline-none transition focus:border-[#ac5145]";
+const labelClass = "mb-1 block text-xs font-medium text-[#75766c]";
 
 interface NailAnalysisFormProps {
   value: UserScenario;
@@ -183,10 +183,10 @@ export function NailAnalysisForm({ value, onChange, disabled = false }: NailAnal
       </div>
 
       <div className="sm:col-span-2">
-        <label className="flex items-center gap-2 text-xs text-[#8C7F84]">
+        <label className="flex min-h-11 items-center gap-2 text-xs text-[#75766c]">
           <input
             type="checkbox"
-            className="h-4 w-4 rounded border-[#EAB4CB] text-[#C96690]"
+            className="h-5 w-5 rounded border-[#d9b3a6] text-[#ac5145]"
             checked={value.hasAllergyHistory ?? false}
             disabled={disabled}
             onChange={(event) => update("hasAllergyHistory", event.target.checked || undefined)}

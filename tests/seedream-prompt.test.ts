@@ -2,11 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  SEEDREAM_EDIT_SUFFIX,
   SEEDREAM_I2I_SYSTEM_PROMPT,
   SEEDREAM_T2I_SYSTEM_PROMPT,
   assembleSeedreamEditPrompt,
   assembleSeedreamPrompt,
 } from "../src/lib/seedream-prompt.ts";
+import { AI_IMAGE_SCENE_SUFFIX } from "../src/lib/ai-hand-anatomy-prompt.ts";
 
 test("Seedream 系统提示词保持精简（火山方舟建议中文不超过 300 字）", () => {
   assert.ok(
@@ -39,4 +41,19 @@ test("两套提示词核心约束齐全且互相独立", () => {
   assert.ok(SEEDREAM_I2I_SYSTEM_PROMPT.includes("完全不变"));
   // 两套提示词不得相同。
   assert.notEqual(SEEDREAM_T2I_SYSTEM_PROMPT, SEEDREAM_I2I_SYSTEM_PROMPT);
+});
+
+test("Seedream 图生图保留环境元素，且不复用文生图场景后缀", () => {
+  for (const keyword of ["构图", "画幅", "背景", "道具", "光线", "色温", "景深", "肤质", "禁止重绘"]) {
+    assert.ok(
+      SEEDREAM_EDIT_SUFFIX.includes(keyword),
+      `Seedream 图生图后缀必须包含：${keyword}`
+    );
+  }
+  const assembled = assembleSeedreamEditPrompt("银色亮片渐变");
+  assert.ok(
+    !assembled.includes(AI_IMAGE_SCENE_SUFFIX),
+    "Seedream 图生图不得复用文生图场景后缀"
+  );
+  assert.ok(!assembled.includes("close-up hand photo"));
 });
