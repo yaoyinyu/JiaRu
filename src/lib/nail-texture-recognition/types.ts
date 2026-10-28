@@ -5,6 +5,12 @@ export interface NailMask {
   originX: number;
   originY: number;
   scale: number;
+  /**
+   * 可选软边权重（0..255，长度须为 width*height）。
+   * 仅本机精细抠图来源提供；未提供时全部既有行为不变。
+   * 几何范围仍由二值 `data` 决定，软边只用于收紧边缘 alpha。
+   */
+  alpha?: Uint8ClampedArray;
 }
 
 export type NailTextureModelBackend = "webgpu" | "wasm" | "fallback";
@@ -35,7 +41,8 @@ export type NailTextureCandidateSource =
   | "mediapipe"
   | "partial-closeup"
   | "saliency"
-  | "manual";
+  | "manual"
+  | "vlm-matte";
 
 export interface NailTextureCandidate {
   id: string;

@@ -77,8 +77,8 @@ export default function Home() {
         />
 
         <Link href="/gallery" className={styles.searchPill}>
-          <Icon name="search" />
-          <span>法式、裸粉、通勤…</span>
+          <Icon name="image" />
+          <span>共 {GALLERY_IMAGES.length} 款精选</span>
         </Link>
 
         <ul className={styles.lookGrid}>

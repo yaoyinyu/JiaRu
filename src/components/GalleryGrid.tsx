@@ -24,7 +24,7 @@ function formatCollectTime(timestamp: number): string {
 export function GalleryGrid() {
   return (
     <>
-      <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 wl:grid-cols-4">
         {GALLERY_IMAGES.map((item, index) => (
           <div
             key={item.id}
@@ -36,10 +36,16 @@ export function GalleryGrid() {
             </div>
             <div className="p-3 sm:p-4">
               <p className="truncate font-[var(--serif)] text-[14.5px] font-medium text-[var(--ink)]">{item.name}</p>
-              <div className="mt-2.5 grid grid-cols-3 gap-1.5">
-                <Link href={`/editor?gallery=${item.id}`} className="rounded-full bg-[var(--coral-soft)] px-2 py-1.5 text-center text-[11px] font-medium text-[var(--coral-deep)] transition hover:shadow-[var(--neu-out-sm)]">试色</Link>
-                <Link href={`/ai-generate?gallery=${item.id}`} className="rounded-full bg-[var(--sage)] px-2 py-1.5 text-center text-[11px] font-medium text-[#5c6752] transition hover:shadow-[var(--neu-out-sm)]">AI 相似款</Link>
-                <Link href={`/ar-tryon?gallery=${item.id}`} className="rounded-full bg-[var(--surface)] px-2 py-1.5 text-center text-[11px] font-medium text-[var(--muted)] shadow-[var(--neu-out-sm)] transition hover:text-[var(--coral-deep)] hover:shadow-[var(--neu-out-hover)]">AR 试戴</Link>
+              <div className="mt-2.5 grid grid-cols-3 gap-2">
+                <Link href={`/editor?gallery=${item.id}`} aria-label={`为「${item.name}」试色`} className="grid h-11 place-items-center rounded-full bg-[var(--coral-soft)] text-[var(--coral-deep)] transition hover:shadow-[var(--neu-out-sm)]">
+                  <Icon name="palette" className="h-[18px] w-[18px]" />
+                </Link>
+                <Link href={`/ai-generate?gallery=${item.id}`} aria-label={`为「${item.name}」生成 AI 相似款`} className="grid h-11 place-items-center rounded-full bg-[var(--sage)] text-[#5c6752] transition hover:shadow-[var(--neu-out-sm)]">
+                  <Icon name="sparkles" className="h-[18px] w-[18px]" />
+                </Link>
+                <Link href={`/ar-tryon?gallery=${item.id}`} aria-label={`AR 试戴「${item.name}」`} className="grid h-11 place-items-center rounded-full bg-[var(--surface)] text-[var(--muted)] shadow-[var(--neu-out-sm)] transition hover:text-[var(--coral-deep)] hover:shadow-[var(--neu-out-hover)]">
+                  <Icon name="camera" className="h-[18px] w-[18px]" />
+                </Link>
               </div>
             </div>
           </div>
@@ -116,7 +122,7 @@ function CollectsSection() {
         </p>
         <button onClick={handleClearAll} className="text-[11px] text-[var(--muted)] transition hover:text-[var(--coral-deep)]">清空全部</button>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3">
+      <div className="grid grid-cols-2 gap-3 sm:gap-5 md:grid-cols-3 wl:grid-cols-4">
         {collects.map(({ record, url }) => (
           <div
             key={record.id}
@@ -141,9 +147,13 @@ function CollectsSection() {
                   <Icon name="trash" className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <div className="mt-2.5 grid grid-cols-2 gap-1.5">
-                <Link href={`/ai-generate?collect=${record.id}`} className="rounded-full bg-[var(--sage)] px-2 py-1.5 text-center text-[11px] font-medium text-[#5c6752] transition hover:shadow-[var(--neu-out-sm)]">AI 相似款</Link>
-                <Link href={`/ar-tryon?collect=${record.id}`} className="rounded-full bg-[var(--surface)] px-2 py-1.5 text-center text-[11px] font-medium text-[var(--muted)] shadow-[var(--neu-out-sm)] transition hover:text-[var(--coral-deep)] hover:shadow-[var(--neu-out-hover)]">AR 试戴</Link>
+              <div className="mt-2.5 grid grid-cols-2 gap-2">
+                <Link href={`/ai-generate?collect=${record.id}`} aria-label="为这条收录生成 AI 相似款" className="grid h-11 place-items-center rounded-full bg-[var(--sage)] text-[#5c6752] transition hover:shadow-[var(--neu-out-sm)]">
+                  <Icon name="sparkles" className="h-[18px] w-[18px]" />
+                </Link>
+                <Link href={`/ar-tryon?collect=${record.id}`} aria-label="AR 试戴这条收录" className="grid h-11 place-items-center rounded-full bg-[var(--surface)] text-[var(--muted)] shadow-[var(--neu-out-sm)] transition hover:text-[var(--coral-deep)] hover:shadow-[var(--neu-out-hover)]">
+                  <Icon name="camera" className="h-[18px] w-[18px]" />
+                </Link>
               </div>
             </div>
           </div>

@@ -87,6 +87,8 @@ model/exports/
 /model/training/nail-texture-train-source-group-development-folds-*.json
 /model/training/nail-texture-train-source-group-development-materialization-*.json
 /public/models/**/*.onnx
+# 仅用于本地回归的测试导出权重：元数据入库，权重不入库
+/model/test-assets/**/*.onnx
 /runs/
 /review-temp/
 /.playwright-cli/

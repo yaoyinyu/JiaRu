@@ -109,6 +109,16 @@ export function buildFeatheredAlphaMask(
     }
   }
 
+  // 软边来源（本机精细抠图）在 `alpha` 中携带 0..255 的真实边缘权重：
+  // 取 min(软边, 羽化斜坡) —— 几何仍由二值 `data` 决定，软边只能收紧不能扩张。
+  // 长度不匹配时整体忽略，避免短数组产生 NaN 或静默全透明。
+  const soft = mask.alpha;
+  if (soft && soft.length === alpha.length) {
+    for (let index = 0; index < alpha.length; index += 1) {
+      if (soft[index] < alpha[index]) alpha[index] = soft[index];
+    }
+  }
+
   return alpha;
 }
 

@@ -1,0 +1,16 @@
+# 权重与运行产物：体积大、可重建，不入库
+models/
+out/
+
+# 上游 WeVisOne-VL 是 vendored 第三方代码（Apache-2.0），可由下述来源重建，不入库：
+#   git clone https://github.com/Tencent/WeVisOne-VL.git  -> 放到 src/WeVisOne-VL-main
+# 本目录只版本化自写的接入层（matting.py / server.py / client_example.mjs 等）。
+src/
+
+# Python 运行缓存
+__pycache__/
+*.pyc
+
+# 本地覆盖
+.env
+*.log

@@ -19,7 +19,8 @@ export type RateLimitName =
   | "requestCode"
   | "verifyCode"
   | "bindPhone"
-  | "oauthStart";
+  | "oauthStart"
+  | "nailMatte";
 
 interface RateLimitRule {
   limit: number;
@@ -33,6 +34,8 @@ const DEFAULT_RULES: Record<RateLimitName, RateLimitRule> = {
   verifyCode: { limit: 20, windowMs: 10 * 60 * 1000 },
   bindPhone: { limit: 10, windowMs: 10 * 60 * 1000 },
   oauthStart: { limit: 20, windowMs: 10 * 60 * 1000 },
+  // 本机抠图单图 12—16.5s、上游并发固定 1，额度按「每人每 10 分钟 3 次」收紧。
+  nailMatte: { limit: 3, windowMs: 10 * 60 * 1000 },
 };
 
 const ENV_OVERRIDES: Record<RateLimitName, string> = {
@@ -41,6 +44,7 @@ const ENV_OVERRIDES: Record<RateLimitName, string> = {
   verifyCode: "JIARU_RL_VERIFY_CODE",
   bindPhone: "JIARU_RL_BIND_PHONE",
   oauthStart: "JIARU_RL_OAUTH_START",
+  nailMatte: "JIARU_RL_NAIL_MATTE",
 };
 
 interface Bucket {

@@ -60,6 +60,8 @@
 
 /* 旧 Tailwind 粉色刻度整体改映射到新品牌色：页面 class 不变，视觉切换 */
 @theme {
+  /* 设计规范 §7.1 的 LG 断点（1100px，桌面完整导航档）；命名变体按值排序在 md 之后，保证层叠正确 */
+  --breakpoint-wl: 68.75rem;
   --color-pink-50: #f7f4ee;
   --color-pink-100: #f0e2db;
   --color-pink-200: #e6cfc4;

@@ -3,7 +3,7 @@ import { Header } from "./Header";
 import { BottomNav } from "./BottomNav";
 import styles from "./AppShell.module.css";
 
-type AppShellProps = { eyebrow: string; title: string; description: string; children: ReactNode; wide?: boolean; shiftUp?: boolean };
+type AppShellProps = { eyebrow: string; title: string; description?: string; children: ReactNode; wide?: boolean; shiftUp?: boolean };
 
 export function AppShell({ eyebrow, title, description, children, wide = false, shiftUp = false }: AppShellProps) {
   return (
@@ -14,7 +14,7 @@ export function AppShell({ eyebrow, title, description, children, wide = false, 
         <header className={styles.pageHeader}>
           <p className={styles.eyebrow}>{eyebrow}</p>
           <h1>{title}</h1>
-          <p className={styles.description}>{description}</p>
+          {description ? <p className={styles.description}>{description}</p> : null}
         </header>
         <div className={styles.content}>{children}</div>
       </main>

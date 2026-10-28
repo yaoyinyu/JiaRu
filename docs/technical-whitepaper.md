@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.2.161
+> 文档版本：v1.2.164
 >
 > 基线日期：2026-07-12
 >
@@ -139,6 +139,7 @@ Stage B真实训练权重的九尺寸合成完整图已通过CPU ORT/WASM/WebGPU
 | 个性化美甲分析推荐 | `/nail-analysis` | 待验证（工程门通过；真实照片与真机验收待补） | 纯规则启发式，不引入新模型训练：浏览器本地完成甲面候选识别、甲床/手型派生比例、甲周肤色采样（Lab/ITA°/底调，含甲面自污染排除与采样质量门）、指甲健康三类启发式，结合场景问卷由确定性规则引擎推荐甲型、长度与色系并附中文解释，可一键跳转 `/editor?preset=` 预涂。全部本地计算，不新增上传通道；即使开启「用户改进计划」分析结果也不外发。正式模型未部署期间识别100%走辅助定位且无像素级mask，指甲健康通道不可用（隐藏而非降级展示），琥珀辅助声明页面级常显，不得表述为自动分析成功，也不计入正式识别成功率或Beta直接可用率；0候选时不产出任何推荐。设计文档：`docs/nail-personalization-design.md`、`docs/nail-personalization-research.md`。 |
 | 美甲纹理自动识别 | `/ar-tryon`图片纹理识别 | 研发进行中 / PRODUCT HOLD | Stage B九尺寸合成三端各9/9；真实训练154 CPU门140/154后停止浏览器；原生Resize控制已证实后端坐标差异，现冻结显式坐标完整图与18次CPU控制，正式来源质量及产品链仍缺，见§8.9/§11.1。 |
 | 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 已实现（辅助定位提示；正式模型HOLD） | 所有fallback候选数均显示琥珀色辅助定位/人工确认提示，0候选提示手工添加；未部署标记在window/worker会话创建前返回明确warning。MediaPipe/局部近景无像素级mask，不计模型成功或Beta直接可用率。行为及发布拦截本地独立测试通过，真实浏览器产品路径待验收。 |
+| 本机精细抠图（WeVisOne-VL） | `NailArtPicker` 侧栏「精细抠图（本机）」、`POST /api/nail-matte` | 已实现（辅助能力，默认关闭；路由级 5/5，UI 端到端 3/5） | 仅在服务端配置`VLM_MATTE_URL`时出现入口：浏览器把原图压到长边≤1600 JPEG后提交，由同机`127.0.0.1:8008`的WeVisOne-VL-4B int4生成整图软 alpha（服务默认`--max-pixels 589824`），按「实例中心落入候选框优先、外接框IoU≥0.15兜底」与现有候选一一匹配并**只替换mask**（不增删候选、不改指位与置信度）。2026-10-28 实测：业务路由整图请求 5 实例/16.6s/5 候选全匹配（`output/nail-matte-p3/20261028-210056/`），nvidia-smi 设备峰值 7817 MiB（8 GiB 卡余量约 370 MiB）；1048576 档在同一原图只解出 1 个`<OBJ>`（响应文本含 5 个框），故不作为默认。UI 端到端（`/ar-tryon` 多纹理上传）同图返回 5 实例、14.3s，但只替换 3/5：两个未匹配候选与服务实例框仅部分重叠（IoU 0.075/0.049），本地 MediaPipe 候选几何偏移且偏小，按保守规则保留原 mask，未发生错误替换。未配置/忙/超时/鉴权失败一律降级并保留本地结果，不自动重试；本地0候选时可发起一次兜底识别，结果固定`confidence:"low"`且需逐指核对。不计正式识别成功率、Beta直接可用率、阈值校准或训练真值，不写生产manifest、不产生releaseIdentity，PRODUCT HOLD不变。 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
 | 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（无批准生产模型） | 生产manifest仍无批准ONNX或新releaseIdentity，正式训练准入v7及新来源val/正负留出、角标捷径消融、生产运行时/产品、真机/Beta与双批准权重回滚均未闭合。当前内部val诊断质量/数值未过且有上游训练历史，禁止据此正式校准、登记或部署。candidate57受保护test100失败保持，历史测试部署例外不构成正式发布；当前证据与下一路线见§11.1、Goal及当日日志。 |
 | 数据集治理 | `model/datasets/nail-texture-v1`及候选物化报告 | 进行中（发布角色需重建） | 仓库历史基础数据集仍为409图/2142 mask、split=300/46/63；正式训练输入已演进三代：candidate52/56（328张正图/1981 mask/112来源组加160张train困难负样本，物化train488/val30/test0）→ candidate58b（343张/2071 mask/127来源组，train503）→ 循环011/012开发口径（唯一一次12 epoch训练为循环012，350图训练文件树`34fe0a85…1edf`、124来源组均衡采样）。train内来源组开发折已由循环001—015落地为现行评估主线，clean98开发基线（58图/354-mask v2加40困难负图）与循环015扩容（源图供给55图/55来源组/322甲冻结、开发评估真值43图/265甲、训练禁用）为当前事实；旧val30、旧test100及编号261—360、361—460等已消费holdout现在只作受保护历史回归，禁止训练、配方/阈值选择或再次冒充未见证据；候选锁定后的全新校准集、一次性正样本发布留出与全新困难负样本要求保持不变；当前无批准发布候选。 |
@@ -404,7 +405,8 @@ function analyzeNailPersonalization(input: PersonalizationInput): Personalizatio
 - **产品内容色不受换肤影响**：默认甲油色 `#E8A0BF`（`src/app/editor/page.tsx` 的 `DEFAULT_NAIL_COLOR` 与其五指甲默认数组、`ArView` 与 `NailCanvas` 的无选中色回退）**保持原值不变**，`ColorPalette` 的色板数据未改动。换肤只替换 UI 强调色与表面色，不得改变用户实际看到的甲油颜色；`layout.tsx` 的 `body` 底色改为 `var(--paper)`／文字 `var(--ink)`。
 - **字体资产**：新增 `public/fonts/jiaru-editorial-serif.woff2`（OFL 许可，`public/fonts/OFL.txt`），`@font-face` 声明 `JiaRu Editorial`，用于标题与 eyebrow，`font-display: swap`。
 - **首页（v1.2.160 精简）**：5 个功能入口改由顶部导航与圆形图标承担，首页**移除 `START HERE` 入口网格**（原 5 张卡片及其 `EntryIcon`、`entries` 数据与 `.card*`/`.bentoGrid` 样式一并删除），保留编辑部式 Hero（eyebrow + 衬线大标题 + 双 CTA，其中「上传照片试色」直达 `/editor`）、风格卡（`/nail-analysis`）、`CURATED FOR YOU / 此刻心动` 与款式网格（`/gallery`、`/editor?gallery=`）及页脚全部链接（`/editor`、`/gallery`、`/ai-generate`、`/ar-tryon`、`/privacy`、`mailto:`）；能力边界说明保留（AR 需 HTTPS 或本机地址与摄像头权限、AI 生成需联网、识别结果仅用于辅助定位，不作为正式纹理识别能力承诺）。
-- **完整应用（v1.2.159）**：本轮不再只做配色替换，按 `design/consumer-v1` 的布局与组件结构重做正式站界面——首页改为「编辑部式 Hero（左文案＋右侧手部拼贴，含和纸胶带、竖排小字、图注）＋风格卡＋`CURATED FOR YOU / 此刻心动`＋搜索胶囊＋款式网格＋`START HERE` 入口网格」；图库改为无外框的款式网格（`LOOK 01` 标签、三枚操作胶囊）；全站卡片阴影统一为 `--neu-out-*`/`--neu-in-*` 双光源、移除卡片描边；旧渐变按钮、渐变图标底、径向渐变预览区与装饰渐变全部改为纯色面（仅保留语义色：成功绿、微信绿、默认甲油色 `#E8A0BF`）；清理换肤过程中产生的无效孤儿类名（`-2xl` 等 12 处）；其中 `START HERE` 入口网格已于 v1.2.160 移除（当前口径见上条）。
+- **完整应用（v1.2.159）**：本轮不再只做配色替换，按 `design/consumer-v1` 的布局与组件结构重做正式站界面——首页改为「编辑部式 Hero（左文案＋右侧手部拼贴，含和纸胶带、竖排小字、图注）＋风格卡＋`CURATED FOR YOU / 此刻心动`＋搜索胶囊＋款式网格＋`START HERE` 入口网格」；图库改为无外框的款式网格（`LOOK 01` 标签、三枚操作胶囊；v1.2.162 起改为图标按钮，见下条）；全站卡片阴影统一为 `--neu-out-*`/`--neu-in-*` 双光源、移除卡片描边；旧渐变按钮、渐变图标底、径向渐变预览区与装饰渐变全部改为纯色面（仅保留语义色：成功绿、微信绿、默认甲油色 `#E8A0BF`）；清理换肤过程中产生的无效孤儿类名（`-2xl` 等 12 处）；其中 `START HERE` 入口网格已于 v1.2.160 移除（当前口径见上条）。
+- **图库图形优先收口（v1.2.162）**：`/gallery` 页头移除描述段落与「共 N 款精选」说明胶囊（`AppShell` 的 `description` Prop 转为可选，其余页面不受影响）；主款式卡与收录卡操作改为 44px 图标按钮（试色＝调色板/珊瑚软底、AI 相似款＝星芒/鼠尾草底、AR 试戴＝相机/白底凸起），每钮携带含款式名的 `aria-label`；灵感网格密度 2/3/4 列，≥1100px 档经 `@theme` 命名令牌 `--breakpoint-wl: 68.75rem` 实现（Tailwind 4 任意变体 `min-[1100px]:` 层叠于命名断点之前导致失效，禁止使用，规则已登记 AGENTS.md）；首页图库入口胶囊改为图片图标＋「共 N 款精选」。路由、HTTP API 与数据契约无变化。
 - **资产**：新增 `public/nail-gallery/hero-hand.jpg`（1200×1499，JPEG q84，约 220KB），由 `design/consumer-v1/assets/hero-hand-collage-v2.png` 压缩导出。
 - **验收**（v1.2.159 复跑，串行）：`lint` 0 problems、`typecheck` 0、`npm.cmd test` **1205/1205 pass、0 fail、0 skip**、`npm.cmd run build` **exit 0** 且路由清单完整（12 页面 + 15 API）；生产服务 `next start` 启动后 `/`、`/gallery`、`/editor`、`/ai-generate`、`/ar-tryon`、`/account`、`/nail-analysis`、`/privacy`、`/login` 全部 **200**；桌面 1280×900 与移动 390×844 截图核对（`output/shots/`）。视觉评审与真机验收仍未执行，不宣称已上线或已在真机通过。
 
@@ -523,6 +525,38 @@ PATCH 请求体（字段均可选，只写本次提交的字段；未提交字�
 
 `/account` 交互口径：查看态展示头像/昵称/简介/联系方式，空字段给出补充入口；编辑态支持头像上传与移除、字段实时校验、保存与取消（存在未保存修改时需确认），保存成功/失败在卡片内分别以 `role=status`/`role=alert` 反馈；读取中显示骨架卡片，读取失败与未登录分开呈现且失败可原地重试。头像以 data URL 存入 `users.avatar`；`bio`/`contact`/`contact_type` 由 `createUserDb` 对旧库自动补列。仍为账户原型：未接入对象存储、头像内容审核与跨设备同步。
 
+### 5.4 `GET/POST /api/nail-matte`（本机精细抠图）
+
+状态：已实现（v1.2.164）；路由级端到端 5/5、UI 端到端 3/5（UI 已验证联通）；不改变正式识别 PRODUCT HOLD。
+
+配置：`VLM_MATTE_URL`（如 `http://127.0.0.1:8008`）+ `VLM_MATTE_TOKEN`，仅服务端读取。未配置 URL 时 `GET` 返回 `{"enabled":false}` 且前端整块不渲染；已配置但上游不可达返回 `enabled:true, ready:false`。
+
+`GET` 响应：`{"enabled":boolean,"ready":boolean,"busy":boolean}`，只读上游 `/health`，不触发推理。
+
+`POST` 请求（**仅这四个字段**，其余忽略）：
+
+```http
+POST /api/nail-matte
+Content-Type: application/json
+
+{"image":"data:image/jpeg;base64,...","task":"matting","query":"指甲"}
+```
+
+| 字段 | 约束 |
+| --- | --- |
+| `image` | 必填，`data:image/(png\|jpeg\|jpg\|webp);base64,` 前缀；请求体 ≤8MB，`content-length` 超限在解析前返回 413 |
+| `task` | 可选，`matting`/`segmentation`/`visual_prompt`，默认 `matting` |
+| `query` | 可选，≤32 字符，默认「指甲」 |
+| `boxes` | 可选，≤10 组 `[x1,y1,x2,y2]` 且 `x1<x2`、`y1<y2`；仅 `visual_prompt` 允许（refine 路径已不使用） |
+
+上游输入预算默认 589824 像素（`matting.py` 的 `DEFAULT_MAX_PIXELS`，`server.py --max-pixels` 同源）。2026-10-28 参数实测：589824 在 7 张业务图（含双手 9 甲）按 `<OBJ>` 逐甲返回、单图 11.8–18.7s；1048576 档对 `hero-hand.jpg` 只解出 1 个 `<OBJ>`（响应文本含 5 个框），故不得作为默认；`visual_prompt` 在本权重下对同一原图恒定返回 0 实例，refine 统一使用 `matting`。分辨率只影响 mask 几何有限（相邻档二值 alpha IoU 0.96–0.99），不改变实例数语义限制。UI 端到端（`/ar-tryon` 多纹理上传，2026-10-28）实测服务返回 5 实例/14.3s，面板替换 3/5；未匹配两例的服务实例框与本地候选框仅部分重叠（IoU 0.075/0.049），属本地候选几何偏移，不是实例召回不足，按规则保留本地 mask。
+
+成功响应：`{width, height, instances[], omittedInstances, model, quant, elapsedMs}`；`instances[]` 只保留 `index/box/bbox/area/alphaPng/width/height`，`alphaPng` 必须是 `data:image/png;base64,`（其他形式丢弃），超过 10 个实例截断并在 `omittedInstances` 显式计数。上游的 VLM 文本 `response` 与 `metrics` **不回传**。
+
+错误映射：未配置→503 `disabled`；上游忙→503 `busy`（带 `retryAfterSeconds` 与 `Retry-After`）；超时→504 `timeout`；上游鉴权失败→503 `auth_misconfigured`；上游 5xx/不可达→502 `upstream_error`；图片不合法→400；超过 8MB→413；超过每身份额度（默认 3 次/10 分钟，`JIARU_RL_NAIL_MATTE` 可覆盖）→429 `rate_limited`。降级响应统一形如 `{"degraded":true,"reason":"...","error":"..."}`，正文不含 token 与上游堆栈。
+
+安全约束：转发层按白名单重建请求体，**不读取也不透传 `imagePath`**（上游该分支可直接打开本机文件）；上游 token 只在服务端环境变量；服务只应绑定回环地址；本路由不得进入实时 AR 帧链路。
+
 ## 6. 浏览器端美甲纹理识别接口
 
 ### 6.1 对外入口
@@ -581,12 +615,24 @@ interface NailTextureCandidate {
   angle: number;
   score: number;
   confidence: "high" | "medium" | "low";
-  source: "model" | "mediapipe" | "partial-closeup" | "saliency" | "manual";
+  source: "model" | "mediapipe" | "partial-closeup" | "saliency" | "manual" | "vlm-matte";
   mask?: NailMask;
   warnings?: string[];
   suggestedFinger: number | null;
 }
+
+interface NailMask {
+  width: number;
+  height: number;
+  data: Uint8Array;          // 二值几何，非零即前景
+  originX: number;           // 恒 0（整图栅格）
+  originY: number;
+  scale: number;             // max(原图宽/mask 宽, 原图高/mask 高)
+  alpha?: Uint8ClampedArray; // 可选软边 0..255，仅 vlm-matte 来源提供
+}
 ```
+
+`mask.alpha` 为 v1.2.163 新增的可选字段：`buildFeatheredAlphaMask()` 在存在且长度等于 `width*height` 时取 `min(软边, 羽化斜坡)`，即软边只能收紧边缘、不能扩张二值几何；未提供或长度不符时完全沿用原逻辑，既有调用方零改动。`source: "vlm-matte"` 由本机精细抠图（§5.4）产生，固定 `confidence: "low"`，界面显示「本机精细抠图」并要求人工复核。
 
 ### 6.2 运行策略
 
@@ -663,6 +709,8 @@ disposeAllTextures(bitmaps): void
 ## 7. 模型产物契约
 
 正式 manifest 路径：`public/models/nail-texture-seg/manifest.json`。
+
+静态目录准入（v1.2.163）：`public/models/` 只保留生产 manifest 与批准/合成占位权重；仅测试用导出（如 candidate57 的 `testOnly: true` 双阶段权重）一律存放于 `model/test-assets/<候选名>/`，元数据 JSON 入库、`*.onnx` 由 `.gitignore` 排除，避免任何构建把 `deploymentAuthorized: false` 的权重作为静态资源公开。该搬迁只改变资产位置，不改变 candidate57 的 TEST HOLD、不恢复其部署资格，也不改变正式 manifest 的 `not-deployed` 状态。
 
 `deploymentStatus`为可选枚举`deployed | not-deployed`，缺省兼容旧候选，显式非法值（含null）拒绝。当前默认为`not-deployed`：window/worker共用加载器及Stage B入口均在ORT会话前返回fallback和`model_not_deployed`；`resolveModelUrl`拒绝解析。资产审核、发布登记及切换拒绝未部署/非法状态，且不创建登记或覆盖活动manifest。`deployed`仅表示声明可加载，仍须资产完整性、同一发布身份及全部质量门，不自动授予发布资格。
 
@@ -1174,10 +1222,11 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 
 ## 10. 隐私、安全与资源管理
 
-- `/editor` 上传照片默认在浏览器本地处理；「用户改进计划」开关默认开启时，手部照片等数据可能被上传用于产品改进（当前代码尚无实际上传通道，开关为偏好记录，未来数据收集上线后生效）；
+- `/editor` 上传照片默认在浏览器本地处理；「用户改进计划」开关默认开启时，手部照片等数据可能被上传用于产品改进（改进计划本身当前代码尚无实际上传通道，开关为偏好记录，未来数据收集上线后生效）；
 - `/ar-tryon` 摄像头帧默认在浏览器内存中处理，不录制；MediaPipe程序和模型由本站同源静态目录提供；
 - 自动纹理识别默认在浏览器 Worker/主线程中运行；
 - `/api/generate-ai`与`/api/generate-seedream`接收文字及可选参考图，并分别转发给Agnes与火山方舟；返回图片由浏览器访问外部URL，主动生图不由“用户改进计划”开关禁用。
+- v1.2.163 起新增一条**用户主动触发**的上传通道：`/api/nail-matte` 把浏览器压缩后的图片（长边≤1600 JPEG）发送到自托管（默认同机 `127.0.0.1:8008`）的 WeVisOne-VL 服务，仅用于本次轮廓提取，服务按内存处理、不转发第三方、不写入训练数据；未配置 `VLM_MATTE_URL` 时通道与入口都不存在。该请求不受「用户改进计划」开关约束（用户点击即授权本次处理），也不属于改进计划的数据收集。
 - `AGNES_API_KEY`只能存在于服务端环境变量；本机`.env.local`受`.gitignore`保护，文档、日志和源码不得记录真实密钥；
 - `ImageBitmap`、对象 URL、MediaStream track、Worker 和动画帧循环必须在取消或卸载时释放；
 - 用户素材、训练图片、大模型权重和生成数据默认不应加入 Git；应通过 `.gitignore`、对象存储或独立数据盘管理；
@@ -1185,7 +1234,7 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 - Git与远端的跟踪边界固定为完整可运行的业务、训练和审计代码，测试、配置模板、浏览器运行时必需资产与必要说明。模型权重、数据集、逐文件开发清单、训练计划/判定JSON、训练输出、评估明细、机器报告与review、审核截图、浏览器调试快照及其他可重建证据仅保留本地并由`.gitignore`隔离；小型稳定测试fixture可保留。历史`辅助材料`只跟踪必要Markdown说明，图片、标注、CSV/JSON/YAML和审核产物不再进入当前Git树。
 - 正式 API 上线前需增加鉴权、限流、内容安全、审计、费用保护和错误信息脱敏。
 - `/privacy`是待纠正的产品文案，不构成法律合规验收：仍称无账户体系、只列Agnes、关闭改进计划后不再上传任何数据，与已有账户、Seedream和主动生图数据流不符。账户数据库可保存手机号、身份、会话IP和审计记录；个人收录保存在本地IndexedDB。第三方“不用于训练或存储”不能仅凭本项目代码保证，需要实际服务条款/协议依据。
-- 改进计划目前尚无实际素材上传通道；隐私页开关仅写localStorage，账户页开关同时写`/api/me/improvement`与localStorage，反向同步未实现，可能出现账号与设备偏好不一致。后续接入上传前必须统一权威偏好与作用范围，不能把关闭可选改进计划描述为关闭用户主动请求的全部网络服务。
+- 改进计划目前尚无实际素材上传通道（指改进计划的数据收集，与本机精细抠图这类用户主动请求无关）；隐私页开关仅写localStorage，账户页开关同时写`/api/me/improvement`与localStorage，反向同步未实现，可能出现账号与设备偏好不一致。后续接入上传前必须统一权威偏好与作用范围，不能把关闭可选改进计划描述为关闭用户主动请求的全部网络服务。
 
 ## 11. 已知限制与下一阶段
 

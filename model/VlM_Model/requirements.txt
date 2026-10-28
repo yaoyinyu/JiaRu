@@ -1,0 +1,25 @@
+# WeVisOne-VL 抠图运行环境（已验证组合）
+#
+# 显卡：RTX 4060 Laptop 8 GB（Ada sm_89）
+# 系统：Windows 11 / CUDA 12.8 驱动
+# 实测：int4 峰值显存 5.8 GiB、单图 5.7–6.1s（1024×1024 像素预算）
+#
+# 安装顺序（torch 必须走 cu128 索引，否则 int4 的 TinyGemm 内核不可用）：
+#   pip install --index-url https://download.pytorch.org/whl/cu128 torch==2.11.0 torchvision==0.26.0
+#   pip install -r requirements.txt
+
+torch==2.11.0+cu128
+torchvision==0.26.0+cu128
+
+transformers==5.12.1
+accelerate==1.14.0
+huggingface-hub==1.21.0
+safetensors==0.8.0
+
+# int4 量化（TinyGemm 权重量化）；没有它只能整卡 bf16 → 需要 12 GiB 以上显存
+optimum-quanto==0.2.7
+
+# 视觉预处理与 VLM 输入构造
+qwen-vl-utils==0.0.14
+Pillow==12.3.0
+numpy==2.2.6

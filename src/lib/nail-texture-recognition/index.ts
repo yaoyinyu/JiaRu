@@ -97,6 +97,47 @@ export {
   rankNailTextureCandidates,
 } from "./quality.ts";
 export {
+  boxIou,
+  candidateBounds,
+  instanceCenterInsideCandidate,
+  matchMasksByIou,
+  matchMasksToCandidates,
+  rotatedRectBounds,
+} from "./mask-matching.ts";
+export type {
+  Box,
+  MaskMatch,
+  MaskMatchResult,
+  MatteMatch,
+  MatteMatchOptions,
+  MatteMatchResult,
+  MatchCandidate,
+  MatchInstance,
+} from "./mask-matching.ts";
+export {
+  MATTE_ALPHA_MAX_EDGE,
+  MATTE_ALPHA_THRESHOLD,
+  MATTE_IMAGE_MAX_EDGE,
+  alphaGridFromRgba,
+  candidateFromMatteInstance,
+  computeScaleToMaxEdge,
+  decodeAlphaPngToGrid,
+  detectNailsWithMatte,
+  downsampleAlphaGrid,
+  encodeImageForMatte,
+  fetchNailMatteAvailability,
+  nailMaskFromAlphaGrid,
+  refineCandidateMasksWithMatte,
+  requestNailMatteFromBrowser,
+} from "./vlm-refinement.ts";
+export type {
+  AlphaGrid,
+  MatteDetectOutcome,
+  MatteRefinementOutcome,
+  NailMatteAvailability,
+  NailMatteOutcome,
+} from "./vlm-refinement.ts";
+export {
   disposeNailTextureRecognitionWorker,
   isWorkerRecognitionSupported,
   recognizeNailTexturesInWorker,

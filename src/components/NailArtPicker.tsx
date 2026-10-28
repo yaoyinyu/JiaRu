@@ -2,13 +2,22 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  detectNailsWithMatte,
   extractTextureFromMaskDetailed,
+  fetchNailMatteAvailability,
+  inferSuggestedFingers,
   recognizeNailTexturesInWorker,
+  refineCandidateMasksWithMatte,
   type NailMask,
+  type NailTextureCandidate,
   type NailTextureCandidateConfidence,
   type NailTextureCandidateSource,
   type TextureExtractionDiagnostics,
 } from "@/lib/nail-texture-recognition";
+import NailMattePanel, {
+  type NailMatteAvailability,
+  type NailMattePanelStatus,
+} from "@/components/NailMattePanel";
 import {
   calculateDetectionInputGeometry,
   remapNailTextureCandidatesToOriginal,
@@ -92,6 +101,7 @@ const SOURCE_LABELS: Record<NonNullable<NailRegion["source"]>, string> = {
   manual: "手动添加",
   mediapipe: "手部几何",
   "partial-closeup": "局部近景",
+  "vlm-matte": "本机精细抠图",
 };
 const MAX_CANVAS_DIM = 800;
 const MAX_DETECTION_DIM = 800;
@@ -370,6 +380,7 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const detectionAbortRef = useRef<AbortController | null>(null);
+  const matteAbortRef = useRef<AbortController | null>(null);
   const dragRef = useRef<{
     pointerId: number;
     regionIndex: number;
@@ -388,6 +399,12 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
   const [regions, setRegions] = useState<NailRegion[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
   const [addingRegion, setAddingRegion] = useState(false);
+  const [matteAvailability, setMatteAvailability] = useState<NailMatteAvailability | null>(null);
+  const [matteStatus, setMatteStatus] = useState<NailMattePanelStatus>("idle");
+  const [matteMessage, setMatteMessage] = useState<string | null>(null);
+  const [matteMatchedCount, setMatteMatchedCount] = useState<number | null>(null);
+  const [matteStartedAt, setMatteStartedAt] = useState<number | null>(null);
+  const [matteElapsedMs, setMatteElapsedMs] = useState(0);
 
   const selectedRegion = selectedIdx !== null ? regions[selectedIdx] ?? null : null;
   const selectedQualitySummary = selectedRegion ? summarizeRegionQuality(selectedRegion) : null;
@@ -474,6 +491,10 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
     setRegions([]);
     setSelectedIdx(null);
     setAddingRegion(false);
+    setMatteStatus("idle");
+    setMatteMessage(null);
+    setMatteMatchedCount(null);
+    setMatteStartedAt(null);
     setError(null);
 
     const run = async () => {
@@ -548,6 +569,187 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       }
     };
   }, [imgLoaded, imageUrl]);
+
+  // ── 本机精细抠图（辅助路径，不参与自动识别流程）──
+  useEffect(() => {
+    let active = true;
+    void fetchNailMatteAvailability().then((availability) => {
+      if (active) setMatteAvailability(availability);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      matteAbortRef.current?.abort();
+      matteAbortRef.current = null;
+    };
+  }, []);
+
+  // 计时只在 interval 回调里推进，避免在 effect 内同步 setState。
+  useEffect(() => {
+    if (matteStartedAt == null) return;
+    const timer = window.setInterval(() => {
+      setMatteElapsedMs(Date.now() - matteStartedAt);
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [matteStartedAt]);
+
+  const toMatteCandidate = useCallback(
+    (region: NailRegion): NailTextureCandidate => ({
+      id: region.id,
+      cx: region.cx,
+      cy: region.cy,
+      length: region.nl,
+      width: region.nw,
+      angle: region.angle,
+      score: 1,
+      confidence: region.confidence ?? "low",
+      source: region.source ?? "manual",
+      mask: region.mask,
+      suggestedFinger: region.assignedFinger,
+    }),
+    []
+  );
+
+  const applyMatteMasks = useCallback(
+    (masks: Array<{ candidateId: string; mask: NailMask }>) => {
+      if (masks.length === 0) return;
+      const byId = new Map(masks.map((item) => [item.candidateId, item.mask]));
+      const replace = (list: NailRegion[]) =>
+        list.map((region) =>
+          byId.has(region.id)
+            ? { ...region, mask: byId.get(region.id), extractionDiagnostics: undefined }
+            : region
+        );
+      setRegions(replace);
+      setOriginalRegions(replace);
+    },
+    []
+  );
+
+  const runMatteRefine = useCallback(async () => {
+    const image = imgRef.current;
+    if (!image || regions.length === 0) return;
+    matteAbortRef.current?.abort();
+    const controller = new AbortController();
+    matteAbortRef.current = controller;
+    setMatteStatus("running");
+    setMatteStartedAt(Date.now());
+    setMatteElapsedMs(0);
+    setMatteMessage(null);
+    setMatteMatchedCount(null);
+    try {
+      const outcome = await refineCandidateMasksWithMatte({
+        image,
+        imageWidth: image.naturalWidth,
+        imageHeight: image.naturalHeight,
+        candidates: regions.map(toMatteCandidate),
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
+      if (outcome.status === "degraded") {
+        setMatteStatus("degraded");
+        setMatteMessage(outcome.message);
+        return;
+      }
+      if (outcome.status === "error") {
+        setMatteStatus("error");
+        setMatteMessage(outcome.message);
+        return;
+      }
+      applyMatteMasks(outcome.masks);
+      setMatteStatus("done");
+      setMatteMatchedCount(outcome.matchedCount);
+      setMatteMessage(
+        outcome.matchedCount > 0
+          ? "已替换为更精细的软边蒙版，请核对甲缘后再提取纹理。"
+          : "未匹配到可替换的甲面，已保留本地结果。"
+      );
+    } catch {
+      if (controller.signal.aborted) return;
+      setMatteStatus("error");
+      setMatteMessage("精细抠图失败，已保留本地结果。");
+    } finally {
+      if (matteAbortRef.current === controller) matteAbortRef.current = null;
+      setMatteStartedAt(null);
+    }
+  }, [applyMatteMasks, regions, toMatteCandidate]);
+
+  const runMatteDetect = useCallback(async () => {
+    const image = imgRef.current;
+    if (!image) return;
+    matteAbortRef.current?.abort();
+    const controller = new AbortController();
+    matteAbortRef.current = controller;
+    setMatteStatus("running");
+    setMatteStartedAt(Date.now());
+    setMatteElapsedMs(0);
+    setMatteMessage(null);
+    setMatteMatchedCount(null);
+    try {
+      const outcome = await detectNailsWithMatte({
+        image,
+        imageWidth: image.naturalWidth,
+        imageHeight: image.naturalHeight,
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return;
+      if (outcome.status === "degraded") {
+        setMatteStatus("degraded");
+        setMatteMessage(outcome.message);
+        return;
+      }
+      if (outcome.status === "error") {
+        setMatteStatus("error");
+        setMatteMessage(outcome.message);
+        return;
+      }
+      if (outcome.candidates.length === 0) {
+        setMatteStatus("done");
+        setMatteMessage("未返回可用甲面，已保留当前结果。");
+        return;
+      }
+      const fingers = inferSuggestedFingers(outcome.candidates.length);
+      const detected: NailRegion[] = outcome.candidates.map((candidate, index) => ({
+        id: candidate.id,
+        cx: candidate.cx,
+        cy: candidate.cy,
+        angle: candidate.angle,
+        nl: candidate.length,
+        nw: candidate.width,
+        assignedFinger: fingers[index] ?? null,
+        confidence: "low",
+        source: "vlm-matte",
+        mask: candidate.mask,
+        warnings: [...(candidate.warnings ?? [])],
+      }));
+      setRegions(detected);
+      setOriginalRegions(detected);
+      setSelectedIdx(0);
+      setAddingRegion(false);
+      setMatteStatus("done");
+      setMatteMatchedCount(detected.length);
+      setMatteMessage("已返回低置信候选，请逐指核对甲面与指位后再提取。");
+    } catch {
+      if (controller.signal.aborted) return;
+      setMatteStatus("error");
+      setMatteMessage("兜底识别失败，已保留当前结果。");
+    } finally {
+      if (matteAbortRef.current === controller) matteAbortRef.current = null;
+      setMatteStartedAt(null);
+    }
+  }, []);
+
+  const cancelMatte = useCallback(() => {
+    matteAbortRef.current?.abort();
+    matteAbortRef.current = null;
+    setMatteStatus("idle");
+    setMatteStartedAt(null);
+    setMatteMessage(null);
+  }, []);
 
   const closePicker = useCallback(() => {
     detectionAbortRef.current?.abort();
@@ -1009,6 +1211,23 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                 )}
               </div>
             </div>
+
+            <NailMattePanel
+              availability={matteAvailability}
+              candidateCount={regions.length}
+              status={matteStatus}
+              message={matteMessage}
+              matchedCount={matteMatchedCount}
+              elapsedMs={matteStartedAt == null ? 0 : matteElapsedMs}
+              disabled={detecting || extracting}
+              onRefine={() => {
+                void runMatteRefine();
+              }}
+              onDetect={() => {
+                void runMatteDetect();
+              }}
+              onCancel={cancelMatte}
+            />
 
             {selectedRegion && (
               <>
