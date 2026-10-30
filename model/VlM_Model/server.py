@@ -3,7 +3,7 @@
 启动：
     python server.py                       # 默认 127.0.0.1:8008
     python server.py --port 8010           # 换端口
-    python server.py --max-pixels 524288   # 降分辨率换速度（单图约 3.3s）
+    python server.py --max-pixels 589824   # 提高分辨率预算（真实照片上召回更低、更慢，仅对照用）
 
 三条设计约束：
 * **所有 CUDA 调用都在主线程**。模型在主线程加载、在主线程推理；HTTP 服务跑在

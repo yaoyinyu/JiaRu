@@ -12,6 +12,15 @@ def bind(p):
 def checked(ref):
  p=Path(ref['path']);assert p.is_file() and sha(p)==ref['sha256'],'reconstruction_mismatch: file identity '+str(p);return p
 def read(ref):return json.loads(checked(ref).read_bytes())
+
+def feature_image_inventory(plan, inventory, targets):
+ # 正控源可以位于比较参考/活动目标之外；它们只扩充特征读取账，不改变参考分母。
+ images={row['image']['sha256']:row['image'] for row in inventory['corpus']}
+ for row in targets['targets']:images[row['imageSha256']]=row['sourceImage']
+ for control in plan['positiveControls']:
+  for key in ('sourceImage','referenceImage'):
+   if key in control:images[control[key]['sha256']]=control[key]
+ return images
 def put(p,obj):
  with Path(p).open('xb') as f:f.write((json.dumps(obj,ensure_ascii=False,indent=2)+'\n').encode('utf-8'));f.flush();os.fsync(f.fileno())
 def validate_inventory(plan,inventory,targets):
@@ -69,8 +78,7 @@ def run(plan_path,out):
  try:
   event('started',plan=plan_ref,counts=plan['counts'],runner=bind(__file__))
   for ref in inventory['inputs'].values():checked(ref)
-  images={row['image']['sha256']:row['image'] for row in inventory['corpus']}
-  for row in targets['targets']:images[row['imageSha256']]=row['sourceImage']
+  images=feature_image_inventory(plan,inventory,targets)
   for ref in images.values():checked(ref)
   old=read(plan['inputs']['historicalFeatureManifest']);oldmap={item['image']['sha256']:item for item in old['items']}
   oldplan=read(old['plan']);c=plan['contract']

@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   alphaGridFromRgba,
+  candidateFromMatteInstance,
+  computeMatteEncodeGeometry,
   computeScaleToMaxEdge,
   downsampleAlphaGrid,
   nailMaskFromAlphaGrid,
@@ -252,4 +254,207 @@ test("refine 编排：降级结果原样透传，不产生 mask", async () => {
   if (outcome.status !== "degraded") return;
   assert.equal(outcome.reason, "busy");
   assert.equal(outcome.retryAfterSeconds, 3);
+});
+
+test("computeMatteEncodeGeometry：与编码器同口径的长边换算", () => {
+  assert.deepEqual(computeMatteEncodeGeometry(1200, 1499), {
+    scale: 1,
+    width: 1200,
+    height: 1499,
+  });
+  assert.deepEqual(computeMatteEncodeGeometry(3200, 2400), {
+    scale: 0.5,
+    width: 1600,
+    height: 1200,
+  });
+  assert.deepEqual(computeMatteEncodeGeometry(800, 600), {
+    scale: 1,
+    width: 800,
+    height: 600,
+  });
+});
+
+test("refine 编排：大图候选框换算到编码空间后可正常匹配", async () => {
+  // 原图 3200×2400 → 编码 1600×1200（scale 0.5）。
+  // 候选框在原图坐标（旋转外接框 [1550,1100,1650,1300]），编码后 [775,550,825,650]；
+  // 上游实例框固定在编码坐标系。修复前两侧坐标域不一致 → IoU 0 且中心不落框 → 0 命中。
+  const candidates = [makeCandidate("a", 1600)];
+  const candidate = candidates[0];
+  candidate.cy = 1200;
+  candidate.length = 200;
+  candidate.width = 100;
+
+  const outcome = await refineCandidateMasksWithMatte({
+    image: {} as CanvasImageSource,
+    imageWidth: 3200,
+    imageHeight: 2400,
+    candidates,
+    encode: async () => "data:image/jpeg;base64,AAAA",
+    decode: async () => smallGrid(),
+    request: async () => ({
+      status: "ok",
+      result: {
+        width: 1600,
+        height: 1200,
+        instanceCount: 1,
+        instances: [
+          {
+            index: 0,
+            box: [780, 555, 822, 648],
+            bbox: [782, 557, 820, 646],
+            area: 5000,
+            alphaPng: "data:image/png;base64,AAAA",
+            width: 1600,
+            height: 1200,
+          },
+        ],
+        omittedInstances: 0,
+        model: "m",
+        quant: "int4",
+        elapsedMs: 14000,
+      },
+    } as never),
+  });
+
+  assert.equal(outcome.status, "ok");
+  if (outcome.status !== "ok") return;
+  assert.equal(outcome.matchedCount, 1);
+  assert.equal(outcome.masks[0].candidateId, "a");
+  assert.deepEqual(outcome.warnings, []);
+  assert.equal(outcome.masks[0].mask.width, 4);
+  // 掩膜回映射原图口径不变：整图栅格按原图尺寸取 scale
+  assert.equal(outcome.masks[0].mask.scale, Math.max(3200 / 4, 2400 / 4));
+});
+
+function normalizeAngleDelta(delta: number): number {
+  let result = delta;
+  while (result > Math.PI) result -= Math.PI * 2;
+  while (result <= -Math.PI) result += Math.PI * 2;
+  return result;
+}
+
+function buildTiltedAlphaGrid(
+  width: number,
+  height: number,
+  tipAngle: number
+): AlphaGrid {
+  const alpha = new Uint8ClampedArray(width * height);
+  const data = new Uint8Array(width * height);
+  const cx = width / 2;
+  const cy = height / 2;
+  const longRadius = width * 0.38;
+  const shortRadius = width * 0.16;
+  const tipX = Math.cos(tipAngle);
+  const tipY = Math.sin(tipAngle);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      const dx = x - cx;
+      const dy = y - cy;
+      const along = dx * tipX + dy * tipY;
+      const across = -dx * tipY + dy * tipX;
+      const ratio =
+        (along / longRadius) * (along / longRadius) +
+        (across / shortRadius) * (across / shortRadius);
+      if (ratio <= 1) {
+        alpha[y * width + x] = 255;
+        data[y * width + x] = 1;
+      }
+    }
+  }
+  return { width, height, alpha, data };
+}
+
+test("candidateFromMatteInstance：角度取 alpha 主轴而非固定 0", () => {
+  // 长轴指向 π/2+0.3，横轴半转角应为 0.3
+  const grid = buildTiltedAlphaGrid(24, 24, Math.PI / 2 + 0.3);
+  const candidate = candidateFromMatteInstance(
+    {
+      index: 0,
+      box: [2, 2, 22, 22],
+      bbox: [3, 3, 21, 21],
+      area: 200,
+      alphaPng: "data:image/png;base64,AAAA",
+      width: 100,
+      height: 100,
+    },
+    grid,
+    100,
+    100
+  );
+
+  assert.equal(candidate.source, "vlm-matte");
+  assert.equal(candidate.confidence, "low");
+  assert.ok(
+    Math.abs(normalizeAngleDelta(candidate.angle - 0.3)) < 0.06,
+    `候选角度应取主轴 0.3，实际 ${candidate.angle}`
+  );
+  assert.equal(candidate.mask?.width, 24);
+});
+
+test("candidateFromMatteInstance：候选几何落在原图坐标域（长边 >1600 图）", () => {
+  // 模拟 12MP 手机照片：原图 3200x2400，编码图 1600x1200（scale 0.5），
+  // alpha 栅格为整图等比降采样（80x60）。实心块在栅格 x 20..34、y 10..19，
+  // 按提取同口径逐轴映射回原图应为 cx=1100、cy=600、width=600、length=400。
+  const width = 80;
+  const height = 60;
+  const alpha = new Uint8ClampedArray(width * height);
+  const data = new Uint8Array(width * height);
+  for (let y = 10; y <= 19; y += 1) {
+    for (let x = 20; x <= 34; x += 1) {
+      alpha[y * width + x] = 255;
+      data[y * width + x] = 1;
+    }
+  }
+  const grid: AlphaGrid = { width, height, alpha, data };
+  const candidate = candidateFromMatteInstance(
+    {
+      index: 0,
+      // 上游 box/bbox 在编码图（1600x1200）坐标域；若被误当作原图坐标，
+      // 中心会是 (140,110)，叠加层整体缩聚到左上角。
+      box: [100, 80, 180, 140],
+      bbox: [102, 82, 178, 138],
+      area: 150,
+      alphaPng: "data:image/png;base64,AAAA",
+      width: 1600,
+      height: 1200,
+    },
+    grid,
+    3200,
+    2400
+  );
+
+  assert.equal(candidate.cx, 1100);
+  assert.equal(candidate.cy, 600);
+  assert.equal(candidate.width, 600);
+  assert.equal(candidate.length, 400);
+  assert.equal(candidate.mask?.width, 80);
+});
+
+test("candidateFromMatteInstance：空栅格兜底按编码几何映射回原图", () => {
+  const grid: AlphaGrid = {
+    width: 4,
+    height: 4,
+    alpha: new Uint8ClampedArray(16),
+    data: new Uint8Array(16),
+  };
+  const candidate = candidateFromMatteInstance(
+    {
+      index: 0,
+      box: [100, 80, 180, 140],
+      bbox: [0, 0, 0, 0],
+      area: 0,
+      alphaPng: "data:image/png;base64,AAAA",
+      width: 4,
+      height: 4,
+    },
+    grid,
+    3200,
+    2400
+  );
+
+  // 编码空间 (140,110) 除以 scale 0.5 → 原图 (280,220)；宽 80→160、长 60→120。
+  assert.equal(candidate.cx, 280);
+  assert.equal(candidate.cy, 220);
+  assert.equal(candidate.width, 160);
+  assert.equal(candidate.length, 120);
 });

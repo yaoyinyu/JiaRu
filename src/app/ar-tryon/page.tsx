@@ -6,9 +6,11 @@ import dynamic from "next/dynamic";
 import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
 import { ArView, type NailFitAdjustment } from "@/components/ArView";
+import { type NailRenderStyle } from "@/lib/ar-nail-shape";
 import { PRESET_COLORS } from "@/lib/utils";
 import { disposeAllTextures } from "@/lib/texture";
 import type { NailAssignment } from "@/components/NailArtPicker";
+import type { NailTextureProfile } from "@/lib/nail-texture-recognition";
 import { validateImageUpload } from "@/lib/image-upload-validation";
 import { loadReferenceFromParams } from "@/lib/gallery-bridge";
 import { releaseRemovedBitmaps } from "@/lib/ar-texture-release";
@@ -27,6 +29,34 @@ const DEFAULT_NAIL_FIT: NailFitAdjustment = {
   widthScale: 1,
   rootOffset: 0,
 };
+
+const SHAPE_LABELS: Record<string, string> = {
+  round: "圆形",
+  square: "方形",
+  almond: "杏仁",
+  stiletto: "尖形",
+};
+const PATTERN_LABELS: Record<string, string> = {
+  solid: "纯色",
+  gradient: "渐变",
+  french: "法式",
+  glitter: "亮片",
+  pattern: "花纹",
+};
+
+function describeGlossLevel(gloss: number): string {
+  if (gloss < 0.33) return "哑光";
+  if (gloss < 0.66) return "缎光";
+  return "高光";
+}
+
+function createEmptyStyles(): (NailRenderStyle | null)[] {
+  return [null, null, null, null, null];
+}
+
+function createEmptyProfiles(): (NailTextureProfile | null)[] {
+  return [null, null, null, null, null];
+}
 
 function createDefaultNailFits(): NailFitAdjustment[] {
   return Array.from({ length: 5 }, () => ({ ...DEFAULT_NAIL_FIT }));
@@ -69,6 +99,11 @@ function ArTryonPageBody({
   const [activeFinger, setActiveFinger] = useState(0);
   const [mode, setMode] = useState<"color" | "texture">("color");
   const [nailFits, setNailFits] = useState<NailFitAdjustment[]>(createDefaultNailFits);
+  const [nailStyles, setNailStyles] = useState<(NailRenderStyle | null)[]>(createEmptyStyles);
+  const [textureProfiles, setTextureProfiles] = useState<(NailTextureProfile | null)[]>(
+    createEmptyProfiles
+  );
+  const [autoApplyNotice, setAutoApplyNotice] = useState<string | null>(null);
   const [showCropper, setShowCropper] = useState(false);
   const [showNailPicker, setShowNailPicker] = useState(false);
   const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
@@ -93,6 +128,10 @@ function ArTryonPageBody({
     setNailFits((current) => current.map((fit, index) => (
       index === activeFinger ? { ...fit, ...patch } : fit
     )));
+  };
+
+  const resetAllNailFits = () => {
+    setNailFits(createDefaultNailFits());
   };
 
   useEffect(() => {
@@ -184,6 +223,9 @@ function ArTryonPageBody({
       }
 
       setNailTextures(updated);
+      // 手动裁剪路径没有掩膜分析，清空该指的样式与分析结果，按默认渲染。
+      setNailStyles((current) => current.map((style, index) => (index === activeFinger ? null : style)));
+      setTextureProfiles((current) => current.map((profile, index) => (index === activeFinger ? null : profile)));
       setShowCropper(false);
       setMode("texture");
     },
@@ -195,8 +237,13 @@ function ArTryonPageBody({
   }, []);
 
   const handlePickingConfirm = useCallback(
-    (assignments: NailAssignment[]) => {
+    (assignments: NailAssignment[], options?: { auto?: boolean }) => {
       const updated = [...nailTextures];
+      const nextStyles = [...nailStyles];
+      const nextProfiles = [...textureProfiles];
+      const reviewCount = assignments.filter(
+        (assignment) => assignment.confidence === "low"
+      ).length;
 
       for (const assignment of assignments) {
         const old = updated[assignment.finger];
@@ -207,13 +254,28 @@ function ArTryonPageBody({
           if (!otherRefs) old.close();
         }
         updated[assignment.finger] = assignment.texture;
+
+        const profile = assignment.profile ?? null;
+        nextStyles[assignment.finger] = profile
+          ? { shape: profile.shape, gloss: profile.gloss }
+          : null;
+        nextProfiles[assignment.finger] = profile;
       }
 
       setNailTextures(updated);
+      setNailStyles(nextStyles);
+      setTextureProfiles(nextProfiles);
       setShowNailPicker(false);
       setMode("texture");
+
+      if (options?.auto) {
+        const reviewSuffix = reviewCount > 0 ? `，其中 ${reviewCount} 指建议复核` : "";
+        setAutoApplyNotice(
+          `已自动提取并应用 ${assignments.length} 指纹理${reviewSuffix}，长度按纹理原样保真，可重新打开选择器调整。`
+        );
+      }
     },
-    [nailTextures]
+    [nailStyles, nailTextures, textureProfiles]
   );
 
   const handlePickingCancel = useCallback(() => {
@@ -248,6 +310,10 @@ function ArTryonPageBody({
     }
 
     setNailTextures(updated);
+    setNailStyles((current) => current.map((style, index) => (index === fingerIndex ? null : style)));
+    setTextureProfiles((current) =>
+      current.map((profile, index) => (index === fingerIndex ? null : profile))
+    );
   };
 
   return (
@@ -263,6 +329,7 @@ function ArTryonPageBody({
           <ArView
             nailColors={nailColors}
             nailTextures={nailTextures}
+            nailStyles={nailStyles}
             mode={mode}
             nailAdjustments={nailFits}
           />
@@ -295,6 +362,37 @@ function ArTryonPageBody({
             </button>
           </div>
 
+          {autoApplyNotice && (
+            <div
+              role="status"
+              className="mb-3 rounded-xl bg-emerald-50 px-3 py-2 text-center text-[11px] leading-5 text-emerald-700"
+            >
+              {autoApplyNotice}
+            </div>
+          )}
+
+          {mode === "texture" && textureProfiles[activeFinger] && (
+            <div className="mb-3 flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-xl bg-pink-50/60 px-3 py-2 text-[11px] text-gray-500">
+              <span>
+                甲型 {SHAPE_LABELS[textureProfiles[activeFinger]!.shape] ?? textureProfiles[activeFinger]!.shape}
+              </span>
+              <span>·</span>
+              <span>
+                图案 {PATTERN_LABELS[textureProfiles[activeFinger]!.pattern] ?? textureProfiles[activeFinger]!.pattern}
+              </span>
+              <span>·</span>
+              <span>光泽 {describeGlossLevel(textureProfiles[activeFinger]!.gloss)}</span>
+              {textureProfiles[activeFinger]!.dominantColors.slice(0, 3).map((color) => (
+                <span
+                  key={color.hex}
+                  title={`${color.hex}（占比 ${Math.round(color.ratio * 100)}%）`}
+                  className="inline-block h-3 w-3 rounded-full border border-gray-200 align-middle"
+                  style={{ backgroundColor: color.hex }}
+                />
+              ))}
+            </div>
+          )}
+
           <div className="mb-4 rounded-2xl border border-pink-100 bg-[var(--surface)] p-3">
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-medium text-[#75766c]">
@@ -310,15 +408,14 @@ function ArTryonPageBody({
                 </button>
                 <button
                   type="button"
-                  onClick={() => setNailFits(createDefaultNailFits())}
+                  onClick={resetAllNailFits}
                   className="-my-2.5 inline-flex min-h-11 items-center px-1 text-[11px] text-gray-400 hover:text-gray-600"
                 >
                   重置全部
                 </button>
               </div>
             </div>
-            <label className="grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">
-              <span>长度</span>
+            <label className="grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">              <span>长度</span>
               <input
                 aria-label={`${FINGER_NAMES[activeFinger]}甲面长度`}
                 type="range"

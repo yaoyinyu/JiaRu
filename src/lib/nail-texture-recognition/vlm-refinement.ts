@@ -1,5 +1,6 @@
 import type { NailMask, NailTextureCandidate } from "./types.ts";
 import type { NailMatteInstance, NailMatteResult } from "@/lib/nail-matte-api";
+import { estimateMaskPrincipalAngle } from "./mask-orientation.ts";
 import {
   candidateBounds,
   matchMasksToCandidates,
@@ -39,6 +40,33 @@ export function computeScaleToMaxEdge(width: number, height: number, maxEdge: nu
   if (!Number.isFinite(longest) || longest <= 0) return 1;
   if (longest <= maxEdge) return 1;
   return maxEdge / longest;
+}
+
+export interface MatteEncodeGeometry {
+  /** 原图 → 编码图的等比缩放系数（≤1）。 */
+  scale: number;
+  width: number;
+  height: number;
+}
+
+/**
+ * 上游编码几何：与 `encodeImageForMatte` 完全同口径。
+ * 上游实例框在编码图坐标系中返回，匹配侧必须用同一几何把候选框
+ * 换算到编码空间，否则原图长边 > `MATTE_IMAGE_MAX_EDGE` 时两侧
+ * 坐标域不一致，IoU 与中心归属恒不成立（精细替换静默不生效）。
+ */
+export function computeMatteEncodeGeometry(width: number, height: number): MatteEncodeGeometry {
+  const scale = computeScaleToMaxEdge(width, height, MATTE_IMAGE_MAX_EDGE);
+  return {
+    scale,
+    width: Math.max(1, Math.round(width * scale)),
+    height: Math.max(1, Math.round(height * scale)),
+  };
+}
+
+function scaleBoxToEncoded(box: Box, scale: number): Box {
+  if (scale === 1) return box;
+  return [box[0] * scale, box[1] * scale, box[2] * scale, box[3] * scale];
 }
 
 /**
@@ -215,14 +243,12 @@ export async function encodeImageForMatte(
   width: number,
   height: number
 ): Promise<string> {
-  const scale = computeScaleToMaxEdge(width, height, MATTE_IMAGE_MAX_EDGE);
-  const targetWidth = Math.max(1, Math.round(width * scale));
-  const targetHeight = Math.max(1, Math.round(height * scale));
+  const geometry = computeMatteEncodeGeometry(width, height);
 
-  const canvas = new OffscreenCanvas(targetWidth, targetHeight);
+  const canvas = new OffscreenCanvas(geometry.width, geometry.height);
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("offscreen_canvas_2d_unavailable");
-  ctx.drawImage(image, 0, 0, targetWidth, targetHeight);
+  ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
 
   const blob = await canvas.convertToBlob({ type: "image/jpeg", quality: 0.85 });
   const buffer = new Uint8Array(await blob.arrayBuffer());
@@ -301,7 +327,12 @@ export async function refineCandidateMasksWithMatte(
   const request = input.request ?? requestNailMatteFromBrowser;
 
   const image = await encode(input.image, input.imageWidth, input.imageHeight);
-  const boxes: Box[] = candidates.map((candidate) => candidateBounds(candidate));
+  // 上游实例框在编码图（长边 ≤1600）坐标系中返回；
+  // 候选框必须换算到同一坐标域，否则大图上 IoU 与中心归属恒不成立。
+  const geometry = computeMatteEncodeGeometry(input.imageWidth, input.imageHeight);
+  const boxes: Box[] = candidates.map((candidate) =>
+    scaleBoxToEncoded(candidateBounds(candidate), geometry.scale)
+  );
 
   const outcome = await request(
     { image, task: "matting", query: "指甲" },
@@ -368,29 +399,75 @@ export interface MatteDetectInput {
   request?: typeof requestNailMatteFromBrowser;
 }
 
-/** 由上游实例构造低置信候选：几何取 alpha 外接框，角度 0，来源标注为 vlm-matte。 */
+/** grid 实心（data=1）像素的轴对齐外接框；空栅格返回 null。 */
+function solidBoundsFromGrid(
+  grid: AlphaGrid
+): { minX: number; minY: number; maxX: number; maxY: number } | null {
+  let minX = grid.width;
+  let minY = grid.height;
+  let maxX = -1;
+  let maxY = -1;
+  for (let y = 0; y < grid.height; y += 1) {
+    const rowOffset = y * grid.width;
+    for (let x = 0; x < grid.width; x += 1) {
+      if (!grid.data[rowOffset + x]) continue;
+      if (x < minX) minX = x;
+      if (x > maxX) maxX = x;
+      if (y < minY) minY = y;
+      if (y > maxY) maxY = y;
+    }
+  }
+  return maxX < 0 ? null : { minX, minY, maxX, maxY };
+}
+
+/**
+ * 由上游实例构造低置信候选：几何取 alpha 栅格实心边界，角度取 alpha 主轴，来源标注为 vlm-matte。
+ *
+ * 候选 cx/cy/length/width 必须落在**原图坐标域**（选择器画布与拖拽都按原图像素处理），
+ * 且与提取同口径：`extractTextureFromMaskDetailed` 按 `imageWidth/mask.width` 逐轴映射
+ * mask 栅格，因此这里也从同一栅格的实心边界推导。上游 `box`/`bbox` 在编码图
+ * （长边 ≤1600）坐标域，直接采用会让长边 >1600 图片的叠加层缩聚在左上角。
+ */
 export function candidateFromMatteInstance(
   instance: NailMatteInstance,
   grid: AlphaGrid,
   imageWidth: number,
   imageHeight: number
 ): NailTextureCandidate {
-  const box = instance.bbox[2] > instance.bbox[0] ? instance.bbox : instance.box;
-  const cx = (box[0] + box[2]) / 2;
-  const cy = (box[1] + box[3]) / 2;
-  const width = Math.max(1, box[2] - box[0]);
-  const length = Math.max(1, box[3] - box[1]);
+  const mask = nailMaskFromAlphaGrid(grid, imageWidth, imageHeight);
+  let cx: number;
+  let cy: number;
+  let width: number;
+  let length: number;
+  const bounds = solidBoundsFromGrid(grid);
+  if (bounds) {
+    const scaleX = imageWidth / grid.width;
+    const scaleY = imageHeight / grid.height;
+    cx = ((bounds.minX + bounds.maxX + 1) / 2) * scaleX;
+    cy = ((bounds.minY + bounds.maxY + 1) / 2) * scaleY;
+    width = Math.max(1, (bounds.maxX - bounds.minX + 1) * scaleX);
+    length = Math.max(1, (bounds.maxY - bounds.minY + 1) * scaleY);
+  } else {
+    // 空栅格兜底：上游实例框在编码图坐标域，按编码几何映射回原图。
+    const scale = computeMatteEncodeGeometry(imageWidth, imageHeight).scale;
+    const box = instance.bbox[2] > instance.bbox[0] ? instance.bbox : instance.box;
+    cx = (box[0] + box[2]) / 2 / scale;
+    cy = (box[1] + box[3]) / 2 / scale;
+    width = Math.max(1, (box[2] - box[0]) / scale);
+    length = Math.max(1, (box[3] - box[1]) / scale);
+  }
   return {
     id: `vlm-matte-${instance.index}`,
     cx,
     cy,
     length,
     width,
-    angle: 0,
+    // 半转角只定轴向，甲尖方向未知；后续提取用 referenceAngle 消歧或由用户旋转纠正。
+    angle: estimateMaskPrincipalAngle(mask) ?? 0,
     score: 0.2,
     confidence: "low",
     source: "vlm-matte",
-    mask: nailMaskFromAlphaGrid(grid, imageWidth, imageHeight),
+    mask,
     warnings: ["needs_review"],
     suggestedFinger: null,
   };

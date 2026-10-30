@@ -4,8 +4,11 @@ import type {
   NailTextureCandidateConfidence,
 } from "./types.ts";
 import type { NailTexturePreprocessResult } from "./preprocess.ts";
+import { estimateMaskPrincipalAngle, normalizeHalfTurnAngle } from "./mask-orientation.ts";
 import { inferSuggestedFingers } from "./finger-assignment.ts";
 import { rankNailTextureCandidates } from "./quality.ts";
+
+export { estimateMaskPrincipalAngle, normalizeHalfTurnAngle } from "./mask-orientation.ts";
 
 export interface ModelTensorLike {
   data: ArrayLike<number>;
@@ -49,13 +52,6 @@ function scoreToConfidence(score: number): NailTextureCandidateConfidence {
 
 function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
-}
-
-function normalizeHalfTurnAngle(angle: number): number {
-  let result = angle;
-  while (result > Math.PI / 2) result -= Math.PI;
-  while (result <= -Math.PI / 2) result += Math.PI;
-  return result;
 }
 
 function flattenDetectionRows(tensor: ModelTensorLike): number[][] {
@@ -295,50 +291,6 @@ function modelLengthToOriginal(
   return clamp(value / resizeScale, 1, max);
 }
 
-export function estimateMaskPrincipalAngle(mask: NailMask): number | null {
-  let total = 0;
-  let meanX = 0;
-  let meanY = 0;
-
-  for (let y = 0; y < mask.height; y++) {
-    for (let x = 0; x < mask.width; x++) {
-      if (!mask.data[y * mask.width + x]) continue;
-      total++;
-      meanX += x;
-      meanY += y;
-    }
-  }
-
-  if (total < 4) return null;
-  meanX /= total;
-  meanY /= total;
-
-  let mu20 = 0;
-  let mu02 = 0;
-  let mu11 = 0;
-
-  for (let y = 0; y < mask.height; y++) {
-    for (let x = 0; x < mask.width; x++) {
-      if (!mask.data[y * mask.width + x]) continue;
-      const dx = x - meanX;
-      const dy = y - meanY;
-      mu20 += dx * dx;
-      mu02 += dy * dy;
-      mu11 += dx * dy;
-    }
-  }
-
-  const trace = mu20 + mu02;
-  const delta = Math.sqrt((mu20 - mu02) ** 2 + 4 * mu11 * mu11);
-  const major = (trace + delta) / 2;
-  const minor = (trace - delta) / 2;
-  if (major <= 0) return null;
-  const axisRatio = minor <= 1e-6 ? Number.POSITIVE_INFINITY : major / minor;
-  if (axisRatio < 1.1) return null;
-
-  const axisAngle = 0.5 * Math.atan2(2 * mu11, mu20 - mu02);
-  return normalizeHalfTurnAngle(axisAngle + Math.PI / 2);
-}
 
 function candidateAspectRatio(candidate: Pick<NailTextureCandidate, "width" | "length">): number {
   const shorter = Math.min(candidate.width, candidate.length);

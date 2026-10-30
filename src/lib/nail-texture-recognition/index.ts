@@ -65,6 +65,7 @@ export type {
 } from "../nail-texture-debug-priority.ts";
 export {
   buildFeatheredAlphaMask,
+  extractNormalizedNailTexture,
   extractTextureFromMaskDetailed,
   extractTextureFromMask,
   findMaskBounds,
@@ -76,12 +77,37 @@ export {
 export type {
   ExtractedMaskTexture,
   MaskExtractionQualitySummary,
+  NormalizedNailTextureOptions,
   TextureExtractionDiagnostics,
   TextureHighlightRepairSummary,
+  TextureNormalizationInfo,
 } from "./extract-mask-texture.ts";
+export {
+  ORIENTATION_DISAGREEMENT_LIMIT_RADIANS,
+  resolveMaskTextureRotation,
+  WARNING_ORIENTATION_DISAGREEMENT,
+  WARNING_TIP_DIRECTION_UNKNOWN,
+} from "./mask-orientation.ts";
+export type {
+  MaskTextureRotation,
+  MaskTextureRotationSource,
+} from "./mask-orientation.ts";
 export {
   inferSuggestedFingers,
 } from "./finger-assignment.ts";
+export {
+  ANALYSIS_WARNING_LOW_OPACITY,
+  ANALYSIS_WARNING_SHAPE_UNKNOWN,
+  analyzeNailTextureProfile,
+  classifyNailShapeFromWidthProfile,
+} from "./texture-analysis.ts";
+export type {
+  AnalyzeNailTextureOptions,
+  NailDominantColor,
+  NailPatternClass,
+  NailTextureProfile,
+  WidthProfileShapeResult,
+} from "./texture-analysis.ts";
 export {
   estimateMaskPrincipalAngle,
   postprocessNailTextureDetections,
@@ -120,6 +146,7 @@ export {
   MATTE_IMAGE_MAX_EDGE,
   alphaGridFromRgba,
   candidateFromMatteInstance,
+  computeMatteEncodeGeometry,
   computeScaleToMaxEdge,
   decodeAlphaPngToGrid,
   detectNailsWithMatte,
@@ -133,6 +160,7 @@ export {
 export type {
   AlphaGrid,
   MatteDetectOutcome,
+  MatteEncodeGeometry,
   MatteRefinementOutcome,
   NailMatteAvailability,
   NailMatteOutcome,

@@ -160,3 +160,9 @@ model/training/oneoff/
 
 # 消费者端设计稿的大尺寸位图素材（单张 2MB 以上，仓库只跟踪页面代码与字体/说明文档）
 design/consumer-v1/assets/*.png
+
+# AI 编程助手（Agent）本机会话计划与配置：只对开发者/AI 工具有用，不提交推送
+/.zcode/
+
+# Ultralytics 训练在本项目根目录生成的本地运行产物（设置与持久化缓存）
+/Ultralytics/

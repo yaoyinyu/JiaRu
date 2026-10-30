@@ -32,7 +32,10 @@ export interface NailMattePanelProps {
   onCancel: () => void;
 }
 
-const NOTICE_STORAGE_KEY = "jiaru.nail-matte.notice.v1";
+/** 隐私确认本地偏好键；自动流程据此判断「已记住确认」后才可自动发送本机抠图请求。 */
+export const NAIL_MATTE_NOTICE_STORAGE_KEY = "jiaru.nail-matte.notice.v1";
+
+const NOTICE_STORAGE_KEY = NAIL_MATTE_NOTICE_STORAGE_KEY;
 
 export default function NailMattePanel({
   availability,
