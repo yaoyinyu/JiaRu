@@ -29,7 +29,71 @@ export interface NailTextureSet {
 }
 
 export const NAIL_TEXTURE_SETS: readonly NailTextureSet[] = [
-  // 资产产出后在此登记；保持 id 与目录名一致。
+  {
+    id: "midnight-glitter",
+    name: "黑耀碎闪",
+    source: "真实照片 真实素材/美甲图片素材/1/301.jpg，WeVisOne-VL 抠图提取",
+    dominantColor: "#272b35",
+    textures: [
+      { finger: 0, src: "/nail-textures/midnight-glitter/finger-1.png" },
+      { finger: 1, src: "/nail-textures/midnight-glitter/finger-2.png" },
+      { finger: 2, src: "/nail-textures/midnight-glitter/finger-3.png" },
+      { finger: 3, src: "/nail-textures/midnight-glitter/finger-4.png" },
+      { finger: 4, src: "/nail-textures/midnight-glitter/finger-5.png" },
+    ],
+  },
+  {
+    id: "milk-tea-gold-charm",
+    name: "奶茶金饰",
+    source: "真实照片 真实素材/美甲图片素材/2/563.jpg，WeVisOne-VL 抠图提取",
+    dominantColor: "#a67859",
+    textures: [
+      { finger: 0, src: "/nail-textures/milk-tea-gold-charm/finger-1.png" },
+      { finger: 1, src: "/nail-textures/milk-tea-gold-charm/finger-2.png" },
+      { finger: 2, src: "/nail-textures/milk-tea-gold-charm/finger-3.png" },
+      { finger: 3, src: "/nail-textures/milk-tea-gold-charm/finger-4.png" },
+      { finger: 4, src: "/nail-textures/milk-tea-gold-charm/finger-5.png" },
+    ],
+  },
+  {
+    id: "rose-glitter-pearl",
+    name: "玫红爆闪珍珠",
+    source: "真实照片 真实素材/美甲图片素材/3/1161.jpg，WeVisOne-VL 抠图提取",
+    dominantColor: "#a76876",
+    textures: [
+      { finger: 0, src: "/nail-textures/rose-glitter-pearl/finger-1.png" },
+      { finger: 1, src: "/nail-textures/rose-glitter-pearl/finger-2.png" },
+      { finger: 2, src: "/nail-textures/rose-glitter-pearl/finger-3.png" },
+      { finger: 3, src: "/nail-textures/rose-glitter-pearl/finger-4.png" },
+      { finger: 4, src: "/nail-textures/rose-glitter-pearl/finger-5.png" },
+    ],
+  },
+  {
+    id: "navy-pink-pearl",
+    name: "蓝粉珍珠混搭",
+    source: "真实照片 真实素材/美甲图片素材/1/437.jpg，WeVisOne-VL 抠图提取",
+    dominantColor: "#ba9796",
+    textures: [
+      { finger: 0, src: "/nail-textures/navy-pink-pearl/finger-1.png" },
+      { finger: 1, src: "/nail-textures/navy-pink-pearl/finger-2.png" },
+      { finger: 2, src: "/nail-textures/navy-pink-pearl/finger-3.png" },
+      { finger: 3, src: "/nail-textures/navy-pink-pearl/finger-4.png" },
+      { finger: 4, src: "/nail-textures/navy-pink-pearl/finger-5.png" },
+    ],
+  },
+  {
+    id: "nude-pink-french",
+    name: "裸粉白星法式",
+    source: "真实照片 真实素材/美甲图片素材/1/234.jpg，WeVisOne-VL 抠图提取",
+    dominantColor: "#b88c84",
+    textures: [
+      { finger: 0, src: "/nail-textures/nude-pink-french/finger-1.png" },
+      { finger: 1, src: "/nail-textures/nude-pink-french/finger-2.png" },
+      { finger: 2, src: "/nail-textures/nude-pink-french/finger-3.png" },
+      { finger: 3, src: "/nail-textures/nude-pink-french/finger-4.png" },
+      { finger: 4, src: "/nail-textures/nude-pink-french/finger-5.png" },
+    ],
+  },
 ];
 
 export function parseHexColor(hex: string): { r: number; g: number; b: number } | null {

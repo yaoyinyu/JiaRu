@@ -11,6 +11,8 @@ interface CliOptions {
   metricsPath?: string;
   fixturePath?: string;
   pickerPath: string;
+  /** 识别级联模块（2026-10-31 起 Worker 调用/候选重映射/汇总构造迁入此处） */
+  cascadePath: string;
   clientWorkerPath: string;
   workerPath: string;
   runtimePath: string;
@@ -22,6 +24,7 @@ function parseArgs(argv: string[]): CliOptions {
   const options: CliOptions = {
     manifestPath: path.resolve("public/models/nail-texture-seg/manifest.json"),
     pickerPath: path.resolve("src/components/NailArtPicker.tsx"),
+    cascadePath: path.resolve("src/lib/nail-detection-cascade.ts"),
     clientWorkerPath: path.resolve("src/lib/nail-texture-recognition/client-worker.ts"),
     workerPath: path.resolve("src/workers/nail-texture-recognition.worker.ts"),
     runtimePath: path.resolve("src/lib/nail-texture-recognition/model-runtime.ts"),
@@ -47,6 +50,10 @@ function parseArgs(argv: string[]): CliOptions {
       options.pickerPath = path.resolve(argv[++index]);
       continue;
     }
+    if (arg === "--cascade") {
+      options.cascadePath = path.resolve(argv[++index]);
+      continue;
+    }
     if (arg === "--client-worker") {
       options.clientWorkerPath = path.resolve(argv[++index]);
       continue;
@@ -68,7 +75,7 @@ function parseArgs(argv: string[]): CliOptions {
       continue;
     }
     throw new Error(
-      "Usage: node --experimental-strip-types scripts/verify-browser-integration.ts [--manifest <manifest.json>] [--metrics <metrics.json>] [--fixture <fixture.json>] [--picker <NailArtPicker.tsx>] [--client-worker <client-worker.ts>] [--worker <worker.ts>] [--runtime <model-runtime.ts>] [--package-json <package.json>] [--skip-model-artifact]"
+      "Usage: node --experimental-strip-types scripts/verify-browser-integration.ts [--manifest <manifest.json>] [--metrics <metrics.json>] [--fixture <fixture.json>] [--picker <NailArtPicker.tsx>] [--cascade <nail-detection-cascade.ts>] [--client-worker <client-worker.ts>] [--worker <worker.ts>] [--runtime <model-runtime.ts>] [--package-json <package.json>] [--skip-model-artifact]"
     );
   }
 
@@ -113,6 +120,7 @@ const fixtureVerify = options.fixturePath
   : null;
 
 const pickerSource = await readFile(options.pickerPath, "utf8");
+const cascadeSource = await readFile(options.cascadePath, "utf8");
 const clientWorkerSource = await readFile(options.clientWorkerPath, "utf8");
 const workerSource = await readFile(options.workerPath, "utf8");
 const runtimeSource = await readFile(options.runtimePath, "utf8");
@@ -122,22 +130,26 @@ const packageJson = JSON.parse(await readFile(options.packageJsonPath, "utf8")) 
 };
 const onnxRuntimeWebVersion =
   packageJson.dependencies?.["onnxruntime-web"] ?? packageJson.devDependencies?.["onnxruntime-web"] ?? null;
-const pickerPreservesRecognitionWarnings =
-  /warnings:\s*(?:result\.warnings|\[\s*\.\.\.result\.warnings\s*\])/.test(pickerSource) ||
-  hasAll(pickerSource, [
+// 识别汇总构造已迁入级联模块；识别 warnings 保留检查随汇总所在文件迁移。
+const detectionPreservesRecognitionWarnings =
+  /warnings:\s*(?:result\.warnings|\[\s*\.\.\.result\.warnings\s*\])/.test(cascadeSource) ||
+  hasAll(cascadeSource, [
     /const\s+detectionWarnings\s*=\s*\[\s*\.\.\.result\.warnings\s*\]/,
     /warnings:\s*detectionWarnings/,
   ]);
 
 const contractChecks = [
   {
-    name: "picker_uses_worker_recognition",
-    ok: hasAll(pickerSource, [
-      /recognizeNailTexturesInWorker/,
-      /preferModel:\s*true/,
-      /manifestUrl:\s*NAIL_TEXTURE_MODEL_MANIFEST_URL/,
-      /workerTimeoutMs:\s*NAIL_RECOGNITION_WORKER_TIMEOUT_MS/,
-    ]),
+    // Worker 调用细节（recognizeNailTexturesInWorker/manifest/超时）在级联模块内，
+    // 页面组件经 computeImageDetectedNailRegions 消费级联。
+    name: "cascade_uses_worker_recognition",
+    ok:
+      hasAll(cascadeSource, [
+        /recognizeNailTexturesInWorker/,
+        /preferModel:\s*true/,
+        /manifestUrl:\s*NAIL_TEXTURE_MODEL_MANIFEST_URL/,
+        /workerTimeoutMs:\s*NAIL_RECOGNITION_WORKER_TIMEOUT_MS/,
+      ]) && /computeImageDetectedNailRegions\(/.test(pickerSource),
   },
   {
     name: "picker_supports_end_to_end_cancellation",
@@ -150,18 +162,21 @@ const contractChecks = [
     ]),
   },
   {
-    name: "picker_caps_detection_input_and_remaps_candidates",
+    // 输入上限与取景在页面组件执行；候选重映射与上限常量在级联模块内。
+    name: "detection_caps_input_and_remaps_candidates",
     ok: hasAll(pickerSource, [
-      /MAX_DETECTION_DIM\s*=\s*800/,
       /calculateDetectionInputGeometry/,
       /ctx\.drawImage\(image, 0, 0, geometry\.width, geometry\.height\)/,
-      /remapNailTextureCandidatesToOriginal/,
-    ]),
+    ]) &&
+      hasAll(cascadeSource, [
+        /MAX_DETECTION_DIM\s*=\s*800/,
+        /remapNailTextureCandidatesToOriginal/,
+      ]),
   },
   {
-    name: "picker_surfaces_detection_summary",
-    ok: pickerPreservesRecognitionWarnings && hasAll(
-      pickerSource,
+    name: "cascade_surfaces_detection_summary",
+    ok: detectionPreservesRecognitionWarnings && hasAll(
+      cascadeSource,
       [
         /backend:\s*result\.backend/,
         /modelVersion:\s*result\.modelVersion/,

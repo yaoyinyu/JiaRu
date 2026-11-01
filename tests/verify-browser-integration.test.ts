@@ -8,6 +8,46 @@ import test from "node:test";
 
 const execFileAsync = promisify(execFile);
 
+/**
+ * 2026-10-31 起识别级联（Worker 调用/候选重映射/汇总构造）迁入
+ * src/lib/nail-detection-cascade.ts：夹具按「页面组件 + 级联模块」两文件拆分，
+ * 契约检查经 --cascade 指向级联夹具。
+ */
+
+// 页面侧夹具：只承载仍留在 NailArtPicker 的模式（级联消费、取消链路、输入取景）。
+const PICKER_FIXTURE = `
+const controller = new AbortController();
+      const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
+      ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
+      await computeImageDetectedNailRegions(
+        imageData,
+        image.naturalWidth,
+        image.naturalHeight,
+        controller.signal
+      );
+      detectionAbortRef.current?.abort();
+      const cancel = <button onClick={cancelDetection}>Cancel</button>;
+      const close = <button onClick={closePicker}>Close</button>;
+    `;
+
+// 级联侧夹具：承载迁入级联模块的 Worker 调用、候选重映射与汇总构造模式。
+const CASCADE_FIXTURE = `
+const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
+const NAIL_TEXTURE_MODEL_MANIFEST_URL = "/models/smoke/manifest.json";
+const MAX_DETECTION_DIM = 800;
+      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
+      remapNailTextureCandidatesToOriginal([]);
+      const detectionWarnings = [...result.warnings];
+      const summary = {
+        backend: result.backend,
+        modelVersion: result.modelVersion,
+        modelBackend: result.modelInfo?.backend,
+        elapsedMs: result.elapsedMs,
+        workerElapsedMs: result.workerElapsedMs,
+        warnings: detectionWarnings
+      };
+    `;
+
 test("verify-browser-integration passes with healthy artifact and contract files", async () => {
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-browser-integration-pass-"));
   const modelDir = path.join(root, "model");
@@ -35,42 +75,14 @@ test("verify-browser-integration passes with healthy artifact and contract files
   await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const pickerPath = path.join(root, "NailArtPicker.tsx");
+  const cascadePath = path.join(root, "nail-detection-cascade.ts");
   const clientWorkerPath = path.join(root, "client-worker.ts");
   const workerPath = path.join(root, "worker.ts");
   const runtimePath = path.join(root, "runtime.ts");
   const packageJsonPath = path.join(root, "package.json");
 
-  await writeFile(
-    pickerPath,
-    `
-const controller = new AbortController();
-const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
-const NAIL_TEXTURE_MODEL_MANIFEST_URL = "/models/smoke/manifest.json";
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
-const MAX_DETECTION_DIM = 800;
-      const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
-      ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
-      remapNailTextureCandidatesToOriginal([]);
-      await computeImageDetectedNailRegions(
-        imageData,
-        image.naturalWidth,
-        image.naturalHeight,
-        controller.signal
-      );
-      detectionAbortRef.current?.abort();
-      const cancel = <button onClick={cancelDetection}>Cancel</button>;
-      const close = <button onClick={closePicker}>Close</button>;
-      const summary = {
-        backend: result.backend,
-        modelVersion: result.modelVersion,
-        modelBackend: result.modelInfo?.backend,
-        elapsedMs: result.elapsedMs,
-        workerElapsedMs: result.workerElapsedMs,
-        warnings: [...result.warnings]
-      };
-    `,
-    "utf8"
-  );
+  await writeFile(pickerPath, PICKER_FIXTURE, "utf8");
+  await writeFile(cascadePath, CASCADE_FIXTURE, "utf8");
   await writeFile(
     clientWorkerPath,
     `
@@ -135,6 +147,8 @@ const MAX_DETECTION_DIM = 800;
       manifestPath,
       "--picker",
       pickerPath,
+      "--cascade",
+      cascadePath,
       "--client-worker",
       clientWorkerPath,
       "--worker",
@@ -164,42 +178,14 @@ test("verify-browser-integration can verify browser contracts without a real mod
   const root = await mkdtemp(path.join(os.tmpdir(), "nail-browser-integration-contract-only-"));
 
   const pickerPath = path.join(root, "NailArtPicker.tsx");
+  const cascadePath = path.join(root, "nail-detection-cascade.ts");
   const clientWorkerPath = path.join(root, "client-worker.ts");
   const workerPath = path.join(root, "worker.ts");
   const runtimePath = path.join(root, "runtime.ts");
   const packageJsonPath = path.join(root, "package.json");
 
-  await writeFile(
-    pickerPath,
-    `
-const controller = new AbortController();
-const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
-const NAIL_TEXTURE_MODEL_MANIFEST_URL = "/models/smoke/manifest.json";
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
-const MAX_DETECTION_DIM = 800;
-      const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
-      ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
-      remapNailTextureCandidatesToOriginal([]);
-      await computeImageDetectedNailRegions(
-        imageData,
-        image.naturalWidth,
-        image.naturalHeight,
-        controller.signal
-      );
-      detectionAbortRef.current?.abort();
-      const cancel = <button onClick={cancelDetection}>Cancel</button>;
-      const close = <button onClick={closePicker}>Close</button>;
-      const summary = {
-        backend: result.backend,
-        modelVersion: result.modelVersion,
-        modelBackend: result.modelInfo?.backend,
-        elapsedMs: result.elapsedMs,
-        workerElapsedMs: result.workerElapsedMs,
-        warnings: [...result.warnings]
-      };
-    `,
-    "utf8"
-  );
+  await writeFile(pickerPath, PICKER_FIXTURE, "utf8");
+  await writeFile(cascadePath, CASCADE_FIXTURE, "utf8");
   await writeFile(
     clientWorkerPath,
     `
@@ -263,6 +249,8 @@ const MAX_DETECTION_DIM = 800;
       "--skip-model-artifact",
       "--picker",
       pickerPath,
+      "--cascade",
+      cascadePath,
       "--client-worker",
       clientWorkerPath,
       "--worker",
@@ -326,6 +314,8 @@ test("verify-browser-integration fails when contract markers are missing", async
         manifestPath,
         "--picker",
         emptyFile,
+        "--cascade",
+        emptyFile,
         "--client-worker",
         emptyFile,
         "--worker",
@@ -341,7 +331,7 @@ test("verify-browser-integration fails when contract markers are missing", async
         errors: string[];
       };
       assert.equal(summary.ok, false);
-      assert.ok(summary.errors.some((item) => item.includes("picker_uses_worker_recognition")));
+      assert.ok(summary.errors.some((item) => item.includes("cascade_uses_worker_recognition")));
       assert.ok(summary.errors.some((item) => item.includes("runtime_loads_manifest")));
       return true;
     }
@@ -375,42 +365,14 @@ test("verify-browser-integration fails when onnxruntime-web dependency is missin
   await writeFile(path.join(modelDir, "nail-texture-seg-v1.onnx"), Buffer.alloc(300 * 1024), "binary");
 
   const pickerPath = path.join(root, "NailArtPicker.tsx");
+  const cascadePath = path.join(root, "nail-detection-cascade.ts");
   const clientWorkerPath = path.join(root, "client-worker.ts");
   const workerPath = path.join(root, "worker.ts");
   const runtimePath = path.join(root, "runtime.ts");
   const packageJsonPath = path.join(root, "package.json");
 
-  await writeFile(
-    pickerPath,
-    `
-const controller = new AbortController();
-const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15000;
-const NAIL_TEXTURE_MODEL_MANIFEST_URL = "/models/smoke/manifest.json";
-      const result = await recognizeNailTexturesInWorker({}, { preferModel: true, manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL, workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS });
-const MAX_DETECTION_DIM = 800;
-      const geometry = calculateDetectionInputGeometry(image.naturalWidth, image.naturalHeight, MAX_DETECTION_DIM);
-      ctx.drawImage(image, 0, 0, geometry.width, geometry.height);
-      remapNailTextureCandidatesToOriginal([]);
-      await computeImageDetectedNailRegions(
-        imageData,
-        image.naturalWidth,
-        image.naturalHeight,
-        controller.signal
-      );
-      detectionAbortRef.current?.abort();
-      const cancel = <button onClick={cancelDetection}>Cancel</button>;
-      const close = <button onClick={closePicker}>Close</button>;
-      const summary = {
-        backend: result.backend,
-        modelVersion: result.modelVersion,
-        modelBackend: result.modelInfo?.backend,
-        elapsedMs: result.elapsedMs,
-        workerElapsedMs: result.workerElapsedMs,
-        warnings: [...result.warnings]
-      };
-    `,
-    "utf8"
-  );
+  await writeFile(pickerPath, PICKER_FIXTURE, "utf8");
+  await writeFile(cascadePath, CASCADE_FIXTURE, "utf8");
   await writeFile(
     clientWorkerPath,
     `
@@ -472,6 +434,8 @@ const MAX_DETECTION_DIM = 800;
         manifestPath,
         "--picker",
         pickerPath,
+        "--cascade",
+        cascadePath,
         "--client-worker",
         clientWorkerPath,
         "--worker",

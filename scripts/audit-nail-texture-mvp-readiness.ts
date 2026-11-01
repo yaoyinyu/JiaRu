@@ -516,6 +516,7 @@ async function checkBrowserIntegration(): Promise<CheckResult> {
     "src/workers/nail-texture-recognition.worker.ts",
     "src/lib/nail-texture-recognition/fallback-adapter.ts",
     "src/components/NailArtPicker.tsx",
+    "src/lib/nail-detection-cascade.ts",
   ];
   const contents = await Promise.all(
     files.map(async (filePath) => ({
@@ -529,7 +530,12 @@ async function checkBrowserIntegration(): Promise<CheckResult> {
     workerClient: contents.some((item) => item.filePath.endsWith("client-worker.ts") && item.text.includes("Worker")),
     workerEntrypoint: contents.some((item) => item.filePath.endsWith(".worker.ts") && item.text.includes("recognizeNailTextures")),
     fallbackAdapter: contents.some((item) => item.filePath.endsWith("fallback-adapter.ts") && item.text.includes("detectNailRegionsFromImageData")),
-    pickerUsesRecognition: contents.some((item) => item.filePath.endsWith("NailArtPicker.tsx") && item.text.includes("recognizeNailTextures")),
+    // v1.2.178 级联抽取后，识别调用位于 nail-detection-cascade.ts，picker 通过委托使用。
+    pickerUsesRecognition: contents.some(
+      (item) =>
+        (item.filePath.endsWith("NailArtPicker.tsx") || item.filePath.endsWith("nail-detection-cascade.ts")) &&
+        item.text.includes("recognizeNailTextures")
+    ),
   };
   const ok = Object.values(markers).every(Boolean);
 

@@ -6,7 +6,7 @@ TinyGemm）把权重压到约 2.4 GiB，峰值显存 5.8 GiB，单图约 6 秒�
 本文件只负责「加载模型 + 推理」，对外 HTTP 服务见 server.py，命令行用法见 README.md。
 
 命令行（单图调试）：
-    python matting.py --image in.jpg --query 指甲
+    python matting.py --image in.jpg --query nails
     python matting.py --image in.jpg --task visual_prompt --boxes 120,300,260,420
 """
 
@@ -386,7 +386,7 @@ def parse_boxes(text: str | None) -> list[list[float]] | None:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--image", required=True)
-    ap.add_argument("--query", default="指甲")
+    ap.add_argument("--query", default="nails")
     ap.add_argument("--task", default="matting")
     ap.add_argument("--boxes", default=None, help="x1,y1,x2,y2|x1,y1,x2,y2（visual_prompt 用）")
     ap.add_argument("--model", default=str(DEFAULT_MODEL))

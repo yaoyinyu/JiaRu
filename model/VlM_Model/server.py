@@ -193,7 +193,7 @@ class Handler(BaseHTTPRequestHandler):
             )
             return
 
-        job = Job(image, task, str(payload.get("query") or "指甲"), boxes)
+        job = Job(image, task, str(payload.get("query") or "nails"), boxes)
         try:
             STATE["jobs"].put_nowait(job)
         except queue.Full:

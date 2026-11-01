@@ -1,5 +1,6 @@
 "use client";
 
+import { NeuToggle } from "@/components/NeuToggle";
 import type {
   LengthAdvice,
   ManualLabor,
@@ -183,21 +184,26 @@ export function NailAnalysisForm({ value, onChange, disabled = false }: NailAnal
       </div>
 
       <div className="sm:col-span-2">
-        <label className="flex min-h-11 items-center gap-2 text-xs text-[#75766c]">
-          <input
-            type="checkbox"
-            className="h-5 w-5 rounded border-[#d9b3a6] text-[#ac5145]"
-            checked={value.hasAllergyHistory ?? false}
-            disabled={disabled}
-            onChange={(event) => update("hasAllergyHistory", event.target.checked || undefined)}
-          />
+        {/* 开关置于表单末行：展开只顺推下方提交区，配合 grid-rows 平滑过渡无生硬位移 */}
+        <NeuToggle
+          checked={value.hasAllergyHistory ?? false}
+          onChange={(next) => update("hasAllergyHistory", next || undefined)}
+          disabled={disabled}
+        >
           我有美甲材料过敏史（仅用于提示，不影响推荐排序）
-        </label>
-        {value.hasAllergyHistory ? (
-          <p className="mt-2 rounded-2xl border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-800">
-            建议到店前与美甲师确认材料成分；本功能不做材料安全性判断。
-          </p>
-        ) : null}
+        </NeuToggle>
+        <div
+          className={`grid transition-[grid-template-rows,opacity,visibility] duration-300 ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
+            value.hasAllergyHistory ? "grid-rows-[1fr] visible opacity-100" : "grid-rows-[0fr] invisible opacity-0"
+          }`}
+          aria-hidden={!value.hasAllergyHistory}
+        >
+          <div className="overflow-hidden">
+            <p className="mb-1 mt-2 rounded-2xl border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-800">
+              建议到店前与美甲师确认材料成分；本功能不做材料安全性判断。
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );

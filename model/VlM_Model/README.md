@@ -105,7 +105,7 @@ python server.py --max-pixels 1048576    # 实测会少解 `<OBJ>`，不作为�
 单图命令行调试（不需要起服务）：
 
 ```powershell
-python matting.py --image "某张手部照片.jpg" --query "指甲" --out out
+python matting.py --image "某张手部照片.jpg" --query "nails" --out out
 # 输出 out/<图名>/alpha-0.png ... 与 result.json
 ```
 
@@ -142,7 +142,7 @@ Invoke-RestMethod http://127.0.0.1:8008/health
 ```json
 {
   "image": "data:image/jpeg;base64,...",
-  "query": "指甲",
+  "query": "nails",
   "task": "matting",
   "boxes": [[284,470,411,540], [396,763,494,890]]
 }
@@ -151,7 +151,7 @@ Invoke-RestMethod http://127.0.0.1:8008/health
 | 字段 | 说明 |
 | --- | --- |
 | `image` | base64 data URI；也接受纯 base64。调试可用 `imagePath` 传本地路径 |
-| `query` | 文本描述，默认「指甲」；`task=visual_prompt` 时配合 `boxes` 使用 |
+| `query` | 文本描述，默认「nails」（2026-10-31 定版，见 §5）；`task=visual_prompt` 时配合 `boxes` 使用 |
 | `task` | `matting`（默认）/ `segmentation` / `visual_prompt` |
 | `boxes` | 仅 `visual_prompt` 使用，像素坐标 `[x1,y1,x2,y2]` |
 
@@ -162,7 +162,7 @@ Invoke-RestMethod http://127.0.0.1:8008/health
 ```json
 {
   "ok": true,
-  "prompt": "Locate the instances that match the following description and provide the alpha mattes: 指甲.",
+  "prompt": "Locate the instances that match the following description and provide the alpha mattes: nails.",
   "response": "<ref>指甲</ref><box><263><327><381><375><OBJ>,...",
   "width": 1080, "height": 1440,
   "instances": [
@@ -202,7 +202,7 @@ Invoke-RestMethod http://127.0.0.1:8008/health
 见 `client_example.mjs`：
 
 ```powershell
-node client_example.mjs "某张手部照片.jpg" "指甲"
+node client_example.mjs "某张手部照片.jpg" "nails"
 ```
 
 它同时给出 `matchByIou()`：把服务端返回的实例按框 IoU 对回浏览器候选。
@@ -236,7 +236,7 @@ node client_example.mjs "某张手部照片.jpg" "指甲"
 所以「十枚长甲」的双手照比「一个人」慢 4–5 倍。前端做等待提示时按实例数分档估：
 1 枚约 6s、4–5 枚约 12–16s、8 枚以上 20–30s（262144 档整体再快约 45%）。
 
-`--max-pixels` 默认 262144（2026-10-29 起由真实照片评估确定）：36 张真实照片、203 枚完整甲人工真值下，589824 召回仅 0.8325（低对比裸色/果冻甲大面积漏检），262144 召回 0.9803 且单图均时 9.0s（589824 为 16.2s），1310720 反而掉回 20/42、1048576 有 `<OBJ>` 解析缺陷（响应文本含 5 个框只解出 1 个，独立复跑可复现）。此前 2026-10-28 在 7 张高对比业务图上「262144/589824/1638400 实例数一致」的结论不能外推到真实照片。262144 的 mask 几何代价：192 个配对实例中位二值 alpha IoU 0.957、面积比中位 1.004，约 1–2% 实例形状漂移（含个别向皮肤溢出，前端 ≥128 二值化与「需复核」门槛内消化）。query 侧「指甲（共N枚）」计数提示在 589824 档可把召回提到 0.9951，但在 262144 档无增益且浏览器候选数偏低时反而截断召回，不采纳。bf16 卸载（`--quant none --device-map 5`）虽 5/5，但单图 51–55s 且 3/7 图 OOM，只作对照；LLM int4 + 视觉塔 bf16 混合量化实测与纯 int4 召回一致（低对比漏检主因不是视觉塔量化，是分辨率档位），不引入。
+`--max-pixels` 默认 262144（2026-10-29 起由真实照片评估确定）：36 张真实照片、203 枚完整甲人工真值下，589824 召回仅 0.8325（低对比裸色/果冻甲大面积漏检），262144 召回 0.9803 且单图均时 9.0s（589824 为 16.2s），1310720 反而掉回 20/42、1048576 有 `<OBJ>` 解析缺陷（响应文本含 5 个框只解出 1 个，独立复跑可复现）。此前 2026-10-28 在 7 张高对比业务图上「262144/589824/1638400 实例数一致」的结论不能外推到真实照片。262144 的 mask 几何代价：192 个配对实例中位二值 alpha IoU 0.957、面积比中位 1.004，约 1–2% 实例形状漂移（含个别向皮肤溢出，前端 ≥128 二值化与「需复核」门槛内消化）。query 侧「指甲（共N枚）」计数提示在 589824 档可把召回提到 0.9951，但在 262144 档无增益且浏览器候选数偏低时反而截断召回，不采纳。**2026-10-31 query 扫描定版：matting query 用英文单词 `nails`**（`vlm-refinement.ts`、`server.py`、`matting.py` 默认同步）：262144 档 36 图 203 枚完整甲截断召回 **1.0000**（此前「指甲」0.9803 的最后两处漏检 2/451 奶油甲、3/973 全部 4 枚银色甲均找回）、单图均时 **8.0s**（「指甲」9.0s）、欠检图 0；对基线实例增量 +4 召回、−3 冗余碎片、+2 皮肤假阳性（不落入候选框、按规则保留本地 mask，无功能影响），225 个配对实例中位二值 alpha IoU 0.9949；预热后跨重启稳定复现。「manicured fingernails」召回 0.9951 但 12.9s（+43%，`<ref>` 每实例重复长词），单词「manicured」偶发塌缩为 1 实例，均不采纳；「指甲（共N枚）」计数提示对 `nails` 无附加收益。bf16 卸载（`--quant none --device-map 5`）虽 5/5，但单图 51–55s 且 3/7 图 OOM，只作对照；LLM int4 + 视觉塔 bf16 混合量化实测与纯 int4 召回一致（低对比漏检主因不是视觉塔量化，是分辨率档位），不引入。
 
 ---
 

@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.2.172
+> 文档版本：v1.2.203
 >
 > 基线日期：2026-07-12
 >
@@ -116,11 +116,11 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
          -> 火山方舟 Ark /images/generations（档位×比例映射为显式 WxH）-> 远程图片 URL（24h 有效）
 ```
 
-图库款式已可带入编辑器灵感色、AI参考图和AR选取器；AI生成结果可收录到浏览器IndexedDB，再由图库带入AI或AR。编辑器笔画/成品尚无共享项目协议，云端保存与跨设备同步未实现；相关链路见§4.3—§4.5。
+图库款式已可带入编辑器灵感色、AI参考图和AR选取器；AI生成结果可收录到浏览器IndexedDB，再由图库带入AI或AR。编辑器成品（纹理贴合结果）尚无共享项目协议，云端保存与跨设备同步未实现；相关链路见§4.3—§4.5。
 
 ## 3. 功能状态总表
 
-当前优先推进真实素材精标与分批训练：首批24整图实审，3图17完整甲面新准入，与23既有合格整图149甲混合完成Stage A固定8轮/104优化步。全26源新旧配对显示新增域匹配15→17/17、既有域148→146/149，均为训练域诊断，新候选不替换基线。Stage B合成三端各9/9已通过，真实训练154 CPU严格门仍140/154失败，坐标显式化18次CPU草案保留未消费。来源隔离质量、Stage A+B产品链与正式发布均未通过，PRODUCT HOLD；当前唯一活动见Goal，证据入口见§8.8/§8.9/§11.1。
+当前优先推进真实素材精标与分批训练：现71/100图446甲均实际入训；最新94源595甲从污染前基线独立CPU8轮376步/752微批，每图8次曝光。batch026已筛十二源，331八甲精标/来源/训练闭合；351/52九甲精标但来源未闭合，371/22十四甲待绘，42失焦未决。下一唯一活动为batch026余项闭合并合格入新预算训练。旧污染及正式失败不改写，PRODUCT HOLD。见Goal与§8.8/§8.9/§11.1。
 
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
@@ -128,8 +128,8 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | 首页与统一导航 | `/` | 已完成（v1.2.158 新拟态设计；v1.2.160 导航整合） | 提供功能入口与统一视觉框架；桌面 5 项顶部导航（为你／试戴／创作／分析／我的）+ 2 个圆形图标入口（上传试色 `/editor`、灵感图库 `/gallery`），移动 5 项底部导航；首页不再重复功能入口网格，旧玫瑰粉视觉已废弃 |
 | 消费者端新版设计提案 | 独立本机预览 `127.0.0.1:4318`，见 §4.7 | 待验证（真机与设计评审） | 最终手机／短横屏、触控模拟和Windows Chrome／Edge检查通过；原生分享与移动真机待验；旧版保留，真实模型、云同步与公开社区未接入 |
 | 登录与账号原型 | `/login`、`/account`、`/api/auth/*`、`/api/me` | 进行中（生产闭环未完成） | 已有JWT/SQLite、手机号/微信身份与偏好接口；生图路由身份与配额/预算熔断、SQLite目录预检已由v1.1.649修复（见§5更正段）；剩余缺口为真实短信、refresh入口及身份一致性/验证码治理。详见§5补充及§9.7。 |
-| 灵感图库 | `/gallery` | AI 素材 + 编辑器灵感参数消费 + 图库→AR/AI 链路打通 + 本地收录（2026-09-03，v1.1.580/581/583） | 6 张 Seedream pro 文生图素材本地落盘 `public/nail-gallery/ai-look-1..6.jpg` 并逐张通过视觉审核；`/editor?gallery=` 已实现灵感卡 + 灵感色预涂（v1.1.581，见 §4.3）；v1.1.583 起图库卡片新增「AI 相似款」(`/ai-generate?gallery=<id>`) 与「AR 试戴」(`/ar-tryon?gallery=<id>`) 入口，图库款式到 AR 的纹理传递已打通（§4.5）；AI 生成结果可一键收录到浏览器本地 IndexedDB 图库（`/gallery`「我的收录」区块，§4.3），真实内容后端与跨设备同步仍无 |
-| 图片试色编辑器 | `/editor` | 已完成 | 本地上传、MIME/大小/分辨率/解码校验、逐指选色、Canvas 涂抹与本地保存链路均已实现并通过浏览器审核 |
+| 灵感图库 | `/gallery` | AI 素材 + 编辑器灵感参数消费 + 图库→AR/AI 链路打通 + 本地收录（2026-09-03，v1.1.580/581/583） | 6 张 Seedream pro 文生图素材本地落盘 `public/nail-gallery/ai-look-1..6.jpg` 并逐张通过视觉审核；`/editor?gallery=` 已实现灵感卡（灵感色自 v1.2.174 起映射为最接近主色的纹理套装，见 §4.2）；v1.1.583 起图库卡片新增「AI 相似款」(`/ai-generate?gallery=<id>`) 与「AR 试戴」(`/ar-tryon?gallery=<id>`) 入口，图库款式到 AR 的纹理传递已打通（§4.5）；AI 生成结果可一键收录到浏览器本地 IndexedDB 图库（`/gallery`「我的收录」区块，§4.3），真实内容后端与跨设备同步仍无 |
+| 图片试色编辑器 | `/editor` | 进行中（2026-10-31 v1.2.173 画布重写为「甲面框 + 纹理贴合实例」；v1.2.174 页面接线落地：纯色试色删除、纹理套装点选贴合上线；v1.2.179 登记 5 套真实照片纹理资产（5 套×5 指）并完成浏览器端到端功能验收，hover 视觉细节待用户实机复核） | 本地上传、MIME/大小/分辨率/解码校验、识别级联辅助定位、纹理套装点选贴合与原尺寸本地保存链路已实现；纹理资产来源与提取管线见 §4.2，画布组件接口与页面合同见 §4.2 |
 | AI 美甲生图 | `/ai-generate`、`POST /api/generate-ai` | 已完成（用户验收） | 已接入Agnes Image 2.5 Flash（文生图 + 图生图；2026-10-22 由 Agnes Image 2.1 Flash 切换，请求参数、尺寸参考表与计费口径不变）；2026-08-29服务端Endpoint已切换为`https://api.agnes-ai.cn/v1/images/generations`并换用新服务端密钥，实测模型列表`GET /v1/models`认证HTTP 200、当时目标模型`agnes-image-2.1-flash`可见，真实文生图返回图片URL且产物可下载。`.cn`模型列表认证HTTP 200且目标模型可见，协议专项测试、Lint、全量758项测试和生产构建通过。2026-08-10用户确认AI美甲真实生图功能验证通过，并于2026-08-12再次确认；2026-08-19新增可选「参考图」图生图（上传手部照片→浏览器压缩至最长边1024 JPEG→与提示词一起生成，Agnes在参考图手部指甲上绘制美甲并保持原图构图，实测图生图成功且约12s，文生图约157s），并新增生成中 shimmer 加载与页面过渡动画；2026-08-29新增用户可选择**画面比例**（8 种）与**输出尺寸档位**（1K/2K/3K/4K），按 Agnes「输出尺寸参考」表实时显示最终像素尺寸，文生图与图生图共用（默认 1K+1:1 ≈ 1024x1024，行为与历史一致）。参考图仅在用户主动上传时发送第三方、仅用于本次生成；成本、内容安全和生产持续可用性继续作为运营监测项。2026-10-22 默认模型切换为`agnes-image-2.5-flash`（白皮书 v1.2.147）：实测`GET /v1/models`新模型可见，真实文生图（1K+1:1）约9.1s、真实图生图（`extra_body.image`）约102.3s均HTTP 200返回可用URL；受影响测试4文件20/20、全量1189/1189、typecheck与生产构建通过；历史验收记录中的2.1 Flash为当时模型口径；图生图参考图编辑的提示词约束（弃用文生图场景后缀、按句提取设计描述、环境元素锁定）见 §4.3（v1.2.161）。|
 | AI 美甲生图（Seedream 引擎） | `/ai-generate`（引擎切换）、`POST /api/generate-seedream` | 待验证（路由层 lite 实测通过；pro 脚本端到端通过；仅剩浏览器视觉呈现等待用户确认） | v1.1.564 新增火山方舟 Seedream 5 系列作为第二生图引擎，Agnes 保持默认且链路零改动。新增`src/lib/seedream-image-api.ts`（扁平 body、顶层`error{code,message}`解析、429/500/503 指数退避重试、240s 超时、`watermark`默认关）、`seedream-image-size.ts`（pro=1K/1.5K/2K、lite=2K/3K/4K 档位×8 比例→显式 WxH 表）与`seedream-prompt.ts`（Seedream 专用精简系统词约 100 字，独立于 Agnes 长提示词；用户提示词上限 300 字）。前端`/ai-generate`新增「生成引擎」切换（Agnes / Seedream pro / Seedream lite），切引擎联动尺寸档位与提示词上限。真实端到端：pro 引擎经`doubao-seedream-5-0-pro-260628`文生图 19.7s 成功返回 186KB 有效 JPEG；v1.1.577 更换用户临时 Key 后 pro 复测 28.5s 成功、lite 档`doubao-seedream-5-0-260128` 33.1s 成功返回 249KB 有效 JPEG（该账号已开通，此前"has not activated"阻塞解除）。v1.1.578 修复路由层 `env` 缺省导致的 watermark 读取崩溃（`Cannot read properties of undefined (reading 'ARK_IMAGE_WATERMARK')`），`generateSeedreamImage` 入口统一 `env = options.env ?? process.env`，新增"不传 env 的成功路径"回归测试；v1.1.579 通过 curl 实测本机 `POST /api/generate-seedream`（lite 2K 1:1）HTTP 200、27.1s 返回有效 imageUrl，确认修复已被 dev 服务器 hot-reload 加载。模型 ID 经`GET /api/v3/models`实测发现（必须带版本日期后缀）。新增 18 项测试全过（v1.1.578 增 1）、路由校验冒烟 6/6 通过；仅剩浏览器视觉呈现由用户确认。生成 URL 24h 过期，项目不做长期留存 |
 | AR 纯色试戴 | `/ar-tryon` | 待验证 | 单手摄像头、关键点、指甲绘制、手心/手背识别已实现；MediaPipe运行文件使用本站同源静态资源，实时路径启用`modelComplexity: 1`。甲面几何结合TIP/DIP/PIP、深度和手背平面生成长轴、横轴及侧转透视剪切，工程回归通过；真实边界仍需多设备真机验收 |
@@ -137,9 +137,9 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
 | 视频自适应展示 | `calculateCoverVideoLayout()` | 已完成 | 保持比例，采用居中 cover 裁切，不拉伸 |
 | 个性化美甲分析推荐 | `/nail-analysis` | 待验证（工程门通过；真实照片与真机验收待补） | 纯规则启发式，不引入新模型训练：浏览器本地完成甲面候选识别、甲床/手型派生比例、甲周肤色采样（Lab/ITA°/底调，含甲面自污染排除与采样质量门）、指甲健康三类启发式，结合场景问卷由确定性规则引擎推荐甲型、长度与色系并附中文解释，可一键跳转 `/editor?preset=` 预涂。全部本地计算，不新增上传通道；即使开启「用户改进计划」分析结果也不外发。正式模型未部署期间识别100%走辅助定位且无像素级mask，指甲健康通道不可用（隐藏而非降级展示），琥珀辅助声明页面级常显，不得表述为自动分析成功，也不计入正式识别成功率或Beta直接可用率；0候选时不产出任何推荐。设计文档：`docs/nail-personalization-design.md`、`docs/nail-personalization-research.md`。 |
-| 美甲纹理自动识别 | `/ar-tryon`图片纹理识别 | 研发进行中 / PRODUCT HOLD | 新真实素材3图17甲精标准入，混合26图166甲完成Stage A 8轮/104步；训练域新甲匹配提升但既有2甲净退化，新候选不替换基线。Stage B真实154 CPU门140/154未过，正式来源与产品链仍缺；见§8.8/§8.9/§11.1。 |
+| 美甲纹理自动识别 | `/ar-tryon`图片纹理识别 | 研发进行中 / PRODUCT HOLD | 现71图446甲合格并实际训练；最新94源595甲CPU8轮376步/752微批，每图8次曝光。batch026余项继续精标/来源核验，未决不入训。旧污染权重撤回、Stage B真实154 CPU及正式全链失败保持，见§8.8/§8.9/§11.1。 |
 | 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 已实现（辅助定位提示；正式模型HOLD） | 所有fallback候选数均显示琥珀色辅助定位/人工确认提示，0候选提示手工添加；未部署标记在window/worker会话创建前返回明确warning。MediaPipe/局部近景无像素级mask，不计模型成功或Beta直接可用率。行为及发布拦截本地独立测试通过，真实浏览器产品路径待验收。 |
-| 本机精细抠图（WeVisOne-VL） | `NailArtPicker` 侧栏「精细抠图（本机）」、`POST /api/nail-matte` | 已实现（辅助能力，默认关闭；路由级 5/5，UI 端到端 2026-10-28 为 3/5、2026-10-29 同图复测 5/5） | 仅在服务端配置`VLM_MATTE_URL`时出现入口：浏览器把原图压到长边≤1600 JPEG后提交，由同机`127.0.0.1:8008`的WeVisOne-VL-4B int4生成整图软 alpha（服务默认`--max-pixels 262144`），按「实例中心落入候选框优先、外接框IoU≥0.15兜底」与现有候选一一匹配并**只替换mask**（不增删候选、不改指位与置信度）。2026-10-28 实测：业务路由整图请求 5 实例/16.6s/5 候选全匹配（`output/nail-matte-p3/20261028-210056/`），nvidia-smi 设备峰值 7817 MiB（8 GiB 卡余量约 370 MiB）；1048576 档在同一原图只解出 1 个`<OBJ>`（响应文本含 5 个框），故不作为默认。UI 端到端（`/ar-tryon` 多纹理上传）2026-10-28 同图返回 5 实例、14.3s，但只替换 3/5：两个未匹配候选与服务实例框仅部分重叠（IoU 0.075/0.049），本地 MediaPipe 候选几何偏移且偏小，按保守规则保留原 mask，未发生错误替换；2026-10-29 同图复测 5/5 全匹配并完成归一化提取（`output/nail-matte-ui-v165/`，当轮本地候选几何更准，匹配规则未变）。2026-10-29（v1.2.165）修复：客户端匹配前把候选框换算到编码空间，原图长边 >1600 时候选框（原图坐标）与实例框（编码坐标）此前不同域会导致匹配恒不命中。2026-10-29（v1.2.166）默认档换档：36 张真实照片、203 枚完整甲人工真值评估显示 589824 档实例级召回仅 0.8325（Wilson95% [0.7751,0.8776]，低对比裸色/果冻甲漏检集中，skin_low_contrast 桶 0.6364），262144 档召回 0.9803、单图均时 16.2s→9.0s，1310720 档反而劣化（探针 20/42），故 `DEFAULT_MAX_PIXELS` 改为 262144（真值与逐图数据在 `output/matte-edge-lab/real-eval/`，不入库）；代价是 192 个配对实例中位二值 alpha IoU 0.957、约 1–2% 实例形状漂移（含个别向皮肤溢出，2/601 实测 2.55× 面积），由前端 ≥128 二值化与「需复核」流程消化；「指甲（共N枚）」query 计数提示（589824 档召回 0.9951、欠数提示会截断召回）与 LLM int4+视觉塔 bf16 混合量化实测均无附加收益，不采纳。未配置/忙/超时/鉴权失败一律降级并保留本地结果，不自动重试；本地0候选时可发起一次兜底识别，结果固定`confidence:"low"`且需逐指核对。2026-10-29（v1.2.167）起该能力并入自动流程：选择器识别完成时，若用户已记住隐私确认（`jiaru.nail-matte.notice.v1`）且服务就绪则自动执行一次精细处理；本地识别0候选时改为自动执行一次兜底识别（2026-10-29 v1.2.168；每次选择器打开至多一次，不自动重试口径不变；未确认则跳过、直接使用本地结果，不发送任何图片）；2026-10-30（v1.2.169）修复：兜底 detect 候选的 cx/cy/length/width 改由 alpha 栅格实心边界按原图坐标域逐轴推导（与提取端 `imageWidth/mask.width` 映射同口径），空栅格才回退编码空间实例框——此前直接采用上游编码图（长边 ≤1600）坐标域的实例框，长边 >1600 原图的选择器叠加层会整体缩聚到左上角（提取不受影响，因其只消费 mask 栅格）；自动流程对兜底低置信候选改为自动提取并上屏、界面保留「需复核」提示（原「需逐指核对」条款按2026-10-29用户决策修订为「自动应用+提示核对」，旧值保留于当日开发日志），手动路径仍保留逐指核对文案。不计正式识别成功率、Beta直接可用率、阈值校准或训练真值，不写生产manifest、不产生releaseIdentity，PRODUCT HOLD不变。 |
+| 本机精细抠图（WeVisOne-VL） | `NailArtPicker` 侧栏「精细抠图（本机）」、`POST /api/nail-matte` | 已实现（辅助能力，默认关闭；路由级 5/5，UI 端到端 2026-10-28 为 3/5、2026-10-29 同图复测 5/5） | 仅在服务端配置`VLM_MATTE_URL`时出现入口：浏览器把原图压到长边≤1600 JPEG后提交，由同机`127.0.0.1:8008`的WeVisOne-VL-4B int4生成整图软 alpha（服务默认`--max-pixels 262144`），按「实例中心落入候选框优先、外接框IoU≥0.15兜底」与现有候选一一匹配并**只替换mask**（不增删候选、不改指位与置信度）。2026-10-28 实测：业务路由整图请求 5 实例/16.6s/5 候选全匹配（`output/nail-matte-p3/20261028-210056/`），nvidia-smi 设备峰值 7817 MiB（8 GiB 卡余量约 370 MiB）；1048576 档在同一原图只解出 1 个`<OBJ>`（响应文本含 5 个框），故不作为默认。UI 端到端（`/ar-tryon` 多纹理上传）2026-10-28 同图返回 5 实例、14.3s，但只替换 3/5：两个未匹配候选与服务实例框仅部分重叠（IoU 0.075/0.049），本地 MediaPipe 候选几何偏移且偏小，按保守规则保留原 mask，未发生错误替换；2026-10-29 同图复测 5/5 全匹配并完成归一化提取（`output/nail-matte-ui-v165/`，当轮本地候选几何更准，匹配规则未变）。2026-10-29（v1.2.165）修复：客户端匹配前把候选框换算到编码空间，原图长边 >1600 时候选框（原图坐标）与实例框（编码坐标）此前不同域会导致匹配恒不命中。2026-10-29（v1.2.166）默认档换档：36 张真实照片、203 枚完整甲人工真值评估显示 589824 档实例级召回仅 0.8325（Wilson95% [0.7751,0.8776]，低对比裸色/果冻甲漏检集中，skin_low_contrast 桶 0.6364），262144 档召回 0.9803、单图均时 16.2s→9.0s，1310720 档反而劣化（探针 20/42），故 `DEFAULT_MAX_PIXELS` 改为 262144（真值与逐图数据在 `output/matte-edge-lab/real-eval/`，不入库）；代价是 192 个配对实例中位二值 alpha IoU 0.957、约 1–2% 实例形状漂移（含个别向皮肤溢出，2/601 实测 2.55× 面积），由前端 ≥128 二值化与「需复核」流程消化；「指甲（共N枚）」query 计数提示（589824 档召回 0.9951、欠数提示会截断召回）与 LLM int4+视觉塔 bf16 混合量化实测均无附加收益，不采纳。未配置/忙/超时/鉴权失败一律降级并保留本地结果，不自动重试；本地0候选时可发起一次兜底识别，结果固定`confidence:"low"`且需逐指核对。2026-10-29（v1.2.167）起该能力并入自动流程：选择器识别完成时，若用户已记住隐私确认（`jiaru.nail-matte.notice.v1`）且服务就绪则自动执行一次精细处理；本地识别0候选时改为自动执行一次兜底识别（2026-10-29 v1.2.168；每次选择器打开至多一次，不自动重试口径不变；未确认则跳过、直接使用本地结果，不发送任何图片）；2026-10-30（v1.2.169）修复：兜底 detect 候选的 cx/cy/length/width 改由 alpha 栅格实心边界按原图坐标域逐轴推导（与提取端 `imageWidth/mask.width` 映射同口径），空栅格才回退编码空间实例框——此前直接采用上游编码图（长边 ≤1600）坐标域的实例框，长边 >1600 原图的选择器叠加层会整体缩聚到左上角（提取不受影响，因其只消费 mask 栅格）；自动流程对兜底低置信候选改为自动提取并上屏、界面保留「需复核」提示（原「需逐指核对」条款按2026-10-29用户决策修订为「自动应用+提示核对」，旧值保留于当日开发日志），手动路径仍保留逐指核对文案。2026-10-31（v1.2.177）matting query 定版为英文单词 `nails`：262144 档下同一 36 图/203 完整甲真值实测截断召回 1.0000（203/203 零漏检，此前「指甲」0.9803 的最后两处漏检——2/451 奶油甲与 3/973 全部 4 枚银色甲——均找回）、单图均时 9.0s→8.0s（每实例 `<ref>` 更短）、欠检图 0；对基线的实例增量为 +4 召回、−3 冗余碎片（1/234 −1、3/1134 两片合一片）、+2 皮肤假阳性（3/1026、3/1080，均不落入候选框、按规则保留本地 mask，无功能影响）；225 个配对实例中位二值 alpha IoU 0.9949（几何无回退）；预热后跨重启复现同一探针结果，裸甲/果冻甲对照（1/238、1/4、2/792）无系统性抑制。「manicured fingernails」召回 0.9951 但单图 12.9s（+43%，`<ref>` 每实例重复长词），单词「manicured」不稳定（个别图塌缩为 1 实例），均不采纳；`vlm-refinement.ts` 两处请求与 `server.py`/`matting.py` 默认 query 同步改为 `nails`。不计正式识别成功率、Beta直接可用率、阈值校准或训练真值，不写生产manifest、不产生releaseIdentity，PRODUCT HOLD不变。 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
 | 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（无批准生产模型） | 生产manifest仍无批准ONNX或新releaseIdentity，正式训练准入v7及新来源val/正负留出、角标捷径消融、生产运行时/产品、真机/Beta与双批准权重回滚均未闭合。当前内部val诊断质量/数值未过且有上游训练历史，禁止据此正式校准、登记或部署。candidate57受保护test100失败保持，历史测试部署例外不构成正式发布；当前证据与下一路线见§11.1、Goal及当日日志。 |
 | 数据集治理 | `model/datasets/nail-texture-v1`及候选物化报告 | 进行中（发布角色需重建） | 仓库历史基础数据集仍为409图/2142 mask、split=300/46/63；正式训练输入已演进三代：candidate52/56（328张正图/1981 mask/112来源组加160张train困难负样本，物化train488/val30/test0）→ candidate58b（343张/2071 mask/127来源组，train503）→ 循环011/012开发口径（唯一一次12 epoch训练为循环012，350图训练文件树`34fe0a85…1edf`、124来源组均衡采样）。train内来源组开发折已由循环001—015落地为现行评估主线，clean98开发基线（58图/354-mask v2加40困难负图）与循环015扩容（源图供给55图/55来源组/322甲冻结、开发评估真值43图/265甲、训练禁用）为当前事实；旧val30、旧test100及编号261—360、361—460等已消费holdout现在只作受保护历史回归，禁止训练、配方/阈值选择或再次冒充未见证据；候选锁定后的全新校准集、一次性正样本发布留出与全新困难负样本要求保持不变；当前无批准发布候选。 |
@@ -179,40 +179,51 @@ npm.cmd run build
 
 ### 4.2 `/editor` 图片试色
 
-状态：已完成。
+状态：进行中（2026-10-31 v1.2.173 画布模型重写为「甲面框 + 纹理贴合实例」；v1.2.174 页面接线落地，纯色试色删除；v1.2.179 真实照片纹理资产登记与浏览器端到端功能验收通过，hover 视觉细节待用户实机复核）。
 
-2026-09-05复核发现两个待修缺陷：`NailCanvas`直接导出≤400×600的预览画布，4096方图保存为400方图；20份撤销历史淘汰原图后，“重置”回到最旧编辑状态。已有上传/涂抹链路可用不代表原分辨率导出与长历史重置正确，本轮只登记，未改运行代码。
+画布模型（v1.2.173 起，取代旧「纯色笔刷笔画」模型）：
 
-更正（v1.1.658）：上述两项缺陷已于本日修复——①`NailCanvas` 改为笔级笔画记录＋预览/导出分离：预览画布最长边仍受 400×600 约束，保存时按原图尺寸离屏重放原图与全部笔画（点坐标与笔刷半径按预览/原图缩放比等比换算），4096 方图导出 4096 方图；②「重置」改为清空笔画重放＝原图基线（与撤销栈解耦），修复 20 份快照淘汰后重置回最旧编辑状态的问题，撤销同时不再有 20 步上限。共用纯逻辑模块 `src/lib/canvas/strokes.ts`。
+- 识别级联（`src/lib/nail-detection-cascade.ts`，§6 同源识别）产出的甲面框（原图像素域）以绿色虚线椭圆＋指名（拇/食/中/无/小）或序号标签叠加在底图上，`showFrames` 控制；点击空框把当前纹理（`src/lib/nail-texture-sets.ts` 纹理套装，甲尖朝上、紧致裁剪、自带 alpha 轮廓的 ≤256px RGBA PNG）贴合为 placement 实例，`activeTexture` 为 null 时仍回调由页面提示；同一框重贴时旧贴合按 `frameId` 替换。
+- 贴合渲染长宽比保真：渲染长 = 框宽×纹理长宽比（`computeTextureRenderPlan`：甲根边缘锚定、不短于框长、上限 3×框长，延长沿甲尖方向伸出）；用户微调长度/宽度/甲根位置经 `adjustNailGeometry` 钳制（0.75–1.4 / 0.7–1.45 / ±0.2，rootOffset 正值向指根方向 (−sin(angle), cos(angle))）。
+- 指针交互优先级：贴合命中（选中＋拖动；拖动中组件本地预览、松手提交，位置钳制画布范围内）→ 甲面框命中（`onFrameClick`）→ 加框模式空白点击（`onEmptyClick`，原图坐标手动加框）→ 取消选中；命中域为旋转椭圆（逆旋转到局部坐标，数组末尾顶层优先）。
+- 显示与输出分离：预览画布最长边 400/600（`previewScale`，沿用旧口径），贴合几何以原图像素域存储；保存时按原图尺寸离屏重放全部贴合（贴合存储域即原图像素，重放因子恒为 1），4096 方图导出仍为原尺寸，输出 `jiaru-<时间戳>.png` 下载；纹理经模块级缓存预加载，未就绪时加载完成后重绘。
+- 纯逻辑模块 `src/lib/canvas/placements.ts`（node 可测）：`buildPlacementFromFrame`（框+纹理→贴合，确定性 id `placement-<frameId>`）、`applyPlacementAdjust`（从 base 几何重算渲染几何）、`placementHitTest`/`frameHitTest`、`placementDrawList`（按因子缩放的导出重放清单）、`previewScale`、`loadTextureImage`/`loadTextureAspect`（aspect=naturalHeight/naturalWidth，非法回退 1）。旧笔刷模块 `src/lib/canvas/strokes.ts` 已删除。
+- `src/components/NailCanvas.tsx` 为无状态画布组件（placements 全部由 props 传入、事件上报；选中贴合画珊瑚色椭圆高亮）：
 
-使用方式：
+```ts
+<NailCanvas
+  imageUrl={string}
+  frames={readonly PlacementFrameInput[]}        // 识别甲面框（原图像素域）
+  placements={readonly NailPlacement[]}          // 贴合实例（原图像素域）
+  activeTexture={{ key, src, aspect } | null}    // 点击空框时贴合的纹理
+  selectedId={string | null}
+  showFrames={boolean}
+  addingFrame={boolean}
+  canUndo={boolean}
+  onFrameClick={(frame) => void}
+  onPlacementSelect={(id | null) => void}
+  onPlacementMove={(id, cx, cy) => void}         // 拖动结束提交
+  onEmptyClick={(x, y) => void}                  // addingFrame 时手动加框（原图坐标）
+  onUndo={() => void}
+  onReset={() => void}
+/>
+```
 
-1. 上传或拍摄清晰的手部图片；文件选择器与运行时均限制为 JPG/PNG/WebP、最大 10 MB、宽高各 320–4096 像素；
-2. 选择拇指至小指之一；
-3. 选择颜色，可将当前颜色应用到全部手指；
-4. 在 Canvas 上点击或拖动完成局部涂色；
-5. 使用组件提供的撤销、重置和保存能力。
+使用方式：上传或拍摄清晰的手部图片（文件选择器与运行时均限制为 JPG/PNG/WebP、最大 10 MB、宽高各 320–4096 像素）→ 识别甲面框 → 选择纹理套装（可展开钉选单指纹理）→ 点击甲面框贴合 → 拖动/微调 → 撤销、重置和保存。
+
+页面接线（v1.2.174 起，`src/app/editor/page.tsx`）：
+
+- 识别与兜底：上传成功后自动执行一次识别级联（画布取 imageData 最长边 ≤800 → `computeImageDetectedNailRegions` → `autoAssignNailRegionFingers` 补缺失指位），过程浮层提供「跳过」转手动加框；0 区域且用户已记住本机抠图隐私确认（`jiaru.nail-matte.notice.v1`）且服务就绪时自动执行一次 `detectNailsWithMatte` 兜底（候选固定低置信、warnings 保留），否则提示手动添加。识别失败/降级一律保留已有甲面框并显示辅助定位声明（`auxiliaryDetectionNotice`），界面不出现「自动识别成功」类表述。
+- 纹理选择：侧栏 `TextureSetPicker` 卡片堆叠——静止态前 3 张可见（第 1 张为该套拇指纹理封面＋套装名），桌面 hover / 移动端点按容器展开为 5 张单指卡扇形（FAN=56px，360px 面板内不溢出），点堆叠＝应用整套、点单卡＝钉选单指纹理，展开时页面渲染全页模糊遮罩（z-30，堆叠 z-40 置顶）；解析顺序为 `pinnedTextureKey`（"<setId>/<finger>"）优先，其次激活套装按甲面框指位取纹理，指位缺失或该指无纹理时提示「请先在套装中确认指位或钉选单张纹理」并不贴合。`?gallery=`/`?preset=`/灵感卡回调经 `closestTextureSet` 映射最接近主色的套装（不自动贴合；无匹配忽略并提示）。
+- 纯逻辑模块 `src/lib/editor-texture-state.ts`（node 可测）：`resolveActiveTexture`（钉选/套装指位/缺失三分支）、`replacePlacementForFrame`（同框重贴先移除旧贴合）、`pushPlacementHistory`/`undoPlacementHistory`（撤销栈快照与弹栈）、`buildManualFrame`（nl/nw 按原图最长边 10%/58% 推导并钳制 42–120/28–72、指位取首个空闲）、`frameToMatteCandidate`、`applyRefinedFrameMasks`（按 candidateId 回填 mask 并以 `frameGeometryFromMask` 重算帧几何，几何为 null 时保留原几何）。
+- 本机精细抠图（辅助路径）：NailMattePanel 的精细处理只替换 mask 并重算帧几何（不增删候选、不改指位与置信度），结束后提示「已精细处理 N/M 个甲面」；兜底识别与自动兜底同口径。降级/错误一律保留本地结果。
+- 贴合撤销栈只记 placement 变更（点框贴合、拖动结束提交、滑杆经 `applyPlacementAdjust` 75–140%/70–145%/±20%、删除贴合、重置），同一操作键 800ms 内合并入栈；旧纯色逻辑（`ColorPalette` 组件、nailColors、applyToAll）已整体删除。
+
+纹理资产（v1.2.179 起）：`src/lib/nail-texture-sets.ts` 的 `NAIL_TEXTURE_SETS` 登记 5 套真实照片纹理套装（黑耀碎闪、奶茶金饰、玫红爆闪珍珠、蓝粉珍珠混搭、裸粉白星法式），每套 5 指纹理落盘 `public/nail-textures/<setId>/finger-1..5.png`，由可复用脚本 `scripts/build-nail-texture-sets.py` 从 `E:\AI Project\Codex\JiaRu_image\真实素材\美甲图片素材` 的 5 张真实照片（1/301、2/563、3/1161、1/437、1/234）经本机 WeVisOne-VL 抠图服务（§5.4 同服务）提取：exif_transpose → 长边 ≤1600 JPEG q0.85 → `/matte` 实例 alphaPng → 栅格 ≤1024 → 主轴角摆正、alpha 羽化、紧致裁剪、≤256px RGBA（与 §4.5 纹理提取同一数学约定）；每源 instance_count 必须 =5，确定性贴边细条过滤剔除误检，拇指→小指映射与朝向经 plan.json 逐张人工复核修正。`dominantColor` 取提取纹理主色统计，供 `closestTextureSet` 灵感色映射（§4.3/§4.6 出站链路）。资产仅供编辑器点选贴合消费；纹理提取与识别级联辅助定位均不计入正式识别质量结果。
 
 数据边界：上传校验在浏览器本地完成；通过后才调用 `URL.createObjectURL()`，页面卸载或更换文件时释放对象 URL。无效 MIME、超限大小、解码失败、过小或过大分辨率会在上传区显示可读错误，不创建编辑会话。
 
-核心组件接口：
-
-```ts
-<UploadButton onUpload={(file: File) => void | Promise<void>} />
-
-<NailCanvas
-  imageUrl={string}
-  selectedColor={string | undefined}
-  nailColors={string[] | undefined}
-  activeFinger={number | undefined}
-  brushSize={number}
-/>
-
-<ColorPalette
-  selectedColor={string}
-  onSelectColor={(color: string) => void}
-/>
-```
+历史口径：2026-09-05 评审缺陷登记与 v1.1.658 笔画模型修复记录见 `docs/archive/whitepaper-changelog-archive.md`；本节自 v1.2.173 起仅保留当前模型合同。
 
 ### 4.3 `/gallery` 灵感图库
 
@@ -223,7 +234,7 @@ npm.cmd run build
 **v1.1.583 新增：图库→AR/AI 链路打通与本地收录（IndexedDB）。**
 - 桥接函数 `src/lib/gallery-bridge.ts`：`findGalleryLook(id)` 校验 id；`loadGalleryReference(id)` / `loadCollectReference(collectId)` / `loadReferenceFromParams({gallery, collect})` 把图库静态图或 IndexedDB 收录图取为 `File`（fetch 失败、非 2xx、非图片类型一律降级返回 null，不抛错）。
 - AI 相似款（`/ai-generate?gallery=<id>` 或 `?collect=<id>`，v1.1.583）：`src/app/ai-generate/page.tsx` 以 Suspense 包裹的 `useSearchParams` 消费参数（与 v1.1.581 同一约定），进入后自动 `fetch` 图库图、`createImageBitmap` → 复用 `compressReferenceImage` 同源压缩链路填入参考图（与手动上传代码完全一致），并以款式名预填提示词（如「参考「亮片闪粉」的美甲样式，生成同风格的新设计」）；任何失败静默降级，不阻塞手动上传主流程。
-- 图库到 AR 的纹理传递（§11.3 第 7 条已改写）：`/ar-tryon?gallery=<id>` 或 `?collect=<id>` 进入后自动取图、复用编辑器/AR 共用的 `validateImageUpload` + `URL.createObjectURL` 管线，直接打开多指指甲选取器（`setShowNailPicker(true)`）；失败降级不阻塞手动上传。编辑器涂抹纹理链路仍无。
+- 图库到 AR 的纹理传递（§11.3 第 7 条已改写）：`/ar-tryon?gallery=<id>` 或 `?collect=<id>` 进入后自动取图、复用编辑器/AR 共用的 `validateImageUpload` + `URL.createObjectURL` 管线，直接打开多指指甲选取器（`setShowNailPicker(true)`）；失败降级不阻塞手动上传。编辑器纹理贴合自 v1.2.173 起仅限纹理套装（§4.2），图库→编辑器纹理传递仍无。
 - **AI 生成结果一键收录**：`src/lib/gallery-collection.ts` 为原生 IndexedDB 轻量封装（库名 `jiaru-gallery`、store `collects`、keyPath `id`），`addCollect`/`listCollects`（按 createdAt 降序）/`deleteCollect`/`clearCollects`，所有函数对 `typeof indexedDB === "undefined"` 安全降级为 no-op（SSR 不抛错）；浏览器冒烟验证通过 `fake-indexeddb` 之外的 headless Chrome 实际写入。AI 生图结果区「收录到图库」按钮先 `fetch(imageUrl)` 取 blob（跨域受限时降级提示「先保存到本地再手动上传参考图」）再 `addCollect(blob, {engine, prompt})`。`/gallery` 卡片网格下方「我的收录」区块首屏不渲染、客户端 `useEffect` 读取 IndexedDB 后异步追加，避免 SSR 水合错位；收录卡带「我的收录」徽标、删除单条与「清空全部」入口，且同样具备「AI 相似款」(`/ai-generate?collect=<id>`) 与「AR 试戴」(`/ar-tryon?collect=<id>`) 入口；blob 的 objectURL 在卸载与删除时 `revokeObjectURL`。
 
 当前没有服务端数据库/上传管理/分页/搜索/跨设备同步。后续接入真实图库时应至少补充：资源 ID、来源授权、缩略图、原图、可试戴纹理、标签、创建时间、审核状态和删除策略。
@@ -404,8 +415,8 @@ function analyzeNailPersonalization(input: PersonalizationInput): Personalizatio
 - **品牌令牌**：`src/app/globals.css` 定义 `--paper #f7f4ee`、`--ink #292a27`、`--coral #ac5145`、`--coral-text #a34b3f`、`--coral-deep #884338`、`--coral-soft #f0e2db`、`--sage #e3e7dd`、`--line #deddd4` 与双光源 `--shadow-light #fffdf8` / `--shadow-dark #d3ccbd`；凸起 `--neu-out-*`、凹陷 `--neu-in-*` 随断点缩放。Tailwind `pink-*`／`rose-*`／`purple-*` 刻度经 `@theme` 重映射到品牌色，页面既有 class 无需改写即完成换肤；历史硬编码色值已批量映射到新令牌（旧玫瑰粉 → 珊瑚、旧灰紫文字 → 墨／中性灰），`rgba()` 粉色阴影改为墨／珊瑚阴影。
 - **导航结构（v1.2.160 更新）**：`Header` 桌面为「JiaRu／nail atelier／甲如」锁定组合 + 中央 5 项胶囊导航「为你（`/`）／试戴（`/ar-tryon`）／创作（`/ai-generate`）／分析（`/nail-analysis`）／我的（`/account`）」+ 右侧 2 个圆形图标按钮「上传试色（→`/editor`）」「灵感图库（→`/gallery`，命中时输出 `aria-current="page"` 并呈凹陷态）」。命中规则不再把 `/gallery`、`/nail-analysis` 归入「为你」：为你＝`/`；试戴＝`/ar-tryon`、`/editor`；创作＝`/ai-generate`；分析＝`/nail-analysis`；我的＝`/account`、`/login`。全部 5 个功能入口（上传试色、灵感图库、AI 生成、AR 试戴、个性化分析）均可在顶部直达。`src/components/BottomNav.tsx` 移动端固定底栏同步为 5 项（为你／试戴／创作／分析／我的，含 `/login` 归「我的」），按 `usePathname` 高亮并输出 `aria-current="page"`，输入法唤起时（`VisualViewport` 高度收缩 >140px）隐藏避让。`FlowingShell` 保留，但移除流动色块与毛玻璃，与 `AppShell` 共用品牌基底。
 - **设计基元（新增接口）**：`src/components/ui/primitives.tsx` + `primitives.module.css` 提供 `Eyebrow`（珊瑚短线＋大写字距）、`PageHeading`（衬线标题＋可选珊瑚强调行＋描述＋右侧插槽）、`NeuCard`（`inset` 切换凸起/凹陷）、`SectionHead`（大写小标＋衬线标题＋右侧动作）、`Chip`。页面统一通过基元组装，不再各自堆叠圆角与阴影类。
-- **产品内容色不受换肤影响**：默认甲油色 `#E8A0BF`（`src/app/editor/page.tsx` 的 `DEFAULT_NAIL_COLOR` 与其五指甲默认数组、`ArView` 与 `NailCanvas` 的无选中色回退）**保持原值不变**，`ColorPalette` 的色板数据未改动。换肤只替换 UI 强调色与表面色，不得改变用户实际看到的甲油颜色；`layout.tsx` 的 `body` 底色改为 `var(--paper)`／文字 `var(--ink)`。
-- **字体资产**：新增 `public/fonts/jiaru-editorial-serif.woff2`（OFL 许可，`public/fonts/OFL.txt`），`@font-face` 声明 `JiaRu Editorial`，用于标题与 eyebrow，`font-display: swap`。
+- **产品内容色不受换肤影响**：默认甲油色 `#E8A0BF`（`src/app/editor/page.tsx` 的 `DEFAULT_NAIL_COLOR` 与其五指甲默认数组、`ArView` 的无选中色回退；`NailCanvas` 自 v1.2.173 起不含颜色逻辑）**保持原值不变**，`ColorPalette` 的色板数据未改动。换肤只替换 UI 强调色与表面色，不得改变用户实际看到的甲油颜色；`layout.tsx` 的 `body` 底色改为 `var(--paper)`／文字 `var(--ink)`。
+- **字体资产**：`public/fonts/jiaru-editorial-serif.woff2` 为 OFL 许可（`public/fonts/OFL.txt`）的思源宋体（Noto Serif SC）可变字体改名子集「JiaRu Editorial」，wght 400–600，`@font-face` 用于标题与 eyebrow，`font-display: swap`。2026-10-31（v1.2.198）子集由 723 字符扩至 1,827 字符（旧子集 ∪ `src/**/*.{ts,tsx,css}` 全文 ∪ ASCII/常用标点，602,668 字节），修复 17 处标题含子集外汉字（如「肤/员/句/套/册/掌/基/优/追/踪/三/政/策/临/跑」与「—」）时逐字回退 SimSun 造成的字重不一致；重建工具 `scripts/build-editorial-font-subset.py`，文案新增字符后可重跑。
 - **首页（v1.2.160 精简）**：5 个功能入口改由顶部导航与圆形图标承担，首页**移除 `START HERE` 入口网格**（原 5 张卡片及其 `EntryIcon`、`entries` 数据与 `.card*`/`.bentoGrid` 样式一并删除），保留编辑部式 Hero（eyebrow + 衬线大标题 + 双 CTA，其中「上传照片试色」直达 `/editor`）、风格卡（`/nail-analysis`）、`CURATED FOR YOU / 此刻心动` 与款式网格（`/gallery`、`/editor?gallery=`）及页脚全部链接（`/editor`、`/gallery`、`/ai-generate`、`/ar-tryon`、`/privacy`、`mailto:`）；能力边界说明保留（AR 需 HTTPS 或本机地址与摄像头权限、AI 生成需联网、识别结果仅用于辅助定位，不作为正式纹理识别能力承诺）。
 - **完整应用（v1.2.159）**：本轮不再只做配色替换，按 `design/consumer-v1` 的布局与组件结构重做正式站界面——首页改为「编辑部式 Hero（左文案＋右侧手部拼贴，含和纸胶带、竖排小字、图注）＋风格卡＋`CURATED FOR YOU / 此刻心动`＋搜索胶囊＋款式网格＋`START HERE` 入口网格」；图库改为无外框的款式网格（`LOOK 01` 标签、三枚操作胶囊；v1.2.162 起改为图标按钮，见下条）；全站卡片阴影统一为 `--neu-out-*`/`--neu-in-*` 双光源、移除卡片描边；旧渐变按钮、渐变图标底、径向渐变预览区与装饰渐变全部改为纯色面（仅保留语义色：成功绿、微信绿、默认甲油色 `#E8A0BF`）；清理换肤过程中产生的无效孤儿类名（`-2xl` 等 12 处）；其中 `START HERE` 入口网格已于 v1.2.160 移除（当前口径见上条）。
 - **图库图形优先收口（v1.2.162）**：`/gallery` 页头移除描述段落与「共 N 款精选」说明胶囊（`AppShell` 的 `description` Prop 转为可选，其余页面不受影响）；主款式卡与收录卡操作改为 44px 图标按钮（试色＝调色板/珊瑚软底、AI 相似款＝星芒/鼠尾草底、AR 试戴＝相机/白底凸起），每钮携带含款式名的 `aria-label`；灵感网格密度 2/3/4 列，≥1100px 档经 `@theme` 命名令牌 `--breakpoint-wl: 68.75rem` 实现（Tailwind 4 任意变体 `min-[1100px]:` 层叠于命名断点之前导致失效，禁止使用，规则已登记 AGENTS.md）；首页图库入口胶囊改为图片图标＋「共 N 款精选」。路由、HTTP API 与数据契约无变化。
@@ -541,14 +552,14 @@ PATCH 请求体（字段均可选，只写本次提交的字段；未提交字�
 POST /api/nail-matte
 Content-Type: application/json
 
-{"image":"data:image/jpeg;base64,...","task":"matting","query":"指甲"}
+{"image":"data:image/jpeg;base64,...","task":"matting","query":"nails"}
 ```
 
 | 字段 | 约束 |
 | --- | --- |
 | `image` | 必填，`data:image/(png\|jpeg\|jpg\|webp);base64,` 前缀；请求体 ≤8MB，`content-length` 超限在解析前返回 413 |
 | `task` | 可选，`matting`/`segmentation`/`visual_prompt`，默认 `matting` |
-| `query` | 可选，≤32 字符，默认「指甲」 |
+| `query` | 可选，≤32 字符，默认「nails」（2026-10-31 v1.2.177 起定版，实测召回/耗时最优；此前「指甲」） |
 | `boxes` | 可选，≤10 组 `[x1,y1,x2,y2]` 且 `x1<x2`、`y1<y2`；仅 `visual_prompt` 允许（refine 路径已不使用） |
 
 上游输入预算默认 262144 像素（`matting.py` 的 `DEFAULT_MAX_PIXELS`，`server.py --max-pixels` 同源；2026-10-29（v1.2.166）起，此前为 589824）。2026-10-28 参数实测：589824 在 7 张高对比业务图（含双手 9 甲）按 `<OBJ>` 逐甲返回、单图 11.8–18.7s；1048576 档对 `hero-hand.jpg` 只解出 1 个 `<OBJ>`（响应文本含 5 个框），故不得作为默认；`visual_prompt` 在本权重下对同一原图恒定返回 0 实例，refine 统一使用 `matting`。2026-10-29 真实照片评估（36 图、203 枚完整甲人工真值）证伪了「分辨率影响有限」在真实照片上的外推：档位显著改变实例召回——589824 档 0.8325、262144 档 0.9803（单图 16.2s→9.0s）、1310720 档劣化，故默认改为 262144；mask 几何代价与 query/量化实验结论见 §3 本机精细抠图行。UI 端到端（`/ar-tryon` 多纹理上传，2026-10-28）实测服务返回 5 实例/14.3s，面板替换 3/5；未匹配两例的服务实例框与本地候选框仅部分重叠（IoU 0.075/0.049），属本地候选几何偏移，不是实例召回不足，按规则保留本地 mask。2026-10-29（v1.2.165）修复：客户端匹配前把候选外接框按编码几何（`computeMatteEncodeGeometry`）换算到编码空间再比对——此前原图长边 >1600 时候选框（原图坐标）与实例框（编码坐标）不同域，IoU 与中心归属恒不成立，精细替换会静默不生效；掩膜回映射原图口径不变。
@@ -883,7 +894,7 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 ### 8.8 来源关系分型与必要重看合同
 
-当前真实素材补标训练链入口为`model/reviews/cycle016-wevis-real-material-v1/closeout.json`：1,223购买原图身份中本轮完整实审24，20源质量排除、1待定、3源17甲完成原尺寸逐甲精标。WeVis只给候选，5枚保留、8枚修边、4枚补漏；完整mask合法且同图零交叠。来源召回995参考/12正控通过后，9对完整图实审可见不同；三源仍保守同属`purchased-real-material:1`，仅开发训练，不作正式独立来源。新规范索引为该目录`batch002/qualified-truth-v1/training-truth-index-v1.json`，未改旧角色索引、保护父血缘或历史失败。其余1,199图本轮未审，不等于历史未训练；按Goal逐批精标并衔接有新增真值的训练，不等待全库存完成。
+当前真实素材补标训练链入口为`model/reviews/cycle016-wevis-real-material-v1/batch026/training-closeout.json`，可更新机器入口`model/reviews/cycle016-wevis-real-material-v1/current-development-state.json`及不可变快照`model/reviews/cycle016-wevis-real-material-v1/batch026/current-development-state-v1.json`：新增合格精标71/100图446甲均实际训练。batch026十二源筛选五通过、六排除、一未决；331/351/52共17甲精标通过，其中仅331八甲九来源图对闭合。三目标2985比较与59召回对完整保留重放，其余50对未决；351/52九甲不晋升训练。角色、规范真值、父血缘核查仅授予保守购买组开发资格，不证明正式来源独立。1223源已审312=228质量排除+13待定+71准入，未审911；未审不等于历史未用。撤回权重及101/121/221排除保持；冻结计划绑定不可变状态快照，当前头仅在闭合后原子前进。
 
 现行分型合同1区分同摄影帧变换、拍摄系列视觉关联、仅风格相似、可见不同及不确定；拍摄系列关联不作像素复制正控，数值候选继续禁止，完整源/角色父血缘/实际查看及无缩放分别绑定。完整图片输入遵循用户整图政策v5（`model/reviews/cycle016-user-whole-image-batch-review-policy-v5.json`）：单批及单张作为批的一部分≤50000000字节、每响应≤6独立整图、不另设整轮上限；已看完整事实按精确SHA继承，不重发旧分块。发送前冻结实际文件/页面SHA及字节，尝试采集当前线程近时请求；遥测缺失如实记未知并允许有界发送，不记为测量门通过，已观测准备请求≥100000000字节时停止增图。文件、base64估算及实际网络流量分别记录，实际缩放拒绝原像素结论。旧I016等4MiB页/8MiB请求及未知拒发限制只作历史保留，不能覆盖后来用户明确的50MB单批政策。该更正不放宽原像素质量、来源/完整mask、数据角色或发布门；具体历史编号见实验归档§12.302，最新整组实例见当日日志。
 
@@ -901,9 +912,11 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 ### 8.9 学得原尺寸候选的精度复验接口
 
-当前新增Stage A开发候选：`model/reviews/cycle016-wevis-real-material-v1/batch002/stage-a26-v2/training/fit/weights/last.pt`（SHA-256 `0f95da2be85abdcc6b747ae400ce7c043fa0f24ad562614f9225dfd5a93497ca`）。26整图166完整mask固定8轮、104成功优化步，事件及隔离数据树重放见该目录`training-plan.json`、`training-terminal.json`、`materialization.json`；其中23既有149甲、3新增17甲，内部val与保留8未加入。Ultralytics的val路径仅别名同一train目录，自动验证均训练诊断，不作独立验证或阈值校准。
+标注可复用本机WeVis服务`POST /matte`：完整原图输入，原尺寸uint8 L alpha PNG，uint8>127只生成候选，不冒充软蒸馏或原像素精度。当前batch026三图17甲由完整原图原坐标人工绘制；首版4甲返修、351第3甲再修后完整原像素终审通过，保留甲根、透明/浅色自由缘，不混皮肤、背景或投影；几何合法及零交叠检查独立执行，0新教师调用。源有局部、裁断或不可确认失焦甲面须整源排除，不拆甲入训。服务状态须实时核验，本轮未停服务，不沿用旧PID或ready。见`model/reviews/cycle016-wevis-real-material-v1/batch026/precise-mask-closeout-v1.json`及逐版实审报告。
 
-新旧各26次固定配对见相邻`stage-a26-paired-v1/report.json`（512、conf0.35、最多10候选、原尺寸mask，未搜索阈值）：新增17甲IoU≥0.75匹配15→17，既有149甲148→146；一一粗mask种子约束下完整ROI覆盖均166/166。新增域平均IoU 0.82610→0.88647，原像素2px Boundary IoU 0.09526→0.15834，边缘仍需精修；逐甲迁移与未分配候选完整保存，未分配不自动叫背景误检。新checkpoint仅保留开发实验，原基线、Stage B冻结骨干和生产权重不替换；不证明泛化、完整mask合格或正式可用率。
+最新完整开发候选94图595甲。干净93源587甲加331八甲，从污染前原基线`9007a18cf203…`独立CPU8轮376优化步/752微批，每个稳定身份恰好8次曝光，272.2秒，last SHA `91bdbb82b0f58cff40692fd5430c4e13a3f2d1d39e670e4c31ef00161d4367df`。固定512/mask_ratio1/批一累积二/训练实际2线程、interop1；188缓存逐像素读回、102增强buffer对照及训练后全数据清单、原图/标注SHA重放通过。0教师调用、0保护输入；撤回权重、旧预算与优化器不续用。自动val仍train别名，仅训练诊断，不证明未见质量；原基线、Stage B和生产不替换。机器入口`model/reviews/cycle016-wevis-real-material-v1/current-development-state.json`，不可变快照`model/reviews/cycle016-wevis-real-material-v1/batch026/current-development-state-v1.json`；证据`model/reviews/cycle016-wevis-real-material-v1/batch026/training-closeout.json`、`stage-a94-clean-v1/execution-verification.json`。
+
+最近已执行配对仍为历史第40次86图完整权重；不代表当前新94源595甲候选，见`batch023/stage-a86-paired-v1/report.json`：第40次调整完整86图555甲固定CPU/512/conf0.35/maxDet10配对：IoU≥0.75匹配506→539/555、漏匹配图31→14/86，既有149甲148→146；36恢复、3新漏匹配、13持续漏匹配逐实例保留。新漏为nail_01311真值3/10及purchased-1-378真值4；7甲未完整ROI覆盖、16甲未匹配和30未分配候选不自动当背景误检。72份旧基线完整指标结构重建同构；另14基线+86候选100推理保存。原宿主退出1且未生成汇总，原生子进程退出码未知，失败保留；独立零推理后处理重建报告成功，不重启预算、不追认原进程成功。这里只是训练拟合，不是未见评估、完整mask可用率或发布通过。成果页全部86整图浏览器加载/导航/图层核验通过，见batch023/stage-a86-paired-v1/preview及preview-browser-verification.json。 现实际调整44次、成功微调29次；下一50次集中展示。
 
 `refine-mask-with-grabcut.py::refine(rgb, mask, presence_accepted, radius=8, iterations=3)`与`refine-mask-with-edgecut.py::refine(rgb, logits, presence_accepted, radius=8, weight=1)`仍为隔离开发接口，两分支关闭。旧StageA完整新3源18甲基线联合门0/18，同种子一一ROI上限13/18，固定该候选和ROI仅改StageB不可达85%完整mask要求；旧统一presence无解/固定presence仅改mask头2/5上限、紫色五甲及原8甲边界失败保持。
 
@@ -1248,7 +1261,7 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 
 ### 11.1 阻塞项
 
-新增精标训练首批已闭环，下一活动为已冻12源完整真值与下一混合训练，见Goal及§8.8—§8.9。新增Stage A训练拟合提升伴随既有域2甲净退化，不能替换基线或作为正式质量通过；ROI几何容纳不替代精确边缘。WeVis仅辅助标注，原尺寸实审、返修和角色准入持续执行。
+新增精标现行71/100图446甲全部实际训练；另2图9甲已精标但50来源图对未决，不计准入。最新干净94源595甲从污染前原基线独立CPU8轮376步/752微批，每图8次曝光，last `91bdbb82b0f5…`。下一活动为batch026余项来源闭合、两图14甲精标和42源质量裁决，合格后才入新预算训练；100图还缺29张已训练合格图。旧错误70/433、93/582、撤回权重、八旧待定与全部历史失败保持。训练不证明未见质量、完整mask可用率或产品链发布；角标消融、真实数值、真机、Beta、回滚缺口不变。见Goal、§8.8—§8.9及`model/reviews/cycle016-wevis-real-material-v1/batch026/training-closeout.json`。
 
 旧微拟合学得权重与全部68候选的严格FP32复验独立通过train-only容量门：66正例全部保留、严格联合54/66（要求53）、拒识2/2且输出0像素，mean IoU/Boundary IoU/F1=0.972076/0.794394/0.978412。旧TF32容量、4096新头更新、11968分割步和全部历史失败保留。
 
@@ -1279,7 +1292,7 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 4. 正式 3D 指甲网格、遮挡、光照和物理材质试戴；
 5. AI 生图的供应商抽象、任务队列、结果持久化和配额系统；
 6. 正式模型监控、线上质量回流和自动回滚闭环。
-7. 图库/本地收录→AI/AR及AI→本地图库已实现，不再列为待实现链路；剩余缺口是编辑器笔画/成品共享与服务端持久项目协议，见§4.3—§4.5。
+7. 图库/本地收录→AI/AR及AI→本地图库已实现，不再列为待实现链路；剩余缺口是编辑器成品（纹理贴合结果）共享与服务端持久项目协议，见§4.3—§4.5。
 
 ### 11.4 外网演示与内网穿透已知限制
 

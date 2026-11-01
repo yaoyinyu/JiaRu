@@ -2,6 +2,8 @@
 
 import { useSyncExternalStore } from "react";
 
+import { NeuToggle } from "@/components/NeuToggle";
+
 const STORAGE_KEY = "jiaru-improvement-program";
 const CHANGE_EVENT = "jiaru-improvement-change";
 
@@ -61,32 +63,58 @@ export function ImprovementProgramToggle() {
           <div>
             <h2 className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-lg font-semibold text-[#292a27]">
               用户改进计划
-              <span className="rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#a34b3f]">
-                {enabled ? "已开启（默认）" : "已关闭"}
+              {/* 两态徽标同格叠加并常驻 DOM：容器宽度按较宽一侧预留，避免窄屏下换行行数随状态变化导致标题高度突变 */}
+              <span className="grid">
+                <span
+                  aria-hidden={!enabled}
+                  className={`col-start-1 row-start-1 rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#a34b3f] transition-opacity duration-300 motion-reduce:transition-none ${
+                    enabled ? "opacity-100" : "invisible opacity-0"
+                  }`}
+                >
+                  已开启（默认）
+                </span>
+                <span
+                  aria-hidden={enabled}
+                  className={`col-start-1 row-start-1 rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#a34b3f] transition-opacity duration-300 motion-reduce:transition-none ${
+                    enabled ? "invisible opacity-0" : "opacity-100"
+                  }`}
+                >
+                  已关闭
+                </span>
               </span>
             </h2>
-            <p className="mt-1 text-xs leading-5 text-[#75766c]">
-              {enabled
-                ? "开启时，手部照片等数据可能被上传，用于改进识别与生成效果。你随时可以关闭。"
-                : "已关闭：所有处理均在浏览器本地完成，不会上传任何数据。可随时重新开启。"}
-            </p>
+            {/* 两态说明文案常驻叠加：grid-rows 0fr/1fr 平滑过渡（同 NailAnalysisForm 提示条），消除换行行数差造成的卡片高度突变 */}
+            <div className="mt-1">
+              <div
+                aria-hidden={!enabled}
+                className={`grid transition-[grid-template-rows,opacity,visibility] duration-300 ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
+                  enabled ? "grid-rows-[1fr] visible opacity-100" : "grid-rows-[0fr] invisible opacity-0"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <p className="text-xs leading-5 text-[#75766c]">
+                    开启时，手部照片等数据可能被上传，用于改进识别与生成效果。你随时可以关闭。
+                  </p>
+                </div>
+              </div>
+              <div
+                aria-hidden={enabled}
+                className={`grid transition-[grid-template-rows,opacity,visibility] duration-300 ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
+                  enabled ? "grid-rows-[0fr] invisible opacity-0" : "grid-rows-[1fr] visible opacity-100"
+                }`}
+              >
+                <div className="overflow-hidden">
+                  <p className="text-xs leading-5 text-[#75766c]">
+                    已关闭：所有处理均在浏览器本地完成，不会上传任何数据。可随时重新开启。
+                  </p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-        <button
-          type="button"
-          role="switch"
-          aria-checked={enabled}
-          onClick={handleToggle}
-          className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200 after:absolute after:-inset-[6px] after:rounded-full after:content-[''] ${
-            enabled ? "border-pink-200 bg-[var(--coral)]" : "border-[#f0e2db] bg-[#f0e2db]"
-          }`}
-        >
-          <span
-            className={`inline-block h-6 w-6 transform rounded-full bg-[var(--surface)] shadow transition-transform duration-200 ${
-              enabled ? "translate-x-7" : "translate-x-1"
-            }`}
-          />
-        </button>
+        <NeuToggle checked={enabled} onChange={handleToggle}>
+          <span className="sr-only">用户改进计划</span>
+        </NeuToggle>
       </div>
     </div>
   );

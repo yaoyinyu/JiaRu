@@ -334,8 +334,11 @@ export async function refineCandidateMasksWithMatte(
     scaleBoxToEncoded(candidateBounds(candidate), geometry.scale)
   );
 
+  // query 用英文单词 "nails"（2026-10-31 全量实测）：36 图 203 枚完整甲截断召回
+  // 1.0000、均时 8.0s，优于「指甲」（0.9803、9.0s）与「manicured fingernails」
+  // （0.9951、12.9s）；每实例 <ref> 更短，是最省 token 的高召回写法。
   const outcome = await request(
-    { image, task: "matting", query: "指甲" },
+    { image, task: "matting", query: "nails" },
     { signal: input.signal }
   );
   if (outcome.status !== "ok") return outcome;
@@ -483,7 +486,7 @@ export async function detectNailsWithMatte(input: MatteDetectInput): Promise<Mat
   const request = input.request ?? requestNailMatteFromBrowser;
 
   const image = await encode(input.image, input.imageWidth, input.imageHeight);
-  const outcome = await request({ image, task: "matting", query: "指甲" }, { signal: input.signal });
+  const outcome = await request({ image, task: "matting", query: "nails" }, { signal: input.signal });
   if (outcome.status !== "ok") return outcome;
 
   const { result } = outcome;

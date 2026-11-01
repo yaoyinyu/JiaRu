@@ -1,0 +1,121 @@
+/* 新拟态拨动开关（NeuToggle）
+   交互口径与 design/consumer-v1 开关动效一致：
+   未选=凹陷轨道＋凸起滑块居左；选中=珊瑚轨道＋滑块磁吸到右；
+   拖拽时位置跟手（无过渡）、磁吸偏置与挤压形变独立短过渡；
+   松手后 --knob-x 恢复弹簧过渡（过冲吸附），起步拉伸→落位微压由 JS 编排。 */
+
+.row {
+  position: relative;
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  min-height: 44px;
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.input {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+
+.track {
+  position: relative;
+  flex-shrink: 0;
+  width: 52px;
+  height: 30px;
+  margin-top: 1px;
+  border-radius: var(--radius-capsule);
+  background: var(--surface);
+  box-shadow: var(--neu-in-sm);
+  touch-action: none;
+  transition:
+    box-shadow var(--dur-soft) var(--ease-soft),
+    background 340ms var(--ease-spring);
+}
+
+.row:hover .track {
+  box-shadow: inset 5px 5px 10px var(--shadow-dark), inset -5px -5px 10px var(--shadow-light);
+}
+
+.row:focus-within .track {
+  outline: 2px solid var(--coral);
+  outline-offset: 3px;
+}
+
+.rowOn .track {
+  background: var(--coral);
+  box-shadow: 2px 2px 5px rgba(172, 81, 69, .35), -2px -2px 5px rgba(255, 253, 248, .5);
+}
+
+.knob {
+  position: absolute;
+  left: 3px;
+  top: 50%;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: var(--neu-out-sm);
+  transform: translate(calc(var(--knob-x, 0px) + var(--knob-pull, 0px)), -50%) scale(var(--knob-sx, 1), var(--knob-sy, 1));
+  transition:
+    --knob-x 340ms var(--ease-spring),
+    --knob-pull 140ms var(--ease-press),
+    --knob-sx 140ms var(--ease-press),
+    --knob-sy 140ms var(--ease-press),
+    box-shadow .2s var(--ease-soft);
+  will-change: transform;
+}
+
+.rowOn .knob {
+  --knob-x: 22px;
+}
+
+/* 拖拽中：位置跟手（关闭位移过渡），磁吸偏置保留短过渡产生「吸引倾斜」 */
+.rowDragging .knob {
+  transition:
+    --knob-pull 140ms var(--ease-press),
+    --knob-sx 140ms var(--ease-press),
+    --knob-sy 140ms var(--ease-press),
+    box-shadow .2s var(--ease-soft);
+}
+
+.rowPressing .knob {
+  --knob-sx: .92;
+  --knob-sy: .92;
+}
+
+.rowStretching .knob {
+  --knob-sx: 1.24;
+  --knob-sy: .88;
+}
+
+.rowSettling .knob {
+  --knob-sx: .97;
+  --knob-sy: 1.03;
+}
+
+.rowDisabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.labelText {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--muted);
+  padding-top: 5px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track,
+  .knob {
+    transition: none;
+  }
+}

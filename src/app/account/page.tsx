@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
+import { NeuToggle } from "@/components/NeuToggle";
 import { ProfileEditor, ProfileSkeleton } from "@/components/ProfileEditor";
 import type { ProfileUser } from "@/lib/profile/profile";
 
@@ -321,12 +322,21 @@ export default function AccountPage() {
 
   return (
     <AppShell eyebrow="会员中心" title="账号中心" description={`你好，${me.user.nickname}！管理你的账号信息与登录方式。`}>
+      {/* 提示条平滑展开槽：置于下方 gap 网格之外，收起时零占位；grid-rows 0fr/1fr 过渡（同 NailAnalysisForm）消除提示增删把内容生硬推移的位移 */}
+      <div
+        className={`mx-auto grid w-full max-w-2xl transition-[grid-template-rows,margin-bottom,opacity,visibility] duration-300 ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
+          notice ? "mb-5 grid-rows-[1fr] visible opacity-100" : "mb-0 grid-rows-[0fr] invisible opacity-0"
+        }`}
+      >
+        <div className="overflow-hidden">
+          {notice && (
+            <p role="status" aria-live="polite" className="rounded-xl border border-pink-100 bg-pink-50/80 px-4 py-2.5 text-sm text-[#ac5145]">
+              {notice}
+            </p>
+          )}
+        </div>
+      </div>
       <div className="mx-auto grid w-full max-w-2xl gap-5">
-        {notice && (
-          <p role="status" aria-live="polite" className="rounded-xl border border-pink-100 bg-pink-50/80 px-4 py-2.5 text-sm text-[#ac5145]">
-            {notice}
-          </p>
-        )}
 
         {/* 个人资料：查看 / 编辑（头像、昵称、简介、公开联系方式） */}
         <ProfileEditor user={me.user} onSaved={handleProfileSaved} />
@@ -466,17 +476,9 @@ export default function AccountPage() {
                 此偏好以账号为准，并同步到当前设备。
               </p>
             </div>
-            <button
-              type="button"
-              role="switch"
-              aria-checked={improvementEnabled}
-              onClick={() => handleToggleImprovement(!improvementEnabled)}
-              className={`relative inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border transition-colors duration-200 after:absolute after:-inset-[6px] after:rounded-full after:content-[''] ${improvementEnabled ? "border-pink-200 bg-[var(--coral)]" : "border-[#f0e2db] bg-[#f0e2db]"}`}
-            >
-              <span
-                className={`absolute top-0.5 h-6 w-6 rounded-full bg-[var(--surface)] shadow transition-all ${improvementEnabled ? "left-7" : "left-1"}`}
-              />
-            </button>
+            <NeuToggle checked={improvementEnabled} onChange={(next) => void handleToggleImprovement(next)}>
+              <span className="sr-only">用户改进计划</span>
+            </NeuToggle>
           </div>
         </section>
 

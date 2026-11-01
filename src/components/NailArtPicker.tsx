@@ -7,30 +7,27 @@ import {
   extractNormalizedNailTexture,
   fetchNailMatteAvailability,
   inferSuggestedFingers,
-  recognizeNailTexturesInWorker,
   refineCandidateMasksWithMatte,
-  type NailMask,
   type NailTextureCandidate,
   type NailTextureCandidateConfidence,
-  type NailTextureCandidateSource,
   type NailTextureProfile,
   type TextureExtractionDiagnostics,
 } from "@/lib/nail-texture-recognition";
+import {
+  MAX_DETECTION_DIM,
+  NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
+  computeImageDetectedNailRegions,
+  isPartialCloseupInfrastructureWarning,
+  type DetectionSummary,
+  type NailDetectionRegion,
+} from "@/lib/nail-detection-cascade";
 import NailMattePanel, {
   NAIL_MATTE_NOTICE_STORAGE_KEY,
   type NailMatteAvailability,
   type NailMattePanelStatus,
 } from "@/components/NailMattePanel";
 import { autoAssignNailRegionFingers } from "@/lib/nail-auto-flow";
-import {
-  calculateDetectionInputGeometry,
-  remapNailTextureCandidatesToOriginal,
-} from "@/lib/nail-texture-recognition/input-scaling";
-import { detectNailsFromHandImage } from "@/lib/nail-hand-geometry-detection";
-import {
-  detectPartialCloseupNails,
-  type PartialCloseupDetectionDiagnostics,
-} from "@/lib/nail-partial-closeup-detection";
+import { calculateDetectionInputGeometry } from "@/lib/nail-texture-recognition/input-scaling";
 import {
   createLocalNailDebugSample,
   createNailDebugSampleFilename,
@@ -57,33 +54,9 @@ export interface NailPickerConfirmOptions {
   auto?: boolean;
 }
 
-interface NailRegion {
-  id: string;
-  cx: number;
-  cy: number;
-  angle: number;
-  nl: number;
-  nw: number;
-  assignedFinger: number | null;
-  confidence?: NailTextureCandidateConfidence;
-  source?: NailTextureCandidateSource;
-  mask?: NailMask;
-  warnings?: string[];
+/** 选择器内的编辑态区域：识别级联的基础字段 + 本地提取诊断。 */
+interface NailRegion extends NailDetectionRegion {
   extractionDiagnostics?: TextureExtractionDiagnostics;
-}
-
-interface DetectionSummary {
-  backend: "model" | "fallback";
-  assistedByHandGeometry?: boolean;
-  assistedByPartialCloseup?: boolean;
-  modelVersion?: string;
-  modelBackend?: "webgpu" | "wasm" | "fallback";
-  elapsedMs: number;
-  workerElapsedMs?: number;
-  maxCandidates: number;
-  workerTimeoutMs: number;
-  partialCloseupDiagnostics?: PartialCloseupDetectionDiagnostics;
-  warnings: string[];
 }
 
 interface NailArtPickerProps {
@@ -116,36 +89,10 @@ const SOURCE_LABELS: Record<NonNullable<NailRegion["source"]>, string> = {
   "vlm-matte": "本机精细抠图",
 };
 const MAX_CANVAS_DIM = 800;
-const MAX_DETECTION_DIM = 800;
-const NAIL_RECOGNITION_WORKER_TIMEOUT_MS = 15_000;
-const NAIL_TEXTURE_MODEL_MANIFEST_URL =
-  process.env.NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL?.trim() || undefined;
 const MIN_NAIL_SIZE = 15;
 const BORDER_COLOR = "#22c55e";
 const SELECTED_COLOR = "#ac5145";
 const HANDLE_BG = "#ffffff";
-
-const PARTIAL_CLOSEUP_HIDDEN_WARNING_CODES = new Set([
-  "worker_unavailable_used_main_thread",
-  "worker_timeout_used_main_thread",
-  "model_runtime_unavailable_on_server",
-  "no_supported_model_backend",
-  "onnx_runtime_not_loaded",
-  "onnx_session_init_failed",
-  "onnx_session_or_tensor_unavailable",
-  "model_outputs_empty_used_fallback",
-  "model_unavailable_used_partial_closeup",
-  "mediapipe_no_hand_detected",
-  "mediapipe_no_nail_geometry",
-  "mediapipe_hand_detection_failed",
-]);
-
-function isPartialCloseupInfrastructureWarning(warning: string): boolean {
-  if (PARTIAL_CLOSEUP_HIDDEN_WARNING_CODES.has(warning)) return true;
-  return ["model_manifest_error", "model_inference_error", "onnx_session_init_failed"].some(
-    (prefix) => warning.startsWith(prefix)
-  );
-}
 
 function nextId(): string {
   return `nail-${Math.random().toString(36).slice(2, 10)}`;
@@ -253,139 +200,6 @@ async function cropTextureFromRegion(
   ctx.rotate(-region.angle);
   ctx.drawImage(image, -region.cx, -region.cy);
   return createImageBitmap(canvas);
-}
-
-async function computeImageDetectedNailRegions(
-  image: HTMLImageElement,
-  imageData: ImageData,
-  originalWidth: number,
-  originalHeight: number,
-  signal?: AbortSignal
-): Promise<{
-  regions: NailRegion[];
-  originalRegions: NailRegion[];
-  summary: DetectionSummary;
-}> {
-  const result = await recognizeNailTexturesInWorker(imageData, {
-    preferModel: true,
-    manifestUrl: NAIL_TEXTURE_MODEL_MANIFEST_URL,
-    maxCandidates: 10,
-    workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
-    signal,
-  });
-
-  const candidates = remapNailTextureCandidatesToOriginal(
-    result.candidates,
-    {
-      scaleX: imageData.width / originalWidth,
-      scaleY: imageData.height / originalHeight,
-    },
-    originalWidth,
-    originalHeight
-  );
-
-  const modelOrRuleRegions = candidates.map((candidate) => ({
-      id: candidate.id,
-      cx: candidate.cx,
-      cy: candidate.cy,
-      angle: candidate.angle,
-      nl: candidate.length,
-      nw: candidate.width,
-      assignedFinger: candidate.suggestedFinger,
-      confidence: candidate.confidence,
-      source: candidate.source,
-      mask: candidate.mask,
-      warnings: [...(candidate.warnings ?? [])],
-  }));
-  const fallbackUsed = result.backend === "fallback";
-  const detectionWarnings = [...result.warnings];
-  let handGeometryRegions: NailRegion[] = [];
-  let partialCloseupRegions: NailRegion[] = [];
-  let partialCloseupDiagnostics: PartialCloseupDetectionDiagnostics | undefined;
-  if (fallbackUsed) {
-    try {
-      const handDetection = await detectNailsFromHandImage(image, { signal });
-      detectionWarnings.push(...handDetection.warnings);
-      handGeometryRegions = handDetection.candidates.map((candidate) => ({
-        id: candidate.id,
-        cx: candidate.cx,
-        cy: candidate.cy,
-        angle: candidate.angle,
-        nl: candidate.length,
-        nw: candidate.width,
-        assignedFinger: candidate.suggestedFinger,
-        confidence: candidate.confidence,
-        source: candidate.source,
-        warnings: [...(candidate.warnings ?? [])],
-      }));
-    } catch (reason) {
-      const error = reason instanceof Error ? reason : new Error(String(reason));
-      if (error.name === "AbortError") throw error;
-      detectionWarnings.push("mediapipe_hand_detection_failed");
-    }
-  }
-  if (fallbackUsed && handGeometryRegions.length === 0) {
-    const partialDetection = detectPartialCloseupNails(imageData);
-    partialCloseupDiagnostics = partialDetection.diagnostics;
-    const partialCandidates = remapNailTextureCandidatesToOriginal(
-      partialDetection.candidates,
-      {
-        scaleX: imageData.width / originalWidth,
-        scaleY: imageData.height / originalHeight,
-      },
-      originalWidth,
-      originalHeight
-    );
-    partialCloseupRegions = partialCandidates.map((candidate) => ({
-      id: candidate.id,
-      cx: candidate.cx,
-      cy: candidate.cy,
-      angle: candidate.angle,
-      nl: candidate.length,
-      nw: candidate.width,
-      assignedFinger: candidate.suggestedFinger,
-      confidence: candidate.confidence,
-      source: candidate.source,
-      warnings: [...(candidate.warnings ?? [])],
-    }));
-    if (partialCloseupRegions.length > 0) {
-      const obsoleteWarnings = new Set([
-        "mediapipe_no_hand_detected",
-        "mediapipe_no_nail_geometry",
-      ]);
-      for (let index = detectionWarnings.length - 1; index >= 0; index -= 1) {
-        if (obsoleteWarnings.has(detectionWarnings[index])) detectionWarnings.splice(index, 1);
-      }
-      detectionWarnings.push("model_unavailable_used_partial_closeup");
-    } else {
-      detectionWarnings.push("fallback_candidates_hidden_manual_selection_required");
-    }
-  }
-
-  const assistedRegions =
-    handGeometryRegions.length > 0 ? handGeometryRegions : partialCloseupRegions;
-  const regions = fallbackUsed ? assistedRegions : modelOrRuleRegions;
-  const originalRegions = fallbackUsed
-    ? [...modelOrRuleRegions, ...assistedRegions]
-    : modelOrRuleRegions;
-
-  return {
-    regions,
-    originalRegions,
-    summary: {
-      backend: result.backend,
-      assistedByHandGeometry: fallbackUsed && handGeometryRegions.length > 0,
-      assistedByPartialCloseup: fallbackUsed && partialCloseupRegions.length > 0,
-      modelVersion: result.modelVersion,
-      modelBackend: result.modelInfo?.backend,
-      elapsedMs: result.elapsedMs,
-      workerElapsedMs: result.workerElapsedMs,
-      maxCandidates: 10,
-      workerTimeoutMs: NAIL_RECOGNITION_WORKER_TIMEOUT_MS,
-      partialCloseupDiagnostics,
-      warnings: detectionWarnings,
-    },
-  };
 }
 
 export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArtPickerProps) {

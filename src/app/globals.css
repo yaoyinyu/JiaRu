@@ -32,6 +32,9 @@
   --ease-soft: cubic-bezier(.4, 0, .2, 1);
   --dur-soft: .3s;
   --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+  --dur-rebound: 340ms;
+  --ease-press: cubic-bezier(.3, 0, .5, 1);
+  --dur-press: 140ms;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
   /* 兼容旧变量名，避免残留引用失效 */
   --background: var(--paper);
@@ -48,6 +51,13 @@
     --neu-in-md: inset 8px 8px 16px var(--shadow-dark), inset -8px -8px 16px var(--shadow-light);
   }
 }
+
+/* 拨动开关（NeuToggle）滑块位移/磁吸偏置/挤压形变的独立过渡通道：
+   注册为自定义属性后，transform 内的各变量可按各自时长与缓动分别动画。 */
+@property --knob-x { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --knob-pull { syntax: "<length>"; inherits: true; initial-value: 0px; }
+@property --knob-sx { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --knob-sy { syntax: "<number>"; inherits: true; initial-value: 1; }
 
 /* 本地衬线标题字（OFL 许可，见 public/fonts/OFL.txt） */
 @font-face {

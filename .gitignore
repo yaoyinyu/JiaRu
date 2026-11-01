@@ -12,6 +12,8 @@
 
 # testing
 /coverage
+# 测试进程把 TEMP/TMP 指向工作区时产生的隔离临时目录（可重建，不入库）
+/.tmp-test/
 
 # next.js
 /.next/
@@ -163,6 +165,7 @@ design/consumer-v1/assets/*.png
 
 # AI 编程助手（Agent）本机会话计划与配置：只对开发者/AI 工具有用，不提交推送
 /.zcode/
+/.codebuddy/
 
 # Ultralytics 训练在本项目根目录生成的本地运行产物（设置与持久化缓存）
 /Ultralytics/
