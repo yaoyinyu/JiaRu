@@ -1,121 +1,38 @@
 # 开发规范 — 甲如
 
-## 1. 代码风格
+适用于业务、组件及通用脚本开发。任务入口、授权、文档同步和提交规则统一见 [AGENTS.md](../AGENTS.md)；命令环境、进程和测试流程见[开发与排障](agent-rules/development.md)。接口与能力状态查[技术白皮书](technical-whitepaper.md)对应模块。
 
-### 命名规范
-```
-文件名:        kebab-case (如 nail-canvas.tsx)
-组件名:        PascalCase (如 NailCanvas)
-函数名:        camelCase (如 handleSave)
-变量名:        camelCase (如 selectedColor)
-常量名:        UPPER_SNAKE (如 PRESET_COLORS)
-类型/接口:     PascalCase 前缀 I (如 INailArt)
-```
+## 1. 版本与代码约定
 
-### 文件组织
-```
-每个组件一个文件
-页面组件放在 app/ 目录
-可复用组件放在 components/ 目录
-工具函数放在 lib/ 目录
-```
+- 修改前核对 `package.json`、锁文件、`tsconfig.json`、`eslint.config.mjs` 及相邻实现。Next.js 代码先读 `node_modules/next/dist/docs/` 对应指南，使用当前安装版本的 API 与目录约定。
+- 组件及组件文件使用 PascalCase（如 `NailCanvas.tsx`）；工具模块使用 kebab-case（如 `editor-draft.ts`）；路由文件沿用框架名称。局部修改遵循所在目录现有命名，避免顺带批量重命名。
+- 函数与变量使用 camelCase，类型和接口使用 PascalCase，常量按现有模块约定使用 UPPER_SNAKE_CASE；接口无需统一添加 `I` 前缀。
+- 页面与路由位于 `src/app/`，可复用组件位于 `src/components/`，通用逻辑位于 `src/lib/`；测试与生产源码分开，复用型训练工具和一次性脚本按 AGENTS 的产物规则存放。
+- 保持 TypeScript 严格检查，优先复用现有类型、共享组件和纯函数；注释解释约束、数据流与必要取舍。
 
-## 2. 组件规范
+## 2. React、异步与资源
 
-### React 组件结构
-```tsx
-// 1. 导入
-'use client'
-import { useState } from 'react'
+- 只在需要浏览器 API、状态或事件处理的客户端边界添加 `'use client'`，并置于导入前。
+- effect 依赖覆盖其读取的响应式值，遵守当前 Hooks lint。先区分事件动作、渲染派生值和外部系统同步，再决定事件处理器、纯计算或 effect 的归属。
+- `useRef` 用于无需驱动渲染的可变句柄等场景；不得以省略依赖或改用 ref 掩盖陈旧闭包。HMR 异常须通过完整刷新和依赖检查定位后修复。
+- 异步流程明确 loading、success、empty、error、cancelled 等适用状态；请求使用启动时快照，取消或过期结果须阻止回写。复用已有异步和弹层组件前核对其接口。
+- 在取消、替换和卸载时释放对象 URL、ImageBitmap、Worker、摄像头轨道、事件监听和动画帧；共享资源须明确所有者，防止提前释放或重复使用已关闭资源。
 
-// 2. 类型定义
-interface NailCanvasProps {
-  imageUrl: string
-  selectedColor: string
-}
+## 3. 隐私与网络请求
 
-// 3. 组件函数
-export function NailCanvas({ imageUrl, selectedColor }: NailCanvasProps) {
-  // 3a. 状态
-  const [isDrawing, setIsDrawing] = useState(false)
-  
-  // 3b. 事件处理
-  const handleMouseDown = () => { ... }
-  
-  // 3c. 渲染
-  return ( ... )
-}
-```
+- 上传照片的本地编辑、浏览器识别和 AR 摄像头处理按白皮书§10执行；摄像头由明确用户操作启动，并提供停止入口。
+- AI 图生图可按用户主动请求发送文字及参考图至对应服务；本机精细抠图按其配置和隐私确认流程发送图片。新增或修改请求时逐项核对触发动作、接收方、载荷、用途和保留方式，并同步对应接口说明。
+- 可选「用户改进计划」与用户主动发起的网络功能分别按各自偏好和授权处理；产品说明须与实际数据流一致。模型审核图片发送另按[整图视觉审核](agent-rules/visual-review.md)执行。
+- 密钥只保存在服务端环境变量；客户端、源码、日志、文档与错误响应不得暴露真实密钥。外部输入按接口合同校验，错误输出做好脱敏。
 
-## 3. 工作流程
+## 4. 浏览器与 AR 验证
 
-### 开发步骤
-1. 查看 dev-log/ 了解进度
-2. 检查 docs/ 确认需求/设计
-3. 实现功能（小步提交）
-4. 更新 dev-log/ 记录完成事项
-5. 如有技术决策更新对应 docs/
+- 支持范围按现行依赖、功能检测及实际验收记录确认；新增 API 提供适用的能力探测、错误提示与降级。浏览器版本承诺须有对应证据。
+- 摄像头入口检查安全上下文、权限、设备可用性和媒体就绪状态；实时帧循环沿用现有原生 getUserMedia 与 requestAnimationFrame 管线，依赖变更先验证目标设备。
+- 阈值分支逐区间核对覆盖、重叠和优先级；方向判断从实际坐标域、镜像、手心/手背及关键点观察验证。
+- 视频 cover 裁剪、镜像、Canvas 显示尺寸及内部像素尺寸分别建模，landmarks 与叠加层使用同一变换；验证横竖屏、缩放与设备像素比变化。
+- UI 验证按 [UI设计规范](ui-design-spec.md)执行；记录自动化、桌面浏览器与移动真机各自的实际结果及待验项。
 
-### 提交规范
-```
-每次完成一个独立功能点
-不可逆操作前先确认
-每天结束前更新开发日志
-```
+## 5. 交付
 
-## 4. 隐私保护规范（强制执行）
-
-```
-1. 用户照片处理必须在前端完成
-2. 不得将用户原图发送到任何外部服务
-3. AI生成只发送文本描述
-4. AR摄像头数据只在内存中处理
-5. 所有隐私相关的代码要有注释说明
-```
-
-## 5. 浏览器兼容性
-
-```
-支持: Chrome 90+, Safari 15+, Edge 90+
-移动端: iOS Safari 15+, Android Chrome 90+
-Canvas API: 全支持
-Camera API: 需 HTTPS 环境
-```
-
-## 6. AR 模块开发经验教训
-
-### 6.1 阈值设计必须避免覆盖关系
-
-**问题**: 两个阈值 `NAIL_VISIBLE=0.002` < `NAIL_AMBIGUOUS=0.004` 产生了包含关系，导致第一个分支几乎覆盖所有情况，逻辑恒为 true。
-
-**规则**: 设计多阈值时画数轴覆盖范围，确保每个分支有独立作用域。两个阈值的分支不应有包含关系。
-
-### 6.2 先实测物理方向，再写代码逻辑
-
-**问题**: MediaPipe z 轴朝向镜头为负值（定义，非直觉）。手心朝镜头时 TIP.z > DIP.z（指尖比关节更远离镜头），手背朝镜头时 TIP.z < DIP.z。
-
-**规则**: 方向类判断先 `console.log` 打印关键值确认方向，再写代码。不要凭直觉写 z 方向判断。
-
-### 6.3 useEffect 依赖数组陷阱
-
-**问题**: `userStarted` 加到 useEffect 依赖数组导致 HMR 报错。
-
-**规则**: 动态状态变量不要直接进 useEffect 依赖数组，用 `useRef` + `requestAnimationFrame` 循环替代。
-
-### 6.4 手机端 getUserMedia 交互限制
-
-**问题**: 自动调用 `getUserMedia` 被移动端浏览器隐私策略拦截。
-
-**规则**: 移动端所有需要权限的 API（摄像头/麦克风/位置等）都必须绑定用户手势事件触发。
-
-### 6.5 移除 camera_utils 依赖
-
-**问题**: `@mediapipe/camera_utils` 在移动端不兼容。
-
-**规则**: 使用原生 `getUserMedia` + `requestAnimationFrame` 循环替代第三方摄像头工具库。
-
-### 6.6 CSS object-cover 坐标系问题
-
-**问题**: CSS `object-cover` 裁剪视频导致 canvas 坐标系与 video 显示尺寸不匹配，纹理错位。
-
-**规则**: canvas 使用 CSS 显示尺寸，landmarks 坐标需要根据裁剪偏移进行变换。
+按改动风险运行检查，记录实际结果并同步当日日志；接口或状态变化按 AGENTS 同步白皮书。实现与验证可以分步进行；`git commit` / `git push` 仅在用户当前任务明确要求时执行，执行前核对 README。

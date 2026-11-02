@@ -6,7 +6,6 @@
 [![React](https://img.shields.io/badge/React-19.2.4-61DAFB?logo=react)](https://react.dev)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
-[![License](https://img.shields.io/badge/license-private-red)](./LICENSE)
 
 ---
 
@@ -14,13 +13,13 @@
 
 | 模块 | 入口 | 状态 | 说明 |
 | --- | --- | :---: | --- |
-| 首页 | `/` | ✅ | 品牌展示 + 主行动（AR 试戴／上传试色）+ 风格卡 + 图库圆钮；功能入口集中在统一导航（桌面 5 项顶部：为你／试戴／创作／分析／我的，移动 5 项底部） |
-| 上传试色编辑器 | `/editor` | ✅ | 上传照片 → 甲面辅助定位（可手动加框） → 纹理套装点选贴合（卡片堆叠选择器，hover 扇形展开） → 本地保存（`?gallery=` 灵感卡与 `?preset=` 分析推荐色映射最接近主色的纹理套，不自动贴合） |
-| AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → 生成引擎可选（Agnes Image 2.5 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite）；用户已完成真实功能验收并再次确认 |
-| 灵感图库 | `/gallery` | ✅ | 6 张 Seedream 灵感图；卡片三入口（试色 / AI 相似款 / AR 试戴）打通到 `/editor`、`/ai-generate`、`/ar-tryon` 链路，AI 生成结果可一键本地 IndexedDB 收录至「我的收录」区块（无服务端后台；真实内容后台见待规划） |
+| 首页 | `/` | ✅ | 品牌展示 + 任务化双 CTA（上传照片试色 → `/editor`／开启摄像头实时试戴 → `/ar-tryon`）+ 风格卡 + 图库明链；统一导航为「首页／灵感／试戴／创作／我的」（桌面顶部 5 项、移动底部 5 项），个性化分析由首页风格卡直达 |
+| 上传试色编辑器 | `/editor` | ✅ | 上传照片 → 甲面辅助定位（可手动加框） → 纹理套装点选贴合（卡片堆叠选择器，hover 扇形展开） → 对象面板逐框调整 → 本地保存；`?gallery=`／`?work=` 灵感款识别出甲面框后自动贴合一次（可撤销、可逐指调整），`?preset=` 仅预选；支持键盘操作、会话草稿恢复与导出前未保存守卫 |
+| AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → 生成引擎可选（Agnes Image 2.5 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite）；请求快照隔离、生成中保留旧图并可「上一版」切回、取消为独立终态、失败分类提示；用户已完成真实功能验收并再次确认 |
+| 灵感图库 | `/gallery` | ✅ | 6 张 Seedream 灵感图；点击卡片图或标题先弹「试戴方式」选择弹层（静态试色 → `/editor`／AR 实时预览 → `/ar-tryon`），底部三直达出口保留；我的收录区具备 checking/empty/load_error/unavailable 五态、单条删除 5 秒撤销与清空确认，旧收录按 id 幂等迁移为本地作品（WorkItem，无服务端后台） |
 | 个性化分析 | `/nail-analysis` | 📌 | 上传手背照片 → 本地甲面候选识别 → 手型/甲床比例、肤色（ITA°/底调）、指甲健康启发式 + 场景问卷 → 规则引擎推荐甲型/长度/色系并附解释 → 一键跳转 `/editor?preset=` 预涂；纯规则启发式，不训练模型，工程门通过、真实照片待验收 |
 | AR 纯色试戴 | `/ar-tryon` | 🚧 | 摄像头实时手部追踪 + 五指贴色（切页/切标签/启动失败一律停流释放摄像头） |
-| AR 纹理试戴 | `/ar-tryon` | 📌 | 上传参考图后自动完成识别/精细抠图/提取/参数分析并直接上屏（甲型轮廓/主色/图案/光泽自动匹配渲染，无需手动点击）；工程链路完整，正式识别模型发布前为辅助演示口径 |
+| AR 纹理试戴 | `/ar-tryon` | 📌 | 三步流程（选款 → 上传/识别 → 试戴）：上传参考图后自动完成识别/精细抠图/提取/参数分析，按复核决策直接上屏或进入复核态（甲型轮廓/主色/图案/光泽自动匹配渲染）；诊断收进「技术详情」，摄像头可主动关闭并有连续失败覆盖层；工程链路完整，正式识别模型发布前为辅助演示口径 |
 | 独立 AR 演示 | `/ar-demo` | 📌 | 桥接外部 Python demo 的 iframe 占位 |
 | 登录/账号 | `/login`、`/account` | ✅ | 手机号+验证码登录即注册、微信 OAuth 登录；账号页管理档案、登录方式、改进计划偏好（初始版已落地，商户/云同步后续规划） |
 | 隐私政策 | `/privacy` | ✅ | 完整静态说明页：核心原则（本地优先/数据由你掌控/不追踪）+ 用户改进计划开关（默认开启，可关闭）+ 各功能数据流向（试色/AI/AR/识别）+ 第三方服务与用户权利；法律合规审核仍待外部 |
@@ -147,13 +146,15 @@ JiaRu/
 │   │   ├── UploadButton.tsx      # 图片上传按钮
 │   │   ├── TextureCropper.tsx    # 纹理手动裁剪器
 │   │   ├── NailArtPicker.tsx     # 纹理自动识别与五指分配
-│   │   ├── GalleryGrid.tsx       # 图库网格
+│   │   ├── GalleryGrid.tsx       # 图库网格与「试戴方式」弹层
 │   │   ├── Header.tsx            # 顶部导航
 │   │   ├── NailAnalysisForm.tsx  # 个性化分析场景问卷
 │   │   ├── NailAnalysisResult.tsx  # 个性化分析结果卡片（含琥珀辅助声明）
+│   │   ├── EditorObjectPanel.tsx # 编辑器对象面板（逐框枚举/选中联动/替换/微调/删除/贴合）
 │   │   ├── AppShell.tsx          # 页面壳（导航 + 页脚）
 │   │   ├── Icon.tsx              # 内联 SVG 矢量图标组件（15 个图标）
-│   │   └── FlowingShell.tsx      # 流式布局壳
+│   │   ├── FlowingShell.tsx      # 流式布局壳
+│   │   └── ui/                   # 共享交互基元（AppDialog/ConfirmDialog/StatusRegion/UploadTrigger + dialog-focus）
 │   │
 │   ├── lib/                      # 工具与核心逻辑
 │   │   ├── utils.ts              # 通用工具（颜色、图片、AI 风格名称等）
@@ -179,6 +180,15 @@ JiaRu/
 │   │   ├── nail-texture-dataset.ts    # 纹理数据集工具
 │   │   ├── nail-texture-debug-sample.ts    # 调试样本
 │   │   ├── nail-texture-debug-priority.ts  # 调试优先级
+│   │   ├── async-task.ts         # 异步任务单飞/取消不判失败/结算纯逻辑
+│   │   ├── use-async-task.ts     # 异步任务 React 绑定（渲染期不读 ref）
+│   │   ├── work-items.ts         # 本地作品（WorkItem）存储与旧收录幂等迁移
+│   │   ├── work-bridge.ts        # work>gallery>collect>preset 引用解析
+│   │   ├── editor-draft.ts       # 编辑器会话草稿（mask 剥离/尺寸校验/防抖写入）
+│   │   ├── ai-generate-flow.ts   # AI 生图请求快照/端点解析/错误分类
+│   │   ├── ar-review-flow.ts     # AR 覆盖前复核决策纯逻辑
+│   │   ├── ar-step-flow.ts       # AR 三步流程状态纯逻辑
+│   │   ├── ar-cropper-keys.ts    # AR 裁剪器键盘选区
 │   │   ├── auth/                 # 用户认证库（SQLite/JWT/图形验证码/短信/微信 OAuth/登录即注册）
 │   │   ├── nail-personalization/ # 个性化美甲分析（纯函数规则引擎，无 DOM 依赖）
 │   │   │   ├── index.ts          # 编排入口 analyzeNailPersonalization + barrel
@@ -219,7 +229,7 @@ JiaRu/
 │   └── reports/                  # 本地机器报告目录（不进入 Git）
 │
 ├── scripts/                      # 审计/验证/发布治理脚本
-├── tests/                        # 测试文件（当前 1,200+ 项；ML/数据治理用例需 Python 环境，缺依赖自动 skip）
+├── tests/                        # 测试文件（当前 1,400+ 项；ML/数据治理用例需 Python 环境，缺依赖自动 skip）
 ├── e2e/                          # Playwright 浏览器端到端回归（评审 #11 六条 + 账号档案 3 条）
 ├── .github/workflows/            # CI：类型检查（产品/测试双 tsconfig）、ESLint、生产构建（测试在本地全量执行，CI 无本地数据不跑）
 ├── docs/                         # 项目文档（见下方索引）
@@ -228,7 +238,7 @@ JiaRu/
 ├── public/
 │   ├── models/                   # 浏览器端模型（smoke ONNX 等）
 │   ├── nail-textures/            # 编辑器纹理套装静态资产（5 套 × 5 指 RGBA PNG，运行时必需）
-│   └── nail-gallery/             # 灵感图库素材（AI 生成 JPG；旧占位 SVG 保留未删）
+│   └── nail-gallery/             # 灵感图库素材（AI 生成 JPG）
 ├── weights/                      # 本地权重（不上传 Git）
 ├── certificates/                 # 本地开发证书
 └── 辅助材料/                     # 本地审核工作区；Git 仅保留必要 Markdown 说明
@@ -373,7 +383,10 @@ copy .env.local.example .env.local
 
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md) v1.2.203 | 模块状态、接口契约、已知限制——项目唯一总入口；v1.2.0 起只登记当前接口与状态，v1.2.2 起正文仅保留最新口径与必要技术文档引用，变更记录并入按天 dev-log（版本标记「白皮书 v1.2.x」） |
+| [技术白皮书](docs/technical-whitepaper.md)（现行版本见文档头部） | 模块状态、接口契约、已知限制——项目唯一集成入口；正文维护当前接口、状态与合同，变更记录并入按天 dev-log |
+| [项目协作规则](AGENTS.md) | 任务读取矩阵、持续授权、文档职责、验证与提交规则；专项执行细则位于 `docs/agent-rules/` |
+| [规则文档梳理](docs/project-rules-review.md) | 规则职责图、已修订冲突、核验依据与维护方式 |
+| [前端交互改造方案](docs/frontend-interaction-redesign-plan.md) | 8 个 Batch 的设计拆分、测试与验收、风险对策与 Definition of Done；实施状态见文档头部与当日日志 |
 | [美甲纹理模型 Goal](docs/nail-texture-current-goal.md) | 正式模型唯一可持续目标文件：目标、核心要求、当前状态与下一步计划（每轮只保留一项活动里程碑） |
 | [本机推理实施规范](docs/nail-texture-local-inference-implementation-spec.md) | 运行时、数值门、端侧设备合同与发布验收口径 |
 | [本机推理实施进度](docs/nail-texture-local-inference-implementation-progress.md) | 逐阶段执行进度、失败保留与恢复点 |
@@ -383,8 +396,8 @@ copy .env.local.example .env.local
 | [数据集契约历史归档](docs/archive/whitepaper-dataset-contract-history.md) | 原白皮书§8.1历史执行叙事（标注返修/审核批次流水、困难负样本批次）与§8.4/§9.7/§9.8/§9.9/§11.2复核原文，2026-10-12归档 |
 | [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
 | [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
-| [UI 设计规范](docs/ui-design-spec.md) | 品牌色、字体、组件样式、AR 交互规范 |
-| [开发规范](docs/coding-standards.md) | 代码风格、命名规范、工作流程 |
+| [UI 设计规范](docs/ui-design-spec.md) | 正式站与独立预览的适用范围、品牌令牌、交互与可访问性规范 |
+| [开发规范](docs/coding-standards.md) | 当前代码约定、React/异步资源、隐私请求与浏览器验证 |
 | [用户管理系统文档](docs/user-system-plan.md) | 角色权限/资源/配额/流程/API/合规/分阶段路线（v0.2，初始注册登录已实现） |
 | [个性化分析推荐·设计](docs/nail-personalization-design.md) | `/nail-analysis` 功能设计：模块契约、色彩科学、环采样、手型/健康启发式、规则表、测试计划与里程碑（2026-10-20 修订） |
 | [个性化分析推荐·资料汇编](docs/nail-personalization-research.md) | 竞品矩阵、学术注释、领域知识库、技术方法、市场数据、公开数据集与来源 URL；§2.5 争议/失效证据、§9 检索与维护说明 |

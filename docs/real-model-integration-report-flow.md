@@ -15,7 +15,7 @@
 - 一张联调用参考图
 - 可选的模型原始输出 dump / fixture
 - 一份 UI 手工验收记录：
-  [model/fixtures/real-model-ui-review.template.json](E:/AI%20Project/Codex/JiaRu/model/fixtures/real-model-ui-review.template.json)
+  [model/fixtures/real-model-ui-review.template.json](../model/fixtures/real-model-ui-review.template.json)
 
 ## 生成首轮联调记录
 

@@ -8,7 +8,7 @@
 ## 1. 先准备两个东西
 
 - 一个图片目录，例如 `C:/path/to/nail-batch-001`
-- 一份批次清单，例如：[model/fixtures/nail-dataset-intake-batch.template.json](</E:/AI Project/Codex/JiaRu/model/fixtures/nail-dataset-intake-batch.template.json>)
+- 一份批次清单，例如：[model/fixtures/nail-dataset-intake-batch.template.json](../model/fixtures/nail-dataset-intake-batch.template.json)
 
 ## 2. 批次清单字段
 

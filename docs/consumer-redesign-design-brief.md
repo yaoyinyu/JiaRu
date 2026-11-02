@@ -151,6 +151,8 @@
 
 风格来源：`docs/neumorphism-hard-prompt.md`（新拟物派 Hard Prompt）。适配原则：**风格规则优先、品牌身份保留**——硬 prompt 的双光源阴影系统、状态机与禁止项全量落地；其通用灰底与紫色强调替换为甲如品牌米白／珊瑚，偏差逐条登记如下。
 
+维护说明：本节偏差记录引用的是当时的通用提示词版本。现行[风格提示](neumorphism-hard-prompt.md)已精简并引用[UI设计规范](ui-design-spec.md)；独立预览继续按本节已登记的品牌适配和后续动效合同执行，历史偏差记录保留。
+
 ### 8.1 品牌化 Token（`style.css` `:root`）
 
 | Token | 值 | 用途 |

@@ -1,7 +1,7 @@
 # 甲如消费者端动效优化方案（`design/consumer-v1`）
 
 - 范围：仅消费者端独立设计预览 `design/consumer-v1`（白皮书 §4.7，入口 `node scripts/serve-consumer-design.mjs`，`http://127.0.0.1:4318`）。不注册 Next.js 正式路由、不改生产样式、不接入真实数据。
-- 依据：白皮书 §4.7「终端与动效」条；`docs/consumer-redesign-design-brief.md` §2.1（轻动效验收边界）、§8（新拟态品牌适配 Token 与偏差登记）；`docs/neumorphism-hard-prompt.md` 动效规则与禁止项；`design/consumer-v1/style.css` 现有 Token 与状态机。
+- 依据：白皮书 §4.7「终端与动效」条；`docs/consumer-redesign-design-brief.md` §2.1（轻动效验收边界）、§8（新拟态品牌适配 Token 与偏差登记）；[UI设计规范](ui-design-spec.md)与[精简风格提示](neumorphism-hard-prompt.md)；`design/consumer-v1/style.css` 现有 Token 与状态机。下文涉及旧提示词的偏差说明保留当时版本语义，参数与实施记录仍由简报对应章节承接。
 - 状态：**方案（未实施）**。实施后另立简报章节登记参数终值、偏差与验证结论，并记当日 dev-log；白皮书仅在实施改变 §4.7 登记事实时顺延。
 - 风格基线：品牌米白基底 `#f7f4ee`、双光源阴影（左上亮／右下暗，方向全局锁定）、珊瑚强调色、Smooth Molding（300ms ease-in-out）。本方案全部动效在该语言内派生，不引入第二套视觉风格。
 
