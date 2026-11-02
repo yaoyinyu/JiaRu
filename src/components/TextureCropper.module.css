@@ -1,0 +1,94 @@
+/* TextureCropper：AppDialog 宿主内的裁剪画布布局。
+
+   AppDialog 面板宽度固定为 min(520px, 100%)，且组件位于 src/components/ui/
+   （本次任务不修改共享 UI 组件）。这里用 body 标记属性做作用域化放宽：
+   仅当本组件挂载时生效；本组件为独占模态，期间不会有其他弹层共存，
+   卸载即移除标记，不影响全站其他弹层宽度。 */
+
+:global(body[data-ar-cropper-open]) [role="dialog"] {
+  width: min(760px, 100%);
+}
+
+.canvasArea {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: clamp(220px, 52dvh, 540px);
+  border-radius: 18px;
+  background: #222220;
+  overflow: auto;
+}
+
+.canvas {
+  max-width: 100%;
+  max-height: 100%;
+  touch-action: none;
+  user-select: none;
+}
+
+.hint {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.secondaryButton {
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+  box-shadow: var(--neu-out-sm);
+  transition: opacity 150ms ease;
+}
+
+.secondaryButton:disabled {
+  cursor: not-allowed;
+  color: var(--muted);
+  opacity: 0.55;
+  box-shadow: none;
+}
+
+.cancelButton {
+  min-height: 44px;
+  border-radius: 14px;
+  border: 1px solid var(--coral-soft);
+  background: var(--surface);
+  padding: 0 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--muted);
+  box-shadow: var(--neu-out-sm);
+  transition: opacity 150ms ease;
+}
+
+.confirmButton {
+  min-height: 44px;
+  border-radius: 14px;
+  border: none;
+  background: var(--coral);
+  padding: 0 22px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: var(--neu-out-sm);
+  transition: opacity 150ms ease;
+}
+
+.confirmButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.errorMessage {
+  border-radius: 12px;
+  background: #fdeaea;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #b3423a;
+}

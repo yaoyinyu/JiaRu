@@ -182,7 +182,7 @@ export default function NailAnalysisPage() {
           {error ? (
             <p role="alert" className="px-3 pb-2 pt-3 text-center text-sm text-red-600">{error}</p>
           ) : null}
-          <p className="px-3 pb-2 pt-3 text-center text-xs text-[#75766c]">{status}</p>
+          <p className="px-3 pb-2 pt-3 text-center text-xs text-[#67685f]">{status}</p>
           {previewUrl ? (
             <div className="flex justify-center pb-1">
               <button
@@ -199,7 +199,7 @@ export default function NailAnalysisPage() {
         <section className="space-y-4 rounded-[28px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)]  sm:p-5">
           <div>
             <h2 className="text-sm font-semibold text-[#292a27]">场景问卷</h2>
-            <p className="mt-1 text-xs text-[#75766c]">未填写的项按「未知」处理，不会被当作否定值。</p>
+            <p className="mt-1 text-xs text-[#67685f]">未填写的项按「未知」处理，不会被当作否定值。</p>
           </div>
           <NailAnalysisForm value={scenario} onChange={setScenario} disabled={stage === "analyzing"} />
         </section>
@@ -210,7 +210,7 @@ export default function NailAnalysisPage() {
           <NailAnalysisResult result={analysis} />
         </section>
       ) : stage === "analyzing" ? (
-        <p className="mt-5 text-center text-sm text-[#75766c]">正在分析中……</p>
+        <p className="mt-5 text-center text-sm text-[#67685f]">正在分析中……</p>
       ) : null}
     </AppShell>
   );

@@ -9,10 +9,10 @@ import styles from "./BottomNav.module.css";
 type Item = { href: string; label: string; icon: IconName; match: string[] };
 
 const items: Item[] = [
-  { href: "/", label: "为你", icon: "lightbulb", match: ["/"] },
+  { href: "/", label: "首页", icon: "lightbulb", match: ["/"] },
+  { href: "/gallery", label: "灵感", icon: "bookmark", match: ["/gallery"] },
   { href: "/ar-tryon", label: "试戴", icon: "hand", match: ["/ar-tryon", "/editor"] },
   { href: "/ai-generate", label: "创作", icon: "sparkles", match: ["/ai-generate"] },
-  { href: "/nail-analysis", label: "分析", icon: "palette", match: ["/nail-analysis"] },
   { href: "/account", label: "我的", icon: "user", match: ["/account", "/login"] },
 ];
 

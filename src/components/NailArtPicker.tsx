@@ -1,6 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { AppDialog } from "@/components/ui/AppDialog";
+import styles from "./NailArtPicker.module.css";
 import {
   analyzeNailTextureProfile,
   detectNailsWithMatte,
@@ -63,6 +65,11 @@ interface NailArtPickerProps {
   imageUrl: string;
   onConfirm: (assignments: NailAssignment[], options?: NailPickerConfirmOptions) => void;
   onCancel: () => void;
+  /**
+   * 覆盖前复核的「继续调整」重开模式：只做自动识别与手动微调，
+   * 不再自动执行「精细抠图→提取→分析→上屏」一条龙（§7.2，避免复核循环）。
+   */
+  suppressAutoFlow?: boolean;
 }
 
 const FINGER_NAMES = ["拇指", "食指", "中指", "无名指", "小指"];
@@ -202,11 +209,18 @@ async function cropTextureFromRegion(
   return createImageBitmap(canvas);
 }
 
-export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArtPickerProps) {
+export default function NailArtPicker({
+  imageUrl,
+  onConfirm,
+  onCancel,
+  suppressAutoFlow = false,
+}: NailArtPickerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const detectionAbortRef = useRef<AbortController | null>(null);
   const matteAbortRef = useRef<AbortController | null>(null);
+  // §7.5：弹层关闭（含提取中 Escape / 取消）一律视为取消，提取结果不再应用。
+  const closeCancelledRef = useRef(false);
   const dragRef = useRef<{
     pointerId: number;
     regionIndex: number;
@@ -616,7 +630,17 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
     setMatteMessage(null);
   }, []);
 
+  // AppDialog 面板宽度放宽标记（见 NailArtPicker.module.css 头注）。
+  useEffect(() => {
+    document.body.dataset.arPickerOpen = "true";
+    return () => {
+      delete document.body.dataset.arPickerOpen;
+    };
+  }, []);
+
   const closePicker = useCallback(() => {
+    // 关闭即取消：自动流程与提取结果都不再应用（§7.5）。
+    closeCancelledRef.current = true;
     autoFlowCancelledRef.current = true;
     detectionAbortRef.current?.abort();
     detectionAbortRef.current = null;
@@ -870,6 +894,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
         const diagnosticsById = new Map<string, TextureExtractionDiagnostics>();
 
         for (const region of assigned) {
+          // 弹层已关闭 / 自动流程已取消：停止继续提取，返回的部分结果由调用方释放。
+          if (closeCancelledRef.current || autoFlowCancelledRef.current) break;
           if (results.some((item) => item.finger === region.assignedFinger)) continue;
 
           let texture: ImageBitmap;
@@ -937,6 +963,11 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
 
   const handleConfirm = useCallback(async () => {
     const results = await extractAssignments(regionsRef.current);
+    // 提取中关闭弹层视为取消：结果一律不再应用，已提取位图直接释放（§7.5）。
+    if (closeCancelledRef.current) {
+      for (const item of results ?? []) item.texture.close();
+      return;
+    }
     if (results && results.length > 0) {
       onConfirm(results);
     }
@@ -995,30 +1026,64 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
       setOriginalRegions((prev) => autoAssignNailRegionFingers(prev).regions);
     }
 
-    // 3) 提取 + 参数分析后直接上屏（低置信候选同样自动应用，界面保留复核提示）。
+    // 3) 提取 + 参数分析后交由页面裁决（§7.2 覆盖前复核：自动应用或进入复核态由页面决定）。
     setAutoStatus("正在提取纹理并分析参数…");
     const results = await extractAssignments(working, { auto: true });
-    if (autoFlowCancelledRef.current) return;
+    if (autoFlowCancelledRef.current || closeCancelledRef.current) {
+      // 弹层已关闭：提取结果不再应用，已提取位图直接释放（§7.5）。
+      for (const item of results ?? []) item.texture.close();
+      return;
+    }
     setAutoStatus(null);
     if (!results || results.length === 0) return;
     onConfirm(results, { auto: true });
   }, [detectMasks, extractAssignments, onConfirm, readMatteNoticeAccepted, refineMasks]);
 
   // 识别完成后触发一次（含 0 候选的兜底识别路径）；同一张图只跑一轮，用户取消识别则不跑。
+  // suppressAutoFlow（覆盖前复核的「继续调整」重开）时只保留识别与手动提取。
   useEffect(() => {
+    if (suppressAutoFlow) return;
     if (detecting || extracting) return;
     if (detectionCancelledRef.current) return;
     if (autoFlowForRef.current === imageUrl) return;
     autoFlowForRef.current = imageUrl;
     void runAutoFlow();
-  }, [detecting, extracting, imageUrl, runAutoFlow]);
+  }, [detecting, extracting, imageUrl, runAutoFlow, suppressAutoFlow]);
 
   const assignedCount = regions.filter((region) => region.assignedFinger !== null).length;
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 ">
-      <div className="mx-auto flex h-full max-w-7xl flex-col p-4 lg:flex-row lg:gap-4">
-        <div className="flex min-h-0 flex-1 items-center justify-center rounded-3xl bg-neutral-950 p-3">
+    <AppDialog
+      open
+      onClose={closePicker}
+      title="美甲纹理提取"
+      description="优先自动定位五个甲面；如少数边界有偏差，可直接拖动或微调。"
+      // 误触背景遮罩会丢掉全部调整：只保留 Escape 与「取消」按钮关闭（§7.5）。
+      closeOnOutside={false}
+      footer={
+        <>
+          <button
+            type="button"
+            data-autofocus="cancel"
+            onClick={closePicker}
+            className="min-h-11 flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50 lg:flex-none"
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            data-autofocus="confirm"
+            onClick={() => void handleConfirm()}
+            disabled={extracting || assignedCount === 0}
+            className="min-h-11 flex-1 rounded-2xl bg-pink-500 px-4 py-3 text-sm font-medium text-white hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50 lg:flex-none"
+          >
+            {extracting ? "正在提取…" : "提取所选纹理"}
+          </button>
+        </>
+      }
+    >
+      <div className={styles.workspace}>
+        <div className={styles.canvasPane}>
           <div className="relative max-h-full max-w-full overflow-auto rounded-2xl bg-black">
             <canvas
               ref={canvasRef}
@@ -1059,23 +1124,8 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
           </div>
         </div>
 
-        <div className="mt-4 w-full shrink-0 overflow-auto rounded-3xl bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)] lg:mt-0 lg:w-[380px]">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold text-slate-900">美甲纹理提取</h2>
-              <p className="mt-1 text-sm text-slate-500">
-                优先自动定位五个甲面；如少数边界有偏差，可直接拖动或微调。
-              </p>
-            </div>
-            <button
-              onClick={closePicker}
-              className="rounded-full border border-slate-200 px-3 py-1.5 text-sm text-slate-600 hover:bg-slate-50"
-            >
-              关闭
-            </button>
-          </div>
-
-          <div className="mt-4 space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
+        <div className={styles.sidePane}>
+          <div className="space-y-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-sm">
             <div className="flex flex-wrap gap-2 text-xs text-slate-600">
               <span className="rounded-full bg-[var(--surface)] px-2 py-1">区域：{regions.length}</span>
               <span className="rounded-full bg-[var(--surface)] px-2 py-1">已分配：{assignedCount}</span>
@@ -1092,14 +1142,31 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                 </span>
               )}
             </div>
-            {detectionSummary && (
-              <div className="text-xs text-slate-600">
-                <div>总耗时：{Math.round(detectionSummary.elapsedMs)} 毫秒</div>
-                {detectionSummary.workerElapsedMs != null && (
-                  <div>后台线程：{Math.round(detectionSummary.workerElapsedMs)} 毫秒</div>
-                )}
-                {detectionSummary.modelVersion && <div>模型：{detectionSummary.modelVersion}</div>}
-              </div>
+            {(detectionSummary || regions.length > 0) && (
+              <details className="text-xs text-slate-600">
+                <summary className="cursor-pointer select-none font-medium text-slate-600">
+                  技术详情
+                </summary>
+                <div className="mt-2 space-y-2">
+                  {detectionSummary && (
+                    <div>
+                      <div>总耗时：{Math.round(detectionSummary.elapsedMs)} 毫秒</div>
+                      {detectionSummary.workerElapsedMs != null && (
+                        <div>后台线程：{Math.round(detectionSummary.workerElapsedMs)} 毫秒</div>
+                      )}
+                      {detectionSummary.modelVersion && <div>模型：{detectionSummary.modelVersion}</div>}
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    onClick={exportDebugSample}
+                    disabled={regions.length === 0}
+                    className="rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    导出诊断 JSON
+                  </button>
+                </div>
+              </details>
             )}
             {detectionWarningMessages.length > 0 && (
               <ul className="list-disc space-y-1 pl-5 text-xs text-amber-700">
@@ -1132,13 +1199,6 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
               }`}
             >
               {addingRegion ? "结束添加" : "在图片上添加甲面"}
-            </button>
-            <button
-              onClick={exportDebugSample}
-              disabled={regions.length === 0}
-              className="rounded-full border border-slate-200 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              导出诊断 JSON
             </button>
           </div>
 
@@ -1275,9 +1335,11 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                     <div>当前区域未发现明显问题。</div>
                   )}
                   {selectedExtractionSummary && (
-                    <>
-                      <div className="pt-2 font-medium text-slate-900">最近一次提取诊断</div>
-                      <div>{selectedExtractionSummary.title}</div>
+                    <details className="pt-2">
+                      <summary className="cursor-pointer select-none font-medium text-slate-900">
+                        最近一次提取诊断（技术详情）
+                      </summary>
+                      <div className="mt-1">{selectedExtractionSummary.title}</div>
                       <ul className="list-disc space-y-1 pl-5">
                         {selectedExtractionSummary.stats.map((item) => (
                           <li key={item}>{item}</li>
@@ -1286,34 +1348,20 @@ export default function NailArtPicker({ imageUrl, onConfirm, onCancel }: NailArt
                           <li key={item}>{item}</li>
                         ))}
                       </ul>
-                    </>
+                    </details>
                   )}
                 </div>
               </>
             )}
           </div>
 
-          <div className="mt-6 flex gap-3">
-            <button
-              onClick={closePicker}
-              className="flex-1 rounded-2xl border border-slate-200 px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
-            >
-              取消
-            </button>
-            <button
-              onClick={() => void handleConfirm()}
-              disabled={extracting || assignedCount === 0}
-              className="flex-1 rounded-2xl bg-pink-500 px-4 py-3 text-sm font-medium text-white hover:bg-pink-600 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {extracting ? "正在提取…" : "提取所选纹理"}
-            </button>
-          </div>
-
-          <div className="mt-3 text-xs text-slate-500">
-            提示：上传后会自动完成识别、精细处理（首次需确认隐私提示）、纹理提取与参数分析并直接应用到试戴；如个别甲面方向或指位不对，可在此调整后重新提取。
+          <div className="mt-4 text-xs text-slate-500">
+            {suppressAutoFlow
+              ? "已回到手动调整：确认甲面位置与指位后点击「提取所选纹理」应用；取消则不改变当前试戴。"
+              : "提示：上传后会自动完成识别、精细处理（首次需确认隐私提示）、纹理提取与参数分析；应用前会按置信度提示复核。如个别甲面方向或指位不对，可在此调整后重新提取。"}
           </div>
         </div>
       </div>
-    </div>
+    </AppDialog>
   );
 }

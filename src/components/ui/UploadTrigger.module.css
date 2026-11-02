@@ -1,0 +1,83 @@
+/* UploadTrigger：可聚焦上传触区（新拟态）。
+   结构合同：.root（承载 :focus-within 焦点环）> 真实 button + sr-only input 兄弟节点。
+   动效合同（frontend-interaction-redesign-plan §8.5）：只动画 transform/opacity，
+   禁止 transition: all；按压凸起转凹陷、无布局位移；
+   prefers-reduced-motion 下关闭过渡与 spinner 旋转（loadingLabel 文案仍表达处理中）。 */
+
+.root {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px; /* 触控目标下限 */
+  padding: 10px 20px;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--neu-out-md);
+  color: var(--ink);
+  font-size: 14px; /* 主操作按钮字号下限 */
+  font-weight: 600;
+  line-height: 1.4;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  /* 过渡只走 transform/opacity；凸起↔凹陷的 box-shadow 切换瞬时完成，不做动画 */
+  transition:
+    transform var(--dur-press) var(--ease-press),
+    opacity var(--dur-press) var(--ease-press);
+}
+
+.button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: var(--neu-out-hover);
+}
+
+.button:active:not(:disabled) {
+  transform: translateY(0) scale(0.98);
+  box-shadow: var(--neu-in-sm); /* 按压转凹陷 */
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  box-shadow: var(--neu-out-sm);
+}
+
+/* 焦点环：容器内（按钮本身或文件输入）获得焦点时，在按钮上显示全站珊瑚 outline */
+.root:focus-within .button {
+  outline: 2px solid var(--coral);
+  outline-offset: 3px;
+}
+
+/* loading spinner：纯 transform 旋转，位于按钮内部并对辅助技术隐藏，不在 live region */
+.spinner {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border: 2px solid var(--coral-soft);
+  border-top-color: var(--coral);
+  border-radius: var(--radius-capsule);
+  animation: upload-trigger-spin 0.9s linear infinite;
+}
+
+@keyframes upload-trigger-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+
+  .spinner {
+    animation: none; /* 旋转降级为静态标记，loading 语义由 loadingLabel 文案承担 */
+  }
+}

@@ -189,4 +189,15 @@ textarea:focus-visible, select:focus-visible, summary:focus-visible {
   .fade-in-up {
     animation: none;
   }
+
+  /* 全局动效兜底（方案 §8.5）：偏好减弱时冻结所有过渡与动画，只保留终态；
+     各组件显式的 animation: none 覆盖仍然优先生效。 */
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

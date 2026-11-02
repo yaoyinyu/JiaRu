@@ -1,0 +1,94 @@
+/* AppDialog：统一弹层基座（新拟态）。
+   动效只允许 transform/opacity（禁用 transition: all）；
+   prefers-reduced-motion 下整体关闭动画。 */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(41, 42, 39, .46); /* 墨色半透明遮罩（--ink 的 rgb） */
+  overscroll-behavior: contain;
+  animation: dialog-overlay-in var(--dur-soft) var(--ease-soft) both;
+}
+
+.panel {
+  position: relative;
+  display: flex;
+  width: min(520px, 100%);
+  max-height: 100%;
+  flex-direction: column;
+  padding: 26px 26px 22px;
+  border-radius: 30px;
+  background: var(--paper);
+  box-shadow: var(--neu-out-lg);
+  outline: none;
+  overscroll-behavior: contain;
+  animation: dialog-panel-in 280ms var(--ease-spring) both;
+}
+
+.title {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.description {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.8;
+}
+
+.body {
+  min-height: 0;
+  margin-top: 16px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.footer {
+  display: flex;
+  flex: none;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 22px;
+}
+
+/* 显隐动画只使用 transform/opacity */
+@keyframes dialog-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes dialog-panel-in {
+  from { opacity: 0; transform: translateY(16px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@media (max-width: 767px) {
+  .overlay {
+    padding: 14px;
+  }
+  .panel {
+    padding: 22px 20px 18px;
+    border-radius: 26px;
+  }
+  .title {
+    font-size: 19px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay,
+  .panel {
+    animation: none;
+  }
+}

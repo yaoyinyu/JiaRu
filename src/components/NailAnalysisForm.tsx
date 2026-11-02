@@ -57,7 +57,7 @@ const UNSET = "";
 
 const fieldClass =
   "min-h-11 w-full rounded-2xl bg-[var(--surface)] px-3 py-2 text-sm text-[#292a27] shadow-sm outline-none transition focus:border-[#ac5145]";
-const labelClass = "mb-1 block text-xs font-medium text-[#75766c]";
+const labelClass = "mb-1 block text-xs font-medium text-[#67685f]";
 
 interface NailAnalysisFormProps {
   value: UserScenario;

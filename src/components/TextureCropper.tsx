@@ -2,6 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { extractTexture } from "@/lib/texture";
+import { AppDialog } from "@/components/ui/AppDialog";
+import { applyCropperKeyboardInput } from "@/lib/ar-cropper-keys";
+import styles from "./TextureCropper.module.css";
 
 interface TextureCropperProps {
   imageUrl: string;
@@ -19,8 +22,6 @@ interface Rect {
 const OVERLAY_ALPHA = 0.55;
 const BORDER_COLOR = "#ac5145";
 const BORDER_WIDTH = 2;
-// MIN_SELECTION_PX 预留（未使用）
-// const MIN_SELECTION_PX = 30;
 const MAX_CANVAS_DIM = 1024;
 
 function fitScale(
@@ -85,6 +86,16 @@ export default function TextureCropper({
   const [imgLoaded, setImgLoaded] = useState(false);
 
   const startRef = useRef<{ x: number; y: number } | null>(null);
+  // §7.5：提取中关闭视为取消——关闭后被提取的位图一律不再应用。
+  const closeCancelledRef = useRef(false);
+
+  // AppDialog 面板宽度放宽标记（见 TextureCropper.module.css 头注）。
+  useEffect(() => {
+    document.body.dataset.arCropperOpen = "true";
+    return () => {
+      delete document.body.dataset.arCropperOpen;
+    };
+  }, []);
 
   // ── 加载图片 ──────────────────────────────────────────
 
@@ -164,7 +175,7 @@ export default function TextureCropper({
     ctx.fillRect(0, s.y, s.x, s.h);
     ctx.fillRect(s.x + s.w, s.y, cw - (s.x + s.w), s.h);
 
-    // 粉色虚线边框
+    // 珊瑚虚线边框
     ctx.save();
     ctx.strokeStyle = BORDER_COLOR;
     ctx.lineWidth = BORDER_WIDTH;
@@ -193,6 +204,15 @@ export default function TextureCropper({
   useEffect(() => {
     redraw();
   }, [redraw]);
+
+  // ── 取消（Escape / 取消按钮统一入口；AppDialog onClose 也汇到这里）──
+
+  const handleCancel = useCallback(() => {
+    // §7.5：取消（含提取中关闭）之后结果一律不再应用；
+    // 提取完成后发现已取消时，直接释放位图并跳过 onConfirm。
+    closeCancelledRef.current = true;
+    onCancel();
+  }, [onCancel]);
 
   // ── Pointer 事件 ──────────────────────────────────────
 
@@ -243,6 +263,27 @@ export default function TextureCropper({
     []
   );
 
+  // ── 键盘选区（§7.5）：方向键移动、Shift+方向键调整大小 ──
+
+  const handleCanvasKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLCanvasElement>) => {
+      if (loading || loadingTexture || (error && !imgLoaded)) return;
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const next = applyCropperKeyboardInput(
+        selection,
+        { key: e.key, shiftKey: e.shiftKey },
+        canvas.width,
+        canvas.height
+      );
+      if (!next) return;
+      e.preventDefault();
+      setSelection(next);
+      setError(null);
+    },
+    [selection, loading, loadingTexture, error, imgLoaded]
+  );
+
   // ── 确认 / 重选 ──────────────────────────────────────
 
   const handleConfirm = useCallback(async () => {
@@ -271,8 +312,14 @@ export default function TextureCropper({
       setLoadingTexture(true);
       setError(null);
       const bitmap = await extractTexture(imageUrl, crop);
+      // 提取期间弹层被关闭：视为取消，释放位图且不应用结果（§7.5）。
+      if (closeCancelledRef.current) {
+        bitmap.close();
+        return;
+      }
       onConfirm(bitmap);
     } catch (err) {
+      if (closeCancelledRef.current) return;
       setError(err instanceof Error ? err.message : "纹理提取失败");
       setLoadingTexture(false);
     }
@@ -286,111 +333,108 @@ export default function TextureCropper({
   }, [redraw]);
 
   const canConfirm = selection != null && !loadingTexture;
-
-  // ── 键盘快捷键 ────────────────────────────────────────
-
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onCancel();
-      if (e.key === "Enter" && canConfirm) handleConfirm();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [onCancel, canConfirm, handleConfirm]);
+  const loadFailed = error != null && !imgLoaded;
 
   // ── 渲染 ──────────────────────────────────────────────
 
-  if (error && !imgLoaded) {
-    return (
-      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 p-4">
-        <div className="bg-[var(--surface)] rounded-2xl p-6 text-center max-w-sm">
-          <p className="text-red-500 mb-4">{error}</p>
+  return (
+    <AppDialog
+      open
+      onClose={handleCancel}
+      title="裁剪单条纹理"
+      description="在图片上框出一块完整甲面纹理，确认后应用到当前手指。"
+      // 误触背景遮罩会丢掉已画的选区：只保留 Escape 与「取消」按钮关闭。
+      closeOnOutside={false}
+      initialFocus="confirm"
+      footer={
+        <>
           <button
-            onClick={onCancel}
-            className="px-4 py-2 bg-pink-100 text-pink-600 rounded-xl"
+            type="button"
+            onClick={handleReset}
+            disabled={!selection || loadingTexture}
+            className={styles.secondaryButton}
+          >
+            重选
+          </button>
+          <button
+            type="button"
+            data-autofocus="cancel"
+            onClick={handleCancel}
+            className={styles.cancelButton}
+          >
+            取消
+          </button>
+          <button
+            type="button"
+            data-autofocus="confirm"
+            onClick={() => void handleConfirm()}
+            disabled={!canConfirm}
+            className={styles.confirmButton}
+          >
+            {loadingTexture ? (
+              <span className="flex items-center gap-1">
+                <span
+                  className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
+                  aria-hidden="true"
+                />{" "}
+                提取中
+              </span>
+            ) : (
+              "确认使用"
+            )}
+          </button>
+        </>
+      }
+    >
+      {loadFailed ? (
+        <div className="py-6 text-center">
+          <p className={styles.errorMessage}>{error}</p>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className={`${styles.cancelButton} mt-4`}
           >
             返回
           </button>
         </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-black">
-      {/* 顶部提示栏 */}
-      <div className="flex items-center justify-between px-4 py-3 bg-black/90">
-        <span className="text-white text-sm">
-          {isDragging
-            ? "松开完成选区"
-            : selection
-              ? "可拖拽调整选区"
-              : "拖拽选取指甲区域"}
-        </span>
-        <button
-          onClick={onCancel}
-          className="text-gray-400 text-sm px-3 py-1 rounded-lg hover:bg-white/10 transition-colors"
-        >
-          取消
-        </button>
-      </div>
-
-      {/* Canvas 裁剪区 */}
-      <div className="flex-1 flex items-center justify-center overflow-hidden bg-[#222]">
-        {loading && (
-          <div className="absolute z-10 flex items-center gap-2 text-white/70">
-            <span className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white" aria-hidden="true" />
-            <span>加载中...</span>
+      ) : (
+        <>
+          <div className={styles.canvasArea}>
+            {loading && (
+              <div className="absolute z-10 flex items-center gap-2 text-white/85">
+                <span
+                  className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"
+                  aria-hidden="true"
+                />
+                <span>加载中...</span>
+              </div>
+            )}
+            <canvas
+              ref={canvasRef}
+              tabIndex={0}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onKeyDown={handleCanvasKeyDown}
+              aria-label="纹理裁剪画布：拖拽画选区；也可用方向键移动选区，Shift 加方向键调整大小"
+              className={styles.canvas}
+              style={{ cursor: "crosshair" }}
+            />
           </div>
-        )}
-        <canvas
-          ref={canvasRef}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          className="max-w-full max-h-full object-contain touch-none select-none"
-          style={{ cursor: "crosshair" }}
-        />
-      </div>
-
-      {/* 底部操作栏 */}
-      <div className="flex items-center gap-3 px-4 py-3 bg-black/90">
-        <button
-          onClick={handleReset}
-          disabled={!selection}
-          className={`px-4 py-2 text-sm rounded-xl transition-colors ${
-            selection
-              ? "bg-white/10 text-white hover:bg-white/20"
-              : "bg-white/5 text-gray-500"
-          }`}
-        >
-          重选
-        </button>
-
-        <div className="flex-1" />
-
-        {error && (
-          <span className="text-red-400 text-xs mr-2">{error}</span>
-        )}
-
-        <button
-          onClick={handleConfirm}
-          disabled={!canConfirm}
-          className={`px-6 py-2 text-sm font-medium rounded-xl transition-colors ${
-            canConfirm
-              ? "bg-pink-400 text-white hover:bg-pink-500 active:scale-95"
-              : "bg-pink-400/40 text-white/50 cursor-not-allowed"
-          }`}
-        >
-          {loadingTexture ? (
-            <span className="flex items-center gap-1">
-              <span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white" aria-hidden="true" /> 提取中
-            </span>
-          ) : (
-            "确认使用"
+          <p className={styles.hint}>
+            {isDragging
+              ? "松开完成选区"
+              : selection
+                ? "可拖拽重新选取；方向键移动选区，Shift + 方向键调整大小。"
+                : "拖拽选取指甲区域，或用方向键生成默认选区后微调。"}
+          </p>
+          {error && (
+            <p role="alert" className={`${styles.errorMessage} mt-2`}>
+              {error}
+            </p>
           )}
-        </button>
-      </div>
-    </div>
+        </>
+      )}
+    </AppDialog>
   );
 }

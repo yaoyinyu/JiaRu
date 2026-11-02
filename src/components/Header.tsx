@@ -6,10 +6,10 @@ import { Icon } from "@/components/Icon";
 import styles from "./Header.module.css";
 
 const navigation = [
-  { href: "/", label: "为你", match: (p: string) => p === "/" },
+  { href: "/", label: "首页", match: (p: string) => p === "/" },
+  { href: "/gallery", label: "灵感", match: (p: string) => p.startsWith("/gallery") },
   { href: "/ar-tryon", label: "试戴", match: (p: string) => p.startsWith("/ar-tryon") || p.startsWith("/editor") },
   { href: "/ai-generate", label: "创作", match: (p: string) => p.startsWith("/ai-generate") },
-  { href: "/nail-analysis", label: "分析", match: (p: string) => p.startsWith("/nail-analysis") },
   { href: "/account", label: "我的", match: (p: string) => p.startsWith("/account") || p.startsWith("/login") },
 ];
 

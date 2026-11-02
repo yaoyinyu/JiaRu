@@ -155,6 +155,14 @@ interface Props {
   nailAdjustments?: readonly NailFitAdjustment[];
   /** 可选的逐指甲渲染样式（甲型模板 + 光泽系数）；null/缺省 = 维持 round 历史默认。 */
   nailStyles?: readonly (NailRenderStyle | null)[];
+  /** 当前校准中的手指索引（0—4）；画布对该指甲做珊瑚描边高亮，null/缺省不高亮。 */
+  activeFinger?: number | null;
+  /** 用户在连续失败覆盖层选择「改用上传照片试色」时回调（摄像头由组件自行停止）。 */
+  onSuggestUpload?: () => void;
+  /** 摄像头会话就绪/停止时回调（true=会话运行中，false=已停止），用于页面顶部步骤状态。 */
+  onCameraActiveChange?: (active: boolean) => void;
+  /** 来源选择信号：数值递增时在未启动状态下触发一次摄像头启动流程（§7.1 Step 1「开启实时摄像头」）。 */
+  startSignal?: number;
 }
 
 export interface NailFitAdjustment {
@@ -171,6 +179,10 @@ export function ArView({
   nailOffset = 0,
   nailAdjustments,
   nailStyles,
+  activeFinger = null,
+  onSuggestUpload,
+  onCameraActiveChange,
+  startSignal = 0,
 }: Props) {
   const vref = useRef<HTMLVideoElement>(null);
   const cref = useRef<HTMLCanvasElement>(null);
@@ -181,6 +193,15 @@ export function ArView({
   const nailOffsetRef = useRef(nailOffset);
   const nailAdjustmentsRef = useRef(nailAdjustments);
   const nailStylesRef = useRef<readonly (NailRenderStyle | null)[]>([]);
+  const activeFingerRef = useRef<number | null>(activeFinger);
+  // 「关闭摄像头」按钮桥：teardownToInit 定义在主 effect 闭包内，
+  // 通过 ref 暴露给渲染层的按钮与覆盖层调用。
+  const teardownRef = useRef<(() => void) | null>(null);
+  // 摄像头会话状态回调桥（保持 ref，避免主 effect 因回调身份重建）。
+  const cameraActiveChangeRef = useRef(onCameraActiveChange);
+  // 来源选择信号去重：同一信号值只消费一次。
+  const lastStartSignalRef = useRef(0);
+  const [recognitionFailed, setRecognitionFailed] = useState(false);
   const [status, setStatus] = useState("init"); // init|loading|ready|error
   const [statusMsg, setStatusMsg] = useState("初始化...");
   const [handCnt, setHandCnt] = useState(-1); // -1=未检测, 0=无手, N=有手
@@ -854,6 +875,17 @@ export function ArView({
         drawSpecularHighlight(ctx, renderLength, nw, env.brightness, f, glossFactor, shapeProfile);
         ctx.restore();
       }
+
+      // ── 当前校准指高亮（珊瑚描边；仅视觉提示，不参与贴合数学）──
+      if (f === activeFingerRef.current) {
+        ctx.save();
+        applyNailGeometryTransform(ctx, renderGeometry);
+        drawNailShape(ctx, tex ? renderLength : nl, nw, f, shapeProfile);
+        ctx.lineWidth = Math.max(2, nw * 0.08);
+        ctx.strokeStyle = "#ff8a73";
+        ctx.stroke();
+        ctx.restore();
+      }
     }
   }
 
@@ -871,6 +903,7 @@ export function ArView({
     setStatus("loading");
     setStatusMsg("正在准备摄像头...");
     setDiag([]);
+    setRecognitionFailed(false);
     setUserStarted(true);
   };
 
@@ -879,6 +912,7 @@ export function ArView({
     setStatusMsg("请点击按钮启动摄像头");
     setHandCnt(-1);
     setDiag([]);
+    setRecognitionFailed(false);
     setUserStarted(false);
   };
 
@@ -923,6 +957,25 @@ export function ArView({
   useEffect(() => {
     nailStylesRef.current = nailStyles ?? [];
   }, [nailStyles]);
+
+  useEffect(() => {
+    activeFingerRef.current = activeFinger ?? null;
+  }, [activeFinger]);
+
+  useEffect(() => {
+    cameraActiveChangeRef.current = onCameraActiveChange;
+  }, [onCameraActiveChange]);
+
+  // §7.1 Step 1「开启实时摄像头」：页面来源卡片递增 startSignal 时代为触发一次启动。
+  // userStarted 刻意不进依赖：信号只在未启动状态下消费，启动中的重复信号忽略。
+  // 启动经微任务触发：effect 同步路径不调用含 setState 的启动函数。
+  useEffect(() => {
+    if (startSignal <= 0) return;
+    if (lastStartSignalRef.current === startSignal) return;
+    lastStartSignalRef.current = startSignal;
+    if (!userStarted) queueMicrotask(() => handleStartCamera());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startSignal]);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -975,10 +1028,12 @@ export function ArView({
     // 用户离开当前画面（切换标签页/应用、最小化窗口、离开站点）时立即停用摄像头，
     // 与“画面仅在内存中处理”的隐私约定一致；返回页面后需重新点击开启。
     function teardownToInit() {
+      cameraActiveChangeRef.current?.(false);
       setStatus("init");
       setStatusMsg("请点击按钮启动摄像头");
       setHandCnt(-1);
       setDiag([]);
+      setRecognitionFailed(false);
       orientationRef.current = "none";
       orientationCandidateRef.current = { orientation: "ambiguous", frames: 0 };
       palmDepthSmoothRef.current = NaN;
@@ -991,6 +1046,8 @@ export function ArView({
       updateFingerVisibility([false, false, false, false, false]);
       setUserStarted(false); // 触发本 effect 的 cleanup：dead=true + releaseStream()
     }
+    // 暴露给渲染层「关闭摄像头」按钮；effect 重启时覆盖，卸载时清理。
+    teardownRef.current = teardownToInit;
 
     function handleVisibilityChange() {
       if (document.visibilityState === "hidden") teardownToInit();
@@ -1323,6 +1380,7 @@ export function ArView({
         log("8/8 启动推理循环...");
         let sending = false;
         let lastInferenceAt = Number.NEGATIVE_INFINITY;
+        let consecutiveErrors = 0;
         async function loop(timestamp: number) {
           if (dead || !handsInst || !video) return;
           if (
@@ -1334,8 +1392,14 @@ export function ArView({
             lastInferenceAt = timestamp;
             try {
               await handsInst.send({ image: video });
+              consecutiveErrors = 0;
             } catch {
-              // 忽略单帧错误
+              // 单帧错误忽略；连续失败达到阈值时明确暴露给用户，不再静默吞掉。
+              consecutiveErrors += 1;
+              if (consecutiveErrors === 30) {
+                log("× 连续 30 帧推理失败，手部识别暂时不可用");
+                setRecognitionFailed(true);
+              }
             } finally {
               sending = false;
             }
@@ -1348,6 +1412,7 @@ export function ArView({
         setStatus("ready");
         setStatusMsg("就绪");
         log("系统就绪 √");
+        cameraActiveChangeRef.current?.(true);
       } catch (err) {
         const m = err instanceof Error ? err.message : String(err);
         log("× " + m);
@@ -1363,6 +1428,8 @@ export function ArView({
     start();
     return () => {
       dead = true;
+      teardownRef.current = null;
+      cameraActiveChangeRef.current?.(false);
       releaseStream();
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       window.removeEventListener("pagehide", handlePageHide);
@@ -1410,34 +1477,46 @@ export function ArView({
             点击后浏览器会请求摄像头权限，请允许
           </p>
           {diag.length > 0 && (
-            <div className="mt-4 w-full max-w-xs bg-black/60 rounded-lg p-2 max-h-20 overflow-y-auto border border-pink-500/20">
-              {diag.map((d, i) => (
-                <p key={i} className="text-[9px] font-mono leading-tight mb-0.5 text-gray-300">{d}</p>
-              ))}
-            </div>
+            <details className="mt-4 w-full max-w-xs rounded-lg border border-pink-500/20 bg-black/60 p-2">
+              <summary className="cursor-pointer select-none px-1 text-[11px] text-gray-300">
+                技术详情
+              </summary>
+              <div className="mt-1 max-h-20 overflow-y-auto">
+                {diag.map((d, i) => (
+                  <p key={i} className="text-[11px] font-mono leading-tight mb-0.5 text-gray-300">{d}</p>
+                ))}
+              </div>
+            </details>
           )}
         </div>
       )}
 
-      {/* 诊断面板 — 始终显示（调试阶段） */}
+      {/* 诊断面板 — 逐步摄像头日志收进「技术详情」折叠区（§7.6，默认收起） */}
       {userStarted && status !== "ready" && (
-        <div className="absolute top-1 left-1 right-1 z-20 bg-black/80 rounded-lg p-2 max-h-40 overflow-y-auto border border-pink-500/30">
-          {diag.map((d, i) => (
-            <p
-              key={i}
-              className={`text-[9px] font-mono leading-tight mb-0.5 ${
-                d.includes("×")
-                  ? "text-red-300"
-                  : d.includes("√")
-                    ? "text-green-300"
-                    : d.includes("首次")
-                      ? "text-yellow-200"
-                      : "text-gray-300"
-              }`}
-            >
-              {d}
-            </p>
-          ))}
+        <div className="absolute top-1 left-1 right-1 z-20 bg-black/80 rounded-lg p-2 border border-pink-500/30">
+          <details>
+            <summary className="cursor-pointer select-none px-1 py-0.5 text-[12px] text-gray-300">
+              技术详情
+            </summary>
+            <div className="mt-1 max-h-40 overflow-y-auto">
+              {diag.map((d, i) => (
+                <p
+                  key={i}
+                  className={`text-[11px] font-mono leading-tight mb-0.5 ${
+                    d.includes("×")
+                      ? "text-red-300"
+                      : d.includes("√")
+                        ? "text-green-300"
+                        : d.includes("首次")
+                          ? "text-yellow-200"
+                          : "text-gray-300"
+                  }`}
+                >
+                  {d}
+                </p>
+              ))}
+            </div>
+          </details>
         </div>
       )}
 
@@ -1448,7 +1527,7 @@ export function ArView({
           <p className="text-sm px-6 text-center">{statusMsg}</p>
           {status === "error" && (
             <div className="mt-4 flex flex-col items-center gap-2 px-6 text-center">
-              <p className="max-w-xs text-xs leading-5 text-white/70">
+              <p className="max-w-xs text-xs leading-5 text-white/85">
                 如果浏览器已经拒绝摄像头，请点击地址栏左侧的网站权限图标，把摄像头改为“允许”，然后刷新页面或点下面按钮重试。
               </p>
               <button
@@ -1466,9 +1545,38 @@ export function ArView({
         </div>
       )}
 
-      {/* 反转手按钮 — 前置摄像头镜像补偿 */}
+      {/* 连续推理失败覆盖层：不再静默吞错，给用户明确出路 */}
+      {userStarted && status === "ready" && recognitionFailed && (
+        <div className="absolute inset-0 z-30 flex flex-col items-center justify-center gap-2 bg-black/70 px-6 text-center text-white">
+          <p className="text-sm font-medium">手部识别暂时失败</p>
+          <p className="text-xs leading-5 text-white/85">
+            连续多帧推理未成功。可以重试，或改用上传照片试色。
+          </p>
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              onClick={resetCameraStart}
+              className="rounded-full bg-[var(--surface)] px-4 py-2 text-xs font-semibold text-[#ac5145] shadow-sm active:scale-95"
+            >
+              重试
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                teardownRef.current?.();
+                onSuggestUpload?.();
+              }}
+              className="rounded-full border border-white/30 px-4 py-2 text-xs font-medium text-white/90 transition-colors hover:bg-white/10"
+            >
+              改用上传照片试色
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 反转手 / 关闭摄像头 — 运行中控制按钮 */}
       {userStarted && status === "ready" && (
-        <div className="absolute top-3 right-3 z-20">
+        <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-2">
           <button
             type="button"
             onClick={() => {
@@ -1478,13 +1586,24 @@ export function ArView({
                 return next;
               });
             }}
-            className={`px-2.5 py-1 text-[10px] rounded-full border transition-all
+            className={`px-2.5 py-1 text-[12px] rounded-full border transition-[transform,background-color,border-color,box-shadow,color]
               ${handFlip
                 ? "bg-pink-500/60 text-white border-pink-400/60 shadow-sm shadow-pink-500/20"
-                : "bg-black/40 text-white/60 border-white/20 hover:bg-black/50"
+                : "bg-black/40 text-white/85 border-white/20 hover:bg-black/50"
               }`}
           >
             <span className="inline-flex items-center gap-1"><Icon name="refresh" className="h-3.5 w-3.5" />{handFlip ? "已反转" : "反转手"}</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              teardownRef.current?.();
+              // 焦点返回「开启摄像头」按钮：等 init 态按钮重新挂载后聚焦
+              window.setTimeout(() => startBtnRef.current?.focus(), 80);
+            }}
+            className="px-2.5 py-1 text-[12px] rounded-full border bg-black/40 text-white/85 border-white/20 hover:bg-black/50 transition-[transform,background-color,border-color,box-shadow,color]"
+          >
+            <span className="inline-flex items-center gap-1"><Icon name="x" className="h-3.5 w-3.5" />关闭摄像头</span>
           </button>
         </div>
       )}
@@ -1529,7 +1648,7 @@ export function ArView({
               </div>
             </>
           )}
-          <span className="inline-block text-xs text-white/70 bg-black/30 px-3 py-1 rounded-full ">
+          <span className="inline-block text-xs text-white/85 bg-black/30 px-3 py-1 rounded-full ">
             {handCnt > 0
               ? "检测到 " + handCnt + " 只手"
               : handCnt === 0

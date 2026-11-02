@@ -25,7 +25,8 @@ export type IconName =
   | "settings"
   | "bookmark"
   | "circle"
-  | "diamond";
+  | "diamond"
+  | "x";
 
 const ICON_PATHS: Record<IconName, ReactNode> = {
   camera: (
@@ -151,6 +152,12 @@ const ICON_PATHS: Record<IconName, ReactNode> = {
     <>
       <path d="M6 3h12l4 6-10 12L2 9Z" />
       <path d="M11 3 8 9l4 12 4-12-3-6" />
+    </>
+  ),
+  x: (
+    <>
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
     </>
   ),
 };

@@ -1,11 +1,12 @@
 /**
  * /editor 纹理试色页的纯逻辑状态模块（不依赖 DOM 与并行代理文件，可被 node:test 直接测试）。
  *
- * 覆盖四类可测逻辑：
+ * 覆盖可测逻辑：
  * 1) activeTexture 解析（钉选纹理优先 → 套装指位匹配 → 缺失分支提示）；
  * 2) placement 替换（同一甲面框重贴时先移除旧贴合）；
- * 3) history 撤销栈（变更前 push、undo 弹栈、空栈不动）；
- * 4) 手动甲面框创建（尺寸钳制与空闲指位推断）。
+ * 3) 编辑快照撤销栈（frames + placements 一起 push/undo，空栈不动）与 800ms 合并策略；
+ * 4) 手动甲面框创建（尺寸钳制与空闲指位推断）；
+ * 5) 应用全部（套装 → 全部甲面框，跳过未匹配指位并计数）。
  *
  * placement / frame 相关类型按结构化最小接口编码，兼容
  * `@/lib/canvas/placements` 的 NailPlacement 与
@@ -17,6 +18,11 @@ import {
   type NailTextureSet,
 } from "./nail-texture-sets.ts";
 import type { NailTextureCandidate } from "./nail-texture-recognition/types.ts";
+import type { NailDetectionRegion } from "./nail-detection-cascade.ts";
+import {
+  buildPlacementFromFrame,
+  type NailPlacement,
+} from "./canvas/placements.ts";
 
 /** 指位数量（0=拇指 … 4=小指）。 */
 export const FINGER_COUNT = 5;
@@ -132,23 +138,111 @@ export function replacePlacementForFrame<T extends PlacementLike>(
   return [...placements.filter((item) => item.frameId !== next.frameId), next];
 }
 
-/** 变更前把当前贴合列表压入撤销栈（浅拷贝快照）。 */
-export function pushPlacementHistory<T>(
-  history: readonly (readonly T[])[],
-  snapshot: readonly T[]
-): T[][] {
-  return [...history.map((entry) => [...entry]), [...snapshot]];
+/** 一次编辑快照：完整记录甲面框与贴合两个列表（撤销恢复两者）。 */
+export interface EditorSnapshot {
+  frames: NailDetectionRegion[];
+  placements: NailPlacement[];
 }
 
-/** 撤销：弹栈恢复上一次快照；空栈返回 null（调用方保持现状）。 */
-export function undoPlacementHistory<T>(
-  history: readonly (readonly T[])[]
-): { placements: T[]; history: T[][] } | null {
+function cloneSnapshot(snapshot: EditorSnapshot): EditorSnapshot {
+  return {
+    frames: snapshot.frames.map((frame) => ({ ...frame })),
+    // adjust 是嵌套对象：一并浅拷贝，避免快照间共享可变引用。
+    placements: snapshot.placements.map((placement) => ({
+      ...placement,
+      adjust: { ...placement.adjust },
+    })),
+  };
+}
+
+/** 变更前把当前编辑快照压入撤销栈（逐条浅拷贝，不与现值共享数组）。 */
+export function pushEditorSnapshot(
+  history: readonly EditorSnapshot[],
+  snapshot: EditorSnapshot
+): EditorSnapshot[] {
+  return [...history.map(cloneSnapshot), cloneSnapshot(snapshot)];
+}
+
+/** 撤销：弹栈恢复上一次快照（frames 与 placements 一起恢复）；空栈返回 null。 */
+export function undoEditorSnapshot(
+  history: readonly EditorSnapshot[]
+): { snapshot: EditorSnapshot; history: EditorSnapshot[] } | null {
   if (history.length === 0) return null;
   return {
-    placements: [...history[history.length - 1]],
-    history: history.slice(0, -1).map((entry) => [...entry]),
+    snapshot: cloneSnapshot(history[history.length - 1]),
+    history: history.slice(0, -1).map(cloneSnapshot),
   };
+}
+
+/** 同一操作键在该窗口内连续触发时合并入栈（拖动/滑杆/键盘微调不刷栈）。 */
+export const HISTORY_COALESCE_WINDOW_MS = 800;
+
+export function shouldCoalesceHistory(
+  lastKey: string | null,
+  lastAt: number,
+  key: string,
+  now: number,
+  windowMs: number = HISTORY_COALESCE_WINDOW_MS
+): boolean {
+  return lastKey === key && now - lastAt < windowMs;
+}
+
+/** 应用全部（套装 → 全部甲面框）的结果统计。 */
+export interface ApplySetToFramesResult {
+  /** 替换后的完整贴合列表（未命中的既有贴合原样保留） */
+  placements: NailPlacement[];
+  /** 成功贴合的甲面框数 */
+  applied: number;
+  /** 跳过数（指位为空或该指无纹理） */
+  skipped: number;
+}
+
+/**
+ * 把套装纹理应用到全部甲面框（§5.4.4 应用全部）：
+ * 逐框按指位解析纹理并 buildPlacementFromFrame 替换既有贴合；
+ * 指位为空或该指无纹理的框跳过并计数，由调用方提示数量。
+ */
+export function applySetToFrames(params: {
+  set: NailTextureSet;
+  frames: readonly FrameLike[];
+  placements: readonly NailPlacement[];
+  aspectOf(src: string): number;
+}): ApplySetToFramesResult {
+  const { set, frames, placements, aspectOf } = params;
+  let next = [...placements];
+  let applied = 0;
+  let skipped = 0;
+  for (const frame of frames) {
+    const finger = frame.assignedFinger;
+    if (finger === null || finger < 0 || finger >= FINGER_COUNT) {
+      skipped += 1;
+      continue;
+    }
+    const texture = textureSrcFor(set, finger);
+    if (!texture) {
+      skipped += 1;
+      continue;
+    }
+    const placement = buildPlacementFromFrame(
+      {
+        id: frame.id,
+        cx: frame.cx,
+        cy: frame.cy,
+        angle: frame.angle,
+        nl: frame.nl,
+        nw: frame.nw,
+        assignedFinger: finger,
+      },
+      {
+        key: textureKeyFor(set.id, finger),
+        src: texture.src,
+        aspect: aspectOf(texture.src),
+      }
+    );
+    next = replacePlacementForFrame(next, placement);
+    applied += 1;
+  }
+  return { placements: next, applied, skipped };
 }
 
 export interface ManualFrame {

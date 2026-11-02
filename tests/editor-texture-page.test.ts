@@ -3,17 +3,20 @@ import test from "node:test";
 
 import {
   applyRefinedFrameMasks,
+  applySetToFrames,
   buildManualFrame,
   firstUnoccupiedFinger,
   frameToMatteCandidate,
   MISSING_FINGER_HINT,
   NO_SELECTION_HINT,
   parsePinnedTextureKey,
-  pushPlacementHistory,
+  pushEditorSnapshot,
   replacePlacementForFrame,
   resolveActiveTexture,
+  shouldCoalesceHistory,
   textureKeyFor,
-  undoPlacementHistory,
+  undoEditorSnapshot,
+  type EditorSnapshot,
 } from "../src/lib/editor-texture-state.ts";
 import {
   closestTextureSet,
@@ -168,37 +171,140 @@ test("replacePlacementForFrame appends when the frame has no placement yet", () 
   assert.equal(result[result.length - 1]?.frameId, "frame-9");
 });
 
-// ── history 撤销栈 ──
+// ── 编辑快照撤销栈（§5.6）：frames + placements 一起 push / undo ──
 
-test("pushPlacementHistory snapshots the current list without aliasing", () => {
-  const current: FakePlacement[] = [...FAKE_PLACEMENTS];
-  const history = pushPlacementHistory([], current);
+function fakeSnapshotFrame(id: string, assignedFinger: number | null) {
+  return { id, cx: 10, cy: 20, angle: 0, nl: 60, nw: 30, assignedFinger };
+}
+
+test("pushEditorSnapshot snapshots frames and placements without aliasing", () => {
+  const placements: FakePlacement[] = [...FAKE_PLACEMENTS];
+  const snapshot: EditorSnapshot = {
+    frames: [fakeSnapshotFrame("f1", 0)],
+    placements,
+  };
+  const history = pushEditorSnapshot([], snapshot);
   assert.equal(history.length, 1);
-  current.push({ id: "px", frameId: "x", label: "later" });
+  snapshot.frames.push(fakeSnapshotFrame("f2", 1));
+  placements.push({ id: "px", frameId: "x", label: "later" });
   // 快照是浅拷贝：之后对原数组的追加不影响历史。
-  assert.equal(history[0]?.length, 2);
+  assert.equal(history[0]?.frames.length, 1);
+  assert.equal(history[0]?.placements.length, 2);
 });
 
-test("undoPlacementHistory pops the last snapshot and keeps the rest", () => {
-  const snapshotA: FakePlacement[] = [{ id: "p1", frameId: "frame-1", label: "a" }];
-  const snapshotB: FakePlacement[] = [
-    { id: "p1", frameId: "frame-1", label: "a" },
-    { id: "p2", frameId: "frame-2", label: "b" },
-  ];
-  const history = [snapshotA, snapshotB];
-  const result = undoPlacementHistory(history);
+test("undoEditorSnapshot restores the previous frames and placements together", () => {
+  let history = pushEditorSnapshot([], {
+    frames: [fakeSnapshotFrame("f1", 0)],
+    placements: [],
+  });
+  history = pushEditorSnapshot(history, {
+    frames: [fakeSnapshotFrame("f1", 0), fakeSnapshotFrame("f2", 1)],
+    placements: [
+      {
+        id: "placement-f1",
+        frameId: "f1",
+        textureKey: "set-a/0",
+        textureSrc: "/nail-textures/set-a/finger-1.png",
+        aspect: 1,
+        angle: 0,
+        baseCx: 10,
+        baseCy: 20,
+        baseLength: 60,
+        baseWidth: 30,
+        cx: 10,
+        cy: 20,
+        length: 60,
+        width: 30,
+        adjust: { lengthScale: 1, widthScale: 1, rootOffset: 0 },
+      },
+    ],
+  });
+  assert.equal(history.length, 2);
+
+  const result = undoEditorSnapshot(history);
   assert.ok(result);
-  assert.equal(result.placements.length, 2);
+  assert.equal(result.snapshot.frames.length, 2);
+  assert.equal(result.snapshot.placements.length, 1);
   assert.equal(result.history.length, 1);
 
-  const again = undoPlacementHistory(result.history);
+  const again = undoEditorSnapshot(result.history);
   assert.ok(again);
-  assert.equal(again.placements.length, 1);
+  assert.equal(again.snapshot.frames.length, 1);
+  assert.equal(again.snapshot.placements.length, 0);
   assert.equal(again.history.length, 0);
 });
 
-test("undoPlacementHistory returns null on an empty stack", () => {
-  assert.equal(undoPlacementHistory([]), null);
+test("undoEditorSnapshot returns null on an empty stack", () => {
+  assert.equal(undoEditorSnapshot([]), null);
+});
+
+// ── 800ms 合并策略（拖动/滑杆/微调不刷栈） ──
+
+test("shouldCoalesceHistory merges same-key repeats inside 800ms and splits otherwise", () => {
+  assert.equal(shouldCoalesceHistory("adjust:p1", 1000, "adjust:p1", 1500), true);
+  assert.equal(shouldCoalesceHistory("adjust:p1", 1000, "adjust:p1", 1900), false);
+  assert.equal(shouldCoalesceHistory("adjust:p1", 1000, "adjust:p2", 1200), false);
+  assert.equal(shouldCoalesceHistory(null, 0, "adjust:p1", 1200), false);
+});
+
+// ── 应用全部（§5.4.4）：套装按指位贴合全部甲面框 ──
+
+test("applySetToFrames places every frame whose finger has a texture and replaces existing", () => {
+  const frames = [
+    fakeSnapshotFrame("f1", 0),
+    fakeSnapshotFrame("f2", 2),
+  ];
+  const existing = [
+    {
+      id: "placement-f1",
+      frameId: "f1",
+      textureKey: "set-b/4",
+      textureSrc: "/nail-textures/set-b/finger-5.png",
+      aspect: 1,
+      angle: 0,
+      baseCx: 10,
+      baseCy: 20,
+      baseLength: 60,
+      baseWidth: 30,
+      cx: 10,
+      cy: 20,
+      length: 60,
+      width: 30,
+      adjust: { lengthScale: 1, widthScale: 1, rootOffset: 0 },
+    },
+  ];
+  const result = applySetToFrames({
+    set: FIXTURE_SETS[0]!,
+    frames,
+    placements: existing,
+    aspectOf: () => 1.2,
+  });
+  assert.equal(result.applied, 2);
+  assert.equal(result.skipped, 0);
+  assert.equal(result.placements.length, 2);
+  const f1 = result.placements.find((item) => item.frameId === "f1");
+  // 同框已有贴合被套装纹理替换。
+  assert.equal(f1?.textureKey, "set-a/0");
+  assert.equal(f1?.textureSrc, "/nail-textures/set-a/finger-1.png");
+  const f2 = result.placements.find((item) => item.frameId === "f2");
+  assert.equal(f2?.textureKey, "set-a/2");
+});
+
+test("applySetToFrames skips frames without a finger or without that finger texture", () => {
+  const frames = [
+    fakeSnapshotFrame("f1", null),
+    fakeSnapshotFrame("f2", 1), // 套装A没有食指纹理
+    fakeSnapshotFrame("f3", 2),
+  ];
+  const result = applySetToFrames({
+    set: FIXTURE_SETS[0]!,
+    frames,
+    placements: [],
+    aspectOf: () => 1,
+  });
+  assert.equal(result.applied, 1);
+  assert.equal(result.skipped, 2);
+  assert.equal(result.placements.length, 1);
 });
 
 // ── 手动甲面框 ──

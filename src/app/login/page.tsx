@@ -168,10 +168,10 @@ function LoginForm() {
   };
 
   const inputCls =
-    "w-full rounded-xl border border-pink-200 bg-[var(--surface)] px-4 py-3 text-[15px] text-[#292a27] outline-none transition placeholder:text-[#8a8b81] focus:border-pink-400 focus:ring-2 focus:ring-pink-100";
+    "w-full rounded-xl border border-pink-200 bg-[var(--surface)] px-4 py-3 text-[15px] text-[#292a27] outline-none transition placeholder:text-[#6f7066] focus:border-pink-400 focus:ring-2 focus:ring-pink-100";
 
   return (
-    <AppShell eyebrow="会员中心" title="登录 / 注册" description="登录即注册：首次使用任一方式登录会自动创建账号。登录后解锁云端作品、收藏与 AI 配额。">
+    <AppShell eyebrow="会员中心" title="登录 / 注册" description="登录即注册：首次使用任一方式登录会自动创建账号。登录后可管理账号资料、登录方式与生图配额。云端作品与跨设备同步正在开发中。">
       <div className="mx-auto w-full max-w-md">
         <div className="rounded-3xl border border-pink-100 bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] sm:p-8">
           <div className="space-y-4">
@@ -262,7 +262,7 @@ function LoginForm() {
 
           {/* 微信登录 */}
           <div className="mt-6">
-            <div className="mb-3 flex items-center gap-3 text-xs text-[#8a8b81]">
+            <div className="mb-3 flex items-center gap-3 text-xs text-[#6f7066]">
               <span className="h-px flex-1 bg-pink-100" />
               其他方式
               <span className="h-px flex-1 bg-pink-100" />
@@ -283,9 +283,9 @@ function LoginForm() {
           </div>
         </div>
 
-        <p className="mt-5 text-center text-xs leading-relaxed text-[#8a8b81]">
+        <p className="mt-5 text-center text-xs leading-relaxed text-[#6f7066]">
           登录即表示你同意 <Link href="/privacy" className="text-[#ac5145] underline-offset-2 hover:underline">隐私政策</Link>
-          ；微信首次登录后需补绑手机号；注册时选择年龄区间，14 岁以下默认不参与「用户改进计划」数据收集。
+          ；微信首次登录后需补绑手机号。
         </p>
       </div>
     </AppShell>

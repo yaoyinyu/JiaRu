@@ -1,0 +1,50 @@
+/* NailArtPicker：AppDialog 宿主内的两栏工作区布局。
+
+   AppDialog 面板宽度固定为 min(520px, 100%)，且组件位于 src/components/ui/
+   （本次任务不修改共享 UI 组件）。甲面区域编辑需要并排画布与调整侧栏，
+   这里用 body 标记属性做作用域化放宽：仅当本组件挂载时生效；本组件为
+   独占模态，期间不会有其他弹层共存，卸载即移除标记，不影响全站其他弹层。 */
+
+:global(body[data-ar-picker-open]) [role="dialog"] {
+  width: min(1180px, 100%);
+}
+
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: calc(100dvh - 16rem);
+  min-height: 400px;
+}
+
+.canvasPane {
+  display: flex;
+  flex: 1 1 auto;
+  min-height: 0;
+  align-items: center;
+  justify-content: center;
+  overflow: auto;
+  padding: 12px;
+  border-radius: 24px;
+  background: #17181a;
+}
+
+.sidePane {
+  width: 100%;
+  min-height: 0;
+  overflow: auto;
+  padding-right: 2px;
+}
+
+@media (min-width: 1024px) {
+  .workspace {
+    flex-direction: row;
+  }
+
+  .sidePane {
+    width: 380px;
+    flex: none;
+    border-left: 1px solid var(--line);
+    padding-left: 16px;
+  }
+}

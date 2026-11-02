@@ -67,7 +67,7 @@ export function ImprovementProgramToggle() {
               <span className="grid">
                 <span
                   aria-hidden={!enabled}
-                  className={`col-start-1 row-start-1 rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#a34b3f] transition-opacity duration-300 motion-reduce:transition-none ${
+                  className={`col-start-1 row-start-1 rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[12px] font-semibold tracking-wide text-[#a34b3f] transition-opacity duration-300 motion-reduce:transition-none ${
                     enabled ? "opacity-100" : "invisible opacity-0"
                   }`}
                 >
@@ -75,7 +75,7 @@ export function ImprovementProgramToggle() {
                 </span>
                 <span
                   aria-hidden={enabled}
-                  className={`col-start-1 row-start-1 rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[10px] font-semibold tracking-wide text-[#a34b3f] transition-opacity duration-300 motion-reduce:transition-none ${
+                  className={`col-start-1 row-start-1 rounded-full border border-pink-200/60 bg-pink-50/80 px-2.5 py-0.5 text-[12px] font-semibold tracking-wide text-[#a34b3f] transition-opacity duration-300 motion-reduce:transition-none ${
                     enabled ? "invisible opacity-0" : "opacity-100"
                   }`}
                 >
@@ -92,7 +92,7 @@ export function ImprovementProgramToggle() {
                 }`}
               >
                 <div className="overflow-hidden">
-                  <p className="text-xs leading-5 text-[#75766c]">
+                  <p className="text-xs leading-5 text-[#67685f]">
                     开启时，手部照片等数据可能被上传，用于改进识别与生成效果。你随时可以关闭。
                   </p>
                 </div>
@@ -104,7 +104,7 @@ export function ImprovementProgramToggle() {
                 }`}
               >
                 <div className="overflow-hidden">
-                  <p className="text-xs leading-5 text-[#75766c]">
+                  <p className="text-xs leading-5 text-[#67685f]">
                     已关闭：所有处理均在浏览器本地完成，不会上传任何数据。可随时重新开启。
                   </p>
                 </div>

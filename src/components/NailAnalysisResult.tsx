@@ -40,7 +40,7 @@ function SummaryCard({
         <dl className="mt-3 grid grid-cols-2 gap-2 text-[11px] sm:grid-cols-3">
           {stats.map((stat) => (
             <div key={stat.label} className="rounded-xl bg-[var(--surface)] px-2 py-1">
-              <dt className="text-[#75766c]">{stat.label}</dt>
+              <dt className="text-[#67685f]">{stat.label}</dt>
               <dd className="font-medium">{stat.value}</dd>
             </div>
           ))}
@@ -97,7 +97,7 @@ export function NailAnalysisResult({ result }: NailAnalysisResultProps) {
           stats={skinTone.stats}
         />
       ) : (
-        <p className="rounded-2xl border border-slate-200 bg-[var(--surface)] px-4 py-2 text-xs text-[#75766c]">
+        <p className="rounded-2xl border border-slate-200 bg-[var(--surface)] px-4 py-2 text-xs text-[#67685f]">
           肤色采样质量不足，已隐藏肤色分析，颜色建议改用场合与风格规则。
         </p>
       )}
@@ -105,7 +105,7 @@ export function NailAnalysisResult({ result }: NailAnalysisResultProps) {
       {nailHealth ? (
         <SummaryCard title={nailHealth.title} severity={nailHealth.severity} messages={nailHealth.messages} />
       ) : (
-        <p className="rounded-2xl border border-slate-200 bg-[var(--surface)] px-4 py-2 text-xs text-[#75766c]">
+        <p className="rounded-2xl border border-slate-200 bg-[var(--surface)] px-4 py-2 text-xs text-[#67685f]">
           {describeWarning("nail_health_requires_mask")}
         </p>
       )}

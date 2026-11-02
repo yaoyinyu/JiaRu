@@ -250,6 +250,55 @@ export function placementDrawList(
   }));
 }
 
+/** 导出前的纹理装载分区：可导出与纹理加载失败两组。 */
+export interface ExportTexturePartition {
+  /** 纹理已就绪、可直接导出的贴合 */
+  ok: NailPlacement[];
+  /** 纹理加载失败、导出须跳过的贴合 */
+  failed: NailPlacement[];
+  /** 失败涉及的去重纹理 src */
+  failedSources: string[];
+}
+
+/**
+ * 按纹理装载状态把贴合分成可导出/失败两组（§5.8 导出失败治理）。
+ * isLoaded 由调用方传入（如画布的已装载纹理缓存 has），保持纯函数可测。
+ */
+export function partitionExportTextures(
+  placements: readonly NailPlacement[],
+  isLoaded: (src: string) => boolean,
+): ExportTexturePartition {
+  const ok: NailPlacement[] = [];
+  const failed: NailPlacement[] = [];
+  const failedSourceSet = new Set<string>();
+  for (const placement of placements) {
+    if (isLoaded(placement.textureSrc)) {
+      ok.push(placement);
+    } else {
+      failed.push(placement);
+      failedSourceSet.add(placement.textureSrc);
+    }
+  }
+  return { ok, failed, failedSources: [...failedSourceSet] };
+}
+
+/** 键盘微调步长（原图像素域）：方向键 2px，Shift + 方向键 8px。 */
+export const NUDGE_STEP_PX = 2;
+export const NUDGE_STEP_LARGE_PX = 8;
+
+/** 把坐标钳制到原图范围内（拖动与键盘微调共用；空图原样返回 0 下界）。 */
+export function clampToImageBounds(
+  x: number,
+  y: number,
+  imageWidth: number,
+  imageHeight: number,
+): { x: number; y: number } {
+  return {
+    x: Math.min(Math.max(x, 0), Math.max(0, imageWidth)),
+    y: Math.min(Math.max(y, 0), Math.max(0, imageHeight)),
+  };
+}
+
 /** 纹理图缓存：同一 src 的并发/重复加载复用同一 Image（失败不缓存，可重试） */
 const textureImageCache = new Map<string, Promise<HTMLImageElement>>();
 

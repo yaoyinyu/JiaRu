@@ -5,11 +5,12 @@
  * 采样推导「灵感色」（推导逻辑见 src/lib/gallery-inspiration.ts）。
  *
  * - `variant="banner"`：空态时在上传区上方展示的横向大卡。
- * - `variant="mini"`：照片载入后侧栏里的紧凑行，点击色块可把灵感预设色
- *   涂到当前选中手指。
+ * - `variant="mini"`：照片载入后侧栏里的紧凑行，点击应用最接近主色的
+ *   纹理套装（映射逻辑见 src/lib/nail-texture-sets.ts 的 closestTextureSet；
+ *   应用后由页面在识别出甲面框时自动贴合一次，见编辑器 applyInspirationSet）。
  *
- * 采样失败（图片加载失败等）时只降级为不显示推荐色，卡片本身仍可用，
- * 不阻塞试色主流程。
+ * 灵感色提取区分「提取中 / 已完成 / 未能提取」三态：提取失败或无相近
+ * 预设色时明确提示手动选择纹理套装，不会永久停留在「正在提取」。
  */
 
 import { useEffect, useState } from "react";
@@ -30,7 +31,7 @@ type Props = {
   variant?: "banner" | "mini";
   /** 灵感预设色推导完成时回调（参数为 PRESET_COLORS 中的色值；失败为 null）。 */
   onPresetColor?: (preset: { name: string; color: string } | null) => void;
-  /** 仅 mini 形态：用户点击卡片时把推荐色应用到当前手指。 */
+  /** 仅 mini 形态：用户点击卡片时预选推荐色对应的纹理套装。 */
   onApplyPreset?: (preset: { name: string; color: string }) => void;
 };
 
@@ -70,13 +71,19 @@ export function GalleryInspirationCard({
   onPresetColor,
   onApplyPreset,
 }: Props) {
-  const [preset, setPreset] = useState<{ name: string; color: string } | null>(null);
+  // 提取结果带 src 身份：src 变化后旧结果作废，渲染期派生回 loading，
+  // 避免 effect 内同步 setState（react-hooks/set-state-in-effect）。
+  const [extractionState, setExtractionState] = useState<{
+    src: string;
+    preset: { name: string; color: string } | null;
+    state: "done" | "failed";
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
     derivePresetColorFromImage(src).then((result) => {
       if (cancelled) return;
-      setPreset(result);
+      setExtractionState({ src, preset: result, state: result ? "done" : "failed" });
       onPresetColor?.(result);
     });
     return () => {
@@ -86,11 +93,17 @@ export function GalleryInspirationCard({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
+  const extractionActive = extractionState !== null && extractionState.src === src;
+  const preset = extractionActive ? extractionState.preset : null;
+  const extraction: "loading" | "done" | "failed" = extractionActive
+    ? extractionState.state
+    : "loading";
+
   const swatch = (
     <span
       className="h-9 w-9 shrink-0 rounded-full border-2 border-white shadow-[var(--neu-out-sm)]"
       style={{ backgroundColor: preset ? preset.color : "#f0e2db" }}
-      title={preset ? `灵感色：${preset.name}` : "正在提取灵感色"}
+      title={preset ? `灵感色：${preset.name}` : extraction === "failed" ? "未能提取灵感色" : "正在提取灵感色"}
     />
   );
 
@@ -100,16 +113,20 @@ export function GalleryInspirationCard({
         type="button"
         onClick={() => preset && onApplyPreset?.(preset)}
         className="flex w-full items-center gap-3 rounded-2xl border border-pink-100/70 bg-[var(--surface)] p-3 text-left transition hover:border-pink-200"
-        title={preset ? `点击把「${preset.name}」涂到当前手指` : undefined}
+        title={preset ? `点击应用「${preset.name}」相近的纹理套装（识别出甲面后自动贴合）` : undefined}
       >
         <span className="relative h-11 w-11 shrink-0 overflow-hidden rounded-xl border border-[var(--line)]">
           <Image src={src} alt={name} width={44} height={44} className="h-full w-full object-cover" />
         </span>
         <span className="min-w-0 flex-1">
-          <span className="block text-[10px] uppercase tracking-[.14em] text-[#ac5145]">灵感参考</span>
+          <span className="block text-[12px] uppercase tracking-[.14em] text-[#ac5145]">灵感参考</span>
           <span className="block truncate text-sm font-medium text-[#292a27]">{name}</span>
-          <span className="mt-0.5 block text-[10px] text-[#75766c]">
-            {preset ? `推荐色：${preset.name}` : "正在提取灵感色…"}
+          <span className="mt-0.5 block text-[12px] text-[#67685f]">
+            {preset
+              ? `推荐色：${preset.name}`
+              : extraction === "failed"
+                ? "未能提取灵感色，可手动选择纹理套装。"
+                : "正在提取灵感色…"}
           </span>
         </span>
         {swatch}
@@ -126,15 +143,19 @@ export function GalleryInspirationCard({
       <div className="min-w-0 flex-1">
         <p className="text-[11px] font-semibold uppercase tracking-[.16em] text-[#ac5145]">灵感款式</p>
         <h2 className="mt-1 text-lg font-semibold text-[#292a27]">{name}</h2>
-        <p className="mt-1.5 text-xs leading-5 text-[#8a8b81]">
+        <p className="mt-1.5 text-xs leading-5 text-[#6f7066]">
           {preset
-            ? <>已为你预选相近的预设色「{preset.name}」，上传手部照片后自动作为初始甲色。</>
-            : "上传一张手部照片，以此为灵感开始试色。"}
+            ? <>已为你预选相近纹理套装，上传照片识别出甲面后将自动贴合，可逐指调整或撤销。</>
+            : extraction === "failed"
+              ? "未能提取灵感色，可手动选择纹理套装。"
+              : "正在提取灵感色…"}
         </p>
       </div>
       <div className="hidden shrink-0 flex-col items-center gap-1.5 sm:flex">
         {swatch}
-        <span className="text-[10px] text-[#75766c]">{preset ? preset.name : "提取中"}</span>
+        <span className="text-[12px] text-[#67685f]">
+          {preset ? preset.name : extraction === "failed" ? "未提取" : "提取中"}
+        </span>
       </div>
     </div>
   );

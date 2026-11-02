@@ -261,7 +261,7 @@ export default function AccountPage() {
 
   if (loadState === "loading") {
     return (
-      <AppShell eyebrow="会员中心" title="账号中心" description="登录后查看云端作品、收藏与配额">
+      <AppShell eyebrow="会员中心" title="账号中心" description="登录后可管理账号资料、登录方式与本地偏好。云端作品同步尚未开放。">
         <div className="mx-auto grid w-full max-w-2xl gap-5" aria-busy="true">
           <ProfileSkeleton />
           <section className={`${cardCls} animate-pulse`} aria-hidden>
@@ -269,7 +269,7 @@ export default function AccountPage() {
             <span className="mt-4 block h-3 w-2/3 rounded-full bg-pink-50" />
             <span className="mt-2 block h-3 w-1/2 rounded-full bg-pink-50" />
           </section>
-          <p className="text-center text-xs text-[#8a8b81]">正在读取账号信息…</p>
+          <p className="text-center text-xs text-[#6f7066]">正在读取账号信息…</p>
         </div>
       </AppShell>
     );
@@ -280,7 +280,7 @@ export default function AccountPage() {
       <AppShell eyebrow="会员中心" title="账号中心" description="账号信息暂时无法读取">
         <div className={`${cardCls} mx-auto max-w-md text-center`} role="alert">
           <p className="text-[15px] font-semibold text-[#292a27]">账号信息加载失败</p>
-          <p className="mt-2 text-sm leading-relaxed text-[#75766c]">
+          <p className="mt-2 text-sm leading-relaxed text-[#67685f]">
             {loadError || "网络不稳定或服务暂时不可用，请稍后重试。"}
           </p>
           <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-center">
@@ -305,7 +305,7 @@ export default function AccountPage() {
 
   if (loadState === "unauthorized" || !me) {
     return (
-      <AppShell eyebrow="会员中心" title="账号中心" description="登录后查看云端作品、收藏与配额">
+      <AppShell eyebrow="会员中心" title="账号中心" description="登录后可管理账号资料、登录方式与本地偏好。云端作品同步尚未开放。">
         <div className={`${cardCls} mx-auto max-w-md text-center`}>
           <p className="mb-4 text-[15px] text-[#67685f]">你还没有登录</p>
           <Link
@@ -314,7 +314,7 @@ export default function AccountPage() {
           >
             去登录 / 注册
           </Link>
-          <p className="mt-4 text-xs text-[#8a8b81]">不登录也能继续使用试色、AI 生图与 AR 试戴</p>
+          <p className="mt-4 text-xs text-[#6f7066]">不登录也能继续使用试色、AI 生图与 AR 试戴</p>
         </div>
       </AppShell>
     );
@@ -346,19 +346,19 @@ export default function AccountPage() {
           <h2 className="mb-4 text-base font-bold text-[#292a27]">账号信息</h2>
           <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div>
-              <dt className="mb-0.5 text-xs text-[#8a8b81]">手机号</dt>
+              <dt className="mb-0.5 text-xs text-[#6f7066]">手机号</dt>
               <dd className={metaValue}>{me.user.phone ?? "未绑定"}</dd>
             </div>
             <div>
-              <dt className="mb-0.5 text-xs text-[#8a8b81]">邮箱</dt>
+              <dt className="mb-0.5 text-xs text-[#6f7066]">邮箱</dt>
               <dd className={metaValue}>{me.user.email ?? "未绑定"}</dd>
             </div>
             <div>
-              <dt className="mb-0.5 text-xs text-[#8a8b81]">注册时间</dt>
+              <dt className="mb-0.5 text-xs text-[#6f7066]">注册时间</dt>
               <dd className={metaValue}>{new Date(me.user.createdAt).toLocaleDateString("zh-CN")}</dd>
             </div>
             <div>
-              <dt className="mb-0.5 text-xs text-[#8a8b81]">账号状态</dt>
+              <dt className="mb-0.5 text-xs text-[#6f7066]">账号状态</dt>
               <dd className={metaValue}>{me.user.status === "active" ? "正常" : me.user.status}</dd>
             </div>
           </dl>
@@ -368,7 +368,7 @@ export default function AccountPage() {
         {!me.user.phone && (
           <section className={`${cardCls} border-amber-200`}>
             <h2 className="mb-1 text-base font-bold text-[#292a27]">绑定手机号</h2>
-            <p className="mb-4 text-xs leading-relaxed text-[#8a8b81]">
+            <p className="mb-4 text-xs leading-relaxed text-[#6f7066]">
               你的微信账号还没有绑定手机号。绑定后可用手机号登录，也是找回账号的重要凭证（合规要求）。
             </p>
             <div className="space-y-3">
@@ -445,13 +445,13 @@ export default function AccountPage() {
         {/* 登录方式管理（§5.2） */}
         <section className={cardCls}>
           <h2 className="mb-1 text-base font-bold text-[#292a27]">登录方式</h2>
-          <p className="mb-4 text-xs text-[#8a8b81]">任一方式均可登录同一账号，至少保留一种</p>
+          <p className="mb-4 text-xs text-[#6f7066]">任一方式均可登录同一账号，至少保留一种</p>
           <ul className="space-y-2.5">
             {me.identities.map((id) => (
               <li key={id.provider} className="flex items-center justify-between rounded-xl border border-pink-100 bg-[var(--surface)] px-4 py-3">
                 <div>
                   <p className="text-sm font-semibold text-[#292a27]">{PROVIDER_LABEL[id.provider] ?? id.provider}</p>
-                  <p className="text-xs text-[#8a8b81]">{id.identifier}</p>
+                  <p className="text-xs text-[#6f7066]">{id.identifier}</p>
                 </div>
                 <button
                   type="button"
@@ -471,7 +471,7 @@ export default function AccountPage() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h2 className="mb-1 text-base font-bold text-[#292a27]">用户改进计划</h2>
-              <p className="text-xs leading-relaxed text-[#8a8b81]">
+              <p className="text-xs leading-relaxed text-[#6f7066]">
                 开启时手部照片等数据可能被用于产品改进（去标识化后使用）；关闭后不会上传任何数据。
                 此偏好以账号为准，并同步到当前设备。
               </p>

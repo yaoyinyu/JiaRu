@@ -57,6 +57,13 @@
   letter-spacing: .04em;
 }
 
+.heroHint {
+  margin: 14px 0 0;
+  color: #6f7066;
+  font-size: 12px;
+  letter-spacing: .02em;
+}
+
 .heroActions {
   display: flex;
   margin-top: 30px;
@@ -121,7 +128,7 @@
   overflow: hidden;
   color: rgba(255, 253, 248, .82);
   font-family: var(--serif);
-  font-size: 9px;
+  font-size: 11px;
   line-height: 1.6;
   letter-spacing: .2em;
   text-transform: uppercase;
@@ -183,7 +190,7 @@
 
 .styleText { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .styleText strong { font-family: var(--serif); font-size: 14.5px; font-weight: 500; letter-spacing: .04em; }
-.styleText em { color: var(--muted); font-size: 11.5px; font-style: normal; letter-spacing: .02em; }
+.styleText em { color: var(--muted); font-size: 12px; font-style: normal; letter-spacing: .02em; }
 
 .styleArrow { display: flex; margin-left: auto; color: #b6b3a5; }
 .styleArrow svg { width: 18px; height: 18px; }
@@ -204,24 +211,24 @@
 .roundAction svg { width: 16px; height: 16px; }
 .roundAction:hover { box-shadow: var(--neu-out-hover); color: var(--coral-deep); }
 
-/* ---------- 搜索胶囊 ---------- */
-.searchPill {
-  display: flex;
-  min-height: 50px;
-  padding: 0 20px;
-  border-radius: var(--radius-capsule);
+/* ---------- 图库明链入口（取代旧输入框式搜索胶囊） ---------- */
+.galleryLink {
+  display: inline-flex;
+  margin-top: 16px;
+  min-height: 44px;
+  padding: 0 4px;
   align-items: center;
-  gap: 12px;
-  background: var(--surface);
-  box-shadow: var(--neu-in-sm);
-  color: #6b6c62;
-  font-size: 12.5px;
+  gap: 8px;
+  color: var(--coral-text);
+  font-size: 13px;
+  font-weight: 500;
   letter-spacing: .04em;
   text-decoration: none;
-  transition: color .2s var(--ease-soft), box-shadow .2s var(--ease-soft);
+  border-bottom: 1px solid transparent;
+  transition: color .2s var(--ease-soft), border-color .2s var(--ease-soft);
 }
-.searchPill svg { width: 15px; height: 15px; color: #6b6c62; }
-.searchPill:hover { color: var(--coral-deep); box-shadow: var(--neu-in-focus); }
+.galleryLink svg { width: 15px; height: 15px; }
+.galleryLink:hover { color: var(--coral-deep); border-bottom-color: var(--coral); }
 
 /* ---------- 心动款式 ---------- */
 .lookGrid {
@@ -256,7 +263,7 @@
 }
 
 .boundaryCard { margin-top: 34px; padding: 20px 22px; }
-.boundaryCard p { margin: 0; color: #86877c; font-size: 11.5px; line-height: 1.9; }
+.boundaryCard p { margin: 0; color: #86877c; font-size: 12px; line-height: 1.9; }
 
 /* ---------- 页脚 ---------- */
 .footer {
@@ -281,7 +288,7 @@
 .footerLinkTitle {
   margin-bottom: 2px;
   color: var(--coral-text);
-  font-size: 10px;
+  font-size: 12px;
   letter-spacing: .18em;
   text-transform: uppercase;
 }
@@ -318,7 +325,7 @@
   .styleIcon { width: 34px; height: 34px; }
   .styleText strong { font-size: 13.5px; }
   .styleText em { font-size: 11px; }
-  .searchPill { min-height: 46px; font-size: 12px; }
+  .galleryLink { min-height: 44px; font-size: 12.5px; }
   .lookGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
   .boundaryCard { margin-top: 26px; padding: 16px 18px; }
   .footer { margin-top: 28px; padding-bottom: calc(104px + var(--safe-bottom)); }
@@ -326,7 +333,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primaryAction, .styleCard, .roundAction, .searchPill, .lookImage, .footerLink, .ghostAction, .skipLink {
+  .primaryAction, .styleCard, .roundAction, .galleryLink, .lookImage, .footerLink, .ghostAction, .skipLink {
     transition: none;
   }
 }

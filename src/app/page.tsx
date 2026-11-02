@@ -19,17 +19,18 @@ export default function Home() {
           <div className={styles.heroCopy}>
             <Eyebrow>The Everyday Muse</Eyebrow>
             <h1 id="hero-title" className={styles.heroTitle}>
-              把喜欢的自己，
-              <span className={styles.heroAccent}>留在每一次抬手。</span>
+              把喜欢的美甲，
+              <span className={styles.heroAccent}>提前戴在手上。</span>
             </h1>
-            <p className={styles.heroLede}>让喜欢，轻轻落在指尖。</p>
+            <p className={styles.heroLede}>上传一张手部照片试色，或开启摄像头实时试戴。</p>
             <div className={styles.heroActions}>
-              <Link href="/ar-tryon" className={styles.primaryAction}>
-                开始试戴
+              <Link href="/editor" className={styles.primaryAction}>
+                上传照片试色
                 <Icon name="arrow-up-right" />
               </Link>
-              <Link href="/editor" className={styles.ghostAction}>上传照片试色</Link>
+              <Link href="/ar-tryon" className={styles.ghostAction}>开启摄像头实时试戴</Link>
             </div>
+            <p className={styles.heroHint}>摄像头试戴需要浏览器授权；照片试色默认在本机处理。</p>
           </div>
 
           <figure className={styles.heroFigure}>
@@ -76,9 +77,9 @@ export default function Home() {
           }
         />
 
-        <Link href="/gallery" className={styles.searchPill}>
+        <Link href="/gallery" className={styles.galleryLink}>
           <Icon name="image" />
-          <span>共 {GALLERY_IMAGES.length} 款精选</span>
+          <span>查看全部灵感款式</span>
         </Link>
 
         <ul className={styles.lookGrid}>
