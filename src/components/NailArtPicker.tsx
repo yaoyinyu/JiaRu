@@ -28,7 +28,15 @@ import NailMattePanel, {
   type NailMatteAvailability,
   type NailMattePanelStatus,
 } from "@/components/NailMattePanel";
+import { NailDetectModeSwitch } from "@/components/NailDetectModeSwitch";
 import { autoAssignNailRegionFingers } from "@/lib/nail-auto-flow";
+import { decideNailDetectRun, type NailDetectMode } from "@/lib/nail-detect-mode";
+import {
+  cloudDetectMessageFromReason,
+  detectNailsWithArk,
+  detectNailsWithCloudMatte,
+} from "@/lib/nail-cloud-detect";
+import { useNailDetectMode } from "@/lib/use-nail-detect-mode";
 import { calculateDetectionInputGeometry } from "@/lib/nail-texture-recognition/input-scaling";
 import {
   createLocalNailDebugSample,
@@ -94,6 +102,8 @@ const SOURCE_LABELS: Record<NonNullable<NailRegion["source"]>, string> = {
   mediapipe: "手部几何",
   "partial-closeup": "局部近景",
   "vlm-matte": "本机精细抠图",
+  "cloud-ark": "云端视觉",
+  "cloud-matte": "云端抠图",
 };
 const MAX_CANVAS_DIM = 800;
 const MIN_NAIL_SIZE = 15;
@@ -260,6 +270,18 @@ export default function NailArtPicker({
     null
   );
 
+  // 识别模式（v1.2.216）：本地 | 云端，会话级默认本地；云端需一次性隐私确认。
+  const detectMode = useNailDetectMode();
+  // 识别 effect 不得依赖模式状态（否则切模式会重触发识别），经 ref 读取最新值。
+  const detectModeRef = useRef(detectMode);
+  useEffect(() => {
+    detectModeRef.current = detectMode;
+  }, [detectMode]);
+  const cloudAbortRef = useRef<AbortController | null>(null);
+  const runCloudDetectRef = useRef<((options: { signal?: AbortSignal }) => Promise<void>) | null>(
+    null
+  );
+
   const selectedRegion = selectedIdx !== null ? regions[selectedIdx] ?? null : null;
   const selectedQualitySummary = selectedRegion ? summarizeRegionQuality(selectedRegion) : null;
   const selectedExtractionSummary = summarizeExtractionDiagnostics(
@@ -323,13 +345,16 @@ export default function NailArtPicker({
     image.onerror = () => {
       imgRef.current = null;
       setImgLoaded(false);
-      setError("参考图片加载失败，请重新选择图片。");
+      setError("图片加载失败，请重新选择。");
     };
     image.src = imageUrl;
 
     return () => {
       detectionAbortRef.current?.abort();
       detectionAbortRef.current = null;
+      // 换图 / 卸载时同步中止进行中的云端识别请求。
+      cloudAbortRef.current?.abort();
+      cloudAbortRef.current = null;
     };
   }, [imageUrl]);
 
@@ -356,6 +381,12 @@ export default function NailArtPicker({
       try {
         const image = imgRef.current;
         if (!image) return;
+        // 云端模式（v1.2.216）：跳过浏览器级联，直接云端识别；判决、提示与
+        // 候选替换由 runCloudDetect 处理。模式经 ref 读取，不进 effect 依赖。
+        if (detectModeRef.current.mode === "cloud") {
+          await runCloudDetectRef.current?.({ signal: controller.signal });
+          return;
+        }
         const detectionStartedAt = performance.now();
         const geometry = calculateDetectionInputGeometry(
           image.naturalWidth,
@@ -405,7 +436,7 @@ export default function NailArtPicker({
         }
         if (active) {
           setAddingRegion(true);
-          setError(error.message || "自动识别失败，请在图片上手动添加甲面区域。");
+          setError(error.message || "自动识别失败，可手动添加甲面。");
         }
       } finally {
         if (active) setDetecting(false);
@@ -605,7 +636,7 @@ export default function NailArtPicker({
       setAddingRegion(false);
       setMatteStatus("done");
       setMatteMatchedCount(detected.length);
-      setMatteMessage("已返回低置信候选，请逐指核对甲面与指位后再提取。");
+      setMatteMessage("已返回候选，请逐指核对后再提取。");
       return detected;
     } catch {
       if (controller.signal.aborted) return null;
@@ -630,6 +661,116 @@ export default function NailArtPicker({
     setMatteMessage(null);
   }, []);
 
+  /**
+   * 云端识别（v1.2.216）：按所选云端后端请求甲面候选，结果固定低置信。
+   * 判决（可用性/同意）不通过时提示并保留当前结果；0 候选不做静默二次兜底。
+   * 降级 / 错误 / 中止一律保留当前候选；有候选时整体替换候选集（与级联语义一致，
+   * 本文件无快照机制）。低置信候选由 AR 覆盖前复核门（decideArReview）自然接管。
+   */
+  const runCloudDetect = useCallback(async (options: { signal?: AbortSignal } = {}) => {
+    const image = imgRef.current;
+    if (!image) return;
+    const modeState = detectModeRef.current;
+    const decision = decideNailDetectRun({
+      mode: "cloud",
+      backend: modeState.backend,
+      availability: modeState.availability,
+      consentGiven: modeState.consentGiven,
+    });
+    if (decision.action !== "run") {
+      // unavailable 与 need-consent（正常经切换器把关不会出现）都提示后保留现状。
+      setError(decision.message);
+      return;
+    }
+    cloudAbortRef.current?.abort();
+    const controller = new AbortController();
+    const propagate = () => controller.abort();
+    options.signal?.addEventListener("abort", propagate);
+    cloudAbortRef.current = controller;
+    setDetecting(true);
+    setError(null);
+    try {
+      const outcome =
+        modeState.backend === "ark"
+          ? await detectNailsWithArk({
+              image,
+              imageWidth: image.naturalWidth,
+              imageHeight: image.naturalHeight,
+              signal: controller.signal,
+            })
+          : await detectNailsWithCloudMatte({
+              image,
+              imageWidth: image.naturalWidth,
+              imageHeight: image.naturalHeight,
+              signal: controller.signal,
+            });
+      if (controller.signal.aborted) return;
+      if (outcome.status === "degraded") {
+        setError(cloudDetectMessageFromReason(outcome.reason, outcome.message));
+        return;
+      }
+      if (outcome.status === "error") {
+        setError(outcome.message);
+        return;
+      }
+      if (outcome.candidates.length === 0) {
+        setError("云端未识别到甲面，已保留当前结果；可切换本地或手动添加。");
+        return;
+      }
+      const fingers = inferSuggestedFingers(outcome.candidates.length);
+      const detected: NailRegion[] = outcome.candidates.map((candidate, index) => ({
+        id: candidate.id,
+        cx: candidate.cx,
+        cy: candidate.cy,
+        angle: candidate.angle,
+        nl: candidate.length,
+        nw: candidate.width,
+        assignedFinger: fingers[index] ?? null,
+        confidence: "low",
+        source: candidate.source,
+        mask: candidate.mask,
+        warnings: [...(candidate.warnings ?? [])],
+      }));
+      // 换用云端结果后旧级联汇总不再代表当前候选，清空避免状态区误导。
+      setDetectionSummary(null);
+      setOriginalRegions(detected);
+      setRegions(detected);
+      setSelectedIdx(0);
+      setAddingRegion(false);
+    } catch {
+      if (!controller.signal.aborted) setError("云端识别失败，已保留当前结果");
+    } finally {
+      options.signal?.removeEventListener("abort", propagate);
+      if (cloudAbortRef.current === controller) cloudAbortRef.current = null;
+      setDetecting(false);
+    }
+  }, []);
+  // 上传自动识别 effect 经 ref 调用，避免把模式状态并入 effect 依赖（与编辑器同口径）。
+  useEffect(() => {
+    runCloudDetectRef.current = runCloudDetect;
+  }, [runCloudDetect]);
+
+  // 切换模式：云端时立即识别一次（含同意弹层完成后的 onModeChange 回调）。
+  // 同意链在同一事件内同步触发，hook 状态尚未来得及经 effect 同步 ref，这里手动补同步，
+  // 避免 runCloudDetect 判决读到过期 mode/consentGiven；云端就绪后废弃进行中的本机抠图。
+  const handleDetectModeChange = useCallback(
+    (mode: NailDetectMode) => {
+      detectMode.setMode(mode);
+      detectModeRef.current = { ...detectModeRef.current, mode };
+      if (mode === "cloud") {
+        matteAbortRef.current?.abort();
+        matteAbortRef.current = null;
+        void runCloudDetect();
+      }
+    },
+    [detectMode, runCloudDetect]
+  );
+
+  const handleCloudConsentGranted = useCallback(() => {
+    detectMode.acknowledgeCloudConsent();
+    detectModeRef.current = { ...detectModeRef.current, consentGiven: true };
+  }, [detectMode]);
+
   // AppDialog 面板宽度放宽标记（见 NailArtPicker.module.css 头注）。
   useEffect(() => {
     document.body.dataset.arPickerOpen = "true";
@@ -649,6 +790,9 @@ export default function NailArtPicker({
 
   const cancelDetection = useCallback(() => {
     detectionAbortRef.current?.abort();
+    // 云端模式下「跳过自动识别」同时中止云端请求（与本地级联同语义）。
+    cloudAbortRef.current?.abort();
+    cloudAbortRef.current = null;
     detectionCancelledRef.current = true;
     setDetecting(false);
     setAddingRegion(true);
@@ -882,7 +1026,7 @@ export default function NailArtPicker({
       if (!image) return null;
       const assigned = sourceRegions.filter((region) => region.assignedFinger !== null);
       if (assigned.length === 0) {
-        if (!options.auto) setError("请先为至少一个甲面区域选择对应手指。");
+        if (!options.auto) setError("请先为甲面区域选择手指。");
         return null;
       }
 
@@ -949,9 +1093,9 @@ export default function NailArtPicker({
       } catch (reason) {
         const error = reason instanceof Error ? reason : new Error(String(reason));
         if (options.auto) {
-          setError("自动提取纹理失败，可调整区域后点击「提取所选纹理」重试。");
+          setError("提取失败，可调整区域后重试。");
         } else {
-          setError(error.message || "纹理提取失败，请调整甲面区域后重试。");
+          setError(error.message || "纹理提取失败，请调整区域后重试。");
         }
         return null;
       } finally {
@@ -995,10 +1139,12 @@ export default function NailArtPicker({
 
     // 0) 本地识别 0 候选（局部特写/多手图片）：已记住隐私确认且服务就绪时
     //    自动执行一次兜底识别；否则保持手动模式，不阻塞、不发送任何图片。
+    //    云端模式（v1.2.216）不做本机兜底：0 候选保持手动模式，提示由云端识别给出。
     let fromDetect = false;
     if (working.length === 0) {
+      if (detectModeRef.current.mode !== "local") return;
       if (!matteAutoAllowed) return;
-      setAutoStatus("本地未识别到甲面，正在用本机精细抠图兜底识别…");
+      setAutoStatus("本地未识别到甲面，正在兜底识别…");
       const detected = await detectMasks();
       if (autoFlowCancelledRef.current) return;
       if (!detected || detected.length === 0) {
@@ -1011,8 +1157,9 @@ export default function NailArtPicker({
 
     // 1) 已记住隐私确认且服务就绪时，自动执行一次本机精细抠图；
     //    兜底识别的结果本身已带精细 mask，不再重复消耗一次处理。
-    if (matteAutoAllowed && !fromDetect) {
-      setAutoStatus("正在自动精细处理甲面蒙版…");
+    //    云端模式跳过本机精细抠图：云端候选如需精化，切回本地后再执行。
+    if (matteAutoAllowed && !fromDetect && detectModeRef.current.mode === "local") {
+      setAutoStatus("正在精细处理甲面蒙版…");
       const refined = await refineMasks(working);
       if (autoFlowCancelledRef.current) return;
       if (refined) working = refined;
@@ -1256,6 +1403,26 @@ export default function NailArtPicker({
               </div>
             </div>
 
+            {/* 识别模式（v1.2.216）：本地 | 云端；云端切换含一次性隐私确认，
+                同意后立即以云端模式识别一次；识别/提取进行中禁止切换。 */}
+            <NailDetectModeSwitch
+              mode={detectMode.mode}
+              onModeChange={handleDetectModeChange}
+              backend={detectMode.backend}
+              onBackendChange={detectMode.setBackend}
+              availability={detectMode.availability}
+              availabilityLoaded={detectMode.availabilityLoaded}
+              consentGiven={detectMode.consentGiven}
+              onConsentGranted={handleCloudConsentGranted}
+              disabled={detecting || extracting}
+            />
+
+            {detectMode.mode === "cloud" && (
+              <p className="text-xs text-slate-500">
+                云端模式下本机精细抠图不可用；云端候选可切回本地后精细处理。
+              </p>
+            )}
+
             <NailMattePanel
               availability={matteAvailability}
               candidateCount={regions.length}
@@ -1263,7 +1430,7 @@ export default function NailArtPicker({
               message={matteMessage}
               matchedCount={matteMatchedCount}
               elapsedMs={matteStartedAt == null ? 0 : matteElapsedMs}
-              disabled={detecting || extracting}
+              disabled={detecting || extracting || detectMode.mode === "cloud"}
               onRefine={() => {
                 void runMatteRefine();
               }}
@@ -1358,7 +1525,9 @@ export default function NailArtPicker({
           <div className="mt-4 text-xs text-slate-500">
             {suppressAutoFlow
               ? "已回到手动调整：确认甲面位置与指位后点击「提取所选纹理」应用；取消则不改变当前试戴。"
-              : "提示：上传后会自动完成识别、精细处理（首次需确认隐私提示）、纹理提取与参数分析；应用前会按置信度提示复核。如个别甲面方向或指位不对，可在此调整后重新提取。"}
+              : detectMode.mode === "cloud"
+                ? "提示：云端模式自动完成识别、提取与参数分析；候选固定低置信，应用前会提示复核。"
+                : "提示：上传后自动完成识别、精细处理（首次需确认隐私提示）、提取与参数分析；应用前会按置信度提示复核。"}
           </div>
         </div>
       </div>

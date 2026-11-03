@@ -42,8 +42,8 @@ test("autoAssignNailRegionFingers：缺失指位按 x 序填入空闲指位并�
   const byId = new Map(result.regions.map((item) => [item.id, item]));
   assert.equal(byId.get("b")?.assignedFinger, 0);
   assert.equal(byId.get("c")?.assignedFinger, 1);
-  assert.ok(byId.get("b")?.warnings.includes(AUTO_FINGER_GUESS_WARNING));
-  assert.ok(byId.get("c")?.warnings.includes(AUTO_FINGER_GUESS_WARNING));
+  assert.ok(byId.get("b")?.warnings?.includes(AUTO_FINGER_GUESS_WARNING));
+  assert.ok(byId.get("c")?.warnings?.includes(AUTO_FINGER_GUESS_WARNING));
   // 已分配区域不被改动、不加告警
   assert.equal(byId.get("a")?.assignedFinger, 2);
   assert.deepEqual(byId.get("a")?.warnings, []);
@@ -63,5 +63,5 @@ test("autoAssignNailRegionFingers：待分配数量超过空闲指位时多出�
   assert.equal(result.guessedCount, 4);
   const byId = new Map(result.regions.map((item) => [item.id, item]));
   assert.equal(byId.get("f")?.assignedFinger, null);
-  assert.equal(byId.get("f")?.warnings.includes(AUTO_FINGER_GUESS_WARNING), false);
+  assert.equal(byId.get("f")?.warnings?.includes(AUTO_FINGER_GUESS_WARNING), false);
 });

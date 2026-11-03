@@ -271,7 +271,7 @@ test("editor page keeps the interaction priority and wires the object panel", ()
   assert.match(source, /onReplace=\{\(\) => \{/);
   assert.match(source, /void handleFrameClick\(frame\)/);
   // 手动框删除与识别框保护提示。
-  assert.match(source, /识别得到的甲面框暂不支持删除/);
+  assert.match(source, /甲面框暂不支持删除/);
   assert.match(source, /frame-remove:\$\{id\}/);
   // 应用全部在页面侧执行（applySetToFrames）。
   assert.match(source, /applySetToFrames\(\{/);

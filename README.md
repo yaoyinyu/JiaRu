@@ -365,7 +365,10 @@ Git 与远端只保存完整可运行的业务、训练和审计代码，测试�
 | `JIARU_TRUST_PROXY` | 是否信任反向代理注入的 `X-Real-IP`/`X-Forwarded-For`（部署在 Nginx 之后设 1，否则一律按 `unknown` 分桶） | 否（默认不信任） |
 | `JIARU_ALLOWED_ORIGINS` | CSRF Origin 校验额外允许的来源（逗号分隔；局域网/隧道联调时必填，否则写操作 403） | 否 |
 | `JIARU_DEV_SMS` | 强制开启短信开发模式（明文验证码经接口返回；默认生产禁止、非生产仅本机/私网直连） | 否 |
-| `JIARU_RL_*` | 按 IP 限流阈值覆盖：`JIARU_RL_CAPTCHA/REQUEST_CODE/VERIFY_CODE/BIND_PHONE/OAUTH_START` | 否（有默认值） |
+| `JIARU_RL_*` | 按 IP 限流阈值覆盖：`JIARU_RL_CAPTCHA/REQUEST_CODE/VERIFY_CODE/BIND_PHONE/OAUTH_START/NAIL_MATTE/NAIL_MATTE_CLOUD/NAIL_DETECT_ARK` | 否（有默认值） |
+| `VLM_MATTE_URL` / `VLM_MATTE_TOKEN` | 本机 WeVisOne-VL 精细抠图服务（须绑定 127.0.0.1）；未配置时入口不出现 | 否（精细抠图可选） |
+| `ARK_VISION_MODEL` | 云端识别（方舟视觉理解模型）Model ID（含版本后缀，须在方舟控制台开通）；与 `VOLCENGINE_ARK_API_KEY` 同时配置后，编辑器/AR/个性化分析的「云端」识别选项可用 | 否（云端识别可选） |
+| `NAIL_CLOUD_MATTE_URL` / `NAIL_CLOUD_MATTE_TOKEN` | 云端自托管 WeVisOne-VL（与本地服务同 `/matte` 契约，须自行部署运维）；配置后作为云端识别第二后端 | 否（云端识别可选） |
 
 ```powershell
 # 复制模板

@@ -205,10 +205,12 @@ test("c) 单飞：running 中重复 run 被拒且不影响首个任务，结算�
 
 test("d) dispose：在飞任务被 abort，状态定格 cancelled，run 从此被拒", async () => {
   const runner = createAsyncTaskRunner<string>();
-  let observedSignal: AbortSignal | null = null;
+  // 用可变容器持有 signal：赋值发生在回调里，TS 控制流跟踪不到局部变量，
+  // 直接判 `observedSignal !== null` 会把类型窄化成 never。
+  const observed: { signal: AbortSignal | null } = { signal: null };
   const deferred = createDeferred<string>();
   const start = runner.run((signal) => {
-    observedSignal = signal;
+    observed.signal = signal;
     return deferred.promise;
   });
   assert.ok(start.ok);
@@ -216,7 +218,7 @@ test("d) dispose：在飞任务被 abort，状态定格 cancelled，run 从此�
   runner.dispose();
   assert.equal(runner.isDisposed(), true);
   assert.equal(runner.getStatus(), "cancelled");
-  assert.ok(observedSignal !== null && observedSignal.aborted, "dispose 必须 abort 在飞任务");
+  assert.ok(observed.signal !== null && observed.signal.aborted, "dispose 必须 abort 在飞任务");
 
   const refused = runner.run(() => Promise.resolve("不该启动"));
   assert.ok(!refused.ok, "dispose 后 run 必须被拒绝");

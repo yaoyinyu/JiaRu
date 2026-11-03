@@ -18,6 +18,7 @@ import {
   undoEditorSnapshot,
   type EditorSnapshot,
 } from "../src/lib/editor-texture-state.ts";
+import type { NailPlacement } from "../src/lib/canvas/placements.ts";
 import {
   closestTextureSet,
   NAIL_TEXTURE_SETS,
@@ -177,8 +178,32 @@ function fakeSnapshotFrame(id: string, assignedFinger: number | null) {
   return { id, cx: 10, cy: 20, angle: 0, nl: 60, nw: 30, assignedFinger };
 }
 
+/** 完整贴合实例：快照需要 NailPlacement 全字段，这里只关心 id 与所属甲面框。 */
+function fakePlacement(id: string, frameId: string): NailPlacement {
+  return {
+    id,
+    frameId,
+    textureKey: "set-a/0",
+    textureSrc: "/nail-textures/set-a/finger-1.png",
+    aspect: 1,
+    angle: 0,
+    baseCx: 10,
+    baseCy: 20,
+    baseLength: 60,
+    baseWidth: 30,
+    cx: 10,
+    cy: 20,
+    length: 60,
+    width: 30,
+    adjust: { lengthScale: 1, widthScale: 1, rootOffset: 0 },
+  };
+}
+
 test("pushEditorSnapshot snapshots frames and placements without aliasing", () => {
-  const placements: FakePlacement[] = [...FAKE_PLACEMENTS];
+  const placements: NailPlacement[] = [
+    fakePlacement("p1", "frame-1"),
+    fakePlacement("p2", "frame-2"),
+  ];
   const snapshot: EditorSnapshot = {
     frames: [fakeSnapshotFrame("f1", 0)],
     placements,
@@ -186,7 +211,7 @@ test("pushEditorSnapshot snapshots frames and placements without aliasing", () =
   const history = pushEditorSnapshot([], snapshot);
   assert.equal(history.length, 1);
   snapshot.frames.push(fakeSnapshotFrame("f2", 1));
-  placements.push({ id: "px", frameId: "x", label: "later" });
+  placements.push(fakePlacement("px", "x"));
   // 快照是浅拷贝：之后对原数组的追加不影响历史。
   assert.equal(history[0]?.frames.length, 1);
   assert.equal(history[0]?.placements.length, 2);

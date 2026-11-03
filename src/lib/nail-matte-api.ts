@@ -86,7 +86,13 @@ export interface NailMatteConfig {
 export interface NailMatteEnv {
   VLM_MATTE_URL?: string;
   VLM_MATTE_TOKEN?: string;
+  /** 云端自托管 /matte 契约服务（v1.2.216）：与本地服务同契约，仅地址不同。 */
+  NAIL_CLOUD_MATTE_URL?: string;
+  NAIL_CLOUD_MATTE_TOKEN?: string;
 }
+
+/** matte 转发目标：本机服务（默认）或云端自托管服务。 */
+export type NailMatteTarget = "local" | "cloud";
 
 /** 单次响应最多保留的实例数；超出部分只计数，不补齐、不按分数截断。 */
 export const NAIL_MATTE_MAX_INSTANCES = 10;
@@ -95,13 +101,27 @@ const DEFAULT_TIMEOUT_MS = 150_000;
 const HEALTH_TIMEOUT_MS = 1_500;
 const ALPHA_DATA_URI_PATTERN = /^data:image\/png;base64,/i;
 
-/** 读取配置；未配置 URL 视为能力关闭（入口不渲染）。 */
+/** 读取本机配置；未配置 URL 视为能力关闭（入口不渲染）。 */
 export function getNailMatteConfig(
   env: NailMatteEnv = process.env as NailMatteEnv
 ): NailMatteConfig | null {
   const url = (env.VLM_MATTE_URL ?? "").trim().replace(/\/+$/, "");
   if (!url) return null;
   return { url, token: (env.VLM_MATTE_TOKEN ?? "").trim() };
+}
+
+/**
+ * 按 target 解析转发配置：local 走 `VLM_MATTE_URL`（本机），cloud 走
+ * `NAIL_CLOUD_MATTE_URL`（云端自托管，同 /matte 契约）。未配置视为关闭。
+ */
+export function resolveNailMatteConfig(
+  target: NailMatteTarget,
+  env: NailMatteEnv = process.env as NailMatteEnv
+): NailMatteConfig | null {
+  if (target === "local") return getNailMatteConfig(env);
+  const url = (env.NAIL_CLOUD_MATTE_URL ?? "").trim().replace(/\/+$/, "");
+  if (!url) return null;
+  return { url, token: (env.NAIL_CLOUD_MATTE_TOKEN ?? "").trim() };
 }
 
 function asFiniteNumber(value: unknown): number | null {
@@ -181,6 +201,8 @@ export interface NailMatteCallOptions {
   env?: NailMatteEnv;
   fetchImpl?: typeof fetch;
   timeoutMs?: number;
+  /** 转发目标：local（默认，本机）或 cloud（云端自托管，v1.2.216）。 */
+  target?: NailMatteTarget;
 }
 
 /**
@@ -191,9 +213,15 @@ export async function requestNailMatte(
   request: NailMatteRequest,
   options: NailMatteCallOptions = {}
 ): Promise<NailMatteResult> {
-  const config = getNailMatteConfig(options.env);
+  const target = options.target ?? "local";
+  const config = resolveNailMatteConfig(target, options.env);
   if (!config) {
-    throw new NailMatteApiError(503, "disabled", "本机抠图服务未启用", null);
+    throw new NailMatteApiError(
+      503,
+      "disabled",
+      target === "cloud" ? "云端抠图服务未启用" : "本机抠图服务未启用",
+      null
+    );
   }
 
   const fetchImpl = options.fetchImpl ?? fetch;
@@ -283,7 +311,7 @@ export interface NailMatteHealth {
 export async function probeNailMatte(
   options: NailMatteCallOptions = {}
 ): Promise<NailMatteHealth | null> {
-  const config = getNailMatteConfig(options.env);
+  const config = resolveNailMatteConfig(options.target ?? "local", options.env);
   if (!config) return null;
 
   const fetchImpl = options.fetchImpl ?? fetch;

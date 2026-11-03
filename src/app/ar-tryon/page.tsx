@@ -97,15 +97,15 @@ const REVIEW_DIALOG_COPY: Record<
 > = {
   review: {
     title: "复核提取结果",
-    description: "部分甲面识别置信度较低，应用前请确认，或先继续调整。",
+    description: "有候选置信度较低，应用前请确认。",
   },
   replace_preview: {
     title: "替换现有纹理",
-    description: "提取完成。确认后，下列纹理将替换当前试戴中的旧纹理。",
+    description: "确认后，下列纹理将替换当前试戴。",
   },
   confirm: {
     title: "确认替换纹理",
-    description: "当前已有试戴纹理，且新提取结果建议复核；确认后才会替换。",
+    description: "新结果建议复核；确认后才会替换。",
   },
 };
 
@@ -504,7 +504,7 @@ function ArTryonPageBody({
     setNailStyles(snapshot.styles);
     setTextureProfiles(snapshot.profiles);
     undoStateRef.current = null;
-    setApplyFeedback({ message: "已撤销本次应用，恢复之前的纹理。", canUndo: false });
+    setApplyFeedback({ message: "已撤销，恢复原纹理。", canUndo: false });
   }, []);
 
   const applyTextureToAll = () => {
@@ -549,7 +549,7 @@ function ArTryonPageBody({
       shiftUp
       eyebrow="实时试戴"
       title="让每一次抬手，都提前看见效果"
-      description="实时追踪手部动作，让颜色与纹理自然贴合指甲。所有摄像头画面都只在本地内存中处理。"
+      description="摄像头实时贴合美甲；画面只在本地内存中处理，不录制。"
     >
       {/* §7.1 顶部步骤状态：选择来源 → 提取与复核 → 试戴与校准 */}
       <nav
@@ -742,7 +742,7 @@ function ArTryonPageBody({
               </div>
             </div>
             <p className="mb-2 text-[11px] leading-5 text-gray-400">
-              请展示手背并张开五指；画布中当前手指以珊瑚描边高亮，拖动滑杆调整长度与宽度。
+              展示手背、张开五指；当前手指以珊瑚高亮。
               已调整 {adjustedFingerCount}/5 指。
             </p>
             <label className="grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">              <span>长度</span>
@@ -933,8 +933,8 @@ function ArTryonPageBody({
         )}
 
         <div className="mx-auto mt-5 grid w-full max-w-3xl gap-3 text-center sm:grid-cols-2">
-          <div className="rounded-2xl bg-[var(--surface)] p-4 text-xs leading-5 text-[#6f7066] "><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />摄像头画面默认仅在内存中处理，不录制；「用户改进计划」可在隐私页关闭</div>
-          <div className="rounded-2xl bg-[var(--surface)] p-4 text-xs leading-5 text-[#6f7066] "><Icon name="lightbulb" className="mr-1.5 inline h-4 w-4 align-[-3px]" />首次加载大约需要 5-10 秒，建议在光线充足的环境使用。</div>
+          <div className="rounded-2xl bg-[var(--surface)] p-4 text-xs leading-5 text-[#6f7066] "><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />画面仅内存处理、不录制；改进计划可在隐私页关闭</div>
+          <div className="rounded-2xl bg-[var(--surface)] p-4 text-xs leading-5 text-[#6f7066] "><Icon name="lightbulb" className="mr-1.5 inline h-4 w-4 align-[-3px]" />首次加载约 5–10 秒；请在光线充足处使用。</div>
         </div>
     </AppShell>
   );

@@ -261,7 +261,7 @@ export default function AccountPage() {
 
   if (loadState === "loading") {
     return (
-      <AppShell eyebrow="会员中心" title="账号中心" description="登录后可管理账号资料、登录方式与本地偏好。云端作品同步尚未开放。">
+      <AppShell eyebrow="会员中心" title="账号中心" description="管理资料、登录方式与本地偏好；云端同步暂未开放。">
         <div className="mx-auto grid w-full max-w-2xl gap-5" aria-busy="true">
           <ProfileSkeleton />
           <section className={`${cardCls} animate-pulse`} aria-hidden>
@@ -305,7 +305,7 @@ export default function AccountPage() {
 
   if (loadState === "unauthorized" || !me) {
     return (
-      <AppShell eyebrow="会员中心" title="账号中心" description="登录后可管理账号资料、登录方式与本地偏好。云端作品同步尚未开放。">
+      <AppShell eyebrow="会员中心" title="账号中心" description="管理资料、登录方式与本地偏好；云端同步暂未开放。">
         <div className={`${cardCls} mx-auto max-w-md text-center`}>
           <p className="mb-4 text-[15px] text-[#67685f]">你还没有登录</p>
           <Link
@@ -321,7 +321,7 @@ export default function AccountPage() {
   }
 
   return (
-    <AppShell eyebrow="会员中心" title="账号中心" description={`你好，${me.user.nickname}！管理你的账号信息与登录方式。`}>
+    <AppShell eyebrow="会员中心" title="账号中心" description={`你好，${me.user.nickname}！管理资料与登录方式。`}>
       {/* 提示条平滑展开槽：置于下方 gap 网格之外，收起时零占位；grid-rows 0fr/1fr 过渡（同 NailAnalysisForm）消除提示增删把内容生硬推移的位移 */}
       <div
         className={`mx-auto grid w-full max-w-2xl transition-[grid-template-rows,margin-bottom,opacity,visibility] duration-300 ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
@@ -369,7 +369,7 @@ export default function AccountPage() {
           <section className={`${cardCls} border-amber-200`}>
             <h2 className="mb-1 text-base font-bold text-[#292a27]">绑定手机号</h2>
             <p className="mb-4 text-xs leading-relaxed text-[#6f7066]">
-              你的微信账号还没有绑定手机号。绑定后可用手机号登录，也是找回账号的重要凭证（合规要求）。
+              绑定后可用手机号登录，也是找回账号的重要凭证（合规要求）。
             </p>
             <div className="space-y-3">
               <input

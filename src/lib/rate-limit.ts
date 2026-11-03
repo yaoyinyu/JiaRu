@@ -20,7 +20,9 @@ export type RateLimitName =
   | "verifyCode"
   | "bindPhone"
   | "oauthStart"
-  | "nailMatte";
+  | "nailMatte"
+  | "nailMatteCloud"
+  | "nailDetectArk";
 
 interface RateLimitRule {
   limit: number;
@@ -36,6 +38,9 @@ const DEFAULT_RULES: Record<RateLimitName, RateLimitRule> = {
   oauthStart: { limit: 20, windowMs: 10 * 60 * 1000 },
   // 本机抠图单图 12—16.5s、上游并发固定 1，额度按「每人每 10 分钟 3 次」收紧。
   nailMatte: { limit: 3, windowMs: 10 * 60 * 1000 },
+  // 云端自托管 matte 与方舟视觉识别：同为按人限流的推理类通道，先与本机 matte 同额度。
+  nailMatteCloud: { limit: 3, windowMs: 10 * 60 * 1000 },
+  nailDetectArk: { limit: 3, windowMs: 10 * 60 * 1000 },
 };
 
 const ENV_OVERRIDES: Record<RateLimitName, string> = {
@@ -45,6 +50,8 @@ const ENV_OVERRIDES: Record<RateLimitName, string> = {
   bindPhone: "JIARU_RL_BIND_PHONE",
   oauthStart: "JIARU_RL_OAUTH_START",
   nailMatte: "JIARU_RL_NAIL_MATTE",
+  nailMatteCloud: "JIARU_RL_NAIL_MATTE_CLOUD",
+  nailDetectArk: "JIARU_RL_NAIL_DETECT_ARK",
 };
 
 interface Bucket {

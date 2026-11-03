@@ -145,7 +145,7 @@ export function GalleryInspirationCard({
         <h2 className="mt-1 text-lg font-semibold text-[#292a27]">{name}</h2>
         <p className="mt-1.5 text-xs leading-5 text-[#6f7066]">
           {preset
-            ? <>已为你预选相近纹理套装，上传照片识别出甲面后将自动贴合，可逐指调整或撤销。</>
+            ? <>已预选相近套装，识别出甲面后自动贴合，可逐指调整或撤销。</>
             : extraction === "failed"
               ? "未能提取灵感色，可手动选择纹理套装。"
               : "正在提取灵感色…"}

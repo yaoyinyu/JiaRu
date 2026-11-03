@@ -190,7 +190,7 @@ export function NailAnalysisForm({ value, onChange, disabled = false }: NailAnal
           onChange={(next) => update("hasAllergyHistory", next || undefined)}
           disabled={disabled}
         >
-          我有美甲材料过敏史（仅用于提示，不影响推荐排序）
+          我有美甲材料过敏史（仅作提示，不影响推荐）
         </NeuToggle>
         <div
           className={`grid transition-[grid-template-rows,opacity,visibility] duration-300 ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none ${
@@ -200,7 +200,7 @@ export function NailAnalysisForm({ value, onChange, disabled = false }: NailAnal
         >
           <div className="overflow-hidden">
             <p className="mb-1 mt-2 rounded-2xl border border-amber-200 bg-amber-50/80 px-3 py-2 text-xs text-amber-800">
-              建议到店前与美甲师确认材料成分；本功能不做材料安全性判断。
+              到店前请与美甲师确认材料成分；本功能仅作提示。
             </p>
           </div>
         </div>

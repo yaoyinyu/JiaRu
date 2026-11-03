@@ -19,6 +19,15 @@ import {
   type EditorObjectSelection,
 } from "@/components/EditorObjectPanel";
 import { GalleryInspirationCard } from "@/components/GalleryInspiration";
+import { NailDetectModeSwitch } from "@/components/NailDetectModeSwitch";
+import { decideNailDetectRun } from "@/lib/nail-detect-mode";
+import {
+  cloudDetectMessageFromReason,
+  detectNailsWithArk,
+  detectNailsWithCloudMatte,
+  nailCandidatesToDetectionRegions,
+} from "@/lib/nail-cloud-detect";
+import { useNailDetectMode } from "@/lib/use-nail-detect-mode";
 import { loadWorkItemReference } from "@/lib/work-bridge";
 import { auxiliaryDetectionNotice, presentRecognitionWarning } from "@/components/nail-art-picker-quality";
 import { FINGER_NAMES, GALLERY_IMAGES, PRESET_COLORS } from "@/lib/utils";
@@ -204,7 +213,7 @@ function EditorPageBody({
   const [detectionSummary, setDetectionSummary] = useState<DetectionSummary | null>(null);
   const [notice, setNotice] = useState<string | null>(
     presetFromAnalysis && !initialPresetSet
-      ? `未找到与「${presetFromAnalysis.name}」相近的纹理套装，可在侧栏手动选择。`
+      ? `未找到与「${presetFromAnalysis.name}」相近的套装，可在侧栏手动选择。`
       : null
   );
 
@@ -259,6 +268,16 @@ function EditorPageBody({
   // 来源名；applied 标记保证每次上传至多自动贴合一次。
   const inspirationAutoRef = useRef<{ name: string; setId: string } | null>(null);
   const inspirationAppliedRef = useRef(false);
+  // 识别模式（v1.2.216）：本地 | 云端，会话级默认本地；云端需一次性隐私确认。
+  const detectMode = useNailDetectMode();
+  // 识别 effect 不得依赖模式状态（否则切模式会重触发识别），经 ref 读取最新值。
+  const detectModeRef = useRef(detectMode);
+  useEffect(() => {
+    detectModeRef.current = detectMode;
+  }, [detectMode]);
+  const [cloudRunning, setCloudRunning] = useState(false);
+  const cloudAbortRef = useRef<AbortController | null>(null);
+  const runCloudDetectRef = useRef<((options: { signal?: AbortSignal }) => Promise<void>) | null>(null);
 
   useEffect(() => {
     placementsRef.current = placements;
@@ -489,7 +508,7 @@ function EditorPageBody({
       draft.imageWidth === image.naturalWidth && draft.imageHeight === image.naturalHeight;
     if (!sizeMatches) {
       clearEditorDraft(getSessionStorage());
-      setNotice("原图与草稿尺寸不一致，已忽略草稿。");
+      setNotice("新照片与草稿尺寸不符，已忽略草稿。");
       return;
     }
     setFrames(draft.frames);
@@ -520,7 +539,7 @@ function EditorPageBody({
     };
     image.onerror = () => {
       if (!active) return;
-      setUploadError("照片加载失败，请重新选择完整的 JPG、PNG 或 WebP 文件。");
+      setUploadError("照片加载失败，请换一张 JPG、PNG 或 WebP。");
       setImageUrl(null);
     };
     image.src = imageUrl;
@@ -528,9 +547,11 @@ function EditorPageBody({
       active = false;
       controller.abort();
       if (detectionAbortRef.current === controller) detectionAbortRef.current = null;
-      // 更换照片 / 卸载时同时中止进行中的本机抠图请求。
+      // 更换照片 / 卸载时同时中止进行中的本机抠图与云端识别请求。
       matteAbortRef.current?.abort();
       matteAbortRef.current = null;
+      cloudAbortRef.current?.abort();
+      cloudAbortRef.current = null;
       imageRef.current = null;
     };
   }, [imageUrl, restoreFromDraftIfCompatible]);
@@ -620,7 +641,7 @@ function EditorPageBody({
       setAddingFrame(false);
       setMatteStatus("done");
       setMatteMatchedCount(detected.length);
-      setMatteMessage("已返回低置信候选，请逐指核对甲面与指位后再贴合。");
+      setMatteMessage("已精细处理，请逐指核对后贴合。");
     } catch {
       if (controller.signal.aborted) return;
       setMatteStatus("error");
@@ -663,7 +684,7 @@ function EditorPageBody({
       inspirationAppliedRef.current = true;
       if (result.applied === 0) {
         setNotice(
-          `已为灵感「${source.name}」选中相近纹理套装「${set.name}」，但没有可匹配指位的甲面框；可在对象面板确认指位后手动贴合。`
+          `灵感「${source.name}」已选中套装「${set.name}」，但没有可匹配指位的甲面框；请确认指位后手动贴合。`
         );
         return;
       }
@@ -673,11 +694,106 @@ function EditorPageBody({
       const skippedText =
         result.skipped > 0 ? `，跳过 ${result.skipped} 个未匹配指位的框` : "";
       setNotice(
-        `已按灵感「${source.name}」自动贴合相近纹理套装「${set.name}」到 ${result.applied} 个甲面框${skippedText}；甲面框为辅助定位结果，可逐指调整或撤销。`
+        `灵感「${source.name}」已自动贴合套装「${set.name}」到 ${result.applied} 个甲面框${skippedText}；甲面框为辅助定位结果，可逐指调整或撤销。`
       );
     },
     [aspectOf, pushHistoryCoalesced]
   );
+
+  /**
+   * 云端识别（v1.2.216）：按所选云端后端请求甲面候选，结果固定低置信。
+   * 判决（可用性/同意）不通过时提示并保留当前结果；0 候选不做静默二次兜底。
+   * 降级 / 错误 / 中止一律保留本地 frames。
+   */
+  const runCloudDetect = useCallback(
+    async (options: { signal?: AbortSignal } = {}) => {
+      const image = imageRef.current;
+      if (!image) return;
+      const modeState = detectModeRef.current;
+      const decision = decideNailDetectRun({
+        mode: "cloud",
+        backend: modeState.backend,
+        availability: modeState.availability,
+        consentGiven: modeState.consentGiven,
+      });
+      if (decision.action !== "run") {
+        // need-consent / unavailable 都带用户可见文案；不得静默返回。
+        setNotice(decision.message);
+        return;
+      }
+      cloudAbortRef.current?.abort();
+      const controller = new AbortController();
+      const propagate = () => controller.abort();
+      options.signal?.addEventListener("abort", propagate);
+      cloudAbortRef.current = controller;
+      setCloudRunning(true);
+      try {
+        const outcome =
+          modeState.backend === "ark"
+            ? await detectNailsWithArk({
+                image,
+                imageWidth: image.naturalWidth,
+                imageHeight: image.naturalHeight,
+                signal: controller.signal,
+              })
+            : await detectNailsWithCloudMatte({
+                image,
+                imageWidth: image.naturalWidth,
+                imageHeight: image.naturalHeight,
+                signal: controller.signal,
+              });
+        if (controller.signal.aborted) return;
+        if (outcome.status === "degraded") {
+          setNotice(cloudDetectMessageFromReason(outcome.reason, outcome.message));
+          return;
+        }
+        if (outcome.status === "error") {
+          setNotice(outcome.message);
+          return;
+        }
+        if (outcome.candidates.length === 0) {
+          setNotice("云端未识别到甲面，已保留当前结果；可切换本地或手动添加。");
+          return;
+        }
+        let regions = nailCandidatesToDetectionRegions(outcome.candidates);
+        regions = autoAssignNailRegionFingers(regions).regions;
+        pushHistoryCoalesced("cloud-detect");
+        setFrames(regions);
+        framesRef.current = regions;
+        if (regions.length > 0 && inspirationAutoRef.current) {
+          applyInspirationSet(inspirationAutoRef.current, regions);
+        }
+        setNotice(
+          `云端返回 ${regions.length} 个候选，请逐指核对后再贴合；可整体撤销。`
+        );
+      } catch {
+        if (!controller.signal.aborted) {
+          setNotice("云端识别失败，已保留当前结果。");
+        }
+      } finally {
+        options.signal?.removeEventListener("abort", propagate);
+        if (cloudAbortRef.current === controller) cloudAbortRef.current = null;
+        setCloudRunning(false);
+      }
+    },
+    [pushHistoryCoalesced, applyInspirationSet]
+  );
+  // 自动识别 effect 经 ref 调用，避免把模式状态并入 effect 依赖。
+  useEffect(() => {
+    runCloudDetectRef.current = runCloudDetect;
+  }, [runCloudDetect]);
+
+  /**
+   * 同意弹层确认（v1.2.216）：此刻 hook 状态尚未经 effect 同步进 ref，
+   * 手动补同步 mode/consentGiven 后立即以云端模式识别一次；不接切换器的
+   * onCloudReady（其同步触发时读到的 consentGiven/mode 均为旧值）。
+   */
+  const handleCloudConsentGranted = useCallback(() => {
+    detectMode.acknowledgeCloudConsent();
+    detectModeRef.current = { ...detectModeRef.current, mode: "cloud", consentGiven: true };
+    void runCloudDetectRef.current?.({});
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- acknowledgeCloudConsent 为 hook 内空依赖稳定回调，按字段引用而非整对象
+  }, [detectMode.acknowledgeCloudConsent]);
 
   // 上传成功后自动识别（AbortController 管理；跳过 / 更换照片 / 卸载均中止）。
   useEffect(() => {
@@ -695,6 +811,12 @@ function EditorPageBody({
 
     const run = async () => {
       try {
+        // 云端模式（v1.2.216）：跳过浏览器级联，直接云端识别（可用性/同意由
+        // runCloudDetect 判决，未确认或不可用时提示并保留空结果）。
+        if (detectModeRef.current.mode === "cloud") {
+          await runCloudDetectRef.current?.({ signal: controller.signal });
+          return;
+        }
         const startedAt = performance.now();
         const geometry = calculateDetectionInputGeometry(
           image.naturalWidth,
@@ -764,7 +886,7 @@ function EditorPageBody({
         }
         if (!cancelled) {
           setAddingFrame(true);
-          setNotice(error.message || "辅助定位失败，可开启「添加甲面」手动逐个点击后贴合纹理。");
+          setNotice(error.message || "辅助定位失败，可开启「添加甲面」手动框选。");
         }
       } finally {
         if (!cancelled) setDetecting(false);
@@ -846,7 +968,7 @@ function EditorPageBody({
       const frame = framesRef.current.find((item) => item.id === id);
       if (!frame) return;
       if (!id.startsWith(MANUAL_FRAME_ID_PREFIX)) {
-        setNotice("识别得到的甲面框暂不支持删除；可更换照片或重新识别。");
+        setNotice("识别生成的甲面框暂不支持删除，可重新识别或更换照片。");
         return;
       }
       pushHistoryCoalesced(`frame-remove:${id}`);
@@ -878,7 +1000,7 @@ function EditorPageBody({
       const set = NAIL_TEXTURE_SETS.find((item) => item.id === setId);
       if (!set || detecting) return;
       if (framesRef.current.length === 0) {
-        setNotice("暂无甲面框可贴合；先识别或手动添加甲面框。");
+        setNotice("暂无甲面框，请先识别或手动添加。");
         return;
       }
       const result = applySetToFrames({
@@ -889,7 +1011,7 @@ function EditorPageBody({
       });
       if (result.applied === 0) {
         setNotice(
-          "当前套装没有可匹配指位的纹理；请先在对象面板确认甲面框指位，或钉选单张纹理。"
+          "套装未匹配到指位纹理；请确认指位，或钉选单张纹理。"
         );
         return;
       }
@@ -908,7 +1030,7 @@ function EditorPageBody({
     dirtyRef.current = false;
     clearEditorDraft(getSessionStorage());
     if (skipped > 0) {
-      setNotice(`已导出，但跳过 ${skipped} 处无法加载的贴合纹理。`);
+      setNotice(`已导出；跳过 ${skipped} 处失效贴合。`);
     }
   }, []);
 
@@ -963,7 +1085,7 @@ function EditorPageBody({
         inspirationAutoRef.current = { name: preset.name, setId: set.id };
         applyInspirationSet({ name: preset.name, setId: set.id }, framesRef.current);
       } else {
-        setNotice(`未找到与「${preset.name}」相近的纹理套装，可在侧栏手动选择。`);
+        setNotice(`未找到与「${preset.name}」相近的套装，可在侧栏手动选择。`);
       }
     },
     [applyInspirationSet]
@@ -1376,10 +1498,8 @@ function EditorPageBody({
         }
         description={
           imageUrl
-            ? "选择纹理套装后点击甲面框贴合，或钉选单张纹理逐指搭配；照片只在你的浏览器中处理。"
-            : look
-              ? "照片只在你的浏览器中处理。上传后系统辅助定位甲面，结果可随时手动调整。"
-              : "照片只在你的浏览器中处理。上传后系统辅助定位甲面，识别结果可随时手动调整。"
+            ? "点击甲面框贴合纹理，拖动可微调；照片只在本机处理。"
+            : "照片只在本机处理；上传后辅助定位甲面，可随时手动调整。"
         }
       >
         {!imageUrl ? (
@@ -1389,7 +1509,7 @@ function EditorPageBody({
                 role="status"
                 className="mb-5 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-pink-100 bg-[var(--coral-soft)] px-4 py-3 text-sm text-[#a34b3f]"
               >
-                <span>上次编辑未保存。重新上传原图后可恢复贴合。</span>
+                <span>上次编辑未保存，重新上传原图可恢复。</span>
                 <button
                   type="button"
                   onClick={() => {
@@ -1433,11 +1553,11 @@ function EditorPageBody({
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--coral-soft)]"><Icon name="sparkles" className="h-5 w-5 text-[#a34b3f]" /></span>
                 <h2 className="mt-5 text-lg font-semibold text-[#292a27]">获得更自然的效果</h2>
                 <ul className="mt-4 space-y-3 text-sm leading-6 text-[#6f7066]">
-                  <li className="flex gap-3"><span className="text-[#ac5145]">01</span><span>选择光线均匀、五指清晰的正面手部照片</span></li>
-                  <li className="flex gap-3"><span className="text-[#ac5145]">02</span><span>上传后系统辅助定位甲面，位置可手动调整</span></li>
-                  <li className="flex gap-3"><span className="text-[#ac5145]">03</span><span>选择纹理套装点选贴合，或钉选单张纹理逐指搭配</span></li>
+                  <li className="flex gap-3"><span className="text-[#ac5145]">01</span><span>光线均匀、五指清晰的正面手部照片</span></li>
+                  <li className="flex gap-3"><span className="text-[#ac5145]">02</span><span>上传后辅助定位甲面，可手动调整</span></li>
+                  <li className="flex gap-3"><span className="text-[#ac5145]">03</span><span>点选套装贴合，或钉选单张逐指搭配</span></li>
                 </ul>
-                <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#6f7066]"><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />本地优先：照片默认不会上传；「用户改进计划」可在隐私页关闭</div>
+                <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#6f7066]"><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />照片默认不上传；改进计划可在隐私页关闭</div>
               </aside>
             </div>
           </>
@@ -1526,7 +1646,7 @@ function EditorPageBody({
                 if (!selectedPlacement) return;
                 const frame = frames.find((item) => item.id === selectedPlacement.frameId);
                 if (!frame) {
-                  setNotice("未找到该贴合的甲面框；请直接点击甲面框重新贴合。");
+                  setNotice("未找到对应甲面框，请点击甲面框重新贴合。");
                   return;
                 }
                 void handleFrameClick(frame);
@@ -1575,13 +1695,13 @@ function EditorPageBody({
                   }`}
                 >
                   {changePhotoArmed
-                    ? `确认更换（将丢弃 ${frames.length} 个甲面框与 ${placements.length} 处贴合）`
+                    ? `确认更换（丢弃 ${frames.length} 框与 ${placements.length} 处贴合）`
                     : "更换照片"}
                 </button>
               </div>
               {changePhotoArmed && (
                 <p role="status" className="mb-4 rounded-xl bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
-                  将丢弃当前 {frames.length} 个甲面框与 {placements.length} 处贴合；5 秒内再次点击确认执行，超时、移开焦点或按 Esc 取消。
+                  5 秒内再次点击确认；Esc、移开焦点或超时取消。
                 </p>
               )}
 
@@ -1661,7 +1781,7 @@ function EditorPageBody({
                   )}
                   {hasLowConfidenceFrames && (
                     <div className="rounded-xl bg-amber-50/70 px-3 py-2 leading-5 text-amber-800">
-                      部分甲面框为低置信候选，请逐个核对位置与指位后再保存。
+                      有低置信候选，请核对位置与指位后再保存。
                     </div>
                   )}
                   {detectionWarningMessages.length > 0 && (
@@ -1673,6 +1793,43 @@ function EditorPageBody({
                   )}
                 </div>
               )}
+
+              {/* 识别模式（v1.2.216）：本地 | 云端；云端切换含一次性隐私确认，
+                  同意后可立即重新识别；模式为会话级，默认本地。 */}
+              <div className="flex flex-wrap items-center gap-2">
+                <NailDetectModeSwitch
+                  mode={detectMode.mode}
+                  onModeChange={detectMode.setMode}
+                  backend={detectMode.backend}
+                  onBackendChange={detectMode.setBackend}
+                  availability={detectMode.availability}
+                  availabilityLoaded={detectMode.availabilityLoaded}
+                  consentGiven={detectMode.consentGiven}
+                  onConsentGranted={handleCloudConsentGranted}
+                  disabled={detecting || cloudRunning}
+                />
+                {detectMode.mode === "cloud" && imageReady ? (
+                  <button
+                    type="button"
+                    onClick={() => void runCloudDetect()}
+                    disabled={detecting || cloudRunning}
+                    title={cloudRunning ? "云端识别中，完成后更新甲面框" : "按当前照片重新识别"}
+                    className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-pink-100 bg-pink-50/65 px-3.5 text-xs font-medium text-[#a34b3f] transition-all duration-200 ease-out hover:bg-[var(--surface)] hover:shadow-[var(--neu-out-sm)] active:scale-[.96] disabled:cursor-wait disabled:opacity-60 disabled:shadow-none"
+                  >
+                    {cloudRunning ? (
+                      <>
+                        <svg aria-hidden="true" viewBox="0 0 16 16" className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" fill="none">
+                          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity=".25" strokeWidth="2" />
+                          <path d="M14 8a6 6 0 0 0-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                        </svg>
+                        识别中…
+                      </>
+                    ) : (
+                      "重新识别"
+                    )}
+                  </button>
+                ) : null}
+              </div>
 
               <NailMattePanel
                 availability={matteAvailability}
@@ -1736,7 +1893,7 @@ function EditorPageBody({
               )}
 
               <p className="mt-5 text-center text-xs leading-5 text-[#67685f]">
-                选择纹理套装后，点击画面中的指甲框即可贴合；可拖动调整位置
+                选好套装，点击甲面框贴合；拖动调整位置
               </p>
             </aside>
           </div>

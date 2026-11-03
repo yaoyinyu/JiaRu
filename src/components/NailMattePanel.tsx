@@ -98,13 +98,12 @@ export default function NailMattePanel({
       {expanded && (
         <div className="mt-3 space-y-3">
           <p className="text-xs leading-5 text-slate-600">
-            在本机 GPU 上生成更精细的软边蒙版，只替换当前甲面轮廓，不改变候选数量与手指分配。
-            结果仍需人工复核，不计入自动识别成功率。
+            在本机生成更精细的软边蒙版，只替换甲面轮廓，不改变候选与指位；结果仍需复核。
           </p>
 
           {needsNotice && (
             <div className="rounded-xl bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
-              图片会发送到自托管的本地抠图服务处理，仅用于本次轮廓提取，不转发第三方、不写入训练数据。
+              图片会发送到本机抠图服务处理，仅用于本次轮廓提取，不转发第三方、不写入训练数据。
               <div className="mt-2 flex gap-2">
                 <button
                   type="button"

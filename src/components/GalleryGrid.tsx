@@ -89,7 +89,7 @@ export function GalleryGrid() {
         open={chooser !== null}
         onClose={() => setChooser(null)}
         title={chooser ? `选择「${chooser.name}」的试戴方式` : "选择试戴方式"}
-        description="两种效果都基于这张灵感款式；静态试色会把相近纹理自动贴合到你上传的手部照片上。"
+        description="两种效果都基于这张灵感款式。"
       >
         <div className="grid gap-2">
           <Link
@@ -104,7 +104,7 @@ export function GalleryGrid() {
             className="flex min-h-11 flex-col justify-center rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 transition hover:border-pink-200 hover:shadow-[var(--neu-out-sm)]"
           >
             <span className="text-sm font-medium text-[var(--ink)]">开启摄像头 · AR 实时预览</span>
-            <span className="mt-0.5 text-xs leading-5 text-[#67685f]">从该款提取纹理并实时试戴（需要摄像头权限）</span>
+            <span className="mt-0.5 text-xs leading-5 text-[#67685f]">提取该款纹理实时试戴（需摄像头权限）</span>
           </Link>
         </div>
       </AppDialog>

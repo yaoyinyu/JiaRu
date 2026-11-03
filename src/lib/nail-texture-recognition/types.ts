@@ -36,13 +36,20 @@ export interface NailTextureTensorSummary {
 }
 
 export type NailTextureCandidateConfidence = "high" | "medium" | "low";
+/**
+ * 候选来源。`cloud-ark`/`cloud-matte` 为云端识别模式（v1.2.216）：
+ * 一律辅助定位候选、固定低置信 + `needs_review`，与 `vlm-matte` 兜底同口径，
+ * 不计入正式识别成功率（PRODUCT HOLD 不变）。
+ */
 export type NailTextureCandidateSource =
   | "model"
   | "mediapipe"
   | "partial-closeup"
   | "saliency"
   | "manual"
-  | "vlm-matte";
+  | "vlm-matte"
+  | "cloud-ark"
+  | "cloud-matte";
 
 export interface NailTextureCandidate {
   id: string;

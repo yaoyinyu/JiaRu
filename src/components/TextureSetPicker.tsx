@@ -390,11 +390,11 @@ export function TextureSetPicker({
           <p role="status" className="mt-1.5 rounded-xl bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
             将为 {frameCount} 个甲面框贴合「{activeSet.name}」纹理
             {placementCount > 0 ? `，其中 ${placementCount} 处已有贴合将被替换` : ""}
-            ；5 秒内再次点击确认执行，超时、移开焦点或按 Esc 取消。
+            ；5 秒内再次点击确认，Esc、移开焦点或超时取消。
           </p>
         ) : applyAllDisabled ? (
           <p className="mt-1.5 text-xs leading-5 text-[#6f7066]">
-            {activeSet ? "暂无甲面框可贴合；先识别或手动添加甲面框。" : "先在上方选择一套纹理。"}
+            {activeSet ? "暂无甲面框，请先识别或手动添加。" : "先在上方选择一套纹理。"}
           </p>
         ) : null}
       </div>

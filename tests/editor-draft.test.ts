@@ -222,10 +222,10 @@ function readPageSource(): string {
 test("editor page mounts the restore banner and auto-restores after upload", () => {
   const source = readPageSource();
   assert.match(source, /loadEditorDraft\(getSessionStorage\(\)\)/);
-  assert.match(source, /上次编辑未保存。重新上传原图后可恢复贴合。/);
+  assert.match(source, /上次编辑未保存，重新上传原图可恢复。/);
   // 上传成功（原图解码回调）后按尺寸比对恢复。
   assert.match(source, /restoreFromDraftIfCompatible\(image\)/);
-  assert.match(source, /原图与草稿尺寸不一致，已忽略草稿。/);
+  assert.match(source, /新照片与草稿尺寸不符，已忽略草稿。/);
   assert.match(source, /已恢复上次编辑：/);
   // 消费过草稿的上传跳过自动识别（识别会覆盖恢复出的甲面框）。
   assert.match(source, /if \(restoredForImageRef\.current\) return;/);
@@ -241,7 +241,7 @@ test("editor page saves the draft debounced and clears it after export or photo 
   assert.doesNotMatch(source, /exportExemptRef/);
   // 更换照片两步确认（无浏览器原生确认弹窗）。
   assert.match(source, /CHANGE_PHOTO_ARMED_MS = 5000/);
-  assert.match(source, /确认更换（将丢弃 \$\{frames\.length\} 个甲面框与 \$\{placements\.length\} 处贴合）/);
+  assert.match(source, /确认更换（丢弃 \$\{frames\.length\} 框与 \$\{placements\.length\} 处贴合）/);
   assert.doesNotMatch(source, /window\.confirm/);
   assert.doesNotMatch(source, /window\.alert/);
 });

@@ -278,7 +278,7 @@ function AiGeneratePageBody({
       return;
     }
     if (file.size > MAX_REFERENCE_FILE_SIZE) {
-      setReferenceError("图片超过 10MB，请更换更小的图片");
+      setReferenceError("图片超过 10 MB，请更换更小的图片");
       return;
     }
     const reader = new FileReader();
@@ -587,9 +587,9 @@ function AiGeneratePageBody({
             <span className={`text-[11px] ${promptOverLimit ? "font-medium text-red-500" : "text-[#6f7066]"}`}>{prompt.length}/{promptLimit}</span>
           </div>
           <label htmlFor="ai-prompt" className="mt-4 block text-xs font-medium text-[#67685f]">设计描述</label>
-          <textarea id="ai-prompt" value={prompt} onChange={(event) => setPromptDraft(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节……" maxLength={promptLimit} aria-invalid={promptOverLimit || undefined} className="mt-2 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-[var(--surface)] p-4 text-sm leading-7 text-[#292a27] outline-none transition placeholder:text-[#6f7066] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
+          <textarea id="ai-prompt" value={prompt} onChange={(event) => setPromptDraft(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节…" maxLength={promptLimit} aria-invalid={promptOverLimit || undefined} className="mt-2 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-[var(--surface)] p-4 text-sm leading-7 text-[#292a27] outline-none transition placeholder:text-[#6f7066] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
           {promptOverLimit && (
-            <p className="mt-2 text-[11px] text-red-500">当前引擎最多支持 {promptLimit} 字（已 {prompt.length} 字），请缩短后再生成。</p>
+            <p className="mt-2 text-[11px] text-red-500">最多 {promptLimit} 字，已 {prompt.length} 字，请缩短后再生成。</p>
           )}
           <p className="mt-5 text-xs font-medium text-[#67685f]">参考图（可选）</p>
           {referenceImage ? (
@@ -609,7 +609,7 @@ function AiGeneratePageBody({
               <input type="file" accept="image/*" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) handleReferenceFile(file); event.target.value = ""; }} />
             </label>
           )}
-          {referenceError ? <p className="mt-2 text-[11px] text-red-400">{referenceError}</p> : <p className="mt-2 text-[11px] text-[#67685f]">上传的图片会发送给 AI 服务，仅用于本次生成；不上传则按文字直接生成</p>}
+          {referenceError ? <p className="mt-2 text-[11px] text-red-400">{referenceError}</p> : <p className="mt-2 text-[11px] text-[#67685f]">图片仅在你上传时发送给 AI 服务，且只用于本次生成</p>}
           <p className="mt-5 text-xs font-medium text-[#67685f]">从一个风格开始</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {AI_STYLE_PROMPTS.map((group) => <button key={group.label} onClick={() => handleStyleClick(group.label)} className="inline-flex min-h-11 items-center rounded-full border border-pink-100 bg-pink-50/65 px-3 py-2 text-xs text-[#a34b3f] transition hover:-translate-y-0.5 hover:bg-[var(--surface)] hover:shadow-sm">{group.label}</button>)}
@@ -644,7 +644,7 @@ function AiGeneratePageBody({
           <button onClick={handleGenerate} disabled={status === "loading" || !prompt.trim() || promptOverLimit} className="mt-7 flex h-13 w-full items-center justify-center gap-2 rounded-2xl bg-[var(--coral)] text-sm font-semibold text-white shadow-[var(--neu-out-sm)] transition hover:-translate-y-0.5 hover:shadow-[var(--neu-out-md)] active:scale-[.98] disabled:cursor-not-allowed disabled:opacity-40">
             {status === "loading" ? <span key="btn-loading" className="fade-in-up inline-flex items-center gap-2"><span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />正在生成设计</span> : <span key="btn-idle" className="fade-in-up inline-flex items-center gap-2">生成我的美甲设计 <span aria-hidden="true"><Icon name="sparkles" className="h-4 w-4" /></span></span>}
           </button>
-          <p className="mt-4 text-center text-[11px] text-[#67685f]">文字描述始终发送给 AI 服务；仅当你上传参考图时，图片也会发送并只用于本次生成；「用户改进计划」可在隐私页管理</p>
+          <p className="mt-4 text-center text-[11px] text-[#67685f]">文字会发送至 AI 服务；参考图仅在你上传时发送，只用于本次生成；改进计划可在隐私页管理</p>
         </section>
         <section className="relative flex min-h-[390px] items-center justify-center overflow-hidden border-t border-[var(--line)] bg-[var(--paper)] p-5 lg:border-l lg:border-t-0 sm:p-8">
           {status === "success" && imageUrl ? (

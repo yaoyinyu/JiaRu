@@ -203,7 +203,7 @@ export function ArView({
   const lastStartSignalRef = useRef(0);
   const [recognitionFailed, setRecognitionFailed] = useState(false);
   const [status, setStatus] = useState("init"); // init|loading|ready|error
-  const [statusMsg, setStatusMsg] = useState("初始化...");
+  const [statusMsg, setStatusMsg] = useState("初始化…");
   const [handCnt, setHandCnt] = useState(-1); // -1=未检测, 0=无手, N=有手
   const [diag, setDiag] = useState<string[]>([]);
   const [frameAspectRatio, setFrameAspectRatio] = useState(16 / 9);
@@ -901,7 +901,7 @@ export function ArView({
   const handleStartCamera = () => {
     console.log("[AR] Start button clicked");
     setStatus("loading");
-    setStatusMsg("正在准备摄像头...");
+    setStatusMsg("正在准备摄像头…");
     setDiag([]);
     setRecognitionFailed(false);
     setUserStarted(true);
@@ -1088,7 +1088,7 @@ export function ArView({
           const permission = await navigator.permissions?.query?.({ name: "camera" as PermissionName });
           if (permission?.state === "denied") {
             setStatus("error");
-            setStatusMsg("摄像头权限已被浏览器拒绝。请点击地址栏左侧权限图标，将摄像头改为允许后刷新。");
+            setStatusMsg("摄像头权限被拒绝；请在地址栏权限图标中允许后刷新。");
             log("× 浏览器摄像头权限状态为 denied");
             return;
           }
@@ -1100,7 +1100,7 @@ export function ArView({
 
         // ── 步骤1: 先请求摄像头权限 ──
         // 必须先于 MediaPipe CDN 加载请求，否则网络慢时会表现为“点了按钮但摄像头没反应”。
-        setStatusMsg("请求摄像头权限...");
+        setStatusMsg("请求摄像头权限…");
         log("1/7 请求摄像头权限...");
 
         const video = vref.current;
@@ -1148,11 +1148,11 @@ export function ArView({
               log("× 摄像头获取失败: " + msg);
               setStatus("error");
               if (msg.includes("Permission") || msg.includes("permission") || msg.includes("denied") || msg.includes("NotAllowed")) {
-                setStatusMsg("摄像头权限被拒绝。请在浏览器设置 → 权限中允许摄像头访问");
+                setStatusMsg("摄像头权限被拒绝；请在浏览器设置中允许后重试");
               } else if (msg.includes("NotFound") || msg.includes("device")) {
                 setStatusMsg("未找到摄像头设备");
               } else if (msg.includes("NotReadable") || msg.includes("busy")) {
-                setStatusMsg("摄像头被其他应用占用，请关闭后重试");
+                setStatusMsg("摄像头被占用，请关闭后重试");
               } else {
                 setStatusMsg("摄像头不可用: " + msg.slice(0, 50));
               }
@@ -1201,7 +1201,7 @@ export function ArView({
 
         // camera_utils.js 不再需要（改用原生 getUserMedia + RAF）
         // ── 步骤4: 摄像头成功后再加载 MediaPipe ──
-        setStatusMsg("摄像头已启动，正在加载手部识别...");
+        setStatusMsg("摄像头已启动，正在加载手部识别…");
         log("4/7 摄像头已启动，加载 hands.js...");
 
         const scriptTimeout = 15000;
@@ -1240,7 +1240,7 @@ export function ArView({
         const H = window.Hands;
         if (!H) {
           setStatus("error");
-          setStatusMsg("摄像头已启动，但手部识别模块未加载。请检查网络后重试。");
+          setStatusMsg("手部识别模块加载失败，请检查网络后重试。");
           log("× Hands 未注册到 window");
           releaseStream();
           return;
@@ -1248,7 +1248,7 @@ export function ArView({
         log("  Hands √");
 
         // ── 步骤6: 创建 Hands 实例 ──
-        setStatusMsg("初始化手部识别...");
+        setStatusMsg("初始化手部识别…");
         log("6/7 创建 Hands 实例...");
 
         handsInst = new H({
@@ -1528,7 +1528,7 @@ export function ArView({
           {status === "error" && (
             <div className="mt-4 flex flex-col items-center gap-2 px-6 text-center">
               <p className="max-w-xs text-xs leading-5 text-white/85">
-                如果浏览器已经拒绝摄像头，请点击地址栏左侧的网站权限图标，把摄像头改为“允许”，然后刷新页面或点下面按钮重试。
+                如果浏览器已拒绝摄像头，请在地址栏权限图标中允许，然后刷新或点击下方按钮重试。
               </p>
               <button
                 type="button"
@@ -1653,7 +1653,7 @@ export function ArView({
               ? "检测到 " + handCnt + " 只手"
               : handCnt === 0
                 ? "请将手放在摄像头前"
-                : "等待检测..."}
+                : "等待检测…"}
           </span>
         </div>
       )}

@@ -103,7 +103,7 @@ export function EditorObjectPanel({
 
       {selection === null ? (
         <p className="mt-3 text-sm leading-6 text-[#6f7066]">
-          点击甲面框用当前纹理贴合；点击已贴合的纹理可选中后替换、微调或删除。
+          点击甲面框贴合纹理；选中贴合可替换、微调或删除。
         </p>
       ) : selection.kind === "placement" ? (
         <div className="mt-3">
@@ -155,7 +155,7 @@ export function EditorObjectPanel({
               })}
             </div>
             <p className="mt-1.5 text-xs leading-5 text-[#6f7066]">
-              指位决定套装模式下贴合时使用的纹理。
+              指位决定套装贴合所用纹理。
             </p>
           </div>
           {frameDeletable && (

@@ -377,7 +377,7 @@ export default function TextureCropper({
                   className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/40 border-t-white"
                   aria-hidden="true"
                 />{" "}
-                提取中
+                提取中…
               </span>
             ) : (
               "确认使用"
@@ -406,7 +406,7 @@ export default function TextureCropper({
                   className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"
                   aria-hidden="true"
                 />
-                <span>加载中...</span>
+                <span>加载中…</span>
               </div>
             )}
             <canvas

@@ -83,7 +83,7 @@ export async function validateImageUpload(
     return {
       ok: false,
       code: "decode_failed",
-      message: "图片无法解码，请重新选择完整的 JPG、PNG 或 WebP 文件。",
+      message: "图片无法解码，请换一张 JPG、PNG 或 WebP。",
     };
   }
 
@@ -96,7 +96,7 @@ export async function validateImageUpload(
     return {
       ok: false,
       code: "decode_failed",
-      message: "图片无法解码，请重新选择完整的 JPG、PNG 或 WebP 文件。",
+      message: "图片无法解码，请换一张 JPG、PNG 或 WebP。",
     };
   }
 

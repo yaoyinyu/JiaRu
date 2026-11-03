@@ -1,4 +1,8 @@
-import type { NailMask, NailTextureCandidate } from "./types.ts";
+import type {
+  NailMask,
+  NailTextureCandidate,
+  NailTextureCandidateSource,
+} from "./types.ts";
 import type { NailMatteInstance, NailMatteResult } from "@/lib/nail-matte-api";
 import { estimateMaskPrincipalAngle } from "./mask-orientation.ts";
 import {
@@ -191,12 +195,14 @@ export async function fetchNailMatteAvailability(
 /** 浏览器侧调用 `/api/nail-matte`；降级与错误都以返回值表达，不抛异常。 */
 export async function requestNailMatteFromBrowser(
   input: { image: string; task: "matting" | "visual_prompt"; query?: string; boxes?: Box[] },
-  options: { signal?: AbortSignal; fetchImpl?: typeof fetch } = {}
+  options: { signal?: AbortSignal; fetchImpl?: typeof fetch; endpoint?: string } = {}
 ): Promise<NailMatteOutcome> {
   const fetchImpl = options.fetchImpl ?? fetch;
+  // endpoint 可替换为云端 matte 契约路由（/api/nail-matte-cloud）；默认本机，行为不变。
+  const endpoint = options.endpoint ?? "/api/nail-matte";
   let response: Response;
   try {
-    response = await fetchImpl("/api/nail-matte", {
+    response = await fetchImpl(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
@@ -206,7 +212,13 @@ export async function requestNailMatteFromBrowser(
     if (err instanceof Error && err.name === "AbortError") {
       return { status: "degraded", reason: "cancelled", message: "已取消精细抠图" };
     }
-    return { status: "error", message: "网络异常，未能连接本机抠图服务" };
+    return {
+      status: "error",
+      message:
+        endpoint === "/api/nail-matte"
+          ? "网络异常，未能连接本机抠图服务"
+          : "网络异常，未能连接云端抠图服务",
+    };
   }
 
   let body: unknown = null;
@@ -397,6 +409,8 @@ export interface MatteDetectInput {
   imageWidth: number;
   imageHeight: number;
   signal?: AbortSignal;
+  /** 候选来源标注；默认 "vlm-matte"（云端 matte 路径传 "cloud-matte"）。 */
+  source?: NailTextureCandidateSource;
   encode?: typeof encodeImageForMatte;
   decode?: typeof decodeAlphaPngToGrid;
   request?: typeof requestNailMatteFromBrowser;
@@ -435,7 +449,8 @@ export function candidateFromMatteInstance(
   instance: NailMatteInstance,
   grid: AlphaGrid,
   imageWidth: number,
-  imageHeight: number
+  imageHeight: number,
+  source: NailTextureCandidateSource = "vlm-matte"
 ): NailTextureCandidate {
   const mask = nailMaskFromAlphaGrid(grid, imageWidth, imageHeight);
   let cx: number;
@@ -460,7 +475,7 @@ export function candidateFromMatteInstance(
     length = Math.max(1, (box[3] - box[1]) / scale);
   }
   return {
-    id: `vlm-matte-${instance.index}`,
+    id: `${source}-${instance.index}`,
     cx,
     cy,
     length,
@@ -469,7 +484,7 @@ export function candidateFromMatteInstance(
     angle: estimateMaskPrincipalAngle(mask) ?? 0,
     score: 0.2,
     confidence: "low",
-    source: "vlm-matte",
+    source,
     mask,
     warnings: ["needs_review"],
     suggestedFinger: null,
@@ -491,9 +506,10 @@ export async function detectNailsWithMatte(input: MatteDetectInput): Promise<Mat
 
   const { result } = outcome;
   const candidates: NailTextureCandidate[] = [];
+  const source = input.source ?? "vlm-matte";
   for (const instance of result.instances) {
     const grid = await decode(instance.alphaPng);
-    candidates.push(candidateFromMatteInstance(instance, grid, input.imageWidth, input.imageHeight));
+    candidates.push(candidateFromMatteInstance(instance, grid, input.imageWidth, input.imageHeight, source));
   }
 
   return {

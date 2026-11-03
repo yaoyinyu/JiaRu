@@ -171,7 +171,7 @@ function LoginForm() {
     "w-full rounded-xl border border-pink-200 bg-[var(--surface)] px-4 py-3 text-[15px] text-[#292a27] outline-none transition placeholder:text-[#6f7066] focus:border-pink-400 focus:ring-2 focus:ring-pink-100";
 
   return (
-    <AppShell eyebrow="会员中心" title="登录 / 注册" description="登录即注册：首次使用任一方式登录会自动创建账号。登录后可管理账号资料、登录方式与生图配额。云端作品与跨设备同步正在开发中。">
+    <AppShell eyebrow="会员中心" title="登录 / 注册" description="登录即注册，登录后可管理资料、登录方式与生图配额。">
       <div className="mx-auto w-full max-w-md">
         <div className="rounded-3xl border border-pink-100 bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] sm:p-8">
           <div className="space-y-4">
@@ -273,7 +273,7 @@ function LoginForm() {
               disabled={wechatConfigured === false}
               title={
                 wechatConfigured === false
-                  ? "微信登录需要微信开放平台企业认证（300 元/年），配置后开放"
+                  ? "微信登录需要企业认证（300 元/年），配置后开放"
                   : "使用微信扫码登录"
               }
               className="min-h-11 w-full rounded-xl border border-[#22ac38]/40 bg-[#22ac38]/5 px-3 py-2.5 text-sm font-semibold text-[#1d9e31] transition hover:bg-[#22ac38]/10 disabled:cursor-not-allowed disabled:opacity-50"

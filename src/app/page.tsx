@@ -30,7 +30,7 @@ export default function Home() {
               </Link>
               <Link href="/ar-tryon" className={styles.ghostAction}>开启摄像头实时试戴</Link>
             </div>
-            <p className={styles.heroHint}>摄像头试戴需要浏览器授权；照片试色默认在本机处理。</p>
+            <p className={styles.heroHint}>试戴需授权摄像头；照片默认本机处理。</p>
           </div>
 
           <figure className={styles.heroFigure}>
@@ -96,8 +96,7 @@ export default function Home() {
 
         <NeuCard className={styles.boundaryCard}>
           <p>
-            试戴需摄像头权限与安全连接（HTTPS 或本机地址）；AI 生成需联网。识别结果用于辅助定位，
-            不作为正式纹理识别能力的承诺。图片默认不离开本机。
+            AR 试戴需摄像头与 HTTPS 环境；AI 生成需联网。识别结果仅作辅助定位；图片默认留在本机。
           </p>
         </NeuCard>
       </main>
