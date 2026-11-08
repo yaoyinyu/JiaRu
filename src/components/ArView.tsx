@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useEffect, useState } from "react";
+import { dragNailFit, fitHandlePoints, mirroredCanvasPoint, type FitHandle } from "@/lib/ar-fit-drag";
 import {
   adjustNailGeometry,
   computeNailGeometry,
@@ -7,14 +8,16 @@ import {
   NAIL_DIPS,
   NAIL_PIPS,
   NAIL_TIPS,
-  smoothAngle,
+  smoothNailGeometry,
   type NailGeometry,
 } from "@/lib/nail-geometry";
 import { resolveMediaPipeHandsAsset } from "@/lib/mediapipe-hands-assets";
+import { measureTextureAlphaFrame, textureDrawRect, textureLayerSize, cuticleBlendDistance, photographicLightGain, type TextureAlphaFrame } from "@/lib/ar-texture-fit";
 import { Icon } from "@/components/Icon";
 import {
   calculateCoverVideoLayout,
   calculateViewportAspectRatio,
+  coverPointToVideo,
 } from "@/lib/ar-video-layout";
 import {
   classifyHandOrientation,
@@ -59,9 +62,6 @@ const EXTENSION_ANGLE_THRESHOLD = 0.6; // ≈ 35°
 // 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
 const VOTE_FINGERS = [1, 2, 3, 4];
 
-// 柱面曲率变形参数
-const CURVATURE_STRENGTH = 0.22;  // 曲率强度（0=平面，越大越弯）
-const CURVATURE_STRIPS = 12;      // 竖条分片数（越多越平滑）
 const INFERENCE_INTERVAL_MS = 1000 / 24;
 
 // MediaPipe 全局类型声明（CDN 注入）
@@ -109,36 +109,19 @@ declare global {
 type Nail2DContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
 
 // 纹理 alpha 轮廓检测缓存（按位图实例缓存，检测结果与位图内容一一对应）
-const textureAlphaShapeCache = new WeakMap<ImageBitmap, boolean>();
+const textureFrameCache = new WeakMap<ImageBitmap, TextureAlphaFrame>();
 
-/**
- * 判断纹理位图是否自带甲面 alpha 轮廓（四角基本透明）。
- * 提取归一化/椭圆裁剪产物四角透明 → 渲染直接以纹理 alpha 成形（原封不动）；
- * 手动矩形裁剪等不透明位图 → 回退贝塞尔形状裁剪（历史行为）。
- * 探测失败（异常环境）时保守按「无 alpha 轮廓」处理，走裁剪路径。
- */
-function hasTextureAlphaShape(tex: ImageBitmap): boolean {
-  const cached = textureAlphaShapeCache.get(tex);
-  if (cached !== undefined) return cached;
-  let result = false;
-  try {
-    const probe = new OffscreenCanvas(8, 8);
-    const pctx = probe.getContext("2d", { willReadFrequently: true });
-    if (pctx) {
-      pctx.drawImage(tex, 0, 0, 8, 8);
-      const data = pctx.getImageData(0, 0, 8, 8).data;
-      const corners: Array<[number, number]> = [[0, 0], [7, 0], [0, 7], [7, 7]];
-      const transparentCorners = corners.filter(([x, y]) => {
-        const alpha = data[(y * 8 + x) * 4 + 3];
-        return alpha < 200;
-      }).length;
-      result = transparentCorners >= 3;
-    }
-  } catch {
-    result = false;
-  }
-  textureAlphaShapeCache.set(tex, result);
-  return result;
+function getTextureFrame(tex: ImageBitmap): TextureAlphaFrame {
+  const existing = textureFrameCache.get(tex);
+  if (existing) return existing;
+  const canvas = new OffscreenCanvas(tex.width, tex.height);
+  const ctx = canvas.getContext("2d", { willReadFrequently: true });
+  if (!ctx) throw new Error("texture_frame_canvas_unavailable");
+  ctx.drawImage(tex, 0, 0);
+  const frame = measureTextureAlphaFrame(ctx.getImageData(0, 0, tex.width, tex.height).data, tex.width, tex.height);
+  textureFrameCache.set(tex, frame);
+  canvas.width = canvas.height = 1;
+  return frame;
 }
 
 interface Props {
@@ -155,8 +138,11 @@ interface Props {
   nailAdjustments?: readonly NailFitAdjustment[];
   /** 可选的逐指甲渲染样式（甲型模板 + 光泽系数）；null/缺省 = 维持 round 历史默认。 */
   nailStyles?: readonly (NailRenderStyle | null)[];
-  /** 当前校准中的手指索引（0—4）；画布对该指甲做珊瑚描边高亮，null/缺省不高亮。 */
+  /** 当前校准中的手指索引（0—4）；开启辅助线时显示该指的甲根位置。 */
   activeFinger?: number | null;
+  /** 校准时显示甲根标尺；常规试戴保持关闭。 */
+  showFitGuides?: boolean;
+  onFitChange?: (finger: number, fit: NailFitAdjustment) => void;
   /** 用户在连续失败覆盖层选择「改用上传照片试色」时回调（摄像头由组件自行停止）。 */
   onSuggestUpload?: () => void;
   /** 摄像头会话就绪/停止时回调（true=会话运行中，false=已停止），用于页面顶部步骤状态。 */
@@ -169,6 +155,9 @@ export interface NailFitAdjustment {
   lengthScale: number;
   widthScale: number;
   rootOffset: number;
+  sideOffset?: number;
+  /** 弧度；围绕甲根旋转。 */
+  rotationOffset?: number;
 }
 
 export function ArView({
@@ -180,6 +169,8 @@ export function ArView({
   nailAdjustments,
   nailStyles,
   activeFinger = null,
+  showFitGuides = false,
+  onFitChange,
   onSuggestUpload,
   onCameraActiveChange,
   startSignal = 0,
@@ -194,6 +185,11 @@ export function ArView({
   const nailAdjustmentsRef = useRef(nailAdjustments);
   const nailStylesRef = useRef<readonly (NailRenderStyle | null)[]>([]);
   const activeFingerRef = useRef<number | null>(activeFinger);
+  const showFitGuidesRef = useRef(showFitGuides);
+  const fitGuideRef = useRef<{ finger: number; raw: NailGeometry; rendered: NailGeometry;
+    fit: NailFitAdjustment; time: number } | null>(null);
+  const fitDragRef = useRef<{ pointer: number; x: number; y: number; handle: FitHandle;
+    guide: NonNullable<typeof fitGuideRef.current> } | null>(null);
   // 「关闭摄像头」按钮桥：teardownToInit 定义在主 effect 闭包内，
   // 通过 ref 暴露给渲染层的按钮与覆盖层调用。
   const teardownRef = useRef<(() => void) | null>(null);
@@ -363,8 +359,9 @@ export function ArView({
     h: number
   ): { brightness: number; r: number; g: number; b: number } {
     const sampleSize = 8;
-    const sx = Math.max(0, Math.min(w - sampleSize, cx - sampleSize / 2));
-    const sy = Math.max(0, Math.min(h - sampleSize, cy - sampleSize / 2));
+    const source = coverPointToVideo(cx, cy, video.videoWidth, video.videoHeight, w, h);
+    const sx = Math.max(0, Math.min(video.videoWidth - sampleSize, source.x - sampleSize / 2));
+    const sy = Math.max(0, Math.min(video.videoHeight - sampleSize, source.y - sampleSize / 2));
 
     const off = lightSampleCanvasRef.current ?? new OffscreenCanvas(sampleSize, sampleSize);
     lightSampleCanvasRef.current = off;
@@ -391,46 +388,12 @@ export function ArView({
     return { brightness, r: avgR, g: avgG, b: avgB };
   }
 
-  /**
-   * 柱面曲率变形绘制纹理
-   *
-   * 将纹理沿宽度方向切分为 N 个竖条，每个竖条按抛物线缩放宽度，
-   * 模拟指甲的圆柱形曲面。边缘的竖条更窄（透视压缩），中心更宽。
-   */
-  function drawCurvedTexture(
-    ctx: Nail2DContext,
-    tex: ImageBitmap,
-    nl: number,
-    nw: number
-  ) {
-    const hw = nw * 0.5;
-    const hl = nl * 0.5;
-    const strips = CURVATURE_STRIPS;
-    const stripW = nw / strips;
-
-    for (let i = 0; i < strips; i++) {
-      // 归一化 x 坐标（-1 到 1）
-      const u = (i + 0.5) / strips; // 0..1
-      const nx = u * 2 - 1;          // -1..1
-
-      // 抛物线宽度缩放：中心=1，边缘=cos(arc)
-      const cosTheta = Math.cos(nx * CURVATURE_STRENGTH * Math.PI * 0.5);
-      const widthScale = Math.max(0.3, cosTheta);
-
-      // 该竖条在屏幕上的位置和宽度
-      const sx = -hw + i * stripW;
-      const sw = stripW * widthScale;
-
-      // 从纹理中采样对应竖条
-      const texSx = (tex.width * i) / strips;
-      const texSw = tex.width / strips;
-
-      ctx.drawImage(
-        tex,
-        texSx, 0, texSw, tex.height,
-        sx, -hl, sw, nl
-      );
-    }
+  /** 摄影纹理单次采样：内容甲根与甲床宽度对齐，保留来源图已有的曲面光影。 */
+  function drawPhotoTexture(ctx: Nail2DContext, tex: ImageBitmap, nl: number, nw: number) {
+    const rect = textureDrawRect(getTextureFrame(tex), tex.width, tex.height, nw, nl);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(tex, rect.x, rect.y, rect.width, rect.height);
   }
 
   /**
@@ -493,7 +456,7 @@ export function ArView({
       grainCanvasRef.current = grainCanvas;
     }
     if (grainCanvas) {
-      ctx.globalAlpha = 0.35;
+      ctx.globalAlpha = 0.35 * Math.min(1, glossFactor);
       ctx.drawImage(grainCanvas, -hw, -hl, nw, nl);
     }
     ctx.restore();
@@ -508,7 +471,7 @@ export function ArView({
     drawNailShape(ctx, nl, nw, fingerIdx, profile);
     ctx.clip();
     ctx.fillStyle = vignetteGrad;
-    ctx.globalAlpha = 1;
+    ctx.globalAlpha = Math.min(1, glossFactor);
     ctx.fillRect(-hw, -hl, nw, nl);
     ctx.restore();
   }
@@ -766,6 +729,8 @@ export function ArView({
         fingerAdjustment?.lengthScale ?? nailScaleRef.current,
         fingerAdjustment?.rootOffset ?? nailOffsetRef.current,
         fingerAdjustment?.widthScale ?? nailScaleRef.current,
+        fingerAdjustment?.sideOffset ?? 0,
+        fingerAdjustment?.rotationOffset ?? 0,
       );
 
       const previous = geometrySmoothRef.current[f];
@@ -774,18 +739,7 @@ export function ArView({
         : Number.POSITIVE_INFINITY;
       const alpha = movement > measured.width * 0.22 ? 0.82 : 0.55;
       const geometry = previous
-        ? {
-            cx: ema(previous.cx, measured.cx, alpha),
-            cy: ema(previous.cy, measured.cy, alpha),
-            length: ema(previous.length, measured.length, alpha),
-            width: ema(previous.width, measured.width, alpha),
-            angle: smoothAngle(previous.angle, measured.angle, alpha),
-            transverseAngle: smoothAngle(
-              previous.transverseAngle ?? previous.angle,
-              measured.transverseAngle ?? measured.angle,
-              alpha,
-            ),
-          }
+        ? smoothNailGeometry(previous, measured, alpha)
         : measured;
       geometrySmoothRef.current[f] = geometry;
 
@@ -804,20 +758,24 @@ export function ArView({
       // 宽度对齐真实甲面（含宽度滑杆），渲染长度 = 宽度 × 纹理自身长宽比，
       // 甲根边缘锚定在估算甲面的甲根边缘，延长部分向甲尖自然伸出。
       const tex = currentMode === "texture" ? textures?.[f] : null;
-      const alphaShaped = tex ? hasTextureAlphaShape(tex) : false;
+      const alphaShaped = tex ? getTextureFrame(tex).shaped : false;
       let renderGeometry = geometry;
       let renderLength = nl;
       if (tex && tex.width > 0 && tex.height > 0) {
-        const plan = computeTextureRenderPlan(geometry, tex.height / tex.width);
+        const frame = getTextureFrame(tex);
+        const plan = computeTextureRenderPlan(geometry, frame.height / frame.bodyWidth, 3,
+          fingerAdjustment?.lengthScale ?? nailScaleRef.current,
+          fingerAdjustment?.widthScale ?? nailScaleRef.current);
         renderLength = plan.length;
         renderGeometry = { ...geometry, cx: plan.cx, cy: plan.cy, length: plan.length };
       }
 
-      const layerHl = renderLength * 0.5;
-      const layerPad = layerHl * 0.6 + 4; // 容纳甲尖上拱/侧线外扩/甲根凸起的越界量
+      const layerSize = tex && alphaShaped
+        ? textureLayerSize(textureDrawRect(getTextureFrame(tex), tex.width, tex.height, nw, renderLength), nw, renderLength)
+        : null;
       const layer =
-        tex && alphaShaped
-          ? acquireNailLayerCanvas(nw + layerPad * 2, renderLength + layerPad * 2)
+        layerSize
+          ? acquireNailLayerCanvas(layerSize.width, layerSize.height)
           : null;
 
       if (tex && alphaShaped && layer) {
@@ -827,10 +785,20 @@ export function ArView({
         const { canvas: layerCanvas, ctx: lctx } = layer;
         lctx.save();
         lctx.translate(layerCanvas.width * 0.5, layerCanvas.height * 0.5);
-        drawCurvedTexture(lctx, tex, renderLength, nw);
+        drawPhotoTexture(lctx, tex, renderLength, nw);
+        // 在离屏纹理自身 alpha 上融合甲根交界，避免整枚纹理降低透明度。
+        lctx.globalCompositeOperation = "destination-in";
+        const rootY = renderLength / 2;
+        const rootBlend = lctx.createLinearGradient(0, rootY - cuticleBlendDistance(renderLength), 0, rootY);
+        rootBlend.addColorStop(0, "rgba(0,0,0,1)");
+        rootBlend.addColorStop(1, "rgba(0,0,0,0)");
+        lctx.fillStyle = rootBlend;
+        lctx.fillRect(-layerCanvas.width / 2, -layerCanvas.height / 2, layerCanvas.width, layerCanvas.height);
         lctx.globalCompositeOperation = "source-atop";
-        drawMaterialDetails(lctx, renderLength, nw, env.brightness, f, glossFactor, shapeProfile);
-        drawSpecularHighlight(lctx, renderLength, nw, env.brightness, f, glossFactor, shapeProfile);
+        lctx.fillStyle = `rgba(0,0,0,${1 - photographicLightGain(env.brightness)})`;
+        lctx.fillRect(-layerCanvas.width / 2, -layerCanvas.height / 2, layerCanvas.width, layerCanvas.height);
+        drawMaterialDetails(lctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
+        drawSpecularHighlight(lctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
         lctx.restore();
 
         ctx.save();
@@ -844,15 +812,15 @@ export function ArView({
         );
         ctx.restore();
       } else {
-        // ── 第一层：底色/纹理（带柱面曲率变形）──
+        // ── 第一层：底色/纹理（连续采样）──
         ctx.save();
         applyNailGeometryTransform(ctx, renderGeometry);
 
         if (tex) {
-          // 纹理模式（不透明位图或合成层不可用）：贝塞尔形状裁剪 + 柱面曲率变形（历史行为）
+          // 纹理模式（不透明位图或合成层不可用）：贝塞尔形状裁剪 + 连续摄影纹理采样
           drawNailShape(ctx, renderLength, nw, f, shapeProfile);
           ctx.clip();
-          drawCurvedTexture(ctx, tex, renderLength, nw);
+          drawPhotoTexture(ctx, tex, renderLength, nw);
         } else {
           // 纯色模式：填充指甲形状（使用逐指形状参数）
           drawNailShape(ctx, nl, nw, f, shapeProfile);
@@ -866,24 +834,41 @@ export function ArView({
         // ── 第二层：材质细节（菲涅尔 + 颗粒 + 暗角）──
         ctx.save();
         applyNailGeometryTransform(ctx, renderGeometry);
-        drawMaterialDetails(ctx, renderLength, nw, env.brightness, f, glossFactor, shapeProfile);
+        drawMaterialDetails(ctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
         ctx.restore();
 
         // ── 第三层：镜面高光 ──
         ctx.save();
         applyNailGeometryTransform(ctx, renderGeometry);
-        drawSpecularHighlight(ctx, renderLength, nw, env.brightness, f, glossFactor, shapeProfile);
+        drawSpecularHighlight(ctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
         ctx.restore();
       }
 
-      // ── 当前校准指高亮（珊瑚描边；仅视觉提示，不参与贴合数学）──
-      if (f === activeFingerRef.current) {
+      // ── 当前校准指甲根标尺（仅用户开启时显示）──
+      if (showFitGuidesRef.current && f === activeFingerRef.current) {
+        fitGuideRef.current = { finger: f, raw: rawGeometry, rendered: renderGeometry,
+          fit: { lengthScale: fingerAdjustment?.lengthScale ?? nailScaleRef.current,
+            widthScale: fingerAdjustment?.widthScale ?? nailScaleRef.current,
+            rootOffset: fingerAdjustment?.rootOffset ?? nailOffsetRef.current,
+            sideOffset: fingerAdjustment?.sideOffset ?? 0, rotationOffset: fingerAdjustment?.rotationOffset ?? 0 },
+          time: performance.now() };
         ctx.save();
         applyNailGeometryTransform(ctx, renderGeometry);
-        drawNailShape(ctx, tex ? renderLength : nl, nw, f, shapeProfile);
+        ctx.beginPath();
+        ctx.moveTo(-nw / 2, (tex ? renderLength : nl) / 2);
+        ctx.lineTo(nw / 2, (tex ? renderLength : nl) / 2);
         ctx.lineWidth = Math.max(2, nw * 0.08);
         ctx.strokeStyle = "#ff8a73";
         ctx.stroke();
+        ctx.restore();
+        const handles = fitHandlePoints(renderGeometry);
+        ctx.save();
+        ctx.fillStyle = "#ff8a73";
+        ctx.strokeStyle = "#fff";
+        ctx.lineWidth = 2;
+        for (const p of Object.values(handles)) {
+          ctx.beginPath(); ctx.arc(p.x, p.y, 6, 0, Math.PI * 2); ctx.fill(); ctx.stroke();
+        }
         ctx.restore();
       }
     }
@@ -957,6 +942,10 @@ export function ArView({
   useEffect(() => {
     nailStylesRef.current = nailStyles ?? [];
   }, [nailStyles]);
+
+  useEffect(() => {
+    showFitGuidesRef.current = showFitGuides;
+  }, [showFitGuides]);
 
   useEffect(() => {
     activeFingerRef.current = activeFinger ?? null;
@@ -1457,8 +1446,36 @@ export function ArView({
       />
       <canvas
         ref={cref}
-        className="absolute inset-0 w-full h-full pointer-events-none"
-        style={{ transform: "scaleX(-1)", transformOrigin: "50% 50%" }}
+        aria-label="甲面贴合校准：拖动根部、甲尖或侧边圆点；也可使用右侧校准滑杆"
+        className={`absolute inset-0 w-full h-full ${showFitGuides && onFitChange ? "cursor-crosshair" : "pointer-events-none"}`}
+        style={{ transform: "scaleX(-1)", transformOrigin: "50% 50%", touchAction: showFitGuides && onFitChange ? "none" : "auto" }}
+        onPointerDown={event => {
+          const guide = fitGuideRef.current;
+          if (!showFitGuides || !onFitChange || !guide || guide.finger !== activeFinger
+            || performance.now() - guide.time > 250 || event.button !== 0 || fitDragRef.current) return;
+          const canvas = event.currentTarget, bounds = canvas.getBoundingClientRect();
+          const p = mirroredCanvasPoint(event.clientX, event.clientY, bounds, canvas.width, canvas.height);
+          const ranked = (Object.entries(fitHandlePoints(guide.rendered)) as [FitHandle, { x: number; y: number }][])
+            .map(([handle, q]) => ({ handle, distance: Math.hypot((p.x - q.x) * bounds.width / canvas.width,
+              (p.y - q.y) * bounds.height / canvas.height) })).sort((a, b) => a.distance - b.distance);
+          if (ranked[0].distance > 24) return;
+          fitDragRef.current = { pointer: event.pointerId, x: p.x, y: p.y, handle: ranked[0].handle, guide };
+          canvas.setPointerCapture(event.pointerId);
+          event.preventDefault();
+        }}
+        onPointerMove={event => {
+          const drag = fitDragRef.current;
+          if (!drag || drag.pointer !== event.pointerId) return;
+          if (!showFitGuides || drag.guide.finger !== activeFinger || !fitGuideRef.current
+            || performance.now() - fitGuideRef.current.time > 250) { fitDragRef.current = null; return; }
+          const canvas = event.currentTarget;
+          const p = mirroredCanvasPoint(event.clientX, event.clientY, canvas.getBoundingClientRect(), canvas.width, canvas.height);
+          onFitChange?.(drag.guide.finger, dragNailFit(drag.handle, p.x - drag.x, p.y - drag.y,
+            drag.guide.raw, drag.guide.rendered, drag.guide.fit));
+        }}
+        onPointerUp={() => { fitDragRef.current = null; }}
+        onPointerCancel={() => { fitDragRef.current = null; }}
+        onLostPointerCapture={() => { fitDragRef.current = null; }}
       />
 
       {/* 未启动时显示开始按钮 */}
@@ -1473,7 +1490,7 @@ export function ArView({
           >
             <span className="inline-flex items-center gap-2"><Icon name="camera" className="h-5 w-5" />开启摄像头</span>
           </button>
-          <p className="text-xs text-gray-300 mt-4 px-6 text-center max-w-xs">
+          <p className="text-xs text-white/85 mt-4 px-6 text-center max-w-xs">
             点击后浏览器会请求摄像头权限，请允许
           </p>
           {diag.length > 0 && (

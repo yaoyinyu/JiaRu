@@ -171,7 +171,7 @@ function LoginForm() {
     "w-full rounded-xl border border-pink-200 bg-[var(--surface)] px-4 py-3 text-[15px] text-[#292a27] outline-none transition placeholder:text-[#6f7066] focus:border-pink-400 focus:ring-2 focus:ring-pink-100";
 
   return (
-    <AppShell eyebrow="会员中心" title="登录 / 注册" description="登录即注册，登录后可管理资料、登录方式与生图配额。">
+    <AppShell eyebrow="会员中心" title="登录 / 注册" description="登录即注册；资料、登录方式与生图配额，一处管理。">
       <div className="mx-auto w-full max-w-md">
         <div className="rounded-3xl border border-pink-100 bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] sm:p-8">
           <div className="space-y-4">

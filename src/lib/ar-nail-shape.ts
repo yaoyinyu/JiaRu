@@ -63,12 +63,11 @@ export function getNailShapeProfile(
 }
 
 /**
- * 纹理模式的渲染长度计划：长宽比保真（「原封不动」贴回）。
+ * 纹理模式的渲染长度计划：按可见甲床长宽比贴合，并围绕甲根校准。
  *
- * 纹理位图在提取时已归一化（甲尖朝上、紧致裁剪、甲面充满位图），
- * 其 height/width 就是设计甲面的真实长宽比。渲染时：
+ * textureAspect 使用可见内容高度/甲床宽度，排除透明留白。渲染时：
  *   - 宽度对齐用户真实甲面（geometry.width，含宽度滑杆）；
- *   - 渲染长度 = 宽度 × 纹理长宽比，等比缩放、比例不压扁；
+ *   - 渲染长度按宽度×长宽比计算，再应用长度滑杆；
  *   - 甲根边缘锚定在估算甲面的甲根边缘，延长部分向甲尖自然伸出；
  *   - 不短于估算甲面长度（保证盖满真实甲面），上限 maxLengthScale × 估算长度（防极端长宽比）。
  * textureAspect 非法（非有限/≤0）时退回估算长度（不延长）。
@@ -80,14 +79,26 @@ export interface TextureRenderPlan {
 }
 
 export function computeTextureRenderPlan(
-  geometry: { cx: number; cy: number; length: number; width: number; angle: number },
+  geometry: { cx: number; cy: number; length: number; width: number; angle: number;
+    longitudinalProjection?: number; transverseProjection?: number },
   textureAspect: number,
   maxLengthScale: number = 3,
+  lengthScale: number = 1,
+  widthScale: number = 1,
 ): TextureRenderPlan {
   const safeAspect =
     Number.isFinite(textureAspect) && textureAspect > 0 ? textureAspect : 1;
-  const cap = Math.max(geometry.length, geometry.length * maxLengthScale);
-  const length = Math.max(geometry.length, Math.min(geometry.width * safeAspect, cap));
+  const scale = Number.isFinite(lengthScale) ? Math.max(.75, Math.min(1.4, lengthScale)) : 1;
+  const widthCalibration = Number.isFinite(widthScale) ? Math.max(.7, Math.min(1.45, widthScale)) : 1;
+  const baseLength = geometry.length / scale;
+  const cap = Math.max(baseLength, baseLength * maxLengthScale);
+  // 画面宽度已含横向透视；先还原甲床宽度，再单独应用长轴投影。
+  // 否则侧转缩窄会同时错误缩短长甲，向镜头前倾又会被长宽比重新拉长。
+  const projection = (value: number | undefined) =>
+    typeof value === "number" && Number.isFinite(value) ? Math.max(.1, Math.min(1, value)) : 1;
+  const projectedAspect = safeAspect * projection(geometry.longitudinalProjection)
+    / projection(geometry.transverseProjection);
+  const length = Math.max(baseLength, Math.min(geometry.width / widthCalibration * projectedAspect, cap)) * scale;
   const delta = (length - geometry.length) / 2;
   // 甲尖方向 = 局部 −Y 轴的世界方向 = (sin(angle), −cos(angle))，与
   // createNailAffineTransform/adjustNailGeometry 的甲根方向约定互为反向。

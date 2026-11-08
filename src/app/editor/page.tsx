@@ -637,6 +637,7 @@ function EditorPageBody({
       detected = autoAssignNailRegionFingers(detected).regions;
       // 兜底识别替换 frames：先入撤销栈（快照 = 替换前）。
       pushHistoryCoalesced("matte-detect");
+      setDetectionSummary(null);
       setFrames(detected);
       setAddingFrame(false);
       setMatteStatus("done");
@@ -855,16 +856,16 @@ function EditorPageBody({
         if (regions.length > 0 && inspirationAutoRef.current) {
           applyInspirationSet(inspirationAutoRef.current, regions);
         }
-        if (regions.length === 0) {
+        if (regions.length === 0 || (detected.summary.backend === "fallback" && readMatteNoticeAccepted())) {
           // 0 候选且已记住隐私确认、服务就绪 → 自动兜底一次；否则进入手动提示。
           const availability =
             matteAvailabilityRef.current ??
             (await matteAvailabilityPromiseRef.current?.catch(() => null)) ??
             null;
           if (cancelled || controller.signal.aborted) return;
-          if (readMatteNoticeAccepted() && availability?.ready && !availability.busy) {
+          if (readMatteNoticeAccepted() && availability?.ready && !availability.busy && (regions.length === 0 || availability.backend === "candidate")) {
             await runMatteDetect({ signal: controller.signal });
-          } else {
+          } else if (regions.length === 0) {
             setAddingFrame(true);
           }
         }
@@ -1491,10 +1492,10 @@ function EditorPageBody({
         eyebrow={look ? "Inspiration Studio" : "Texture Studio"}
         title={
           imageUrl
-            ? "在照片上试戴美甲纹理"
+            ? "为这双手，换上新纹理"
             : look
-              ? `以「${look.name}」为灵感，试戴相近的美甲纹理`
-              : "上传一张手部照片，点选贴合美甲纹理"
+              ? `从「${look.name}」出发，找到相近的纹理`
+              : "把心仪的纹理，贴合你的指尖"
         }
         description={
           imageUrl
@@ -1540,8 +1541,8 @@ function EditorPageBody({
                 />
               </div>
             ) : null}
-            <div className="grid gap-5 md:grid-cols-[1.25fr_.75fr]">
-              <section className="rounded-[28px] bg-[var(--surface)] p-3 shadow-[var(--neu-out-md)]  sm:p-5">
+            <div className="grid gap-5 md:grid-cols-[1.3fr_.7fr]">
+              <section className="rounded-[28px] bg-[var(--surface)] p-3 shadow-[var(--neu-out-md)] sm:p-5">
                 <UploadButton onUpload={handleUpload} />
                 {uploadError && (
                   <p role="alert" className="px-3 pb-2 pt-3 text-center text-sm text-red-600">
@@ -1549,13 +1550,13 @@ function EditorPageBody({
                   </p>
                 )}
               </section>
-              <aside className="rounded-[28px] bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] ">
+              <aside className="rounded-[28px] bg-[var(--surface)] p-5 shadow-[var(--neu-out-md)]">
                 <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--coral-soft)]"><Icon name="sparkles" className="h-5 w-5 text-[#a34b3f]" /></span>
-                <h2 className="mt-5 text-lg font-semibold text-[#292a27]">获得更自然的效果</h2>
-                <ul className="mt-4 space-y-3 text-sm leading-6 text-[#6f7066]">
-                  <li className="flex gap-3"><span className="text-[#ac5145]">01</span><span>光线均匀、五指清晰的正面手部照片</span></li>
-                  <li className="flex gap-3"><span className="text-[#ac5145]">02</span><span>上传后辅助定位甲面，可手动调整</span></li>
-                  <li className="flex gap-3"><span className="text-[#ac5145]">03</span><span>点选套装贴合，或钉选单张逐指搭配</span></li>
+                <h2 className="mt-5 text-lg font-semibold text-[#292a27]">让贴合更自然</h2>
+                <ul className="mt-4 space-y-2.5 text-sm leading-6 text-[#6f7066]">
+                  <li className="flex items-start gap-2.5"><span aria-hidden className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-[var(--coral)]" /><span>光线均匀、五指清晰的正面手部照片</span></li>
+                  <li className="flex items-start gap-2.5"><span aria-hidden className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-[var(--coral)]" /><span>上传后辅助定位甲面，可手动调整</span></li>
+                  <li className="flex items-start gap-2.5"><span aria-hidden className="mt-2.5 h-1 w-1 shrink-0 rounded-full bg-[var(--coral)]" /><span>点选套装贴合，或钉选单张逐指搭配</span></li>
                 </ul>
                 <div className="mt-6 rounded-2xl border border-pink-100/70 bg-pink-50/55 px-4 py-3 text-xs leading-5 text-[#6f7066]"><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />照片默认不上传；改进计划可在隐私页关闭</div>
               </aside>
@@ -1755,7 +1756,7 @@ function EditorPageBody({
                 <button
                   onClick={handleClearSelection}
                   disabled={!pinnedTextureKey && !activeSetId}
-                  className="shrink-0 text-xs font-medium text-[#ac5145] transition hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="flex min-h-[44px] shrink-0 items-center text-xs font-medium text-[#ac5145] transition-[color,opacity] hover:opacity-80 disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   清除选择
                 </button>
@@ -1764,17 +1765,17 @@ function EditorPageBody({
               {detectionSummary && (
                 <div className="mb-4 space-y-2 rounded-2xl border border-pink-100/70 bg-pink-50/50 p-3 text-xs text-[#67685f]">
                   <div className="flex flex-wrap gap-1.5">
-                    <span className="rounded-full bg-[var(--surface)] px-2 py-1 shadow-sm">
+                    <span className="whitespace-nowrap rounded-full bg-[var(--surface)] px-2 py-1 shadow-sm">
                       {detectionSummary.assistedByHandGeometry
                         ? "手部几何辅助定位"
                         : detectionSummary.assistedByPartialCloseup
                           ? "局部近景辅助定位"
                           : BACKEND_LABELS[detectionSummary.backend]}
                     </span>
-                    <span className="rounded-full bg-[var(--surface)] px-2 py-1 shadow-sm">甲面框：{frames.length}</span>
-                    <span className="rounded-full bg-[var(--surface)] px-2 py-1 shadow-sm">耗时 {Math.round(detectionSummary.elapsedMs)} 毫秒</span>
+                    <span className="whitespace-nowrap rounded-full bg-[var(--surface)] px-2 py-1 shadow-sm">甲面框：{frames.length}</span>
+                    <span className="whitespace-nowrap rounded-full bg-[var(--surface)] px-2 py-1 shadow-sm">耗时 {Math.round(detectionSummary.elapsedMs)} 毫秒</span>
                   </div>
-                  {auxiliaryNotice && (
+                  {auxiliaryNotice && !matteAvailability?.enabled && (
                     <div role="status" className="rounded-xl bg-amber-50 px-3 py-2 leading-5 text-amber-800">
                       {auxiliaryNotice}
                     </div>
@@ -1785,11 +1786,11 @@ function EditorPageBody({
                     </div>
                   )}
                   {detectionWarningMessages.length > 0 && (
-                    <ul className="list-disc space-y-1 pl-5 text-amber-700">
+                    <details><summary className="min-h-11 cursor-pointer text-slate-500">浏览器定位诊断</summary><ul className="list-disc space-y-1 pl-5 text-amber-700">
                       {detectionWarningMessages.map((message) => (
                         <li key={message}>{message}</li>
                       ))}
-                    </ul>
+                    </ul></details>
                   )}
                 </div>
               )}
@@ -1833,6 +1834,7 @@ function EditorPageBody({
 
               <NailMattePanel
                 availability={matteAvailability}
+              onAvailabilityChange={(next) => { matteAvailabilityRef.current = next; setMatteAvailability(next); }}
                 candidateCount={frames.length}
                 status={matteStatus}
                 message={matteMessage}
@@ -1923,9 +1925,9 @@ function AdjustSlider({
 }) {
   return (
     <label className="mt-3 block">
-      <span className="flex items-center justify-between text-xs text-[#67685f]">
+      <span className="flex items-center justify-between gap-3 text-xs text-[#67685f]">
         <span>{label}</span>
-        <span className="tabular-nums">{value}{suffix}</span>
+        <span className="shrink-0 tabular-nums">{value}{suffix}</span>
       </span>
       <input
         type="range"

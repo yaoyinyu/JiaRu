@@ -102,12 +102,14 @@ export function EditorObjectPanel({
       <h2 className="mt-1 text-base font-semibold text-[#292a27]">当前对象</h2>
 
       {selection === null ? (
-        <p className="mt-3 text-sm leading-6 text-[#6f7066]">
+        <p className="mt-3 rounded-2xl bg-pink-50/50 px-3.5 py-3 text-sm leading-6 text-[#6f7066]">
           点击甲面框贴合纹理；选中贴合可替换、微调或删除。
         </p>
       ) : selection.kind === "placement" ? (
         <div className="mt-3">
-          <p className="text-sm font-medium text-[#292a27]">当前对象：{selection.objectLabel}</p>
+          <p className="text-sm text-[#6f7066]">
+            当前对象：<span className="font-semibold text-[#292a27]">{selection.objectLabel}</span>
+          </p>
           <p className="mt-1 text-sm text-[#6f7066]">{selection.statusLine}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <button type="button" onClick={onReplace} className={ACTION_BUTTON_CLASS}>
@@ -127,7 +129,9 @@ export function EditorObjectPanel({
         </div>
       ) : (
         <div className="mt-3">
-          <p className="text-sm font-medium text-[#292a27]">当前对象：{selection.objectLabel}</p>
+          <p className="text-sm text-[#6f7066]">
+            当前对象：<span className="font-semibold text-[#292a27]">{selection.objectLabel}</span>
+          </p>
           <p className="mt-1 text-sm text-[#6f7066]">{selection.statusLine}</p>
           <button type="button" onClick={onApplyToFrame} className={`mt-3 ${ACTION_BUTTON_CLASS}`}>
             用当前纹理贴合
@@ -186,10 +190,10 @@ export function EditorObjectPanel({
                     type="button"
                     onClick={() => onSelectItem(item.frameId)}
                     aria-current={selected ? "true" : undefined}
-                    className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition ${
+                    className={`w-full rounded-xl border px-3 py-2 text-left text-sm transition-[border-color,box-shadow,color] ${
                       selected
                         ? "border-pink-200 bg-[var(--coral-soft)] text-[#a34b3f] shadow-sm"
-                        : "border-pink-100 bg-[var(--surface)] text-[#67685f] hover:text-[#ac5145]"
+                        : "border-pink-100 bg-[var(--surface)] text-[#67685f] hover:border-pink-200 hover:text-[#ac5145] hover:shadow-sm"
                     }`}
                   >
                     <span className="flex items-center justify-between gap-2">

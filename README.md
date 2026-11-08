@@ -28,7 +28,7 @@
 
 ### 正式美甲识别模型状态
 
-> **当前产品保持 HOLD。** 浏览器 Worker、WebGPU/WASM、候选排序、五指分配和 mask 纹理提取管线已经存在，但生产 ONNX 尚不存在；模型不可用时的规则 fallback 仅是降级辅助，不能表述为正式识别成功。
+> **浏览器业务模型已发布，商用完成门保持 HOLD。** 自白皮书 v1.2.256 起，默认生产 manifest 为 `nail-texture-seg-geometry64-browser-aa4-v2`（`deploymentStatus: "deployed"`，Stage A 512 letterbox + Stage B radial-refine，发布对拍绑定 WASM EP）；ONNX 权重按仓库约定留在本地并由 `.gitignore` 隔离。浏览器 Worker、候选排序、五指分配与 mask 纹理提取管线已接入该模型；规则 fallback 属于降级辅助，UI 需明确告知降级。商用完成门（严格联合 ≥539/634、独立 val/留出、真机/Beta、双批准回滚）保持 PRODUCT HOLD，当前路线见唯一 Goal 与白皮书 §3/§9.4/§11.1。
 
 > **当前最高优先级：** 全力完成高质量正式美甲识别模型并接入发布链路。AI美甲生图已通过用户验收，除阻断性故障外不再占用当前研发主线。
 
@@ -309,11 +309,11 @@ Git 与远端只保存完整可运行的业务、训练和审计代码，测试�
 - `/account` 账号页：档案查看、登录方式管理（解绑，至少保留一种）、账号级「用户改进计划」偏好（与 `/privacy` 开关联动）、退出登录
 - 完整设计见 [`docs/user-system-plan.md`](docs/user-system-plan.md)（v0.2）；商户体系、云端作品/配额、注销导出为后续 Phase 1 项
 
-### 🧠 浏览器端纹理识别（发布阻塞）
+### 🧠 浏览器端纹理识别（业务已发布，商用完成门 HOLD）
 
 完整浏览器端 ONNX Runtime Web 推理管线：
-- **当前进度（2026-10-31）**：新增精标 53/100 图、345 完整甲面已全部投入开发训练；最新 Stage A 覆盖 76 图/494 甲（CPU 8 轮 304 优化步，尚未配对评估）；Stage B 真实训练域 154 的 CPU 门 140/154 未过；唯一活动为 batch018 的 12 源筛选与合格整源精标。见白皮书 §8.8/§8.9/§11.1 与 Goal
-- ONNX Runtime Web 推理（WebGPU 优先 → WASM 降级）
+- **当前进度（2026-11-05 起）**：浏览器业务模型已发布（白皮书 v1.2.256，`manifest.json` 为 `deployed` 的双阶段 ONNX + radial-refine，发布对拍绑定 WASM EP），商用完成门保持 HOLD；模型迭代与训练详情见当日 dev-log 与唯一 Goal，历史候选与实验结论见白皮书 §9.4/§11.1 及 `docs/archive/`。
+- ONNX Runtime Web 推理（业务发布对拍绑定 WASM EP；WebGPU 未验证，未启用）
 - Web Worker 隔离（15 秒超时 + 自动 fallback）
 - 候选质量排序 + 五指分配 + mask 纹理提取
 - 浏览器运行时与既有桌面性能证据可继续复用，但它们不等同于生产识别模型已经发布
@@ -321,7 +321,7 @@ Git 与远端只保存完整可运行的业务、训练和审计代码，测试�
 - candidate5 已被训练后全新困难负样本留出否决，禁止部署或改名复用
 - candidate6 正样本真值为120张/636 mask，训练、val30校准和冻结test100审计均已完成；候选因逐实例完整识别门失败而否决
 - candidate7、candidate8均已完成训练与冻结test100并因逐实例完整识别门失败而否决；candidate8已显著降低漏甲，但仍需全新来源正样本继续补强
-- candidate57 为当前 TEST HOLD 的历史候选，旧失败保持。新权重训练边界105/106仅为训练域；CPU/WebGPU118/118、WASM112/118且六项presence超绝对1e-4。下一优先建立新来源开发质量基线，再按覆盖/边界/拒识及实际端侧成本选择有预算、可停止的改进方案；F64完整链仅为待验证分支。无生产ONNX/releaseIdentity，PRODUCT HOLD，默认manifest显式not-deployed。当前路线见唯一Goal及白皮书§9.4/§11.1。
+- candidate57 为当前 TEST HOLD 的历史候选，旧失败保持。新权重训练边界105/106仅为训练域；CPU/WebGPU118/118、WASM112/118且六项presence超绝对1e-4。下一优先建立新来源开发质量基线，再按覆盖/边界/拒识及实际端侧成本选择有预算、可停止的改进方案；F64完整链仅为待验证分支。candidate57 时期无生产 ONNX/releaseIdentity、默认 manifest 为 not-deployed；自 v1.2.256 起浏览器业务模型已发布为 deployed（`nail-texture-seg-geometry64-browser-aa4-v2`），商用完成门保持 PRODUCT HOLD。当前路线见唯一Goal及白皮书§9.4/§11.1。
 - 正式模型不可用时可以进入规则降级或人工框选，但 UI 必须明确告知降级，不能显示为“模型识别成功”
 
 ### 💅 个性化分析推荐（本地规则引擎，工程门通过）
@@ -369,6 +369,7 @@ Git 与远端只保存完整可运行的业务、训练和审计代码，测试�
 | `VLM_MATTE_URL` / `VLM_MATTE_TOKEN` | 本机 WeVisOne-VL 精细抠图服务（须绑定 127.0.0.1）；未配置时入口不出现 | 否（精细抠图可选） |
 | `ARK_VISION_MODEL` | 云端识别（方舟视觉理解模型）Model ID（含版本后缀，须在方舟控制台开通）；与 `VOLCENGINE_ARK_API_KEY` 同时配置后，编辑器/AR/个性化分析的「云端」识别选项可用 | 否（云端识别可选） |
 | `NAIL_CLOUD_MATTE_URL` / `NAIL_CLOUD_MATTE_TOKEN` | 云端自托管 WeVisOne-VL（与本地服务同 `/matte` 契约，须自行部署运维）；配置后作为云端识别第二后端 | 否（云端识别可选） |
+| `NAIL_CANDIDATE_URL` / `NAIL_CANDIDATE_TOKEN` | 自研候选模型本机试用服务（`model/training/serve-nail-candidate.py` 启动，优先接管 `/api/nail-matte`，结果沿用逐甲复核）；删除这两项即恢复 `VLM_MATTE_URL`，正式生产 manifest 与发布门保持 | 否（本机试用可选） |
 
 ```powershell
 # 复制模板

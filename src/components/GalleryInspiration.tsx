@@ -136,7 +136,7 @@ export function GalleryInspirationCard({
   }
 
   return (
-    <div className="flex items-center gap-4 rounded-[24px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)]  sm:p-5">
+    <div className="flex items-center gap-4 rounded-[24px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)] sm:gap-5 sm:p-5">
       <span className="relative h-20 w-20 shrink-0 overflow-hidden rounded-2xl border border-[var(--line)] sm:h-24 sm:w-24">
         <Image src={src} alt={name} width={96} height={96} className="h-full w-full object-cover" priority />
       </span>

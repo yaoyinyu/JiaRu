@@ -78,7 +78,7 @@ test("calibrated middle-finger geometry covers the distal nail surface", () => {
   assert.ok(Math.abs(geometry.cy - 260.4) < 0.001);
 });
 
-test("fit adjustment scales around the center and moves toward the nail root", () => {
+test("fit adjustment extends toward the tip while preserving the shifted root", () => {
   const adjusted = adjustNailGeometry(
     { cx: 100, cy: 100, length: 40, width: 20, angle: 0 },
     1.25,
@@ -86,11 +86,20 @@ test("fit adjustment scales around the center and moves toward the nail root", (
   );
   assert.deepEqual(adjusted, {
     cx: 100,
-    cy: 104,
+    cy: 99,
     length: 50,
     width: 25,
     angle: 0,
   });
+});
+
+test("length calibration keeps the cuticle fixed through every rotation", () => {
+  for (const angle of [0, Math.PI / 2, Math.PI, -.7]) for (const scale of [.75, 1, 1.4]) {
+    const base = { cx: 80, cy: 70, length: 40, width: 20, angle };
+    const actual = adjustNailGeometry(base, scale, 0, 1);
+    assert.ok(Math.abs(actual.cx - Math.sin(angle) * actual.length / 2 - (base.cx - Math.sin(angle) * base.length / 2)) < 1e-9);
+    assert.ok(Math.abs(actual.cy + Math.cos(angle) * actual.length / 2 - (base.cy + Math.cos(angle) * base.length / 2)) < 1e-9);
+  }
 });
 
 test("display geometry maps back to original pixels without drift", () => {

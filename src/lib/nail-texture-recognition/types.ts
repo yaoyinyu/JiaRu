@@ -11,6 +11,8 @@ export interface NailMask {
    * 几何范围仍由二值 `data` 决定，软边只用于收紧边缘 alpha。
    */
   alpha?: Uint8ClampedArray;
+  /** 产品层亚像素覆盖率（0..255），与原始二值几何独立保存。 */
+  coverageAlpha?: Uint8ClampedArray;
 }
 
 export type NailTextureModelBackend = "webgpu" | "wasm" | "fallback";
@@ -79,11 +81,15 @@ export interface NailTextureRecognitionResult {
   /**
    * 两阶段诊断。stage2 只提供存在性提升分数，
    * promotedProposals 为通过晋级规则的提案数（历史证据下应为 0）。
+   * radial-refine 模式下 promotedProposals/acceptedByPrimaryRule 为精修产出实例数。
    */
   stage2?: {
+    mode?: "rescore" | "radial-refine";
     evaluatedProposals: number;
     promotedProposals: number;
     acceptedByPrimaryRule: number;
+    /** radial-refine 模式：presence 拒识丢弃的实例数。 */
+    presenceRejected?: number;
     stage2ModelVersion?: string;
   };
   preprocess?: {
@@ -133,14 +139,31 @@ export interface RecognizeNailTextureResponse {
 
 /**
  * 两阶段运行时的第二阶段描述。
- * 契约来源：model/training/candidate57-runtime-selection-lock-v1.json
- * stage2 只提供存在性提升分数，最终 polygon 始终来自 stage1（selectedPolygon=stage1Polygon）。
+ *
+ * - `mode` 缺省或 `"rescore"`：candidate57 存在性重评分契约（契约来源：
+ *   model/training/candidate57-runtime-selection-lock-v1.json）；stage2 只提供
+ *   存在性提升分数，最终 polygon 始终来自 stage1（selectedPolygon=stage1Polygon）。
+ * - `"radial-refine"`：几何64轮浏览器发布的 mask 替换型精修（原像素径向场 +
+ *   radius/presence 双输出 Stage B）；stage1 粗 mask 在 presence 门通过后被
+ *   精修 alpha mask 整体替换。
  */
 export interface NailTextureStage2Manifest {
+  /** 独立产品输出配方；原模型两头与硬mask对拍保持。 */
+  edgeRefinement?: { mode: "radial-coverage-v1"; samples: 2 | 4 };
   modelFile: string;
-  inputSize: number;
-  cropContextRatio: number;
-  promotionMarginThreshold: number;
+  mode?: "rescore" | "radial-refine";
+  /** rescore 模式：Stage B 输入尺寸。 */
+  inputSize?: number;
+  /** rescore 模式：ROI 上下文比例。 */
+  cropContextRatio?: number;
+  /** rescore 模式：晋级带宽度。 */
+  promotionMarginThreshold?: number;
+  /** radial-refine 模式：角度采样数（与服务端 radial_input 一致，默认 2048）。 */
+  angularSamples?: number;
+  /** radial-refine 模式：presence 拒识阈值（默认 0，presence<阈值 丢弃实例）。 */
+  presenceThreshold?: number;
+  /** radial-refine 模式：Stage A NMS IoU 阈值（与服务端 0.7 一致）。 */
+  nmsIoUThreshold?: number;
 }
 
 export interface NailTextureCompositionManifest {

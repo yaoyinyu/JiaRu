@@ -5,9 +5,7 @@
    仅当本组件挂载时生效；本组件为独占模态，期间不会有其他弹层共存，
    卸载即移除标记，不影响全站其他弹层宽度。 */
 
-:global(body[data-ar-cropper-open]) [role="dialog"] {
-  width: min(760px, 100%);
-}
+/* 宿主宽度规则位于 globals.css，避免在 CSS Module 内声明全局选择器。 */
 
 .canvasArea {
   position: relative;

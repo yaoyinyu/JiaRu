@@ -1,14 +1,32 @@
 {
-  "deploymentStatus": "not-deployed",
-  "version": "nail-texture-seg-v1",
-  "inputSize": 640,
+  "deploymentStatus": "deployed",
+  "version": "nail-texture-seg-geometry64-browser-aa4-v2",
+  "inputSize": 512,
   "inputLayout": "NCHW",
   "colorOrder": "RGB",
   "normalization": "zero_to_one",
   "resizeMode": "letterbox",
   "task": "segment",
-  "backendPreferences": ["webgpu", "wasm"],
-  "modelFile": "nail-texture-seg-v1.onnx",
+  "backendPreferences": [
+    "wasm"
+  ],
+  "modelFile": "geometry64-browser-v1-stage-a-512-fp32.onnx",
+  "modelSizeBytes": 11538755,
+  "sha256": "0a6b842e1ae61011320881e2a4161a86a485841d27797ef88d3efdc5554b4e78",
   "outputContract": "ultralytics-seg-raw-v1",
-  "labels": ["nail_texture"]
+  "labels": [
+    "nail_texture"
+  ],
+  "scoreThreshold": 0.35,
+  "stage2": {
+    "mode": "radial-refine",
+    "modelFile": "geometry64-browser-v1-stage-b-radius-presence-fp32.onnx",
+    "angularSamples": 2048,
+    "presenceThreshold": 0,
+    "nmsIoUThreshold": 0.7,
+    "edgeRefinement": {
+      "mode": "radial-coverage-v1",
+      "samples": 4
+    }
+  }
 }

@@ -52,7 +52,7 @@ export interface ExtractedMaskTexture {
   diagnostics: TextureExtractionDiagnostics;
 }
 
-export function findMaskBounds(mask: NailMask): MaskBounds | null {
+export function findMaskBounds(mask: NailMask, includeCoverage = false): MaskBounds | null {
   let minX = mask.width;
   let minY = mask.height;
   let maxX = -1;
@@ -60,7 +60,7 @@ export function findMaskBounds(mask: NailMask): MaskBounds | null {
 
   for (let y = 0; y < mask.height; y++) {
     for (let x = 0; x < mask.width; x++) {
-      if (!mask.data[y * mask.width + x]) continue;
+      if (!mask.data[y * mask.width + x] && !(includeCoverage && mask.coverageAlpha?.length === mask.data.length && mask.coverageAlpha[y * mask.width + x])) continue;
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x);
@@ -76,6 +76,10 @@ export function buildFeatheredAlphaMask(
   mask: NailMask,
   featherRadius: number = DEFAULT_FEATHER_RADIUS
 ): Uint8ClampedArray {
+  if (mask.coverageAlpha) {
+    if (mask.coverageAlpha.length !== mask.width * mask.height) throw new Error("coverage_alpha_shape_mismatch");
+    return new Uint8ClampedArray(mask.coverageAlpha);
+  }
   const alpha = new Uint8ClampedArray(mask.width * mask.height);
   const radius = Math.max(0, Math.floor(featherRadius));
 
@@ -334,7 +338,7 @@ export async function extractTextureFromMaskDetailed(
   highlightStrategy: "preserve" | "repair" = "preserve"
 ): Promise<ExtractedMaskTexture> {
   const quality = summarizeMaskExtractionQuality(mask);
-  const bounds = findMaskBounds(mask);
+  const bounds = findMaskBounds(mask, Boolean(mask.coverageAlpha));
   if (!bounds) {
     throw new Error("mask_has_no_foreground_pixels");
   }
@@ -356,22 +360,52 @@ export async function extractTextureFromMaskDetailed(
     throw new Error("offscreen_canvas_2d_unavailable");
   }
 
-  ctx.drawImage(image, sourceX, sourceY, sourceW, sourceH, 0, 0, outputWidth, outputHeight);
-  const imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
   const alphaMask = buildFeatheredAlphaMask(mask, featherRadius);
-
-  for (let y = 0; y < outputHeight; y++) {
-    const maskY = Math.min(
-      mask.height - 1,
-      bounds.minY + Math.floor((y / outputHeight) * (bounds.maxY - bounds.minY + 1))
-    );
-    for (let x = 0; x < outputWidth; x++) {
-      const maskX = Math.min(
-        mask.width - 1,
-        bounds.minX + Math.floor((x / outputWidth) * (bounds.maxX - bounds.minX + 1))
+  let imageData: ImageData;
+  if (mask.coverageAlpha) {
+    // 连续缩放覆盖率，RGB直接从原图采样到纹理域，保留原图纹理细节。
+    const gridWidth = bounds.maxX - bounds.minX + 1;
+    const gridHeight = bounds.maxY - bounds.minY + 1;
+    const grid = new OffscreenCanvas(gridWidth, gridHeight);
+    const gridContext = grid.getContext("2d");
+    if (!gridContext) throw new Error("offscreen_canvas_2d_unavailable");
+    const pixels = gridContext.createImageData(gridWidth, gridHeight);
+    for (let y = 0; y < gridHeight; y++) {
+      for (let x = 0; x < gridWidth; x++) {
+        const offset = (y * gridWidth + x) * 4;
+        pixels.data[offset] = pixels.data[offset + 1] = pixels.data[offset + 2] = 255;
+        pixels.data[offset + 3] = alphaMask[(bounds.minY + y) * mask.width + bounds.minX + x];
+      }
+    }
+    gridContext.putImageData(pixels, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(grid, 0, 0, outputWidth, outputHeight);
+    const coverage = ctx.getImageData(0, 0, outputWidth, outputHeight);
+    ctx.clearRect(0, 0, outputWidth, outputHeight);
+    ctx.drawImage(image, bounds.minX * scaleX, bounds.minY * scaleY,
+      gridWidth * scaleX, gridHeight * scaleY, 0, 0, outputWidth, outputHeight);
+    imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
+    for (let offset = 3; offset < imageData.data.length; offset += 4) {
+      imageData.data[offset] = Math.round(imageData.data[offset] * coverage.data[offset] / 255);
+    }
+    grid.width = grid.height = 1;
+  } else {
+    ctx.drawImage(image, sourceX, sourceY, sourceW, sourceH, 0, 0, outputWidth, outputHeight);
+    imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
+    for (let y = 0; y < outputHeight; y++) {
+      const maskY = Math.min(
+        mask.height - 1,
+        bounds.minY + Math.floor((y / outputHeight) * (bounds.maxY - bounds.minY + 1))
       );
-      imageData.data[(y * outputWidth + x) * 4 + 3] =
-        alphaMask[maskY * mask.width + maskX] ?? 0;
+      for (let x = 0; x < outputWidth; x++) {
+        const maskX = Math.min(
+          mask.width - 1,
+          bounds.minX + Math.floor((x / outputWidth) * (bounds.maxX - bounds.minX + 1))
+        );
+        imageData.data[(y * outputWidth + x) * 4 + 3] =
+          alphaMask[maskY * mask.width + maskX] ?? 0;
+      }
     }
   }
 
@@ -416,6 +450,8 @@ export interface NormalizedNailTextureOptions {
    * 为掩膜主轴补全甲尖方向（消 180° 歧义），主轴不可用时整体兜底。
    */
   referenceAngle?: number | null;
+  /** 模型PCA只给半转主轴；手部关键点或人工确认才提供有向参考。 */
+  referenceIsDirected?: boolean;
   maxTextureSize?: number;
   featherRadius?: number;
   highlightStrategy?: "preserve" | "repair";
@@ -592,7 +628,7 @@ export async function extractNormalizedNailTexture(
     options.featherRadius ?? DEFAULT_FEATHER_RADIUS,
     options.highlightStrategy ?? "preserve"
   );
-  const resolved = resolveMaskTextureRotation(mask, options.referenceAngle ?? null);
+  const resolved = resolveMaskTextureRotation(mask, options.referenceAngle ?? null, options.referenceIsDirected ?? true);
 
   let plane = await bitmapToRgbaPlane(base.texture);
   const applied = -resolved.rotation;

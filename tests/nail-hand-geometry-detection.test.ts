@@ -68,3 +68,16 @@ test("hand geometry reports when no complete hand is present", () => {
   assert.equal(result.candidates.length, 0);
   assert.deepEqual(result.warnings, ["mediapipe_no_hand_detected"]);
 });
+
+test("two-hand direction references keep unique identities and preserve the one-hand default", () => {
+  const left = createDorsumLandmarks();
+  const right = left.map(p => ({ ...p, x: p.x - .18 }));
+  const input = { multiHandLandmarks: [left, right],
+    multiHandedness: [{ label: "Right" as const, score: .98 }, { label: "Right" as const, score: .98 }] };
+  const single = createNailCandidatesFromHandGeometry(input, 1200, 900);
+  const both = createNailCandidatesFromHandGeometry(input, 1200, 900, 2);
+  assert.equal(single.candidates.length, 5);
+  assert.equal(both.candidates.length, 10);
+  assert.equal(new Set(both.candidates.map(c => c.id)).size, 10);
+  assert.deepEqual(both.candidates.slice(0, 5), single.candidates);
+});

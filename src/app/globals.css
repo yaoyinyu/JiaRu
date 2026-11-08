@@ -201,3 +201,6 @@ textarea:focus-visible, select:focus-visible, summary:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+/* AR 弹层宿主按挂载标记限宽，关闭后由组件移除标记。 */
+body[data-ar-picker-open] [role="dialog"] { width: min(1180px, 100%); }
+body[data-ar-cropper-open] [role="dialog"] { width: min(760px, 100%); }

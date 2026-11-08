@@ -12,6 +12,7 @@ import {
 } from "./postprocess.ts";
 import { preprocessNailTextureImage, type NailTexturePreprocessResult } from "./preprocess.ts";
 import { runTwoStageComposition } from "./two-stage.ts";
+import { runRadialRefineComposition } from "./radial-refine.ts";
 
 function toPreprocessInfo(preprocess: NailTexturePreprocessResult) {
   return {
@@ -124,6 +125,63 @@ export async function recognizeNailTextures(
               inputSize: stage2Runtime.inputSize,
             }
           : null;
+
+      // radial-refine：几何64轮浏览器发布的 mask 替换型 Stage B（与本机 serve 同构）。
+      if (manifest.stage2.mode === "radial-refine") {
+        const radial = await runRadialRefineComposition({
+          source,
+          stage1Outputs: outputs as Record<string, ModelTensorLike>,
+          preprocess,
+          stage2,
+          stage2Config: manifest.stage2,
+          maxCandidates: options.maxCandidates ?? 10,
+          includeLowConfidenceCandidates: options.includeLowConfidenceCandidates,
+          scoreThreshold: manifest.scoreThreshold ?? runtime.info.scoreThreshold ?? 0.35,
+        });
+        const stage2Diagnostics = {
+          mode: "radial-refine" as const,
+          evaluatedProposals: radial.diagnostics.evaluatedProposals,
+          promotedProposals: radial.diagnostics.refinedInstances,
+          acceptedByPrimaryRule: radial.diagnostics.refinedInstances,
+          presenceRejected: radial.diagnostics.presenceRejected,
+          stage2ModelVersion: radial.diagnostics.stage2ModelVersion,
+        };
+        const radialWarnings = [
+          ...runtime.warnings,
+          ...stage2Runtime.warnings,
+          ...radial.warnings,
+          ...(manifest.testOnly ? ["test_only_manifest_not_production_identity"] : []),
+        ];
+
+        if (radial.candidates.length === 0) {
+          const fallback = getFallback();
+          return {
+            ...fallback,
+            debugOutputs,
+            rawModelOutputs,
+            stage2: stage2Diagnostics,
+            preprocess: toPreprocessInfo(preprocess),
+            warnings: [
+              ...fallback.warnings,
+              ...radialWarnings,
+              "model_outputs_empty_used_fallback",
+            ],
+          };
+        }
+
+        return {
+          candidates: radial.candidates,
+          backend: "model",
+          elapsedMs: nowMs() - startedAt,
+          modelVersion: runtime.info.version,
+          modelInfo: runtime.info,
+          warnings: radialWarnings,
+          debugOutputs,
+          rawModelOutputs,
+          stage2: stage2Diagnostics,
+          preprocess: toPreprocessInfo(preprocess),
+        };
+      }
 
       const twoStage = await runTwoStageComposition({
         source,

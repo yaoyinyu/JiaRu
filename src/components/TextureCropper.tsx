@@ -401,7 +401,7 @@ export default function TextureCropper({
         <>
           <div className={styles.canvasArea}>
             {loading && (
-              <div className="absolute z-10 flex items-center gap-2 text-white/85">
+              <div className="absolute inset-0 z-10 flex items-center justify-center gap-2 text-white/85">
                 <span
                   className="h-5 w-5 animate-spin rounded-full border-2 border-white/30 border-t-white"
                   aria-hidden="true"

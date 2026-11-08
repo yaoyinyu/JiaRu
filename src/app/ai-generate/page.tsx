@@ -580,18 +580,18 @@ function AiGeneratePageBody({
 
   return (
     <AppShell shiftUp eyebrow="AI Nail Atelier" title="把一句灵感，变成一套美甲设计" description="描述你脑海里的颜色、材质与情绪，AI 会为你生成独一无二的视觉参考。">
-      <div className="fade-in-up fade-in-up-slow grid overflow-hidden rounded-[30px] bg-[var(--surface)] shadow-[var(--neu-out-md)]  lg:grid-cols-[.9fr_1.1fr]">
+      <div className="fade-in-up fade-in-up-slow grid overflow-hidden rounded-[30px] bg-[var(--surface)] shadow-[var(--neu-out-md)] lg:grid-cols-[.9fr_1.1fr]">
         <section className="p-5 sm:p-8">
           <div className="flex items-center justify-between">
             <p className="text-xs font-semibold uppercase tracking-[.16em] text-[#ac5145]">Creative brief</p>
             <span className={`text-[11px] ${promptOverLimit ? "font-medium text-red-500" : "text-[#6f7066]"}`}>{prompt.length}/{promptLimit}</span>
           </div>
-          <label htmlFor="ai-prompt" className="mt-4 block text-xs font-medium text-[#67685f]">设计描述</label>
+          <label htmlFor="ai-prompt" className="mt-5 block text-xs font-semibold text-[#292a27]">设计描述</label>
           <textarea id="ai-prompt" value={prompt} onChange={(event) => setPromptDraft(event.target.value)} placeholder="例如：银色亮片渐变，带一点月光感，简约但有细节…" maxLength={promptLimit} aria-invalid={promptOverLimit || undefined} className="mt-2 h-40 w-full resize-none rounded-2xl border border-pink-100/70 bg-[var(--surface)] p-4 text-sm leading-7 text-[#292a27] outline-none transition placeholder:text-[#6f7066] focus:border-pink-300 focus:ring-4 focus:ring-pink-100/50" />
           {promptOverLimit && (
             <p className="mt-2 text-[11px] text-red-500">最多 {promptLimit} 字，已 {prompt.length} 字，请缩短后再生成。</p>
           )}
-          <p className="mt-5 text-xs font-medium text-[#67685f]">参考图（可选）</p>
+          <p className="mt-6 text-xs font-semibold text-[#292a27]">参考图（可选）</p>
           {referenceImage ? (
             <div className="mt-3 flex items-center gap-3 rounded-2xl border border-pink-100/70 bg-[var(--surface)] p-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -610,30 +610,30 @@ function AiGeneratePageBody({
             </label>
           )}
           {referenceError ? <p className="mt-2 text-[11px] text-red-400">{referenceError}</p> : <p className="mt-2 text-[11px] text-[#67685f]">图片仅在你上传时发送给 AI 服务，且只用于本次生成</p>}
-          <p className="mt-5 text-xs font-medium text-[#67685f]">从一个风格开始</p>
+          <p className="mt-6 text-xs font-semibold text-[#292a27]">从一个风格开始</p>
           <div className="mt-3 flex flex-wrap gap-2">
             {AI_STYLE_PROMPTS.map((group) => <button key={group.label} onClick={() => handleStyleClick(group.label)} className="inline-flex min-h-11 items-center rounded-full border border-pink-100 bg-pink-50/65 px-3 py-2 text-xs text-[#a34b3f] transition hover:-translate-y-0.5 hover:bg-[var(--surface)] hover:shadow-sm">{group.label}</button>)}
           </div>
-          <div className="mt-5 space-y-4">
+          <div className="mt-6 space-y-5">
             <div>
-              <p className="text-xs font-medium text-[#67685f]">生成引擎</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <p className="text-xs font-semibold text-[#292a27]">生成引擎</p>
+              <div className="mt-2 flex flex-wrap gap-2">
                 {ENGINE_OPTIONS.map((opt) => (
                   <button key={opt.value} type="button" aria-pressed={engine === opt.value} onClick={() => handleEngineClick(opt.value)} className={chipClass(engine === opt.value)}>{opt.label}</button>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-[#67685f]">画面比例</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <p className="text-xs font-semibold text-[#292a27]">画面比例</p>
+              <div className="mt-2 flex flex-wrap gap-2">
                 {AI_IMAGE_RATIOS.map((r) => (
                   <button key={r} type="button" aria-pressed={ratio === r} onClick={() => setRatio(r)} className={chipClass(ratio === r)}>{r}</button>
                 ))}
               </div>
             </div>
             <div>
-              <p className="text-xs font-medium text-[#67685f]">输出尺寸</p>
-              <div className="mt-2 flex flex-wrap gap-1.5">
+              <p className="text-xs font-semibold text-[#292a27]">输出尺寸</p>
+              <div className="mt-2 flex flex-wrap gap-2">
                 {engineSizeOptions(engine).map((s) => (
                   <button key={s} type="button" aria-pressed={size === s} onClick={() => setSize(s)} className={chipClass(size === s)}>{s}</button>
                 ))}
@@ -692,7 +692,7 @@ function AiGeneratePageBody({
             <>
               <div className="shimmer-sweep pointer-events-none" />
               <div key="loading" role="status" aria-live="polite" className="fade-in-up text-center">
-                <div className="mx-auto grid h-28 w-28 place-items-center rounded-[32px] bg-[var(--surface)] shadow-[var(--neu-out-md)] "><Icon name="sparkles" className="shimmer-spark h-10 w-10 text-[#ac5145]" /></div>
+                <div className="mx-auto grid h-28 w-28 place-items-center rounded-[32px] bg-[var(--surface)] shadow-[var(--neu-out-md)]"><Icon name="sparkles" className="shimmer-spark h-10 w-10 text-[#ac5145]" /></div>
                 <h2 className="mt-6 font-[var(--serif)] text-xl font-medium text-[var(--ink)]">正在凝聚你的灵感…</h2>
                 <p className="mt-2 text-xs text-[var(--muted)]">色彩与材质正在生成，请稍候</p>
               </div>
@@ -706,7 +706,7 @@ function AiGeneratePageBody({
             </>
           ) : (
             <div key="idle" className="fade-in-up text-center">
-              <div className="mx-auto grid h-28 w-28 place-items-center rounded-[32px] bg-[var(--surface)] shadow-[var(--neu-out-md)] "><Icon name="diamond" className="h-10 w-10 text-[var(--coral)]" /></div>
+              <div className="mx-auto grid h-28 w-28 place-items-center rounded-[32px] bg-[var(--surface)] shadow-[var(--neu-out-md)]"><Icon name="diamond" className="h-10 w-10 text-[var(--coral)]" /></div>
               <h2 className="mt-6 font-[var(--serif)] text-xl font-medium text-[var(--ink)]">你的设计将在这里出现</h2>
               <p className="mt-2 text-xs text-[var(--muted)]">描述越具体，生成结果越贴近想象</p>
             </div>

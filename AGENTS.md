@@ -5,9 +5,13 @@
 规则归属：本文件维护全局流程、授权和文档生命周期；`docs/agent-rules/` 维护按任务触发的执行细则；开发与 UI 规范维护各自实现约定。白皮书§1为生命周期摘要，执行细节统一引用本文件。用户当前明确指示优先；规则冲突须核对适用范围、现行合同和证据后同步修正，历史计划、示例与排障经验不覆盖生效规则。
 
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
 <!-- END:nextjs-agent-rules -->
 
 ## 回答规范

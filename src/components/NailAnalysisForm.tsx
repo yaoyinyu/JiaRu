@@ -57,7 +57,7 @@ const UNSET = "";
 
 const fieldClass =
   "min-h-11 w-full rounded-2xl bg-[var(--surface)] px-3 py-2 text-sm text-[#292a27] shadow-sm outline-none transition focus:border-[#ac5145]";
-const labelClass = "mb-1 block text-xs font-medium text-[#67685f]";
+const labelClass = "mb-1.5 block text-xs font-medium text-[#67685f]";
 
 interface NailAnalysisFormProps {
   value: UserScenario;
@@ -74,7 +74,7 @@ export function NailAnalysisForm({ value, onChange, disabled = false }: NailAnal
   }
 
   return (
-    <div className="grid gap-4 sm:grid-cols-2">
+    <div className="grid gap-x-4 gap-y-5 sm:grid-cols-2">
       <div>
         <label className={labelClass} htmlFor="na-occasion">使用场景（必填）</label>
         <select

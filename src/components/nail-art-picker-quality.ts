@@ -154,7 +154,7 @@ export function regionNeedsReview(region: NailArtPickerQualityRegionLike): boole
   ) {
     return true;
   }
-  return Boolean(region.extractionDiagnostics && !region.extractionDiagnostics.quality.ok);
+  return Boolean(region.extractionDiagnostics && (!region.extractionDiagnostics.quality.ok || region.extractionDiagnostics.normalization?.warnings.length));
 }
 
 export function summarizeExtractionDiagnostics(
@@ -174,6 +174,9 @@ export function summarizeExtractionDiagnostics(
     messages.push(presentCandidateWarning(warning).message);
   }
 
+  const directionReview = Boolean(diagnostics.normalization?.warnings.length);
+  if (directionReview) messages.push("请确认甲尖朝上；方向相反时可旋转180°，应用后也可直接翻转对应手指纹理。");
+
   if (highlightRepair.highlightPixels > 0) {
     messages.push(
       highlightRepair.strategy === "preserve"
@@ -185,9 +188,9 @@ export function summarizeExtractionDiagnostics(
   }
 
   return {
-    severity: quality.ok && highlightRepair.highlightPixels === 0 ? "ok" : "review",
+    severity: quality.ok && !directionReview && highlightRepair.highlightPixels === 0 ? "ok" : "review",
     title:
-      quality.ok && highlightRepair.highlightPixels === 0
+      quality.ok && !directionReview && highlightRepair.highlightPixels === 0
         ? "当前纹理提取结果稳定"
         : "当前纹理提取结果建议复核",
     stats,
@@ -216,6 +219,11 @@ export function summarizeRegionQuality(
     for (const warning of region.extractionDiagnostics.quality.warnings) {
       messages.push(presentCandidateWarning(warning).message);
     }
+  }
+
+  if (region.extractionDiagnostics?.normalization?.warnings.length) {
+    needsReview = true;
+    messages.push("甲尖方向需要确认，可旋转180°后提取。");
   }
 
   const deduped = dedupeMessages(messages);

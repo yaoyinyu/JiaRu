@@ -226,3 +226,14 @@ test("summarizeExtractionDiagnostics explains the default highlight preservation
     summary?.messages.includes("检测到高光区域；当前按原图保留，未进行猜测性修复。")
   );
 });
+
+test("unresolved tip polarity stays visible in both extraction and region review", () => {
+  const diagnostics = {
+    quality: { ok: true, foregroundPixels: 100, boundsArea: 100, fillRatio: 1, touchesEdge: false, warnings: [] },
+    highlightRepair: { highlightPixels: 0, repairedPixels: 0, highlightRatio: 0 },
+    normalization: { rotationRadians: 0, source: "mask" as const, warnings: ["mask_tip_direction_unknown"] },
+  };
+  assert.equal(regionNeedsReview({ confidence: "high", extractionDiagnostics: diagnostics }), true);
+  assert.equal(summarizeExtractionDiagnostics(diagnostics)?.severity, "review");
+  assert.equal(summarizeRegionQuality({ confidence: "high", extractionDiagnostics: diagnostics }).severity, "review");
+});

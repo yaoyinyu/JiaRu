@@ -7,6 +7,7 @@ import { AppShell } from "@/components/AppShell";
 import { Icon } from "@/components/Icon";
 import { ArView, type NailFitAdjustment } from "@/components/ArView";
 import { type NailRenderStyle } from "@/lib/ar-nail-shape";
+import { rotateNailTextureHalfTurn } from "@/lib/ar-texture-fit";
 import { PRESET_COLORS } from "@/lib/utils";
 import { disposeAllTextures } from "@/lib/texture";
 import type { NailAssignment } from "@/components/NailArtPicker";
@@ -17,6 +18,7 @@ import { loadWorkItemReference } from "@/lib/work-bridge";
 import { releaseRemovedBitmaps } from "@/lib/ar-texture-release";
 import {
   decideArReview,
+  needsArDirectionReview,
   formatArApplyNotice,
   formatArReviewSummary,
   summarizeArReview,
@@ -43,6 +45,8 @@ const DEFAULT_NAIL_FIT: NailFitAdjustment = {
   lengthScale: 1,
   widthScale: 1,
   rootOffset: 0,
+  sideOffset: 0,
+  rotationOffset: 0,
 };
 
 const SHAPE_LABELS: Record<string, string> = {
@@ -154,6 +158,10 @@ function ArTryonPageBody({
     null, null, null, null, null,
   ]);
   const [activeFinger, setActiveFinger] = useState(0);
+  const [showFitGuides, setShowFitGuides] = useState(false);
+  const [flippingTexture, setFlippingTexture] = useState(false);
+  const [reviewFlipError, setReviewFlipError] = useState<string | null>(null);
+  const flipGenerationRef = useRef(0);
   const [mode, setMode] = useState<"color" | "texture">("color");
   const [nailFits, setNailFits] = useState<NailFitAdjustment[]>(createDefaultNailFits);
   const [nailStyles, setNailStyles] = useState<(NailRenderStyle | null)[]>(createEmptyStyles);
@@ -197,7 +205,8 @@ function ArTryonPageBody({
     (fit) =>
       fit.lengthScale !== DEFAULT_NAIL_FIT.lengthScale ||
       fit.widthScale !== DEFAULT_NAIL_FIT.widthScale ||
-      fit.rootOffset !== DEFAULT_NAIL_FIT.rootOffset
+      fit.rootOffset !== DEFAULT_NAIL_FIT.rootOffset ||
+      (fit.sideOffset ?? 0) !== 0 || (fit.rotationOffset ?? 0) !== 0
   ).length;
 
   // §7.1 顶部步骤状态：提取弹层 / 复核界面打开时处于 Step 2。
@@ -213,6 +222,7 @@ function ArTryonPageBody({
   };
 
   const clearPendingReview = useCallback(() => {
+    setReviewFlipError(null);
     const pending = pendingReviewRef.current;
     if (!pending) return;
     pendingReviewRef.current = null;
@@ -232,7 +242,9 @@ function ArTryonPageBody({
   );
 
   useEffect(() => {
+    const flipRequests = flipGenerationRef;
     return () => {
+      flipRequests.current++;
       disposeAllTextures(texturesRef.current);
       // 释放撤销快照中已不在当前数组里的旧位图，避免撤销挂起的位图泄漏。
       const snapshot = undoStateRef.current;
@@ -421,12 +433,56 @@ function ArTryonPageBody({
     [nailTextures, nailStyles, textureProfiles, clearUndoSnapshot]
   );
 
+  const flipActiveTexture = useCallback(async () => {
+    const source = nailTextures[activeFinger];
+    if (!source) return;
+    const generation = ++flipGenerationRef.current;
+    const snapshot = nailTextures;
+    setFlippingTexture(true);
+    try {
+      const texture = await rotateNailTextureHalfTurn(source);
+      if (flipGenerationRef.current !== generation || texturesRef.current !== snapshot) {
+        texture.close(); return;
+      }
+      commitAssignments([{ texture, finger: activeFinger, profile: textureProfiles[activeFinger] ?? undefined }], { undoable: true });
+      setApplyFeedback({ message: `已翻转${FINGER_NAMES[activeFinger]}纹理，可撤销。`, canUndo: true });
+    } catch {
+      if (flipGenerationRef.current === generation) setApplyFeedback({ message: "纹理翻转失败，请重试。", canUndo: false });
+    } finally {
+      if (flipGenerationRef.current === generation) setFlippingTexture(false);
+    }
+  }, [activeFinger, nailTextures, textureProfiles, commitAssignments]);
+
+  const flipReviewTexture = useCallback(async (index: number) => {
+    const snapshot = pendingReviewRef.current;
+    const assignment = snapshot?.assignments[index];
+    if (!snapshot || !assignment) return;
+    const generation = ++flipGenerationRef.current;
+    setFlippingTexture(true);
+    setReviewFlipError(null);
+    try {
+      const texture = await rotateNailTextureHalfTurn(assignment.texture);
+      if (pendingReviewRef.current !== snapshot || flipGenerationRef.current !== generation) {
+        texture.close(); return;
+      }
+      const updated = { ...snapshot, assignments: snapshot.assignments.map((item, i) => i === index ? { ...item, texture } : item) };
+      pendingReviewRef.current = updated;
+      setPendingReview(updated);
+      assignment.texture.close();
+    } catch {
+      if (pendingReviewRef.current === snapshot) setReviewFlipError("翻转失败，请重试。");
+    } finally {
+      if (flipGenerationRef.current === generation) setFlippingTexture(false);
+    }
+  }, []);
+
   const handlePickingConfirm = useCallback(
     (assignments: NailAssignment[], options?: { auto?: boolean }) => {
       // 新结果到达时，旧的未应用复核集合一并丢弃。
       clearPendingReview();
 
-      if (options?.auto) {
+      const directionNeedsReview = assignments.some(item => needsArDirectionReview(item.diagnostics?.normalization?.warnings));
+      if (options?.auto || directionNeedsReview) {
         // §7.2 覆盖前复核：按有无旧纹理 + 整批最低置信档决定动作。
         const confidences = assignments.map(
           (assignment) => assignment.confidence ?? "low"
@@ -434,7 +490,7 @@ function ArTryonPageBody({
         const summary = summarizeArReview(confidences);
         const action = decideArReview({
           hasExistingTexture: nailTextures.some((texture) => texture != null),
-          lowestConfidence: summary.lowest ?? "low",
+          lowestConfidence: directionNeedsReview ? "low" : summary.lowest ?? "low",
         });
 
         if (action === "apply" || action === "apply_with_notice") {
@@ -548,13 +604,13 @@ function ArTryonPageBody({
       wide
       shiftUp
       eyebrow="实时试戴"
-      title="让每一次抬手，都提前看见效果"
+      title="抬手，美已就绪"
       description="摄像头实时贴合美甲；画面只在本地内存中处理，不录制。"
     >
       {/* §7.1 顶部步骤状态：选择来源 → 提取与复核 → 试戴与校准 */}
       <nav
         aria-label="试戴步骤"
-        className="mb-5 flex flex-wrap items-center gap-x-3 gap-y-2 rounded-2xl bg-[var(--surface)] px-4 py-3 text-xs shadow-[var(--neu-out-md)]"
+        className="mb-5 flex flex-wrap items-center gap-x-2.5 gap-y-2 rounded-2xl bg-[var(--surface)] px-4 py-3 text-xs shadow-[var(--neu-out-md)]"
       >
         {stepProgress.steps.map((step, index) => (
           <span
@@ -567,12 +623,12 @@ function ArTryonPageBody({
             )}
             <span
               aria-hidden="true"
-              className={`flex h-6 w-6 items-center justify-center rounded-full text-[11px] font-semibold ${
+              className={`flex h-6 w-6 items-center justify-center rounded-full border text-[11px] ${
                 step.status === "active"
-                  ? "bg-[var(--coral)] text-white"
+                  ? "border-transparent bg-[var(--coral)] font-semibold text-white"
                   : step.status === "done"
-                    ? "bg-[var(--sage)] text-[#884338]"
-                    : "bg-pink-50 text-gray-400"
+                    ? "border-[var(--sage)] bg-transparent font-normal text-[var(--muted)]"
+                    : "border-[var(--line)] bg-transparent font-normal text-gray-400"
               }`}
             >
               {step.status === "done" ? "✓" : index + 1}
@@ -599,6 +655,8 @@ function ArTryonPageBody({
             mode={mode}
             nailAdjustments={nailFits}
             activeFinger={activeFinger}
+            showFitGuides={showFitGuides}
+            onFitChange={(finger, fit) => setNailFits(current => current.map((value, index) => index === finger ? fit : value))}
             onCameraActiveChange={handleCameraActiveChange}
             startSignal={cameraStartSignal}
             onSuggestUpload={() => {
@@ -627,7 +685,7 @@ function ArTryonPageBody({
                   if (file) void openReferencePicker(file);
                 }}
               >
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-2">
                   <Icon name="sparkles" className="h-4 w-4" />
                   上传参考图
                 </span>
@@ -640,7 +698,7 @@ function ArTryonPageBody({
                   if (file) void openSingleTextureCropper(file);
                 }}
               >
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-2">
                   <Icon name="image" className="h-4 w-4" />
                   上传单纹理
                 </span>
@@ -648,9 +706,9 @@ function ArTryonPageBody({
               <button
                 type="button"
                 onClick={startLiveCamera}
-                className="inline-flex min-h-11 items-center rounded-[18px] bg-pink-50 px-5 text-sm font-semibold text-[#a34b3f] transition-colors hover:bg-pink-100"
+                className="inline-flex min-h-11 items-center rounded-[18px] bg-[var(--surface)] px-5 text-sm font-semibold text-[var(--ink)] shadow-[var(--neu-out-md)] transition-[box-shadow] hover:shadow-[var(--neu-out-hover)] active:shadow-[var(--neu-in-sm)]"
               >
-                <span className="inline-flex items-center gap-1.5">
+                <span className="inline-flex items-center gap-2">
                   <Icon name="camera" className="h-4 w-4" />
                   开启实时摄像头
                 </span>
@@ -720,6 +778,26 @@ function ArTryonPageBody({
           )}
 
           <div className="mb-4 rounded-2xl border border-pink-100 bg-[var(--surface)] p-3">
+            {mode === "texture" && nailTextures[activeFinger] && (
+              <figure className="mb-3 flex items-center justify-center gap-3 rounded-xl border border-[var(--line)] bg-[var(--paper)] p-3">
+                <div className="h-24 w-24"><TextureThumb bitmap={nailTextures[activeFinger]!} size={96} /></div>
+                <figcaption className="text-xs leading-6 text-[var(--muted)]">
+                  <span className="block">↑ 甲尖</span>
+                  <span className="block">{FINGER_NAMES[activeFinger]}纹理方向</span>
+                  <span className="block">↓ 甲根</span>
+                </figcaption>
+              </figure>
+            )}
+            <div className="mb-2 flex flex-wrap gap-2">
+              <button type="button" aria-pressed={showFitGuides} onClick={() => setShowFitGuides(value => !value)} className="min-h-11 rounded-xl border border-[var(--line)] px-3 text-xs">
+                {showFitGuides ? "隐藏甲根辅助线" : "显示甲根辅助线"}
+              </button>
+              {mode === "texture" && nailTextures[activeFinger] && (
+                <button type="button" disabled={flippingTexture} onClick={() => void flipActiveTexture()} className="min-h-11 rounded-xl border border-[var(--line)] px-3 text-xs disabled:opacity-50">
+                  {flippingTexture ? "正在翻转…" : `翻转${FINGER_NAMES[activeFinger]}纹理180°`}
+                </button>
+              )}
+            </div>
             <div className="mb-2 flex items-center justify-between">
               <span className="text-xs font-medium text-[#67685f]">
                 逐指校准 · {FINGER_NAMES[activeFinger]}
@@ -741,8 +819,10 @@ function ArTryonPageBody({
                 </button>
               </div>
             </div>
-            <p className="mb-2 text-[11px] leading-5 text-gray-400">
-              展示手背、张开五指；当前手指以珊瑚高亮。
+            <p className="mb-1.5 text-xs leading-5 text-gray-400">
+              开启辅助线后，拖动画面圆点：根部移动、甲尖调长、侧边调宽。也可用下方滑杆微调。
+            </p>
+            <p className="mb-2 text-xs font-medium text-[#67685f]">
               已调整 {adjustedFingerCount}/5 指。
             </p>
             <label className="grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">              <span>长度</span>
@@ -777,7 +857,7 @@ function ArTryonPageBody({
               <span className="text-right">{Math.round(activeNailFit.widthScale * 100)}%</span>
             </label>
             <label className="mt-2 grid grid-cols-[42px_1fr_42px] items-center gap-2 text-[11px] text-gray-500">
-              <span>位置</span>
+              <span>甲根</span>
               <input
                 aria-label="甲面位置"
                 type="range"
@@ -797,6 +877,22 @@ function ArTryonPageBody({
                     ? `指根${Math.round(activeNailFit.rootOffset * 100)}`
                     : `甲尖${Math.round(-activeNailFit.rootOffset * 100)}`}
               </span>
+            </label>
+            <label className="mt-2 grid grid-cols-[42px_1fr_42px] items-center gap-2 text-xs text-[var(--muted)]">
+              <span>横移</span>
+              <input aria-label={`${FINGER_NAMES[activeFinger]}甲面横移`} type="range" min="-40" max="40" step="1"
+                value={Math.round((activeNailFit.sideOffset ?? 0) * 100)}
+                onChange={event => updateActiveNailFit({ sideOffset: Number(event.target.value) / 100 })}
+                className="h-11 w-full accent-[#ac5145]" />
+              <span className="text-right">{Math.round((activeNailFit.sideOffset ?? 0) * 100)}%</span>
+            </label>
+            <label className="mt-2 grid grid-cols-[42px_1fr_42px] items-center gap-2 text-xs text-[var(--muted)]">
+              <span>角度</span>
+              <input aria-label={`${FINGER_NAMES[activeFinger]}甲面角度`} type="range" min="-30" max="30" step="1"
+                value={Math.round((activeNailFit.rotationOffset ?? 0) * 180 / Math.PI)}
+                onChange={event => updateActiveNailFit({ rotationOffset: Number(event.target.value) * Math.PI / 180 })}
+                className="h-11 w-full accent-[#ac5145]" />
+              <span className="text-right">{Math.round((activeNailFit.rotationOffset ?? 0) * 180 / Math.PI)}°</span>
             </label>
           </div>
 
@@ -925,6 +1021,9 @@ function ArTryonPageBody({
         {pendingReview && (
           <ArReviewDialog
             review={pendingReview}
+            flipping={flippingTexture}
+            flipError={reviewFlipError}
+            onFlip={index => void flipReviewTexture(index)}
             currentTextures={nailTextures}
             onApply={applyPendingReview}
             onContinue={continueAdjusting}
@@ -933,8 +1032,14 @@ function ArTryonPageBody({
         )}
 
         <div className="mx-auto mt-5 grid w-full max-w-3xl gap-3 text-center sm:grid-cols-2">
-          <div className="rounded-2xl bg-[var(--surface)] p-4 text-xs leading-5 text-[#6f7066] "><Icon name="lock" className="mr-1.5 inline h-4 w-4 align-[-3px]" />画面仅内存处理、不录制；改进计划可在隐私页关闭</div>
-          <div className="rounded-2xl bg-[var(--surface)] p-4 text-xs leading-5 text-[#6f7066] "><Icon name="lightbulb" className="mr-1.5 inline h-4 w-4 align-[-3px]" />首次加载约 5–10 秒；请在光线充足处使用。</div>
+          <div className="flex items-start justify-center gap-1.5 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-5 text-[#6f7066]">
+            <Icon name="lock" className="mt-0.5 h-4 w-4 flex-none" />
+            <span>画面仅内存处理、不录制；改进计划可在隐私页关闭</span>
+          </div>
+          <div className="flex items-start justify-center gap-1.5 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs leading-5 text-[#6f7066]">
+            <Icon name="lightbulb" className="mt-0.5 h-4 w-4 flex-none" />
+            <span>首次加载约 5–10 秒；请在光线充足处使用。</span>
+          </div>
         </div>
     </AppShell>
   );
@@ -943,12 +1048,18 @@ function ArTryonPageBody({
 /** §7.2 覆盖前复核界面：摘要文案来自 ar-review-flow 的格式化函数。 */
 function ArReviewDialog({
   review,
+  flipping,
+  flipError,
+  onFlip,
   currentTextures,
   onApply,
   onContinue,
   onCancel,
 }: {
   review: PendingTextureReview;
+  flipping: boolean;
+  flipError: string | null;
+  onFlip: (index: number) => void;
   currentTextures: (ImageBitmap | null)[];
   onApply: () => void;
   onContinue: () => void;
@@ -969,6 +1080,7 @@ function ArReviewDialog({
             type="button"
             data-autofocus="confirm"
             onClick={onApply}
+            disabled={flipping}
             className={reviewPrimaryButtonClass}
           >
             应用到试戴
@@ -1004,10 +1116,14 @@ function ArReviewDialog({
           return (
             <li
               key={`${assignment.finger}-${index}`}
-              className="flex items-center gap-3 rounded-xl border border-[var(--line)] px-3 py-2"
+              className="flex flex-wrap items-center gap-3 rounded-xl border border-[var(--line)] px-3 py-2"
             >
-              <span className="flex h-10 w-10 flex-none items-center justify-center overflow-hidden rounded-lg border border-pink-200 bg-pink-50">
-                <TextureThumb bitmap={assignment.texture} size={40} />
+              <span className="flex flex-none flex-col items-center text-xs text-[var(--muted)]">
+                <span>↑ 甲尖</span>
+                <span className="block h-20 w-20 overflow-hidden rounded-lg border border-[var(--line)] bg-[var(--paper)]">
+                  <TextureThumb bitmap={assignment.texture} size={80} />
+                </span>
+                <span>甲根 ↓</span>
               </span>
               <span className="text-sm text-[#292a27]">
                 {FINGER_NAMES[assignment.finger] ?? `手指 ${assignment.finger + 1}`}纹理
@@ -1024,10 +1140,14 @@ function ArReviewDialog({
                   </span>
                 )}
               </span>
+              <button type="button" disabled={flipping} onClick={() => onFlip(index)}
+                aria-label={`翻转待应用${FINGER_NAMES[assignment.finger]}纹理180°`}
+                className="min-h-11 rounded-xl border border-[var(--line)] px-3 text-xs disabled:opacity-50">翻转180°</button>
             </li>
           );
         })}
       </ul>
+      {flipError && <p role="alert" className="mt-2 text-sm text-[#ac5145]">{flipError}</p>}
     </AppDialog>
   );
 }

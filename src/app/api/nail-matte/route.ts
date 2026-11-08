@@ -68,6 +68,7 @@ export async function GET() {
   const health = await probeNailMatte();
   return NextResponse.json({
     enabled: true,
+    backend: process.env.NAIL_CANDIDATE_URL?.trim() ? "candidate" : "wevis",
     ready: health?.ready ?? false,
     busy: health?.busy ?? false,
   });

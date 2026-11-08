@@ -6,6 +6,8 @@ import { createNailDetectionMasks } from "../src/lib/nail-image-detection.ts";
 import {
   buildNailDebugArtifactPaths,
   buildNailRecognitionMaskOverlay,
+} from "../src/lib/nail-texture-recognition/debug-artifacts.ts";
+import {
   recognizeNailTextures,
 } from "../src/lib/nail-texture-recognition/index.ts";
 import {

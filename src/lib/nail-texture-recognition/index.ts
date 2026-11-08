@@ -26,13 +26,6 @@ export type {
   SerializedModelTensor,
 } from "./debug.ts";
 export {
-  buildNailDebugArtifactPaths,
-  buildNailRecognitionMaskOverlay,
-} from "./debug-artifacts.ts";
-export type {
-  NailRecognitionMaskOverlayResult,
-} from "./debug-artifacts.ts";
-export {
   validateRealModelFirstRunRecord,
   validateRealModelUiReviewRecord,
 } from "./first-run-record.ts";

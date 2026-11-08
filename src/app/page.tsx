@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
-import { Eyebrow, NeuCard, SectionHead } from "@/components/ui/primitives";
+import { Eyebrow, SectionHead } from "@/components/ui/primitives";
 import { Icon } from "@/components/Icon";
 import { GALLERY_IMAGES } from "@/lib/utils";
 import styles from "./page.module.css";
@@ -19,10 +19,10 @@ export default function Home() {
           <div className={styles.heroCopy}>
             <Eyebrow>The Everyday Muse</Eyebrow>
             <h1 id="hero-title" className={styles.heroTitle}>
-              把喜欢的美甲，
-              <span className={styles.heroAccent}>提前戴在手上。</span>
+              让每一次抬手，
+              <span className={styles.heroAccent}>都遇见未来。</span>
             </h1>
-            <p className={styles.heroLede}>上传一张手部照片试色，或开启摄像头实时试戴。</p>
+            <p className={styles.heroLede}>一张照片即刻试色；开启摄像头，此刻试戴。</p>
             <div className={styles.heroActions}>
               <Link href="/editor" className={styles.primaryAction}>
                 上传照片试色
@@ -94,11 +94,24 @@ export default function Home() {
           ))}
         </ul>
 
-        <NeuCard className={styles.boundaryCard}>
-          <p>
-            AR 试戴需摄像头与 HTTPS 环境；AI 生成需联网。识别结果仅作辅助定位；图片默认留在本机。
-          </p>
-        </NeuCard>
+        <ul className={styles.boundaryNote}>
+          <li>
+            <Icon name="camera" />
+            AR 需摄像头与 HTTPS
+          </li>
+          <li>
+            <Icon name="sparkles" />
+            AI 生成需联网
+          </li>
+          <li>
+            <Icon name="search" />
+            识别仅作辅助定位
+          </li>
+          <li>
+            <Icon name="lock" />
+            照片默认留在本机
+          </li>
+        </ul>
       </main>
 
       <footer id="about" className={styles.footer}>

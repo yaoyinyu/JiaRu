@@ -131,28 +131,59 @@ export function validateNailTextureModelManifest(manifest: unknown): string[] {
     } else {
       const stage2 = manifest.stage2 as Record<string, unknown>;
       const stage2ModelFile = stage2.modelFile;
-      const stage2InputSize = stage2.inputSize;
-      const stage2CropContextRatio = stage2.cropContextRatio;
-      const stage2PromotionMargin = stage2.promotionMarginThreshold;
+      const stage2Mode = stage2.mode;
 
       if (typeof stage2ModelFile !== "string" || !isSafeModelFileName(stage2ModelFile)) {
         errors.push("manifest_stage2_model_file_must_be_safe_onnx_basename");
       }
-      if (typeof stage2InputSize !== "number" || !Number.isInteger(stage2InputSize) || stage2InputSize <= 0) {
-        errors.push("manifest_stage2_input_size_must_be_positive_integer");
+      if (stage2Mode !== undefined && stage2Mode !== "rescore" && stage2Mode !== "radial-refine") {
+        errors.push("manifest_stage2_mode_invalid");
       }
-      if (
-        typeof stage2CropContextRatio !== "number" ||
-        !Number.isFinite(stage2CropContextRatio) ||
-        stage2CropContextRatio < 0
-      ) {
-        errors.push("manifest_stage2_crop_context_ratio_must_be_non_negative_number");
+      if (stage2.edgeRefinement !== undefined) {
+        const edge = stage2.edgeRefinement as Record<string, unknown> | null;
+        if (stage2Mode !== "radial-refine" || !edge || edge.mode !== "radial-coverage-v1" || ![2, 4].includes(Number(edge.samples)) || typeof edge.samples !== "number") {
+          errors.push("manifest_stage2_edge_refinement_invalid");
+        }
       }
-      if (
-        typeof stage2PromotionMargin !== "number" ||
-        !Number.isFinite(stage2PromotionMargin)
-      ) {
-        errors.push("manifest_stage2_promotion_margin_must_be_number");
+      if (stage2Mode === "radial-refine") {
+        const angularSamples = stage2.angularSamples;
+        if (angularSamples !== undefined &&
+            (!Number.isInteger(angularSamples) || Number(angularSamples) < 16)) {
+          errors.push("manifest_stage2_angular_samples_must_be_integer_at_least_16");
+        }
+        const presenceThreshold = stage2.presenceThreshold;
+        if (presenceThreshold !== undefined && !Number.isFinite(presenceThreshold)) {
+          errors.push("manifest_stage2_presence_threshold_must_be_number");
+        }
+        const nmsIoUThreshold = stage2.nmsIoUThreshold;
+        if (nmsIoUThreshold !== undefined &&
+            (typeof nmsIoUThreshold !== "number" ||
+             !Number.isFinite(nmsIoUThreshold) ||
+             nmsIoUThreshold <= 0 ||
+             nmsIoUThreshold >= 1)) {
+          errors.push("manifest_stage2_nms_iou_threshold_must_be_between_zero_and_one");
+        }
+      } else {
+        const stage2InputSize = stage2.inputSize;
+        const stage2CropContextRatio = stage2.cropContextRatio;
+        const stage2PromotionMargin = stage2.promotionMarginThreshold;
+
+        if (typeof stage2InputSize !== "number" || !Number.isInteger(stage2InputSize) || stage2InputSize <= 0) {
+          errors.push("manifest_stage2_input_size_must_be_positive_integer");
+        }
+        if (
+          typeof stage2CropContextRatio !== "number" ||
+          !Number.isFinite(stage2CropContextRatio) ||
+          stage2CropContextRatio < 0
+        ) {
+          errors.push("manifest_stage2_crop_context_ratio_must_be_non_negative_number");
+        }
+        if (
+          typeof stage2PromotionMargin !== "number" ||
+          !Number.isFinite(stage2PromotionMargin)
+        ) {
+          errors.push("manifest_stage2_promotion_margin_must_be_number");
+        }
       }
     }
   }
@@ -467,7 +498,7 @@ export async function getNailTextureStage2Runtime(
           available: false,
           backend: "fallback",
           warnings: ["model_runtime_unavailable_on_server"],
-          inputSize: stage2.inputSize,
+          inputSize: stage2.inputSize ?? 0,
         };
       }
 
@@ -477,7 +508,7 @@ export async function getNailTextureStage2Runtime(
           available: false,
           backend: "fallback",
           warnings: ["stage2_model_url_unresolved"],
-          inputSize: stage2.inputSize,
+          inputSize: stage2.inputSize ?? 0,
         };
       }
 
@@ -500,7 +531,7 @@ export async function getNailTextureStage2Runtime(
             ort,
             warnings,
             modelUrl,
-            inputSize: stage2.inputSize,
+            inputSize: stage2.inputSize ?? 0,
           };
         } catch (error) {
           warnings.push(
@@ -515,7 +546,7 @@ export async function getNailTextureStage2Runtime(
         available: false,
         backend: "fallback",
         warnings: [...warnings, "stage2_runtime_unavailable"],
-        inputSize: stage2.inputSize,
+        inputSize: stage2.inputSize ?? 0,
       };
     })();
     stage2RuntimeCache.set(cacheKey, cached);

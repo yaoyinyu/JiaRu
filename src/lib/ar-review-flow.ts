@@ -10,6 +10,12 @@
 
 import type { NailTextureCandidateConfidence } from "./nail-texture-recognition/types.ts";
 
+/** 手动提取确认了区域，方向仍有歧义时继续展示正立纹理预览。 */
+export function needsArDirectionReview(warnings: readonly string[] | undefined): boolean {
+  return warnings?.some(warning => warning === "normalization_tip_direction_unknown"
+    || warning === "normalization_orientation_disagreement") ?? false;
+}
+
 export type ArConfidence = NailTextureCandidateConfidence;
 
 /** AR 顶部步骤条（§7.1）：选择来源 → 提取与复核 → 试戴与校准。 */

@@ -1,0 +1,41 @@
+{
+  "currentVersion": "nail-texture-seg-geometry64-browser-aa4-v2",
+  "releases": [
+    {
+      "version": "nail-texture-seg-geometry64-browser-aa4-v2",
+      "manifestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.nail-texture-seg-geometry64-browser-aa4-v2.json",
+      "modelFile": "geometry64-browser-v1-stage-a-512-fp32.onnx",
+      "modelPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\geometry64-browser-v1-stage-a-512-fp32.onnx",
+      "inputSize": 512,
+      "task": "segment",
+      "backendPreferences": [
+        "wasm"
+      ],
+      "labels": [
+        "nail_texture"
+      ],
+      "modelSizeBytes": 11538755,
+      "modelSizeMb": 11.0042,
+      "sha256": "0a6b842e1ae61011320881e2a4161a86a485841d27797ef88d3efdc5554b4e78",
+      "registeredAt": "2026-11-05T02:58:08.681Z"
+    },
+    {
+      "version": "nail-texture-seg-geometry64-browser-v1",
+      "manifestSnapshotPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\manifest.nail-texture-seg-geometry64-browser-v1.json",
+      "modelFile": "geometry64-browser-v1-stage-a-512-fp32.onnx",
+      "modelPath": "E:\\AI Project\\Codex\\JiaRu\\public\\models\\nail-texture-seg\\geometry64-browser-v1-stage-a-512-fp32.onnx",
+      "inputSize": 512,
+      "task": "segment",
+      "backendPreferences": [
+        "wasm"
+      ],
+      "labels": [
+        "nail_texture"
+      ],
+      "modelSizeBytes": 11538755,
+      "modelSizeMb": 11.0042,
+      "sha256": "0a6b842e1ae61011320881e2a4161a86a485841d27797ef88d3efdc5554b4e78",
+      "registeredAt": "2026-11-04T18:38:38.694Z"
+    }
+  ]
+}

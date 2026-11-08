@@ -84,6 +84,9 @@ export interface NailMatteConfig {
 }
 
 export interface NailMatteEnv {
+  /** 本机自研候选试用；配置后接管本机抠图，删除这两项即可恢复 WeVis。 */
+  NAIL_CANDIDATE_URL?: string;
+  NAIL_CANDIDATE_TOKEN?: string;
   VLM_MATTE_URL?: string;
   VLM_MATTE_TOKEN?: string;
   /** 云端自托管 /matte 契约服务（v1.2.216）：与本地服务同契约，仅地址不同。 */
@@ -105,6 +108,16 @@ const ALPHA_DATA_URI_PATTERN = /^data:image\/png;base64,/i;
 export function getNailMatteConfig(
   env: NailMatteEnv = process.env as NailMatteEnv
 ): NailMatteConfig | null {
+  const candidateUrl = (env.NAIL_CANDIDATE_URL ?? "").trim().replace(/\/+$/, "");
+  if (candidateUrl) {
+    const parsed = new URL(candidateUrl);
+    const token = (env.NAIL_CANDIDATE_TOKEN ?? "").trim();
+    if (parsed.protocol !== "http:" || parsed.hostname !== "127.0.0.1" ||
+        parsed.username || parsed.password || parsed.pathname !== "/" || parsed.search || parsed.hash || token.length < 32) {
+      throw new Error("本机候选服务配置错误");
+    }
+    return { url: candidateUrl, token };
+  }
   const url = (env.VLM_MATTE_URL ?? "").trim().replace(/\/+$/, "");
   if (!url) return null;
   return { url, token: (env.VLM_MATTE_TOKEN ?? "").trim() };

@@ -42,7 +42,7 @@
   font-family: var(--serif);
   font-size: clamp(38px, 4.5vw, 54px);
   font-weight: 500;
-  line-height: 1.3;
+  line-height: 1.16;
   letter-spacing: -.01em;
 }
 .heroAccent {
@@ -51,22 +51,22 @@
 }
 
 .heroLede {
-  margin: 18px 0 0;
-  color: var(--muted);
-  font-size: 13px;
+  margin: 20px 0 0;
+  color: var(--ink);
+  font-size: 15px;
   letter-spacing: .04em;
 }
 
 .heroHint {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   color: #6f7066;
-  font-size: 12px;
-  letter-spacing: .02em;
+  font-size: 11px;
+  letter-spacing: .03em;
 }
 
 .heroActions {
   display: flex;
-  margin-top: 30px;
+  margin-top: 28px;
   flex-wrap: wrap;
   align-items: center;
   gap: 20px;
@@ -192,7 +192,13 @@
 .styleText strong { font-family: var(--serif); font-size: 14.5px; font-weight: 500; letter-spacing: .04em; }
 .styleText em { color: var(--muted); font-size: 12px; font-style: normal; letter-spacing: .02em; }
 
-.styleArrow { display: flex; margin-left: auto; color: #b6b3a5; }
+.styleArrow {
+  display: flex;
+  margin-left: auto;
+  color: #b6b3a5;
+  transition: transform .22s var(--ease-soft);
+}
+.styleCard:hover .styleArrow { transform: translateX(4px); }
 .styleArrow svg { width: 18px; height: 18px; }
 
 .roundAction {
@@ -251,9 +257,9 @@
   aspect-ratio: 1;
   object-fit: cover;
   box-shadow: var(--neu-out-sm);
-  transition: box-shadow .22s var(--ease-soft);
+  transition: opacity .22s var(--ease-soft);
 }
-.lookItem:hover .lookImage { box-shadow: var(--neu-out-md); }
+.lookItem:hover .lookImage { opacity: .86; }
 .lookName {
   display: block;
   margin-top: 9px;
@@ -262,8 +268,31 @@
   letter-spacing: .04em;
 }
 
-.boundaryCard { margin-top: 34px; padding: 20px 22px; }
-.boundaryCard p { margin: 0; color: #86877c; font-size: 12px; line-height: 1.9; }
+/* ---------- 使用边界注释行（Level 1：不浮起） ---------- */
+.boundaryNote {
+  display: flex;
+  margin: 36px 0 0;
+  padding: 14px 2px 0;
+  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 0;
+  list-style: none;
+}
+.boundaryNote li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11.5px;
+  letter-spacing: .03em;
+}
+.boundaryNote li svg { width: 13px; height: 13px; flex: none; color: #b6b3a5; }
+.boundaryNote li:not(:last-child)::after {
+  content: "·";
+  margin: 0 14px;
+  color: var(--line);
+}
 
 /* ---------- 页脚 ---------- */
 .footer {
@@ -315,8 +344,9 @@
   .main, .footer { width: min(calc(100% - 32px), 1120px); }
   .main { padding-top: 8px; }
   .hero { gap: 22px; }
-  .heroTitle { font-size: clamp(30px, 8.6vw, 38px); line-height: 1.34; }
-  .heroLede { margin-top: 12px; font-size: 12px; }
+  .heroTitle { font-size: clamp(30px, 8.6vw, 38px); line-height: 1.22; }
+  .heroLede { margin-top: 14px; font-size: 13.5px; }
+  .heroHint { margin-top: 14px; }
   .heroActions { margin-top: 22px; gap: 14px; }
   .primaryAction { min-height: 44px; padding: 0 18px; font-size: 12.5px; }
   .heroFrame { aspect-ratio: 4 / 3; }
@@ -327,13 +357,14 @@
   .styleText em { font-size: 11px; }
   .galleryLink { min-height: 44px; font-size: 12.5px; }
   .lookGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
-  .boundaryCard { margin-top: 26px; padding: 16px 18px; }
+  .boundaryNote { margin-top: 26px; padding-top: 12px; }
+  .boundaryNote li { font-size: 11px; }
   .footer { margin-top: 28px; padding-bottom: calc(104px + var(--safe-bottom)); }
   .footerLinks { gap: 40px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primaryAction, .styleCard, .roundAction, .galleryLink, .lookImage, .footerLink, .ghostAction, .skipLink {
+  .primaryAction, .styleCard, .styleArrow, .roundAction, .galleryLink, .lookImage, .footerLink, .ghostAction, .skipLink {
     transition: none;
   }
 }

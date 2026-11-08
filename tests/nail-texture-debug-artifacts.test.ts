@@ -3,7 +3,7 @@ import path from "node:path";
 import test from "node:test";
 import {
   buildNailDebugArtifactPaths,
-} from "../src/lib/nail-texture-recognition/index.ts";
+} from "../src/lib/nail-texture-recognition/debug-artifacts.ts";
 
 test("buildNailDebugArtifactPaths keeps default output directory and names", () => {
   const paths = buildNailDebugArtifactPaths({

@@ -10,6 +10,7 @@ import {
   fetchNailMatteAvailability,
   inferSuggestedFingers,
   refineCandidateMasksWithMatte,
+  resolveMaskTextureRotation,
   type NailTextureCandidate,
   type NailTextureCandidateConfidence,
   type NailTextureProfile,
@@ -30,6 +31,7 @@ import NailMattePanel, {
 } from "@/components/NailMattePanel";
 import { NailDetectModeSwitch } from "@/components/NailDetectModeSwitch";
 import { autoAssignNailRegionFingers } from "@/lib/nail-auto-flow";
+import { matchNailDirectionReferences } from "@/lib/nail-texture-direction";
 import { decideNailDetectRun, type NailDetectMode } from "@/lib/nail-detect-mode";
 import {
   cloudDetectMessageFromReason,
@@ -67,6 +69,8 @@ export interface NailPickerConfirmOptions {
 /** 选择器内的编辑态区域：识别级联的基础字段 + 本地提取诊断。 */
 interface NailRegion extends NailDetectionRegion {
   extractionDiagnostics?: TextureExtractionDiagnostics;
+  orientationConfirmed?: boolean;
+  orientationReferenceAngle?: number;
 }
 
 interface NailArtPickerProps {
@@ -228,6 +232,7 @@ export default function NailArtPicker({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const detectionAbortRef = useRef<AbortController | null>(null);
+  const orientationAbortRef = useRef<AbortController | null>(null);
   const matteAbortRef = useRef<AbortController | null>(null);
   // §7.5：弹层关闭（含提取中 Escape / 取消）一律视为取消，提取结果不再应用。
   const closeCancelledRef = useRef(false);
@@ -352,6 +357,8 @@ export default function NailArtPicker({
     return () => {
       detectionAbortRef.current?.abort();
       detectionAbortRef.current = null;
+      orientationAbortRef.current?.abort();
+      orientationAbortRef.current = null;
       // 换图 / 卸载时同步中止进行中的云端识别请求。
       cloudAbortRef.current?.abort();
       cloudAbortRef.current = null;
@@ -630,6 +637,7 @@ export default function NailArtPicker({
         mask: candidate.mask,
         warnings: [...(candidate.warnings ?? [])],
       }));
+      setDetectionSummary(null);
       setRegions(detected);
       setOriginalRegions(detected);
       setSelectedIdx(0);
@@ -783,6 +791,8 @@ export default function NailArtPicker({
     // 关闭即取消：自动流程与提取结果都不再应用（§7.5）。
     closeCancelledRef.current = true;
     autoFlowCancelledRef.current = true;
+    orientationAbortRef.current?.abort();
+    orientationAbortRef.current = null;
     detectionAbortRef.current?.abort();
     detectionAbortRef.current = null;
     onCancel();
@@ -957,10 +967,13 @@ export default function NailArtPicker({
 
   const rotateSelected = useCallback(
     (deltaDeg: number) => {
-      updateSelectedRegion((region) => ({
-        ...region,
-        angle: normalizeAngle(region.angle + (deltaDeg * Math.PI) / 180),
-      }));
+      updateSelectedRegion((region) => {
+        const current = Math.abs(deltaDeg) === 180 && region.mask
+          ? resolveMaskTextureRotation(region.mask, region.orientationConfirmed ? region.angle : region.orientationReferenceAngle ?? region.angle,
+              region.orientationConfirmed || region.orientationReferenceAngle != null || region.source === "mediapipe" || region.source === "manual").rotation
+          : region.angle;
+        return { ...region, angle: normalizeAngle(current + (deltaDeg * Math.PI) / 180), orientationConfirmed: true };
+      });
     },
     [updateSelectedRegion]
   );
@@ -1036,6 +1049,25 @@ export default function NailArtPicker({
       try {
         const results: NailAssignment[] = [];
         const diagnosticsById = new Map<string, TextureExtractionDiagnostics>();
+        const directionById = new Map<string, number>();
+        const unresolved = assigned.filter(r => r.mask && !r.orientationConfirmed
+          && r.source !== "mediapipe" && r.source !== "manual");
+        if (unresolved.length && !closeCancelledRef.current && !autoFlowCancelledRef.current) {
+          const controller = new AbortController();
+          orientationAbortRef.current?.abort();
+          orientationAbortRef.current = controller;
+          try {
+            const { detectNailsFromHandImage } = await import("@/lib/nail-hand-geometry-detection");
+            if (controller.signal.aborted || closeCancelledRef.current || autoFlowCancelledRef.current) return null;
+            const hand = await detectNailsFromHandImage(image, { signal: controller.signal, timeoutMs: 5000, maxHands: 2 });
+            const directions = matchNailDirectionReferences(unresolved.map(r => ({ ...r, length: r.nl, width: r.nw })), hand.candidates);
+            directions.forEach((angle, i) => { if (angle != null) directionById.set(unresolved[i].id, angle); });
+          } catch {
+            // 近景或关键点失败时沿用轮廓方向及已有复核提示。
+          } finally {
+            if (orientationAbortRef.current === controller) orientationAbortRef.current = null;
+          }
+        }
 
         for (const region of assigned) {
           // 弹层已关闭 / 自动流程已取消：停止继续提取，返回的部分结果由调用方释放。
@@ -1052,7 +1084,8 @@ export default function NailArtPicker({
               image.naturalWidth,
               image.naturalHeight,
               region.mask,
-              { referenceAngle: region.angle }
+              { referenceAngle: region.orientationConfirmed ? region.angle : directionById.get(region.id) ?? region.angle,
+                referenceIsDirected: region.orientationConfirmed || directionById.has(region.id) || region.source === "mediapipe" || region.source === "manual" }
             );
             texture = extracted.texture;
             diagnostics = extracted.diagnostics;
@@ -1076,7 +1109,7 @@ export default function NailArtPicker({
             finger: region.assignedFinger!,
             diagnostics,
             profile,
-            confidence: region.confidence,
+            confidence: diagnostics?.normalization?.warnings.length ? "low" : region.confidence,
           });
         }
 
@@ -1084,7 +1117,8 @@ export default function NailArtPicker({
           setRegions((prev) =>
             prev.map((region) => {
               const diagnostics = diagnosticsById.get(region.id);
-              return diagnostics ? { ...region, extractionDiagnostics: diagnostics } : region;
+              return diagnostics ? { ...region, extractionDiagnostics: diagnostics,
+                orientationReferenceAngle: directionById.get(region.id) } : region;
             })
           );
         }
@@ -1141,7 +1175,7 @@ export default function NailArtPicker({
     //    自动执行一次兜底识别；否则保持手动模式，不阻塞、不发送任何图片。
     //    云端模式（v1.2.216）不做本机兜底：0 候选保持手动模式，提示由云端识别给出。
     let fromDetect = false;
-    if (working.length === 0) {
+    if (working.length === 0 || (matteAutoAllowed && availability?.backend === "candidate" && detectionSummary?.backend === "fallback" && detectModeRef.current.mode === "local")) {
       if (detectModeRef.current.mode !== "local") return;
       if (!matteAutoAllowed) return;
       setAutoStatus("本地未识别到甲面，正在兜底识别…");
@@ -1158,7 +1192,7 @@ export default function NailArtPicker({
     // 1) 已记住隐私确认且服务就绪时，自动执行一次本机精细抠图；
     //    兜底识别的结果本身已带精细 mask，不再重复消耗一次处理。
     //    云端模式跳过本机精细抠图：云端候选如需精化，切回本地后再执行。
-    if (matteAutoAllowed && !fromDetect && detectModeRef.current.mode === "local") {
+    if (matteAutoAllowed && !fromDetect && detectionSummary?.backend !== "model" && detectModeRef.current.mode === "local") {
       setAutoStatus("正在精细处理甲面蒙版…");
       const refined = await refineMasks(working);
       if (autoFlowCancelledRef.current) return;
@@ -1184,7 +1218,7 @@ export default function NailArtPicker({
     setAutoStatus(null);
     if (!results || results.length === 0) return;
     onConfirm(results, { auto: true });
-  }, [detectMasks, extractAssignments, onConfirm, readMatteNoticeAccepted, refineMasks]);
+  }, [detectMasks, extractAssignments, onConfirm, readMatteNoticeAccepted, refineMasks, detectionSummary]);
 
   // 识别完成后触发一次（含 0 候选的兜底识别路径）；同一张图只跑一轮，用户取消识别则不跑。
   // suppressAutoFlow（覆盖前复核的「继续调整」重开）时只保留识别与手动提取。
@@ -1204,7 +1238,7 @@ export default function NailArtPicker({
       open
       onClose={closePicker}
       title="美甲纹理提取"
-      description="优先自动定位五个甲面；如少数边界有偏差，可直接拖动或微调。"
+      description="识别图片中可见的甲面，核对轮廓和指位后提取纹理。"
       // 误触背景遮罩会丢掉全部调整：只保留 Escape 与「取消」按钮关闭（§7.5）。
       closeOnOutside={false}
       footer={
@@ -1316,13 +1350,15 @@ export default function NailArtPicker({
               </details>
             )}
             {detectionWarningMessages.length > 0 && (
-              <ul className="list-disc space-y-1 pl-5 text-xs text-amber-700">
+              <details><summary className="min-h-11 cursor-pointer text-xs text-slate-500">浏览器定位诊断</summary><ul className="list-disc space-y-1 pl-5 text-xs text-amber-700">
                 {detectionWarningMessages.map((message) => (
                   <li key={message}>{message}</li>
                 ))}
-              </ul>
+              </ul></details>
             )}
-            {auxiliaryNotice ? (
+            {matteAvailability?.enabled ? (
+              <p role="status" className="text-xs text-slate-600">{matteStatus === "running" ? "正在识别，请稍候…" : matteAvailability.ready ? "本机识别已就绪，请核对结果后提取。" : "本机服务暂未就绪，可手动添加或稍后重试。"}</p>
+            ) : auxiliaryNotice ? (
               <div role="status" className="rounded-xl bg-amber-50 px-3 py-2 text-xs text-amber-800">
                 {auxiliaryNotice}
               </div>
@@ -1355,7 +1391,7 @@ export default function NailArtPicker({
               <div className="max-h-48 space-y-2 overflow-auto">
                 {regions.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-slate-200 px-3 py-4 text-sm text-slate-500">
-                    暂无可用区域。请在左侧图片中逐个点击完整甲面。
+                    暂无甲面区域。可使用下方本机识别，或在图片中手动添加。
                   </div>
                 ) : (
                   regions.map((region, index) => {
@@ -1425,6 +1461,7 @@ export default function NailArtPicker({
 
             <NailMattePanel
               availability={matteAvailability}
+              onAvailabilityChange={(next) => { matteAvailabilityRef.current = next; setMatteAvailability(next); }}
               candidateCount={regions.length}
               status={matteStatus}
               message={matteMessage}

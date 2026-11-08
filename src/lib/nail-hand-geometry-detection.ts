@@ -43,6 +43,24 @@ function fingerExtensionAngle(
 export function createNailCandidatesFromHandGeometry(
   input: HandGeometryDetectionInput,
   imageWidth: number,
+  imageHeight: number,
+  maxHands: 1 | 2 = 1,
+): HandGeometryDetectionResult {
+  if (maxHands === 1) return createSingleHandCandidates(input, imageWidth, imageHeight);
+  const hands = input.multiHandLandmarks?.slice(0, maxHands) ?? [];
+  if (!hands.length) return { candidates: [], warnings: ["mediapipe_no_hand_detected"] };
+  const results = hands.map((hand, index) => {
+    const result = createSingleHandCandidates({ multiHandLandmarks: [hand],
+      multiHandedness: input.multiHandedness?.slice(index, index + 1) }, imageWidth, imageHeight);
+    return { ...result, candidates: result.candidates.map(c => ({ ...c,
+      id: c.id.replace("hand-0-", `hand-${index}-`) })) };
+  });
+  return { candidates: results.flatMap(r => r.candidates), warnings: [...new Set(results.flatMap(r => r.warnings))] };
+}
+
+function createSingleHandCandidates(
+  input: HandGeometryDetectionInput,
+  imageWidth: number,
   imageHeight: number
 ): HandGeometryDetectionResult {
   const hand = input.multiHandLandmarks?.[0];
@@ -120,7 +138,7 @@ export function createNailCandidatesFromHandGeometry(
 
 export async function detectNailsFromHandImage(
   image: HTMLImageElement,
-  options: { signal?: AbortSignal; timeoutMs?: number } = {}
+  options: { signal?: AbortSignal; timeoutMs?: number; maxHands?: 1 | 2 } = {}
 ): Promise<HandGeometryDetectionResult> {
   if (options.signal?.aborted) throw createAbortError();
   const timeoutMs = options.timeoutMs ?? 20_000;
@@ -130,7 +148,7 @@ export async function detectNailsFromHandImage(
   });
   hands.setOptions({
     selfieMode: false,
-    maxNumHands: 1,
+    maxNumHands: options.maxHands ?? 1,
     modelComplexity: 1,
     minDetectionConfidence: 0.5,
     minTrackingConfidence: 0.5,
@@ -162,7 +180,8 @@ export async function detectNailsFromHandImage(
     return createNailCandidatesFromHandGeometry(
       results,
       image.naturalWidth,
-      image.naturalHeight
+      image.naturalHeight,
+      options.maxHands ?? 1,
     );
   } finally {
     if (timeoutId) clearTimeout(timeoutId);

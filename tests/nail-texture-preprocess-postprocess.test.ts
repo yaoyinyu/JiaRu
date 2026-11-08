@@ -7,6 +7,7 @@ import {
   stabilizeNailTextureCandidateAngles,
 } from "../src/lib/nail-texture-recognition/index.ts";
 
+// 2×1 源在双线性映射下恰取整数列（sx=0/1，fx=0，右列触发 sx≥srcW−1 钳边），期望值与最近邻一致。
 test("preprocessNailTextureImage creates CHW float tensor", () => {
   const source = {
     width: 2,
@@ -23,6 +24,7 @@ test("preprocessNailTextureImage creates CHW float tensor", () => {
   assert.ok(result.tensorData[8] >= 0 && result.tensorData[8] <= 1);
 });
 
+// 4×2 横向图的 sx/sy 全为整数（fx=fy=0），上下各补一行 114/255 padding；期望值与最近邻一致。
 test("preprocessNailTextureImage letterboxes landscape input without stretching", () => {
   const source = {
     width: 4,
@@ -43,6 +45,99 @@ test("preprocessNailTextureImage letterboxes landscape input without stretching"
   assert.ok(Math.abs(result.tensorData[0] - 114 / 255) < 1e-6);
   assert.equal(result.tensorData[4], 1);
   assert.equal(result.tensorData[16 + 8], 1);
+});
+
+// 2×2 → 2×2 恒等：sx = fround((x+0.5)·1 − 0.5) = x 为整数列，fx/fy 全为 0，输出与源逐像素相同。
+test("preprocessNailTextureImage keeps a 2x2 to 2x2 mapping identical under bilinear resampling", () => {
+  const source = {
+    width: 2,
+    height: 2,
+    data: new Uint8ClampedArray([
+      10, 20, 30, 255,
+      40, 50, 60, 255,
+      70, 80, 90, 255,
+      110, 120, 130, 255,
+    ]),
+  };
+  const result = preprocessNailTextureImage(source, 2);
+  const channelValues = [
+    [10, 40, 70, 110], // R：像素顺序 (0,0) (1,0) (0,1) (1,1)
+    [20, 50, 80, 120], // G
+    [30, 60, 90, 130], // B
+  ];
+  for (let channel = 0; channel < 3; channel++) {
+    for (let index = 0; index < 4; index++) {
+      assert.equal(
+        result.tensorData[channel * 4 + index],
+        Math.fround(channelValues[channel][index] / 255)
+      );
+    }
+  }
+});
+
+// 4×4 → 2×2：sx = fround((x+0.5)·2 − 0.5) = 0.5/2.5，fx=fy=0.5 的四邻域均值；
+// dst(0,0) 与 dst(1,1) 混到 0/255 棋盘上 → 均值 127.5 → Math.round(127.5) = 128。
+test("preprocessNailTextureImage downsamples 4x4 to 2x2 with bilinear averaging", () => {
+  const source = { width: 4, height: 4, data: new Uint8ClampedArray(4 * 4 * 4) };
+  const red = [
+    [0, 255, 0, 0],
+    [0, 255, 0, 0],
+    [0, 0, 0, 255],
+    [0, 0, 0, 255],
+  ];
+  for (let y = 0; y < 4; y++) {
+    for (let x = 0; x < 4; x++) {
+      const offset = (y * 4 + x) * 4;
+      source.data[offset] = red[y][x];
+      source.data[offset + 3] = 255;
+    }
+  }
+
+  const result = preprocessNailTextureImage(source, 2);
+
+  assert.equal(result.resizedWidth, 2);
+  assert.equal(result.resizedHeight, 2);
+  assert.equal(result.padLeft, 0);
+  assert.equal(result.padTop, 0);
+  // R 通道：dst(0,0)=dst(1,1)=128/255，dst(1,0)=dst(0,1)=0；G/B 全 0。
+  assert.equal(result.tensorData[0], Math.fround(128 / 255));
+  assert.equal(result.tensorData[1], 0);
+  assert.equal(result.tensorData[2], 0);
+  assert.equal(result.tensorData[3], Math.fround(128 / 255));
+  for (let index = 4; index < 12; index++) {
+    assert.equal(result.tensorData[index], 0);
+  }
+});
+
+// 2×2 → 4×4：sx = (x+0.5)·0.5 − 0.5 → x=0 取 −0.25（负向钳边 fx=0）、x=3 取 1.25（≥srcW−1 钳边），
+// x=1/2 取 0.25/0.75 真插值。R 通道水平渐变 → 每行 [0,64,191,255]/255（64=round(63.75)、191=round(191.25)），
+// G 通道垂直渐变 → 每行 [255,191,64,0]/255，B 全 0。
+test("preprocessNailTextureImage upscales 2x2 to 4x4 with bilinear weights and edge clamping", () => {
+  const source = {
+    width: 2,
+    height: 2,
+    data: new Uint8ClampedArray([
+      0, 255, 0, 255,
+      255, 255, 0, 255,
+      0, 0, 0, 255,
+      255, 0, 0, 255,
+    ]),
+  };
+
+  const result = preprocessNailTextureImage(source, 4);
+
+  assert.equal(result.resizeScale, 2);
+  assert.equal(result.resizedWidth, 4);
+  assert.equal(result.resizedHeight, 4);
+  const redExpected = [0, 64, 191, 255];
+  const greenExpected = [255, 191, 64, 0];
+  for (let y = 0; y < 4; y++) {
+    for (let x = 0; x < 4; x++) {
+      assert.equal(result.tensorData[y * 4 + x], Math.fround(redExpected[x] / 255));
+      assert.equal(result.tensorData[16 + y * 4 + x], Math.fround(greenExpected[y] / 255));
+      assert.equal(result.tensorData[32 + y * 4 + x], 0);
+    }
+  }
 });
 
 test("postprocessNailTextureDetections reverses letterbox padding", () => {

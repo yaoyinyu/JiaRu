@@ -12,6 +12,9 @@ export interface NailGeometry {
   angle: number;
   /** 甲面横轴在画面中的方向；与 angle 不垂直时表示透视剪切。 */
   transverseAngle?: number;
+  /** 长宽投影比例独立保存，供摄影纹理在侧转/前倾时保持物理比例。 */
+  longitudinalProjection?: number;
+  transverseProjection?: number;
 }
 
 export interface NailGeometryOptions {
@@ -52,6 +55,33 @@ export function normalizeAngle(angle: number): number {
 
 export function smoothAngle(previous: number, current: number, alpha: number): number {
   return normalizeAngle(previous + normalizeAngle(current - previous) * alpha);
+}
+
+/** 在甲根坐标中平滑，避免角度和长度独立插值使固定甲根画出弧线。 */
+export function smoothNailGeometry(previous: NailGeometry, current: NailGeometry, alpha: number): NailGeometry {
+  const amount = Math.max(0, Math.min(1, alpha));
+  const mix = (a: number, b: number) => a + (b - a) * amount;
+  const root = (g: NailGeometry) => ({
+    x: g.cx - Math.sin(g.angle) * g.length / 2,
+    y: g.cy + Math.cos(g.angle) * g.length / 2,
+  });
+  const before = root(previous), after = root(current);
+  const angle = smoothAngle(previous.angle, current.angle, amount);
+  const length = mix(previous.length, current.length);
+  return {
+    ...current,
+    cx: mix(before.x, after.x) + Math.sin(angle) * length / 2,
+    cy: mix(before.y, after.y) - Math.cos(angle) * length / 2,
+    angle, length, width: mix(previous.width, current.width),
+    transverseAngle: smoothAngle(previous.transverseAngle ?? previous.angle,
+      current.transverseAngle ?? current.angle, amount),
+    ...(current.longitudinalProjection == null ? {} : {
+      longitudinalProjection: mix(previous.longitudinalProjection ?? current.longitudinalProjection, current.longitudinalProjection),
+    }),
+    ...(current.transverseProjection == null ? {} : {
+      transverseProjection: mix(previous.transverseProjection ?? current.transverseProjection, current.transverseProjection),
+    }),
+  };
 }
 
 /** 计算目标像素坐标系中的指甲几何。指甲路径的局部 -Y 方向指向指尖。 */
@@ -182,11 +212,14 @@ export function computeNailGeometry(
     width: stableDistal3d * NAIL_WIDTH_RATIOS[finger] * transverseProjection,
     angle: normalizeAngle(Math.atan2(uy, ux) + Math.PI / 2),
     transverseAngle,
+    longitudinalProjection,
+    transverseProjection,
   };
 }
 
 export function mapGeometryScale(geometry: NailGeometry, scale: number): NailGeometry {
   return {
+    ...geometry,
     cx: geometry.cx * scale,
     cy: geometry.cy * scale,
     length: geometry.length * scale,
@@ -213,26 +246,36 @@ export function createNailAffineTransform(
   };
 }
 
-/** 应用用户级贴合微调；正 offset 沿甲面长轴向指根移动。 */
+/** 长度在甲根处锚定，延长朝甲尖；正 offset 沿甲面长轴向指根移动。 */
 export function adjustNailGeometry(
   geometry: NailGeometry,
   scale: number,
   rootOffset: number,
   widthScale: number = scale,
+  sideOffset: number = 0,
+  rotationOffset: number = 0,
 ): NailGeometry {
   const safeScale = clamp(scale, 0.75, 1.4);
   const safeWidthScale = clamp(widthScale, 0.7, 1.45);
   const safeOffset = clamp(rootOffset, -0.2, 0.2);
+  const safeSide = clamp(sideOffset, -0.4, 0.4);
+  const rotation = clamp(rotationOffset, -Math.PI / 6, Math.PI / 6);
   const rootDirectionX = -Math.sin(geometry.angle);
   const rootDirectionY = Math.cos(geometry.angle);
+  const rootX = geometry.cx + rootDirectionX * geometry.length * (0.5 + safeOffset)
+    + Math.cos(geometry.transverseAngle ?? geometry.angle) * geometry.width * safeSide;
+  const rootY = geometry.cy + rootDirectionY * geometry.length * (0.5 + safeOffset)
+    + Math.sin(geometry.transverseAngle ?? geometry.angle) * geometry.width * safeSide;
+  const angle = normalizeAngle(geometry.angle + rotation);
   return {
-    cx: geometry.cx + rootDirectionX * geometry.length * safeOffset,
-    cy: geometry.cy + rootDirectionY * geometry.length * safeOffset,
+    ...geometry,
+    cx: rootX + Math.sin(angle) * geometry.length * safeScale / 2,
+    cy: rootY - Math.cos(angle) * geometry.length * safeScale / 2,
     length: geometry.length * safeScale,
     width: geometry.width * safeWidthScale,
-    angle: geometry.angle,
+    angle,
     ...(geometry.transverseAngle == null
       ? {}
-      : { transverseAngle: geometry.transverseAngle }),
+      : { transverseAngle: normalizeAngle(geometry.transverseAngle + rotation) }),
   };
 }

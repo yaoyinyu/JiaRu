@@ -256,7 +256,7 @@ export default function AccountPage() {
   };
 
   const cardCls =
-    "rounded-3xl border border-pink-100 bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)] ";
+    "rounded-3xl border border-pink-100 bg-[var(--surface)] p-6 shadow-[var(--neu-out-md)]";
   const metaValue = "font-medium text-[#292a27] break-all";
 
   if (loadState === "loading") {
@@ -343,7 +343,7 @@ export default function AccountPage() {
 
         {/* 账号信息（只读） */}
         <section className={cardCls}>
-          <h2 className="mb-4 text-base font-bold text-[#292a27]">账号信息</h2>
+          <h2 className="mb-4 text-base font-semibold text-[#292a27]">账号信息</h2>
           <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2">
             <div>
               <dt className="mb-0.5 text-xs text-[#6f7066]">手机号</dt>
@@ -367,7 +367,7 @@ export default function AccountPage() {
         {/* 绑定手机号（微信新用户合规补绑，§5.1） */}
         {!me.user.phone && (
           <section className={`${cardCls} border-amber-200`}>
-            <h2 className="mb-1 text-base font-bold text-[#292a27]">绑定手机号</h2>
+            <h2 className="mb-1 text-base font-semibold text-[#292a27]">绑定手机号</h2>
             <p className="mb-4 text-xs leading-relaxed text-[#6f7066]">
               绑定后可用手机号登录，也是找回账号的重要凭证（合规要求）。
             </p>
@@ -444,8 +444,8 @@ export default function AccountPage() {
 
         {/* 登录方式管理（§5.2） */}
         <section className={cardCls}>
-          <h2 className="mb-1 text-base font-bold text-[#292a27]">登录方式</h2>
-          <p className="mb-4 text-xs text-[#6f7066]">任一方式均可登录同一账号，至少保留一种</p>
+          <h2 className="mb-1 text-base font-semibold text-[#292a27]">登录方式</h2>
+          <p className="mb-4 text-xs leading-relaxed text-[#6f7066]">任一方式均可登录同一账号，至少保留一种</p>
           <ul className="space-y-2.5">
             {me.identities.map((id) => (
               <li key={id.provider} className="flex items-center justify-between rounded-xl border border-pink-100 bg-[var(--surface)] px-4 py-3">
@@ -470,7 +470,7 @@ export default function AccountPage() {
         <section className={cardCls}>
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h2 className="mb-1 text-base font-bold text-[#292a27]">用户改进计划</h2>
+              <h2 className="mb-1 text-base font-semibold text-[#292a27]">用户改进计划</h2>
               <p className="text-xs leading-relaxed text-[#6f7066]">
                 开启时手部照片等数据可能被用于产品改进（去标识化后使用）；关闭后不会上传任何数据。
                 此偏好以账号为准，并同步到当前设备。

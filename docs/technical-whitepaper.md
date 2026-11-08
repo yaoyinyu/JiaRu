@@ -1,6 +1,6 @@
 # 甲如（JiaRu）技术白皮书
 
-> 文档版本：v1.2.240
+> 文档版本：v1.2.279
 >
 > 基线日期：2026-07-12
 >
@@ -120,7 +120,25 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 
 ## 3. 功能状态总表
 
-指定100源634甲精标与统一训练完成，Goal ACTIVE。多尺度上下文径向候选24轮15216输入/3816步及全量独立复算完成；全634甲/636候选：IoU≥0.75匹配634/634、原2px严格联合0/634、漏甲图0/100，边界IoU/F1均值0.270805/0.655614，训练域绝对门仍未通过（需≥539甲严格联合）。本次权重保留为开发诊断，活动16轮权重保持；本轮预算已消费完毕。下一见Goal/§8.9/§11.1，PRODUCT HOLD。 固定8独立/共享对照已重放，共享4/8、独立7/8；边缘带、低学习率退火及困难损失均衡控制分别5/8、7/8、8/8，全部已独立重放；全634规范边缘带及独立重放已完成；新全量64轮及完整重放/全636终评已完成，40576有效输入/5120更新；严格联合0/634，Boundary IoU/F1均值0.286946/0.682286。全634输入同构和固定8保持诊断后，已启动冻结视觉基线的几何残差分支全634统一训练，并连接原活句柄自动收尾；证据见§8.9。
+**v1.2.279固定32甲共享拟合路线。** 第128至256次曝光仍有31/32甲改善，固定末态25/32。继续从该末态按等曝光比较恒定学习率和余弦退火。全634质量仍0/634，PRODUCT HOLD。
+
+**v1.2.278固定32甲混批对照。** 投影更新未获得原2px边界增益，关闭本版。下一步复算原损失共享拟合轨迹，定位停滞发生在初期还是后期。原全634质量仍0/634，PRODUCT HOLD。
+
+v1.2.268已恢复3000开发预览及实际页面交互：冷访问原164.94秒，PostCSS占133.02秒；Tailwind扫描base收紧至src后，本次重新启动首次访问30.41秒，随后三次HTTP为29—51ms。Playwright桌面、窄屏和横屏重载/辅助线切换通过，页面及资源错误0、横向溢出0；独立CSS重建约82ms。AR v5甲根/甲尖/侧边拖动、双手方向参考、手动方向预览及亮度适配保持，相关90项回归见v1.2.267记录。生产构建完整终态与真实相机贴合继续单列待验；训练Goal已恢复，见下段。本页面修复轮仅页面排障，见§4.5/§11.1及当日日志。
+
+**v1.2.274第62次模型调整完成。** 原128轮81152输入/10240更新，264195逻辑事件、81152份RAW和321份状态独立重放通过。固定636候选终评及三基线配对已复算。匹配634/634、漏甲图0/100，Boundary IoU/F1均值0.582402/0.966976。相对第61次Boundary IoU提高0.022450，584甲改善、50甲下降、严重回归0，此前8项均改善。Boundary F1达标597/634，Boundary IoU达标0/634（最高0.747427），严格联合仍0/634。当前仅登记为训练域诊断，入口v51，PRODUCT HOLD。
+
+**v1.2.275多尺度轮廓路线。** 冻结第62次100图634甲原像素诊断已重建636候选及全部原配对指标，并独立复算9个场景。整体质心平移和径向常数各0/634，理想修正局部33—1024谐波218/634，仍差321甲。理想修正1—8谐波或0—32合并均2/634。现有真值半径回代634/634，几何可达余量95甲。下一步用同一冻结快照，配对预检联合学习局部细节和低频形状，原2px及539门保持。 反事实使用训练域真值，现有实际联合仍0/634，PRODUCT HOLD。
+
+**v1.2.276分频配对结论。** 第63次配对预检从第62次固定权重出发，原损失与分频组各256次更新、2048训练输入及16评估输入。两组原2px严格联合均8/8，平均Boundary IoU分别0.886997和0.873761。分频组8/8逐甲下降，平均差-0.013236，1甲触发严重回归（最大下降0.025129）。相对增益及零严重回归门未过，关闭本版分频损失分支。下一步沿用原损失，在更广的冻结训练样本上对照检验共享轮廓分支容量。全634正式训练域联合仍0/634，PRODUCT HOLD。
+
+**v1.2.277角向容量配对结论。** 第64次在31张冻结图的32甲上配对，原损失两组各256次每甲曝光及1024更新，新增角向分支初始64份输出逐字节一致。原分支和扩展分支均25/32，平均Boundary IoU分别0.775480及0.776695。扩展增益0.001214，20改善/12下降，2甲失去严格通过；28甲、相对增益及严格集合门未过，关闭本版扩展。原8甲在等曝光的32甲共享原分支中平均Boundary IoU由0.886997降为0.800915。两次试验更新总数与批次组成不同，下一步用同一初始权重和固定批次检验梯度相互牵制。全634质量仍0/634，PRODUCT HOLD。
+
+v1.2.265按用户最新截图继续AR贴合专项：`cuticle-fit-v4`继承甲根固定、长宽独立校准和双轴投影；纹理甲根中心改取可见高度82%—95%处，根部增加0.5—2局部像素alpha过渡。模型mask提取前可用同图手指关键点进行双向唯一配对，仅补充有向参考；25°轴差、横向/纵向距离及近邻歧义守卫失败时保留轮廓方向与复核。新增方向步骤全本地，5秒超时，换图/关闭取消，模型原mask与手工指位保持。工程及浏览器验收详见§4.5与当日日志。
+
+v1.2.257统一识别交互：浏览器ONNX为主路径；仅浏览器降级/空结果且已有本机处理确认、服务就绪时自动补充本机识别，云端模式保持独立。参考图提取、照片编辑与分析页共享默认展开的本机面板；首次“同意并识别”直接执行，失败保留输入/结果，可重新检查服务。自研本机候选显式重新识别替换区域并提示复核；浏览器有效结果保持。浏览器历史定位诊断折叠显示，本机成功后清除旧摘要。分析页补充本机入口及取消/换图过期响应守卫。摄像头继续显式启动，原隐私确认与质量复核保持。
+
+指定100源634甲精标与统一训练完成，持续Goal已恢复，当前会话仅训练与评估，既有业务接入保持。多尺度上下文径向候选24轮15216输入/3816步及全量独立复算完成；全634甲/636候选：IoU≥0.75匹配634/634、原2px严格联合0/634、漏甲图0/100，边界IoU/F1均值0.270805/0.655614，训练域绝对门仍未通过（需≥539甲严格联合）。本次权重保留为开发诊断，活动16轮权重保持；本轮预算已消费完毕。下一见Goal/§8.9/§11.1，PRODUCT HOLD。 固定8独立/共享对照已重放，共享4/8、独立7/8；边缘带、低学习率退火及困难损失均衡控制分别5/8、7/8、8/8，全部已独立重放；全634规范边缘带及独立重放已完成；新全量64轮及完整重放/全636终评已完成，40576有效输入/5120更新；严格联合0/634，Boundary IoU/F1均值0.286946/0.682286。全634几何残差64轮、40576输入/5120更新、全部RAW/完整状态重放及全636终评已完成：匹配634/634、严格联合0/634，Boundary IoU/F1均值0.338758/0.764382；原2px/539门保留失败。固定8目标新AdamW受控512步已完成，4096训练+16评估，严格联合8/8；全部4112 RAW、17完整checkpoint、全部事件及16原像素指标独立重放通过，原8/8容量门通过。 缓存保真及全634缓存物化已独立重放，恢复训练已完成512轮/324608逻辑输入/40960更新，监督退出0；v3原中断及未知退出码保留；v4五阶段均已退出0，324608 RAW/1281完整断点、固定636候选终评及原100源634甲2px指标独立复算完成，Boundary IoU/F1均值0.541192/0.953899、严格联合0/634。当前第60次调整（内边界IoU损失16轮）已完成10144 RAW/41完整断点重放及636候选终评，Boundary IoU/F1为0.543854/0.953957、严格联合0/634；相对512基线增益0.002662，原质量门失败。全634局部残差诊断已独立重放；邻域视觉32轮及完整20288 RAW/81状态、固定636终评已闭合，Boundary IoU/F1为0.559952/0.961424，严格联合0/634；542改善/92退步、8严重回归，F1通过590。第61次已登记；新8回归预检与重放通过，现以第61次末态继续独立128轮81152输入/10240更新，完整321状态/RAW和636终评链已接续。当前入口v41，见Goal/§8.9，PRODUCT HOLD。
 
 
 | 模块 | 用户入口/接口 | 状态 | 当前结论 |
@@ -133,15 +151,17 @@ AI 生图（Seedream 引擎）：文字描述（+ 可选手部参考图 Data URI
 | AI 美甲生图 | `/ai-generate`、`POST /api/generate-ai` | 已完成（用户验收；v1.2.213 交互重构见 §4.4） | 已接入Agnes Image 2.5 Flash（文生图 + 图生图；2026-10-22 由 Agnes Image 2.1 Flash 切换，请求参数、尺寸参考表与计费口径不变）；2026-08-29服务端Endpoint已切换为`https://api.agnes-ai.cn/v1/images/generations`并换用新服务端密钥，实测模型列表`GET /v1/models`认证HTTP 200、当时目标模型`agnes-image-2.1-flash`可见，真实文生图返回图片URL且产物可下载。`.cn`模型列表认证HTTP 200且目标模型可见，协议专项测试、Lint、全量758项测试和生产构建通过。2026-08-10用户确认AI美甲真实生图功能验证通过，并于2026-08-12再次确认；2026-08-19新增可选「参考图」图生图（上传手部照片→浏览器压缩至最长边1024 JPEG→与提示词一起生成，Agnes在参考图手部指甲上绘制美甲并保持原图构图，实测图生图成功且约12s，文生图约157s），并新增生成中 shimmer 加载与页面过渡动画；2026-08-29新增用户可选择**画面比例**（8 种）与**输出尺寸档位**（1K/2K/3K/4K），按 Agnes「输出尺寸参考」表实时显示最终像素尺寸，文生图与图生图共用（默认 1K+1:1 ≈ 1024x1024，行为与历史一致）。参考图仅在用户主动上传时发送第三方、仅用于本次生成；成本、内容安全和生产持续可用性继续作为运营监测项。2026-10-22 默认模型切换为`agnes-image-2.5-flash`（白皮书 v1.2.147）：实测`GET /v1/models`新模型可见，真实文生图（1K+1:1）约9.1s、真实图生图（`extra_body.image`）约102.3s均HTTP 200返回可用URL；受影响测试4文件20/20、全量1189/1189、typecheck与生产构建通过；历史验收记录中的2.1 Flash为当时模型口径；图生图参考图编辑的提示词约束（弃用文生图场景后缀、按句提取设计描述、环境元素锁定）见 §4.3（v1.2.161）。|
 | AI 美甲生图（Seedream 引擎） | `/ai-generate`（引擎切换）、`POST /api/generate-seedream` | 待验证（路由层 lite 实测通过；pro 脚本端到端通过；仅剩浏览器视觉呈现等待用户确认；v1.2.213 交互重构见 §4.4） | v1.1.564 新增火山方舟 Seedream 5 系列作为第二生图引擎，Agnes 保持默认且链路零改动。新增`src/lib/seedream-image-api.ts`（扁平 body、顶层`error{code,message}`解析、429/500/503 指数退避重试、240s 超时、`watermark`默认关）、`seedream-image-size.ts`（pro=1K/1.5K/2K、lite=2K/3K/4K 档位×8 比例→显式 WxH 表）与`seedream-prompt.ts`（Seedream 专用精简系统词约 100 字，独立于 Agnes 长提示词；用户提示词上限 300 字）。前端`/ai-generate`新增「生成引擎」切换（Agnes / Seedream pro / Seedream lite），切引擎联动尺寸档位与提示词上限。真实端到端：pro 引擎经`doubao-seedream-5-0-pro-260628`文生图 19.7s 成功返回 186KB 有效 JPEG；v1.1.577 更换用户临时 Key 后 pro 复测 28.5s 成功、lite 档`doubao-seedream-5-0-260128` 33.1s 成功返回 249KB 有效 JPEG（该账号已开通，此前"has not activated"阻塞解除）。v1.1.578 修复路由层 `env` 缺省导致的 watermark 读取崩溃（`Cannot read properties of undefined (reading 'ARK_IMAGE_WATERMARK')`），`generateSeedreamImage` 入口统一 `env = options.env ?? process.env`，新增"不传 env 的成功路径"回归测试；v1.1.579 通过 curl 实测本机 `POST /api/generate-seedream`（lite 2K 1:1）HTTP 200、27.1s 返回有效 imageUrl，确认修复已被 dev 服务器 hot-reload 加载。模型 ID 经`GET /api/v3/models`实测发现（必须带版本日期后缀）。新增 18 项测试全过（v1.1.578 增 1）、路由校验冒烟 6/6 通过；仅剩浏览器视觉呈现由用户确认。生成 URL 24h 过期，项目不做长期留存 |
 | AR 纯色试戴 | `/ar-tryon` | 待验证 | 单手摄像头、关键点、指甲绘制、手心/手背识别已实现；MediaPipe运行文件使用本站同源静态资源，实时路径启用`modelComplexity: 1`。甲面几何结合TIP/DIP/PIP、深度和手背平面生成长轴、横轴及侧转透视剪切，工程回归通过；v1.2.213 起页面为三步流程（选择来源→提取与复核→试戴与校准，顶部步骤状态）、摄像头新增主动关闭按钮（停轨/关 Hands/解绑/复位/焦点返回）与连续失败覆盖层、校准面板当前指珊瑚高亮并显示已调整数量；真实边界仍需多设备真机验收 |
-| AR 纹理试戴 | `/ar-tryon` | 待验证 | 上传含完整手背的参考图时优先通过MediaPipe Hands逐指定位；完整手部关键点失败后，局部近景先用甲色连通域定位黑色、彩色、银色和镜面甲；甲面为裸色/半透明且被肤色种子吞掉时，再以闭合甲缘、甲板内部/肤色邻环和4—5枚同手连续链复合定位，仍失败才进入人工补选。v1.2.217 起选择器识别提供「本地 | 云端」模式切换（云端候选固定低置信、按既有复核门分流，云端路由见 §5.5）；两条本地辅助路径均没有像素级mask，低对比边界候选固定低置信并要求用户检查；实时AR支持拇/食/中/无/小指各自独立的长度75%—140%、宽度70%—145%及甲尖/指根位置±20%校准，摄像头最终贴合仍需多设备真机验收。2026-10-29（v1.2.165）起带mask候选提取纹理时按掩膜主轴自动摆正并紧致裁剪（甲尖方向由候选区域角消歧、主轴与区域角分歧>25°告警），输出满足实时渲染「正立、甲尖朝上、甲面充满位图」约定，识别侧栏提供「旋转180°」人工兜底。2026-10-29（v1.2.167）起识别完成后自动执行「精细抠图（已记住隐私确认且服务就绪时）→指位推断（识别未给指位时按画面x序补全并告警，可在选择器修正）→纹理提取→参数分析→自动上屏」一条龙，无需手动点击；参数分析（浏览器端启发式，`texture-analysis.ts`）从提取纹理得出甲型（圆/方/杏仁/尖，行宽剖面阈值分类）、主色（4096桶量化聚类）、图案（纯色/渐变/法式/亮片/花纹参考标签）与光泽度（高光比代理），渲染端按甲型套用轮廓模板（`ar-nail-shape.ts`，round档与历史常量逐字段一致、未传样式时渲染不变）并按光泽系数缩放高光/菲涅尔；2026-10-30（v1.2.170）起纹理模式渲染改为长宽比保真（原封不动）：宽度对齐真实甲面（含宽度滑杆），渲染长度=宽度×提取纹理自身长宽比（`computeTextureRenderPlan`），甲根边缘锚定估算甲面的甲根边缘、延长部分向甲尖自然伸出（不短于估算长度、上限3×估算长度），自带alpha轮廓的提取产物直接以纹理alpha成形（跳过贝塞尔裁剪），菲涅尔/颗粒/暗角/高光材质层经离屏source-atop合成限制在纹理alpha内，不透明位图（手动裁剪路径）回退贝塞尔形状裁剪（历史行为）；同时取消v1.2.167的按甲型自动加长系数（1.2×/1.35×），长度由纹理比例自然决定、滑杆仍可整段微调；本地识别0候选（局部特写/多手图片）时自动流程在已记住隐私确认且服务就绪前提下自动执行一次兜底识别并继续上屏（2026-10-29 v1.2.168；该自动兜底仅本地模式执行，云端模式 0 候选提示切换本地或手动处理）；低对比/兜底低置信候选自 v1.2.213 起按覆盖前复核门分流（`src/lib/ar-review-flow.ts`，§4.5）：无旧纹理时中置信自动应用+可复核提示、低置信进入复核态（[应用到试戴][继续调整][取消]，应用后可单级撤销），有旧纹理时高置信显示替换预览、中低置信必须确认（修订 2026-10-29 的「一律自动应用+提示」口径）；分析标签为启发式参考，真实端到端复测见§5.4 |
+| AR 纹理试戴 | `/ar-tryon` | 待验证 | v1.2.259已接入甲根固定校准、可见alpha内容尺寸、连续采样、完整透明轮廓及逐指180°翻转/撤销；真实相机贴合待复核（当前契约见§4.5/§6.4）。上传含完整手背的参考图时优先通过MediaPipe Hands逐指定位；完整手部关键点失败后，局部近景先用甲色连通域定位黑色、彩色、银色和镜面甲；甲面为裸色/半透明且被肤色种子吞掉时，再以闭合甲缘、甲板内部/肤色邻环和4—5枚同手连续链复合定位，仍失败才进入人工补选。v1.2.217 起选择器识别提供「本地 | 云端」模式切换（云端候选固定低置信、按既有复核门分流，云端路由见 §5.5）；两条本地辅助路径均没有像素级mask，低对比边界候选固定低置信并要求用户检查；实时AR支持拇/食/中/无/小指各自独立的长度75%—140%、宽度70%—145%及甲尖/指根位置±20%校准，摄像头最终贴合仍需多设备真机验收。2026-10-29（v1.2.165）起带mask候选提取纹理时按掩膜主轴自动摆正并紧致裁剪（甲尖方向由候选区域角消歧、主轴与区域角分歧>25°告警），输出满足实时渲染「正立、甲尖朝上、甲面充满位图」约定，识别侧栏提供「旋转180°」人工兜底。2026-10-29（v1.2.167）起识别完成后自动执行「精细抠图（已记住隐私确认且服务就绪时）→指位推断（识别未给指位时按画面x序补全并告警，可在选择器修正）→纹理提取→参数分析→自动上屏」一条龙，无需手动点击；参数分析（浏览器端启发式，`texture-analysis.ts`）从提取纹理得出甲型（圆/方/杏仁/尖，行宽剖面阈值分类）、主色（4096桶量化聚类）、图案（纯色/渐变/法式/亮片/花纹参考标签）与光泽度（高光比代理），渲染端按甲型套用轮廓模板（`ar-nail-shape.ts`，round档与历史常量逐字段一致、未传样式时渲染不变）并按光泽系数缩放高光/菲涅尔；2026-10-30（v1.2.170）起纹理模式渲染改为长宽比保真（原封不动）：宽度对齐真实甲面（含宽度滑杆），渲染长度=宽度×提取纹理自身长宽比（`computeTextureRenderPlan`），甲根边缘锚定估算甲面的甲根边缘、延长部分向甲尖自然伸出（不短于估算长度、上限3×估算长度），自带alpha轮廓的提取产物直接以纹理alpha成形（跳过贝塞尔裁剪），菲涅尔/颗粒/暗角/高光材质层经离屏source-atop合成限制在纹理alpha内，不透明位图（手动裁剪路径）回退贝塞尔形状裁剪（历史行为）；同时取消v1.2.167的按甲型自动加长系数（1.2×/1.35×），长度由纹理比例自然决定、滑杆仍可整段微调；本地识别0候选（局部特写/多手图片）时自动流程在已记住隐私确认且服务就绪前提下自动执行一次兜底识别并继续上屏（2026-10-29 v1.2.168；该自动兜底仅本地模式执行，云端模式 0 候选提示切换本地或手动处理）；低对比/兜底低置信候选自 v1.2.213 起按覆盖前复核门分流（`src/lib/ar-review-flow.ts`，§4.5）：无旧纹理时中置信自动应用+可复核提示、低置信进入复核态（[应用到试戴][继续调整][取消]，应用后可单级撤销），有旧纹理时高置信显示替换预览、中低置信必须确认（修订 2026-10-29 的「一律自动应用+提示」口径）；分析标签为启发式参考，真实端到端复测见§5.4 |
 | 独立 AR 演示桥接 | `/ar-demo` | 占位 | 仅将本机 `http://localhost:8080/?embedded=jiaru-main` 临时嵌入 iframe，要求用户另行启动 Python demo；不是生产 AR 服务，部署环境不能依赖该地址 |
 | 视频自适应展示 | `calculateCoverVideoLayout()` | 已完成 | 保持比例，采用居中 cover 裁切，不拉伸 |
 | 个性化美甲分析推荐 | `/nail-analysis` | 待验证（工程门通过；真实照片与真机验收待补） | 纯规则启发式，不引入新模型训练：浏览器本地完成甲面候选识别、甲床/手型派生比例、甲周肤色采样（Lab/ITA°/底调，含甲面自污染排除与采样质量门）、指甲健康三类启发式，结合场景问卷由确定性规则引擎推荐甲型、长度与色系并附中文解释，可一键跳转 `/editor?preset=` 预选最接近主色的纹理套装（不自动贴合）。默认全部本地计算；v1.2.217 起甲面候选识别另提供用户显式选择的云端辅助通道（一次性隐私确认后图片才上传，仅用于本次定位，见 §5.5），甲面定位之外的分析计算（比例派生/肤色采样/规则推荐）仍在浏览器本地完成，不新增其他上传通道；即使开启「用户改进计划」分析结果也不外发。正式模型未部署期间识别100%走辅助定位且无像素级mask（云端候选同为低置信辅助），指甲健康通道不可用（隐藏而非降级展示），琥珀辅助声明页面级常显，不得表述为自动分析成功，也不计入正式识别成功率或Beta直接可用率；0候选时不产出任何推荐。设计文档：`docs/nail-personalization-design.md`、`docs/nail-personalization-research.md`。 |
-| 美甲纹理自动识别 | `/ar-tryon`图片纹理识别 | 研发进行中 / PRODUCT HOLD | 指定100图634甲精标及原统一训练完成；最后已完成全量严格联合仍0/634，固定8目标8/8已重放；新64轮40576输入/5120步完成、监督退出0，固定末轮已保存，完整重放进行中，全636终评待执行；当前入口v24，下一见Goal。 |
-| 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 已实现（辅助定位提示；正式模型HOLD） | 所有fallback候选数均显示琥珀色辅助定位/人工确认提示，0候选提示手工添加；未部署标记在window/worker会话创建前返回明确warning。MediaPipe/局部近景无像素级mask，不计模型成功或Beta直接可用率。行为及发布拦截本地独立测试通过，真实浏览器产品路径待验收。 |
+| 美甲纹理自动识别 | `/ar-tryon`图片纹理识别 | 已发布（浏览器业务，v1.2.256；商用完成门 HOLD） | 生产manifest `nail-texture-seg-geometry64-browser-v1`：几何64轮 Stage A（512 letterbox）+ Stage B 径向精修（2048角×129径向，presence拒识）双 ONNX，WASM 单后端（发布对拍绑定）；mask 替换型 stage2 组合（§6.2/§7）。业务发布门全部通过：ONNX↔PyTorch数值保真（det相对7e-7、presence相对3e-6、确定性非零控制）、Python↔浏览器逐实例mask对拍三方（PyTorch CPU/serve GPU/浏览器WASM）IoU全=1.0、letterbox字节级diffBytes=0、生产服务器 `/ar-tryon` 真图端到端自动提取4指纹理无降级提示、全量1530测试。已知限制：商用完成门（严格联合≥539/634、独立val/留出、四类真机、Beta≥100、双批准回滚）保持HOLD；训练分布外甲面（超长淡色梯形甲等）召回弱（2026-11-05探针实证），按用户反馈迭代512轮版或后续权重 |
+| 传统算法降级 | `recognizeNailTexturesWithFallback()`、`NailArtPicker` | 已实现（故障兜底；正式模型已发布） | 正式模型部署后自动流程默认走模型路径；仅模型加载/推理失败或manifest回滚为`not-deployed`时进入fallback并显示琥珀色辅助定位/人工确认提示，0候选提示手工添加。MediaPipe/局部近景无像素级mask，不计模型成功或Beta直接可用率。行为及发布拦截本地独立测试通过，真实浏览器产品路径待验收。 |
+| 本机自研业务候选 | `/ar-tryon`参考图→精细抠图、`/api/nail-matte` | 本机接入已验证（v1.2.255）；浏览器版已发布（v1.2.256） | `jiaru-real100-geometry64-trial-v1`：真实100源Stage A+几何64轮精修，按已完整终评分支的平均Boundary IoU选择。API4枚原尺寸mask与既存终评逐像素一致；浏览器自动/手动各一次均200、4实例，手动匹配4/5并应用纹理。Python/GPU回环服务，前端沿用1600 JPEG编码/候选匹配/复核；同权重的浏览器版已作为正式业务发布（`nail-texture-seg-geometry64-browser-v1`，§6.2/§7），本机通道保持可用作对照与回退。启动、回退和证据见[业务候选说明](nail-texture-business-candidate.md)。 |
 | 本机精细抠图（WeVisOne-VL） | `NailArtPicker` 侧栏「精细抠图（本机）」、`POST /api/nail-matte` | 已实现（辅助能力，默认关闭；路由级 5/5，UI 端到端 2026-10-28 为 3/5、2026-10-29 同图复测 5/5） | 仅在服务端配置`VLM_MATTE_URL`时出现入口：浏览器把原图压到长边≤1600 JPEG后提交，由同机`127.0.0.1:8008`的WeVisOne-VL-4B int4生成整图软 alpha（服务默认`--max-pixels 262144`），按「实例中心落入候选框优先、外接框IoU≥0.15兜底」与现有候选一一匹配并**只替换mask**（不增删候选、不改指位与置信度）。2026-10-28 实测：业务路由整图请求 5 实例/16.6s/5 候选全匹配（`output/nail-matte-p3/20261028-210056/`），nvidia-smi 设备峰值 7817 MiB（8 GiB 卡余量约 370 MiB）；1048576 档在同一原图只解出 1 个`<OBJ>`（响应文本含 5 个框），故不作为默认。UI 端到端（`/ar-tryon` 多纹理上传）2026-10-28 同图返回 5 实例、14.3s，但只替换 3/5：两个未匹配候选与服务实例框仅部分重叠（IoU 0.075/0.049），本地 MediaPipe 候选几何偏移且偏小，按保守规则保留原 mask，未发生错误替换；2026-10-29 同图复测 5/5 全匹配并完成归一化提取（`output/nail-matte-ui-v165/`，当轮本地候选几何更准，匹配规则未变）。2026-10-29（v1.2.165）修复：客户端匹配前把候选框换算到编码空间，原图长边 >1600 时候选框（原图坐标）与实例框（编码坐标）此前不同域会导致匹配恒不命中。2026-10-29（v1.2.166）默认档换档：36 张真实照片、203 枚完整甲人工真值评估显示 589824 档实例级召回仅 0.8325（Wilson95% [0.7751,0.8776]，低对比裸色/果冻甲漏检集中，skin_low_contrast 桶 0.6364），262144 档召回 0.9803、单图均时 16.2s→9.0s，1310720 档反而劣化（探针 20/42），故 `DEFAULT_MAX_PIXELS` 改为 262144（真值与逐图数据在 `output/matte-edge-lab/real-eval/`，不入库）；代价是 192 个配对实例中位二值 alpha IoU 0.957、约 1–2% 实例形状漂移（含个别向皮肤溢出，2/601 实测 2.55× 面积），由前端 ≥128 二值化与「需复核」流程消化；「指甲（共N枚）」query 计数提示（589824 档召回 0.9951、欠数提示会截断召回）与 LLM int4+视觉塔 bf16 混合量化实测均无附加收益，不采纳。未配置/忙/超时/鉴权失败一律降级并保留本地结果，不自动重试；本地0候选时可发起一次兜底识别，结果固定`confidence:"low"`且需逐指核对。2026-10-29（v1.2.167）起该能力并入自动流程：选择器识别完成时，若用户已记住隐私确认（`jiaru.nail-matte.notice.v1`）且服务就绪则自动执行一次精细处理；本地识别0候选时改为自动执行一次兜底识别（2026-10-29 v1.2.168；每次选择器打开至多一次，不自动重试口径不变；未确认则跳过、直接使用本地结果，不发送任何图片）；2026-10-30（v1.2.169）修复：兜底 detect 候选的 cx/cy/length/width 改由 alpha 栅格实心边界按原图坐标域逐轴推导（与提取端 `imageWidth/mask.width` 映射同口径），空栅格才回退编码空间实例框——此前直接采用上游编码图（长边 ≤1600）坐标域的实例框，长边 >1600 原图的选择器叠加层会整体缩聚到左上角（提取不受影响，因其只消费 mask 栅格）；自动流程对兜底低置信候选改为自动提取并上屏、界面保留「需复核」提示（原「需逐指核对」条款按2026-10-29用户决策修订为「自动应用+提示核对」，旧值保留于当日开发日志），手动路径仍保留逐指核对文案。2026-10-31（v1.2.177）matting query 定版为英文单词 `nails`：262144 档下同一 36 图/203 完整甲真值实测截断召回 1.0000（203/203 零漏检，此前「指甲」0.9803 的最后两处漏检——2/451 奶油甲与 3/973 全部 4 枚银色甲——均找回）、单图均时 9.0s→8.0s（每实例 `<ref>` 更短）、欠检图 0；对基线的实例增量为 +4 召回、−3 冗余碎片（1/234 −1、3/1134 两片合一片）、+2 皮肤假阳性（3/1026、3/1080，均不落入候选框、按规则保留本地 mask，无功能影响）；225 个配对实例中位二值 alpha IoU 0.9949（几何无回退）；预热后跨重启复现同一探针结果，裸甲/果冻甲对照（1/238、1/4、2/792）无系统性抑制。「manicured fingernails」召回 0.9951 但单图 12.9s（+43%，`<ref>` 每实例重复长词），单词「manicured」不稳定（个别图塌缩为 1 实例），均不采纳；`vlm-refinement.ts` 两处请求与 `server.py`/`matting.py` 默认 query 同步改为 `nails`。不计正式识别成功率、Beta直接可用率、阈值校准或训练真值，不写生产manifest、不产生releaseIdentity，PRODUCT HOLD不变。 |
 | 合成/烟雾模型 | `/models/nail-texture-seg-synthetic-v1/` 等 | 占位 | 仅用于接口、后处理、浏览器集成和性能验证，不代表真实识别质量 |
-| 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 阻塞（无批准生产模型） | 生产manifest仍无批准ONNX或新releaseIdentity，正式训练准入v7及新来源val/正负留出、角标捷径消融、生产运行时/产品、真机/Beta与双批准权重回滚均未闭合。当前内部val诊断质量/数值未过且有上游训练历史，禁止据此正式校准、登记或部署。candidate57受保护test100失败保持，历史测试部署例外不构成正式发布；当前证据与下一路线见§11.1、Goal及当日日志。 |
+| 正式纹理模型 | `/models/nail-texture-seg/manifest.json` | 浏览器业务已发布（v1.2.258）；商用完成门 HOLD | 当前发布身份 `nail-texture-seg-geometry64-browser-aa4-v2`（`deploymentStatus: "deployed"`，Stage A SHA `0a6b842e…b4e78`、Stage B SHA `e63d50f0…97ef`，源权重 SHA 见§7）：业务发布门（导出数值保真、Python↔浏览器mask对拍、浏览器端到端、测试链）已全部通过并经 register/switch 登记。商用完成门（正式训练准入v7及新来源val/正负留出、角标捷径消融、真机/Beta与双批准权重回滚）未闭合，completion audit `decision=complete` 前保持 HOLD；candidate57受保护test100失败保持，历史测试部署例外不构成正式发布。当前证据与下一路线见§11.1、Goal及当日日志。 |
+| 纹理边缘覆盖率抗锯齿 | `edge-refine.ts`、`extract-mask-texture.ts` | 已接入（产品层） | 原始半径/二值mask独立保留，边界带4×4覆盖率经Worker传递，纹理alpha连续缩放、RGB直接原图采样。100图634甲/636候选离线重放通过；两种受限平滑均退步并关闭。部署尺寸4实例原mask零差及覆盖率Python↔TS零字节差。原严格联合0/634保持，真机与未见边界质量待验；详见§6.4/§7及边缘评审文档。 |
 | 数据集治理 | `model/datasets/nail-texture-v1`及候选物化报告 | 进行中（发布角色需重建） | 仓库历史基础数据集仍为409图/2142 mask、split=300/46/63；正式训练输入已演进三代：candidate52/56（328张正图/1981 mask/112来源组加160张train困难负样本，物化train488/val30/test0）→ candidate58b（343张/2071 mask/127来源组，train503）→ 循环011/012开发口径（唯一一次12 epoch训练为循环012，350图训练文件树`34fe0a85…1edf`、124来源组均衡采样）。train内来源组开发折已由循环001—015落地为现行评估主线，clean98开发基线（58图/354-mask v2加40困难负图）与循环015扩容（源图供给55图/55来源组/322甲冻结、开发评估真值43图/265甲、训练禁用）为当前事实；旧val30、旧test100及编号261—360、361—460等已消费holdout现在只作受保护历史回归，禁止训练、配方/阈值选择或再次冒充未见证据；候选锁定后的全新校准集、一次性正样本发布留出与全新困难负样本要求保持不变；当前无批准发布候选。 |
 | 验证真值当前快照 | 外部`val-annotation-workspace-v1/validation-truth-index-v1.json` | 已完成 | v1.1.189：30个批准报告归并为30张唯一图片/144个完整mask、0拒绝、0冗余、0冲突，索引SHA-256为`2ccde9420141e5e67a9696959cc18e78aaee808ba29b592670990967bdc4b92d`。批次014—018严格排除裁断、遮挡或甲数错误源图，透明甲尖和全部附着装饰均经整图与逐甲2×复核；所有polygon合法且同图严格零交叠。规范val-only数据集物化为30图/30 annotation/30 label/144 mask、train/test均0、孤儿0，物化报告SHA-256为`200b087b…b1776`。来源隔离审计对当前train 100张和冻结test 67张重新读取、复算身份，文件名、图片SHA-256和来源组均零重叠，报告SHA-256为`7372d14d…f6479e`。最终审计SHA-256为`5152dc52…66a3a`，决定`approved_as_calibration_truth`、`calibrationTruthEligible=true`，同时保持`trainingUse=prohibited` |
 | 规范候选训练数据与输入门 | `finalize-reviewed-hard-negative-manifest.py`、`materialize-canonical-candidate-training-dataset.py`、`audit-candidate-training-input.py`、`train-yolo-seg.py --candidate-mode` | 已完成（第二候选输入PASS） | 固定正式下限为train正样本100、正式hard negative 100、val30且CLI不得下调。第二候选包为train258（100张正样本/521 mask + 158张零字节标签困难负样本）、val30/144 mask、test0、孤儿0，物化与输入深审分别为`033b8d02…2ec`和`b9bd6897…94dd`，文件树SHA-256为`8709fa80…1170`。GPU训练前后均重放通过，Ultralytics缓存仅出现在隔离runtime并已清理；输入PASS只授权本次候选训练，不授权模型发布 |
@@ -165,6 +185,8 @@ npm.cmd run dev
 默认访问 `https://localhost:3000`。开发脚本使用 `next dev --experimental-https`；若本机自签名证书生成失败，Next.js 可能回退至 HTTP。摄像头应通过 `localhost` 或正式 HTTPS 域名访问，不应使用普通局域网 HTTP 地址。
 
 生产启动应先执行 `npm.cmd run build`，再执行 `npm.cmd run start`。开发模式的实验性自签名 HTTPS 不等同正式部署证书。
+
+Sites 公网静态演示已部署：`https://jiaru-private-trial.rare-wren-2089.chatgpt.site`，构建生成13个页面；账户、AI生图、云端识别等服务端接口尚未接入，公网 IPv4 请求首页 HTTP 200；当前本机浏览器此前遇连接关闭，交互待验。正式纹理模型继续 PRODUCT HOLD。源码副本与构建位于 `output/sites-jiaru-trial/`。
 
 云端生产部署形态（2026-10-04 实测）：腾讯云轻量服务器 `lhins-1oklqsh2`（ap-beijing-7，公网 `49.233.141.42`）上，Next.js 以 `next start -H 127.0.0.1 -p 3000` 只监听本机，由 Nginx（`deploy/nginx/jiaru.conf` + `jiaru-proxy.conf`）终结 80 端口并反向代理，**3000 端口不得直接暴露公网**；应用层设 `JIARU_TRUST_PROXY=1` 后采信 `X-Real-IP`/最右 XFF 用于限流与来源推导，写操作由 `src/middleware.ts` 校验 `Origin`。此前遗留的 iptables 80→3000 REDIRECT 会绕过 Nginx 使反代形同虚设，已移除并停用 `jiaru-port80.service`。该地址为 HTTP，非安全上下文，`getUserMedia` 不可用，AR 摄像头仍需 HTTPS 域名或本机隧道演示。
 
@@ -281,6 +303,18 @@ AGNES_IMAGE_MODEL=agnes-image-2.5-flash
 
 ### 4.5 `/ar-tryon` AR 试戴
 
+**v1.2.268页面卡顿修复**：PostCSS插件按`postcss.config.mjs`中的绝对src路径扫描正式站样式，覆盖src内页面/组件，保留响应式断点。单个Next开发服务先预热再开验收浏览器，日志落盘，浏览器等待超时后检查原服务/编译日志，保持服务直至本次预览交付。基线首次HTTP164.94秒、PostCSS133.02秒；配置重载后首次30.41秒（复用既有编译缓存，属于观测对照），热访问29—51ms。桌面1440×1000、390×844与844×390实际浏览器重载、辅助线切换、样式及资源检查通过，耗时含networkidle和交互约1秒/次；相机未启动。证据`output/ar-page-hang-20261105-v1/report.json`。当前3000为已预热开发预览，完整生产构建终态仍待单独验证。
+
+**v1.2.267贴合打磨（cuticle-fit-v5）**：开启「甲根辅助线」后，在相机画面拖动根部圆点平移、甲尖圆点调长、侧边圆点调宽；拖动撤销CSS镜像/尺寸缩放和双轴透视剪切，沿原校准范围工作，键盘沿用逐指滑杆。相机关键点过期或切换手指时停止拖动。静态模型纹理提取的方向参考扩展至两只手，各手独立排除手心/弯折候选并保持唯一身份，默认辅助定位仍为单手。手动提取若保留甲尖方向未知或方向分歧告警，同自动流程进入可翻转预览。alpha摄影纹理按本地相机亮度应用0.65—1的温和曝光系数。工程回归85项、双工程类型与局部lint通过；构建编译耗时和浏览器页面超时保留，真实相机贴合待实测，证据见`output/playwright/ar-fit-v5/verification.json`。本轮未调整模型权重或训练数据。
+
+**v1.2.265贴合打磨（cuticle-fit-v4）**：甲根对齐改用alpha轮廓下部中心，摄影甲床宽度与完整纹理长度分别映射；根部短alpha过渡在离屏合成层完成。提取模型纹理时，通过本站MediaPipe资源对同一参考图提供方向参照，几何双向唯一配对保留模型mask与既有指位；明确手工方向优先，关键点缺失或配对含糊时沿用轮廓推断/人工复核。方向检测可取消且5秒超时；逐指180°翻转从当前解析方向起算。75项相关自动测试、双工程类型与局部lint通过；当前生产构建及浏览器验收结果见当日日志。真实相机甲根位置仍来自手部关键点估计，最终自然度继续实机复核。
+
+v1.2.261工作区补充`cuticle-fit-v2`：独立长横轴投影、宽度校准与长度解耦、甲根锚定横移±40%和旋转±30°、甲床行宽排除甲尖装饰影响、cover反变换光照采样及待应用纹理翻转。当前为待验收修改；43项首轮相关测试修正角度环绕断言后通过，最终35项几何测试通过。首轮构建exit0，最终双工程类型检查与局部ESLint通过，宽度解耦后的最终构建/真实浏览器验证待补；已暂停3000/3100旧预览，恢复受自动审批用量额度限制。物理相机自然度待实机复核。 v1.2.263工作区补充`cuticle-fit-v3`甲根坐标平滑及完整位图离屏边界，73相关测试、双工程类型与局部lint通过；两个AR弹层宿主宽度全局规则迁入globals.css以兼容CSS Modules。默认构建CSS子进程失败、替代构建终态未知、浏览器页面验收未执行，随仅训练Goal恢复保持待验收。
+
+**当前贴合契约（v1.2.259，`cuticle-fit-v1`）**：长度校准围绕甲根固定，摄影纹理按完整alpha的可见高度、甲床宽度及下半部中心对齐；长度滑杆同时作用于长甲设计。纹理单次连续绘制，保留自身透明轮廓，取消分条缩窄产生的缝隙；完整alpha检测替代8×8四角探针，避免尖甲被误判后再次套通用模板。摄影纹理附加高光/菲涅尔/颗粒/根部暗角降至原系数的12%，原图光影继续保留。默认隐藏轮廓高亮，校准区可切换甲根辅助线，并提供逐指「翻转纹理180°」与单级撤销。实时甲根仍由手部关键点估算，真实肤色甲缘定位及多设备自然度待实机复核。
+
+浏览器模型纹理自v1.2.258使用4×4亚像素覆盖率抗锯齿：Worker保留原mask及独立覆盖率，原图纹理与连续alpha经提取、摆正后应用到逐指试戴。该处理针对栅格台阶；低对比甲缘偏移仍需模型/图像边界优化，自动流程和人工复核入口沿用既有设计。接口及证据见§6.4/§7。
+
 状态：待验证。
 
 使用方式：
@@ -302,7 +336,7 @@ AGNES_IMAGE_MODEL=agnes-image-2.5-flash
 - 低置信覆盖前复核：`decideArReview({hasExistingTexture, lowestConfidence})` 按规则表分流——无旧纹理：高置信自动应用、中置信自动应用+可复核提示、低置信进入复核态；有旧纹理：高置信显示替换预览、中低置信必须确认。复核界面显示「已识别 N 个甲面，其中 M 个建议复核」（`formatArReviewSummary`）与逐指甲位标记，[应用到试戴]（应用后提示，可单级撤销恢复旧配置）/ [继续调整]（丢弃待应用集合重开选择器，不改配置）/ [取消]（不改配置）。自动路径文案由 `formatArApplyNotice` 提供。置信三档沿用 `NailTextureCandidateConfidence`（high/medium/low），整批按最低档决策。
 - 弹层统一：`NailArtPicker` 与 `TextureCropper` 迁入共享 `AppDialog`（§4.8）——Escape 可关闭、提取中关闭视为取消（取消后不应用任何结果、临时位图统一释放）、关闭后焦点恢复打开按钮；`TextureCropper` 画布支持键盘选区（方向键移动、Shift+方向键调尺寸、无选区时 Enter 生成居中默认选区；几何纯逻辑在 `src/lib/ar-cropper-keys.ts`）。
 - 摄像头会话补充（在 v1.2.171 释放契约之上）：就绪后新增主动「关闭摄像头」按钮（与翻转按钮同列），点击即执行同一停轨/关 Hands/解绑/复位并使焦点返回「开启摄像头」；连续 30 帧推理失败时显示「手部识别暂时失败」覆盖层，提供 [重试] 与 [改用上传照片试色]。
-- 校准高亮：`ArView` 新增 `activeFinger` prop，当前校准指甲面以珊瑚描边高亮；校准面板显示当前手指与已调整数量，并提示「展示手背、张开五指；当前手指以珊瑚高亮」。
+- 校准辅助线：`ArView` 的 `activeFinger` 指定当前手指，`showFitGuides` 默认关闭；开启后仅以珊瑚横线标记甲根。校准面板显示当前手指与已调整数量，长度、宽度及位置独立调节。
 - 诊断信息降级：逐步摄像头日志（初始化与加载中面板）与 `NailArtPicker` 的总耗时/后台线程/模型版本统计、逐区「最近一次提取诊断」收进「技术详情」折叠区（`details/summary`，默认收起）；「导出诊断 JSON」入口一并折叠。
 
 2026-07-30 安全降级修复：默认正式manifest指向的ONNX仍不存在，且candidate5已被发布质量门拒绝，不能为恢复功能而部署该权重。此前模型初始化失败后，弹窗会把衣袖等saliency候选显示为“高置信度”，造成用户无法可靠提取甲面。本次将所有规则候选统一降为低置信度，并在`NailArtPicker`正式流程中隐藏它们，只保留在诊断JSON；回退后区域数从0开始并自动开启人工添加。人工区域按首个空闲手指顺序分配，支持画布点击新增、拖动定位、方向/角度/长宽微调和删除，提取时以椭圆裁剪并令区域外像素透明。弹窗、统计、告警、区域、质量、调整、手指分配和按钮文案均改为中文；`/ar-tryon`遗留的“Live Try-on”“Style controls”也已中文化。真实浏览器使用用户提供图片完成上传、添加、拖动、提取并回填“拇指纹理”，控制台0错误。该修复恢复的是安全可用的人工提取路径，不代表自动美甲识别已发布或通过质量门。
@@ -441,10 +475,10 @@ function analyzeNailPersonalization(input: PersonalizationInput): Personalizatio
 - **导航结构（v1.2.213 更新）**：`Header` 桌面为「JiaRu／nail atelier／甲如」锁定组合 + 中央 5 项胶囊导航「首页（`/`）／灵感（`/gallery`）／试戴（`/ar-tryon`、`/editor`）／创作（`/ai-generate`）／我的（`/account`、`/login`）」+ 右侧 2 个圆形图标按钮「上传试色（→`/editor`）」「灵感图库（→`/gallery`，命中时输出 `aria-current="page"` 并呈凹陷态）」。个性化分析不再占据导航位：`/nail-analysis` 由首页风格卡直达（§4.6）。`src/components/BottomNav.tsx` 移动端固定底栏同步为同构 5 项（首页 lightbulb／灵感 bookmark／试戴 hand／创作 sparkles／我的 user），按 `usePathname` 高亮并输出 `aria-current="page"`，输入法唤起时（`VisualViewport` 高度收缩 >140px）隐藏避让。`FlowingShell` 保留，但移除流动色块与毛玻璃，与 `AppShell` 共用品牌基底。
 - **设计基元（新增接口）**：`src/components/ui/primitives.tsx` + `primitives.module.css` 提供 `Eyebrow`（珊瑚短线＋大写字距）、`PageHeading`（衬线标题＋可选珊瑚强调行＋描述＋右侧插槽）、`NeuCard`（`inset` 切换凸起/凹陷）、`SectionHead`（大写小标＋衬线标题＋右侧动作）、`Chip`。页面统一通过基元组装，不再各自堆叠圆角与阴影类。
 - **产品内容色不受换肤影响**：默认甲油色 `#E8A0BF`（`src/app/editor/page.tsx` 的 `DEFAULT_NAIL_COLOR` 与其五指甲默认数组、`ArView` 的无选中色回退；`NailCanvas` 自 v1.2.173 起不含颜色逻辑）**保持原值不变**，`ColorPalette` 的色板数据未改动。换肤只替换 UI 强调色与表面色，不得改变用户实际看到的甲油颜色；`layout.tsx` 的 `body` 底色改为 `var(--paper)`／文字 `var(--ink)`。
-- **字体资产**：`public/fonts/jiaru-editorial-serif.woff2` 为 OFL 许可（`public/fonts/OFL.txt`）的思源宋体（Noto Serif SC）可变字体改名子集「JiaRu Editorial」，wght 400–600，`@font-face` 用于标题与 eyebrow，`font-display: swap`。2026-10-31（v1.2.198）子集由 723 字符扩至 1,827 字符（旧子集 ∪ `src/**/*.{ts,tsx,css}` 全文 ∪ ASCII/常用标点，602,668 字节），修复 17 处标题含子集外汉字（如「肤/员/句/套/册/掌/基/优/追/踪/三/政/策/临/跑」与「—」）时逐字回退 SimSun 造成的字重不一致；重建工具 `scripts/build-editorial-font-subset.py`，文案新增字符后可重跑。
-- **首页（v1.2.160 精简）**：5 个功能入口改由顶部导航与圆形图标承担，首页**移除 `START HERE` 入口网格**（原 5 张卡片及其 `EntryIcon`、`entries` 数据与 `.card*`/`.bentoGrid` 样式一并删除），保留编辑部式 Hero（eyebrow + 衬线大标题 + 双 CTA，其中「上传照片试色」直达 `/editor`）、风格卡（`/nail-analysis`）、`CURATED FOR YOU / 此刻心动` 与款式网格（`/gallery`、`/editor?gallery=`）及页脚全部链接（`/editor`、`/gallery`、`/ai-generate`、`/ar-tryon`、`/privacy`、`mailto:`）；能力边界说明保留（AR 需 HTTPS 或本机地址与摄像头权限、AI 生成需联网、识别结果仅用于辅助定位，不作为正式纹理识别能力承诺）。
+- **字体资产**：`public/fonts/jiaru-editorial-serif.woff2` 为 OFL 许可（`public/fonts/OFL.txt`）的思源宋体（Noto Serif SC）可变字体改名子集「JiaRu Editorial」，wght 400–600，`@font-face` 用于标题与 eyebrow，`font-display: swap`。2026-10-31（v1.2.198）子集由 723 字符扩至 1,827 字符（旧子集 ∪ `src/**/*.{ts,tsx,css}` 全文 ∪ ASCII/常用标点，602,668 字节），修复 17 处标题含子集外汉字（如「肤/员/句/套/册/掌/基/优/追/踪/三/政/策/临/跑」与「—」）时逐字回退 SimSun 造成的字重不一致；2026-11-04（v1.2.253）随全站文案升级重建（写出 1,852 字符、610,584 字节），2026-11-05（v1.2.254）AR 标题微调后重建为现值 1,852 字符（610,472 字节）；重建工具 `scripts/build-editorial-font-subset.py`，文案新增字符后可重跑（日志「目标字符数」含无字形或未实例化的目标，现值以写出文件 cmap 计数为准）。
+- **首页（v1.2.160 精简）**：5 个功能入口改由顶部导航与圆形图标承担，首页**移除 `START HERE` 入口网格**（原 5 张卡片及其 `EntryIcon`、`entries` 数据与 `.card*`/`.bentoGrid` 样式一并删除），保留编辑部式 Hero（eyebrow + 衬线大标题 + 双 CTA，其中「上传照片试色」直达 `/editor`）、风格卡（`/nail-analysis`）、`CURATED FOR YOU / 此刻心动` 与款式网格（`/gallery`、`/editor?gallery=`）及页脚全部链接（`/editor`、`/gallery`、`/ai-generate`、`/ar-tryon`、`/privacy`、`mailto:`）；能力边界说明保留为 Hero 下四项注释行（`AR 需摄像头与 HTTPS／AI 生成需联网／识别仅作辅助定位／照片默认留在本机`，Level 1 细分隔线、不浮起），不作为正式纹理识别能力承诺。
 - **完整应用（v1.2.159）**：本轮不再只做配色替换，按 `design/consumer-v1` 的布局与组件结构重做正式站界面——首页改为「编辑部式 Hero（左文案＋右侧手部拼贴，含和纸胶带、竖排小字、图注）＋风格卡＋`CURATED FOR YOU / 此刻心动`＋搜索胶囊＋款式网格＋`START HERE` 入口网格」；图库改为无外框的款式网格（`LOOK 01` 标签、三枚操作胶囊；v1.2.162 起改为图标按钮，见下条）；全站卡片阴影统一为 `--neu-out-*`/`--neu-in-*` 双光源、移除卡片描边；旧渐变按钮、渐变图标底、径向渐变预览区与装饰渐变全部改为纯色面（仅保留语义色：成功绿、微信绿、默认甲油色 `#E8A0BF`）；清理换肤过程中产生的无效孤儿类名（`-2xl` 等 12 处）；其中 `START HERE` 入口网格已于 v1.2.160 移除（当前口径见上条）。
-- **图库图形优先收口（v1.2.162）**：`/gallery` 页头移除描述段落与「共 N 款精选」说明胶囊（`AppShell` 的 `description` Prop 转为可选，其余页面不受影响）；主款式卡与收录卡操作改为 44px 图标按钮（试色＝调色板/珊瑚软底、AI 相似款＝星芒/鼠尾草底、AR 试戴＝相机/白底凸起），每钮携带含款式名的 `aria-label`；灵感网格密度 2/3/4 列，≥1100px 档经 `@theme` 命名令牌 `--breakpoint-wl: 68.75rem` 实现（Tailwind 4 任意变体 `min-[1100px]:` 层叠于命名断点之前导致失效，禁止使用，规则已登记 AGENTS.md）；首页图库入口胶囊改为图片图标＋「共 N 款精选」。路由、HTTP API 与数据契约无变化。
+- **图库图形优先收口（v1.2.162）**：`/gallery` 页头移除描述段落与「共 N 款精选」说明胶囊（`AppShell` 的 `description` Prop 转为可选，其余页面不受影响）；主款式卡与收录卡操作改为 44px 图标按钮（试色＝调色板/珊瑚软底、AI 相似款＝星芒/鼠尾草底、AR 试戴＝相机/白底凸起），每钮携带含款式名的 `aria-label`；灵感网格密度 2/3/4 列，≥1100px 档经 `@theme` 命名令牌 `--breakpoint-wl: 68.75rem` 实现（Tailwind 4 任意变体 `min-[1100px]:` 层叠于命名断点之前导致失效，禁止使用，规则已登记 AGENTS.md）；首页图库入口胶囊改为图片图标＋「共 N 款精选」（现值：已改为「查看全部灵感款式」明链）。路由、HTTP API 与数据契约无变化。
 - **资产**：新增 `public/nail-gallery/hero-hand.jpg`（1200×1499，JPEG q84，约 220KB），由 `design/consumer-v1/assets/hero-hand-collage-v2.png` 压缩导出。
 - **共享交互基元（v1.2.213，frontend-interaction-redesign-plan §2.2）**：`src/components/ui/` 新增——`AppDialog`（portal 弹层：焦点陷阱走 `src/components/ui/dialog-focus.ts` 纯函数、滚动锁计数、`data-autofocus`、`initialFocus` "first"/"confirm"/"cancel"、Escape 关闭且关闭后焦点恢复触发元素）、`ConfirmDialog`（确认弹层，默认焦点 cancel，destructive 珊瑚样式）、`StatusRegion`（反馈区：loading/success→`role=status`+polite，error→`role=alert`，idle 不渲染；severity 仅影响配色；计时器类持续变化数值禁止放入该区域）、`UploadTrigger`（真实 `<button type="button">` + sr-only `<input type=file>` 兄弟结构：原生键盘/读屏语义、选择后重置 value 支持重复选同一文件、focus-within 珊瑚焦点环、凸起→按压凹陷、reduced-motion 降级）。配套纯逻辑 `src/lib/async-task.ts`（node 可测：单飞、取消不算失败、取消双条件判定 `signal.aborted`∧名 `AbortError` 防任务内部 AbortError 冒充、dispose 后 settle 冻结且迟到结果不外露、结算永不 reject）+ `src/lib/use-async-task.ts`（薄封装：runner 以 `useState` 惰性工厂创建、每实例独享，卸载 `dispose()`，StrictMode 重挂天然新实例）。
 - **视觉系统收敛（v1.2.213，frontend-interaction-redesign-plan §8）**：①字号——主流程最小 12px，全站 `text-[9px]/[9.5px]/[10px]` 清零（ArView「技术详情」折叠区诊断日志等宽 11px 为唯一例外，非主流程非触控），触控按钮文字 ≥11px；②对比度——辅助文字灰 `#8a8b81/#75766c/#8b8c81/#b9bab1` 统一提升为 `#6f7066`/`#67685f`（对 `--paper` ≥4.5:1），摄像头深色覆盖层文字 `white/60`、`white/70` → `white/85`；③动效——全站 `transition-all` 类清零，替换为显式 `transition-[transform,background-color,border-color,box-shadow,color]`（只动画非布局属性），`globals.css` 追加全局 `prefers-reduced-motion` 兜底（冻结全部 transition/animation 时长、只保留终态），GalleryGrid 图片 hover 缩放降级为 opacity；④三级层级——隐私说明卡由「外凸大阴影 + hover 位移」降级为 Level 1「细边框、无阴影、不浮起」，可交互（Level 2 外凸）与输入/选中（Level 3 内凹+珊瑚描边）维持新拟态三级合同；⑤移动端缩放恢复——`layout.tsx` viewport 删除 `maximumScale=1` 与 `userScalable=false`，恢复 200% 缩放与系统字体放大（对应方案 §3 P0）。
@@ -567,11 +601,15 @@ PATCH 请求体（字段均可选，只写本次提交的字段；未提交字�
 
 ### 5.4 `GET/POST /api/nail-matte`（本机精细抠图）
 
+v1.2.257新增服务端选择的`backend`字段供前端区分整图候选识别与原WeVis精修；无令牌或权重路径回传。共享面板支持原地重新探测（GET，无图片），确认本机处理后直接执行本次识别。
+
 状态：已实现（v1.2.165）；路由级端到端 5/5、UI 端到端 2026-10-28 为 3/5、2026-10-29 同图复测 5/5（UI 已验证联通）；2026-10-29（v1.2.167）起 UI 自动流程在已记住隐私确认时自动调用本路由（每次选择器打开至多一次，`output/nail-auto-profile-v167/` 实测上传→上屏 15.1s、零页面错误），路由行为与限流不变；不改变正式识别 PRODUCT HOLD。
+
+v1.2.255新增本机自研候选配置：服务端`NAIL_CANDIDATE_URL`+`NAIL_CANDIDATE_TOKEN`优先于原WeVis配置，URL仅允许HTTP/127.0.0.1且无路径、查询和用户凭据，独立令牌至少32字符；未配置候选URL时沿用原配置。通用入口`model/training/serve-nail-candidate.py`提供鉴权`/health`和`/matte`，加载SHA核验的Stage A与原尺寸几何精修权重，单请求串行、最多900万像素、图片仅内存处理，返回二值PNG mask。当前模型整图识别，文字和提示框不参与推理；前端候选匹配和复核保持。移除两项配置并重启业务服务可回退。当前本机实例已启用，见[业务候选说明](nail-texture-business-candidate.md)。
 
 配置：`VLM_MATTE_URL`（如 `http://127.0.0.1:8008`）+ `VLM_MATTE_TOKEN`，仅服务端读取。未配置 URL 时 `GET` 返回 `{"enabled":false}` 且前端整块不渲染；已配置但上游不可达返回 `enabled:true, ready:false`。
 
-`GET` 响应：`{"enabled":boolean,"ready":boolean,"busy":boolean}`，只读上游 `/health`，不触发推理。
+`GET` 响应：`{"enabled":boolean,"ready":boolean,"busy":boolean,"backend"?:"candidate"|"wevis"}`，只读上游 `/health`，不触发推理。
 
 `POST` 请求（**仅这四个字段**，其余忽略）：
 
@@ -677,6 +715,7 @@ interface NailMask {
   originY: number;
   scale: number;             // max(原图宽/mask 宽, 原图高/mask 高)
   alpha?: Uint8ClampedArray; // 可选软边 0..255，仅 vlm-matte 来源提供
+  coverageAlpha?: Uint8ClampedArray; // 独立产品覆盖率，原始data保持
 }
 ```
 
@@ -685,7 +724,7 @@ interface NailMask {
 ### 6.2 运行策略
 
 1. 直接调用 `recognizeNailTextures()` 时只有显式传入 `preferModel: true` 才加载模型，否则直接使用 fallback；`recognizeNailTexturesInWorker()` 默认将 `preferModel` 设为 `true`；
-2. 优先尝试 WebGPU，不支持时回退 WASM；
+2. 后端按 manifest `backendPreferences` 选择；当前生产发布声明仅 `wasm`（发布对拍在 WASM EP 完成，WebGPU EP 数值未经验证不启用），WebGPU 硬件加速待另次数值验证后再评估；
 3. 模型加载、推理、Worker 或后处理失败时底层返回 fallback 结果和 warning；规则候选只供诊断，必须标为低置信度；
 4. 正式UI检测到`backend: "fallback"`时隐藏规则候选、保留原候选到debug导出，再调用`detectNailsFromHandImage()`尝试完整手部几何定位；
 5. 手部几何定位成功时生成`source: "mediapipe"`候选并按五指索引自动分配；无完整手部或无可靠几何时，再调用`detectPartialCloseupNails()`尝试局部近景定位；兼容入口`detectPartialCloseupNailCandidates()`仍只返回候选数组；
@@ -713,7 +752,7 @@ NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL=/models/nail-texture-seg-smoke/manif
 
 `.env.local.example` 默认不再启用 manifest 覆盖；直接复制时由代码使用 `/models/nail-texture-seg/manifest.json`。只有受控 smoke 验证才应临时取消示例注释并指向 smoke manifest。回归测试会拒绝示例文件中任何启用状态的 `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL`，避免测试模型成为共享默认值。在正式 ONNX 缺失期间，默认正式路径仍会进入 fallback，不代表正式模型已经可用。
 
-默认生产manifest明确登记`deploymentStatus: "not-deployed"`，计划文件名仍保留但ONNX尚未部署；运行时会在创建会话前返回`model_not_deployed`及fallback。历史候选及训练域精修权重均未获生产发布资格，禁止用其补齐默认目录或共享环境变量以消除该提示。当前正式模型状态以§3/§11.1与Goal为准。
+默认生产manifest自v1.2.258起为已发布的浏览器业务模型`nail-texture-seg-geometry64-browser-aa4-v2`（`deploymentStatus: "deployed"`，Stage A 512输入+Stage B radial-refine双ONNX，契约见§7）；运行时正常加载时自动流程走模型路径，`model_not_deployed`等降级提示仅在manifest回滚为`not-deployed`或模型故障时出现（提示映射保留为防御口径）。发布登记与切换经`scripts/register-model-release.ts`/`switch-model-release.ts`写入`public/models/nail-texture-seg/release-registry.json`；ONNX文件由`.gitignore`保持本地，manifest与registry快照入库。历史候选及未获发布资格的权重禁止用其补齐默认目录或共享环境变量。当前正式模型状态以§3/§11.1与Goal为准。
 
 烟雾/合成模型只验证工程链路，不得用于宣称真实美甲识别质量。结果顶层 `backend: "model"` 只表示走了模型路径；实际执行提供程序 `webgpu`/`wasm` 位于 `modelInfo.backend`。
 
@@ -745,6 +784,8 @@ interface RecognizeNailTextureResponse {
 
 ### 6.4 纹理提取接口
 
+v1.2.259归一化新增`referenceIsDirected`（缺省true，兼容已有调用）：选择器对模型轮廓轴向传false；明显收尖的长甲可通过两端宽度剖面补全甲尖方向（`mask+taper`），对称/方向证据弱时提示复核并降低自动应用置信度。手部关键点及人工明确方向继续传true；人工180°翻转从当前有效方向计算，应用页也支持直接翻转和撤销。`ar-texture-fit.ts`提供完整alpha内容框/甲床宽度测量、连续绘制矩形与半周旋转；按ImageBitmap缓存测量结果，渲染帧内复用。证据见`model/reviews/ar-fit-cuticle-v1/`与当日日志。
+
 ```ts
 extractTexture(imageUrl, { x, y, w, h }): Promise<ImageBitmap>
 clampTextureSize(bitmap, maxSize?): Promise<ImageBitmap>
@@ -754,33 +795,51 @@ disposeAllTextures(bitmaps): void
 
 普通裁剪输出最大边默认不超过 256 像素。自动识别路径支持带 mask 的透明纹理提取、羽化边缘、反光检查/修复和诊断信息。
 
+v1.2.258的径向模型提供`coverageAlpha`（长度严格等于`width*height`）：它记录原始轮廓的4×4亚像素覆盖率，允许保留二值边缘外的部分覆盖像素；原始`data`继续用于几何评分与方向估计。提取范围含有效覆盖率支持域，覆盖率经Canvas连续缩放，RGB直接从原图采样到目标纹理后乘alpha，并保留原图透明度；原`alpha`来源继续沿用向内羽化契约。主轴摆正、alpha加权旋转与256封顶继续执行。详见[边缘精修实施结果](nail-texture-edge-refinement-review.md#4-全量实施结果)。
+
 ## 7. 模型产物契约
 
 正式 manifest 路径：`public/models/nail-texture-seg/manifest.json`。
 
 静态目录准入（v1.2.163）：`public/models/` 只保留生产 manifest 与批准/合成占位权重；仅测试用导出（如 candidate57 的 `testOnly: true` 双阶段权重）一律存放于 `model/test-assets/<候选名>/`，元数据 JSON 入库、`*.onnx` 由 `.gitignore` 排除，避免任何构建把 `deploymentAuthorized: false` 的权重作为静态资源公开。该搬迁只改变资产位置，不改变 candidate57 的 TEST HOLD、不恢复其部署资格，也不改变正式 manifest 的 `not-deployed` 状态。
 
-`deploymentStatus`为可选枚举`deployed | not-deployed`，缺省兼容旧候选，显式非法值（含null）拒绝。当前默认为`not-deployed`：window/worker共用加载器及Stage B入口均在ORT会话前返回fallback和`model_not_deployed`；`resolveModelUrl`拒绝解析。资产审核、发布登记及切换拒绝未部署/非法状态，且不创建登记或覆盖活动manifest。`deployed`仅表示声明可加载，仍须资产完整性、同一发布身份及全部质量门，不自动授予发布资格。
+`deploymentStatus`为可选枚举`deployed | not-deployed`，缺省兼容旧候选，显式非法值（含null）拒绝。当前默认manifest为`deployed`（`nail-texture-seg-geometry64-browser-aa4-v2`）；`not-deployed`时window/worker共用加载器及Stage B入口均在ORT会话前返回fallback和`model_not_deployed`，`resolveModelUrl`拒绝解析。资产审核、发布登记及切换拒绝未部署/非法状态，且不创建登记或覆盖活动manifest。`deployed`仅表示声明可加载，仍须资产完整性、同一发布身份及全部质量门，不自动授予发布资格。
 
 ```json
 {
-  "version": "nail-texture-seg-v1",
-  "deploymentStatus": "not-deployed",
-  "inputSize": 640,
+  "version": "nail-texture-seg-geometry64-browser-aa4-v2",
+  "deploymentStatus": "deployed",
+  "inputSize": 512,
   "inputLayout": "NCHW",
   "colorOrder": "RGB",
   "normalization": "zero_to_one",
   "resizeMode": "letterbox",
   "task": "segment",
-  "backendPreferences": ["webgpu", "wasm"],
-  "modelFile": "nail-texture-seg-v1.onnx",
+  "backendPreferences": ["wasm"],
+  "modelFile": "geometry64-browser-v1-stage-a-512-fp32.onnx",
+  "modelSizeBytes": 11538755,
+  "sha256": "0a6b842e1ae61011320881e2a4161a86a485841d27797ef88d3efdc5554b4e78",
   "outputContract": "ultralytics-seg-raw-v1",
   "scoreThreshold": 0.35,
-  "labels": ["nail_texture"]
+  "labels": ["nail_texture"],
+  "stage2": {
+    "mode": "radial-refine",
+    "modelFile": "geometry64-browser-v1-stage-b-radius-presence-fp32.onnx",
+    "angularSamples": 2048,
+    "presenceThreshold": 0,
+    "nmsIoUThreshold": 0.7,
+    "edgeRefinement": { "mode": "radial-coverage-v1", "samples": 4 }
+  }
 }
 ```
 
+`stage2.mode: "radial-refine"`（v1.2.256）为mask替换型两阶段组合：Stage A 按ultralytics-seg-raw-v1输出det/proto，宿主逐候选裁剪1.7×方形上下文（round-half-even）、计算径向格（2048角×129径向偏移）并构建strip输入[1,5,2048,129]+coarse_radii[1,2048]，Stage B输出radius[1,2048]+presence[1,1]；宿主按`radius[bins]−distance ≥ 0`解码原图域mask替换粗mask。`presenceThreshold: 0`表示presence<0拒识（拒识候选按既有低置信复核流处理），`nmsIoUThreshold: 0.7`与Stage A服务端NMS一致；径向偏移数129与上下文比例0.35为宿主实现常量。manifest校验（`validateNailTextureModelManifest`）对radial-refine要求modelFile、可选angularSamples（≥16整数）、presenceThreshold（有限数）与nmsIoUThreshold（0—1开区间）；旧`rescore`模式字段组（inputSize/cropContextRatio/promotionMarginThreshold）仅适用于rescore语义，两模式互斥校验。该组合与本机serve-nail-candidate.py同构，逐实例mask对拍三方（PyTorch CPU/serve CUDA/浏览器WASM）IoU全=1.0（证据`model/reviews/geometry64-browser-parity-v1/`，含letterbox字节级检查diffBytes=0）。
+
+`stage2.edgeRefinement`（v1.2.258）为可选产品处理字段，只接受`radial-refine`下的`{mode:"radial-coverage-v1",samples:2|4}`；缺省关闭。当前4×4配方保留原角桶半径与原解码，另算边界带覆盖率；关闭本轮退步的均值平滑。组合发布身份为`nail-texture-seg-geometry64-browser-aa4-v2`，两个ONNX字节及原始数值血缘沿用v1。全100源634甲/636候选逐像素重建与独立重放、600×800部署4实例原mask零差及覆盖率Python↔TS零差见`model/reviews/edge-refine-geometry64-v1/`（report SHA-256 `354543987da8a55ef632e77c71f24df40d4ea0a626458070e53b96e9c1524fdf`）。8×8数值参考下4×4平均覆盖率误差0.02099，硬二值0.15779；真实几何平均Boundary IoU/F1仍0.338758/0.764382，严格联合0/634。该train开发对照与桌面Canvas成本验证保留各自范围，来源组仅1个，来源簇置信区间不可估；真机、未见质量及商用完成门保持。
+
 `scoreThreshold`是模型版本级候选阈值：运行时、原始输出过滤和质量排序使用同一有效值；字段缺省时保持`0.35`兼容，显式值必须为0和1之间的有限数。`export-onnx.py`可通过`--score-threshold`写入校准值，浏览器manifest校验和`verify-model-artifact.ts`执行相同约束。该字段只是保存已完成验证的模型校准结果，不能用单次阈值扫描绕过误检、候选数量、直接可用率或Beta发布门。
+
+当前组合版本生产构建与真实浏览器端到端通过：`/ar-tryon`实际Worker返回4枚600×800原mask和覆盖率，自动提取并应用4指纹理（单次约1.68秒），无识别warning、页面脚本或资源错误。相关44项测试通过；全量首轮1532项中的26项环境失败，在10个原失败文件的原生串行117项复验中全部解决，原日志与复核保留。完整证据及开发A/B页见上述目录，移动端实际性能及真实低对比边缘视觉验收继续单列。
 
 正式阈值必须由`calibrate-model-score-threshold.py`使用来源隔离的`val`预测生成。校准器绑定数据集、来源报告、模型权重、评估指标和预测制品SHA-256，拒绝`test`/冻结发布测试、val来源跨split和未知预测文件；`--truth-audit`还必须提供`approved_as_calibration_truth`报告，且dataset路径/哈希、逐标签SHA-256、预期/已审/通过数量全部一致、返修和排除均为0。未提供审核或审核明确拒绝时分别输出未审核/已拒绝诊断，永远不生成manifest阈值。至少30张验证图、真值polygon零修复、所有验证图通过原分辨率完整甲面审核，同时满足召回、每图误检和单图候选数门，才输出非空`manifestScoreThreshold`。任何返修/排除项、未声明交叠、漏甲、重复、误标、污染或边缘裁断都会使整套split失去校准资格。
 
@@ -794,7 +853,7 @@ disposeAllTextures(bitmaps): void
 - 通过 fixture、真实图片、浏览器集成和性能门；
 - 具备版本、SHA-256、体积、指标、发布和回滚记录。
 
-当前生产ONNX与releaseIdentity均未批准；默认manifest为显式未部署占位，正式资产审核仍必须拒绝。历史v6及synthetic/smoke只承担原绑定诊断/工程用途，不能充当正式模型或回滚批准版本；当前训练候选状态见§8.9/§11.1。
+当前生产manifest为业务发布`nail-texture-seg-geometry64-browser-v1`（v1.2.256）：几何64轮Stage A源权重SHA `5ef154704e36691871a50e162b8e446a12dc3211404ad014f8aceeb9d8b52b4e`、Stage B源权重SHA `161e10be562fa4becd00cbde2c7bb4fcf80611308c681afc9dfd4e6d71fbf9ea`，ONNX导出数值验证与发布对拍证据在`model/exports/geometry64-browser-v1/onnx-verification.json`及`model/reviews/geometry64-browser-parity-v1/`。该发布只声明业务发布门（§3），商用完成门保持HOLD；历史v6及synthetic/smoke只承担原绑定诊断/工程用途，不充当正式模型或回滚批准版本；当前训练候选状态见§8.9/§11.1。
 
 ## 8. 数据集与训练接口
 
@@ -929,7 +988,7 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 ### 8.8 来源关系分型与必要重看合同
 
-当前指定素材精标链为`model/reviews/cycle016-wevis-real-material-v1/batch037/annotation-closeout-v1.json`及`annotation-final-verification-v1.json`，现行100图634甲规范索引`batch037/cumulative-training-truth-index-v4.json`保持原真值及角色。原图均来自`E:\AI Project\Codex\JiaRu_image\真实素材\美甲图片素材`，哈希核验通过。444已审及779未审、124/384/175未决保持。历史旧23中1张AI生成正例10甲已实际进入混合Stage A/B，相关权重撤回后续使用；旧角色和失败不改写。当前专用重建只含100指定源，范围`batch037/real-only-training-scope-v2.json`，初始化官方来源及全部曝光闭环见`real-only100-closeout-v1.json`，现行入口绑定不可变`current-development-state-v24.json`。
+当前指定素材精标链为`model/reviews/cycle016-wevis-real-material-v1/batch037/annotation-closeout-v1.json`及`annotation-final-verification-v1.json`，现行100图634甲规范索引`batch037/cumulative-training-truth-index-v4.json`保持原真值及角色。原图均来自`E:\AI Project\Codex\JiaRu_image\真实素材\美甲图片素材`，哈希核验通过。444已审及779未审、124/384/175未决保持。历史旧23中1张AI生成正例10甲已实际进入混合Stage A/B，相关权重撤回后续使用；旧角色和失败不改写。当前专用重建只含100指定源，范围`batch037/real-only-training-scope-v2.json`，初始化官方来源及全部曝光闭环见`real-only100-closeout-v1.json`，现行入口绑定不可变`current-development-state-v32.json`。
 
 现行分型合同1区分同摄影帧变换、拍摄系列视觉关联、仅风格相似、可见不同及不确定；拍摄系列关联不作像素复制正控，数值候选继续禁止，完整源/角色父血缘/实际查看及无缩放分别绑定。完整图片输入遵循用户整图政策v5（`model/reviews/cycle016-user-whole-image-batch-review-policy-v5.json`）：单批及单张作为批的一部分≤50000000字节、每响应≤6独立整图、不另设整轮上限；已看完整事实按精确SHA继承，不重发旧分块。发送前冻结实际文件/页面SHA及字节，尝试采集当前线程近时请求；遥测缺失如实记未知并允许有界发送，不记为测量门通过，已观测准备请求≥100000000字节时停止增图。文件、base64估算及实际网络流量分别记录，实际缩放拒绝原像素结论。旧I016等4MiB页/8MiB请求及未知拒发限制只作历史保留，不能覆盖后来用户明确的50MB单批政策。该更正不放宽原像素质量、来源/完整mask、数据角色或发布门；具体历史编号见实验归档§12.302，最新整组实例见当日日志。
 
@@ -947,7 +1006,21 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 ### 8.9 学得原尺寸候选的精度复验接口
 
-历史检查点可用性（2026-11-04用户明确退役）：已删除上一版24轮上下文训练及4组更早关闭/失败实验的3860个中间断点，文件逻辑长度16337453846字节、分配空间16330951674字节；保留26个关键文件（含最终权重、末断点及当前状态/训练计划），8份历史终态和报告哈希不变，原RAW、事件、标注及历史质量判决保留。被删除断点所属旧实验的完整逐步状态重放已退役，原已完成重放报告仅保留其当时执行事实；全634边缘监督64轮全部断点及已完成完整重放保留，新几何残差训练和原发布质量门保持。逐文件计划、删除事件和独立事后核验见`model/reviews/checkpoint-retirement-20261104-v1/verification-v2.json`（SHA-256 `5f40927e7bf25416e12e38c0627d889684f835972f8c8847d7bd2bf520e08ba8`；原可变状态指针按完全同字节的不可变v23解析）。
+**v1.2.279固定32甲原像素轨迹。** 第128至256次曝光的轮内均值由0.746847升至0.774608，差+0.027762，31/32甲改善。原8甲+0.022228，新增24甲+0.029606。第1024步固定末态平均0.775480，严格联合25/32（原8甲8/8，新增17/24），7甲仅边界IoU低于0.75。 轮内观测分别跨508—511及1020—1023步，固定末态为1024步。已重放224份RAW与672条绑定事件。下一轮固定共同起点和预算，比较恒定0.001与退火至0.00025。
+
+**v1.2.278固定32甲混批对照。** 以第62次权重、原损失和固定四个8甲批次对照。112对批内逐甲梯度中61对点积为负，原AdamW与投影AdamW的实际更新在32甲原损失上均无一阶反向。平均原2px Boundary IoU由初始0.589669升至0.602124和0.601935，投影相对差−0.000189，两组严格联合均0/32。关闭本版梯度投影。96份RAW、4份梯度矩阵、8份完整状态及304条事件已完成CPU重放。全634正式指标仍0/634，PRODUCT HOLD。
+
+**v1.2.274第62次模型调整完成。** 原128轮81152输入/10240更新，264195逻辑事件、81152份RAW和321份状态独立重放通过。固定636候选终评及三基线配对已复算。匹配634/634、漏甲图0/100，Boundary IoU/F1均值0.582402/0.966976。相对第61次Boundary IoU提高0.022450，584甲改善、50甲下降、严重回归0，此前8项均改善。Boundary F1达标597/634，Boundary IoU达标0/634（最高0.747427），严格联合仍0/634。当前仅登记为训练域诊断，入口v51，PRODUCT HOLD。
+
+**v1.2.275多尺度轮廓路线。** 冻结第62次100图634甲原像素诊断已重建636候选及全部原配对指标，并独立复算9个场景。整体质心平移和径向常数各0/634，理想修正局部33—1024谐波218/634，仍差321甲。理想修正1—8谐波或0—32合并均2/634。现有真值半径回代634/634，几何可达余量95甲。下一步用同一冻结快照，配对预检联合学习局部细节和低频形状，原2px及539门保持。 反事实使用训练域真值，现有实际联合仍0/634，PRODUCT HOLD。
+
+**v1.2.276分频配对结论。** 第63次配对预检从第62次固定权重出发，原损失与分频组各256次更新、2048训练输入及16评估输入。两组原2px严格联合均8/8，平均Boundary IoU分别0.886997和0.873761。分频组8/8逐甲下降，平均差-0.013236，1甲触发严重回归（最大下降0.025129）。相对增益及零严重回归门未过，关闭本版分频损失分支。下一步沿用原损失，在更广的冻结训练样本上对照检验共享轮廓分支容量。全634正式训练域联合仍0/634，PRODUCT HOLD。
+
+**v1.2.277角向容量配对结论。** 第64次在31张冻结图的32甲上配对，原损失两组各256次每甲曝光及1024更新，新增角向分支初始64份输出逐字节一致。原分支和扩展分支均25/32，平均Boundary IoU分别0.775480及0.776695。扩展增益0.001214，20改善/12下降，2甲失去严格通过；28甲、相对增益及严格集合门未过，关闭本版扩展。原8甲在等曝光的32甲共享原分支中平均Boundary IoU由0.886997降为0.800915。两次试验更新总数与批次组成不同，下一步用同一初始权重和固定批次检验梯度相互牵制。全634质量仍0/634，PRODUCT HOLD。
+
+2026-11-05按用户要求增加独立本机业务候选：几何64轮权重SHA `161e10be562fa4becd00cbde2c7bb4fcf80611308c681afc9dfd4e6d71fbf9ea`经Python/GPU接入§5.4；仅选择已完整终评真实100源分支中的平均边界IoU最高版。原严格联合0/634、历史失败和512轮待终评状态保持。API及浏览器实际接入证据见`model/reviews/business-candidate-20261105-v1/`与[说明](nail-texture-business-candidate.md)，生产发布身份保持。
+
+历史检查点可用性（2026-11-04用户明确分批退役）：上批删除3860个旧中间断点，逻辑16337453846字节；原清单与核验保留于`model/reviews/checkpoint-retirement-20261104-v1/`。本批继续退役已结项且后续版本已替代的全634边缘监督64轮（含续接）、几何残差64轮及早期像素径向24轮的14050个中间断点，逻辑/分配均25116758136字节（23.392GiB）；两批累计17910文件、逻辑38.607GiB。各目录首末断点、计划引用恢复接缝和全部最终权重保留，144份关键保留文件与34项历史终态/报告绑定核验通过。当前512轮训练及其已存断点、原RAW/事件/标注/报告保留；已退役历史实验的完整逐步状态重放停止保留，原已完成重放报告及质量失败保持其当时事实。当前512轮计划保存1281份完整断点，全部324608份RAW的重放合同及原发布质量门保持。逐文件清单、持久化删除事件和独立事后核验见`model/reviews/checkpoint-retirement-20261104-v2/verification.json`（SHA-256 `72addb77edc1af0b809c5cef4c4ab27017e73f0c44dcf2f3f4519f04bf254c9c`）。
 
 新增`native-context-radial-refiner.py::NativeContextRadialRefiner`保留5x2048x129原坐标输入、2048角度/±64px及原尺寸两头，五尺度内容编码解码和160-token注意力，277108参数/77参数张量及2固定缓冲区（完整state_dict为79项）。原暂停14910输入/3739步经全账核验后，精确续接306输入/77步，合计24轮15216输入/3816步完成；第一条续接输入前模型、优化器及全部RNG逐字节恢复通过。全部15216份RAW、3816完整checkpoint及53309事件独立合并重放通过，每甲恰好24次。固定last SHA `ca304b74dc052b789e9a04c40d55859376cae48585a69b1227d0020115e7ce7a`；全634甲/636候选：IoU≥0.75匹配634/634、原2px严格联合0/634、漏甲图0/100，边界IoU/F1均值0.270805/0.655614，训练域绝对门仍未通过（需≥539甲严格联合）。本次权重保留为开发诊断，活动16轮权重保持；本轮预算已消费完毕。`radial-raw-codec.py::save/read`逐份原尺寸原头重建通过；原暂停/后处理异常保留。闭合证据`batch037/real-only100-context-radial-closeout-v2.json`，该阶段入口v14，PRODUCT HOLD。
 
@@ -961,9 +1034,15 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 全634零推理核对确认训练/终评数组、候选和坐标一致，Boundary IoU单门0/634（最高0.607867）、F1单门29/634；固定8严格联合8/8→0/8，平均Boundary IoU 0.841322→0.304060。证据`batch037/real-only100-full-boundary-final-audit-v1/report.json`及`replay.json`。
 
-新增`native-geometry-radial-refiner.py::NativeGeometryRadialRefiner`：保持5×2048×129图像条带及原坐标两头，冻结277108参数视觉基线，新增16641参数周期1D残差分支，读取预测边缘处16通道内容、粗/预测半径、相邻形状差分及角度sin/cos；直接回归半径残差并保持相对粗半径±64px约束。推理不输入真值、图片身份或样本编号。实际8项零初始化输出与旧全量终评mask/presence/radius逐字节一致，独立控制24前向/8反向/1更新后冻结基线全部状态保持，loss2.099963→2.099078，24份RAW及完整状态复核通过。3项合成结构控制通过。新64轮40576输入/5120更新预算已单独冻结并启动，全100源634甲保持；固定末轮全636终评和原2px/539严格联合门保持。接口、预检、计划和执行见`batch037/real-only100-geometry-boundary-training-v1/`，模型总参数293749；当前入口v26，56调整/40完整微调、下一60展示。
+新增`native-geometry-radial-refiner.py::NativeGeometryRadialRefiner`：保持5×2048×129图像条带及原坐标两头，冻结277108参数视觉基线，新增16641参数周期1D残差分支，读取预测边缘处16通道内容、粗/预测半径、相邻形状差分及角度sin/cos；直接回归半径残差并保持相对粗半径±64px约束。推理不输入真值、图片身份或样本编号。实际8项零初始化输出与旧全量终评mask/presence/radius逐字节一致，独立控制24前向/8反向/1更新后冻结基线全部状态保持，loss2.099963→2.099078，24份RAW及完整状态复核通过。3项合成结构控制通过。全634几何残差64轮、40576输入/5120更新、全部RAW/完整状态重放及全636终评已完成：匹配634/634、严格联合0/634，Boundary IoU/F1均值0.338758/0.764382；原2px/539门保留失败。固定8目标新AdamW受控512步已完成，4096训练+16评估，严格联合8/8；全部4112 RAW、17完整checkpoint、全部事件及16原像素指标独立重放通过，原8/8容量门通过。 固定末轮SHA `161e10be562fa4becd00cbde2c7bb4fcf80611308c681afc9dfd4e6d71fbf9ea`；闭合证据`batch037/real-only100-geometry-boundary-closeout-v1.json`及`real-only100-geometry-eight-fit-closeout-v1.json`。全634原指标/半径诊断逐项复现，MAE3.699191→3.266882px，537改善/97上升；同结构固定8在512次曝光达到8/8，缓存保真及全634训练实际状态见下段。当前入口v32，58调整/42完整微调、下一60展示。
 
-新增`oneoff/finish-geometry-boundary-pipeline-v1.py`连接现有监督/训练PID、创建时间、命令行和两个Win32活句柄；正常64轮终态后串行执行完整40576 RAW/5120优化器断点重放、固定末轮全636推理、100源634甲原2px指标及独立复算。重放器逐断点核验79项冻结基线状态及24项训练优化器状态；全634训练/终评输入绑定一致，评估重建/分母/阈值算法与既有全量口径AST逐节点一致。阶段独占持久化开始/终态/退出码，异常停止，无自动重试。已实际打开原活句柄并运行等待；当前仅原训练预算在消费。计划/执行见`batch037/real-only100-geometry-boundary-finish-pipeline-v1/`，源码/全634对齐及真实第1200步冻结基线/RNG核验见训练目录`finish-code-validation-v1.json`。
+新增开发分支`VisualNeighborhoodRadialRefiner(previous)`冻结旧103状态，在最终预测半径内外0/±2/±4/±8原像素读取5通道条带，加半径/角度共39通道，周期卷积学习新残差；沿用mask/presence/radius及原坐标解码。固定预检、634缓存物化和完整特征/输出字节保真通过；32轮20288输入/2560更新、20288 RAW/66051事件/81完整状态及全部RNG独立重放完成，监督退出0。固定636候选/100源634甲原2px终评和独立复算一致：匹配634/634，Boundary IoU/F1=0.559952/0.961424、严格联合0/634。较第60次bIoU+0.016097，542改善/92退步、8严重回归，F1通过571→590；+0.02诊断门与原539门保留失败，source簇为1，来源独立区间不可估。闭合`batch037/real-only100-neighborhood61-closeout-v2/`；61调整/45微调，下一70展示。
+
+当前继续拟合合同：以第61次固定末权重初始化，先对8严重回归目标执行16前向/8反向/1更新，初始两头/半径与终评逐字节一致、旧网络冻结、20梯度有限、损失下降及16RAW/2完整状态独立重放通过。另立均衡128轮81152输入/10240更新预算，新AdamW lr0.001余弦至0.00001；完整原634缓存、角色和损失保持，预检更新权重仅控制使用。初始/每32步/末态321完整状态、每输入RAW，固定epoch128 last后全636原2px终评；已由`pipeline-v1`持有原监督活句柄接续全链，首失败停止，无自动重试。当前入口v41，训练目录`batch037/real-only100-neighborhood128-v1/`；增加曝光的收益待完整终评，商用门/业务权重保持。 原执行现已内存失败；当前状态以§3的v1.2.266及入口v42为准，旧失败/预算保留，单次续接尚待完整前缀审计。
+
+**全634缓存512轮及内边界IoU损失16轮均已闭合。** 原512基线Boundary IoU/F1为0.541192/0.953899；新16轮10144输入/1280更新，全部10144 RAW/41完整状态和636终评独立重放通过。新Boundary IoU/F1为0.543854/0.953957，严格联合0/634；412改善/221退步/1持平，严重回归诊断2甲，F1通过568→571，事前+0.02相对门失败。末权重SHA`231c459b2438253917d4cebaf3a5f7ae388c712be90fbf43949d53744cc2b57b`。闭合`batch037/real-only100-biou60-closeout-v1/report.json`，当前入口v37；60调整/44微调，下一70展示。下一为已存RAW局部残差和视觉内容可达性诊断，原539门及PRODUCT HOLD保持。
+
+新增`oneoff/finish-geometry-boundary-pipeline-v1.py`连接现有监督/训练PID、创建时间、命令行和两个Win32活句柄；正常64轮终态后串行执行完整40576 RAW/5120优化器断点重放、固定末轮全636推理、100源634甲原2px指标及独立复算。重放器逐断点核验79项冻结基线状态及24项训练优化器状态；全634训练/终评输入绑定一致，评估重建/分母/阈值算法与既有全量口径AST逐节点一致。阶段独占持久化开始/终态/退出码，异常停止，无自动重试。原监督和训练退出0，全部5阶段退出0并独立重放，训练预算40576及最终636推理已全部消费；原质量门失败保留，流程不重启。计划/执行见`batch037/real-only100-geometry-boundary-finish-pipeline-v1/`，源码/全634对齐及真实第1200步冻结基线/RNG核验见训练目录`finish-code-validation-v1.json`。
 
 收尾接口`oneoff/finish-full-boundary-pipeline-v1.py`已按原训练/监督创建时间、命令行及Win32活句柄冻结单次串行流程：原64轮退出0及完整终态→全部40581已存RAW/5120优化步checkpoint与恢复账重放→固定last全636推理→全100源634甲原2px指标→独立复算。任一步异常保留并停止，不自动重试；原539联合门、来源角色、生产HOLD保持。计划和执行入口`batch037/real-only100-full-boundary-finish-pipeline-v1/`。
 
@@ -971,7 +1050,7 @@ v4—v9 均为历史候选，逐候选明细与耗时证据已迁至 `docs/archi
 
 标注可复用本机WeVis服务`POST /matte`：完整原图输入、原尺寸uint8 L alpha PNG，uint8>127生成候选。现行100图634甲按指定目录完整源图及逐甲原像素审核准入；batch037的165号4甲、215号5甲经原坐标人工多边形返修和完整叠线终审通过，合法、界内、严格零交叠，旧失败保留。坐标页仅在原图区外加边条，源RGB核验一致；完整mask覆盖甲根、侧缘、自由缘及附着装饰，排除皮肤、阴影和背景。失焦、裁断或局部露甲按源质量门处置。实际图片输入见batch037/actual-image-input-audit-v1.json，训练见下段。
 
-最新可继续开发的Stage A为指定100图634甲专用候选。官方YOLO11n-seg COCO通用基础权重经官方发布文件SHA核验，从其独立项目微调，仅指定目录100图634甲；GPU FP32固定40轮、4000图输入、2000微批、500优化步，100身份各40次，固定第40轮EMA last SHA `5ef154704e36691871a50e162b8e446a12dc3211404ad014f8aceeb9d8b52b4e`。无旧23成员、旧项目权重、教师、受保护输入或新增负样本。全部RAW、曝光、40份epoch checkpoint及FP32状态独立重放通过。 固定512/mask_ratio1/批二累积四、CPU2线程/interop1，AMP/TF32及自动OOM/NaN重试关闭；自动验证输入0。证据`batch037/real-only100-stage-a-v1/train/report.json`及`train/replay.json`，官方基础文件来源`real-only100-foundation-v1/provenance.json`。机器入口`model/reviews/cycle016-wevis-real-material-v1/current-development-state.json`与不可变`batch037/current-development-state-v26.json`字节一致。
+最新可继续开发的Stage A为指定100图634甲专用候选。官方YOLO11n-seg COCO通用基础权重经官方发布文件SHA核验，从其独立项目微调，仅指定目录100图634甲；GPU FP32固定40轮、4000图输入、2000微批、500优化步，100身份各40次，固定第40轮EMA last SHA `5ef154704e36691871a50e162b8e446a12dc3211404ad014f8aceeb9d8b52b4e`。无旧23成员、旧项目权重、教师、受保护输入或新增负样本。全部RAW、曝光、40份epoch checkpoint及FP32状态独立重放通过。 固定512/mask_ratio1/批二累积四、CPU2线程/interop1，AMP/TF32及自动OOM/NaN重试关闭；自动验证输入0。证据`batch037/real-only100-stage-a-v1/train/report.json`及`train/replay.json`，官方基础文件来源`real-only100-foundation-v1/provenance.json`。机器入口`model/reviews/cycle016-wevis-real-material-v1/current-development-state.json`与不可变`batch037/current-development-state-v32.json`字节一致。
 
 活动原尺寸精修仍为仅指定100源的16轮候选，固定last SHA `ae6be9e8dd854d187797cee03053b88f31075fd8ae890f2efc1f152a4bac3600`，10144输入/2544步、240骨干状态冻结。全634匹配、原2px边界IoU/F1均值0.324978/0.727894、联合0；实际两头/曝光/16轮checkpoint与全636评估已重放，证据`batch037/real-only100-stage-b-closeout-v1.json`。困难边缘第6轮checkpoint全100诊断为634匹配、边界IoU/F1=0.304115/0.690498、联合0，未晋升；原8轮为用户中断，精确恢复在5输入/1步后RAW差1.430511e-6而停止，原失败、13步缺口和未消费预算保持。证据`real-only100-resumed-radial-closeout-v1.json`，该阶段入口v14，55调整/39完整微调，下一60展示。
 
@@ -1308,7 +1387,7 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 - `/ar-tryon` 摄像头帧默认在浏览器内存中处理，不录制；MediaPipe程序和模型由本站同源静态目录提供；
 - 自动纹理识别默认在浏览器 Worker/主线程中运行；
 - `/api/generate-ai`与`/api/generate-seedream`接收文字及可选参考图，并分别转发给Agnes与火山方舟；返回图片由浏览器访问外部URL，主动生图不由“用户改进计划”开关禁用。
-- v1.2.163 起新增一条**用户主动触发**的上传通道：`/api/nail-matte` 把浏览器压缩后的图片（长边≤1600 JPEG）发送到自托管（默认同机 `127.0.0.1:8008`）的 WeVisOne-VL 服务，仅用于本次轮廓提取，服务按内存处理、不转发第三方、不写入训练数据；未配置 `VLM_MATTE_URL` 时通道与入口都不存在。该请求不受「用户改进计划」开关约束（用户点击即授权本次处理），也不属于改进计划的数据收集。
+- v1.2.163 起新增一条**用户主动触发**的上传通道：`/api/nail-matte` 把浏览器压缩后的图片（长边≤1600 JPEG）发送到自托管（默认同机 `127.0.0.1:8008`）的 WeVisOne-VL 服务，仅用于本次轮廓提取，服务按内存处理、不转发第三方、不写入训练数据；未配置任何本机服务URL时通道与入口都不存在；v1.2.255起可优先转发本机自研候选（§5.4），保持同一隐私确认和内存处理流程。该请求不受「用户改进计划」开关约束（用户点击即授权本次处理），也不属于改进计划的数据收集。
 - v1.2.217 起新增云端识别通道（§5.5）：`/api/nail-detect-ark`（方舟视觉理解模型）与 `/api/nail-matte-cloud`（云端自托管 /matte 契约服务）。与 nail-matte 同为用户主动请求通道——须用户在三个识别站点显式切换到云端模式，且首次使用前经一次性隐私确认（`jiaru.nail-detect-cloud-consent.v1`，说明图片仅用于本次甲面定位、不用于训练存储），确认后本会话内切换不再重复询问；识别模式为会话级不持久化，每次进入页面默认本地。结果固定低置信候选、须人工复核，不入训练数据、不写生产 manifest；方舟密钥复用服务端 `VOLCENGINE_ARK_API_KEY`，云端自托管 token 只存服务端环境变量；错误响应脱敏（不含密钥与上游堆栈）。真实第三方数据边界须以实际服务条款为准（同 §4.4 生图口径）。
 - `AGNES_API_KEY`只能存在于服务端环境变量；本机`.env.local`受`.gitignore`保护，文档、日志和源码不得记录真实密钥；
 - `ImageBitmap`、对象 URL、MediaStream track、Worker 和动画帧循环必须在取消或卸载时释放；
@@ -1324,9 +1403,27 @@ v1.1.591起，复合运行时的正样本质量报告可额外传入`--runtime-s
 
 ### 11.1 阻塞项
 
-早期退役实验的完整逐步checkpoint重放已停止保留，适用范围及当时已完成证据见§8.9；全634边缘监督64轮完整重放已完成且全部断点保留。
+**v1.2.279固定32甲共享拟合质量。** 第256次曝光仍有晚段提升，末态25/32低于28甲容量门。继续检验等曝光续训能否改善余下7甲的边界IoU。全634原2px严格联合仍0/634，正式完成保持HOLD。
 
-Goal ACTIVE；100图634甲精标及原统一训练保持。全634边缘监督64轮、全部RAW/5120步重放及全636终评完成：严格联合0/634，Boundary IoU/F1均值0.286946/0.682286，质量门失败；固定8在全量训练后0/8、全634输入同构已确认。下一：完成已启动的几何残差全634目标64轮训练；全输出及完整状态独立重放后，用固定末轮执行唯一636候选终评，并独立复算100图634甲原2px质量门（严格联合至少539）。 当前几何分支训练已启动并连接原活句柄自动收尾，当前入口v26；正式来源/数值/产品/真机/Beta/回滚缺口及PRODUCT HOLD保持。
+**v1.2.278混批更新结论。** 实测61/112负梯度点积，但四个原AdamW更新的32个逐甲原损失方向均为下降。投影平均原2px Boundary IoU相对差−0.000189，关闭本版。此结论限于固定四批及第62次权重的一步更新；全634严格联合仍0/634。
+
+AR v5实际页面加载与基础交互已于v1.2.268通过开发预览验收，首次编译慢已定位PostCSS并限制src扫描；自动甲根仍取手部关键点估算，完整生产构建终态与真实相机自然度继续待验。当前证据见§4.5及2026-11-05日志v1.2.268，历史超时和编译失败保留。
+
+AR最新截图专项已补充`cuticle-fit-v4`（§4.5）：同图手指方向参照、下部甲根中心与短alpha过渡。实际摄像头根部定位、尺寸和侧转自然度继续实机验证，当前训练权重与正式发布质量合同保持。
+
+AR贴合工程修复已接入v1.2.259：甲根锚定、可见尺寸、完整透明轮廓、连续采样、方向复核/翻转。当前手部关键点提供估算甲根，实时甲缘像素定位、遮挡及侧转贴合、用户实际相机自然度仍待验证；产品合成控制和模型原像素质量分别记录。模型权重与商用完成门沿用原状态。
+
+浏览器业务发布及覆盖率抗锯齿已接入（§3/§6.2/§7，v1.2.258）：当前组合身份`nail-texture-seg-geometry64-browser-aa4-v2`继承v1原权重；v1经发布门全链（导出数值保真、Python↔浏览器逐实例mask对拍IoU=1.0、生产服务器端到端、全量1530测试）后登记为`deployed`，`/ar-tryon`等三站按正式模型口径展示。本机Python/GPU候选通道（§5.4）保持可用作对照与回退。商用完成门缺口保持PRODUCT HOLD：正式浏览器权重之上仍缺未见来源质量（独立val≥30校准、正/负发布留出各≥100、三变体零误检）、角标捷径消融、四类真机各≥20次、Beta人工审核≥100张与双批准权重回滚演练，completion audit `decision=complete` 前不解除HOLD。训练分布外甲面召回弱（超长淡色梯形甲等，2026-11-05探针实证）已记录为已知限制，按用户反馈经512轮版或后续权重迭代。
+
+早期实验及已被后续512轮版本替代的全634边缘监督64轮、几何残差64轮、像素径向24轮的完整逐步checkpoint重放已停止保留，适用范围和当时已完成证据见§8.9；最终权重、首末及计划引用接缝、原RAW/事件和历史质量判决保留。当前512轮完整断点及重放合同保持。
+
+**v1.2.274第62次模型调整完成。** 原128轮81152输入/10240更新，264195逻辑事件、81152份RAW和321份状态独立重放通过。固定636候选终评及三基线配对已复算。匹配634/634、漏甲图0/100，Boundary IoU/F1均值0.582402/0.966976。相对第61次Boundary IoU提高0.022450，584甲改善、50甲下降、严重回归0，此前8项均改善。Boundary F1达标597/634，Boundary IoU达标0/634（最高0.747427），严格联合仍0/634。当前仅登记为训练域诊断，入口v51，PRODUCT HOLD。
+
+**v1.2.275多尺度轮廓路线。** 冻结第62次100图634甲原像素诊断已重建636候选及全部原配对指标，并独立复算9个场景。整体质心平移和径向常数各0/634，理想修正局部33—1024谐波218/634，仍差321甲。理想修正1—8谐波或0—32合并均2/634。现有真值半径回代634/634，几何可达余量95甲。下一步用同一冻结快照，配对预检联合学习局部细节和低频形状，原2px及539门保持。 反事实使用训练域真值，现有实际联合仍0/634，PRODUCT HOLD。
+
+**v1.2.276分频配对结论。** 第63次配对预检从第62次固定权重出发，原损失与分频组各256次更新、2048训练输入及16评估输入。两组原2px严格联合均8/8，平均Boundary IoU分别0.886997和0.873761。分频组8/8逐甲下降，平均差-0.013236，1甲触发严重回归（最大下降0.025129）。相对增益及零严重回归门未过，关闭本版分频损失分支。下一步沿用原损失，在更广的冻结训练样本上对照检验共享轮廓分支容量。全634正式训练域联合仍0/634，PRODUCT HOLD。
+
+**v1.2.277角向容量配对结论。** 第64次在31张冻结图的32甲上配对，原损失两组各256次每甲曝光及1024更新，新增角向分支初始64份输出逐字节一致。原分支和扩展分支均25/32，平均Boundary IoU分别0.775480及0.776695。扩展增益0.001214，20改善/12下降，2甲失去严格通过；28甲、相对增益及严格集合门未过，关闭本版扩展。原8甲在等曝光的32甲共享原分支中平均Boundary IoU由0.886997降为0.800915。两次试验更新总数与批次组成不同，下一步用同一初始权重和固定批次检验梯度相互牵制。全634质量仍0/634，PRODUCT HOLD。
 
 旧微拟合学得权重与全部68候选的严格FP32复验独立通过train-only容量门：66正例全部保留、严格联合54/66（要求53）、拒识2/2且输出0像素，mean IoU/Boundary IoU/F1=0.972076/0.794394/0.978412。旧TF32容量、4096新头更新、11968分割步和全部历史失败保留。
 

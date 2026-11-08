@@ -258,7 +258,7 @@ function TextureSetStackCard({
               event.stopPropagation();
               handleApplyClick();
             }}
-            className={`flex-1 rounded-xl px-2 py-1.5 text-[11px] font-medium transition hover:-translate-y-0.5 active:scale-95 ${
+            className={`flex-1 rounded-xl px-2 py-2 text-[11px] font-medium transition-[transform,background-color,border-color,box-shadow,color] hover:-translate-y-0.5 active:scale-95 ${
               active
                 ? "bg-[var(--coral)] text-white shadow-[var(--neu-out-sm)]"
                 : "border border-pink-100 bg-[var(--surface)] text-[#ac5145] shadow-sm"
@@ -272,7 +272,7 @@ function TextureSetStackCard({
               event.stopPropagation();
               expand();
             }}
-            className="flex-1 rounded-xl border border-pink-100 bg-[var(--surface)] px-2 py-1.5 text-[11px] text-[#6f7066] shadow-sm transition hover:-translate-y-0.5 hover:text-[#ac5145] active:scale-95"
+            className="flex-1 rounded-xl border border-pink-100 bg-[var(--surface)] px-2 py-2 text-[11px] text-[#6f7066] shadow-sm transition-[transform,background-color,border-color,box-shadow,color] hover:-translate-y-0.5 hover:text-[#ac5145] active:scale-95"
           >
             查看单指
           </button>

@@ -21,7 +21,7 @@ test("NailArtPicker keeps user-facing labels UTF-8 clean and fully Chinese", asy
   assert.match(source, /在图片上添加甲面/);
   assert.match(source, /提取所选纹理/);
   assert.match(source, /手部自动定位/);
-  assert.match(source, /优先自动定位五个甲面/);
+  assert.match(source, /识别图片中可见的甲面/);
 
   for (const englishLabel of [
     "Nail texture picker",

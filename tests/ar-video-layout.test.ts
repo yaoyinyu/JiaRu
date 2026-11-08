@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   calculateCoverVideoLayout,
   calculateViewportAspectRatio,
+  coverPointToVideo,
 } from "../src/lib/ar-video-layout.ts";
 
 test("same-ratio video scales to the frame without cropping", () => {
@@ -46,4 +47,15 @@ test("viewport ratio follows the actual webpage display area", () => {
 test("invalid dimensions are rejected", () => {
   assert.throws(() => calculateCoverVideoLayout(0, 1080, 1920, 1080), RangeError);
   assert.throws(() => calculateViewportAspectRatio(1080, Number.NaN), RangeError);
+});
+
+test("light samples return to the matching source pixel after cover crop and scaling", () => {
+  for (const [sw, sh, fw, fh] of [[1920,1080,390,800], [720,1280,1280,720], [640,480,800,600]]) {
+    const layout = calculateCoverVideoLayout(sw, sh, fw, fh);
+    for (const [x,y] of [[fw/2,fh/2], [0,0], [fw,fh]]) {
+      const source = coverPointToVideo(x, y, sw, sh, fw, fh);
+      assert.ok(Math.abs(source.x * layout.scale + layout.offsetX - x) < 1e-8);
+      assert.ok(Math.abs(source.y * layout.scale + layout.offsetY - y) < 1e-8);
+    }
+  }
 });

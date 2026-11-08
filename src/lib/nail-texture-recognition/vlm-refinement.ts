@@ -168,6 +168,7 @@ export interface NailMatteAvailability {
   enabled: boolean;
   ready: boolean;
   busy: boolean;
+  backend?: "candidate" | "wevis";
 }
 
 /**
@@ -186,6 +187,7 @@ export async function fetchNailMatteAvailability(
       enabled: body.enabled === true,
       ready: body.ready === true,
       busy: body.busy === true,
+      ...(body.backend === "candidate" || body.backend === "wevis" ? { backend: body.backend } : {}),
     };
   } catch {
     return { enabled: false, ready: false, busy: false };

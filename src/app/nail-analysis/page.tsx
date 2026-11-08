@@ -5,6 +5,8 @@ import { AppShell } from "@/components/AppShell";
 import { NailAnalysisForm } from "@/components/NailAnalysisForm";
 import { NailAnalysisResult } from "@/components/NailAnalysisResult";
 import { NailDetectModeSwitch } from "@/components/NailDetectModeSwitch";
+import NailMattePanel, { NAIL_MATTE_NOTICE_STORAGE_KEY, type NailMatteAvailability } from "@/components/NailMattePanel";
+import { fetchNailMatteAvailability, detectNailsWithMatte } from "@/lib/nail-texture-recognition/vlm-refinement";
 import { UploadButton } from "@/components/UploadButton";
 import {
   cloudDetectMessageFromReason,
@@ -71,6 +73,13 @@ export default function NailAnalysisPage() {
   const [capture, setCapture] = useState<Capture | null>(null);
   const [scenario, setScenario] = useState<UserScenario>(DEFAULT_SCENARIO);
   const abortRef = useRef<AbortController | null>(null);
+  const [photo, setPhoto] = useState<File | null>(null);
+  const [matteAvailability, setMatteAvailability] = useState<NailMatteAvailability | null>(null);
+  useEffect(() => {
+    let active = true;
+    void fetchNailMatteAvailability().then(value => { if (active) setMatteAvailability(value); });
+    return () => { active = false; };
+  }, []);
   // 识别模式（v1.2.216）：本地 | 云端，会话级默认本地；云端需一次性隐私确认。
   // 本页识别只由上传事件触发，runAnalysis/runCloudDetect 直接闭包读取最新
   // detectMode（事件回调每次渲染重建，无过期闭包问题），不经 effect 依赖。
@@ -164,9 +173,13 @@ export default function NailAnalysisPage() {
     [capture, scenario]
   );
 
-  async function runAnalysis(file: File) {
+  async function runAnalysis(file: File, forceMatte = false) {
+    abortRef.current?.abort();
+    const abort = new AbortController();
+    abortRef.current = abort;
     setError(null);
     const validation = await validateImageUpload(file);
+    if (abort.signal.aborted) return;
     if (!validation.ok) {
       setStatus(validation.message);
       setError(validation.message);
@@ -176,12 +189,12 @@ export default function NailAnalysisPage() {
     const cloudMode = detectMode.mode === "cloud";
     setStage("analyzing");
       setStatus(cloudMode ? "正在上传并请求云端识别…" : "正在识别甲面…");
-    const abort = new AbortController();
-    abortRef.current = abort;
+    setPhoto(file);
 
     let bitmap: ImageBitmap | null = null;
     try {
       bitmap = await createImageBitmap(file);
+      if (abort.signal.aborted) return;
 
       let candidates: NailTextureCandidate[];
       let backend: Capture["backend"] = "fallback";
@@ -220,6 +233,18 @@ export default function NailAnalysisPage() {
         backend = recognition.backend;
       }
 
+      if (!cloudMode && (forceMatte || backend === "fallback" || candidates.length === 0) && matteAvailability?.ready && !matteAvailability.busy) {
+        let accepted = false;
+        try { accepted = localStorage.getItem(NAIL_MATTE_NOTICE_STORAGE_KEY) === "1"; } catch { /* 使用浏览器识别 */ }
+        if (accepted || forceMatte) {
+          setStatus("正在使用本机模型识别甲面…");
+          const outcome = await detectNailsWithMatte({ image: bitmap, imageWidth: bitmap.width, imageHeight: bitmap.height, signal: abort.signal });
+          if (abort.signal.aborted) return;
+          if (outcome.status === "ok" && outcome.candidates.length > 0) { candidates = outcome.candidates; backend = "fallback"; }
+          else setError(outcome.status === "ok" ? "本机模型未返回甲面，请更换照片或使用现有分析。" : outcome.message);
+        }
+      }
+      if (abort.signal.aborted) return;
       const originalContext = readCanvas(bitmap.width, bitmap.height);
       originalContext.drawImage(bitmap, 0, 0, bitmap.width, bitmap.height);
       const originalPixels = originalContext.getImageData(0, 0, bitmap.width, bitmap.height);
@@ -244,6 +269,7 @@ export default function NailAnalysisPage() {
             : "已完成分析，可调整下方问卷重新计算推荐。"
       );
     } catch (cause) {
+      if (abort.signal.aborted) return;
       const message = cause instanceof Error ? cause.message : "分析失败，请重试。";
       setStage("idle");
       setStatus(message === "canvas_2d_unavailable" ? "当前浏览器不支持 2D 画布，无法分析。" : "识别失败，请重新选择照片。");
@@ -256,6 +282,8 @@ export default function NailAnalysisPage() {
   function reset() {
     abortRef.current?.abort();
     setCapture(null);
+    setPhoto(null);
+    setError(null);
     setPreviewUrl(null);
     setStage("idle");
     setStatus(IDLE_STATUS);
@@ -265,12 +293,19 @@ export default function NailAnalysisPage() {
     <AppShell
       shiftUp
       eyebrow="Personalization Studio"
-      title="根据你的手型与肤色，给出可解释的美甲建议"
-      description="照片默认本地分析；仅显式切换云端识别时上传，且只用于本次定位。结果为启发式建议，非医疗结论。"
+      title="读懂你的手，也读懂你的风格"
+      description="照片默认在浏览器分析；确认本机模型或云端识别后，照片发送到对应服务用于本次定位。结果为启发式建议，非医疗结论。"
     >
       <div className="grid gap-5 md:grid-cols-[1.05fr_.95fr]">
-        <section className="rounded-[28px] bg-[var(--surface)] p-3 shadow-[var(--neu-out-md)]  sm:p-5">
-          <div className="pb-2">
+        <section className="rounded-[28px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)] sm:p-5">
+          {photo && detectMode.mode === "local" && <NailMattePanel
+            availability={matteAvailability} onAvailabilityChange={setMatteAvailability} candidateCount={0}
+            status={stage === "analyzing" ? "running" : "idle"} disabled={stage === "analyzing"}
+            onDetect={() => { if (photo) void runAnalysis(photo, true); }}
+            onRefine={() => { if (photo) void runAnalysis(photo, true); }}
+            onCancel={() => { abortRef.current?.abort(); setStage(capture ? "ready" : "idle"); setStatus("已取消处理，保留当前结果。"); }}
+          />}
+          <div className="pb-3">
             <NailDetectModeSwitch
               mode={detectMode.mode}
               onModeChange={handleDetectModeChange}
@@ -302,7 +337,7 @@ export default function NailAnalysisPage() {
               <button
                 type="button"
                 onClick={reset}
-                className="rounded-full border border-pink-100 bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[#ac5145] shadow-sm"
+                className="inline-flex min-h-11 items-center justify-center rounded-full border border-pink-100 bg-[var(--surface)] px-4 py-2 text-xs font-medium text-[#ac5145] shadow-sm"
               >
                 重新上传
               </button>
@@ -310,17 +345,17 @@ export default function NailAnalysisPage() {
           ) : null}
         </section>
 
-        <section className="space-y-4 rounded-[28px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)]  sm:p-5">
+        <section className="space-y-4 rounded-[28px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)] sm:p-5">
           <div>
-            <h2 className="text-sm font-semibold text-[#292a27]">场景问卷</h2>
-            <p className="mt-1 text-xs text-[#67685f]">未填写的项按「未知」处理，不会被当作否定值。</p>
+            <h2 className="text-base font-semibold text-[#292a27]">场景问卷</h2>
+            <p className="mt-1.5 text-xs text-[#67685f]">未填写的项按「未知」处理，不会被当作否定值。</p>
           </div>
           <NailAnalysisForm value={scenario} onChange={setScenario} disabled={stage === "analyzing"} />
         </section>
       </div>
 
       {analysis ? (
-        <section className="mt-5 rounded-[28px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)]  sm:p-5">
+        <section className="mt-5 rounded-[28px] bg-[var(--surface)] p-4 shadow-[var(--neu-out-md)] sm:p-5">
           <NailAnalysisResult result={analysis} />
         </section>
       ) : stage === "analyzing" ? (

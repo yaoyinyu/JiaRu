@@ -60,3 +60,12 @@ export function calculateViewportAspectRatio(width: number, height: number): num
   requirePositiveDimension(height, "height");
   return width / height;
 }
+
+/** 从叠加画布坐标返回未镜像的视频像素，供同位置环境光采样。 */
+export function coverPointToVideo(
+  x: number, y: number, sourceWidth: number, sourceHeight: number,
+  frameWidth: number, frameHeight: number,
+): { x: number; y: number } {
+  const layout = calculateCoverVideoLayout(sourceWidth, sourceHeight, frameWidth, frameHeight);
+  return { x: (x - layout.offsetX) / layout.scale, y: (y - layout.offsetY) / layout.scale };
+}

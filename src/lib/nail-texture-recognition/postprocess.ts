@@ -44,7 +44,7 @@ interface RawDetectionCandidate {
   coefficients: number[];
 }
 
-function scoreToConfidence(score: number): NailTextureCandidateConfidence {
+export function scoreToConfidence(score: number): NailTextureCandidateConfidence {
   if (score >= 0.75) return "high";
   if (score >= 0.5) return "medium";
   return "low";
@@ -54,7 +54,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
-function flattenDetectionRows(tensor: ModelTensorLike): number[][] {
+export function flattenDetectionRows(tensor: ModelTensorLike): number[][] {
   const values = Array.from(tensor.data, (value) => Number(value) || 0);
   const dims = tensor.dims ? Array.from(tensor.dims) : [];
 
@@ -117,7 +117,7 @@ function isPrototypeTensor(tensor: ModelTensorLike): boolean {
   return dims.length === 4 || (dims.length === 3 && dims[0] > 1);
 }
 
-function selectDetectionTensor(outputs: Record<string, ModelTensorLike>): ModelTensorLike | null {
+export function selectDetectionTensor(outputs: Record<string, ModelTensorLike>): ModelTensorLike | null {
   const tensors = Object.values(outputs);
   if (tensors.length === 0) return null;
   return (
@@ -128,7 +128,7 @@ function selectDetectionTensor(outputs: Record<string, ModelTensorLike>): ModelT
   );
 }
 
-function selectPrototypeTensor(
+export function selectPrototypeTensor(
   outputs: Record<string, ModelTensorLike>,
   detectionTensor: ModelTensorLike | null
 ): ModelTensorLike | null {
@@ -139,7 +139,7 @@ function selectPrototypeTensor(
   return tensors[0] ?? null;
 }
 
-function decodePrototypeShape(
+export function decodePrototypeShape(
   tensor: ModelTensorLike
 ): { channels: number; height: number; width: number } | null {
   const dims = tensor.dims ? Array.from(tensor.dims) : [];
@@ -254,7 +254,7 @@ function rawCandidateIou(left: RawDetectionCandidate, right: RawDetectionCandida
   return intersection / (leftArea + rightArea - intersection);
 }
 
-function suppressRawCandidates(
+export function suppressRawCandidates(
   candidates: RawDetectionCandidate[],
   overlapThreshold: number,
   limit: number

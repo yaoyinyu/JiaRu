@@ -127,6 +127,80 @@ test("model manifest validator rejects unsafe and incompatible manifests", () =>
   assert.ok(protocolErrors.includes("manifest_score_threshold_must_be_between_zero_and_one"));
 });
 
+test("model manifest validator accepts minimal radial-refine stage2 and rejects invalid radial fields", () => {
+  const base = {
+    version: "nail-texture-seg-radial",
+    inputSize: 640,
+    task: "segment" as const,
+    backendPreferences: ["webgpu", "wasm"] as const,
+    modelFile: "nail-texture-seg-radial.onnx",
+    labels: ["nail_texture"],
+  };
+
+  // 合法最小 radial-refine：只需 stage2.modelFile + mode，rescore 专用的
+  // inputSize/cropContextRatio/promotionMarginThreshold 在该模式下改为可选。
+  assert.deepEqual(
+    validateNailTextureModelManifest({
+      ...base,
+      stage2: { modelFile: "nail-texture-radial.onnx", mode: "radial-refine" },
+    }),
+    []
+  );
+
+  // 可选字段提供时也必须满足各自约束。
+  assert.deepEqual(
+    validateNailTextureModelManifest({
+      ...base,
+      stage2: {
+        modelFile: "nail-texture-radial.onnx",
+        mode: "radial-refine",
+        angularSamples: 2048,
+        presenceThreshold: 0.5,
+        nmsIoUThreshold: 0.6,
+      },
+    }),
+    []
+  );
+
+  // mode 非法值报 manifest_stage2_mode_invalid（回退到 rescore 分支的其余错误同时保留）。
+  const invalidModeErrors = validateNailTextureModelManifest({
+    ...base,
+    stage2: { modelFile: "nail-texture-radial.onnx", mode: "radial_refine" },
+  });
+  assert.ok(invalidModeErrors.includes("manifest_stage2_mode_invalid"));
+
+  // angularSamples=15 低于 16 下限。
+  assert.deepEqual(
+    validateNailTextureModelManifest({
+      ...base,
+      stage2: { modelFile: "nail-texture-radial.onnx", mode: "radial-refine", angularSamples: 15 },
+    }),
+    ["manifest_stage2_angular_samples_must_be_integer_at_least_16"]
+  );
+
+  // nmsIoUThreshold 必须在 (0,1) 开区间，1 被拒绝。
+  assert.deepEqual(
+    validateNailTextureModelManifest({
+      ...base,
+      stage2: { modelFile: "nail-texture-radial.onnx", mode: "radial-refine", nmsIoUThreshold: 1 },
+    }),
+    ["manifest_stage2_nms_iou_threshold_must_be_between_zero_and_one"]
+  );
+
+  // 回归保护：mode 缺省时仍按 rescore 语义强制 inputSize 为正整数。
+  assert.deepEqual(
+    validateNailTextureModelManifest({
+      ...base,
+      stage2: {
+        modelFile: "nail-texture-rescore.onnx",
+        cropContextRatio: 0.1,
+        promotionMarginThreshold: 0,
+      },
+    }),
+    ["manifest_stage2_input_size_must_be_positive_integer"]
+  );
+});
+
 test("recognizeNailTextures falls back when manifest is invalid", async () => {
   resetNailTextureModelRuntimeCache();
 

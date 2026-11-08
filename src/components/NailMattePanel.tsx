@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { fetchNailMatteAvailability } from "@/lib/nail-texture-recognition/vlm-refinement";
 
 /**
  * 本机精细抠图入口（展示组件，不发请求）。
@@ -16,6 +17,7 @@ export interface NailMatteAvailability {
   enabled: boolean;
   ready: boolean;
   busy: boolean;
+  backend?: "candidate" | "wevis";
 }
 
 export interface NailMattePanelProps {
@@ -30,6 +32,7 @@ export interface NailMattePanelProps {
   onRefine: () => void;
   onDetect: () => void;
   onCancel: () => void;
+  onAvailabilityChange?: (availability: NailMatteAvailability) => void;
 }
 
 /** 隐私确认本地偏好键；自动流程据此判断「已记住确认」后才可自动发送本机抠图请求。 */
@@ -48,8 +51,10 @@ export default function NailMattePanel({
   onRefine,
   onDetect,
   onCancel,
+  onAvailabilityChange,
 }: NailMattePanelProps) {
-  const [expanded, setExpanded] = useState(false);
+  const [checking, setChecking] = useState(false);
+  const [expanded, setExpanded] = useState(true);
   const [noticeAccepted, setNoticeAccepted] = useState<boolean | null>(null);
 
   // 首次展开时才读取本地偏好：避免在 effect 中同步 setState 造成级联渲染。
@@ -79,7 +84,15 @@ export default function NailMattePanel({
   const running = status === "running";
   const needsNotice = noticeAccepted === false;
   const unavailable = !availability.ready || availability.busy;
-  const actionDisabled = disabled || running || unavailable || needsNotice;
+  const actionDisabled = disabled || running || unavailable;
+  const recognize = availability.backend === "candidate" || candidateCount === 0;
+  const runAction = () => { if (!actionDisabled) (recognize ? onDetect : onRefine)(); };
+  const requestAction = () => {
+    let accepted = noticeAccepted === true;
+    try { accepted ||= window.localStorage.getItem(NOTICE_STORAGE_KEY) === "1"; } catch { /* 会话内确认仍可使用 */ }
+    if (accepted) { setNoticeAccepted(true); runAction(); }
+    else setNoticeAccepted(false);
+  };
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-[var(--surface)] px-3 py-3">
@@ -98,7 +111,7 @@ export default function NailMattePanel({
       {expanded && (
         <div className="mt-3 space-y-3">
           <p className="text-xs leading-5 text-slate-600">
-            在本机生成更精细的软边蒙版，只替换甲面轮廓，不改变候选与指位；结果仍需复核。
+            {availability.backend === "candidate" ? "使用本机模型识别完整甲面，核对轮廓和指位后应用。重新识别会替换当前甲面区域。" : "在本机精细处理甲面轮廓，保留当前指位；结果请复核。"}
           </p>
 
           {needsNotice && (
@@ -107,15 +120,16 @@ export default function NailMattePanel({
               <div className="mt-2 flex gap-2">
                 <button
                   type="button"
-                  onClick={acceptNotice}
-                  className="rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-600"
+                  disabled={actionDisabled}
+                  onClick={() => { acceptNotice(); runAction(); }}
+                  className="min-h-11 rounded-full bg-emerald-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-600"
                 >
-                  继续
+                  同意并识别
                 </button>
                 <button
                   type="button"
-                  onClick={() => setExpanded(false)}
-                  className="rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
+                  onClick={() => setNoticeAccepted(null)}
+                  className="min-h-11 rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
                 >
                   取消
                 </button>
@@ -135,6 +149,14 @@ export default function NailMattePanel({
             </div>
           )}
 
+          {unavailable && onAvailabilityChange && (
+            <button type="button" disabled={checking || disabled} className="min-h-11 rounded-full border border-slate-200 px-3 text-sm"
+              onClick={async () => {
+                setChecking(true);
+                try { const next = await fetchNailMatteAvailability(); onAvailabilityChange({ ...next, enabled: true }); }
+                finally { setChecking(false); }
+              }}>{checking ? "正在检查…" : "重新检查服务"}</button>
+          )}
           {running ? (
             <div className="flex items-center justify-between gap-2">
               <span role="status" className="text-xs text-slate-600">
@@ -144,7 +166,7 @@ export default function NailMattePanel({
               <button
                 type="button"
                 onClick={onCancel}
-                className="rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
+                className="min-h-11 rounded-full border border-slate-200 px-3 py-1.5 text-xs text-slate-700 hover:bg-slate-50"
               >
                 取消
               </button>
@@ -152,20 +174,18 @@ export default function NailMattePanel({
           ) : (
             <button
               type="button"
-              onClick={candidateCount > 0 ? onRefine : onDetect}
+              onClick={requestAction}
               disabled={actionDisabled}
-              className="w-full rounded-full bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="min-h-11 w-full rounded-full bg-slate-900 px-3 py-2 text-sm font-medium text-white hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {candidateCount > 0
-                ? `精细处理 ${candidateCount} 个甲面`
-                : "兜底识别甲面（需逐指确认）"}
+              {recognize ? (status === "done" ? "重新识别甲面" : "识别甲面") : `精细处理 ${candidateCount} 个甲面`}
             </button>
           )}
 
           {status === "done" && message && (
             <div role="status" className="rounded-xl bg-slate-100 px-3 py-2 text-xs text-slate-700">
               {message}
-              {matchedCount != null && candidateCount > 0
+              {!recognize && matchedCount != null && candidateCount > 0
                 ? `（已精细处理 ${matchedCount}/${candidateCount} 个甲面）`
                 : ""}
             </div>

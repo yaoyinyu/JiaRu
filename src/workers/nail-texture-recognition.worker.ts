@@ -1,8 +1,8 @@
-import { recognizeNailTextures } from "@/lib/nail-texture-recognition";
+import { recognizeNailTextures } from "@/lib/nail-texture-recognition/recognize";
 import type {
   RecognizeNailTextureRequest,
   RecognizeNailTextureResponse,
-} from "@/lib/nail-texture-recognition";
+} from "@/lib/nail-texture-recognition/types";
 
 async function imageBitmapToImageData(imageBitmap: ImageBitmap): Promise<ImageData> {
   const canvas = new OffscreenCanvas(imageBitmap.width, imageBitmap.height);
