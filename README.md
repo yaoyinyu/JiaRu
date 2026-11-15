@@ -1,559 +1,254 @@
 # 甲如 JiaRu — 让每一次抬手都遇见未来
 
-**Web 端美甲试色应用**，无需下载安装，手机/电脑浏览器直接访问。上传照片涂色、文字描述 AI 生成、或打开摄像头 AR 实时试戴——在指尖预览美甲效果。
+**Web 端美甲试色应用**：浏览器直接打开，上传照片试色、文字描述生成款式、或开启摄像头实时试戴。照片与摄像头帧默认留在本地处理。
 
-[![Next.js](https://img.shields.io/badge/Next.js-16.3.6-black?logo=next.js)](https://nextjs.org)
-[![React](https://img.shields.io/badge/React-19.2.4-61DAFB?logo=react)](https://react.dev)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss)](https://tailwindcss.com)
+[![Next.js](https://img.shields.io/badge/Next.js-16.3.6-black?logo=next.js)](https://nextjs.org) [![React](https://img.shields.io/badge/React-19.2.4-61DAFB?logo=react)](https://react.dev) [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript)](https://www.typescriptlang.org) [![Tailwind](https://img.shields.io/badge/Tailwind-4.x-06B6D4?logo=tailwindcss)](https://tailwindcss.com) ![whitepaper](https://img.shields.io/badge/whitepaper-v1.2.319-blue) ![business-model](https://img.shields.io/badge/business%20model-deployed-2ea043) ![completion](https://img.shields.io/badge/completion-PRODUCT%20HOLD-critical)
+
+<p align="center">
+  <img src="public/nail-gallery/hero-hand.jpg" width="30%" alt="手部真实素材">
+  <img src="public/nail-gallery/ai-look-1.jpg" width="30%" alt="灵感款一">
+  <img src="public/nail-gallery/ai-look-3.jpg" width="30%" alt="灵感款二">
+</p>
+<p align="center"><sub>仓库内真实素材：手部参考图 · Seedream 灵感图（<code>public/nail-gallery/</code>）</sub></p>
+
+> 本页按技术白皮书 **v1.2.319（2026-11-15）** 的当前口径维护，只登记状态与接口；逐版本实验过程、指标与历史失败见 [`dev-log/`](dev-log/) 和 [`docs/archive/`](docs/archive/)。
 
 ---
 
-## 功能概览
+## 一眼看懂
 
-| 模块 | 入口 | 状态 | 说明 |
+```mermaid
+flowchart LR
+  subgraph 入口
+    P["上传照片"]
+    W["文字描述"]
+    C["摄像头"]
+  end
+  subgraph 页面
+    E["/editor 试色"]
+    G["/ai-generate 生图"]
+    A["/ar-tryon 试戴"]
+  end
+  subgraph 处理
+    R["浏览器 ONNX Worker<br/>Stage A + Stage B → 像素级 mask"]
+    H["MediaPipe Hands<br/>21 关键点几何"]
+    X["Canvas 贴合 / 纹理提取 / 五指分配"]
+    S["第三方生图 API"]
+  end
+  P --> E
+  P --> A
+  W --> G
+  C --> A
+  E --> R
+  A --> R
+  A --> H
+  R --> X
+  H --> X
+  G --> S
+  X --> O["本地 PNG / 实时预览"]
+  S --> O
+```
+
+**状态图例**：✅ 已完成或已发布　🚧 进行中　📌 待验证　⬜ 占位　⛔ 发布阻塞
+
+---
+
+## 现在做到哪一步
+
+| 维度 | 当前口径 |
+| --- | --- |
+| 浏览器业务模型 | ✅ **已发布**：`nail-texture-seg-geometry64-browser-aa4-v2`，manifest `deploymentStatus: "deployed"`，经 register/switch 登记 |
+| 推理链 | Stage A 512 letterbox 候选 → Stage B radial-refine（2048 角向 + 4×4 边缘覆盖率）→ 像素 mask → 五指分配 → 纹理提取；发布对拍绑定 **WASM** 单后端 |
+| 识别入口 | 参考图、编辑器、个性化分析共享浏览器 ONNX 优先链路；本机 Python/GPU 服务作降级与显式重试，降级时 UI 明确提示人工确认 |
+| 正式质量现值 | 训练域第88次终评报告原 2px **严格联合 239 / 634**（门 ≥539 / 634）；已完成结项的最高记录为第87次 222 / 634，88 次正式结项待恢复后核验 |
+| 商用完成门 | ⛔ **PRODUCT HOLD**，completion audit 返回 `ok=true / decision=complete` 前保持 |
+| 当前唯一活动 | **PAUSED**：第88次 128 轮训练、两遍重放与 636 候选终评已完成，按用户要求暂停；恢复后只读核验既有产物并完成 87/81 全 634 结项 |
+| 工程门 | 全量测试 1530 / 1530（2026-11-05）、`test:ci` 13 份独立契约套件、双 tsconfig typecheck / lint / build 通过 |
+
+```mermaid
+flowchart LR
+  A["训练域<br/>100 图 / 634 甲"] -->|当前 239 / 634| B["严格联合 ≥539 / 634"]
+  B --> C["新来源 val≥30<br/>正负留出≥100<br/>三变体零误检"]
+  C --> D["四类真机<br/>Beta ≥100 张"]
+  D --> E["双批准权重回滚"]
+  E --> F["decision=complete<br/>解除 HOLD"]
+  style A fill:#4a3413,stroke:#d29922,color:#ffffff
+  style F fill:#173a26,stroke:#2ea043,color:#ffffff
+  style B fill:#3a1d21,stroke:#f85149,color:#ffffff
+```
+
+`▓▓▓▓▓▓▓▓▓▓▓▓░░░░░░░░░░░░░░░░` 严格联合 239 / 539（分母 634）。业务发布已完成，商用完成门仍待闭合。
+
+---
+
+## 功能一览
+
+| 模块 | 入口 | 状态 | 一句话 |
 | --- | --- | :---: | --- |
-| 首页 | `/` | ✅ | 品牌展示 + 任务化双 CTA（上传照片试色 → `/editor`／开启摄像头实时试戴 → `/ar-tryon`）+ 风格卡 + 图库明链；统一导航为「首页／灵感／试戴／创作／我的」（桌面顶部 5 项、移动底部 5 项），个性化分析由首页风格卡直达 |
-| 上传试色编辑器 | `/editor` | ✅ | 上传照片 → 甲面辅助定位（可手动加框） → 纹理套装点选贴合（卡片堆叠选择器，hover 扇形展开） → 对象面板逐框调整 → 本地保存；`?gallery=`／`?work=` 灵感款识别出甲面框后自动贴合一次（可撤销、可逐指调整），`?preset=` 仅预选；支持键盘操作、会话草稿恢复与导出前未保存守卫 |
-| AI 美甲生图 | `/ai-generate` | ✅ | 文字描述（+ 可选手部参考图图生图）+ 10 种风格提示词库（各 50 段） → 生成引擎可选（Agnes Image 2.5 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite）；请求快照隔离、生成中保留旧图并可「上一版」切回、取消为独立终态、失败分类提示；用户已完成真实功能验收并再次确认 |
-| 灵感图库 | `/gallery` | ✅ | 6 张 Seedream 灵感图；点击卡片图或标题先弹「试戴方式」选择弹层（静态试色 → `/editor`／AR 实时预览 → `/ar-tryon`），底部三直达出口保留；我的收录区具备 checking/empty/load_error/unavailable 五态、单条删除 5 秒撤销与清空确认，旧收录按 id 幂等迁移为本地作品（WorkItem，无服务端后台） |
-| 个性化分析 | `/nail-analysis` | 📌 | 上传手背照片 → 本地甲面候选识别 → 手型/甲床比例、肤色（ITA°/底调）、指甲健康启发式 + 场景问卷 → 规则引擎推荐甲型/长度/色系并附解释 → 一键跳转 `/editor?preset=` 预涂；纯规则启发式，不训练模型，工程门通过、真实照片待验收 |
-| AR 纯色试戴 | `/ar-tryon` | 🚧 | 摄像头实时手部追踪 + 五指贴色（切页/切标签/启动失败一律停流释放摄像头） |
-| AR 纹理试戴 | `/ar-tryon` | 📌 | 三步流程（选款 → 上传/识别 → 试戴）：上传参考图后自动完成识别/精细抠图/提取/参数分析，按复核决策直接上屏或进入复核态（甲型轮廓/主色/图案/光泽自动匹配渲染）；诊断收进「技术详情」，摄像头可主动关闭并有连续失败覆盖层；工程链路完整，正式识别模型发布前为辅助演示口径 |
-| 独立 AR 演示 | `/ar-demo` | 📌 | 桥接外部 Python demo 的 iframe 占位 |
-| 登录/账号 | `/login`、`/account` | ✅ | 手机号+验证码登录即注册、微信 OAuth 登录；账号页管理档案、登录方式、改进计划偏好（初始版已落地，商户/云同步后续规划） |
-| 隐私政策 | `/privacy` | ✅ | 完整静态说明页：核心原则（本地优先/数据由你掌控/不追踪）+ 用户改进计划开关（默认开启，可关闭）+ 各功能数据流向（试色/AI/AR/识别）+ 第三方服务与用户权利；法律合规审核仍待外部 |
+| 首页与统一导航 | `/` | ✅ | 桌面顶部 5 项、移动底部 5 项；风格卡直达个性化分析 |
+| 上传试色编辑器 | `/editor` | 🚧 | 甲面框 + 纹理套装点选贴合、对象面板、键盘操作、会话草稿、原尺寸本地导出；识别提供「本地 \| 云端」模式 |
+| AI 美甲生图 | `/ai-generate` | ✅ | Agnes Image 2.5 Flash 默认 / 火山方舟 Seedream 5.0 pro·lite 可选，10 风格 × 50 段提示词、参考图图生图、配额与预算熔断（Seedream 浏览器呈现待确认） |
+| 灵感图库 | `/gallery` | ✅ | 6 张本地灵感图、试戴方式弹层、本地收录五态与删除撤销 |
+| AR 实时试戴 | `/ar-tryon` | 📌 | 五指贴色与纹理试戴、甲根锚定、长宽比保真、逐指翻转与校准；真实相机贴合待多设备真机 |
+| 纹理自动识别 | `/editor`、`/ar-tryon`、`/nail-analysis` | ✅ | 浏览器业务模型已发布，全站识别入口统一 |
+| 个性化分析 | `/nail-analysis` | 📌 | 纯本地规则引擎（ITA° / 手型 / 甲型 / 色系）+ 可解释推荐；真实照片与真机验收待补 |
+| 账号与隐私 | `/login`、`/account`、`/privacy` | 🚧 | 手机号 / 微信登录即注册、JWT + SQLite、限流与 CSRF、改进计划开关；商户与云同步未开始 |
+| 独立 AR 演示 | `/ar-demo` | ⬜ | iframe 桥接访问者本机 Python demo，公网演示不可用 |
+| 消费者端新版设计提案 | 独立预览 `127.0.0.1:4318` | 📌 | 手机 / 平板优先的设计评审原型，真实模型与云同步未接入，详见[设计说明](docs/consumer-redesign-design-brief.md) |
 
-> ✅ 已完成 　 📌 待验证 　 🚧 进行中 　 ⛔ 发布阻塞 　 ❌ 未开始
+### 编辑器里的 5 套真实纹理
 
-### 正式美甲识别模型状态
+| 黑耀碎闪 | 奶茶金饰 | 玫红爆闪珍珠 | 蓝粉珍珠混搭 | 裸粉白星法式 |
+| :---: | :---: | :---: | :---: | :---: |
+| <img src="public/nail-textures/midnight-glitter/finger-1.png" width="88"> | <img src="public/nail-textures/milk-tea-gold-charm/finger-1.png" width="88"> | <img src="public/nail-textures/rose-glitter-pearl/finger-1.png" width="88"> | <img src="public/nail-textures/navy-pink-pearl/finger-1.png" width="88"> | <img src="public/nail-textures/nude-pink-french/finger-1.png" width="88"> |
 
-> **浏览器业务模型已发布，商用完成门保持 HOLD。** 自白皮书 v1.2.256 起，默认生产 manifest 为 `nail-texture-seg-geometry64-browser-aa4-v2`（`deploymentStatus: "deployed"`，Stage A 512 letterbox + Stage B radial-refine，发布对拍绑定 WASM EP）；ONNX 权重按仓库约定留在本地并由 `.gitignore` 隔离。浏览器 Worker、候选排序、五指分配与 mask 纹理提取管线已接入该模型；规则 fallback 属于降级辅助，UI 需明确告知降级。商用完成门（严格联合 ≥539/634、独立 val/留出、真机/Beta、双批准回滚）保持 PRODUCT HOLD，当前路线见唯一 Goal 与白皮书 §3/§9.4/§11.1。
-
-> **当前最高优先级：** 全力完成高质量正式美甲识别模型并接入发布链路。AI美甲生图已通过用户验收，除阻断性故障外不再占用当前研发主线。
-
-- 已拒绝的 candidate5 不会部署或复用；它虽然通过 val30 和冻结 test100 正样本门，但在训练后全新100张困难负样本三变体审计中分别误检3/4/3张。
-- candidate6 当前权威训练真值为120张/636个完整甲面mask；候选训练数据已物化为train280（120正样本+160空标签困难负样本）、val30/144 mask、test0，并通过独立输入深审。物化报告SHA-256为`3725ecf9…0209`，输入深审SHA-256为`e7dd1028…83cb`，数据文件树SHA-256为`acafc332…41d7`。
-- candidate6 已按精确授权完成GPU训练：640、100 epochs上限、patience 20、自动batch、CUDA 0、8 workers，实际第71轮早停、最佳轮次51；最佳权重SHA-256为`5b169328…f800`。部署512的规范val30已校准候选阈值0.50，冻结test100也已完成评估并因下述逐实例质量门失败而正式否决。
-- candidate6 已被冻结test100逐实例完整识别门否决：虽然部署512的full/core/stress mask mAP50为0.9621/0.9733/0.9286，但仅匹配491/554个完整甲面，漏63枚，41/100图存在漏甲，并有18个重复、30个额外候选和29个无效预测mask；仅38/100图可直接完整提取。该权重不得导出、登记或部署。
-- candidate7 已完成200张/1123 mask正样本+160张困难负样本训练、A/B架构val30选择及一次性冻结test100。被选中的A权重SHA-256为`567ac8b9…e355`，总体mask mAP50为0.9517，但逐实例门仅匹配440/554、完整mask397、57/100图漏甲、29/100图可直接提取，因此正式否决且未导出/登记/部署。
-- 项目范围图像与本机计算资源已有持续商业使用授权，不再逐批等待清单、训练启动或freeze确认；train/val/test/holdout角色隔离、原分辨率完整甲面、独立困难负样本三变体零误检等质量门不变。
-- candidate8全新隔离来源31张已收敛为10张/87 mask训练真值、19张质量排除、2张隔离；与candidate7基线合并为210张/1210 mask正样本，加入160困难负样本后规范train370/val30/test0输入审计PASS。
-- candidate8 nano已完成训练并在val30锁定阈值0.55；冻结test100逐实例召回提升至0.870、漏甲降至72，但完整mask与漏甲图片率仍未过门。高容量分支仅用val30比较后淘汰。当前继续补充全新来源完整甲面真值，两个分支均未导出或部署。
-- candidate9已从既有真实素材中盘出75张/22来源组/预计552甲面的全新未审增量；当时先做源图质量门和完整mask终审，审核前全部禁止训练。
-- candidate18—21：candidate18直接微调冻结test100识别门失败；candidate19/20常规微调在val30否决；candidate21（alpha0.60权重插值学生）为当时最优识别基线，冻结test100实例召回0.93682、完整mask 0.84116、缺图率0.20、可提取53/100，但完整率/缺图率/唯一性门仍未过，产品继续HOLD。
-- candidate22/23：直接学生训练与预注册插值对照，均未优于candidate21而在val30否决，未运行冻结test100、未导出/登记/部署。
-- candidate24/25均已在val30否决：candidate24为128匹配/16漏检/27误检，candidate25最佳点仅与candidate21的128/16/19打平；candidate27三种候选复核器也未能在保持召回时降低误检，三者均未运行冻结test100、未导出或部署。随后改为candidate28“完整美甲识别优先”：新困难负样本计划暂停在70/160，训练时只使用既有批准集合的有限来源平衡子集；`01138…_7`与超长透明甲`01130…_10`两张五甲人工polygon使补强索引达到62张/429 mask。发布侧独立困难负样本三变体零误检门不变。
-- candidate28已物化为274张正样本/1652 mask并完成v5全分辨率边界训练，但部署512的val30在阈值0.50仅122匹配/22漏检/12误检，未保持candidate21的128匹配而在val阶段否决。candidate21与candidate28按预注册alpha插值后，alpha0.15在阈值0.45取得128匹配/16漏检/16误检并锁为candidate29；其在已消费test100受保护回归上为519/554匹配、467完整mask，但完整mask比例0.84296、缺甲图率0.20、加权伪实例率0.11372仍未过正式门，不得导出或部署。
-- candidate30改为从已审计train角色生成确定性的“全部甲面联合近景”增强（polygon零丢失零裁断、20%上下文、裁剪面积不高于原图85%），从candidate29 alpha0.15初始化，继续以来源隔离val30为唯一选择证据：须保持至少128匹配、至多16漏检并把误检严格降到16以下；该分支随后随路线换挡关闭，未再训练。
-- **candidate57 的冻结 test100 历史验收仍为 TEST HOLD**：锁定运行时下实例召回率`0.95848375`与完整 mask 率`0.86462094`通过，但漏检图片率`0.13`与加权杂散率`0.04693141`仍失败，处于 TEST HOLD；未导出生产 ONNX，产品继续 HOLD。
-- **预注册开发循环 009—011（均已按合同结项，不再作为当前主线）**（全程不消费旧 val30/test100 或任何发布留出）：循环009（新增65 mask真值）、循环010（冻结教师多信号蒸馏）、循环011（来源组均衡回放采样器）三个单变量均按预注册合同关闭、不晋升。循环011 在杂散率`0.1382716`与直接可提取率`0.43939394`上创开发循环历史最佳，但漏甲图`22`未达`21`、召回未达`0.90864198`，allRequired 失败。
-- **开发评估口径已重基线为98图只读集**（58张/354-mask 开发正图真值 v2 + 原40张困难负图，文件树 SHA-256 `c4a12153…e1bd`）。循环011 锁定权重在该口径完成唯一一次复评：召回`0.94067797`单项通过，完整率`0.83898305`、漏甲图率`0.22413793`、杂散率`0.0960452`失败；错误剖面显示正图承担`94.117647%`的加权杂散质量，12张杂散错误图中8张同时漏甲。
-- **循环012 已失败关闭，循环013 原型已被零推理可达性判决证伪**：循环012 唯一训练在clean98上退化为25漏甲、18张漏甲图、召回`0.92937853`、杂散率`0.12429379`，五项相对信号全部失败。循环013“逐甲高分辨率ROI mask替换”在动手训练前先行判决：21枚漏甲中仅5枚有可附着候选、16枚按构造无候选，即便替换100%成功且mask完美，双轴门仍不可达（`unreachable_by_mask_replacement_stage2`）——**瓶颈是stage1候选供给，不是替换成功率**；不再把训练/推理预算花在替换与后处理方向。
-- **循环014/015 已按合同结项**：循环014 多裁片评估在零训练实测中把杂散率从`0.0960452`恶化到`0.20762712`（假阳性10→28），固定网格关闭；循环015 终局冻结 795 张真实素材（五批零交叠）并入训练 827 图，终态 train 1133 图/6350 mask，batch5 终局长训早停于 epoch 9（best@epoch5），clean98 复评 instanceRecall `0.92372881`、直接可提取率 `0.48275862` 为历史最高，但五项信号门未全过——**预标注真值供给路线终局证伪，真实素材入库不再作为训练变量**。
-- **当前主线为 WeVisOne-VL 辅助的真实素材增补批次（`cycle016-wevis-real-material-v1/batch002—017`，现行为 `batch017/closeout.json`）**：新增精标目标 100 图，现 **53/100 图、345 完整甲面**已精标并全部投入开发训练；本路线 1,223 张购买原图完整实审 204 张——144 张源质量排除、7 张待定、53 张批准，其余 1,019 张未审不等于历史未用。本批 12 源排除 6 源，6 源 42 甲候选经整图逐甲返修后 4 完整源 29 甲通过并训练，另 2 源 3 处边界未决整源禁止训练。稳定身份、canonicalTruths 查重、保护角色与父血缘逐批复核通过；53 源同属保守购买组 `purchased-real-material:1`，仅 `development_train`，不作正式来源独立证明。
-- **最新 Stage A（batch017，76 图）**：76 整图/494 完整 mask 固定 CPU 8 轮 304 优化步、608 微批、每图 8 次共 608 曝光（原基线 5e-5、512/mask_ratio1，含 23 既有源 149 甲与新增 53 源 345 甲），权重 `c382a7fb…00de`；批一曾因残留 cache 在权重加载前 0 步失败、批二 CPU 13 步后进程异常退出（原生根因未证实），清理后显式转接未消费预算另版完成，旧失败全部保留、不续训。该 76 图候选尚未配对评估，不能沿用此前 72 图配对（匹配 433→454/465、漏匹配图 23→8/72）或新质量结论。
-- **Stage B 数值与真实图门**：九种冻结合成尺寸上 CPU ORT/WASM/WebGPU 各 9/9 通过（两头最大差 ≤6.73e-5、解码零像素差）；真实训练域 154 的严格 CUDA/CPU ORT 各 154 次中 140 通过、14 例仅 mask 数值超过 1e-4（最大 2.40326e-4），`cpuFullGatePassed=false`，WASM/WebGPU 未执行；原生 Resize 坐标控制 32 调用/32 RAW、12 输入后端输出不同、最大差 4.57763671875e-05，坐标显式化完整图草案与 18 次 CPU 预算仍未消费。
-- **唯一活动**：按 `batch018/plan.json` 冻结 12 源完整原图筛选与合格整源逐甲精标（7 张待定源继续禁止拆甲或自动晋升），资格闭合后另冻预算训练；新增 100 图尚缺 47，本批 4 源 29 甲与 CPU 304 步已完成不重复。证据与缺口见白皮书 §8.8/§8.9/§11.1 与 [现行 Goal](docs/nail-texture-current-goal.md)。
-- Wilson方法论结论：58图规模下“少漏1—2张图”的相对信号均在噪声内，分辨0.2241与0.1724需每组约932张正图，任何相对门结论必须附Wilson区间与最小可判别差；质量提速路径为先补clean 58→148判杂散率、再到352判漏甲率，未到门前不频繁训练。
-- 正式发布还需生产ONNX登记、真实浏览器回归、Android手机/平板、iPhone/iPad真机、至少100张Beta人工审核和双版本回滚验证。只有完成度审计返回`ok=true`且`decision=complete`才解除HOLD。
-- **可选的「精细抠图（本机）」辅助路径**（2026-10-28，白皮书 §5.4；2026-10-29 默认档更新、2026-10-31 query 定版）：识别侧栏在服务端配置 `VLM_MATTE_URL` 时出现入口，由同机 GPU 上的 WeVisOne-VL-4B int4（默认 `max_pixels=262144`、`task=matting`、`query="nails"`；真实照片 36 图 203 甲人工真值召回 0.8325→1.0000、单图 16.2s→8.0s）生成整图软 alpha，按「实例中心落入候选框优先、IoU≥0.15 兜底」与现有候选一一匹配后**只替换 mask**（不增删候选、不改指位与置信度），忙/超时/未配置一律降级保留本地结果。路由级重放 5 实例/5 候选全匹配（设备峰值约 7820 MiB）；`/ar-tryon` UI 实跑同图 2026-10-28 为 3/5（2 例因本地候选几何偏移按保守规则保留原 mask，未发生错误替换），2026-10-29 复测 5/5 全匹配并完成提取纹理自动摆正（掩膜主轴对齐 + 甲尖方向消歧）。2026-10-29（v1.2.167）起该能力并入自动流程：选择器识别完成后，若用户已记住隐私确认且服务就绪则自动执行一次精细处理，随后自动提取并上屏；未记住确认则跳过、直接使用本地结果。入口默认关闭，不计正式识别成功率、不进训练真值、不写生产 manifest，产品仍为 HOLD；启动方式见 `.env.local.example` 末尾，权重与推理环境见 `model/VlM_Model/README.md`。
-- **AR 纹理试戴全自动流程与参数匹配**（2026-10-29，v1.2.167；v1.2.168 补兜底；v1.2.170 长宽比保真）：上传参考图后识别完成即自动执行「精细抠图（隐私确认门控；本地 0 候选时自动兜底识别）→ 指位推断（可手动修正）→ 纹理提取 → 参数分析 → 上屏」，全程无需手动点击；参数分析（浏览器端启发式，`texture-analysis.ts`）从提取纹理自动得出甲型（圆/方/杏仁/尖）、主色、图案（纯色/渐变/法式/亮片/花纹参考标签）与光泽度，渲染端按甲型套用轮廓模板（`ar-nail-shape.ts`）并按光泽系数缩放高光。2026-10-30（v1.2.170）起纹理模式渲染改为**长宽比保真（原封不动）**：宽度对齐真实甲面、渲染长度=宽度×提取纹理自身长宽比、甲根锚定并向甲尖自然延伸，长尖甲等长款设计不再被压扁到真实短甲长度，提取产物直接以自身 alpha 轮廓成形（材质高光限制在轮廓内），取消按甲型自动加长系数（长度由纹理比例自然决定，滑杆仍可整段微调）。真实端到端复测（`output/nail-auto-profile-v167/`：hero-hand 15.1s；`output/ar-effect-check-v167/`：12MP 双手特写图经自动兜底识别 28.9s 全自动上屏、5/5 应用并提示 5 指复核；`output/nail-auto-profile-v169/`：合成关键点驱动真实渲染路径取证长尖比例上屏）；摄像头最终贴合仍待多设备真机验收，分析标签为启发式参考，不改变产品 HOLD 与正式识别口径。
+每套 5 指 RGBA PNG，从真实照片经本机抠图提取，自带 alpha 轮廓、甲尖朝上。
 
 ---
-
-## 消费者端新版设计提案
-
-独立预览：运行 `node scripts/serve-consumer-design.mjs`，打开 `http://127.0.0.1:4318`。手机、平板优先，采用米白／深墨／珊瑚与五指多款式贴图；包含为你／试戴／创作／我的，以及引导、详情、发布、个人主页和可下载方案卡。
-
-当前预览遵循“设计不一定是加法”：精简说明、图形入口、本地宋体标题，手机／平板／桌面布局配合触控与键盘焦点、中文输入、返回续编和短过渡；尊重系统“减少动态效果”。短横屏优先露出两张试戴入口。方案卡在支持时交给系统分享面板，否则下载 PNG。最终 Windows Chrome／Edge、触控模拟与紧凑卡截图已检查；Android／iOS 真机、iOS Safari及系统分享仍待验证。
-
-这是设计评审原型：真实 AI、账号／云同步、摄像头与公开社区尚未接入。偏好和收藏写入独立本地空间，照片只在本次内存预览，不上传。旧版已按当前磁盘备份并保留，尚未切换。备份逐文件恢复及四页开发访问已验证；生产构建恢复仍有报错，详见[设计与恢复说明](docs/consumer-redesign-design-brief.md)。源码位于 `design/consumer-v1/`，预览服务位于 `scripts/serve-consumer-design.mjs`，不依赖生产环境密钥。
 
 ## 快速开始
 
-### 前置要求
-
-- **Node.js** ≥ 22.15（`node:sqlite` 需要；当前开发环境 v24.16.0，`package.json` `engines` 已约束）
-- **npm** ≥ 10（Windows 下必须使用 `npm.cmd` 而非裸 `npm`，避免触发 System32 零字节文件）
-
-### 本地开发
+| 前置 | 要求 |
+| --- | --- |
+| Node.js | ≥ 22.15（`node:sqlite` 需要） |
+| npm | ≥ 10，Windows 下用 `npm.cmd` |
+| Python | 3.13（数据治理 / 模型相关测试需要，须置于 PATH 首位） |
+| 浏览器 | 摄像头功能须经 `localhost` 或正式 HTTPS 访问 |
 
 ```powershell
-# 1. 克隆仓库
 git clone https://github.com/yaoyinyu/JiaRu.git
 cd JiaRu
-
-# 2. 安装依赖
 npm.cmd install
-
-# 3. 启动开发服务器（自动启用 HTTPS）
-npm.cmd run dev
+npm.cmd run dev          # 自动启用实验性 HTTPS：https://localhost:3000
 ```
-
-浏览器打开 `https://localhost:3000`。
-
-> **注意：** 摄像头功能必须通过 `localhost` 或正式 HTTPS 域名访问，普通局域网 HTTP 地址无法使用。首次启动时 Next.js 可能生成自签名证书，浏览器需手动信任。
-
-### 生产构建
 
 ```powershell
 npm.cmd run build
 npm.cmd run start
 ```
 
-### 验证命令
+| 验证命令 | 用途 | 最近记录 |
+| --- | --- | --- |
+| `npm.cmd run lint` | ESLint | 0 problems |
+| `npm.cmd run typecheck` / `typecheck:tests` | 产品 + 测试双 tsconfig | 通过 |
+| `npm.cmd run test` | 全量串行测试（372 个 TS 测试文件） | 1530 / 1530（2026-11-05） |
+| `npm.cmd run test:ci` | 13 份独立产品 / 发布契约套件 | 已接入 CI |
+| `npx.cmd playwright test` | 浏览器端到端（2 个 spec） | 本地回归 |
+| `npm.cmd run audit:encoding` | 文本编码审计 | 通过 |
+| `npm.cmd run build` | Next.js 生产构建 | 通过 |
 
-```powershell
-npm.cmd run lint          # ESLint 检查
-npm.cmd run test           # 全量测试（1,200+ 项），串行执行；数据治理用例需本地证据及Python依赖
-npm.cmd run test:ci        # 13份独立产品/发布契约套件；83项，本地通过并接入CI
-npx.cmd playwright test    # 浏览器端到端回归（9 用例：评审 #11 六条 + 账号档案 3 条）
-npm.cmd run audit:encoding # 文本文件编码审计
-npm.cmd run build          # Next.js 生产构建
-```
-
-最近一次完整工程门记录（2026-10-29）：全量串行测试 1262/1262 通过、`tsc --noEmit` 与生产构建通过；`test:ci` 13 份套件 83 项（2026-10-27 记录）。2026-10-28 曾出现 `next build` 删除 `.next/turbopack` 被宿主批量删除守卫拦截的环境失败，与代码无关。CI 工作流已加入 `test:ci`，尚未取得 GitHub 远端运行结果。共享 OAuth cookie 常量位于 `src/lib/auth/wechat.ts`，路由文件仅保留 Next 允许的导出；cookie 值和鉴权行为不变。
+CI（Windows runner）执行 `npm ci` → 双 typecheck → lint → `test:ci` → build；全量测试依赖本地数据与 Python，在本机串行执行。全量测试与生产构建须串行，避免临时目录与子进程竞争造成假失败。
 
 ---
 
 ## 项目结构
 
-```
-JiaRu/
-├── src/
-│   ├── app/                      # Next.js App Router 页面
-│   │   ├── page.tsx              # 首页（品牌 + 功能入口卡片）
-│   │   ├── layout.tsx            # 根布局
-│   │   ├── editor/page.tsx       # 上传试色（纹理套装点选贴合）
-│   │   ├── gallery/page.tsx      # 灵感图库
-│   │   ├── ai-generate/page.tsx  # AI 文生图
-│   │   ├── ar-tryon/page.tsx     # AR 实时试戴
-│   │   ├── ar-demo/page.tsx      # 独立 AR 演示桥接
-│   │   ├── nail-analysis/page.tsx  # 个性化美甲分析推荐（上传→识别→问卷→推荐）
-│   │   ├── privacy/page.tsx      # 隐私政策
-│   │   ├── login/page.tsx        # 登录页（手机号+验证码 / 微信）
-│   │   ├── account/page.tsx      # 账号页（档案/登录方式/改进计划/退出）
-│   │   ├── api/generate-ai/route.ts  # AI 生图 API（Agnes）
-│   │   ├── api/generate-seedream/route.ts  # AI 生图 API（火山方舟 Seedream）
-│   │   ├── api/auth/             # 认证 API（验证码/人机验证/微信 OAuth/登出/绑手机/refresh 静默续期）
-│   │   └── api/me/               # 账号 API（档案/登录方式/改进计划偏好）
-│   │
-│   ├── components/               # 可复用组件
-│   │   ├── ArView.tsx            # AR 核心：摄像头 + MediaPipe + 指甲绘制（~1374 行）
-│   │   ├── NailCanvas.tsx        # 上传试色画布（甲面框 + 纹理贴合实例）
-│   │   ├── TextureSetPicker.tsx  # 纹理套装卡片堆叠选择器
-│   │   ├── UploadButton.tsx      # 图片上传按钮
-│   │   ├── TextureCropper.tsx    # 纹理手动裁剪器
-│   │   ├── NailArtPicker.tsx     # 纹理自动识别与五指分配
-│   │   ├── GalleryGrid.tsx       # 图库网格与「试戴方式」弹层
-│   │   ├── Header.tsx            # 顶部导航
-│   │   ├── NailAnalysisForm.tsx  # 个性化分析场景问卷
-│   │   ├── NailAnalysisResult.tsx  # 个性化分析结果卡片（含琥珀辅助声明）
-│   │   ├── EditorObjectPanel.tsx # 编辑器对象面板（逐框枚举/选中联动/替换/微调/删除/贴合）
-│   │   ├── AppShell.tsx          # 页面壳（导航 + 页脚）
-│   │   ├── Icon.tsx              # 内联 SVG 矢量图标组件（15 个图标）
-│   │   ├── FlowingShell.tsx      # 流式布局壳
-│   │   └── ui/                   # 共享交互基元（AppDialog/ConfirmDialog/StatusRegion/UploadTrigger + dialog-focus）
-│   │
-│   ├── lib/                      # 工具与核心逻辑
-│   │   ├── utils.ts              # 通用工具（颜色、图片、AI 风格名称等）
-│   │   ├── ai-style-prompts.ts   # AI 生图风格提示词库（10 风格 × 50 段）
-│   │   ├── ai-hand-anatomy-prompt.ts  # AI 生图两套系统提示词（文生图/图生图互斥）
-│   │   ├── agnes-image-api.ts    # Agnes 图像 API 客户端（文生图/图生图）
-│   │   ├── seedream-image-api.ts # 火山方舟 Seedream 图像 API 客户端（扁平 body/Ark 错误体系）
-│   │   ├── seedream-image-size.ts # Seedream 尺寸档位表（档位×比例→显式宽高像素）
-│   │   ├── seedream-prompt.ts    # Seedream 专用精简系统提示词（独立于 Agnes）
-│   │   ├── texture.ts            # 纹理处理（裁剪、缩放、释放）
-│   │   ├── ar-hand-orientation.ts # AR 手部朝向检测（4 传感器融合）
-│   │   ├── ar-video-layout.ts    # 视频自适应布局（cover 裁切）
-│   │   ├── image-upload-validation.ts # 图片上传校验（MIME/大小/分辨率/解码）
-│   │   ├── nail-geometry.ts       # 指甲几何计算
-│   │   ├── ar-nail-shape.ts       # AR 甲型模板（圆/方/杏仁/尖）+ 长度/光泽映射
-│   │   ├── nail-auto-flow.ts      # 多纹理自动流程纯逻辑（自动指位分配）
-│   │   ├── nail-detection-cascade.ts # 图片甲面识别级联（Worker→MediaPipe→局部近景，AR 与编辑器共用）
-│   │   ├── nail-texture-sets.ts   # 编辑器纹理套装静态清单 + 灵感色最近套装映射
-│   │   ├── canvas/placements.ts   # 编辑器贴合实例纯逻辑（渲染几何/命中/导出重放）
-│   │   ├── editor-texture-state.ts # 编辑器纹理选择/撤销/手动加框纯逻辑
-│   │   ├── nail-detection-fixture.ts  # 检测夹具
-│   │   ├── nail-image-detection.ts    # 图片端指甲检测
-│   │   ├── nail-texture-dataset.ts    # 纹理数据集工具
-│   │   ├── nail-texture-debug-sample.ts    # 调试样本
-│   │   ├── nail-texture-debug-priority.ts  # 调试优先级
-│   │   ├── async-task.ts         # 异步任务单飞/取消不判失败/结算纯逻辑
-│   │   ├── use-async-task.ts     # 异步任务 React 绑定（渲染期不读 ref）
-│   │   ├── work-items.ts         # 本地作品（WorkItem）存储与旧收录幂等迁移
-│   │   ├── work-bridge.ts        # work>gallery>collect>preset 引用解析
-│   │   ├── editor-draft.ts       # 编辑器会话草稿（mask 剥离/尺寸校验/防抖写入）
-│   │   ├── ai-generate-flow.ts   # AI 生图请求快照/端点解析/错误分类
-│   │   ├── ar-review-flow.ts     # AR 覆盖前复核决策纯逻辑
-│   │   ├── ar-step-flow.ts       # AR 三步流程状态纯逻辑
-│   │   ├── ar-cropper-keys.ts    # AR 裁剪器键盘选区
-│   │   ├── auth/                 # 用户认证库（SQLite/JWT/图形验证码/短信/微信 OAuth/登录即注册）
-│   │   ├── nail-personalization/ # 个性化美甲分析（纯函数规则引擎，无 DOM 依赖）
-│   │   │   ├── index.ts          # 编排入口 analyzeNailPersonalization + barrel
-│   │   │   ├── types.ts          # 共享类型（含 OriginalImagePixels 防误用降采样图）
-│   │   │   ├── color-science.ts  # sRGB→Lab / ITA° 分档 / Monk ITA° 近似 / 底调判定 / ΔE76
-│   │   │   ├── skin-sampling.ts  # 甲周椭圆环采样 + 甲面自污染排除 + 双条件质量门
-│   │   │   ├── hand-profile.ts   # 手轴旋转归一化 + 四类手型 + completeness
-│   │   │   ├── nail-health.ts    # 均匀度/高光/条纹三类启发式（复用 isSpecularHighlightPixel）
-│   │   │   ├── rules.ts          # 11 条甲型 + 15 条颜色规则、安全硬过滤、组合分归一化
-│   │   │   ├── present.ts        # 中文文案层 + 提示去重 + 琥珀声明
-│   │   │   └── bridge.ts         # /editor?preset= 出站参数桥接
-│   │   └── nail-texture-recognition/     # 浏览器端美甲纹理识别子系统
-│   │       ├── index.ts          # 公共 barrel（Worker/主线程入口）
-│   │       ├── recognize.ts      # 主识别流程
-│   │       ├── model-runtime.ts  # ONNX Runtime Web 推理
-│   │       ├── preprocess.ts     # 输入预处理（letterbox 等）
-│   │       ├── postprocess.ts    # 后处理（NMS、mask 解码）
-│   │       ├── quality.ts        # 候选质量排序
-│   │       ├── finger-assignment.ts  # 候选→五指分配
-│   │       ├── extract-mask-texture.ts # 带 mask 纹理提取（含归一化摆正）
-│   │       ├── mask-orientation.ts     # 掩膜主轴角与甲尖方向消歧
-│   │       ├── texture-analysis.ts     # 提取纹理参数分析（颜色/图案/光泽/甲型）
-│   │       ├── fallback-adapter.ts   # 模型不可用时的传统降级
-│   │       ├── input-scaling.ts      # 输入缩放
-│   │       ├── client-worker.ts      # Worker 客户端
-│   │       ├── types.ts              # 类型定义
-│   │       ├── debug.ts/debug-artifacts.ts/debug-compare.ts # 调试工具
-│   │       └── first-run-record.ts   # 首跑记录验证
-│   │
-│   └── workers/
-│       └── nail-texture-recognition.worker.ts  # Web Worker 入口
-│
-├── model/                        # 模型代码与稳定小型测试夹具
-│   ├── datasets/nail-texture-v1/ # 数据集目录骨架；数据和逐文件 metadata 只留本地
-│   ├── runtime/                  # 隔离原尺寸双头路由；九尺寸合成三端 9/9，真实训练域 154 CPU 门 140/154 未过/HOLD
-│   ├── training/                 # 训练、标注和审计代码；计划/清单/判定 JSON 只留本地
-│   ├── reviews/                  # 本地冻结审核证据；透明压缩与只读去重，不进入 Git
-│   └── reports/                  # 本地机器报告目录（不进入 Git）
-│
-├── scripts/                      # 审计/验证/发布治理脚本
-├── tests/                        # 测试文件（当前 1,400+ 项；ML/数据治理用例需 Python 环境，缺依赖自动 skip）
-├── e2e/                          # Playwright 浏览器端到端回归（评审 #11 六条 + 账号档案 3 条）
-├── .github/workflows/            # CI：类型检查（产品/测试双 tsconfig）、ESLint、生产构建（测试在本地全量执行，CI 无本地数据不跑）
-├── docs/                         # 项目文档（见下方索引）
-├── dev-log/                      # 开发日志（按天，2026-06-21 至今）
-├── output/                       # 本地审核/调试产物（不进入 Git）
-├── public/
-│   ├── models/                   # 浏览器端模型（smoke ONNX 等）
-│   ├── nail-textures/            # 编辑器纹理套装静态资产（5 套 × 5 指 RGBA PNG，运行时必需）
-│   └── nail-gallery/             # 灵感图库素材（AI 生成 JPG）
-├── weights/                      # 本地权重（不上传 Git）
-├── certificates/                 # 本地开发证书
-└── 辅助材料/                     # 本地审核工作区；Git 仅保留必要 Markdown 说明
-```
+| 目录 | 内容 |
+| --- | --- |
+| `src/app/` | App Router 页面（11 个）与 `/api/*` 路由 |
+| `src/components/` | AR 视图、编辑器画布、纹理选择器、图库与共享交互基元 |
+| `src/lib/` | 识别子系统、纹理与几何、认证、个性化分析、异步任务等纯逻辑 |
+| `src/workers/` | 纹理识别 Web Worker 入口 |
+| `public/models/` | 生产 manifest、发布登记快照；`*.onnx` 存于本地、由 `.gitignore` 隔离 |
+| `public/nail-textures/`、`public/nail-gallery/` | 5 套 × 5 指纹理、6 张灵感图（运行时必需资产） |
+| `model/` | 训练、数据治理、审核脚本与本地报告（数据、权重、产物不入库） |
+| `scripts/`、`tests/`、`e2e/` | 发布治理脚本、372 个 TS 测试文件、2 个 Playwright spec |
+| `docs/`、`dev-log/` | 白皮书与专项规则、124 篇按天日志（2026-06-21 至今） |
 
-Git 与远端只保存完整可运行的业务、训练和审计代码，测试、配置模板、浏览器运行时必需资产及必要说明。模型权重、数据集、逐文件开发清单、训练输出、评估明细、审核截图、浏览器调试快照和其他可重建机器报告均留在本机并由 `.gitignore` 隔离；稳定的小型测试夹具不受此限制。
+仓库只跟踪可运行代码、测试、配置模板、运行时必需资产与必要说明；模型权重、数据集、审核截图、训练输出及可重建的机器报告留在本机并由 `.gitignore` 隔离。
 
 ---
 
-## 核心特性详解
+## 核心能力速记
 
-### 🖐️ AR 实时试戴
-
-核心技术管线：
-
-```
-用户点击「开启摄像头」（单按钮，一次点击即触发权限请求）
-  → getUserMedia 获取前置摄像头视频流
-  → MediaPipe Hands 加载 21 关键点手部模型（CDN）
-  → requestAnimationFrame 循环：
-      ├─ 4 传感器融合全局朝向检测（叉积/深度差/4 指投票/拇指位置）
-      ├─ 5 指逐指可见性判定（TIP.z vs DIP.z + 透视缩短比 + 伸展角）
-      ├─ 贝塞尔路径指甲形状（每指独立参数：尖端收窄/侧面曲线/根部凸起）
-      ├─ 纹理柱面曲率变形（12 条分片 + 三层高光 + 环境光照）
-      └─ 手指可见性指示器 + 朝向 UI
-```
-
-**关键能力：**
-- **逐指独立判定：** 每指独立判断可见性，支持混合状态（如 3 指贴图 + 2 指不贴）
-- **手势兼容：** 支持 ✌️ 比耶 / 👍 点赞 / 👊 握拳 / 🤘 摇滚 / ☝️ 食指 / 🤙 打电话等任意手势
-- **两层防御：** 全局门控（手心侧不贴图）+ 逐指过滤
-- **指甲差异化：** 每指独立形状参数（尖端收窄/侧面曲线/根部凸起）
-- **解剖校准：** 基于真实甲床比例的逐指长度/宽度比
-- **左右手识别：** 逐指可见性指示器 UI + 手指名称
-
-### 🎨 上传试色编辑器
-
-纹理套装点选贴合（纯色试色已移除）：
-- 上传校验：JPG/PNG/WebP、≤10MB、320–4096px、解码门禁
-- 甲面辅助定位：上传后自动识别（浏览器 Worker 模型 → MediaPipe → 局部近景级联），识别结果以绿色虚线框叠加；0 框时可一键「精细识别」（本机 WeVisOne-VL 辅助，需隐私确认）或手动加框，识别仅供定位、不宣称自动识别成功
-- 纹理套装：右侧卡片堆叠选择器，一套 = 从真实照片经本机 WeVisOne-VL 抠图提取的 5 指纹理（甲尖朝上、自带 alpha 轮廓）；hover 扇形展开 5 张单指卡且页面其余元素模糊，点单卡钉选纹理、点堆叠应用整套（移动端点按展开）
-- 贴合与微调：点击甲面框按指位贴合，长宽比保真不压缩（甲根锚定，与 AR 渲染同一几何约定）；拖动移位、长度/宽度/甲根位置滑杆微调、撤销/重置
-- 灵感色映射：`?gallery=` 灵感卡一键选中最接近主色的纹理套，`?preset=`（分析页推荐色）自动选中最近套装（均不自动贴合）
-- 本地保存：原图尺寸离屏重放贴合导出 PNG（全程浏览器内存，无网络上传）
-
-### 🤖 AI 文生图 / 图生图（已验证）
-
-- 前端状态机：`idle → loading → success/error`
-- 10 种预设风格（甜美风/欧美风/日系/极简/复古/节日/水墨/几何/花草/金属）
-- 每风格 50 段独立中文场景提示词，点击轮转填入
-- 用户输入 1–520 字符 + 自动附加美甲场景后缀
-- **生成引擎可选**：Agnes（默认）/ 火山方舟 Seedream 5.0 Pro / Seedream 5.0 Lite；切换引擎时尺寸档位与提示词上限联动
-- **画面比例**（1:1/3:4/4:3/16:9/9:16/2:3/3:2/21:9）与**输出尺寸档位**可选，实时显示最终像素尺寸（默认 1K+1:1 ≈ 1024x1024，参考 Agnes「输出尺寸参考」表）；Seedream 档位随模型不同（pro：1K/1.5K/2K，lite：2K/3K/4K），比例经「档位×比例→显式宽高像素」换算后随请求发送
-- **参考图（可选）**：上传手部照片（浏览器端压缩至最长边 1024 的 JPEG），结合提示词走图生图——在参考图手部指甲上直接绘制美甲样式，保持手部姿势与场景不变；不上传则按文字直接生成（行为与历史一致）
-- 后端 API Route：Agnes 走 `/api/generate-ai`（需 `AGNES_API_KEY`）；Seedream 走 `/api/generate-seedream`（需 `VOLCENGINE_ARK_API_KEY` 与两个 Model ID），两条链路完全独立互不影响
-- **身份与配额保护**（2026-09-14 起）：两路生图 API 均接入服务端身份识别与配额/预算熔断——登录用户 20 次/天、游客 5 次/天（按 IP 哈希）、全局 200 次/天预算熔断、全局并发 3；生成失败自动返还当日次数，超限返回 429 与重试提示；限额可经 `AI_QUOTA_*` 环境变量调整，游客体验保留但受服务端约束
-- Seedream 使用独立精简系统提示词（约 100 字核心手部约束，提示词上限 300 字，符合火山方舟建议），区别于 Agnes 的长提示词
-- 超时与重试：Agnes 180 秒总超时、503 退避重试；Seedream 240 秒总超时、429/500/503 退避重试
-- 仅发送文字描述；只有上传参考图时图片才发送给第三方（仅用于本次生成，不存储）；Seedream 生成图片默认不添加"AI 生成"水印（可用 `ARK_IMAGE_WATERMARK=true` 开启）
-
-### 👤 用户系统（初始注册登录已落地）
-
-- **登录即注册**：手机号+验证码或微信扫码，任一方式首次验证通过即自动创建账号并绑定
-- 手机号+验证码：发送前需通过自研 SVG 图形验证码（人机验证，笔画路径渲染、源码不含明文答案），60 秒节流 / 单日 10 条 / 尝试 5 次锁定；未配置短信服务商时进入开发模式（接口返回 devCode 仅供本地联调）
-- 微信 OAuth：`GET /api/auth/oauth/wechat` 授权跳转 + `/callback` 回调登录，state 存 httpOnly Cookie 防 CSRF；首次登录须在 `/account` 补绑手机号；未配置 `WECHAT_APP_ID/SECRET` 时按钮显示「未配置」
-- 认证实现：自研 HS256 JWT（access 2h + refresh 30d）+ SQLite 会话表（可踢下线）；access 失效时 `/api/auth/refresh` 以 refresh 静默续期（不轮换会话、并发安全，剩余寿命不足 15 天自动滑动重签），数据库 `data/jiaru-user.db`（Node 内置 `node:sqlite`，生产换 Postgres 时仅替换 `src/lib/auth/db.ts` 边界）
-- 请求安全（2026-09-24 审计加固，09-26 复扫收口）：按 IP 限流中间件（验证码 30/5min、请求验证码 5/10min、验证 20/10min、换绑 10/10min、OAuth 起点 20/10min，阈值可经 `JIARU_RL_*` 覆盖）；对 `/api/*` 状态变更请求强制 Origin 校验（CSRF，白名单含 `JIARU_ALLOWED_ORIGINS`）；生图与认证错误响应统一脱敏不再回显内部异常（微信回调重定向不再拼接异常原文）；JWT 增加 `iss`/`aud`/`alg` 固定校验；验证码 store 5,000 条硬上限；游客身份与限流共用同一套来源判定（伪造 XFF 不再换取独立配额）；换绑接口先消费验证码再判号码归属，消除注册状态枚举；新增 `src/lib/request-origin.ts` 由 `X-Forwarded-Host`/`X-Forwarded-Proto` 推导真实来源（微信 OAuth redirect_uri/回调跳转）
-- `/account` 账号页：档案查看、登录方式管理（解绑，至少保留一种）、账号级「用户改进计划」偏好（与 `/privacy` 开关联动）、退出登录
-- 完整设计见 [`docs/user-system-plan.md`](docs/user-system-plan.md)（v0.2）；商户体系、云端作品/配额、注销导出为后续 Phase 1 项
-
-### 🧠 浏览器端纹理识别（业务已发布，商用完成门 HOLD）
-
-完整浏览器端 ONNX Runtime Web 推理管线：
-- **当前进度（2026-11-05 起）**：浏览器业务模型已发布（白皮书 v1.2.256，`manifest.json` 为 `deployed` 的双阶段 ONNX + radial-refine，发布对拍绑定 WASM EP），商用完成门保持 HOLD；模型迭代与训练详情见当日 dev-log 与唯一 Goal，历史候选与实验结论见白皮书 §9.4/§11.1 及 `docs/archive/`。
-- ONNX Runtime Web 推理（业务发布对拍绑定 WASM EP；WebGPU 未验证，未启用）
-- Web Worker 隔离（15 秒超时 + 自动 fallback）
-- 候选质量排序 + 五指分配 + mask 纹理提取
-- 浏览器运行时与既有桌面性能证据可继续复用，但它们不等同于生产识别模型已经发布
-- 冻结 test100 正样本集为100张/554 mask；它只能评估候选，不能用于阈值选择
-- candidate5 已被训练后全新困难负样本留出否决，禁止部署或改名复用
-- candidate6 正样本真值为120张/636 mask，训练、val30校准和冻结test100审计均已完成；候选因逐实例完整识别门失败而否决
-- candidate7、candidate8均已完成训练与冻结test100并因逐实例完整识别门失败而否决；candidate8已显著降低漏甲，但仍需全新来源正样本继续补强
-- candidate57 为当前 TEST HOLD 的历史候选，旧失败保持。新权重训练边界105/106仅为训练域；CPU/WebGPU118/118、WASM112/118且六项presence超绝对1e-4。下一优先建立新来源开发质量基线，再按覆盖/边界/拒识及实际端侧成本选择有预算、可停止的改进方案；F64完整链仅为待验证分支。candidate57 时期无生产 ONNX/releaseIdentity、默认 manifest 为 not-deployed；自 v1.2.256 起浏览器业务模型已发布为 deployed（`nail-texture-seg-geometry64-browser-aa4-v2`），商用完成门保持 PRODUCT HOLD。当前路线见唯一Goal及白皮书§9.4/§11.1。
-- 正式模型不可用时可以进入规则降级或人工框选，但 UI 必须明确告知降级，不能显示为“模型识别成功”
-
-### 💅 个性化分析推荐（本地规则引擎，工程门通过）
-
-纯规则启发式分析，**不引入任何新模型训练**，与纹理模型发布链路零冲突：
-
-- **输入**：一张五指清晰的手背照片（复用同一上传校验：JPG/PNG/WebP、≤10MB、320–4096px）+ 场景问卷（场合必填；风格/劳作强度/长度偏好/甲面状况可选，未填按 unknown 处理，不会被当作否定值）
-- **三路本地分析**：
-  - 手型与甲床比例：候选长宽比、相对宽度、掌心跨度近似（按候选 `angle` 中位数做手轴旋转归一化，斜拍/竖拍结果与正视一致），四类手型（纤长/短宽/收窄修长/均衡）；候选不足或 `suggestedFinger` 缺失时标记「不可判定」而非伪装成均衡
-  - 肤色与底调：甲周椭圆环采样（24 角向 × 3 径向）→ 逐通道中位数聚合 → CIELAB → ITA° 六档 + 底调四类（橄榄优先于暖）+ Monk ITA° 近似；**甲面自污染排除**（落在甲面/邻甲内的点不计入分子分母）；**双条件质量门**（`quality<0.35` 或采样点少于下限即隐藏结果，不允许低质量采样冒充测量值）
-  - 指甲健康启发式：颜色均匀度（L* MAD）、高光占比（复用 `isSpecularHighlightPixel`）、条纹指标（横断面梯度 / 沿轴梯度）；**恒带非医疗声明，不做任何疾病分类**
-- **规则引擎**：11 条甲型规则 + 15 条颜色规则（覆盖场合、风格、劳作强度、底调、ITA 档位、甲面状况）；安全硬过滤（重劳作/薄软甲排除长甲）、同一甲型组合取最高权重不重复计分、组合分归一化后加权
-- **可解释性**：每条推荐带「为什么适合」文案、置信度与命中规则 id；测试强制每条规则有命中 fixture、规则 id 唯一、`presetNames` 全部存在于 20 种预设色
-- **边界**：正式模型未部署期间识别 100% 走辅助定位且无像素级 mask，指甲健康通道恒不可用（隐藏而非降级展示）；0 候选时不产出任何推荐；`season` 仅为展示标签（四季色彩无同行评审效度验证）；深肤色在阴影下会被系统性压低 ITA°，`color-ita-deep-jewel` 因此设采样质量门
-- **隐私**：照片、候选与采样全部浏览器本地处理，不新增上传通道；即使开启「用户改进计划」也不外发分析结果
-- 设计与依据：[`docs/nail-personalization-design.md`](docs/nail-personalization-design.md)、[`docs/nail-personalization-research.md`](docs/nail-personalization-research.md)（含反面证据与检索维护说明）
+| 能力 | 关键做法 |
+| --- | --- |
+| AR 渲染 | MediaPipe Hands 21 关键点 + 4 传感器朝向 + 贝塞尔甲形 + 长宽比保真纹理（甲根锚定、逐指 180° 翻转） |
+| 试色编辑器 | 上传校验 → 甲面辅助定位 → 点选套装贴合 → 逐框微调 → 原尺寸离屏导出 PNG |
+| AI 生图 | 双引擎、8 种比例 × 尺寸档位、请求快照隔离 / 上一版 / 取消终态、失败分类、身份与配额保护 |
+| 浏览器识别 | ONNX Runtime Web + Web Worker（超时自动降级）→ 候选质量排序 → 五指分配 → 带 mask 纹理提取与自动摆正 |
+| 账号安全 | HS256 JWT + SQLite 会话、按 IP 限流、Origin CSRF 校验、错误脱敏、隐私开关 |
 
 ---
 
 ## 环境变量
 
-| 变量 | 说明 | 必须 |
-| --- | --- | :---: |
-| `AGNES_API_KEY` | Agnes API 密钥（仅服务端读取） | AI 生成功能需要 |
-| `AGNES_API_BASE_URL` | Agnes API 基础地址 | 否（默认 `https://apihub.agnes-ai.com/v1`） |
-| `AGNES_IMAGE_MODEL` | Agnes 图片模型 ID | 否（默认 `agnes-image-2.5-flash`） |
-| `VOLCENGINE_ARK_API_KEY` | 火山方舟 API 密钥（仅服务端读取） | Seedream 引擎需要 |
-| `ARK_SEEDREAM_PRO_MODEL` | Seedream 5.0 pro Model ID（控制台查询） | Seedream 引擎需要 |
-| `ARK_SEEDREAM_LITE_MODEL` | Seedream 5.0 lite Model ID（控制台查询） | Seedream 引擎需要 |
-| `ARK_BASE_URL` | 火山方舟基础地址 | 否（默认 `https://ark.cn-beijing.volces.com/api/v3`） |
-| `ARK_IMAGE_WATERMARK` | Seedream 生成图是否添加"AI 生成"水印 | 否（默认关闭） |
-| `AI_QUOTA_GUEST_DAILY` | 游客 AI 生图单日上限 | 否（默认 5） |
-| `AI_QUOTA_USER_DAILY` | 登录用户 AI 生图单日上限 | 否（默认 20） |
-| `AI_QUOTA_GLOBAL_DAILY` | AI 生图全局单日预算熔断上限 | 否（默认 200） |
-| `AI_QUOTA_GLOBAL_CONCURRENCY` | AI 生图全局同时任务上限 | 否（默认 3） |
-| `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL` | 浏览器端纹理模型 manifest 路径 | 否（有默认值） |
-| `JWT_SECRET` | JWT 签名密钥（生产必须 ≥16 位随机字符串；未配置时本地开发用内置回退密钥，生产构建直接报错） | 用户系统生产必需 |
-| `JIARU_DB_PATH` | 用户数据库文件路径 | 否（默认 `<项目根>/data/jiaru-user.db`） |
-| `SMS_PROVIDER` | 短信服务商（留空进入开发模式，验证码经接口返回仅供本地联调；生产留空会拒绝发送） | 生产短信必需 |
-| `WECHAT_APP_ID` / `WECHAT_APP_SECRET` | 微信开放平台「网站应用」OAuth 2.0 凭证（需认证企业主体） | 微信登录需要 |
-| `JIARU_TRUST_PROXY` | 是否信任反向代理注入的 `X-Real-IP`/`X-Forwarded-For`（部署在 Nginx 之后设 1，否则一律按 `unknown` 分桶） | 否（默认不信任） |
-| `JIARU_ALLOWED_ORIGINS` | CSRF Origin 校验额外允许的来源（逗号分隔；局域网/隧道联调时必填，否则写操作 403） | 否 |
-| `JIARU_DEV_SMS` | 强制开启短信开发模式（明文验证码经接口返回；默认生产禁止、非生产仅本机/私网直连） | 否 |
-| `JIARU_RL_*` | 按 IP 限流阈值覆盖：`JIARU_RL_CAPTCHA/REQUEST_CODE/VERIFY_CODE/BIND_PHONE/OAUTH_START/NAIL_MATTE/NAIL_MATTE_CLOUD/NAIL_DETECT_ARK` | 否（有默认值） |
-| `VLM_MATTE_URL` / `VLM_MATTE_TOKEN` | 本机 WeVisOne-VL 精细抠图服务（须绑定 127.0.0.1）；未配置时入口不出现 | 否（精细抠图可选） |
-| `ARK_VISION_MODEL` | 云端识别（方舟视觉理解模型）Model ID（含版本后缀，须在方舟控制台开通）；与 `VOLCENGINE_ARK_API_KEY` 同时配置后，编辑器/AR/个性化分析的「云端」识别选项可用 | 否（云端识别可选） |
-| `NAIL_CLOUD_MATTE_URL` / `NAIL_CLOUD_MATTE_TOKEN` | 云端自托管 WeVisOne-VL（与本地服务同 `/matte` 契约，须自行部署运维）；配置后作为云端识别第二后端 | 否（云端识别可选） |
-| `NAIL_CANDIDATE_URL` / `NAIL_CANDIDATE_TOKEN` | 自研候选模型本机试用服务（`model/training/serve-nail-candidate.py` 启动，优先接管 `/api/nail-matte`，结果沿用逐甲复核）；删除这两项即恢复 `VLM_MATTE_URL`，正式生产 manifest 与发布门保持 | 否（本机试用可选） |
+| 组 | 变量 | 用途 |
+| --- | --- | --- |
+| AI 生图 | `AGNES_API_KEY`、`AGNES_API_BASE_URL`、`AGNES_IMAGE_MODEL` | Agnes（默认引擎） |
+| | `VOLCENGINE_ARK_API_KEY`、`ARK_SEEDREAM_PRO_MODEL`、`ARK_SEEDREAM_LITE_MODEL` | Seedream 引擎 |
+| | `AI_QUOTA_*` | 游客 / 登录用户 / 全局配额与并发熔断 |
+| 账号与安全 | `JWT_SECRET`、`JIARU_DB_PATH`、`SMS_PROVIDER`、`WECHAT_APP_ID` / `WECHAT_APP_SECRET` | 生产 `JWT_SECRET` 必须 ≥16 位，缺失会导致认证接口报错 |
+| | `JIARU_TRUST_PROXY`、`JIARU_ALLOWED_ORIGINS`、`JIARU_RL_*` | 反向代理、CSRF 白名单、限流阈值覆盖 |
+| 识别与部署 | `NEXT_PUBLIC_NAIL_TEXTURE_MODEL_MANIFEST_URL` | manifest 路径（有默认值） |
+| | `VLM_MATTE_URL` / `VLM_MATTE_TOKEN`、`ARK_VISION_MODEL`、`NAIL_CLOUD_MATTE_*`、`NAIL_CANDIDATE_*` | 本机精细抠图、云端识别与本机候选试用，均为可选辅助通道 |
 
 ```powershell
-# 复制模板
 copy .env.local.example .env.local
-# 编辑 .env.local 填入密钥
 ```
+
+完整变量、默认值与可选通道说明见 `.env.local.example`。
 
 ---
 
 ## 文档索引
 
-### 核心文档
-
-- [消费者端新版设计提案](docs/consumer-redesign-design-brief.md)：页面、流程、视觉、数据边界、备份与评审清单。
-
 | 文档 | 说明 |
 | --- | --- |
-| [技术白皮书](docs/technical-whitepaper.md)（现行版本见文档头部） | 模块状态、接口契约、已知限制——项目唯一集成入口；正文维护当前接口、状态与合同，变更记录并入按天 dev-log |
-| [项目协作规则](AGENTS.md) | 任务读取矩阵、持续授权、文档职责、验证与提交规则；专项执行细则位于 `docs/agent-rules/` |
-| [规则文档梳理](docs/project-rules-review.md) | 规则职责图、已修订冲突、核验依据与维护方式 |
-| [前端交互改造方案](docs/frontend-interaction-redesign-plan.md) | 8 个 Batch 的设计拆分、测试与验收、风险对策与 Definition of Done；实施状态见文档头部与当日日志 |
-| [美甲纹理模型 Goal](docs/nail-texture-current-goal.md) | 正式模型唯一可持续目标文件：目标、核心要求、当前状态与下一步计划（每轮只保留一项活动里程碑） |
-| [本机推理实施规范](docs/nail-texture-local-inference-implementation-spec.md) | 运行时、数值门、端侧设备合同与发布验收口径 |
-| [本机推理实施进度](docs/nail-texture-local-inference-implementation-progress.md) | 逐阶段执行进度、失败保留与恢复点 |
-| [WeVisOne-VL 集成方案](docs/wevisone-vl-integration-plan.md) | 本机精细抠图（`/api/nail-matte`）与辅助标注的部署、接口和评估口径 |
-| [实验历史归档](docs/archive/whitepaper-experiment-history.md) | 原白皮书§12.9—§12.351实验叙事（343节）及§3/§11.1历史快照，2026-10-12归档，证据链完整保留 |
-| [历史变更记录归档](docs/archive/whitepaper-changelog-archive.md) | 原白皮书§13逐条变更表（v1.0.0—v1.1.995），2026-10-12归档 |
-| [数据集契约历史归档](docs/archive/whitepaper-dataset-contract-history.md) | 原白皮书§8.1历史执行叙事（标注返修/审核批次流水、困难负样本批次）与§8.4/§9.7/§9.8/§9.9/§11.2复核原文，2026-10-12归档 |
-| [技术架构](docs/technical-architecture.md) | 技术选型、架构图、AR 管线、关键参数表 |
-| [需求文档](docs/requirements.md) | 功能需求、用户故事、验收标准 |
-| [UI 设计规范](docs/ui-design-spec.md) | 正式站与独立预览的适用范围、品牌令牌、交互与可访问性规范 |
-| [开发规范](docs/coding-standards.md) | 当前代码约定、React/异步资源、隐私请求与浏览器验证 |
-| [用户管理系统文档](docs/user-system-plan.md) | 角色权限/资源/配额/流程/API/合规/分阶段路线（v0.2，初始注册登录已实现） |
-| [个性化分析推荐·设计](docs/nail-personalization-design.md) | `/nail-analysis` 功能设计：模块契约、色彩科学、环采样、手型/健康启发式、规则表、测试计划与里程碑（2026-10-20 修订） |
-| [个性化分析推荐·资料汇编](docs/nail-personalization-research.md) | 竞品矩阵、学术注释、领域知识库、技术方法、市场数据、公开数据集与来源 URL；§2.5 争议/失效证据、§9 检索与维护说明 |
+| [技术白皮书](docs/technical-whitepaper.md) | 唯一集成入口：功能状态、接口契约、生效合同、已知限制（现行 v1.2.319） |
+| [正式纹理模型 Goal](docs/nail-texture-current-goal.md) | 目标、核心要求、当前状态、下一步；每轮只保留一项活动里程碑 |
+| [素材审核与标注 Goal](docs/nail-texture-annotation-goal.md) | 独立会话负责的真实素材审核与标注目标 |
+| [本机业务候选说明](docs/nail-texture-business-candidate.md) | Python/GPU 候选通道与降级对照 |
+| [边缘精修评审](docs/nail-texture-edge-refinement-review.md) | 4×4 覆盖率抗锯齿的对照、重放与产品接入结论 |
+| [本机推理实施规范](docs/nail-texture-local-inference-implementation-spec.md) / [进度](docs/nail-texture-local-inference-implementation-progress.md) | 运行时、数值门、端侧合同与逐阶段执行记录 |
+| [项目协作规则](AGENTS.md) + `docs/agent-rules/` | 任务读取矩阵、持续授权、文档生命周期与专项执行细则 |
+| [UI 设计规范](docs/ui-design-spec.md) / [开发规范](docs/coding-standards.md) / [技术架构](docs/technical-architecture.md) | 设计令牌、代码约定与架构选型 |
+| `docs/archive/` | 实验历史、历史变更、数据集契约史、[原生精度复验历史](docs/archive/whitepaper-native-precision-history.md) 八份归档，只增不改写 |
+| [`dev-log/`](dev-log/) | 124 篇按天日志；白皮书实质变更以「白皮书 v1.2.x」标记并入当日日志 |
 
-### AR 专项文档
-
-| 文档 | 说明 |
-| --- | --- |
-| [全局朝向门控修复](docs/global-render-gate-fix.md) | 两层防御体系（全局门控 + 逐指过滤） |
-| [逐指可见性增强](docs/finger-visibility-enhancement.md) | 三信号融合 + 时序平滑 |
-| [逐指识别与左右手](docs/finger-hand-identification.md) | UI 指示器 + 指甲形状差异化 |
-| [手势兼容检测](docs/gesture-compatible-detection.md) | 手指伸展角信号 D 四信号融合 |
-| [手心/手背朝向检测](docs/palm-orientation-spec.md) | 4 传感器融合方案 |
-| [指甲检测优化](docs/nail-detection-optimization.md) | 6 项参数/逻辑改进 |
-| [指甲纹理分配器](docs/nail-art-picker.md) | 上传图 → MediaPipe → 5 指分配 |
-
-### 开发日志
-
-从项目启动至今的完整开发记录（2026-10-12 起白皮书变更记录亦以「白皮书 v1.2.x」标记并入当日日志）： [`dev-log/`](dev-log/)（2026-06-21 至 2026-10-31，共 114 篇，按天一篇）
+全仓检索默认排除 `docs/archive/`；当前事实查白皮书与 Goal，历史证据按归档头部编号指向查找。
 
 ---
 
 ## 隐私与数据
 
-**核心原则：数据默认在浏览器本地处理，用户改进计划默认开启、可随时关闭。**
+**默认在浏览器本地处理；用户改进计划默认开启，可随时关闭。**
 
 | 功能 | 数据处理 |
 | --- | --- |
-| 涂色编辑器 | 照片默认在浏览器 Canvas 本地处理，保存为本地 PNG |
-| AR 试戴 | 摄像头帧默认仅存内存，不录制 |
-| AI 生图 | 默认仅发送文字描述到所选引擎的第三方（Agnes AI / 火山方舟 Seedream）；上传参考图时该图片也会发送（仅用于本次生成）；生成请求受服务端身份与每日配额约束 |
-| 纹理识别 | 浏览器 Worker 本地推理 |
-| 个性化分析 | 照片、甲面候选与肤色采样全部浏览器本地处理，分析结果不上传（开启「用户改进计划」时同样不外发本功能结果） |
-| 用户改进计划 | 开关默认开启：手部照片等数据可能被上传用于产品改进；关闭后不再上传改进计划数据（开关位于 `/privacy`，登录用户可在 `/account` 同步） |
-| 用户系统 | 登录信息（手机号/微信身份、JWT 会话）仅存服务端数据库，用于登录与账号管理；账号完全可选，核心功能不登录也可用，账号数据不出售 |
+| 涂色编辑器 / AR 试戴 | 照片与摄像头帧留在本机内存，保存为本地 PNG，不录制 |
+| AI 生图 | 文字描述发往所选引擎；仅主动上传参考图时该图才发送，且仅用于本次生成 |
+| 纹理识别 | 浏览器 Worker 本地推理；精细抠图 / 云端识别须用户显式选择与隐私确认 |
+| 个性化分析 | 照片、候选、肤色采样全部本地计算，分析结果不外发 |
+| 用户系统 | 手机号 / 微信身份与 JWT 会话存服务端 SQLite，用于账号管理 |
+| 改进计划 | 开关位于 `/privacy`，登录用户可在 `/account` 同步偏好 |
 
-完整说明见 [`/privacy`](http://localhost:3000/privacy)（最后更新 2026-09-14）。AI 生图会把你的文字描述转发给你所选引擎的第三方图像生成服务（Agnes AI 或火山方舟 Seedream）；只有当你上传参考图时，该图片才会被发送并仅用于本次生成、不用于训练或存储。生成结果由浏览器直接访问第三方图片地址；描述中请勿输入身份证号、电话等个人信息。项目不使用 Cookie 追踪、无广告追踪，联系邮箱 `3181484805@qq.com`。
+完整说明见应用内 `/privacy` 页面；项目无 Cookie 追踪与广告追踪，联系邮箱 `3181484805@qq.com`。
 
 ---
 
 ## 路线图
 
-### Phase 1: MVP ✅ 完成
+| 阶段 | 状态 | 交付与剩余 |
+| --- | :---: | --- |
+| Phase 1 · MVP | ✅ | 首页、编辑器、图库、隐私页与工程门 |
+| Phase 2 · AI 生成 | ✅ | 双引擎、提示词库、参考图图生图，用户真实验收通过 |
+| Phase 3 · AR 实时试戴 | 📌 | 摄像头 / 关键点 / 朝向 / 甲形 / 纹理管线完成；多设备真机、阈值调优待补 |
+| Phase 4 · 纹理识别模型 | ⛔ | 浏览器业务已发布；严格联合、独立来源留出、真机 / Beta、双批准回滚待闭合 |
+| Phase 5 · 个性化分析 | 📌 | 纯本地规则引擎与工程门完成；真实照片原分辨率与真机验收待补 |
+| 待规划 | ⬜ | 内容后台、商户体系与云同步、TLS / 域名与 HSTS、正式 API 鉴权 |
 
-- [x] 首页、编辑器、图库、隐私页
-- [x] ESLint 0 errors、测试规模已扩至 1,200+ 项、生产构建通过
-
-### Phase 2: AI 生成 ✅ 完成
-
-- [x] Agnes Image 2.5 Flash API 集成（2026-10-22 由 2.1 Flash 升级）、10 风格 × 50 段提示词库
-- [x] 前端状态机、错误处理、图片保存
-- [x] 用户真实生图功能验收通过（2026-08-10；2026-08-12再次确认）
-
-### Phase 3: AR 实时试戴 🚧 核心功能完成，待真机验证
-
-- [x] 摄像头管线、MediaPipe 手部检测
-- [x] 逐指可见性判定（4 信号融合）
-- [x] 全局朝向检测（4 传感器融合）
-- [x] 贝塞尔路径指甲形状
-- [x] 纹理柱面曲率变形
-- [x] 手势兼容检测
-- [x] 左右手识别 + 反转手按钮
-- [ ] 手机端多设备真机测试
-- [ ] 阈值实测调优
-- [ ] 3D AR 试戴（Three.js 已安装）
-
-### Phase 4: 纹理识别模型 ⛔ 真实素材增补与运行时门进行中，发布HOLD
-
-- [x] 浏览器端 ONNX Runtime Web 推理管线
-- [x] 正式数据集（409 图/2142 mask）
-- [x] 浏览器Worker、WebGPU/WASM、候选后处理与mask提取管线
-- [x] 独立发布测试集冻结到 100 张/554 mask（核心 78 张、压力 22 张）
-- [x] 补足 33 张来源隔离的代表性发布测试图并完成逐甲真值终审
-- [x] candidate5—30系列直接候选路线已终止：candidate5/6/7/8/9/18—29均经训练、val30校准或冻结test100审计否决（含candidate21最优识别基线与candidate29预注册插值锁定），candidate28/30收尾计划随路线换挡关闭，全部禁止导出/登记/部署；细节见实验历史归档及对应dev-log
-- [x] candidate56复用candidate52深审输入完成512方形stage1训练（最佳权重SHA-256 `64628504…c272`），单stage1与联合candidate55边界精修两条链均在来源隔离val30拒绝，未读取test100
-- [x] candidate57低置信带组合门val30通过（129匹配/15漏检/16误检、边界F1 `0.6139459`）并锁定不可反调复合运行时，详见实验历史归档§12.11
-- [ ] 通过冻结test100逐实例完整识别门（candidate6、candidate7、candidate8、candidate29均已否决；candidate57锁定运行时已完成冻结test100验收，实例召回率`0.95848375`与完整mask率`0.86462094`通过，漏检图片率`0.13`与加权杂散率`0.04693141`仍失败，产品HOLD）
-- [ ] 训练后另建、原子冻结并终审不少于100张全新未见困难负样本
-- [x] audit v3发布要求解析器（`scripts/lib/nail-texture-release-progress.ts`）接入总审计，530条真实记录分为7项当前发布要求与523条历史记录（历史记录标记 `historical`/`legacy-unclassified`，不再永久阻断）
-- [x] audit v3统一身份、逐实例重放与一次性消费台账接入：新增冻结正样本留出原子独占认领台账与正式schema v3报告，completion audit升级为`v3`（18门5通过/13失败，`ok=false`、HOLD；候选证据门须真实满足，不再用迁移占位阻断）
-- [x] development-cycle-001预注册容量实验 `H-CAPACITY-001`（train内`sourceGroup`互斥开发折，YOLO11n基线召回`0.890`/完整率`0.775`，YOLO11s扩大容量未达预注册改善门，容量扩展分支关闭）；全程不读取旧val30/test100或任何发布留出
-- [x] 开发循环003—005单变量复评：训练分辨率512→640（召回`0.8625`，分支关闭）、困难负样本120→60（召回`0.8975`/杂散率`0.130`，当前较优开发基线但仍未达晋级门）、`hardBoundaryWeight=0.5`（退化，形态学边界监督分支关闭）
-- [x] train角色困难正样本精确选集：原469张/68来源组按原分辨率质量止损，补审90张真实素材后形成10张/10来源组/预计69甲精确选集（两张边缘裁断风险图未计入）；语料审计确认批内精确重复0、dHash≤2近重复0，与train、旧val、冻结test和受保护困难负样本交叠0
-- [x] 完成10张精确选集的逐甲真值终审（65个完整甲面mask，3处人工返修+1处拓扑修复+3处假候选删除+1处新月豁免，合法性/零交叠/几何审计全部通过）并合并candidate58b索引（343张/2071 mask/127来源组）
-- [x] 循环009预注册信号测试（严格同构对照：cycle004权重+cycle007同构合同，唯一变量=新增65 mask，评估折逐字节锁定）：漏甲图片率`0.31818182`→`0.42424242`未降反升、召回`0.88148148`低于护栏，主判据与护栏同时未过，假设证伪；逐图复算确认12张回归图当前漏17实例、净新增14，旧“新漏16”摘要已纠正
-- [x] 循环010冻结cycle007教师多信号蒸馏：漏甲图28→25、漏甲实例48→41、召回升至`0.89876543`，但仍未恢复cycle007基线，当前蒸馏配方关闭、不晋升；自动识别只接纳完整可见甲面，残缺/触边甲面转人工流程
-- [x] 循环011来源组均衡回放采样器（337图/111组、每epoch每组3-4样本、评估折逐字节不变，专项测试4/4）：漏甲图25→`22`、杂散率`0.1382716`与直接可提取率`0.43939394`均创开发循环历史最佳，但漏甲图差1张未达21、召回`0.89876543`未达0.90864198，allRequired失败，当前均衡回放配方关闭、不晋升
-- [x] 循环011实例迁移与12图原分辨率剖面：真实新漏9/恢复5；发现5张源图排除、4张真值返修，旧指标保留历史诊断，固定66图全量重审已建队列
-- [x] 固定66图/405-mask开发真值全量原分辨率重审：8张源图排除、16张标注返修、42张未发现新增问题；结果与版本化处置清单已哈希冻结
-- [x] 按处置清单完成16张替代polygon原分辨率终审，排除8张源图并重建58图/354-mask开发正图真值v2；物化与独立重放PASS、训练折来源组/图片SHA交叠0
-- [x] 冻结58张正图加原40张困难负图的98图新评估口径，并对循环011锁定权重完成唯一一次复评与逐实例剖面：召回`0.94067797`单项通过，完整率`0.83898305`、漏甲图率`0.22413793`、杂散率`0.0960452`未过；循环012唯一变量已预注册
-- [x] 完成循环012固定13张/13个新来源组/65-mask真实困难正图的源图筛选、原分辨率终审、隔离物化、唯一训练与clean98单次复评；五项相对信号全部失败，配方关闭且不晋升
-- [x] 预注册并实现循环013“全图召回 + 逐甲高分辨率ROI mask替换”开发原型（物化器/运行时/校验器/关闭脚本+4个专项测试），但**零推理可达性判决证伪**：21枚漏甲中仅5枚存在可附着候选、16枚按构造无候选，即便替换成功率100%且mask完美，漏甲图13→11（门≤5）、杂散率`0.0960452`→`0.07627119`（门≤0.02）双轴仍不达标，判决`unreachable_by_mask_replacement_stage2`——瓶颈是候选供给而非替换成功率；Wilson分辨率显示58图规模下“少漏1—2张图”的相对信号均在噪声内（分辨0.2241与0.1724需每组932张）。报告验证器升级为逐项路径+SHA-256深重放（1190项同构检查0不一致）
-- [x] 训练吞吐只读诊断（隔离副本+真实Ultralytics训练器）：稳态34.41 s/epoch中训练26.06 s+验证8.35 s；`workers: 0→8`是唯一零语义代价杠杆（数据加载8.16→1.43 s，整epoch预计提速约22%）；验证段约94%成本来自指标与绘图而非推理；措施与采纳前置条件固化为`docs/training-throughput-speedup-measures.md`（`workers`在冻结合同内，属受控变更须预注册证明指标中性）
-- [x] 循环014 优化路线（0.70多裁片覆盖21个漏检真值）经零训练实测后关闭：裁片评估把匹配333→336、漏检21→18，但假阳性10→28、杂散率`0.0960452`→`0.20762712`，allRequired失败——扩大候选面会反向恶化杂散，扩容必须与杂散控制一起设计
-- [x] 循环015 终局：冻结真实素材 795 张（五批零交叠）并入训练 827 图，终态数据集 train 1133 图/6350 mask；batch5 终局长训早停于 epoch 9（best@epoch5），clean98 复评 instanceRecall `0.92372881`、直接可提取率 `0.48275862` 为历史最高，但五项信号门仍未全通过，预标注真值供给路线终局证伪，真实素材入库不再作为训练变量
-- [x] 循环016 全 303 实例原分辨率验证真值复审完成并冻结修正/排除清单：230 通过、36 过分割、4 欠分割、19 混合错误、14 低清不可确认；按源图硬门排除 4 张低清源图/25 实例，冻结 57 实例返修、221 实例保留
-- [x] 循环016 v2 验证真值重建完成：221 保留 + 36 个 SAM 替换 + 21 个人工 polygon，排除 25 实例，得到 1428 train + 278 val、97/20 来源组；全量审核 278 个 polygon 合法、同图交叠 0，恢复内部开发模型选择资格（不含校准/测试/发布角色）
-- [x] 循环016 ROI v2 pilot：两份冻结权重复评联合通过率均为 0（阈值扫描判定`threshold_only_unreachable`）；第七轮完整 30 轮（epoch23）IoU/Boundary F1/联合率 `0.90333/0.65720/0` 失败不晋升但仍是最佳开发权重；PointRend 第八轮（epoch25）`0.90269/0.65721/0`、逐实例仅 141/278 改善，分支关闭；16 像素局部残差修正带覆盖 92.96% 未过 95% 门，32 像素 v2 oracle 联合率 `0.98561` 证明理论可达
-- [x] 循环016 分片002 复审闭合与分片003 推进：分片002 逐图逐甲处置闭合（含序号25/28/32/33 侧向透明甲/水印敏感源 SAM 定向返修与止损，序号33 隔离）；分片003 20图/105旧标注/10组中 4图质量排除（侧视局部甲面/立体饰物遮挡）、2图/10甲混合返修视觉通过、5图返修、9图待审，序号59 转人工；历史旧 mask 缺陷（侧向透明甲漏近端、长甲漏透明甲尖、甲根锯齿侵皮肤）逐图纠正，新训练批准 0
-- [x] 循环016 端到端双向高分辨率表示微型拟合：静态384 ONNX 与 Chromium WASM/WebGPU 审计完成，固定32例 train-only 微型过拟合按预注册执行（v1 通道错误拒绝重建、v2 修复口径后审计通过，联合门未达 `0.90/0.80` 即关闭）；连同第九轮局部残差修正器完整30轮失败、第十轮 soft Boundary IoU 损失微拟合联合率 `0.40625`、边界权重 `0.2→1.0` 梯度审计（训练信号可行但未改变逐例失败）、误差拓扑归因（96.75% 失败像素在真值边界 2 像素内、简单整体位移不可修补）——损失/结构各分支按预注册止损关闭，第七轮仍是最佳开发权重
-- [x] 循环016 全 train 训练真值逐分片复审推进：全 train 清单冻结后，分片001 20图/116枚旧标注处置闭合（8图/44甲通过、10图排除、2图/10甲返修通过），分片002 20图/104枚处置闭合（5图排除、10图返修、2图水印待审、3图/20甲通过）；水印敏感源隔离、水印消融审计进行中；真实素材字节身份账重放通过（2,775 身份，174 个与受保护角色同字节）；新训练批准 0
-- [x] 循环016 分片001—003 复审与训练真值处置闭合；该分片序列此后不再是当前活动，现行主线切换为 WeVisOne-VL 辅助的真实素材批次（`cycle016-wevis-real-material-v1/batch002—017`），历史处置、水印隔离与失败保持
-- [x] WeVis batch016：12 源筛选（8 源排除）、4 源 18 甲逐甲返修后 2 完整源 8 甲通过并入训（当时累计 49/100 图、316 甲）
-- [x] WeVis batch017 源图与真值：12 源筛选（6 源排除）、6 源 42 甲逐甲返修与整源准入——4 完整源 29 甲通过并入训，另 2 源 3 处边界未决整源禁止训练；累计 53/100 图、345 完整甲面
-- [x] WeVis batch017 Stage A：76 图/494 甲 CPU 8 轮 304 优化步（608 微批、608 曝光），批一 0 步前置失败与批二 13 步失败保留不续训；76 图尚未配对评估，不沿用 72 图配对结论
-- [ ] WeVis batch018：按 `batch018/plan.json` 冻结 12 源完整原图筛选、合格整源逐甲精标及资格闭合后训练（新增 100 图尚缺 47）
-- [ ] 开发证据不增加发布PASS，产品继续HOLD
-- [ ] 部署512三变体达到误检图片0、误检检测0、相对原图delta 0
-- [ ] 导出并登记生产ONNX，接入`/ar-tryon`正式多纹理识别和像素级mask提取
-- [ ] 移动真机 WebGPU 性能验证
-- [ ] Beta 人工质量审核（100 张）
-- [ ] 两个独立批准版本的回滚验证与最终`ok=true / decision=complete`审计
-
-### Phase 5: 个性化分析推荐 📌 工程门通过，待真实照片与真机验收
-
-- [x] 资料汇编与功能设计两份文档（竞品/学术/领域知识/市场；含争议与失效证据、检索维护说明）
-- [x] `src/lib/nail-personalization/` 九个纯函数模块：色彩科学（Lab/ITA°/Monk/底调/ΔE76）、甲周环采样（自污染排除 + 双条件质量门）、手型分析（手轴旋转归一化 + 四类手型）、健康启发式（均匀度/高光/条纹，恒非医疗声明）、规则引擎（11 甲型 + 15 颜色 + 安全硬过滤 + 组合分归一化）、中文文案层、`/editor?preset=` 桥接、纯编排入口
-- [x] `/nail-analysis` 页面（上传→识别→问卷→推荐）、问卷与结果组件、首页与导航入口、`/editor` 出站消费、`/privacy` 数据流向登记
-- [x] 11 个测试文件 / 73 项测试（含 ITA 六档×底调四类公平性矩阵、光照漂移、规则覆盖 meta-test、4096² 采样性能预算）；typecheck / typecheck:tests / lint / 全量串行测试 / 生产构建通过
-- [ ] 真实手背照片原分辨率视觉验收（含不同肤色、光照、斜拍/竖拍、五指不全、0 候选路径）
-- [ ] 规则阈值与质量门预注册假设的标定（须使用与模型训练/评估来源隔离的新样本）
-- [ ] 若后续接入手部 landmarks，可把手型从「甲面派生近似」升级为掌宽/掌长口径（不触碰现有识别管线）
-
-### 待规划
-
-- [x] 云端部署上线（2026-10-04 腾讯云轻量 + Nginx 反向代理，应用只监听 `127.0.0.1:3000`、3000 端口不暴露公网）；Vercel 方案未采用，当前为 HTTP、无安全上下文
-- [ ] 真实灵感图库与内容后台
-- [ ] 用户系统 Phase 1 剩余项：商户体系、云端作品/收藏/历史、AI 配额、注销导出、游客数据合并
-- [x] API 安全加固（2026-09-24 审计修复）：Next 16.2.9→16.3.6 修复 CVE-2026-75604（Windows 主机未授权 RCE，CVSS 9.0），`npm audit` 归零；新增按 IP 限流与 `/api/*` 状态变更 Origin 校验（CSRF）、错误响应脱敏、换绑接口状态枚举消除、`poweredByHeader: false`；云端 Nginx 反向代理上线（移除 3000 公网暴露、放行 443、安全响应头与 `limit_req`），部署配置留档 `deploy/nginx/`
-- [ ] SSH 22 端口来源 IP 收敛、域名与 TLS/443/HSTS 配置（待授予 CAM 服务角色）
-- [ ] 正式 API 鉴权与内容安全
-- [ ] ArView.tsx 拆分（1374 行 → 多模块）
+**当前唯一活动**：保持 PAUSED；第88次 128 轮已完成，恢复后只读核验既有重放/终评并完成 87/81 全 634 结项。已结项或已证伪的候选路线（candidate 系列、开发循环、预标注真值供给、mask 替换后处理等）统一归档到 [`docs/archive/`](docs/archive/) 与当日日志，README 不逐条复述。
 
 ---
 
 ## 技术栈
 
-| 层级 | 技术 | 版本 |
+| 层级 | 技术 | 版本 / 方式 |
 | --- | --- | --- |
 | 框架 | Next.js App Router | 16.3.6 |
-| UI | React | 19.2.4 |
-| 语言 | TypeScript | 5.x |
-| 样式 | Tailwind CSS | 4.x |
-| 手部关键点 | MediaPipe Hands | 浏览器端，本站同源 `/vendor/mediapipe/hands/`（固定 0.4.1675469240） |
-| 纹理推理 | ONNX Runtime Web | 1.27.0（WebGPU/WASM） |
-| 3D | Three.js | 0.184.0（已安装，未使用） |
-| AI 生图 | Agnes Image 2.5 Flash + 火山方舟 Seedream 5.0（pro/lite，引擎可选） | 服务端 API |
-| 部署 | 腾讯云轻量 + Nginx 反向代理 | 已上线（HTTP；TLS/HTTPS 域名待配置，Vercel 未采用） |
-
-来源图审核工具支持整图优先：`build-native-source-pair-review-v3.py`构建无重采样schema3页，`audit-native-source-review-pages-v3.py`重放完整RGB/全覆盖与实际查看绑定；旧分块证据保持，缩放图不能用于原像素批准。接口及回退方式见技术白皮书§8.5。
-
-已知来源图对可用`model/training/native-source-grid-diagnostic.py`做仅内存的固定网格数值诊断；正控未通过不计算候选，不能因此批准视觉、来源或训练。接口及本轮真实失败见技术白皮书§8.6与实验历史归档§12.300。
-
-仅正控位置/镜像诊断可用`model/training/native-source-registration-diagnostic.py`；需要OpenCV及已冻结方法、原RGB守卫，固定fixture无需私有报告。真实正控失败不会批准来源、候选或训练，见技术白皮书§8.7与实验历史归档§12.301。
+| UI | React + TypeScript + Tailwind CSS | 19.2.4 / 5.x / 4.x |
+| 手部关键点 | MediaPipe Hands | 本站同源 `/vendor/mediapipe/hands/`，固定 0.4.1675469240 |
+| 纹理推理 | ONNX Runtime Web | 1.27.0（发布对拍绑定 WASM；WebGPU 未启用） |
+| AI 生图 | Agnes Image 2.5 Flash / 火山方舟 Seedream 5.0 | 服务端 API，引擎可选 |
+| 部署 | 腾讯云轻量 + Nginx 反向代理 | 应用仅监听 `127.0.0.1:3000`；当前为 HTTP，TLS / HTTPS 域名待配置 |
