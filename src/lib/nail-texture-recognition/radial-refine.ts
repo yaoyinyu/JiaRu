@@ -21,6 +21,7 @@ import {
   roundHalfEven,
 } from "./radial-field.ts";
 import { radialCoverageAlpha } from "./edge-refine.ts";
+import { smoothRadiusVector } from "./radial-smoothing.ts";
 import { buildRadialStrip } from "./radial-strip.ts";
 import { estimateMaskPrincipalAngle } from "./mask-orientation.ts";
 import { inferSuggestedFingers } from "./finger-assignment.ts";
@@ -436,7 +437,23 @@ export async function runRadialRefineComposition(input: {
       continue;
     }
 
-    const logits = radialMaskLogits(radiusValues, lattice.bins, lattice.distance);
+    // 半径向量平滑（缺省关闭）：mask 解码与 coverage alpha 必须使用同一向量，
+    // 否则二值边界与羽化边缘会错位。
+    const smoothingConfig = input.stage2Config.radiusSmoothing;
+    const smoothing = smoothingConfig
+      ? smoothRadiusVector(radiusValues, lattice.bins, lattice.distance, {
+          mode: smoothingConfig.mode,
+          deviationRmsArcPixels: smoothingConfig.deviationRmsArcPixels,
+          gridArcPixels: smoothingConfig.gridArcPixels,
+          areaCompensation: smoothingConfig.areaCompensation !== false,
+        })
+      : null;
+    const effectiveRadius = smoothing?.applied ? smoothing.radius : radiusValues;
+    if (smoothing?.applied) {
+      warnings.push(`radius_smoothing_applied:${smoothing.sigmaArcPixels}`);
+    }
+
+    const logits = radialMaskLogits(effectiveRadius, lattice.bins, lattice.distance);
     // alpha 嵌入整图域（识别输入域，origin 0,0），与候选 mask 既有约定一致。
     const fullMask = new Uint8Array(input.source.width * input.source.height);
     const roiGrid = new Uint8Array(roiSide * roiSide);
@@ -486,7 +503,7 @@ export async function runRadialRefineComposition(input: {
     });
     let coverageAlpha: Uint8ClampedArray | undefined;
     if (input.stage2Config.edgeRefinement?.mode === "radial-coverage-v1") {
-      const localAlpha = radialCoverageAlpha(radiusValues, centerX, centerY, roiGrid, roiSide, roiSide, input.stage2Config.edgeRefinement.samples);
+      const localAlpha = radialCoverageAlpha(effectiveRadius, centerX, centerY, roiGrid, roiSide, roiSide, input.stage2Config.edgeRefinement.samples);
       coverageAlpha = new Uint8ClampedArray(fullMask.length);
       for (let row = 0; row < roiSide; row++) {
         coverageAlpha.set(localAlpha.subarray(row * roiSide, (row + 1) * roiSide), (roi.top + row) * input.source.width + roi.left);

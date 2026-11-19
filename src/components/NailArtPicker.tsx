@@ -31,7 +31,7 @@ import NailMattePanel, {
 } from "@/components/NailMattePanel";
 import { NailDetectModeSwitch } from "@/components/NailDetectModeSwitch";
 import { autoAssignNailRegionFingers } from "@/lib/nail-auto-flow";
-import { matchNailDirectionReferences } from "@/lib/nail-texture-direction";
+import { matchNailDirectionReferences, matchNailDirectionsByFinger } from "@/lib/nail-texture-direction";
 import { decideNailDetectRun, type NailDetectMode } from "@/lib/nail-detect-mode";
 import {
   cloudDetectMessageFromReason,
@@ -1060,8 +1060,18 @@ export default function NailArtPicker({
             const { detectNailsFromHandImage } = await import("@/lib/nail-hand-geometry-detection");
             if (controller.signal.aborted || closeCancelledRef.current || autoFlowCancelledRef.current) return null;
             const hand = await detectNailsFromHandImage(image, { signal: controller.signal, timeoutMs: 5000, maxHands: 2 });
-            const directions = matchNailDirectionReferences(unresolved.map(r => ({ ...r, length: r.nl, width: r.nw })), hand.candidates);
+            const axes = unresolved.map(r => ({ ...r, length: r.nl, width: r.nw }));
+            const directions = matchNailDirectionReferences(axes, hand.candidates);
             directions.forEach((angle, i) => { if (angle != null) directionById.set(unresolved[i].id, angle); });
+            // 几何配对失败时按指位直接取该手指的方向：手部关键点可见即能定向，
+            // 不受候选框重叠与双向唯一性限制（同指方向即甲尖方向）。
+            const byFinger = matchNailDirectionsByFinger(
+              unresolved.map(r => ({ ...r, length: r.nl, width: r.nw, finger: r.assignedFinger })),
+              hand.candidates,
+            );
+            byFinger.forEach((angle, i) => {
+              if (angle != null && !directionById.has(unresolved[i].id)) directionById.set(unresolved[i].id, angle);
+            });
           } catch {
             // 近景或关键点失败时沿用轮廓方向及已有复核提示。
           } finally {

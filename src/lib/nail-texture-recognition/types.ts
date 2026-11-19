@@ -150,6 +150,20 @@ export interface RecognizeNailTextureResponse {
 export interface NailTextureStage2Manifest {
   /** 独立产品输出配方；原模型两头与硬mask对拍保持。 */
   edgeRefinement?: { mode: "radial-coverage-v1"; samples: 2 | 4 };
+  /**
+   * radial-refine 模式：解码前的半径向量平滑（可选，缺省不启用）。
+   * 缺省时输出与旧版本逐位一致；显式声明才改变 mask 与 coverage alpha。
+   * 证据：model/reports/cycle093-bias-neutral-smoothing-v1/report.json。
+   */
+  radiusSmoothing?: {
+    mode: "rms-bounded-gaussian";
+    /** 允许的 RMS 半径偏移（弧长像素）。 */
+    deviationRmsArcPixels: number;
+    /** 候选核宽（弧长像素），升序。 */
+    gridArcPixels: number[];
+    /** 是否做面积补偿（默认 true）。 */
+    areaCompensation?: boolean;
+  };
   modelFile: string;
   mode?: "rescore" | "radial-refine";
   /** rescore 模式：Stage B 输入尺寸。 */

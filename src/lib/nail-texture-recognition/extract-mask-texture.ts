@@ -345,8 +345,6 @@ export async function extractTextureFromMaskDetailed(
 
   const scaleX = imageWidth / mask.width;
   const scaleY = imageHeight / mask.height;
-  const sourceX = Math.max(0, Math.floor(bounds.minX * scaleX));
-  const sourceY = Math.max(0, Math.floor(bounds.minY * scaleY));
   const sourceW = Math.max(1, Math.ceil((bounds.maxX - bounds.minX + 1) * scaleX));
   const sourceH = Math.max(1, Math.ceil((bounds.maxY - bounds.minY + 1) * scaleY));
 
@@ -361,53 +359,34 @@ export async function extractTextureFromMaskDetailed(
   }
 
   const alphaMask = buildFeatheredAlphaMask(mask, featherRadius);
-  let imageData: ImageData;
-  if (mask.coverageAlpha) {
-    // 连续缩放覆盖率，RGB直接从原图采样到纹理域，保留原图纹理细节。
-    const gridWidth = bounds.maxX - bounds.minX + 1;
-    const gridHeight = bounds.maxY - bounds.minY + 1;
-    const grid = new OffscreenCanvas(gridWidth, gridHeight);
-    const gridContext = grid.getContext("2d");
-    if (!gridContext) throw new Error("offscreen_canvas_2d_unavailable");
-    const pixels = gridContext.createImageData(gridWidth, gridHeight);
-    for (let y = 0; y < gridHeight; y++) {
-      for (let x = 0; x < gridWidth; x++) {
-        const offset = (y * gridWidth + x) * 4;
-        pixels.data[offset] = pixels.data[offset + 1] = pixels.data[offset + 2] = 255;
-        pixels.data[offset + 3] = alphaMask[(bounds.minY + y) * mask.width + bounds.minX + x];
-      }
-    }
-    gridContext.putImageData(pixels, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(grid, 0, 0, outputWidth, outputHeight);
-    const coverage = ctx.getImageData(0, 0, outputWidth, outputHeight);
-    ctx.clearRect(0, 0, outputWidth, outputHeight);
-    ctx.drawImage(image, bounds.minX * scaleX, bounds.minY * scaleY,
-      gridWidth * scaleX, gridHeight * scaleY, 0, 0, outputWidth, outputHeight);
-    imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
-    for (let offset = 3; offset < imageData.data.length; offset += 4) {
-      imageData.data[offset] = Math.round(imageData.data[offset] * coverage.data[offset] / 255);
-    }
-    grid.width = grid.height = 1;
-  } else {
-    ctx.drawImage(image, sourceX, sourceY, sourceW, sourceH, 0, 0, outputWidth, outputHeight);
-    imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
-    for (let y = 0; y < outputHeight; y++) {
-      const maskY = Math.min(
-        mask.height - 1,
-        bounds.minY + Math.floor((y / outputHeight) * (bounds.maxY - bounds.minY + 1))
-      );
-      for (let x = 0; x < outputWidth; x++) {
-        const maskX = Math.min(
-          mask.width - 1,
-          bounds.minX + Math.floor((x / outputWidth) * (bounds.maxX - bounds.minX + 1))
-        );
-        imageData.data[(y * outputWidth + x) * 4 + 3] =
-          alphaMask[maskY * mask.width + maskX] ?? 0;
-      }
+  // alpha 一律经「栅格 → 双线性缩放」重建：此前非覆盖率分支按最近邻取样，
+  // 二值 mask 的阶梯会在纹理域被放大成可见锯齿（模型/降级/手选路径都中招）。
+  const gridWidth = bounds.maxX - bounds.minX + 1;
+  const gridHeight = bounds.maxY - bounds.minY + 1;
+  const grid = new OffscreenCanvas(gridWidth, gridHeight);
+  const gridContext = grid.getContext("2d");
+  if (!gridContext) throw new Error("offscreen_canvas_2d_unavailable");
+  const pixels = new ImageData(new Uint8ClampedArray(gridWidth * gridHeight * 4), gridWidth, gridHeight);
+  for (let y = 0; y < gridHeight; y++) {
+    for (let x = 0; x < gridWidth; x++) {
+      const offset = (y * gridWidth + x) * 4;
+      pixels.data[offset] = pixels.data[offset + 1] = pixels.data[offset + 2] = 255;
+      pixels.data[offset + 3] = alphaMask[(bounds.minY + y) * mask.width + bounds.minX + x];
     }
   }
+  gridContext.putImageData(pixels, 0, 0);
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(grid, 0, 0, outputWidth, outputHeight);
+  const coverage = ctx.getImageData(0, 0, outputWidth, outputHeight);
+  ctx.clearRect(0, 0, outputWidth, outputHeight);
+  ctx.drawImage(image, bounds.minX * scaleX, bounds.minY * scaleY,
+    gridWidth * scaleX, gridHeight * scaleY, 0, 0, outputWidth, outputHeight);
+  const imageData = ctx.getImageData(0, 0, outputWidth, outputHeight);
+  for (let offset = 3; offset < imageData.data.length; offset += 4) {
+    imageData.data[offset] = Math.round(imageData.data[offset] * coverage.data[offset] / 255);
+  }
+  grid.width = grid.height = 1;
 
   const highlightRepair =
     highlightStrategy === "repair"

@@ -20,6 +20,19 @@ function cloneImageData(imageData: FakeImageData): FakeImageData {
   return new FakeImageData(new Uint8ClampedArray(imageData.data), imageData.width, imageData.height);
 }
 
+/** 统一读取像素源：原始 {width,height,data} 与假 canvas 两种入参都支持。 */
+function readPixels(source: unknown): { width: number; height: number; data: Uint8ClampedArray } {
+  const canvas = source as { context?: { imageData: FakeImageData }; width: number; height: number };
+  if (canvas && canvas.context && canvas.context.imageData) {
+    return {
+      width: canvas.context.imageData.width,
+      height: canvas.context.imageData.height,
+      data: canvas.context.imageData.data,
+    };
+  }
+  return source as { width: number; height: number; data: Uint8ClampedArray };
+}
+
 class FakeCanvasRenderingContext2D {
   imageData: FakeImageData;
   private readonly canvasWidth: number;
@@ -31,25 +44,25 @@ class FakeCanvasRenderingContext2D {
     this.imageData = new FakeImageData(new Uint8ClampedArray(canvasWidth * canvasHeight * 4), canvasWidth, canvasHeight);
   }
 
-  drawImage(
-    source: { width: number; height: number; data: Uint8ClampedArray },
-    sx: number,
-    sy: number,
-    sw: number,
-    sh: number,
-    dx: number,
-    dy: number,
-    dw: number,
-    dh: number
-  ) {
+  drawImage(source: unknown, ...args: number[]) {
+    const image = readPixels(source);
+    let sx = 0, sy = 0, sw = image.width, sh = image.height;
+    let dx = 0, dy = 0, dw = image.width, dh = image.height;
+    if (args.length === 8) {
+      [sx, sy, sw, sh, dx, dy, dw, dh] = args;
+    } else if (args.length === 4) {
+      [dx, dy, dw, dh] = args;
+    } else if (args.length === 2) {
+      [dx, dy] = args;
+    }
     for (let y = 0; y < dh; y++) {
-      const srcY = Math.min(source.height - 1, sy + Math.floor((y / dh) * sh));
+      const srcY = Math.min(image.height - 1, sy + Math.floor((y / dh) * sh));
       for (let x = 0; x < dw; x++) {
-        const srcX = Math.min(source.width - 1, sx + Math.floor((x / dw) * sw));
-        const sourceOffset = (srcY * source.width + srcX) * 4;
+        const srcX = Math.min(image.width - 1, sx + Math.floor((x / dw) * sw));
+        const sourceOffset = (srcY * image.width + srcX) * 4;
         const targetOffset = ((dy + y) * this.canvasWidth + (dx + x)) * 4;
         for (let channel = 0; channel < 4; channel++) {
-          this.imageData.data[targetOffset + channel] = source.data[sourceOffset + channel] ?? 0;
+          this.imageData.data[targetOffset + channel] = image.data[sourceOffset + channel] ?? 0;
         }
       }
     }
@@ -67,6 +80,14 @@ class FakeCanvasRenderingContext2D {
     void x;
     void y;
     this.imageData = cloneImageData(imageData);
+  }
+
+  clearRect(x: number, y: number, w: number, h: number) {
+    void x;
+    void y;
+    void w;
+    void h;
+    this.imageData = new FakeImageData(new Uint8ClampedArray(this.canvasWidth * this.canvasHeight * 4), this.canvasWidth, this.canvasHeight);
   }
 }
 
