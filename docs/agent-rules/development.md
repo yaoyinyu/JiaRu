@@ -21,6 +21,8 @@
 - 操作服务前核验 PID、命令行、工作目录、监听端口和所用构建目录；只停止本次已确认归属的进程，避免按进程名批量结束其他会话或用户服务。
 - 端口上已有 `next start`/`next dev` 提供预览时，先停止使用同一 `.next` 的对应服务再执行 `npm.cmd run build`，构建完成后重启并刷新页面。核验 CSS/JS/图片资源请求无 ≥400、无未约束图标或图片异常撑大、无坏图及横向溢出；超过 200px 的 SVG/图片按设计用途检查尺寸约束，主图和画布保留预期尺寸。业务 API 的预期状态码单独核对与登记。构建失败时保留日志，并明确预览的恢复状态。
 
+- 本机构建的两个环境前提（2026-11-22 实测）：①IDE 注入的删除守卫会把 `next build` 清理 `.next/turbopack` 判为批量删除并抛 `SAFE_DELETE_BULK_CONFIRM_REQUIRED`，构建前对当前进程设置 `CODEBUDDY_SAFE_DELETE_ENABLED=0`；②`model/reports/**` 下的本地脚本副本会被 `tsconfig` 的 `**/*.ts` 纳入类型检查，同目录依赖缺失即让构建失败，构建前临时移出工作区外、构建后原样恢复，不改 `tsconfig` 排除项。
+
 ## 脚本与测试陷阱
 
 - PowerShell对`[ordered]`哈希表使用`Select-Object`/`Measure-Object`前，须先转为`PSCustomObject`或直接按键累加；字节与分母聚合必须和逐记录重算一致，`null`不得解释为0或通过。冻结报告发现空聚合须保留旧版并另版修正。

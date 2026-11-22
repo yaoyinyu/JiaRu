@@ -13,11 +13,23 @@ import {
 } from "@/lib/nail-geometry";
 import { resolveMediaPipeHandsAsset } from "@/lib/mediapipe-hands-assets";
 import { measureTextureAlphaFrame, textureDrawRect, textureLayerSize, cuticleBlendDistance, photographicLightGain, type TextureAlphaFrame } from "@/lib/ar-texture-fit";
+import {
+  AR_ROOT_COLOR_PROTECTION_ENABLED,
+  adaptiveRootProtectionWeight,
+  blendProtectedRootOutputs,
+  buildSquareOpacityMask,
+  buildTextureAreaIntegral,
+  createExactAreaSampler,
+  minimumPixelFootprint,
+  renderProtectedRootColors,
+  textureLayerToPhysicalMatrix,
+  textureLayerToSourceMatrix,
+  type TextureAreaIntegral,
+} from "@/lib/ar-root-color-protection";
 import { Icon } from "@/components/Icon";
 import {
   calculateCoverVideoLayout,
   calculateViewportAspectRatio,
-  coverPointToVideo,
 } from "@/lib/ar-video-layout";
 import {
   classifyHandOrientation,
@@ -63,6 +75,23 @@ const EXTENSION_ANGLE_THRESHOLD = 0.6; // ≈ 35°
 const VOTE_FINGERS = [1, 2, 3, 4];
 
 const INFERENCE_INTERVAL_MS = 1000 / 24;
+
+// 环境光采样：整帧缩略一次读取，供五指共享（逐指 getImageData 会触发 GL 同步回读）
+const LIGHT_FRAME_WIDTH = 96;
+const LIGHT_FRAME_HEIGHT = 54;
+const LIGHT_FRAME_TTL_MS = 320;
+const LIGHT_FRAME_PATCH_RADIUS = 2;
+const NEUTRAL_ENV_LIGHT = { brightness: 1, r: 1, g: 1, b: 1 };
+
+// 纹理合成层缓存：尺寸容差内的关键点抖动不重建离屏层
+// （上屏按当前几何等比缩放，容差只影响纹理重采样锐度，不改变甲面大小）
+const NAIL_LAYER_QUANTUM = 2;
+const NAIL_LAYER_SIZE_TOLERANCE = 0.15;
+const NAIL_LAYER_MIN_REBUILD_MS = 100;
+// 环境光亮度差超过该阈值才重建（层内亮度是烘焙结果，读数抖动不触发重绘）
+const NAIL_LAYER_LIGHT_TOLERANCE = 0.12;
+// 单帧最多重建的合成层数量，避免五指同帧重建造成整帧卡顿
+const NAIL_LAYER_REBUILDS_PER_FRAME = 1;
 
 // MediaPipe 全局类型声明（CDN 注入）
 interface Landmark {
@@ -122,6 +151,76 @@ function getTextureFrame(tex: ImageBitmap): TextureAlphaFrame {
   textureFrameCache.set(tex, frame);
   canvas.width = canvas.height = 1;
   return frame;
+}
+
+
+
+interface RootColorTextureResources {
+  integral: TextureAreaIntegral;
+  guardTwo: OffscreenCanvas;
+  guardOne: OffscreenCanvas;
+}
+
+/** 逐指纹理合成层缓存：签名不变时复用离屏合成结果。 */
+interface NailLayerSlot {
+  canvas: OffscreenCanvas;
+  ctx: OffscreenCanvasRenderingContext2D;
+  signature: string;
+  /** 构建时使用的甲面渲染尺寸；上屏按当前尺寸等比缩放，甲面大小始终跟随几何。 */
+  drawnWidth: number;
+  drawnLength: number;
+  /** 构建时烘焙进去的环境光亮度。 */
+  drawnBrightness: number;
+  /** 上次构建时间（ms），用于限制重建频率。 */
+  builtAt: number;
+}
+
+/** 每张纹理只构建一次 V7 资源：RGB 行积分与 2px/1px 不透明保护层。 */
+const rootColorTextureResourceCache = new WeakMap<ImageBitmap, RootColorTextureResources>();
+
+function getRootColorTextureResources(tex: ImageBitmap): RootColorTextureResources | null {
+  const cached = rootColorTextureResourceCache.get(tex);
+  if (cached) return cached;
+  if (tex.width <= 0 || tex.height <= 0) return null;
+  const source = new OffscreenCanvas(tex.width, tex.height);
+  const sourceCtx = source.getContext("2d", { willReadFrequently: true });
+  if (!sourceCtx) return null;
+  sourceCtx.drawImage(tex, 0, 0);
+  const rgba = sourceCtx.getImageData(0, 0, tex.width, tex.height).data;
+  const rgb = new Uint8Array(tex.width * tex.height * 3);
+  for (let i = 0, j = 0; i < rgba.length; i += 4) {
+    rgb[j++] = rgba[i];
+    rgb[j++] = rgba[i + 1];
+    rgb[j++] = rgba[i + 2];
+  }
+  const frame = getTextureFrame(tex);
+  let integral: TextureAreaIntegral;
+  try {
+    integral = buildTextureAreaIntegral(rgb, tex.width, tex.height, {
+      minX: frame.left,
+      minY: frame.top,
+      maxX: frame.left + frame.width - 1,
+      maxY: frame.top + frame.height - 1,
+    });
+  } catch {
+    return null;
+  }
+  const guardTwoData = buildSquareOpacityMask(rgba, tex.width, tex.height, 2);
+  const guardOneData = buildSquareOpacityMask(rgba, tex.width, tex.height, 1);
+  const guardTwo = new OffscreenCanvas(tex.width, tex.height);
+  const guardTwoCtx = guardTwo.getContext("2d");
+  const guardOne = new OffscreenCanvas(tex.width, tex.height);
+  const guardOneCtx = guardOne.getContext("2d");
+  if (!guardTwoCtx || !guardOneCtx) return null;
+  const guardTwoImage = guardTwoCtx.createImageData(tex.width, tex.height);
+  guardTwoImage.data.set(guardTwoData);
+  guardTwoCtx.putImageData(guardTwoImage, 0, 0);
+  const guardOneImage = guardOneCtx.createImageData(tex.width, tex.height);
+  guardOneImage.data.set(guardOneData);
+  guardOneCtx.putImageData(guardOneImage, 0, 0);
+  const resources: RootColorTextureResources = { integral, guardTwo, guardOne };
+  rootColorTextureResourceCache.set(tex, resources);
+  return resources;
 }
 
 interface Props {
@@ -234,6 +333,9 @@ export function ArView({
   }>({ orientation: "ambiguous", frames: 0 });
   // 左右标识（用于 UI 显示）
   const [handLabel, setHandLabel] = useState<"左手" | "右手" | null>(null);
+  // UI 状态去抖：逐帧推理结果只在真正变化时写入 React 状态。
+  const handCntUiRef = useRef(-1);
+  const handLabelUiRef = useRef<"左手" | "右手" | null>(null);
   // 左右手反转开关（用于前置摄像头镜像补偿）
   // 用 useRef 确保 onResults 闭包始终读取最新值
   const [handFlip, setHandFlip] = useState(false);
@@ -241,10 +343,30 @@ export function ArView({
   // 逐指可见性 UI 状态（true=可见，false=隐藏）
   const [fingerVisible, setFingerVisible] = useState<boolean[]>([true, true, true, true, true]);
   const fingerVisibleUiRef = useRef<boolean[]>([true, true, true, true, true]);
-  const lightSampleCanvasRef = useRef<OffscreenCanvas | null>(null);
   const grainCanvasRef = useRef<OffscreenCanvas | null>(null);
+  // 环境光共享缩略帧（每帧至多一次 GL 回读，五指复用同一份像素）
+  const lightFrameCanvasRef = useRef<OffscreenCanvas | null>(null);
+  const lightFrameCtxRef = useRef<OffscreenCanvasRenderingContext2D | null>(null);
+  const lightFrameStateRef = useRef<{
+    data: Uint8ClampedArray;
+    width: number;
+    height: number;
+    viewWidth: number;
+    viewHeight: number;
+    at: number;
+  } | null>(null);
   // 纹理合成层（纹理 + 材质先在离屏合成，source-atop 限制在纹理 alpha 内，再整体上屏）
-  const nailLayerCanvasRef = useRef<OffscreenCanvas | null>(null);
+  // 按指独立缓存：层内容只取决于纹理、甲面尺寸、光照与光泽，几何位移由画布变换承担，
+  // 因此签名不变时可直接复用上一帧的合成结果，省去重绘与逐指像素回读。
+  const nailLayerSlotsRef = useRef<Array<NailLayerSlot | null>>([null, null, null, null, null]);
+  const nailLayerTextureIdRef = useRef(new WeakMap<ImageBitmap, number>());
+  const nailLayerTextureSeqRef = useRef(0);
+  // 单帧合成层重建预算（每次 paintNails 重置）
+  const layerRebuildBudgetRef = useRef(0);
+  // V7 甲根颜色保护的工作层：绘制 1px/2px 内缩源并读取其 alpha。
+  const rootColorWorkCanvasRef = useRef<OffscreenCanvas | null>(null);
+  // V7 运行时回退只提示一次，避免逐帧告警刷屏。
+  const rootColorFallbackWarnedRef = useRef(false);
 
   const log = (m: string) => {
     console.log("[AR]", m);
@@ -274,26 +396,138 @@ export function ArView({
     return prev + alpha * (curr - prev);
   }
 
-  /** 获取可复用的离屏合成层（尺寸不足时重建；2D 上下文随层复用） */
-  function acquireNailLayerCanvas(width: number, height: number): {
-    canvas: OffscreenCanvas;
-    ctx: OffscreenCanvasRenderingContext2D;
-  } | null {
-    let canvas = nailLayerCanvasRef.current;
-    if (!canvas || canvas.width < width || canvas.height < height) {
-      canvas = new OffscreenCanvas(
-        Math.max(1, Math.ceil(width)),
-        Math.max(1, Math.ceil(height)),
-      );
-      nailLayerCanvasRef.current = canvas;
+  /** 纹理实例 id：WeakMap 递增编号，用于合成层签名比较。 */
+  function textureLayerId(tex: ImageBitmap): number {
+    const ids = nailLayerTextureIdRef.current;
+    const existing = ids.get(tex);
+    if (existing !== undefined) return existing;
+    nailLayerTextureSeqRef.current += 1;
+    ids.set(tex, nailLayerTextureSeqRef.current);
+    return nailLayerTextureSeqRef.current;
+  }
+
+  /** 取逐指合成层（尺寸按 2px 量化复用；返回 null 表示上下文不可用）。 */
+  function acquireNailLayerCanvas(
+    finger: number,
+    width: number,
+    height: number,
+  ): NailLayerSlot | null {
+    const qw = Math.max(1, Math.ceil(width / NAIL_LAYER_QUANTUM) * NAIL_LAYER_QUANTUM);
+    const qh = Math.max(1, Math.ceil(height / NAIL_LAYER_QUANTUM) * NAIL_LAYER_QUANTUM);
+    const slots = nailLayerSlotsRef.current;
+    let slot = slots[finger] ?? null;
+    if (!slot || slot.canvas.width < qw || slot.canvas.height < qh) {
+      const canvas = new OffscreenCanvas(qw, qh);
+      // 合成层每帧都要上屏一次，保持加速后端；像素回读只在重建时发生（已按预算节流）。
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return null;
+      slot = { canvas, ctx, signature: "", drawnWidth: 0, drawnLength: 0, drawnBrightness: 0, builtAt: 0 };
+      slots[finger] = slot;
     }
-    const ctx = canvas.getContext("2d");
+    return slot;
+  }
+
+  /** 在离屏层 alpha 上融合甲根交界；调用方负责纹理已先绘制。 */
+  function applyRootColorFade(
+    ctx: OffscreenCanvasRenderingContext2D,
+    canvas: OffscreenCanvas,
+    renderLength: number,
+  ) {
+    ctx.globalCompositeOperation = "destination-in";
+    const rootY = renderLength / 2;
+    const rootBlend = ctx.createLinearGradient(0, rootY - cuticleBlendDistance(renderLength), 0, rootY);
+    rootBlend.addColorStop(0, "rgba(0,0,0,1)");
+    rootBlend.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = rootBlend;
+    ctx.fillRect(-canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  function readRootColorGuardData(
+    guard: OffscreenCanvas,
+    width: number,
+    height: number,
+    rect: { x: number; y: number; width: number; height: number },
+    renderLength: number,
+  ): ImageData | null {
+    let canvas = rootColorWorkCanvasRef.current;
+    if (!canvas || canvas.width !== width || canvas.height !== height) {
+      canvas = new OffscreenCanvas(width, height);
+      rootColorWorkCanvasRef.current = canvas;
+    }
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
     if (!ctx) return null;
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
-    return { canvas, ctx };
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.translate(canvas.width / 2, canvas.height / 2);
+    ctx.drawImage(guard, rect.x, rect.y, rect.width, rect.height);
+    applyRootColorFade(ctx, canvas, renderLength);
+    return ctx.getImageData(0, 0, canvas.width, canvas.height);
+  }
+
+  /**
+   * V7 resampleTwo 生产路径：先保留现行摄影层作为基线，
+   * 再在根带内按精确面积采样替换 2px/1px 保护域 RGB，物理覆盖不足时偏向 2px。
+   */
+  function applyQualityFirstRootProtection(
+    lctx: OffscreenCanvasRenderingContext2D,
+    layerCanvas: OffscreenCanvas,
+    tex: ImageBitmap,
+    frame: TextureAlphaFrame,
+    rect: { x: number; y: number; width: number; height: number },
+    renderGeometry: NailGeometry,
+    renderLength: number,
+  ): boolean {
+    if (!AR_ROOT_COLOR_PROTECTION_ENABLED) return false;
+    const resources = getRootColorTextureResources(tex);
+    const sourceMatrix = textureLayerToSourceMatrix(
+      rect, tex.width, tex.height, layerCanvas.width, layerCanvas.height,
+    );
+    if (!resources || !sourceMatrix) return false;
+    const physicalMatrix = textureLayerToPhysicalMatrix(
+      createNailAffineTransform(renderGeometry),
+      layerCanvas.width,
+      layerCanvas.height,
+      typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
+    );
+    if (!physicalMatrix) return false;
+    const footprint = minimumPixelFootprint(physicalMatrix);
+    if (!footprint) return false;
+    const weight = adaptiveRootProtectionWeight(footprint);
+
+    const baseData = lctx.getImageData(0, 0, layerCanvas.width, layerCanvas.height);
+    const directTwo = readRootColorGuardData(
+      resources.guardTwo, layerCanvas.width, layerCanvas.height, rect, renderLength,
+    );
+    if (!directTwo) return false;
+    const sampler = createExactAreaSampler(resources.integral, sourceMatrix);
+    const twoData = renderProtectedRootColors(baseData, directTwo, renderLength, sampler);
+
+    let finalData: Uint8ClampedArray;
+    if (weight <= 0) {
+      finalData = twoData;
+    } else {
+      const directOne = readRootColorGuardData(
+        resources.guardOne, layerCanvas.width, layerCanvas.height, rect, renderLength,
+      );
+      if (!directOne) return false;
+      const oneData = renderProtectedRootColors(baseData, directOne, renderLength, sampler);
+      finalData = weight >= 1
+        ? oneData
+        : blendProtectedRootOutputs(
+          { width: layerCanvas.width, height: layerCanvas.height, data: twoData },
+          { width: layerCanvas.width, height: layerCanvas.height, data: oneData },
+          weight,
+        );
+    }
+    const finalImage = lctx.createImageData(layerCanvas.width, layerCanvas.height);
+    finalImage.data.set(finalData);
+    lctx.putImageData(finalImage, 0, 0);
+    return true;
   }
 
   /**
@@ -348,36 +582,91 @@ export function ArView({
   }
 
   /**
-   * 从视频帧采样环境光照
-   * 在指甲中心位置取一小块区域的平均亮度
+   * 读取环境光共享缩略帧。
+   *
+   * 逐指调用 getImageData 会让每次采样都等待一次 GL→CPU 同步回读（真机单次约 4ms），
+   * 五指叠加即吃掉整帧预算。这里改为把摄影画面按 cover 布局缩略绘制一次，
+   * 在时间窗内复用同一份像素，五指只做数组邻域平均。
    */
-  function sampleEnvLight(
+  function readEnvLightFrame(
     video: HTMLVideoElement,
+    w: number,
+    h: number,
+  ): { data: Uint8ClampedArray; width: number; height: number } | null {
+    const now = performance.now();
+    const cached = lightFrameStateRef.current;
+    if (
+      cached &&
+      cached.viewWidth === w &&
+      cached.viewHeight === h &&
+      now - cached.at < LIGHT_FRAME_TTL_MS
+    ) {
+      return cached;
+    }
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    if (vw <= 0 || vh <= 0 || w <= 0 || h <= 0) return cached;
+
+    let canvas = lightFrameCanvasRef.current;
+    if (!canvas) {
+      canvas = new OffscreenCanvas(LIGHT_FRAME_WIDTH, LIGHT_FRAME_HEIGHT);
+      lightFrameCanvasRef.current = canvas;
+      lightFrameCtxRef.current = null;
+    }
+    let ctx = lightFrameCtxRef.current;
+    if (!ctx) {
+      ctx = canvas.getContext("2d", { willReadFrequently: true });
+      lightFrameCtxRef.current = ctx;
+    }
+    if (!ctx) return cached;
+
+    // 与展示层一致的 object-cover 取景，保证缩略像素与画面几何对位。
+    const coverScale = Math.max(w / vw, h / vh);
+    const sw = Math.min(vw, w / coverScale);
+    const sh = Math.min(vh, h / coverScale);
+    const sx = (vw - sw) / 2;
+    const sy = (vh - sh) / 2;
+
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, LIGHT_FRAME_WIDTH, LIGHT_FRAME_HEIGHT);
+    const pixels = ctx.getImageData(0, 0, LIGHT_FRAME_WIDTH, LIGHT_FRAME_HEIGHT).data;
+    const next = {
+      data: pixels,
+      width: LIGHT_FRAME_WIDTH,
+      height: LIGHT_FRAME_HEIGHT,
+      viewWidth: w,
+      viewHeight: h,
+      at: now,
+    };
+    lightFrameStateRef.current = next;
+    return next;
+  }
+
+  /** 在缩略帧上取指甲中心邻域的平均色与感知亮度。 */
+  function sampleEnvLight(
+    frame: { data: Uint8ClampedArray; width: number; height: number },
     cx: number,
     cy: number,
     w: number,
-    h: number
+    h: number,
   ): { brightness: number; r: number; g: number; b: number } {
-    const sampleSize = 8;
-    const source = coverPointToVideo(cx, cy, video.videoWidth, video.videoHeight, w, h);
-    const sx = Math.max(0, Math.min(video.videoWidth - sampleSize, source.x - sampleSize / 2));
-    const sy = Math.max(0, Math.min(video.videoHeight - sampleSize, source.y - sampleSize / 2));
-
-    const off = lightSampleCanvasRef.current ?? new OffscreenCanvas(sampleSize, sampleSize);
-    lightSampleCanvasRef.current = off;
-    const octx = off.getContext("2d");
-    if (!octx) return { brightness: 1.0, r: 1, g: 1, b: 1 };
-
-    octx.drawImage(video, sx, sy, sampleSize, sampleSize, 0, 0, sampleSize, sampleSize);
-    const data = octx.getImageData(0, 0, sampleSize, sampleSize).data;
-
-    let sumR = 0, sumG = 0, sumB = 0;
-    const count = sampleSize * sampleSize;
-    for (let i = 0; i < data.length; i += 4) {
-      sumR += data[i];
-      sumG += data[i + 1];
-      sumB += data[i + 2];
+    const px = Math.round((cx / w) * frame.width);
+    const py = Math.round((cy / h) * frame.height);
+    let sumR = 0, sumG = 0, sumB = 0, count = 0;
+    for (let y = py - LIGHT_FRAME_PATCH_RADIUS; y <= py + LIGHT_FRAME_PATCH_RADIUS; y++) {
+      if (y < 0 || y >= frame.height) continue;
+      for (let x = px - LIGHT_FRAME_PATCH_RADIUS; x <= px + LIGHT_FRAME_PATCH_RADIUS; x++) {
+        if (x < 0 || x >= frame.width) continue;
+        const i = (y * frame.width + x) * 4;
+        sumR += frame.data[i];
+        sumG += frame.data[i + 1];
+        sumB += frame.data[i + 2];
+        count++;
+      }
     }
+    if (count === 0) return NEUTRAL_ENV_LIGHT;
 
     const avgR = sumR / count / 255;
     const avgG = sumG / count / 255;
@@ -679,6 +968,11 @@ export function ArView({
     video: HTMLVideoElement,
     zScale: number,
   ) {
+    // 环境光缩略帧一次读取，五指共享（避免逐指 GL 同步回读）
+    const lightFrame = readEnvLightFrame(video, w, h);
+    // 合成层重建预算：单帧最多重建一指，把像素回读尖峰摊到后续帧，
+    // 未重建的指继续用旧层按时序缩放上屏（甲面大小保持正确）。
+    layerRebuildBudgetRef.current = NAIL_LAYER_REBUILDS_PER_FRAME;
     for (let f = 0; f < 5; f++) {
       const rawTip = lm[TIPS[f]];
       const rawDip = lm[DIPS[f]];
@@ -751,18 +1045,20 @@ export function ArView({
       const shapeProfile = getNailShapeProfile(style?.shape ?? null, f);
       const glossFactor = glossToRenderFactor(style?.gloss ?? null);
 
-      // ── 环境光照采样 ──
-      const env = sampleEnvLight(video, cx, cy, w, h);
+      // ── 环境光照采样（共享缩略帧邻域均值）──
+      const env = lightFrame
+        ? sampleEnvLight(lightFrame, cx, cy, w, h)
+        : NEUTRAL_ENV_LIGHT;
 
       // ── 纹理模式渲染计划：长宽比保真（原封不动贴回）──
       // 宽度对齐真实甲面（含宽度滑杆），渲染长度 = 宽度 × 纹理自身长宽比，
       // 甲根边缘锚定在估算甲面的甲根边缘，延长部分向甲尖自然伸出。
       const tex = currentMode === "texture" ? textures?.[f] : null;
-      const alphaShaped = tex ? getTextureFrame(tex).shaped : false;
+      const frame = tex ? getTextureFrame(tex) : null;
+      const alphaShaped = frame?.shaped ?? false;
       let renderGeometry = geometry;
       let renderLength = nl;
-      if (tex && tex.width > 0 && tex.height > 0) {
-        const frame = getTextureFrame(tex);
+      if (tex && frame && tex.width > 0 && tex.height > 0) {
         const plan = computeTextureRenderPlan(geometry, frame.height / frame.bodyWidth, 3,
           fingerAdjustment?.lengthScale ?? nailScaleRef.current,
           fingerAdjustment?.widthScale ?? nailScaleRef.current);
@@ -770,46 +1066,97 @@ export function ArView({
         renderGeometry = { ...geometry, cx: plan.cx, cy: plan.cy, length: plan.length };
       }
 
-      const layerSize = tex && alphaShaped
-        ? textureLayerSize(textureDrawRect(getTextureFrame(tex), tex.width, tex.height, nw, renderLength), nw, renderLength)
+      const layerSize = tex && frame && alphaShaped
+        ? textureLayerSize(textureDrawRect(frame, tex.width, tex.height, nw, renderLength), nw, renderLength)
         : null;
-      const layer =
-        layerSize
-          ? acquireNailLayerCanvas(layerSize.width, layerSize.height)
-          : null;
+      const layer = layerSize
+        ? acquireNailLayerCanvas(f, layerSize.width, layerSize.height)
+        : null;
 
-      if (tex && alphaShaped && layer) {
+      if (tex && frame && alphaShaped && layer) {
         // 自带 alpha 轮廓的提取产物：纹理 + 材质在离屏合成，
         // source-atop 把材质层限制在纹理 alpha 内（不越出提取轮廓），
         // 再按延长后的渲染几何整体上屏。
         const { canvas: layerCanvas, ctx: lctx } = layer;
-        lctx.save();
-        lctx.translate(layerCanvas.width * 0.5, layerCanvas.height * 0.5);
-        drawPhotoTexture(lctx, tex, renderLength, nw);
-        // 在离屏纹理自身 alpha 上融合甲根交界，避免整枚纹理降低透明度。
-        lctx.globalCompositeOperation = "destination-in";
-        const rootY = renderLength / 2;
-        const rootBlend = lctx.createLinearGradient(0, rootY - cuticleBlendDistance(renderLength), 0, rootY);
-        rootBlend.addColorStop(0, "rgba(0,0,0,1)");
-        rootBlend.addColorStop(1, "rgba(0,0,0,0)");
-        lctx.fillStyle = rootBlend;
-        lctx.fillRect(-layerCanvas.width / 2, -layerCanvas.height / 2, layerCanvas.width, layerCanvas.height);
-        lctx.globalCompositeOperation = "source-atop";
-        lctx.fillStyle = `rgba(0,0,0,${1 - photographicLightGain(env.brightness)})`;
-        lctx.fillRect(-layerCanvas.width / 2, -layerCanvas.height / 2, layerCanvas.width, layerCanvas.height);
-        drawMaterialDetails(lctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
-        drawSpecularHighlight(lctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
-        lctx.restore();
+        // 合成层内容只依赖纹理、甲面档位尺寸、光照与光泽；位移与旋转由画布变换承担。
+        // 命中缓存时复用上一帧结果，省掉重绘与逐指像素回读（真机单帧约 20ms）。
+        const layerSignature = [
+          textureLayerId(tex),
+          f,
+          Math.round(glossFactor * 10),
+          style?.shape ?? "",
+        ].join("|");
 
+        const nowMs = performance.now();
+        const layerReady = layer.drawnWidth > 0 && layer.drawnLength > 0;
+        // 尺寸只在相对变化超过容差时重建：上屏会按当前几何等比缩放，
+        // 容差内的尺寸差不会体现为甲面大小偏差，只影响纹理重采样锐度。
+        const sizeDelta = layerReady
+          ? Math.max(
+              Math.abs(nw - layer.drawnWidth) / Math.max(1, layer.drawnWidth),
+              Math.abs(renderLength - layer.drawnLength) / Math.max(1, layer.drawnLength),
+            )
+          : 1;
+        // 环境光只在亮度差超过阈值时重建：层内亮度是烘焙结果，读数抖动不触发重绘。
+        const lightDelta = layerReady ? Math.abs(env.brightness - layer.drawnBrightness) : 1;
+        const rebuildWanted =
+          !layerReady ||
+          ((layer.signature !== layerSignature ||
+            sizeDelta >= NAIL_LAYER_SIZE_TOLERANCE ||
+            lightDelta >= NAIL_LAYER_LIGHT_TOLERANCE) &&
+            nowMs - layer.builtAt >= NAIL_LAYER_MIN_REBUILD_MS);
+        // 单帧重建预算：把像素回读尖峰摊到后续帧，未重建的指继续用旧层缩放上屏。
+        const rebuildDue = rebuildWanted && (layerRebuildBudgetRef.current > 0 || !layerReady);
+
+        if (rebuildDue) {
+          layerRebuildBudgetRef.current -= 1;
+          lctx.setTransform(1, 0, 0, 1, 0, 0);
+          lctx.globalAlpha = 1;
+          lctx.globalCompositeOperation = "source-over";
+          lctx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
+          lctx.save();
+          lctx.translate(layerCanvas.width * 0.5, layerCanvas.height * 0.5);
+          drawPhotoTexture(lctx, tex, renderLength, nw);
+          // 在离屏纹理自身 alpha 上融合甲根交界，避免整枚纹理降低透明度。
+          applyRootColorFade(lctx, layerCanvas, renderLength);
+          // V7 甲根颜色保护：精确面积采样 + 1–2px 内缩域平滑替换；
+          // 任一步失败保持上方现行摄影层，仅记录一次回退提示。
+          try {
+            applyQualityFirstRootProtection(
+              lctx,
+              layerCanvas,
+              tex,
+              frame,
+              textureDrawRect(frame, tex.width, tex.height, nw, renderLength),
+              renderGeometry,
+              renderLength,
+            );
+          } catch (error) {
+            if (!rootColorFallbackWarnedRef.current) {
+              rootColorFallbackWarnedRef.current = true;
+              console.warn("[AR] 甲根颜色保护回退到现行采样", error);
+            }
+          }
+          lctx.globalCompositeOperation = "source-atop";
+          lctx.fillStyle = `rgba(0,0,0,${1 - photographicLightGain(env.brightness)})`;
+          lctx.fillRect(-layerCanvas.width / 2, -layerCanvas.height / 2, layerCanvas.width, layerCanvas.height);
+          drawMaterialDetails(lctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
+          drawSpecularHighlight(lctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
+          lctx.restore();
+          layer.signature = layerSignature;
+          layer.drawnWidth = nw;
+          layer.drawnLength = renderLength;
+          layer.drawnBrightness = env.brightness;
+          layer.builtAt = performance.now();
+        }
+
+        // 缓存层按构建时的档位尺寸绘制；上屏时按当前尺寸等比缩放，
+        // 甲面大小始终跟随几何，档位差不会变成尺寸偏差。
+        const drawW = layer.drawnWidth > 0 ? (layerCanvas.width * nw) / layer.drawnWidth : layerCanvas.width;
+        const drawH = layer.drawnLength > 0 ? (layerCanvas.height * renderLength) / layer.drawnLength : layerCanvas.height;
         ctx.save();
         applyNailGeometryTransform(ctx, renderGeometry);
-        ctx.drawImage(
-          layerCanvas,
-          -layerCanvas.width * 0.5,
-          -layerCanvas.height * 0.5,
-          layerCanvas.width,
-          layerCanvas.height,
-        );
+        ctx.drawImage(layerCanvas, -drawW * 0.5, -drawH * 0.5, drawW, drawH);
         ctx.restore();
       } else {
         // ── 第一层：底色/纹理（连续采样）──
@@ -1286,7 +1633,11 @@ export function ArView({
           const ty2py = (ny: number) => ny * vh * scale + offsetY;
 
           if (res.multiHandLandmarks?.length) {
-            setHandCnt(res.multiHandLandmarks.length);
+            // 只在数值变化时触发 React 更新，避免逐帧重渲染整棵页面树。
+            if (handCntUiRef.current !== res.multiHandLandmarks.length) {
+              handCntUiRef.current = res.multiHandLandmarks.length;
+              setHandCnt(res.multiHandLandmarks.length);
+            }
             for (let h = 0; h < res.multiHandLandmarks.length; h++) {
               const lmRaw = res.multiHandLandmarks[h];
               const rawHandedness: "Left" | "Right" | null =
@@ -1299,8 +1650,13 @@ export function ArView({
                 ? (rawHandedness === "Left" ? "Right" : rawHandedness === "Right" ? "Left" : null)
                 : rawHandedness;
 
-              // 同步左右手标识到 UI（使用有效 handedness）
-              setHandLabel(effectiveHandedness === "Right" ? "右手" : effectiveHandedness === "Left" ? "左手" : null);
+              // 同步左右手标识到 UI（使用有效 handedness；仅在变化时触发渲染）
+              const nextHandLabel: "左手" | "右手" | null =
+                effectiveHandedness === "Right" ? "右手" : effectiveHandedness === "Left" ? "左手" : null;
+              if (handLabelUiRef.current !== nextHandLabel) {
+                handLabelUiRef.current = nextHandLabel;
+                setHandLabel(nextHandLabel);
+              }
 
               // 变换 landmarks 到 canvas 坐标系
               const lm = lmRaw.map((p: { x: number; y: number; z: number }) => ({
@@ -1350,8 +1706,10 @@ export function ArView({
               }
             }
           } else {
-            setHandCnt(0);
-            orientationRef.current = "none";
+            if (handCntUiRef.current !== 0) {
+              handCntUiRef.current = 0;
+              setHandCnt(0);
+            }
             orientationCandidateRef.current = { orientation: "ambiguous", frames: 0 };
             palmDepthSmoothRef.current = NaN;
             geometrySmoothRef.current = Array.from({ length: 5 }, () => null);
@@ -1360,7 +1718,10 @@ export function ArView({
               dip: { x: NaN, y: NaN, z: NaN },
               pip: { x: NaN, y: NaN, z: NaN },
             }));
-            setOrientation("none");
+            if (orientationRef.current !== "none") {
+              orientationRef.current = "none";
+              setOrientation("none");
+            }
             updateFingerVisibility([false, false, false, false, false]);
           }
         });

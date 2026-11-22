@@ -14,6 +14,10 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // 构建产物备份目录（.next-hold-*/.next-failed-*/.next-prod-* 等）：与 .gitignore 的
+    // `/.next-*/` 对齐。CI 是干净检出、不受影响，但本机这些目录会让 `npm run lint`
+    // 报出数万条构建产物问题并以退出码 1 结束，失去本地门禁意义。
+    ".next-*/**",
     ".next-deploy/**",
     "out/**",
     "build/**",
