@@ -1,4 +1,5 @@
 const nextConfig = {
+  distDir: process.env.NEXT_PUBLIC_AR_WORKER_CANDIDATE === "1" ? ".next-ar-worker" : ".next",
   // 不暴露 X-Powered-By: Next.js，减少框架指纹（2026-09-24 安全加固）
   poweredByHeader: false,
   allowedDevOrigins: [

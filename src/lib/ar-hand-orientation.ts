@@ -179,6 +179,29 @@ export function classifyHandOrientation(
   };
 }
 
+export interface PalmFramePoint {
+  x: number;
+  y: number;
+}
+
+/**
+ * 仅当掌部中心（三 MCP 均值）离开可见画面才判出画。
+ *
+ * 近景整手在画面时手腕/指根会贴近甚至越过画面边缘，旧的四点 10% 边缘带
+ * 会把这种合法构图误判为出画并整帧停贴。改为只查掌部中心后，贴合仅以
+ * 手掌/手指自身关键点为前提；逐指显隐仍由 computeFingerVisibility 与
+ * TIP/DIP 存在性决定。
+ */
+export function isPalmCenterOutOfFrame(
+  indexMcp: PalmFramePoint,
+  middleMcp: PalmFramePoint,
+  pinkyMcp: PalmFramePoint,
+): boolean {
+  const cx = (indexMcp.x + middleMcp.x + pinkyMcp.x) / 3;
+  const cy = (indexMcp.y + middleMcp.y + pinkyMcp.y) / 3;
+  return cx < 0 || cx > 1 || cy < 0 || cy > 1;
+}
+
 /** Keeps detector semantics and user-facing labels aligned. */
 export function getHandOrientationPresentation(
   orientation: HandOrientation,

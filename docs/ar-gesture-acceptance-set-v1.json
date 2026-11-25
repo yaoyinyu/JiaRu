@@ -1,0 +1,40 @@
+{
+  "schema": "ar-gesture-acceptance-set-v1",
+  "purpose": "AR 手势贴合 UI 门控校准与产品验收",
+  "roleIsolation": {
+    "allowedUse": ["ar-ui-gate-calibration", "ar-product-acceptance"],
+    "prohibitedUse": ["model-train", "model-val", "model-test", "model-threshold-calibration", "release-evidence"],
+    "note": "本集仅用于 AR 渲染门控（可见性/朝向/几何）校准与产品验收，禁止回流模型 train/val/test，不冒充模型质量或来源独立证据。模型 scoreThreshold 与发布质量门冻结不动。"
+  },
+  "gestureClasses": [
+    "open-dorsum",
+    "fist",
+    "peace",
+    "curled-hook",
+    "palm-curl",
+    "pinch-closeup",
+    "two-hand-cup",
+    "sideways"
+  ],
+  "stillImages": [
+    { "file": "253.jpg", "class": "pinch-closeup", "bytes": 1733354, "sha256": "b29b9176002b0b250529208e3d33580a0e424aa2b85ec323364637e1fa4ffe70" },
+    { "file": "255.jpg", "class": "curled-hook", "bytes": 1715864, "sha256": "66c7cd638fd7cc443b61f79119d23fda43e903ccc3a804dc19cb9f9c1ca898b0" },
+    { "file": "241.jpg", "class": "curled-hook", "bytes": 1383651, "sha256": "e4efdb8f665b22fb9bd58a686a78bfce4fc7715136d0944e306123baf68e03e0" },
+    { "file": "8.jpg", "class": "palm-curl", "bytes": 1890019, "sha256": "10e65d2786a6488d9ad704392527baa9e9574db24d9b727390d442650a196a9e" },
+    { "file": "1.jpg", "class": "fist", "bytes": 1696135, "sha256": "f4964cd702105351786e52dbfa88d24ab8d498c4bb4cda664679fac2edd14bd6" },
+    { "file": "361.jpg", "class": "two-hand-cup", "bytes": 1343320, "sha256": "8f807e872246565c32065e885fb14861bf8c4c8b8c18233c955f1455bcb68ef0" }
+  ],
+  "stillImageBaseDir": "E:/AI Project/Codex/JiaRu_image/真实素材/美甲图片素材/1",
+  "realDeviceVideoProtocol": {
+    "status": "protocol-frozen-awaiting-capture",
+    "perClass": "每类手势录制 >=10s 真机视频，含静止/缓慢移动/快速移动三段；记录设备型号、浏览器、朝向标签与逐指显隐 UI。",
+    "misPaintControl": "掌面伸直指三变体（原构图/镜像/提亮）必须零渲染；双手/侧转记录错配率。",
+    "devices": "四类移动真机 + 桌面第二平台（用户已确认可提供）。"
+  },
+  "baselinePerformance": {
+    "status": "desktop-measured-mobile-awaiting-capture",
+    "note": "桌面 Windows Chrome 第二平台已实测（合成 MediaStream harness，30s 窗）：flags-off 22.07fps/p95 49.4ms，flags-on 22.03fps/p95 49.6ms，回退 0.15% 达标；六张示例图 flags-on 全部恢复贴图（握拳/钩指/捏合/双手走分割兜底）。证据与报告 SHA 见 docs/ar-gesture-m4-engineering-evidence-v1.json。四类移动真机 fps/p95/内存与误贴对照待用户采集后回填。",
+    "budget": { "regressionLimit": "flag 开启相对关闭 fps 回退 <=5%", "bindIntervalP95Ms": 50 },
+    "desktop": { "flagsOffFps": 22.0667, "flagsOffP95Ms": 49.4, "flagsOnFps": 22.0333, "flagsOnP95Ms": 49.6, "regressionPercent": 0.15 }
+  }
+}

@@ -31,6 +31,13 @@ import NailMattePanel, {
 } from "@/components/NailMattePanel";
 import { NailDetectModeSwitch } from "@/components/NailDetectModeSwitch";
 import { autoAssignNailRegionFingers } from "@/lib/nail-auto-flow";
+import {
+  appendRegionsForUnmatchedReferences,
+  assignFingersFromFingerTips,
+  assignFingersFromHandGeometry,
+  dedupeRegionsByFinger,
+  filterRegionsByFingertipSupport,
+} from "@/lib/nail-finger-assignment";
 import { matchNailDirectionReferences, matchNailDirectionsByFinger } from "@/lib/nail-texture-direction";
 import { decideNailDetectRun, type NailDetectMode } from "@/lib/nail-detect-mode";
 import {
@@ -40,10 +47,17 @@ import {
 } from "@/lib/nail-cloud-detect";
 import { useNailDetectMode } from "@/lib/use-nail-detect-mode";
 import { calculateDetectionInputGeometry } from "@/lib/nail-texture-recognition/input-scaling";
+import type { HandFingerTip } from "@/lib/nail-hand-geometry-detection";
+import { maskBoundarySegments } from "@/lib/nail-mask-contour";
 import {
   createLocalNailDebugSample,
   createNailDebugSampleFilename,
 } from "@/lib/nail-texture-debug-sample";
+import {
+  PickerImageLoadError,
+  loadPickerImage,
+  type PickerImageSource,
+} from "@/lib/picker-image-loader";
 import {
   auxiliaryDetectionNotice,
   presentRecognitionWarning,
@@ -75,6 +89,11 @@ interface NailRegion extends NailDetectionRegion {
 
 interface NailArtPickerProps {
   imageUrl: string;
+  /**
+   * 已读进内存的原始图片字节。安卓相册的 `content://` 流可能只可成功读取一次，
+   * `<img>` 与 `fetch(imageUrl)` 都会失败；传入该 Blob 可直接解码，见 picker-image-loader。
+   */
+  imageBlob?: Blob | null;
   onConfirm: (assignments: NailAssignment[], options?: NailPickerConfirmOptions) => void;
   onCancel: () => void;
   /**
@@ -160,27 +179,60 @@ function drawRegion(
   region: NailRegion,
   selected: boolean,
   scale: number,
-  label: string
+  label: string,
+  imageSize: { width: number; height: number }
 ) {
-  ctx.save();
-  ctx.translate(region.cx * scale, region.cy * scale);
-  ctx.rotate(region.angle);
-  ctx.beginPath();
-  ctx.ellipse(0, 0, (region.nw * scale) / 2, (region.nl * scale) / 2, 0, 0, Math.PI * 2);
-  ctx.strokeStyle = selected ? SELECTED_COLOR : BORDER_COLOR;
-  ctx.lineWidth = selected ? 3 : 2;
-  ctx.stroke();
-
-  if (selected) {
-    const handleY = -((region.nl * scale) / 2 + 16);
+  // 有掩膜时按真实甲面轮廓描边：椭圆只能近似长宽与角度，细长甲与根部收窄的甲
+  // 会和实际纹理形状明显不符。
+  const contour = maskBoundarySegments(region.mask, imageSize);
+  if (contour && contour.length > 0) {
+    ctx.save();
     ctx.beginPath();
-    ctx.arc(0, handleY, 6, 0, Math.PI * 2);
-    ctx.fillStyle = HANDLE_BG;
-    ctx.fill();
-    ctx.strokeStyle = SELECTED_COLOR;
+    for (const segment of contour) {
+      ctx.moveTo(segment.x1 * scale, segment.y1 * scale);
+      ctx.lineTo(segment.x2 * scale, segment.y2 * scale);
+    }
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = selected ? SELECTED_COLOR : BORDER_COLOR;
+    ctx.lineWidth = selected ? 3 : 2;
     ctx.stroke();
+    if (selected) {
+      ctx.beginPath();
+      ctx.arc(
+        region.cx * scale,
+        region.cy * scale - (region.nl * scale) / 2 - 16,
+        6,
+        0,
+        Math.PI * 2
+      );
+      ctx.fillStyle = HANDLE_BG;
+      ctx.fill();
+      ctx.strokeStyle = SELECTED_COLOR;
+      ctx.stroke();
+    }
+    ctx.restore();
+  } else {
+    ctx.save();
+    ctx.translate(region.cx * scale, region.cy * scale);
+    ctx.rotate(region.angle);
+    ctx.beginPath();
+    ctx.ellipse(0, 0, (region.nw * scale) / 2, (region.nl * scale) / 2, 0, 0, Math.PI * 2);
+    ctx.strokeStyle = selected ? SELECTED_COLOR : BORDER_COLOR;
+    ctx.lineWidth = selected ? 3 : 2;
+    ctx.stroke();
+
+    if (selected) {
+      const handleY = -((region.nl * scale) / 2 + 16);
+      ctx.beginPath();
+      ctx.arc(0, handleY, 6, 0, Math.PI * 2);
+      ctx.fillStyle = HANDLE_BG;
+      ctx.fill();
+      ctx.strokeStyle = SELECTED_COLOR;
+      ctx.stroke();
+    }
+    ctx.restore();
   }
-  ctx.restore();
 
   ctx.save();
   ctx.font = "12px sans-serif";
@@ -199,7 +251,7 @@ function drawRegion(
 }
 
 async function cropTextureFromRegion(
-  image: HTMLImageElement,
+  image: PickerImageSource,
   region: NailRegion,
   maxTextureSize: number = 256
 ): Promise<ImageBitmap> {
@@ -225,12 +277,13 @@ async function cropTextureFromRegion(
 
 export default function NailArtPicker({
   imageUrl,
+  imageBlob = null,
   onConfirm,
   onCancel,
   suppressAutoFlow = false,
 }: NailArtPickerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  const imgRef = useRef<PickerImageSource | null>(null);
   const detectionAbortRef = useRef<AbortController | null>(null);
   const orientationAbortRef = useRef<AbortController | null>(null);
   const matteAbortRef = useRef<AbortController | null>(null);
@@ -244,6 +297,7 @@ export default function NailArtPicker({
   } | null>(null);
 
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [imageReloadToken, setImageReloadToken] = useState(0);
   const [imageSize, setImageSize] = useState({ width: 0, height: 0 });
   const [viewScale, setViewScale] = useState(1);
   const [detecting, setDetecting] = useState(true);
@@ -261,6 +315,13 @@ export default function NailArtPicker({
   const [matteStartedAt, setMatteStartedAt] = useState<number | null>(null);
   const [matteElapsedMs, setMatteElapsedMs] = useState(0);
   const [autoStatus, setAutoStatus] = useState<string | null>(null);
+  /** 指位来源：手部关键点几何 / 画面顺序兜底（技术详情可见）。 */
+  const [fingerSource, setFingerSource] = useState<"hand-geometry" | "order" | null>(null);
+  /** 自动流程的误检剔除与漏检补位数量（技术详情可见）。 */
+  const [detectionAdjustments, setDetectionAdjustments] = useState({
+    removedBySupport: 0,
+    filledCount: 0,
+  });
 
   // 自动流程（识别完成后一条龙：精细抠图→指位→提取→分析→上屏）。
   const regionsRef = useRef<NailRegion[]>([]);
@@ -316,9 +377,9 @@ export default function NailArtPicker({
     const image = imgRef.current;
     if (!canvas || !image || !imgLoaded) return;
 
-    const scale = fitScale(image.naturalWidth, image.naturalHeight);
-    const width = Math.max(1, Math.round(image.naturalWidth * scale));
-    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const scale = fitScale(image.width, image.height);
+    const width = Math.max(1, Math.round(image.width * scale));
+    const height = Math.max(1, Math.round(image.height * scale));
     if (canvas.width !== width) canvas.width = width;
     if (canvas.height !== height) canvas.height = height;
 
@@ -327,9 +388,11 @@ export default function NailArtPicker({
     ctx.clearRect(0, 0, width, height);
     ctx.drawImage(image, 0, 0, width, height);
 
+    const imageSize = { width: image.width, height: image.height };
     regions.forEach((region, index) => {
-      const label = region.assignedFinger !== null ? FINGER_NAMES[region.assignedFinger] : `${index + 1}`;
-      drawRegion(ctx, region, index === selectedIdx, scale, label);
+      // 画布只用编号：双手、侧转与半握姿势下自动指位名称不可靠，
+      // 指位留给「分配到手指」面板由用户确认。
+      drawRegion(ctx, region, index === selectedIdx, scale, `${index + 1}`, imageSize);
     });
   }, [imgLoaded, regions, selectedIdx]);
 
@@ -338,23 +401,38 @@ export default function NailArtPicker({
   }, [redraw]);
 
   useEffect(() => {
-    const image = new Image();
-    image.crossOrigin = "anonymous";
-    image.onload = () => {
-      imgRef.current = image;
-      setImgLoaded(true);
-      setImageSize({ width: image.naturalWidth, height: image.naturalHeight });
-      setViewScale(fitScale(image.naturalWidth, image.naturalHeight));
-      setError(null);
-    };
-    image.onerror = () => {
-      imgRef.current = null;
-      setImgLoaded(false);
-      setError("图片加载失败，请重新选择。");
-    };
-    image.src = imageUrl;
+    let cancelled = false;
+    const controller = new AbortController();
+    imgRef.current = null;
+    void loadPickerImage(imageUrl, { signal: controller.signal, blob: imageBlob })
+      .then((loaded) => {
+        if (cancelled) return;
+        imgRef.current = loaded.source;
+        setImgLoaded(true);
+        setImageSize({ width: loaded.width, height: loaded.height });
+        setViewScale(fitScale(loaded.width, loaded.height));
+        setError(null);
+      })
+      .catch((reason: unknown) => {
+        if (cancelled || controller.signal.aborted) return;
+        imgRef.current = null;
+        setImgLoaded(false);
+        // 解码失败必须结束「正在识别」遮罩，否则界面停在黑屏且没有恢复入口。
+        setDetecting(false);
+        setRegions([]);
+        setOriginalRegions([]);
+        setImageSize({ width: 0, height: 0 });
+        const code = reason instanceof PickerImageLoadError ? reason.code : "unknown";
+        setError(
+          code === "decode_error"
+            ? "图片加载失败（decode_error）：浏览器无法解码这张图片，请换一张 JPG/PNG/WebP，或点「重新载入」。"
+            : `图片加载失败（${code}），请重新选择，或点「重新载入」。`
+        );
+      });
 
     return () => {
+      cancelled = true;
+      controller.abort();
       detectionAbortRef.current?.abort();
       detectionAbortRef.current = null;
       orientationAbortRef.current?.abort();
@@ -363,7 +441,7 @@ export default function NailArtPicker({
       cloudAbortRef.current?.abort();
       cloudAbortRef.current = null;
     };
-  }, [imageUrl]);
+  }, [imageUrl, imageBlob, imageReloadToken]);
 
   useEffect(() => {
     if (!imgLoaded || !imgRef.current) return;
@@ -396,8 +474,8 @@ export default function NailArtPicker({
         }
         const detectionStartedAt = performance.now();
         const geometry = calculateDetectionInputGeometry(
-          image.naturalWidth,
-          image.naturalHeight,
+          image.width,
+          image.height,
           MAX_DETECTION_DIM
         );
         const canvas = document.createElement("canvas");
@@ -410,8 +488,8 @@ export default function NailArtPicker({
         const detected = await computeImageDetectedNailRegions(
           image,
           imageData,
-          image.naturalWidth,
-          image.naturalHeight,
+          image.width,
+          image.height,
           controller.signal
         );
         detected.summary.elapsedMs = Math.max(
@@ -533,8 +611,8 @@ export default function NailArtPicker({
       try {
         const outcome = await refineCandidateMasksWithMatte({
           image,
-          imageWidth: image.naturalWidth,
-          imageHeight: image.naturalHeight,
+          imageWidth: image.width,
+          imageHeight: image.height,
           candidates: sourceRegions.map(toMatteCandidate),
           signal: controller.signal,
         });
@@ -603,8 +681,8 @@ export default function NailArtPicker({
     try {
       const outcome = await detectNailsWithMatte({
         image,
-        imageWidth: image.naturalWidth,
-        imageHeight: image.naturalHeight,
+        imageWidth: image.width,
+        imageHeight: image.height,
         signal: controller.signal,
       });
       if (controller.signal.aborted) return null;
@@ -702,14 +780,14 @@ export default function NailArtPicker({
         modeState.backend === "ark"
           ? await detectNailsWithArk({
               image,
-              imageWidth: image.naturalWidth,
-              imageHeight: image.naturalHeight,
+              imageWidth: image.width,
+              imageHeight: image.height,
               signal: controller.signal,
             })
           : await detectNailsWithCloudMatte({
               image,
-              imageWidth: image.naturalWidth,
-              imageHeight: image.naturalHeight,
+              imageWidth: image.width,
+              imageHeight: image.height,
               signal: controller.signal,
             });
       if (controller.signal.aborted) return;
@@ -832,7 +910,7 @@ export default function NailArtPicker({
   const createManualRegion = useCallback((x: number, y: number) => {
     const image = imgRef.current;
     if (!image) return;
-    const maxDimension = Math.max(image.naturalWidth, image.naturalHeight);
+    const maxDimension = Math.max(image.width, image.height);
     const nailLength = clamp(Math.round(maxDimension * 0.1), 42, 120);
     const nailWidth = clamp(Math.round(nailLength * 0.58), 28, 72);
     const assignedFingers = new Set(
@@ -843,8 +921,8 @@ export default function NailArtPicker({
     const nextFinger = FINGER_NAMES.findIndex((_, finger) => !assignedFingers.has(finger));
     const next: NailRegion = {
       id: nextId(),
-      cx: clamp(x, nailWidth / 2, image.naturalWidth - nailWidth / 2),
-      cy: clamp(y, nailLength / 2, image.naturalHeight - nailLength / 2),
+      cx: clamp(x, nailWidth / 2, image.width - nailWidth / 2),
+      cy: clamp(y, nailLength / 2, image.height - nailLength / 2),
       angle: 0,
       nl: nailLength,
       nw: nailWidth,
@@ -905,8 +983,8 @@ export default function NailArtPicker({
           const radiusY = (region.nw * angleSin + region.nl * angleCos) / 2;
           return {
             ...region,
-            cx: clamp(x - drag.offsetX, radiusX, image.naturalWidth - radiusX),
-            cy: clamp(y - drag.offsetY, radiusY, image.naturalHeight - radiusY),
+            cx: clamp(x - drag.offsetX, radiusX, image.width - radiusX),
+            cy: clamp(y - drag.offsetY, radiusY, image.height - radiusY),
             extractionDiagnostics: undefined,
           };
         })
@@ -947,8 +1025,8 @@ export default function NailArtPicker({
       if (!image) return;
       updateSelectedRegion((region) => ({
         ...region,
-        cx: clamp(region.cx + dx, 0, image.naturalWidth),
-        cy: clamp(region.cy + dy, 0, image.naturalHeight),
+        cx: clamp(region.cx + dx, 0, image.width),
+        cy: clamp(region.cy + dy, 0, image.height),
       }));
     },
     [updateSelectedRegion]
@@ -1011,8 +1089,8 @@ export default function NailArtPicker({
     if (!image) return;
     const record = createLocalNailDebugSample({
       imageUrl,
-      imageWidth: image.naturalWidth,
-      imageHeight: image.naturalHeight,
+      imageWidth: image.width,
+      imageHeight: image.height,
       detectionSummary,
       originalRegions,
       correctedRegions: regions,
@@ -1033,7 +1111,7 @@ export default function NailArtPicker({
   const extractAssignments = useCallback(
     async (
       sourceRegions: NailRegion[],
-      options: { auto?: boolean } = {}
+      options: { auto?: boolean; handReferences?: readonly NailTextureCandidate[] } = {}
     ): Promise<NailAssignment[] | null> => {
       const image = imgRef.current;
       if (!image) return null;
@@ -1057,17 +1135,23 @@ export default function NailArtPicker({
           orientationAbortRef.current?.abort();
           orientationAbortRef.current = controller;
           try {
-            const { detectNailsFromHandImage } = await import("@/lib/nail-hand-geometry-detection");
+            // 自动流程已按手部几何算过指位时复用同一批参考，避免重复 MediaPipe 推理。
+            let references = options.handReferences ?? null;
+            if (!references) {
+              const { detectNailsFromHandImage } = await import("@/lib/nail-hand-geometry-detection");
+              if (controller.signal.aborted || closeCancelledRef.current || autoFlowCancelledRef.current) return null;
+              const hand = await detectNailsFromHandImage(image, { signal: controller.signal, timeoutMs: 5000, maxHands: 2 });
+              references = hand.candidates;
+            }
             if (controller.signal.aborted || closeCancelledRef.current || autoFlowCancelledRef.current) return null;
-            const hand = await detectNailsFromHandImage(image, { signal: controller.signal, timeoutMs: 5000, maxHands: 2 });
             const axes = unresolved.map(r => ({ ...r, length: r.nl, width: r.nw }));
-            const directions = matchNailDirectionReferences(axes, hand.candidates);
+            const directions = matchNailDirectionReferences(axes, references);
             directions.forEach((angle, i) => { if (angle != null) directionById.set(unresolved[i].id, angle); });
             // 几何配对失败时按指位直接取该手指的方向：手部关键点可见即能定向，
             // 不受候选框重叠与双向唯一性限制（同指方向即甲尖方向）。
             const byFinger = matchNailDirectionsByFinger(
               unresolved.map(r => ({ ...r, length: r.nl, width: r.nw, finger: r.assignedFinger })),
-              hand.candidates,
+              references,
             );
             byFinger.forEach((angle, i) => {
               if (angle != null && !directionById.has(unresolved[i].id)) directionById.set(unresolved[i].id, angle);
@@ -1091,8 +1175,8 @@ export default function NailArtPicker({
             // 输出「正立、甲尖朝上、甲面充满位图」，与实时渲染约定一致。
             const extracted = await extractNormalizedNailTexture(
               image,
-              image.naturalWidth,
-              image.naturalHeight,
+              image.width,
+              image.height,
               region.mask,
               { referenceAngle: region.orientationConfirmed ? region.angle : directionById.get(region.id) ?? region.angle,
                 referenceIsDirected: region.orientationConfirmed || directionById.has(region.id) || region.source === "mediapipe" || region.source === "manual" }
@@ -1209,17 +1293,131 @@ export default function NailArtPicker({
       if (refined) working = refined;
     }
 
-    // 2) 自动指位分配：识别阶段已给的保持不变；缺失的按画面 x 序推断（可手动修正）。
-    const assigned = autoAssignNailRegionFingers(working);
-    if (assigned.guessedCount > 0) {
-      working = assigned.regions;
-      setRegions(assigned.regions);
-      setOriginalRegions((prev) => autoAssignNailRegionFingers(prev).regions);
+    // 2) 指位：模型候选只给排名占位值，先清空再按手部关键点几何覆盖（真实指位），
+    //    最后按画面 x 序补空；同指位只保留一枚甲面。
+    //    overlay 的框与标签因此与随后提取应用的纹理一一对应。
+    let handReferences: NailTextureCandidate[] | null = null;
+    let handFingerTips: HandFingerTip[] | null = null;
+    const handImage = imgRef.current;
+    if (handImage && working.length > 0 && detectModeRef.current.mode === "local") {
+      const controller = new AbortController();
+      orientationAbortRef.current?.abort();
+      orientationAbortRef.current = controller;
+      try {
+        const { detectNailsFromHandImage } = await import("@/lib/nail-hand-geometry-detection");
+        const hand = await detectNailsFromHandImage(handImage, {
+          signal: controller.signal,
+          timeoutMs: 5000,
+          maxHands: 2,
+        });
+        handReferences = hand.candidates;
+        handFingerTips = hand.fingerTips ?? null;
+      } catch {
+        // 近景、手心或关键点失败时退回 x 序推断；用户仍可在选择器内修正。
+        handReferences = null;
+        handFingerTips = null;
+      } finally {
+        if (orientationAbortRef.current === controller) orientationAbortRef.current = null;
+      }
+      if (autoFlowCancelledRef.current) return;
     }
+
+    const reindexed = working.map((region) =>
+      region.source === "model" ? { ...region, assignedFinger: null } : region
+    );
+    let nextRegions = reindexed;
+    let fingerMatches = 0;
+    let removedBySupport = 0;
+    // 指尖支撑门：离所有指尖都过远的模型候选多数是衣物/皮肤/甲根误检，先剔除。
+    if (handFingerTips && handFingerTips.length > 0) {
+      const supported = filterRegionsByFingertipSupport(nextRegions, handFingerTips);
+      nextRegions = supported.regions;
+      removedBySupport = supported.removed.length;
+    }
+    const usedTipIds = new Set<string>();
+    let handGeometryReferences: Array<{
+      id?: string;
+      cx: number;
+      cy: number;
+      length: number;
+      width: number;
+      angle: number;
+      finger: number | null;
+    }> = [];
+    if (handReferences && handReferences.length > 0) {
+      const references = handReferences.map((candidate) => ({
+        id: candidate.id,
+        cx: candidate.cx,
+        cy: candidate.cy,
+        length: candidate.length,
+        width: candidate.width,
+        angle: candidate.angle,
+        finger: candidate.suggestedFinger,
+      }));
+      handGeometryReferences = references;
+      const geometry = assignFingersFromHandGeometry(nextRegions, references);
+      nextRegions = geometry.regions;
+      fingerMatches = geometry.matches.length;
+      for (const match of geometry.matches) {
+        const tipId = match.referenceId?.replace("-finger-", "-tip-");
+        if (tipId) usedTipIds.add(tipId);
+      }
+    }
+    // 指尖补配：手心朝上/弯指时没有甲面几何候选，个别候选也会落在几何门限之外；
+    // 指尖位置与手性、朝向无关，用它补齐剩余区域。
+    if (handFingerTips && handFingerTips.length > 0) {
+      const availableTips = handFingerTips.filter((tip) => !usedTipIds.has(tip.id));
+      const unmatched = nextRegions.filter((region) => region.assignedFinger == null);
+      if (unmatched.length > 0 && availableTips.length > 0) {
+        const tipResult = assignFingersFromFingerTips(unmatched, availableTips);
+        const fingerById = new Map(
+          tipResult.regions.map((region) => [region.id, region.assignedFinger])
+        );
+        nextRegions = nextRegions.map((region) => {
+          const finger = fingerById.get(region.id);
+          return region.assignedFinger == null && finger != null
+            ? { ...region, assignedFinger: finger }
+            : region;
+        });
+        fingerMatches += tipResult.matches.length;
+      }
+    }
+    // 甲面补位：关键点给出了某根手指的甲面参考，模型却漏检时补一个低置信区域，
+    // 让用户直接在这个框上微调，而不是自己在空白处新增。
+    let filledCount = 0;
+    if (handGeometryReferences.length > 0) {
+      const filled = appendRegionsForUnmatchedReferences(
+        nextRegions,
+        handGeometryReferences,
+        (reference) => ({
+          id: `${reference.id ?? `hand-fill-${reference.finger}`}-fill`,
+          cx: reference.cx,
+          cy: reference.cy,
+          nl: reference.length,
+          nw: reference.width,
+          angle: reference.angle,
+          assignedFinger: reference.finger,
+          confidence: "low" as const,
+          source: "mediapipe" as const,
+          warnings: ["mediapipe_fill_missing"],
+        })
+      );
+      nextRegions = filled.regions;
+      filledCount = filled.added.length;
+    }
+    setFingerSource(fingerMatches > 0 ? "hand-geometry" : "order");
+    setDetectionAdjustments({
+      removedBySupport,
+      filledCount,
+    });
+    const deduped = dedupeRegionsByFinger(autoAssignNailRegionFingers(nextRegions).regions);
+    working = deduped.regions;
+    setRegions(deduped.regions);
+    setOriginalRegions((prev) => autoAssignNailRegionFingers(prev).regions);
 
     // 3) 提取 + 参数分析后交由页面裁决（§7.2 覆盖前复核：自动应用或进入复核态由页面决定）。
     setAutoStatus("正在提取纹理并分析参数…");
-    const results = await extractAssignments(working, { auto: true });
+    const results = await extractAssignments(working, { auto: true, handReferences: handReferences ?? undefined });
     if (autoFlowCancelledRef.current || closeCancelledRef.current) {
       // 弹层已关闭：提取结果不再应用，已提取位图直接释放（§7.5）。
       for (const item of results ?? []) item.texture.close();
@@ -1346,6 +1544,18 @@ export default function NailArtPicker({
                         <div>后台线程：{Math.round(detectionSummary.workerElapsedMs)} 毫秒</div>
                       )}
                       {detectionSummary.modelVersion && <div>模型：{detectionSummary.modelVersion}</div>}
+                      {fingerSource && (
+                        <div>
+                          指位来源：
+                          {fingerSource === "hand-geometry" ? "手部关键点几何" : "画面顺序兜底"}
+                        </div>
+                      )}
+                      {detectionAdjustments.removedBySupport > 0 && (
+                        <div>误检剔除：{detectionAdjustments.removedBySupport} 个（远离全部指尖）</div>
+                      )}
+                      {detectionAdjustments.filledCount > 0 && (
+                        <div>漏检补位：{detectionAdjustments.filledCount} 个（手部几何参考，需复核）</div>
+                      )}
                     </div>
                   )}
                   <button
@@ -1378,7 +1588,25 @@ export default function NailArtPicker({
               </div>
             ) : null}
             {error && (
-              <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-700">{error}</div>
+              <div className="rounded-xl bg-rose-50 px-3 py-2 text-xs text-rose-700">
+                <p>{error}</p>
+                {!imgLoaded && (
+                  <button
+                    type="button"
+                    className="mt-2 rounded-lg border border-rose-200 bg-white px-2.5 py-1 text-xs font-medium text-rose-700 transition hover:bg-rose-100"
+                    onClick={() => {
+                      setImgLoaded(false);
+                      setError(null);
+                      setDetecting(true);
+                      setRegions([]);
+                      setOriginalRegions([]);
+                      setImageReloadToken((token) => token + 1);
+                    }}
+                  >
+                    重新载入图片
+                  </button>
+                )}
+              </div>
             )}
           </div>
 
@@ -1420,7 +1648,6 @@ export default function NailArtPicker({
                         <div className="flex items-center justify-between gap-2">
                           <div className="text-sm font-medium text-slate-900">
                             区域 {index + 1}
-                            {region.assignedFinger !== null ? ` · ${FINGER_NAMES[region.assignedFinger]}` : ""}
                           </div>
                           <span
                             className={`rounded-full px-2 py-0.5 text-[11px] ${

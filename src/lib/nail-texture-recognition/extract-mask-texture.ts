@@ -1,5 +1,6 @@
 import type { NailMask } from "./types.ts";
 import {
+  estimateMaskPrincipalAngle,
   resolveMaskTextureRotation,
   type MaskTextureRotationSource,
 } from "./mask-orientation.ts";
@@ -139,6 +140,70 @@ export function buildFeatheredAlphaMask(
   }
 
   return alpha;
+}
+
+const ALPHA_RAMP_LOW = 0.38;
+const ALPHA_RAMP_HIGH = 0.62;
+
+/**
+ * 收紧 alpha 半透明带。
+ *
+ * 掩膜在检测域（最长边 800）上生成，放大到原图纹理后边缘过渡可宽达 3–5 像素；
+ * 这段宽过渡既让轮廓发虚，也把甲面外的肤色保留成半透明彩边。这里用对称
+ * smoothstep 把 [0.38, 0.62] 映射到 [0, 1]：50% 等值线位置不变（几何不漂移），
+ * 过渡带压到约 1 像素，等同于一次正确的抗锯齿重建。
+ */
+export function tightenAlphaRamp(alpha: Uint8ClampedArray): Uint8ClampedArray {
+  const out = new Uint8ClampedArray(alpha.length);
+  const span = ALPHA_RAMP_HIGH - ALPHA_RAMP_LOW;
+  for (let index = 0; index < alpha.length; index += 1) {
+    const value = alpha[index] / 255;
+    if (value <= ALPHA_RAMP_LOW) {
+      out[index] = 0;
+      continue;
+    }
+    if (value >= ALPHA_RAMP_HIGH) {
+      out[index] = 255;
+      continue;
+    }
+    const t = (value - ALPHA_RAMP_LOW) / span;
+    out[index] = Math.round(255 * t * t * (3 - 2 * t));
+  }
+  return out;
+}
+
+/**
+ * 对 alpha 做一次 3×3 高斯平滑（[1,2,1] 可分离卷积）。
+ * 用于生成平滑提议，最终透明度由提取阶段的覆盖率保护约束。
+ */
+export function smoothAlphaBoundary(
+  alpha: Uint8ClampedArray,
+  width: number,
+  height: number
+): Uint8ClampedArray {
+  if (width <= 2 || height <= 2) return new Uint8ClampedArray(alpha);
+  const horizontal = new Uint8ClampedArray(alpha.length);
+  for (let y = 0; y < height; y += 1) {
+    const row = y * width;
+    for (let x = 0; x < width; x += 1) {
+      const left = alpha[row + Math.max(0, x - 1)];
+      const center = alpha[row + x];
+      const right = alpha[row + Math.min(width - 1, x + 1)];
+      horizontal[row + x] = Math.round((left + center * 2 + right) / 4);
+    }
+  }
+  const out = new Uint8ClampedArray(alpha.length);
+  for (let y = 0; y < height; y += 1) {
+    const up = Math.max(0, y - 1) * width;
+    const row = y * width;
+    const down = Math.min(height - 1, y + 1) * width;
+    for (let x = 0; x < width; x += 1) {
+      out[row + x] = Math.round(
+        (horizontal[up + x] + horizontal[row + x] * 2 + horizontal[down + x]) / 4
+      );
+    }
+  }
+  return out;
 }
 
 export function summarizeMaskExtractionQuality(mask: NailMask): MaskExtractionQualitySummary {
@@ -379,6 +444,61 @@ export async function extractTextureFromMaskDetailed(
   ctx.imageSmoothingQuality = "high";
   ctx.drawImage(grid, 0, 0, outputWidth, outputHeight);
   const coverage = ctx.getImageData(0, 0, outputWidth, outputHeight);
+  // 只修正实际放大的覆盖率侧缘，避免给原尺寸轮廓加上第二层羽化。
+  const isUpscaled = outputWidth >= gridWidth && outputHeight >= gridHeight &&
+    (outputWidth > gridWidth || outputHeight > gridHeight);
+  const principalAngle = isUpscaled ? estimateMaskPrincipalAngle(mask) : null;
+  if (principalAngle !== null) {
+    const original = new Uint8ClampedArray(outputWidth * outputHeight);
+    for (let index = 0; index < original.length; index += 1) {
+      original[index] = coverage.data[index * 4 + 3];
+    }
+    const proposed = smoothAlphaBoundary(tightenAlphaRamp(original), outputWidth, outputHeight);
+    const refined = original.slice();
+    const axisX = Math.sin(principalAngle);
+    const axisY = -Math.cos(principalAngle);
+    let start = Infinity;
+    let stop = -Infinity;
+    for (let y = bounds.minY; y <= bounds.maxY; y += 1) {
+      for (let x = bounds.minX; x <= bounds.maxX; x += 1) {
+        if (!mask.data[y * mask.width + x]) continue;
+        const along = x * axisX + y * axisY;
+        start = Math.min(start, along);
+        stop = Math.max(stop, along);
+      }
+    }
+    for (let y = 0; y < outputHeight; y += 1) {
+      for (let x = 0; x < outputWidth; x += 1) {
+        const i = y * outputWidth + x;
+        const alpha = original[i];
+        if (alpha <= 32 || alpha >= 223) continue;
+        const sx = bounds.minX + (x + 0.5) * gridWidth / outputWidth - 0.5;
+        const sy = bounds.minY + (y + 0.5) * gridHeight / outputHeight - 0.5;
+        const t = (sx * axisX + sy * axisY - start) / (stop - start);
+        // 两端保持原覆盖率，避免侧缘修正削掉甲根或甲尖。
+        const amount = Math.min(1, Math.max(0, (Math.min(t, 1 - t) - 0.35) / 0.05));
+        if (!(amount > 0)) continue;
+        let low = alpha < 128 ? 1 : 128;
+        let high = alpha < 128 ? alpha : 254;
+        const neighbors = [];
+        if (x > 0) neighbors.push(i - 1);
+        if (x + 1 < outputWidth) neighbors.push(i + 1);
+        if (y > 0) neighbors.push(i - outputWidth);
+        if (y + 1 < outputHeight) neighbors.push(i + outputWidth);
+        // 逐处核对四邻接，保留已存在的陡边且不新增强跳变。
+        for (const j of neighbors) {
+          const limit = Math.max(75, Math.abs(alpha - original[j]));
+          low = Math.max(low, refined[j] - limit);
+          high = Math.min(high, refined[j] + limit);
+        }
+        const requested = Math.round(alpha + amount * (proposed[i] - alpha));
+        refined[i] = Math.max(low, Math.min(high, requested));
+      }
+    }
+    for (let index = 0; index < refined.length; index += 1) {
+      coverage.data[index * 4 + 3] = refined[index];
+    }
+  }
   ctx.clearRect(0, 0, outputWidth, outputHeight);
   ctx.drawImage(image, bounds.minX * scaleX, bounds.minY * scaleY,
     gridWidth * scaleX, gridHeight * scaleY, 0, 0, outputWidth, outputHeight);

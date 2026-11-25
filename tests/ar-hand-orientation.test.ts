@@ -4,8 +4,39 @@ import {
   classifyHandDepthOrientation,
   classifyHandOrientation,
   getHandOrientationPresentation,
+  isPalmCenterOutOfFrame,
   normalizePalmCrossForHandedness,
 } from "../src/lib/ar-hand-orientation.ts";
+
+test("close-up hand with wrist at the frame edge is not out of frame", () => {
+  assert.equal(
+    isPalmCenterOutOfFrame(
+      { x: 0.2, y: 0.72 },
+      { x: 0.5, y: 0.68 },
+      { x: 0.8, y: 0.72 },
+    ),
+    false,
+  );
+});
+
+test("palm center beyond the frame edge is out of frame", () => {
+  assert.equal(
+    isPalmCenterOutOfFrame(
+      { x: 0.4, y: 0.98 },
+      { x: 0.6, y: 1.02 },
+      { x: 0.8, y: 1.04 },
+    ),
+    true,
+  );
+  assert.equal(
+    isPalmCenterOutOfFrame(
+      { x: -0.3, y: 0.5 },
+      { x: -0.1, y: 0.5 },
+      { x: 0.1, y: 0.5 },
+    ),
+    true,
+  );
+});
 
 test("palm detector state is presented as 手心", () => {
   assert.deepEqual(getHandOrientationPresentation("palm"), {

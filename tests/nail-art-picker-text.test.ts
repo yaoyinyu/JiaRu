@@ -17,7 +17,10 @@ test("NailArtPicker keeps user-facing labels UTF-8 clean and fully Chinese", asy
   );
   assert.match(source, /正在识别美甲甲面…/);
   assert.match(source, /正在提取…/);
-  assert.match(source, /` · \$\{FINGER_NAMES\[region\.assignedFinger\]\}`/);
+  // 画布与区域列表只用编号：双手/侧转/半握姿势下自动指位名称不可靠，
+  // 指位改由「分配到手指」面板手动确认（2026-11-23）。
+  assert.match(source, /drawRegion\(ctx, region, index === selectedIdx, scale, `\$\{index \+ 1\}`/);
+  assert.doesNotMatch(source, /` · \$\{FINGER_NAMES\[region\.assignedFinger\]\}`/);
   assert.match(source, /在图片上添加甲面/);
   assert.match(source, /提取所选纹理/);
   assert.match(source, /手部自动定位/);

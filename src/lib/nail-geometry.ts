@@ -20,6 +20,11 @@ export interface NailGeometry {
 export interface NailGeometryOptions {
   /** MediaPipe z=1 对应的显示像素数；object-cover 裁切时应传入缩放后源视频宽度。 */
   zScale?: number;
+  /**
+   * 蜷曲分支（甲板朝向先验给出）：横轴改用远端 2D 轴垂直方向，
+   * 横向投影按甲板朝镜头因子收紧，不再用手背平面法向构横轴。
+   */
+  curled?: { curl: number; facingFactor: number };
 }
 
 export interface NailAffineTransform {
@@ -158,16 +163,27 @@ export function computeNailGeometry(
   const indexMcp = landmarks[5];
   const middleMcp = landmarks[9];
   const pinkyMcp = landmarks[17];
-  if (wrist && indexMcp && middleMcp && pinkyMcp) {
+  if (!options.curled && indexMcp && middleMcp && pinkyMcp) {
     const across = {
       x: (indexMcp.x - pinkyMcp.x) * width,
       y: (indexMcp.y - pinkyMcp.y) * height,
       z: ((indexMcp.z ?? 0) - (pinkyMcp.z ?? 0)) * zScale,
     };
+    // 手腕贴近/越过画面边缘时（近景整手构图）其估计不可靠，改由三 MCP 自身
+    // 构面：along 取中 MCP 相对食指/小指 MCP 中点的方向。手腕在画面内时沿用
+    // 腕→中 MCP 方向，保持历史几何不变。
+    const wristInFrame = wrist != null
+      && wrist.x >= 0.05 && wrist.x <= 0.95
+      && wrist.y >= 0.05 && wrist.y <= 0.95;
+    const alongBaseX = wristInFrame && wrist ? wrist.x : (indexMcp.x + pinkyMcp.x) / 2;
+    const alongBaseY = wristInFrame && wrist ? wrist.y : (indexMcp.y + pinkyMcp.y) / 2;
+    const alongBaseZ = wristInFrame && wrist
+      ? (wrist.z ?? 0)
+      : ((indexMcp.z ?? 0) + (pinkyMcp.z ?? 0)) / 2;
     const along = {
-      x: (middleMcp.x - wrist.x) * width,
-      y: (middleMcp.y - wrist.y) * height,
-      z: ((middleMcp.z ?? 0) - (wrist.z ?? 0)) * zScale,
+      x: (middleMcp.x - alongBaseX) * width,
+      y: (middleMcp.y - alongBaseY) * height,
+      z: ((middleMcp.z ?? 0) - alongBaseZ) * zScale,
     };
     const normal = {
       x: across.y * along.z - across.z * along.y,
@@ -199,6 +215,11 @@ export function computeNailGeometry(
         transverseAngle = normalizeAngle(Math.atan2(crossY, crossX));
       }
     }
+  }
+
+  if (options.curled) {
+    // 蜷曲态：横轴保持远端 2D 轴垂直方向，横向投影按甲板朝镜头因子收紧。
+    transverseProjection = clamp(options.curled.facingFactor, 0.3, 1);
   }
 
   const centerOffset = nailLength * (

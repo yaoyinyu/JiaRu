@@ -4,6 +4,38 @@ export const SUPPORTED_IMAGE_MIME_TYPES = [
   "image/webp",
 ] as const;
 
+const SUPPORTED_MIME_SET: ReadonlySet<string> = new Set(SUPPORTED_IMAGE_MIME_TYPES);
+
+/** 常见但不规范的 MIME 别名（部分相册、旧版 Android 文件选择器会给出）。 */
+const MIME_ALIASES: Readonly<Record<string, string>> = {
+  "image/jpg": "image/jpeg",
+  "image/pjpeg": "image/jpeg",
+  "image/x-png": "image/png",
+  "image/x-webp": "image/webp",
+};
+
+/** 浏览器普遍无法解码、需要用户先转码的格式。 */
+const TRANSCODE_REQUIRED_MIME_TYPES: ReadonlySet<string> = new Set([
+  "image/heic",
+  "image/heif",
+  "image/heic-sequence",
+  "image/heif-sequence",
+]);
+
+/**
+ * 缺少 MIME（部分微信/安卓来源给空字符串）或只给通用二进制类型时，
+ * 以「能否解码」作为格式判据，避免把有效 JPG/PNG 误判为不支持。
+ */
+function shouldAttemptDecodeWithoutMime(mime: string): boolean {
+  if (!mime) return true;
+  return mime === "application/octet-stream" || mime === "binary/octet-stream";
+}
+
+function normalizeMime(type: string | null | undefined): string {
+  const normalized = (type ?? "").trim().toLowerCase();
+  return MIME_ALIASES[normalized] ?? normalized;
+}
+
 export const MAX_IMAGE_FILE_BYTES = 10 * 1024 * 1024;
 export const MIN_IMAGE_DIMENSION = 320;
 export const MAX_IMAGE_DIMENSION = 4096;
@@ -60,12 +92,23 @@ export async function validateImageUpload(
   file: ImageFileLike,
   decode: ImageDecoder = decodeImageInBrowser
 ): Promise<ImageUploadValidationResult> {
-  if (!SUPPORTED_IMAGE_MIME_TYPES.includes(file.type as (typeof SUPPORTED_IMAGE_MIME_TYPES)[number])) {
-    return {
-      ok: false,
-      code: "unsupported_type",
-      message: "仅支持 JPG、PNG 与 WebP 图片。",
-    };
+  const mime = normalizeMime(file.type);
+  if (!SUPPORTED_MIME_SET.has(mime)) {
+    if (TRANSCODE_REQUIRED_MIME_TYPES.has(mime)) {
+      return {
+        ok: false,
+        code: "unsupported_type",
+        message: "暂不支持 HEIC/HEIF 照片，请在相册中导出为 JPG 后重试。",
+      };
+    }
+    if (!shouldAttemptDecodeWithoutMime(mime)) {
+      return {
+        ok: false,
+        code: "unsupported_type",
+        message: "仅支持 JPG、PNG 与 WebP 图片。",
+      };
+    }
+    // 无 MIME / 通用二进制：继续走解码与尺寸校验，能解码即视为可用图片。
   }
 
   if (file.size > MAX_IMAGE_FILE_BYTES) {

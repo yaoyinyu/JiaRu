@@ -175,3 +175,25 @@ test("per-finger calibration adjusts length and width independently", () => {
   assert.equal(adjusted.length, 50);
   assert.equal(adjusted.width, 16);
 });
+
+test("wrist beyond the frame edge still yields MCP-based transverse shear", () => {
+  const closeup = perspectiveLandmarks({ indexMcpZ: -0.08, pinkyMcpZ: 0.08 });
+  closeup[0] = { x: 0.5, y: 1.08, z: 0.1 };
+  const geometry = computeNailGeometry(closeup, 2, 800, 600, { zScale: 800 });
+  const frontal = computeNailGeometry(perspectiveLandmarks(), 2, 800, 600, { zScale: 800 });
+  assert.ok(geometry && frontal);
+  assert.ok(geometry.width < frontal.width * 0.9, `expected MCP-plane shear, got ${geometry.width}`);
+  const orthogonalError = Math.abs(
+    Math.cos((geometry.transverseAngle ?? geometry.angle) - geometry.angle),
+  );
+  assert.ok(orthogonalError > 0.02, `expected perspective shear, got ${orthogonalError}`);
+});
+
+test("wrist near the bottom edge keeps a frontal nail un-narrowed", () => {
+  const closeup = perspectiveLandmarks();
+  closeup[0] = { x: 0.5, y: 0.97, z: 0 };
+  const geometry = computeNailGeometry(closeup, 2, 800, 600, { zScale: 800 });
+  const frontal = computeNailGeometry(perspectiveLandmarks(), 2, 800, 600, { zScale: 800 });
+  assert.ok(geometry && frontal);
+  assert.ok(Math.abs(geometry.width - frontal.width) < 1e-6);
+});

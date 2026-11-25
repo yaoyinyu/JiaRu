@@ -6,7 +6,9 @@ import {
   isSpecularHighlightPixel,
   inspectSpecularHighlights,
   repairSpecularHighlights,
+  smoothAlphaBoundary,
   summarizeMaskExtractionQuality,
+  tightenAlphaRamp,
 } from "../src/lib/nail-texture-recognition/index.ts";
 
 test("findMaskBounds returns tight bounds around foreground pixels", () => {
@@ -53,6 +55,35 @@ test("buildFeatheredAlphaMask softens edge pixels while keeping inner pixels opa
   assert.equal(alpha[2 * 5 + 2], 255);
   assert.ok(alpha[1 * 5 + 1] < 255);
   assert.equal(alpha[0], 0);
+});
+
+test("tightenAlphaRamp narrows the edge ramp without moving the 50% contour", () => {
+  const ramp = new Uint8ClampedArray([0, 64, 96, 128, 160, 192, 255]);
+  const tightened = tightenAlphaRamp(ramp);
+
+  assert.equal(tightened[0], 0);
+  assert.equal(tightened[1], 0);
+  assert.ok(tightened[2] < 32);
+  assert.ok(Math.abs(tightened[3] - 128) <= 12);
+  assert.equal(tightened[4], 255);
+  assert.equal(tightened[5], 255);
+  assert.equal(tightened[6], 255);
+});
+
+test("smoothAlphaBoundary removes stair steps and keeps solid regions intact", () => {
+  const width = 5;
+  const height = 3;
+  const alpha = new Uint8ClampedArray([
+    255, 255, 0, 0, 0,
+    255, 255, 255, 0, 0,
+    255, 255, 0, 0, 0,
+  ]);
+  const smoothed = smoothAlphaBoundary(alpha, width, height);
+
+  assert.equal(smoothed[0], 255);
+  assert.equal(smoothed[width * 2 + 4], 0);
+  assert.ok(smoothed[1] < 255 && smoothed[1] > 128);
+  assert.ok(smoothed[2] > 0 && smoothed[2] < 255);
 });
 
 test("summarizeMaskExtractionQuality reports sparse and edge-touching crops", () => {

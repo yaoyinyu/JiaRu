@@ -65,7 +65,9 @@ export {
   inspectSpecularHighlights,
   isSpecularHighlightPixel,
   repairSpecularHighlights,
+  smoothAlphaBoundary,
   summarizeMaskExtractionQuality,
+  tightenAlphaRamp,
 } from "./extract-mask-texture.ts";
 export type {
   ExtractedMaskTexture,
@@ -166,6 +168,15 @@ export {
 export {
   recognizeNailTextures,
 } from "./recognize.ts";
+export {
+  runStageACoarse,
+} from "./stage-a-coarse.ts";
+export type {
+  NailCoarseInstance,
+  StageACoarseResult,
+  ArSegKeyframeRequest,
+  ArSegKeyframeResponse,
+} from "./stage-a-coarse.ts";
 export {
   CANDIDATE57_COMPOSITION,
   cropProposalRoi,

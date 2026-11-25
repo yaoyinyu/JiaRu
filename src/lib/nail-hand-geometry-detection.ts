@@ -17,9 +17,51 @@ export interface HandGeometryDetectionInput {
   }[];
 }
 
+/** 指尖参考：只描述「哪根手指在画面哪里、指尖朝哪」，不依赖手心/手背判定。 */
+export interface HandFingerTip {
+  id: string;
+  finger: number;
+  cx: number;
+  cy: number;
+  /** 由 DIP 指向 TIP 的单位向量（远端方向）。 */
+  dirX: number;
+  dirY: number;
+}
+
 export interface HandGeometryDetectionResult {
   candidates: NailTextureCandidate[];
   warnings: string[];
+  fingerTips?: HandFingerTip[];
+}
+
+const FINGER_TIP_LANDMARKS = [4, 8, 12, 16, 20] as const;
+const FINGER_DIP_LANDMARKS = [3, 7, 11, 15, 19] as const;
+
+function buildHandFingerTips(
+  hand: readonly NailLandmark[],
+  imageWidth: number,
+  imageHeight: number,
+  handIndex: number
+): HandFingerTip[] {
+  const tips: HandFingerTip[] = [];
+  for (let finger = 0; finger < 5; finger += 1) {
+    const tip = hand[FINGER_TIP_LANDMARKS[finger]];
+    const dip = hand[FINGER_DIP_LANDMARKS[finger]];
+    if (!tip || !dip) continue;
+    const dx = (tip.x - dip.x) * imageWidth;
+    const dy = (tip.y - dip.y) * imageHeight;
+    const length = Math.hypot(dx, dy);
+    if (!Number.isFinite(length) || length < 2) continue;
+    tips.push({
+      id: `mediapipe-hand-${handIndex}-tip-${finger}`,
+      finger,
+      cx: tip.x * imageWidth,
+      cy: tip.y * imageHeight,
+      dirX: dx / length,
+      dirY: dy / length,
+    });
+  }
+  return tips;
 }
 
 function createAbortError(): DOMException {
@@ -48,14 +90,21 @@ export function createNailCandidatesFromHandGeometry(
 ): HandGeometryDetectionResult {
   if (maxHands === 1) return createSingleHandCandidates(input, imageWidth, imageHeight);
   const hands = input.multiHandLandmarks?.slice(0, maxHands) ?? [];
-  if (!hands.length) return { candidates: [], warnings: ["mediapipe_no_hand_detected"] };
+  if (!hands.length) return { candidates: [], warnings: ["mediapipe_no_hand_detected"], fingerTips: [] };
   const results = hands.map((hand, index) => {
     const result = createSingleHandCandidates({ multiHandLandmarks: [hand],
       multiHandedness: input.multiHandedness?.slice(index, index + 1) }, imageWidth, imageHeight);
-    return { ...result, candidates: result.candidates.map(c => ({ ...c,
-      id: c.id.replace("hand-0-", `hand-${index}-`) })) };
+    const tips = buildHandFingerTips(hand, imageWidth, imageHeight, index);
+    return { ...result,
+      candidates: result.candidates.map(c => ({ ...c,
+        id: c.id.replace("hand-0-", `hand-${index}-`) })),
+      fingerTips: tips };
   });
-  return { candidates: results.flatMap(r => r.candidates), warnings: [...new Set(results.flatMap(r => r.warnings))] };
+  return {
+    candidates: results.flatMap(r => r.candidates),
+    warnings: [...new Set(results.flatMap(r => r.warnings))],
+    fingerTips: results.flatMap(r => r.fingerTips ?? []),
+  };
 }
 
 function createSingleHandCandidates(
@@ -65,8 +114,9 @@ function createSingleHandCandidates(
 ): HandGeometryDetectionResult {
   const hand = input.multiHandLandmarks?.[0];
   if (!hand || hand.length < 21) {
-    return { candidates: [], warnings: ["mediapipe_no_hand_detected"] };
+    return { candidates: [], warnings: ["mediapipe_no_hand_detected"], fingerTips: [] };
   }
+  const fingerTips = buildHandFingerTips(hand, imageWidth, imageHeight, 0);
 
   const handedness = input.multiHandedness?.[0] ?? null;
   const wrist = hand[0];
@@ -94,7 +144,8 @@ function createSingleHandCandidates(
   });
 
   if (decision.orientation === "palm" && decision.confidence === "high") {
-    return { candidates: [], warnings: ["mediapipe_palm_facing"] };
+    // 手心朝上时不画甲面，但指尖位置仍可用于指位配对（指位与朝向无关）。
+    return { candidates: [], warnings: ["mediapipe_palm_facing"], fingerTips };
   }
 
   const candidates: NailTextureCandidate[] = [];
@@ -133,11 +184,28 @@ function createSingleHandCandidates(
       candidates.length > 0
         ? ["model_unavailable_used_mediapipe_geometry"]
         : ["mediapipe_no_nail_geometry"],
+    fingerTips,
   };
 }
 
+/** 手部检测可接受的选择器图片来源（图片元素或备用解码画布）。 */
+export type HandDetectionImageSource = HTMLImageElement | HTMLCanvasElement;
+
+export function handDetectionImageSize(image: HandDetectionImageSource): {
+  width: number;
+  height: number;
+} {
+  if (image instanceof HTMLImageElement) {
+    return {
+      width: image.naturalWidth || image.width,
+      height: image.naturalHeight || image.height,
+    };
+  }
+  return { width: image.width, height: image.height };
+}
+
 export async function detectNailsFromHandImage(
-  image: HTMLImageElement,
+  image: HandDetectionImageSource,
   options: { signal?: AbortSignal; timeoutMs?: number; maxHands?: 1 | 2 } = {}
 ): Promise<HandGeometryDetectionResult> {
   if (options.signal?.aborted) throw createAbortError();
@@ -177,10 +245,11 @@ export async function detectNailsFromHandImage(
         .catch((reason) => finish(() => reject(reason)));
     });
 
+    const { width, height } = handDetectionImageSize(image);
     return createNailCandidatesFromHandGeometry(
       results,
-      image.naturalWidth,
-      image.naturalHeight,
+      width,
+      height,
       options.maxHands ?? 1,
     );
   } finally {

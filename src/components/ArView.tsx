@@ -12,20 +12,21 @@ import {
   type NailGeometry,
 } from "@/lib/nail-geometry";
 import { resolveMediaPipeHandsAsset } from "@/lib/mediapipe-hands-assets";
-import { measureTextureAlphaFrame, textureDrawRect, textureLayerSize, cuticleBlendDistance, photographicLightGain, type TextureAlphaFrame } from "@/lib/ar-texture-fit";
+import { createArCameraSession } from "@/lib/ar-camera-session";
+import { createBackgroundWatchdog, AR_BACKGROUND_STALL_MS } from "@/lib/ar-background-watchdog";
+import { createArWorkerTracker, type ArHandLandmark as Landmark } from "@/lib/ar-hand-tracker";
+import { getCoherentPalmTranslation } from "@/lib/ar-palm-translation";
+import { createArLightSampler, getArLightCrop, LIGHT_FRAME_HEIGHT, LIGHT_FRAME_TTL_MS, LIGHT_FRAME_WIDTH } from "@/lib/ar-light-sampler";
 import {
-  AR_ROOT_COLOR_PROTECTION_ENABLED,
-  adaptiveRootProtectionWeight,
-  blendProtectedRootOutputs,
-  buildSquareOpacityMask,
-  buildTextureAreaIntegral,
-  createExactAreaSampler,
-  minimumPixelFootprint,
-  renderProtectedRootColors,
-  textureLayerToPhysicalMatrix,
-  textureLayerToSourceMatrix,
-  type TextureAreaIntegral,
-} from "@/lib/ar-root-color-protection";
+  startArTrackFrameLoop,
+  startArVideoFrameLoop,
+  startCapturedArVideoFrameLoop,
+  type ArCapturedFrame,
+  type ArVideoFrame,
+} from "@/lib/ar-video-frame-loop";
+import { createArMaterialPainter, getTextureFrame, type ArMaterialParams, type Nail2DContext } from "@/lib/ar-material-painter";
+import { createArMaterialJobs } from "@/lib/ar-material-jobs";
+import { textureDrawRect, textureLayerSize } from "@/lib/ar-texture-fit";
 import { Icon } from "@/components/Icon";
 import {
   calculateCoverVideoLayout,
@@ -34,15 +35,43 @@ import {
 import {
   classifyHandOrientation,
   getHandOrientationPresentation,
+  isPalmCenterOutOfFrame,
   type HandOrientationDecision,
   type HandOrientation,
 } from "@/lib/ar-hand-orientation";
+import {
+  computeFingerNailOrientation,
+  computeHandDorsumNormal,
+  fingerJointPoints,
+  CURL_GEOMETRY_THRESHOLD,
+  type FingerNailOrientation,
+  type Vec3,
+} from "@/lib/ar-nail-orientation";
+import {
+  bboxFromLandmarks,
+  expandRoi,
+  remapLandmarks,
+  roiSanity,
+  segBootstrapBox,
+  type RoiBox,
+  type RoiCrop,
+} from "@/lib/ar-roi-tracking";
+import {
+  assignSegSlots,
+  shouldScheduleKeyframe,
+  updateSegHits,
+  type SegFingerHit,
+  type TipPoint,
+} from "@/lib/ar-seg-keyframe";
+import type {
+  ArSegKeyframeRequest,
+  ArSegKeyframeResponse,
+} from "@/lib/nail-texture-recognition/stage-a-coarse";
 import {
   computeTextureRenderPlan,
   getNailShapeProfile,
   glossToRenderFactor,
   type NailRenderStyle,
-  type NailShapeProfile,
 } from "@/lib/ar-nail-shape";
 
 // MediaPipe 手部关键点索引
@@ -54,7 +83,6 @@ const PIPS = NAIL_PIPS;
 const EMA_ALPHA = 0.66;
 const EMA_ALPHA_PALM = 0.3; // 朝向深度差平滑（更保守）
 
-const OUT_OF_FRAME_THRESHOLD = 0.1;   // x/y 超出 [0.1, 0.9] = 出画面
 const ORIENTATION_STABLE_FRAMES = 3;
 
 // 逐指指甲可见性阈值
@@ -71,17 +99,28 @@ const VISIBILITY_SMOOTH_THRESHOLD = 0.5;
 // 手指伸展角阈值（弧度）：PIP→DIP 与 DIP→TIP 夹角 > 此值 = 弯折 = 指甲不可见
 const EXTENSION_ANGLE_THRESHOLD = 0.6; // ≈ 35°
 
+// 手势贴合先验 rollout 开关：默认 off，验收通过后开启（M1）
+const GESTURE_PRIOR_ENABLED = process.env.NEXT_PUBLIC_AR_GESTURE_PRIOR === "1";
+// ROI 丢手兜底 rollout 开关（M2）
+const ROI_TRACKING_ENABLED = process.env.NEXT_PUBLIC_AR_ROI_TRACKING === "1";
+// 双手按钮 rollout 开关（M2）：默认单手，用户按钮开启双手
+const TWO_HAND_ENABLED = process.env.NEXT_PUBLIC_AR_TWO_HAND === "1";
+const SEG_FUSION_ENABLED = process.env.NEXT_PUBLIC_AR_SEG_FUSION === "1";
+const SEG_KEYFRAME_INTERVAL_MS = 400;
+const SEG_KEYFRAME_MAX_EDGE = 512;
+const SEG_ASSOC_RADIUS = 0.06;
+const SEG_HOLD_FRAMES = 3;
+
 // 4 指投票索引（排除拇指，拇指结构特殊 z 不稳定）
 const VOTE_FINGERS = [1, 2, 3, 4];
 
 const INFERENCE_INTERVAL_MS = 1000 / 24;
+const WORKER_OVERLAY_MAX_AGE_MS = 150;
 
 // 环境光采样：整帧缩略一次读取，供五指共享（逐指 getImageData 会触发 GL 同步回读）
-const LIGHT_FRAME_WIDTH = 96;
-const LIGHT_FRAME_HEIGHT = 54;
-const LIGHT_FRAME_TTL_MS = 320;
 const LIGHT_FRAME_PATCH_RADIUS = 2;
 const NEUTRAL_ENV_LIGHT = { brightness: 1, r: 1, g: 1, b: 1 };
+type LightFrame = { data: Uint8ClampedArray; width: number; height: number };
 
 // 纹理合成层缓存：尺寸容差内的关键点抖动不重建离屏层
 // （上屏按当前几何等比缩放，容差只影响纹理重采样锐度，不改变甲面大小）
@@ -94,14 +133,8 @@ const NAIL_LAYER_LIGHT_TOLERANCE = 0.12;
 const NAIL_LAYER_REBUILDS_PER_FRAME = 1;
 
 // MediaPipe 全局类型声明（CDN 注入）
-interface Landmark {
-  x: number;
-  y: number;
-  z: number;
-}
-
 interface Handedness {
-  label: "Left" | "Right";
+  label: "Left" | "Right" | null;
   score: number;
 }
 
@@ -134,37 +167,12 @@ declare global {
   }
 }
 
-/** 甲面绘制共用 2D 上下文类型（主画布与离屏合成层） */
-type Nail2DContext = CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D;
-
-// 纹理 alpha 轮廓检测缓存（按位图实例缓存，检测结果与位图内容一一对应）
-const textureFrameCache = new WeakMap<ImageBitmap, TextureAlphaFrame>();
-
-function getTextureFrame(tex: ImageBitmap): TextureAlphaFrame {
-  const existing = textureFrameCache.get(tex);
-  if (existing) return existing;
-  const canvas = new OffscreenCanvas(tex.width, tex.height);
-  const ctx = canvas.getContext("2d", { willReadFrequently: true });
-  if (!ctx) throw new Error("texture_frame_canvas_unavailable");
-  ctx.drawImage(tex, 0, 0);
-  const frame = measureTextureAlphaFrame(ctx.getImageData(0, 0, tex.width, tex.height).data, tex.width, tex.height);
-  textureFrameCache.set(tex, frame);
-  canvas.width = canvas.height = 1;
-  return frame;
-}
-
-
-
-interface RootColorTextureResources {
-  integral: TextureAreaIntegral;
-  guardTwo: OffscreenCanvas;
-  guardOne: OffscreenCanvas;
-}
-
 /** 逐指纹理合成层缓存：签名不变时复用离屏合成结果。 */
 interface NailLayerSlot {
   canvas: OffscreenCanvas;
   ctx: OffscreenCanvasRenderingContext2D;
+  bitmap?: ImageBitmap;
+  preferReadback: boolean;
   signature: string;
   /** 构建时使用的甲面渲染尺寸；上屏按当前尺寸等比缩放，甲面大小始终跟随几何。 */
   drawnWidth: number;
@@ -173,54 +181,6 @@ interface NailLayerSlot {
   drawnBrightness: number;
   /** 上次构建时间（ms），用于限制重建频率。 */
   builtAt: number;
-}
-
-/** 每张纹理只构建一次 V7 资源：RGB 行积分与 2px/1px 不透明保护层。 */
-const rootColorTextureResourceCache = new WeakMap<ImageBitmap, RootColorTextureResources>();
-
-function getRootColorTextureResources(tex: ImageBitmap): RootColorTextureResources | null {
-  const cached = rootColorTextureResourceCache.get(tex);
-  if (cached) return cached;
-  if (tex.width <= 0 || tex.height <= 0) return null;
-  const source = new OffscreenCanvas(tex.width, tex.height);
-  const sourceCtx = source.getContext("2d", { willReadFrequently: true });
-  if (!sourceCtx) return null;
-  sourceCtx.drawImage(tex, 0, 0);
-  const rgba = sourceCtx.getImageData(0, 0, tex.width, tex.height).data;
-  const rgb = new Uint8Array(tex.width * tex.height * 3);
-  for (let i = 0, j = 0; i < rgba.length; i += 4) {
-    rgb[j++] = rgba[i];
-    rgb[j++] = rgba[i + 1];
-    rgb[j++] = rgba[i + 2];
-  }
-  const frame = getTextureFrame(tex);
-  let integral: TextureAreaIntegral;
-  try {
-    integral = buildTextureAreaIntegral(rgb, tex.width, tex.height, {
-      minX: frame.left,
-      minY: frame.top,
-      maxX: frame.left + frame.width - 1,
-      maxY: frame.top + frame.height - 1,
-    });
-  } catch {
-    return null;
-  }
-  const guardTwoData = buildSquareOpacityMask(rgba, tex.width, tex.height, 2);
-  const guardOneData = buildSquareOpacityMask(rgba, tex.width, tex.height, 1);
-  const guardTwo = new OffscreenCanvas(tex.width, tex.height);
-  const guardTwoCtx = guardTwo.getContext("2d");
-  const guardOne = new OffscreenCanvas(tex.width, tex.height);
-  const guardOneCtx = guardOne.getContext("2d");
-  if (!guardTwoCtx || !guardOneCtx) return null;
-  const guardTwoImage = guardTwoCtx.createImageData(tex.width, tex.height);
-  guardTwoImage.data.set(guardTwoData);
-  guardTwoCtx.putImageData(guardTwoImage, 0, 0);
-  const guardOneImage = guardOneCtx.createImageData(tex.width, tex.height);
-  guardOneImage.data.set(guardOneData);
-  guardOneCtx.putImageData(guardOneImage, 0, 0);
-  const resources: RootColorTextureResources = { integral, guardTwo, guardOne };
-  rootColorTextureResourceCache.set(tex, resources);
-  return resources;
 }
 
 interface Props {
@@ -340,33 +300,52 @@ export function ArView({
   // 用 useRef 确保 onResults 闭包始终读取最新值
   const [handFlip, setHandFlip] = useState(false);
   const handFlipRef = useRef(false);
+  // M2 双手开关（默认单手；flag 开启时显示按钮）
+  const [twoHand, setTwoHand] = useState(false);
+  const twoHandRef = useRef(false);
+  const trackerRef = useRef<HandsInstance | null>(null);
+  // M2 ROI 丢手兜底
+  const lastHandBboxRef = useRef<RoiBox | null>(null);
+  const emptyStreakRef = useRef(0);
+  const roiTrackerRef = useRef<HandsInstance | null>(null);
+  const roiCropRef = useRef<RoiCrop | null>(null);
+  const roiCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  // M3 关键帧 Stage-A 分割融合
+  const segWorkerRef = useRef<Worker | null>(null);
+  const segHitsRef = useRef<Record<number, SegFingerHit>>({});
+  const segInstancesRef = useRef<readonly { cx: number; cy: number; w: number; h: number; angle: number; score: number }[]>([]);
+  const segTipsRef = useRef<Record<number, TipPoint>>({});
+  const segLastKeyframeRef = useRef(0);
+  const segBusyRef = useRef(false);
+  const segCanvasRef = useRef<HTMLCanvasElement | null>(null);
   // 逐指可见性 UI 状态（true=可见，false=隐藏）
   const [fingerVisible, setFingerVisible] = useState<boolean[]>([true, true, true, true, true]);
   const fingerVisibleUiRef = useRef<boolean[]>([true, true, true, true, true]);
-  const grainCanvasRef = useRef<OffscreenCanvas | null>(null);
+  const [materialPainter] = useState(() => createArMaterialPainter());
+  const { drawNailShape, drawPhotoTexture, drawMaterialDetails, drawSpecularHighlight } = materialPainter;
   // 环境光共享缩略帧（每帧至多一次 GL 回读，五指复用同一份像素）
   const lightFrameCanvasRef = useRef<OffscreenCanvas | null>(null);
   const lightFrameCtxRef = useRef<OffscreenCanvasRenderingContext2D | null>(null);
-  const lightFrameStateRef = useRef<{
-    data: Uint8ClampedArray;
-    width: number;
-    height: number;
+  const lightFrameStateRef = useRef<(LightFrame & {
     viewWidth: number;
     viewHeight: number;
     at: number;
-  } | null>(null);
+  }) | null>(null);
   // 纹理合成层（纹理 + 材质先在离屏合成，source-atop 限制在纹理 alpha 内，再整体上屏）
   // 按指独立缓存：层内容只取决于纹理、甲面尺寸、光照与光泽，几何位移由画布变换承担，
   // 因此签名不变时可直接复用上一帧的合成结果，省去重绘与逐指像素回读。
   const nailLayerSlotsRef = useRef<Array<NailLayerSlot | null>>([null, null, null, null, null]);
+  const materialPipelineRef = useRef<{
+    jobs: ReturnType<typeof createArMaterialJobs>;
+    epoch: number;
+    visible: boolean[];
+  } | null>(null);
   const nailLayerTextureIdRef = useRef(new WeakMap<ImageBitmap, number>());
   const nailLayerTextureSeqRef = useRef(0);
   // 单帧合成层重建预算（每次 paintNails 重置）
   const layerRebuildBudgetRef = useRef(0);
   // V7 甲根颜色保护的工作层：绘制 1px/2px 内缩源并读取其 alpha。
-  const rootColorWorkCanvasRef = useRef<OffscreenCanvas | null>(null);
   // V7 运行时回退只提示一次，避免逐帧告警刷屏。
-  const rootColorFallbackWarnedRef = useRef(false);
 
   const log = (m: string) => {
     console.log("[AR]", m);
@@ -411,158 +390,21 @@ export function ArView({
     finger: number,
     width: number,
     height: number,
+    preferReadback: boolean,
   ): NailLayerSlot | null {
     const qw = Math.max(1, Math.ceil(width / NAIL_LAYER_QUANTUM) * NAIL_LAYER_QUANTUM);
     const qh = Math.max(1, Math.ceil(height / NAIL_LAYER_QUANTUM) * NAIL_LAYER_QUANTUM);
     const slots = nailLayerSlotsRef.current;
     let slot = slots[finger] ?? null;
-    if (!slot || slot.canvas.width < qw || slot.canvas.height < qh) {
+    if (!slot || slot.preferReadback !== preferReadback || slot.canvas.width < qw || slot.canvas.height < qh) {
       const canvas = new OffscreenCanvas(qw, qh);
-      // 合成层每帧都要上屏一次，保持加速后端；像素回读只在重建时发生（已按预算节流）。
-      const ctx = canvas.getContext("2d");
+      const ctx = canvas.getContext("2d", preferReadback ? { willReadFrequently: true } : undefined);
       if (!ctx) return null;
-      slot = { canvas, ctx, signature: "", drawnWidth: 0, drawnLength: 0, drawnBrightness: 0, builtAt: 0 };
+      slot?.bitmap?.close();
+      slot = { canvas, ctx, preferReadback, signature: "", drawnWidth: 0, drawnLength: 0, drawnBrightness: 0, builtAt: 0 };
       slots[finger] = slot;
     }
     return slot;
-  }
-
-  /** 在离屏层 alpha 上融合甲根交界；调用方负责纹理已先绘制。 */
-  function applyRootColorFade(
-    ctx: OffscreenCanvasRenderingContext2D,
-    canvas: OffscreenCanvas,
-    renderLength: number,
-  ) {
-    ctx.globalCompositeOperation = "destination-in";
-    const rootY = renderLength / 2;
-    const rootBlend = ctx.createLinearGradient(0, rootY - cuticleBlendDistance(renderLength), 0, rootY);
-    rootBlend.addColorStop(0, "rgba(0,0,0,1)");
-    rootBlend.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = rootBlend;
-    ctx.fillRect(-canvas.width / 2, -canvas.height / 2, canvas.width, canvas.height);
-    ctx.globalCompositeOperation = "source-over";
-  }
-
-  function readRootColorGuardData(
-    guard: OffscreenCanvas,
-    width: number,
-    height: number,
-    rect: { x: number; y: number; width: number; height: number },
-    renderLength: number,
-  ): ImageData | null {
-    let canvas = rootColorWorkCanvasRef.current;
-    if (!canvas || canvas.width !== width || canvas.height !== height) {
-      canvas = new OffscreenCanvas(width, height);
-      rootColorWorkCanvasRef.current = canvas;
-    }
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) return null;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = "source-over";
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.translate(canvas.width / 2, canvas.height / 2);
-    ctx.drawImage(guard, rect.x, rect.y, rect.width, rect.height);
-    applyRootColorFade(ctx, canvas, renderLength);
-    return ctx.getImageData(0, 0, canvas.width, canvas.height);
-  }
-
-  /**
-   * V7 resampleTwo 生产路径：先保留现行摄影层作为基线，
-   * 再在根带内按精确面积采样替换 2px/1px 保护域 RGB，物理覆盖不足时偏向 2px。
-   */
-  function applyQualityFirstRootProtection(
-    lctx: OffscreenCanvasRenderingContext2D,
-    layerCanvas: OffscreenCanvas,
-    tex: ImageBitmap,
-    frame: TextureAlphaFrame,
-    rect: { x: number; y: number; width: number; height: number },
-    renderGeometry: NailGeometry,
-    renderLength: number,
-  ): boolean {
-    if (!AR_ROOT_COLOR_PROTECTION_ENABLED) return false;
-    const resources = getRootColorTextureResources(tex);
-    const sourceMatrix = textureLayerToSourceMatrix(
-      rect, tex.width, tex.height, layerCanvas.width, layerCanvas.height,
-    );
-    if (!resources || !sourceMatrix) return false;
-    const physicalMatrix = textureLayerToPhysicalMatrix(
-      createNailAffineTransform(renderGeometry),
-      layerCanvas.width,
-      layerCanvas.height,
-      typeof window === "undefined" ? 1 : window.devicePixelRatio || 1,
-    );
-    if (!physicalMatrix) return false;
-    const footprint = minimumPixelFootprint(physicalMatrix);
-    if (!footprint) return false;
-    const weight = adaptiveRootProtectionWeight(footprint);
-
-    const baseData = lctx.getImageData(0, 0, layerCanvas.width, layerCanvas.height);
-    const directTwo = readRootColorGuardData(
-      resources.guardTwo, layerCanvas.width, layerCanvas.height, rect, renderLength,
-    );
-    if (!directTwo) return false;
-    const sampler = createExactAreaSampler(resources.integral, sourceMatrix);
-    const twoData = renderProtectedRootColors(baseData, directTwo, renderLength, sampler);
-
-    let finalData: Uint8ClampedArray;
-    if (weight <= 0) {
-      finalData = twoData;
-    } else {
-      const directOne = readRootColorGuardData(
-        resources.guardOne, layerCanvas.width, layerCanvas.height, rect, renderLength,
-      );
-      if (!directOne) return false;
-      const oneData = renderProtectedRootColors(baseData, directOne, renderLength, sampler);
-      finalData = weight >= 1
-        ? oneData
-        : blendProtectedRootOutputs(
-          { width: layerCanvas.width, height: layerCanvas.height, data: twoData },
-          { width: layerCanvas.width, height: layerCanvas.height, data: oneData },
-          weight,
-        );
-    }
-    const finalImage = lctx.createImageData(layerCanvas.width, layerCanvas.height);
-    finalImage.data.set(finalData);
-    lctx.putImageData(finalImage, 0, 0);
-    return true;
-  }
-
-  /**
-   * 绘制指甲形状（贝塞尔路径 —— 比椭圆更贴近真实指甲轮廓）
-   * 每根手指使用不同的形状参数：
-   *   拇指 — 宽短平尖 / 食指中指 — 标准椭圆 / 无名指 — 圆润 / 小指 — 尖窄
-   */
-  function drawNailShape(
-    ctx: Nail2DContext,
-    nl: number,
-    nw: number,
-    fingerIdx: number = 2,  // 默认中指
-    profile: NailShapeProfile = getNailShapeProfile(undefined, fingerIdx)
-  ) {
-    const hw = nw * 0.5;
-    const hl = nl * 0.5;
-    const tipNarrow = profile.tipNarrow * nw;
-    const cpLen = hl * profile.sideCurve;
-    const rootBulge = hl * profile.rootBulge;
-
-    ctx.beginPath();
-    ctx.moveTo(hw - tipNarrow, -hl);
-    ctx.quadraticCurveTo(0, -hl - hl * profile.tipArch, -(hw - tipNarrow), -hl);
-    ctx.bezierCurveTo(
-      -(hw + cpLen * profile.sideFlare), -hl * 0.6,
-      -(hw + cpLen * profile.sideFlare), hl * 0.3,
-      -hw, hl + rootBulge
-    );
-    ctx.quadraticCurveTo(0, hl + rootBulge + hl * 0.06, hw, hl + rootBulge);
-    ctx.bezierCurveTo(
-      hw + cpLen * profile.sideFlare, hl * 0.3,
-      hw + cpLen * profile.sideFlare, -hl * 0.6,
-      hw - tipNarrow, -hl
-    );
-    ctx.closePath();
   }
 
   /** 应用长轴与横轴独立的仿射变换，支持侧转甲面的透视剪切。 */
@@ -592,7 +434,7 @@ export function ArView({
     video: HTMLVideoElement,
     w: number,
     h: number,
-  ): { data: Uint8ClampedArray; width: number; height: number } | null {
+  ): LightFrame | null {
     const now = performance.now();
     const cached = lightFrameStateRef.current;
     if (
@@ -621,16 +463,10 @@ export function ArView({
     if (!ctx) return cached;
 
     // 与展示层一致的 object-cover 取景，保证缩略像素与画面几何对位。
-    const coverScale = Math.max(w / vw, h / vh);
-    const sw = Math.min(vw, w / coverScale);
-    const sh = Math.min(vh, h / coverScale);
-    const sx = (vw - sw) / 2;
-    const sy = (vh - sh) / 2;
-
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = "source-over";
-    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, LIGHT_FRAME_WIDTH, LIGHT_FRAME_HEIGHT);
+    ctx.drawImage(video, ...getArLightCrop(vw, vh, w, h), 0, 0, LIGHT_FRAME_WIDTH, LIGHT_FRAME_HEIGHT);
     const pixels = ctx.getImageData(0, 0, LIGHT_FRAME_WIDTH, LIGHT_FRAME_HEIGHT).data;
     const next = {
       data: pixels,
@@ -646,7 +482,7 @@ export function ArView({
 
   /** 在缩略帧上取指甲中心邻域的平均色与感知亮度。 */
   function sampleEnvLight(
-    frame: { data: Uint8ClampedArray; width: number; height: number },
+    frame: LightFrame,
     cx: number,
     cy: number,
     w: number,
@@ -677,151 +513,6 @@ export function ArView({
     return { brightness, r: avgR, g: avgG, b: avgB };
   }
 
-  /** 摄影纹理单次采样：内容甲根与甲床宽度对齐，保留来源图已有的曲面光影。 */
-  function drawPhotoTexture(ctx: Nail2DContext, tex: ImageBitmap, nl: number, nw: number) {
-    const rect = textureDrawRect(getTextureFrame(tex), tex.width, tex.height, nw, nl);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(tex, rect.x, rect.y, rect.width, rect.height);
-  }
-
-  /**
-   * 绘制材质细节层（在纹理之上叠加）
-   *
-   * 包含：
-   *   1. 菲涅尔反射 — 边缘更亮（模拟指甲曲面边缘的高反射）
-   *   2. 颗粒纹理 — 微小噪点模拟指甲表面微观纹理
-   *   3. 边缘暗角 — 指甲根部稍暗
-   */
-  function drawMaterialDetails(
-    ctx: Nail2DContext,
-    nl: number,
-    nw: number,
-    envBrightness: number,
-    fingerIdx: number = 2,
-    glossFactor: number = 1,
-    profile: NailShapeProfile = getNailShapeProfile(undefined, fingerIdx)
-  ) {
-    const hw = nw * 0.5;
-    const hl = nl * 0.5;
-
-    // ── 1. 菲涅尔反射（边缘高亮）──
-    // 沿宽度方向的渐变：中心暗，边缘亮
-    const fresnelGrad = ctx.createLinearGradient(-hw, 0, hw, 0);
-    fresnelGrad.addColorStop(0, "rgba(255,255,255,0.28)");
-    fresnelGrad.addColorStop(0.25, "rgba(255,255,255,0.05)");
-    fresnelGrad.addColorStop(0.5, "rgba(255,255,255,0.0)");
-    fresnelGrad.addColorStop(0.75, "rgba(255,255,255,0.05)");
-    fresnelGrad.addColorStop(1, "rgba(255,255,255,0.28)");
-
-    ctx.save();
-    drawNailShape(ctx, nl, nw, fingerIdx, profile);
-    ctx.clip();
-    ctx.fillStyle = fresnelGrad;
-    ctx.globalAlpha = 0.6 * envBrightness * glossFactor;
-    ctx.fillRect(-hw, -hl, nw, nl);
-    ctx.restore();
-
-    // ── 2. 颗粒纹理（微观表面）──
-    ctx.save();
-    drawNailShape(ctx, nl, nw, fingerIdx, profile);
-    ctx.clip();
-
-    let grainCanvas = grainCanvasRef.current;
-    if (!grainCanvas) {
-      grainCanvas = new OffscreenCanvas(64, 128);
-      const gctx = grainCanvas.getContext("2d");
-      if (gctx) {
-        const imgData = gctx.createImageData(grainCanvas.width, grainCanvas.height);
-        for (let i = 0; i < imgData.data.length; i += 4) {
-          const noise = 128 + (Math.random() - 0.5) * 30;
-          imgData.data[i] = noise;
-          imgData.data[i + 1] = noise;
-          imgData.data[i + 2] = noise;
-          imgData.data[i + 3] = 18;
-        }
-        gctx.putImageData(imgData, 0, 0);
-      }
-      grainCanvasRef.current = grainCanvas;
-    }
-    if (grainCanvas) {
-      ctx.globalAlpha = 0.35 * Math.min(1, glossFactor);
-      ctx.drawImage(grainCanvas, -hw, -hl, nw, nl);
-    }
-    ctx.restore();
-
-    // ── 3. 根部暗角 ──
-    const vignetteGrad = ctx.createLinearGradient(0, -hl, 0, hl);
-    vignetteGrad.addColorStop(0, "rgba(0,0,0,0)");
-    vignetteGrad.addColorStop(0.6, "rgba(0,0,0,0)");
-    vignetteGrad.addColorStop(1, "rgba(0,0,0,0.25)");
-
-    ctx.save();
-    drawNailShape(ctx, nl, nw, fingerIdx, profile);
-    ctx.clip();
-    ctx.fillStyle = vignetteGrad;
-    ctx.globalAlpha = Math.min(1, glossFactor);
-    ctx.fillRect(-hw, -hl, nw, nl);
-    ctx.restore();
-  }
-
-  /**
-   * 绘制高光（镜面反射）
-   *
-   * 三层高光系统：
-   *   1. 主高光 — 纵向椭圆，模拟光源在指甲中央的镜面反射
-   *   2. 指尖高光 — 指尖边缘的细亮线（自由缘反光）
-   *   3. 根部微光 — 甲上皮附近的柔和散射
-   */
-  function drawSpecularHighlight(
-    ctx: Nail2DContext,
-    nl: number,
-    nw: number,
-    envBrightness: number,
-    fingerIdx: number = 2,
-    glossFactor: number = 1,
-    profile: NailShapeProfile = getNailShapeProfile(undefined, fingerIdx)
-  ) {
-    const hl = nl * 0.5;
-    const hw = nw * 0.5;
-
-    ctx.save();
-    drawNailShape(ctx, nl, nw, fingerIdx, profile);
-    ctx.clip();
-
-    // ── 主高光（镜面反射条）──
-    const specAlpha = (0.18 + envBrightness * 0.22) * glossFactor;
-    ctx.globalAlpha = specAlpha;
-
-    // 纵向渐变高光（上亮下暗）
-    const specGrad = ctx.createLinearGradient(0, -hl, 0, hl);
-    specGrad.addColorStop(0, "rgba(255,255,255,0.9)");
-    specGrad.addColorStop(0.3, "rgba(255,255,255,0.6)");
-    specGrad.addColorStop(0.7, "rgba(255,255,255,0.15)");
-    specGrad.addColorStop(1, "rgba(255,255,255,0.0)");
-
-    ctx.fillStyle = specGrad;
-    ctx.beginPath();
-    ctx.ellipse(-hw * 0.25, -hl * 0.05, hl * 0.38, hw * 0.12, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ── 指尖高光（自由缘细亮线）──
-    ctx.globalAlpha = (0.12 + envBrightness * 0.1) * glossFactor;
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.ellipse(0, -hl + hl * 0.06, hl * 0.15, hw * 0.55, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ── 根部微光 ──
-    ctx.globalAlpha = (0.06 + envBrightness * 0.04) * glossFactor;
-    ctx.fillStyle = "white";
-    ctx.beginPath();
-    ctx.ellipse(0, hl * 0.6, hl * 0.12, hw * 0.4, 0, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.restore();
-  }
-
   /**
    * 手心/手背朝向检测
    *
@@ -835,15 +526,9 @@ export function ArView({
     smoothDepthDiff: number,
     handedness: "Left" | "Right" | null,
   ): HandOrientationDecision {
-    // 边界检查：手部出画面
-    const palmPts = [lm[0], lm[5], lm[9], lm[17]];
-    const outOfFrame = palmPts.some(
-      (p) =>
-        p.x < OUT_OF_FRAME_THRESHOLD ||
-        p.x > 1 - OUT_OF_FRAME_THRESHOLD ||
-        p.y < OUT_OF_FRAME_THRESHOLD ||
-        p.y > 1 - OUT_OF_FRAME_THRESHOLD
-    );
+    // 边界检查：仅掌部中心离开可见画面才判出画。
+    // 近景整手在画面时手腕贴边不再硬停，逐指显隐由可见性判定自行决定。
+    const outOfFrame = isPalmCenterOutOfFrame(lm[5], lm[9], lm[17]);
     if (outOfFrame) {
       return {
         orientation: "ambiguous",
@@ -918,7 +603,8 @@ export function ArView({
       tip: { x: number; y: number; z: number };
       dip: { x: number; y: number; z: number };
       pip: { x: number; y: number; z: number };
-    }
+    },
+    fo: FingerNailOrientation | null,
   ): boolean {
     // ── 信号 A：TIP.z - DIP.z（使用平滑后的 z 值） ──
     // 手心侧：TIP 比 DIP 更远离镜头 → TIP.z - DIP.z > 0
@@ -948,12 +634,62 @@ export function ArView({
     const extensionAngle = computeFingerExtensionAngle(s.pip, s.dip, s.tip);
     const sigD = extensionAngle < EXTENSION_ANGLE_THRESHOLD;
 
-    // ── 强否定：四信号全部否定 → 不可见 ──
-    if (!sigA && !sigB && !sigC && !sigD) return false;
-
     // ── 多数投票：≥ 2 信号认可 → 可见（4 信号中 2 个通过）──
     const votes = [sigA, sigB, sigC, sigD].filter(Boolean).length;
+
+    // ── 手势先验（M1）：甲板朝镜头即渲染，取代伸展角一票否决 ──
+    // 蜷曲但甲面朝镜头（握拳/钩指/掌面回蜷）→ 渲染；
+    // 侧缘（edge-on）用旧四信号佐证；甲板背向镜头 → 隐藏。
+    if (GESTURE_PRIOR_ENABLED && fo) {
+      if (fo.facingCamera) return true;
+      if (fo.edgeOn) {
+        // M3 分割融合：侧缘且粗分割命中 → 补召回几何先验漏判的甲面。
+        if (SEG_FUSION_ENABLED && segHitsRef.current[fingerIdx]?.hit) return true;
+        return votes >= 2;
+      }
+      return false;
+    }
+
+    // ── 强否定：四信号全部否定 → 不可见 ──
+    if (!sigA && !sigB && !sigC && !sigD) return false;
     return votes >= 2;
+  }
+
+  // 分割驱动兜底贴合：掌检测冷启动丢手（握拳等）时，用粗分割甲实例直接放置贴图/纯色。
+  function paintSegFallback(
+    ctx: CanvasRenderingContext2D,
+    instances: readonly { cx: number; cy: number; w: number; h: number; angle: number; score: number }[],
+    colors: string[],
+    textures: (ImageBitmap | null)[] | undefined,
+    currentMode: string,
+    vw: number,
+    vh: number,
+    scale: number,
+    tx2px: (n: number) => number,
+    ty2py: (n: number) => number,
+  ): boolean[] {
+    const vis = [false, false, false, false, false];
+    for (const { slot, instance } of assignSegSlots(instances)) {
+      const pw = instance.w * vw * scale;
+      const ph = instance.h * vh * scale;
+      if (pw < 4 || ph < 4) continue;
+      ctx.save();
+      ctx.translate(tx2px(instance.cx), ty2py(instance.cy));
+      ctx.rotate(instance.angle);
+      ctx.globalAlpha = 0.92;
+      const tex = currentMode === "texture" ? textures?.[slot] : null;
+      if (tex) {
+        ctx.drawImage(tex, -pw / 2, -ph / 2, pw, ph);
+      } else {
+        ctx.fillStyle = colors[slot] ?? "#f472b6";
+        ctx.beginPath();
+        ctx.roundRect(-pw / 2, -ph / 2, pw, ph, Math.min(pw, ph) * 0.3);
+        ctx.fill();
+      }
+      ctx.restore();
+      vis[slot] = true;
+    }
+    return vis;
   }
 
   // 指甲绘制函数
@@ -965,14 +701,18 @@ export function ArView({
     currentMode: string,
     w: number,
     h: number,
-    video: HTMLVideoElement,
+    lightFrame: LightFrame | null,
     zScale: number,
+    dorsumNormal: Vec3 | null,
+    visibilityScores: number[],
+    preferLayerReadback: boolean,
+    translation?: { x: number; y: number },
   ) {
-    // 环境光缩略帧一次读取，五指共享（避免逐指 GL 同步回读）
-    const lightFrame = readEnvLightFrame(video, w, h);
     // 合成层重建预算：单帧最多重建一指，把像素回读尖峰摊到后续帧，
     // 未重建的指继续用旧层按时序缩放上屏（甲面大小保持正确）。
     layerRebuildBudgetRef.current = NAIL_LAYER_REBUILDS_PER_FRAME;
+    const materialPipeline = preferLayerReadback ? materialPipelineRef.current : null;
+    materialPipeline?.visible.fill(false);
     for (let f = 0; f < 5; f++) {
       const rawTip = lm[TIPS[f]];
       const rawDip = lm[DIPS[f]];
@@ -982,6 +722,12 @@ export function ArView({
 
       // ── 时序平滑（先平滑关键点，再用平滑值做可见性判定）──
       const s = smoothRef.current[f];
+      if (translation) {
+        for (const point of [s.tip, s.dip, s.pip]) {
+          point.x += translation.x / w;
+          point.y += translation.y / h;
+        }
+      }
       s.tip.x = ema(s.tip.x, rawTip.x);
       s.tip.y = ema(s.tip.y, rawTip.y);
       s.tip.z = ema(s.tip.z, rawTip.z);
@@ -994,15 +740,18 @@ export function ArView({
         s.pip.z = ema(s.pip.z, rawPip.z);
       }
 
-      // ── 三信号融合可见性判定（使用平滑后的值）──
+      // ── 四信号融合可见性判定（使用平滑后的值）──
       // 手心侧的手指不贴图；逐指独立判定支持混合态
-      const rawVis = computeFingerVisibility(lm, f, s);
-      visibleSmoothRef.current[f] = ema(
-        visibleSmoothRef.current[f],
+      const fo = GESTURE_PRIOR_ENABLED && dorsumNormal
+        ? computeFingerNailOrientation(fingerJointPoints(lm, f, s), dorsumNormal, zScale)
+        : null;
+      const rawVis = computeFingerVisibility(lm, f, s, fo);
+      visibilityScores[f] = ema(
+        visibilityScores[f],
         rawVis ? 1 : 0,
         VISIBILITY_EMA_ALPHA
       );
-      if (visibleSmoothRef.current[f] < VISIBILITY_SMOOTH_THRESHOLD) continue;
+      if (visibilityScores[f] < VISIBILITY_SMOOTH_THRESHOLD) continue;
 
       // ── 共享几何模型 + 几何级时序平滑 ──
       const geometryLandmarks = [...lm];
@@ -1014,7 +763,12 @@ export function ArView({
         f,
         w,
         h,
-        { zScale },
+        {
+          zScale,
+          ...(fo && fo.curl > CURL_GEOMETRY_THRESHOLD
+            ? { curled: { curl: fo.curl, facingFactor: Math.abs(fo.nailNormal.z) } }
+            : {}),
+        },
       );
       if (!rawGeometry) continue;
       const fingerAdjustment = nailAdjustmentsRef.current?.[f];
@@ -1027,7 +781,12 @@ export function ArView({
         fingerAdjustment?.rotationOffset ?? 0,
       );
 
-      const previous = geometrySmoothRef.current[f];
+      const previousGeometry = geometrySmoothRef.current[f];
+      const previous = translation && previousGeometry ? {
+        ...previousGeometry,
+        cx: previousGeometry.cx + translation.x,
+        cy: previousGeometry.cy + translation.y,
+      } : previousGeometry;
       const movement = previous
         ? Math.hypot(measured.cx - previous.cx, measured.cy - previous.cy)
         : Number.POSITIVE_INFINITY;
@@ -1070,10 +829,11 @@ export function ArView({
         ? textureLayerSize(textureDrawRect(frame, tex.width, tex.height, nw, renderLength), nw, renderLength)
         : null;
       const layer = layerSize
-        ? acquireNailLayerCanvas(f, layerSize.width, layerSize.height)
+        ? acquireNailLayerCanvas(f, layerSize.width, layerSize.height, preferLayerReadback)
         : null;
 
       if (tex && frame && alphaShaped && layer) {
+        if (materialPipeline) materialPipeline.visible[f] = true;
         // 自带 alpha 轮廓的提取产物：纹理 + 材质在离屏合成，
         // source-atop 把材质层限制在纹理 alpha 内（不越出提取轮廓），
         // 再按延长后的渲染几何整体上屏。
@@ -1088,7 +848,8 @@ export function ArView({
         ].join("|");
 
         const nowMs = performance.now();
-        const layerReady = layer.drawnWidth > 0 && layer.drawnLength > 0;
+        const layerReady = layer.drawnWidth > 0 && layer.drawnLength > 0 &&
+          (!materialPipeline || layer.signature === layerSignature);
         // 尺寸只在相对变化超过容差时重建：上屏会按当前几何等比缩放，
         // 容差内的尺寸差不会体现为甲面大小偏差，只影响纹理重采样锐度。
         const sizeDelta = layerReady
@@ -1109,45 +870,49 @@ export function ArView({
         const rebuildDue = rebuildWanted && (layerRebuildBudgetRef.current > 0 || !layerReady);
 
         if (rebuildDue) {
-          layerRebuildBudgetRef.current -= 1;
-          lctx.setTransform(1, 0, 0, 1, 0, 0);
-          lctx.globalAlpha = 1;
-          lctx.globalCompositeOperation = "source-over";
-          lctx.clearRect(0, 0, layerCanvas.width, layerCanvas.height);
-          lctx.save();
-          lctx.translate(layerCanvas.width * 0.5, layerCanvas.height * 0.5);
-          drawPhotoTexture(lctx, tex, renderLength, nw);
-          // 在离屏纹理自身 alpha 上融合甲根交界，避免整枚纹理降低透明度。
-          applyRootColorFade(lctx, layerCanvas, renderLength);
-          // V7 甲根颜色保护：精确面积采样 + 1–2px 内缩域平滑替换；
-          // 任一步失败保持上方现行摄影层，仅记录一次回退提示。
-          try {
-            applyQualityFirstRootProtection(
-              lctx,
-              layerCanvas,
-              tex,
-              frame,
-              textureDrawRect(frame, tex.width, tex.height, nw, renderLength),
-              renderGeometry,
-              renderLength,
-            );
-          } catch (error) {
-            if (!rootColorFallbackWarnedRef.current) {
-              rootColorFallbackWarnedRef.current = true;
-              console.warn("[AR] 甲根颜色保护回退到现行采样", error);
-            }
+          const material: ArMaterialParams = {
+            width: nw, length: renderLength, brightness: env.brightness, finger: f,
+            gloss: glossFactor, shape: shapeProfile, geometry: renderGeometry,
+            pixelRatio: window.devicePixelRatio || 1, preferReadback: preferLayerReadback,
+          };
+          const commit = (bitmap?: ImageBitmap) => {
+            layer.bitmap?.close();
+            layer.bitmap = bitmap;
+            layer.signature = layerSignature;
+            layer.drawnWidth = nw;
+            layer.drawnLength = renderLength;
+            layer.drawnBrightness = env.brightness;
+            layer.builtAt = performance.now();
+          };
+          if (materialPipeline && !materialPipeline.jobs.closed && layerReady) {
+            const epoch = materialPipeline.epoch;
+            const liveTextureIds = (textures ?? []).flatMap(texture => texture ? [textureLayerId(texture)] : []);
+            const accepted = materialPipeline.jobs.submit(tex, {
+              textureId: textureLayerId(tex),
+              canvasWidth: layerCanvas.width,
+              canvasHeight: layerCanvas.height,
+              material,
+            }, liveTextureIds, result => {
+              if ("error" in result) {
+                console.warn("[AR] 材质 Worker 回退到主线程", result.error);
+                return;
+              }
+              if (materialPipelineRef.current !== materialPipeline ||
+                  materialPipeline.epoch !== epoch || !materialPipeline.visible[f] ||
+                  modeRef.current !== "texture" || texRef.current?.[f] !== tex ||
+                  (nailStylesRef.current?.[f] ?? null) !== style ||
+                  nailLayerSlotsRef.current[f] !== layer || layer.signature !== layerSignature) {
+                result.bitmap.close();
+                return;
+              }
+              commit(result.bitmap);
+            });
+            if (accepted) layerRebuildBudgetRef.current -= 1;
+          } else {
+            layerRebuildBudgetRef.current -= 1;
+            materialPainter.buildLayer(lctx, layerCanvas, tex, material);
+            commit();
           }
-          lctx.globalCompositeOperation = "source-atop";
-          lctx.fillStyle = `rgba(0,0,0,${1 - photographicLightGain(env.brightness)})`;
-          lctx.fillRect(-layerCanvas.width / 2, -layerCanvas.height / 2, layerCanvas.width, layerCanvas.height);
-          drawMaterialDetails(lctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
-          drawSpecularHighlight(lctx, renderLength, nw, env.brightness, f, glossFactor * (tex ? .12 : 1), shapeProfile);
-          lctx.restore();
-          layer.signature = layerSignature;
-          layer.drawnWidth = nw;
-          layer.drawnLength = renderLength;
-          layer.drawnBrightness = env.brightness;
-          layer.builtAt = performance.now();
         }
 
         // 缓存层按构建时的档位尺寸绘制；上屏时按当前尺寸等比缩放，
@@ -1156,7 +921,7 @@ export function ArView({
         const drawH = layer.drawnLength > 0 ? (layerCanvas.height * renderLength) / layer.drawnLength : layerCanvas.height;
         ctx.save();
         applyNailGeometryTransform(ctx, renderGeometry);
-        ctx.drawImage(layerCanvas, -drawW * 0.5, -drawH * 0.5, drawW, drawH);
+        ctx.drawImage(layer.bitmap ?? layerCanvas, -drawW * 0.5, -drawH * 0.5, drawW, drawH);
         ctx.restore();
       } else {
         // ── 第一层：底色/纹理（连续采样）──
@@ -1340,38 +1105,55 @@ export function ArView({
 
   useEffect(() => {
     if (!userStarted) return; // 等待用户点击按钮
-    let dead = false;
-    let handsInst: HandsInstance | null = null;
-    let mediaStream: MediaStream | null = null;
-    let rafLoop = 0;
-
-    // 会话级资源释放：停掉推理帧循环、关闭识别实例、停止摄像头轨道并解绑画面。
-    // 卸载与任何启动失败路径都必须经过这里，避免界面已经离开而摄像头仍被占用。
-    function releaseStream() {
-      cancelAnimationFrame(rafLoop);
-      try { handsInst?.close(); } catch {}
-      handsInst = null;
-      if (mediaStream) {
-        try { mediaStream.getTracks().forEach((t) => t.stop()); } catch {}
-        mediaStream = null;
-      }
-      const video = vref.current;
-      if (video && video.srcObject) {
-        video.srcObject = null;
+    const videoElement = vref.current;
+    if (!videoElement) return;
+    const video = videoElement;
+    const session = createArCameraSession(video);
+    const { signal } = session;
+    const probeParameters = process.env.NODE_ENV === "development" && window.location.hostname === "localhost"
+      ? new URLSearchParams(window.location.search)
+      : undefined;
+    const traceFrame = probeParameters?.get("arTrace") === "1";
+    const useWorkerCandidate = process.env.NEXT_PUBLIC_AR_WORKER_CANDIDATE === "1";
+    const useWorkerTracking = useWorkerCandidate || probeParameters?.get("arTracker") === "worker";
+    const splitPalmMotion = probeParameters?.get("arPose") === "translation";
+    const preferLayerReadback = useWorkerCandidate || probeParameters?.get("arLayers") === "readback";
+    let previousPalmFrame: {
+      points: { x: number; y: number }[];
+      mediaTime: number;
+      layout: string;
+      hand: Handedness["label"];
+    } | undefined;
+    let lightSampler: ReturnType<typeof createArLightSampler> | undefined;
+    function closeMaterialPipeline() {
+      materialPipelineRef.current?.jobs.close();
+      materialPipelineRef.current = null;
+      for (const layer of nailLayerSlotsRef.current) {
+        if (!layer?.bitmap) continue;
+        layer.bitmap.close();
+        layer.bitmap = undefined;
+        layer.drawnWidth = 0;
       }
     }
+    const canvas = cref.current;
+    let workerOverlayPainted = false;
+    // 首个有效姿态直接建立逐指可见性，连续姿态才使用迟滞。
+    const workerVisibilityScores = Array<number>(5).fill(NaN);
+    session.own(() => {
+      closeMaterialPipeline();
+      fitGuideRef.current = null;
+      fitDragRef.current = null;
+      if (canvas) canvas.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+    });
 
-    // 用户离开当前画面（切换标签页/应用、最小化窗口、离开站点）时立即停用摄像头，
-    // 与“画面仅在内存中处理”的隐私约定一致；返回页面后需重新点击开启。
-    function teardownToInit() {
-      cameraActiveChangeRef.current?.(false);
-      setStatus("init");
-      setStatusMsg("请点击按钮启动摄像头");
-      setHandCnt(-1);
-      setDiag([]);
-      setRecognitionFailed(false);
-      orientationRef.current = "none";
-      orientationCandidateRef.current = { orientation: "ambiguous", frames: 0 };
+    function resetTrackingGeometry() {
+      previousPalmFrame = undefined;
+      const materialPipeline = materialPipelineRef.current;
+      if (materialPipeline) {
+        materialPipeline.epoch++;
+        materialPipeline.visible.fill(false);
+      }
+      workerVisibilityScores.fill(NaN);
       palmDepthSmoothRef.current = NaN;
       geometrySmoothRef.current = Array.from({ length: 5 }, () => null);
       smoothRef.current = Array.from({ length: 5 }, () => ({
@@ -1379,8 +1161,29 @@ export function ArView({
         dip: { x: NaN, y: NaN, z: NaN },
         pip: { x: NaN, y: NaN, z: NaN },
       }));
+      fitGuideRef.current = null;
+      fitDragRef.current = null;
+    }
+
+    // 用户离开当前画面（切换标签页/应用、最小化窗口、离开站点）时立即停用摄像头，
+    // 与“画面仅在内存中处理”的隐私约定一致；返回页面后需重新点击开启。
+    function teardownToInit() {
+      session.close();
+      cameraActiveChangeRef.current?.(false);
+      setStatus("init");
+      setStatusMsg("请点击按钮启动摄像头");
+      handCntUiRef.current = -1;
+      handLabelUiRef.current = null;
+      setHandCnt(-1);
+      setHandLabel(null);
+      setOrientation("none");
+      setDiag([]);
+      setRecognitionFailed(false);
+      orientationRef.current = "none";
+      orientationCandidateRef.current = { orientation: "ambiguous", frames: 0 };
+      resetTrackingGeometry();
       updateFingerVisibility([false, false, false, false, false]);
-      setUserStarted(false); // 触发本 effect 的 cleanup：dead=true + releaseStream()
+      setUserStarted(false);
     }
     // 暴露给渲染层「关闭摄像头」按钮；effect 重启时覆盖，卸载时清理。
     teardownRef.current = teardownToInit;
@@ -1395,6 +1198,20 @@ export function ArView({
 
     document.addEventListener("visibilitychange", handleVisibilityChange);
     window.addEventListener("pagehide", handlePageHide);
+    // 兜底：部分安卓浏览器切后台不派发 visibilitychange（页面仍报告 visible、
+    // 定时器照常），但视频帧呈现停摆、跟踪冻结；距最近一次跟踪结果超过阈值时
+    // 同样立即停用摄像头。
+    let lastFrameActivity = performance.now();
+    let hadFrameActivity = false;
+    const stopBackgroundWatchdog = createBackgroundWatchdog({
+      onStall: teardownToInit,
+      lastActivity: () => lastFrameActivity,
+    });
+    session.own(() => {
+      stopBackgroundWatchdog();
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("pagehide", handlePageHide);
+    });
 
     function updateFingerVisibility(next: boolean[]) {
       const current = fingerVisibleUiRef.current;
@@ -1403,6 +1220,16 @@ export function ArView({
       }
       fingerVisibleUiRef.current = next;
       setFingerVisible(next);
+    }
+
+    function failSession(error: unknown) {
+      if (signal.aborted) return;
+      const message = error instanceof Error ? error.message : String(error);
+      log("× " + message);
+      session.close();
+      cameraActiveChangeRef.current?.(false);
+      setStatus("error");
+      setStatusMsg(message.includes("permission") || message.includes("权限") ? "摄像头权限被拒绝" : message.slice(0, 60));
     }
 
     async function start() {
@@ -1422,6 +1249,7 @@ export function ArView({
         }
         try {
           const permission = await navigator.permissions?.query?.({ name: "camera" as PermissionName });
+          if (signal.aborted) return;
           if (permission?.state === "denied") {
             setStatus("error");
             setStatusMsg("摄像头权限被拒绝；请在地址栏权限图标中允许后刷新。");
@@ -1431,6 +1259,7 @@ export function ArView({
         } catch {
           // Safari/部分浏览器不支持 camera permission query，继续走 getUserMedia。
         }
+        if (signal.aborted) return;
 
         setStatus("loading");
 
@@ -1438,14 +1267,6 @@ export function ArView({
         // 必须先于 MediaPipe CDN 加载请求，否则网络慢时会表现为“点了按钮但摄像头没反应”。
         setStatusMsg("请求摄像头权限…");
         log("1/7 请求摄像头权限...");
-
-        const video = vref.current;
-        if (!video) {
-          setStatus("error");
-          setStatusMsg("视频元素未初始化");
-          log("× video ref 为空");
-          return;
-        }
 
         // 优先获取高清标准比例画面；比例不一致时由展示层等比缩放并居中裁切。
         let stream: MediaStream;
@@ -1460,6 +1281,7 @@ export function ArView({
             audio: false,
           });
         } catch (camErr) {
+          if (signal.aborted) return;
           // 降级：不指定 facingMode
           log("  首次尝试失败，降级尝试..." + (camErr instanceof Error ? ": " + camErr.message : ""));
           try {
@@ -1472,6 +1294,7 @@ export function ArView({
               audio: false,
             });
           } catch (camErr2) {
+            if (signal.aborted) return;
             // 再降级：完全无约束
             log("  二次降级尝试..." + (camErr2 instanceof Error ? ": " + camErr2.message : ""));
             try {
@@ -1480,6 +1303,7 @@ export function ArView({
                 audio: false,
               });
             } catch (camErr3) {
+              if (signal.aborted) return;
               const msg = camErr3 instanceof Error ? camErr3.message : String(camErr3);
               log("× 摄像头获取失败: " + msg);
               setStatus("error");
@@ -1496,49 +1320,24 @@ export function ArView({
             }
           }
         }
-        if (dead) {
-          stream.getTracks().forEach((t) => t.stop());
-          return;
-        }
-        mediaStream = stream;
+        session.attachStream(stream);
         log("  摄像头获取成功 √");
 
-        // 绑定流到 video 元素
-        video.srcObject = stream;
         log("  等待视频就绪...");
-        await new Promise<void>((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error("视频加载超时（10s）"));
-          }, 10000);
-          video.onloadedmetadata = () => {
-            clearTimeout(timeout);
-            log("  视频就绪 " + video.videoWidth + "x" + video.videoHeight + " √");
-            resolve();
-          };
-          video.onerror = () => {
-            clearTimeout(timeout);
-            reject(new Error("视频加载失败"));
-          };
-        });
+        await session.waitForVideo("loadedmetadata", 1, 10000);
+        if (signal.aborted) return;
+        log("  视频就绪 " + video.videoWidth + "x" + video.videoHeight + " √");
         await video.play().catch((e) => {
-          log("  ! video.play() 警告: " + (e instanceof Error ? e.message : String(e)));
+          if (!signal.aborted) log("  ! video.play() 警告: " + (e instanceof Error ? e.message : String(e)));
         });
         // 额外等待一帧确保 video 真正开始播放
-        await new Promise<void>((resolve) => {
-          if (video.readyState >= 3) {
-            resolve();
-          } else {
-            video.oncanplay = () => resolve();
-            setTimeout(resolve, 2000); // fallback
-          }
-        });
+        await session.waitForVideo("canplay", 3, 2000, true);
+        if (signal.aborted) return;
         log("  视频播放中 readyState=" + video.readyState + " √");
-        if (dead) return;
 
         // camera_utils.js 不再需要（改用原生 getUserMedia + RAF）
         // ── 步骤4: 摄像头成功后再加载 MediaPipe ──
         setStatusMsg("摄像头已启动，正在加载手部识别…");
-        log("4/7 摄像头已启动，加载 hands.js...");
 
         const scriptTimeout = 15000;
         function loadScript(src: string, name: string): Promise<void> {
@@ -1546,60 +1345,59 @@ export function ArView({
             const script = document.createElement("script");
             script.src = src;
             script.crossOrigin = "anonymous";
-            const timer = setTimeout(() => {
-              reject(new Error(name + " 加载超时（15s），请检查网络"));
-            }, scriptTimeout);
-            script.onload = () => {
+            function cleanup() {
               clearTimeout(timer);
+              script.onload = null;
+              script.onerror = null;
+              signal.removeEventListener("abort", abort);
+            }
+            function fail(error: unknown) {
+              cleanup();
+              script.remove();
+              reject(error);
+            }
+            function abort() {
+              fail(signal.reason);
+            }
+            const timer = setTimeout(() => fail(new Error(name + " 加载超时（15s），请检查网络")), scriptTimeout);
+            script.onload = () => {
+              cleanup();
               log("  " + name + " 加载完成 √");
               resolve();
             };
-            script.onerror = () => {
-              clearTimeout(timer);
-              reject(new Error(name + " 加载失败，可能是网络问题"));
-            };
+            script.onerror = () => fail(new Error(name + " 加载失败，可能是网络问题"));
+            signal.addEventListener("abort", abort, { once: true });
             document.head.appendChild(script);
           });
         }
 
-        if (!window.Hands) {
-          await loadScript(
-            resolveMediaPipeHandsAsset("hands.js"),
-            "hands.js"
-          );
-        } else {
-          log("  hands.js 已加载，跳过重复加载 √");
+        async function loadLegacyTracker() {
+          if (!window.Hands) await loadScript(resolveMediaPipeHandsAsset("hands.js"), "hands.js");
+          if (signal.aborted) throw signal.reason;
+          if (!window.Hands) throw new Error("手部识别模块加载失败，请检查网络后重试。");
+          setStatusMsg("初始化手部识别…");
+          const tracker = new window.Hands({ locateFile: resolveMediaPipeHandsAsset });
+          session.own(() => tracker.close());
+          tracker.setOptions({
+            maxNumHands: twoHandRef.current ? 2 : 1,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5,
+          });
+          return tracker;
         }
-        if (dead) return;
 
-        log("5/7 验证 Hands 全局对象...");
-        const H = window.Hands;
-        if (!H) {
-          setStatus("error");
-          setStatusMsg("手部识别模块加载失败，请检查网络后重试。");
-          log("× Hands 未注册到 window");
-          releaseStream();
-          return;
-        }
-        log("  Hands √");
-
-        // ── 步骤6: 创建 Hands 实例 ──
-        setStatusMsg("初始化手部识别…");
-        log("6/7 创建 Hands 实例...");
-
-        handsInst = new H({
-          locateFile: resolveMediaPipeHandsAsset,
-        });
-        handsInst.setOptions({
-          maxNumHands: 1,
-          modelComplexity: 1,
-          minDetectionConfidence: 0.5,
-          minTrackingConfidence: 0.5,
-        });
-
-        // ── 步骤5: 注册 onResults ──
-        log("7/8 注册 onResults...");
-        handsInst.onResults((res: HandResults) => {
+        function applyResults(res: HandResults, frame?: ArVideoFrame) {
+          if (signal.aborted) return;
+          const activityNow = performance.now();
+          // 后台期间定时器若被节流，看门狗 tick 可能迟于恢复；首帧恢复时
+          // 活动间隔已超阈值同样立即停用，避免用陈旧会话继续贴图。
+          if (hadFrameActivity && activityNow - lastFrameActivity > AR_BACKGROUND_STALL_MS) {
+            teardownToInit();
+            return;
+          }
+          hadFrameActivity = true;
+          lastFrameActivity = activityNow;
           const cvs = cref.current;
           if (!cvs) return;
           const ctx = cvs.getContext("2d") as CanvasRenderingContext2D;
@@ -1613,14 +1411,16 @@ export function ArView({
             cvs.width = cw;
             cvs.height = ch;
           }
-          ctx.clearRect(0, 0, cvs.width, cvs.height);
+          if (!frame || workerOverlayPainted) ctx.clearRect(0, 0, cvs.width, cvs.height);
+          const replacedWorkerOverlay = workerOverlayPainted;
+          workerOverlayPainted = false;
 
           // ── object-cover 坐标变换 ──
           // video 元素用 object-cover 显示，会裁剪视频以填充容器
           // landmarks 是基于原始视频帧的归一化坐标 [0,1]
           // 需要变换到 canvas 显示坐标
-          const vw = video.videoWidth;
-          const vh = video.videoHeight;
+          const vw = frame?.width ?? video.videoWidth;
+          const vh = frame?.height ?? video.videoHeight;
           if (vw <= 0 || vh <= 0 || cvs.width <= 0 || cvs.height <= 0) return;
           const { scale, offsetX, offsetY } = calculateCoverVideoLayout(
             vw,
@@ -1633,6 +1433,14 @@ export function ArView({
           const ty2py = (ny: number) => ny * vh * scale + offsetY;
 
           if (res.multiHandLandmarks?.length) {
+            emptyStreakRef.current = 0;
+            lastHandBboxRef.current = bboxFromLandmarks(res.multiHandLandmarks[0]) ?? lastHandBboxRef.current;
+            if (SEG_FUSION_ENABLED) {
+              const tips: Record<number, TipPoint> = {};
+              const hand0 = res.multiHandLandmarks[0];
+              for (const fi of VOTE_FINGERS) tips[fi] = { x: hand0[fi * 4 + 3].x, y: hand0[fi * 4 + 3].y };
+              segTipsRef.current = tips;
+            }
             // 只在数值变化时触发 React 更新，避免逐帧重渲染整棵页面树。
             if (handCntUiRef.current !== res.multiHandLandmarks.length) {
               handCntUiRef.current = res.multiHandLandmarks.length;
@@ -1682,23 +1490,55 @@ export function ArView({
               // handFlip 只修正镜像后的用户可见左右手标签，不能影响朝向。
               const decision = shouldRenderNails(lm, smoothDepthDiff, rawHandedness);
               const stableOrientation = updateStableOrientation(decision.orientation);
-              const renderNails = decision.render && stableOrientation !== "palm";
+              // M1 先验开启时：palm 不再整帧硬拒，改由逐指甲板朝向门控；
+              // 仅掌部中心出画仍整帧停贴。flag off 保持历史行为。
+              const dorsumNormal = GESTURE_PRIOR_ENABLED
+                ? computeHandDorsumNormal(lm, decision.orientation, smoothDepthDiff, vw * scale)
+                : null;
+              const renderNails = GESTURE_PRIOR_ENABLED
+                ? decision.reason !== "手部出画面"
+                : (decision.render && stableOrientation !== "palm");
+              let translation: ReturnType<typeof getCoherentPalmTranslation>;
+              if (splitPalmMotion) {
+                if (frame && rawHandedness && renderNails &&
+                  decision.orientation === "dorsum" && stableOrientation === "dorsum") {
+                  const layout = `${cvs.width}:${cvs.height}:${vw}:${vh}`;
+                  const points = lm.map(point => ({ x: point.x * cvs.width, y: point.y * cvs.height }));
+                  const previous = previousPalmFrame;
+                  if (previous?.layout === layout && previous.hand === rawHandedness &&
+                    frame.mediaTime > previous.mediaTime && frame.mediaTime - previous.mediaTime <= 0.1) {
+                    translation = getCoherentPalmTranslation(previous.points, points);
+                  }
+                  previousPalmFrame = { points, layout, mediaTime: frame.mediaTime, hand: rawHandedness };
+                } else {
+                  previousPalmFrame = undefined;
+                }
+              }
+              if (traceFrame) {
+                window.dispatchEvent(new CustomEvent("jiaru:ar-orientation", {
+                  detail: { renderNails, stableOrientation, reason: decision.reason, frameSequence: frame?.sequence, translation },
+                }));
+              }
 
               // 全局渲染门控：手心朝镜头时完全跳过贴图
               // 只有手背/侧手/模糊态时才进入 paintNails 做逐指精细可见性判定
+              const visibilityScores = frame ? workerVisibilityScores : visibleSmoothRef.current;
               if (renderNails) {
+                const lightFrame = lightSampler?.read(video, cvs.width, cvs.height)
+                  ?? readEnvLightFrame(video, cvs.width, cvs.height);
                 paintNails(
                   ctx, lm, colRef.current, texRef.current,
-                  modeRef.current, cvs.width, cvs.height, video,
-                  vw * scale,
+                  modeRef.current, cvs.width, cvs.height, lightFrame,
+                  vw * scale, dorsumNormal, visibilityScores, Boolean(frame && preferLayerReadback), translation,
                 );
+                if (frame) workerOverlayPainted = true;
               }
 
               // 同步逐指可见性到 UI（从平滑值读取，阈值 0.5 判定显隐）
               if (renderNails) {
                 const vis: boolean[] = [];
                 for (let fi = 0; fi < 5; fi++) {
-                  vis.push(visibleSmoothRef.current[fi] >= VISIBILITY_SMOOTH_THRESHOLD);
+                  vis.push(visibilityScores[fi] >= VISIBILITY_SMOOTH_THRESHOLD);
                 }
                 updateFingerVisibility(vis);
               } else {
@@ -1706,57 +1546,273 @@ export function ArView({
               }
             }
           } else {
+            emptyStreakRef.current += 1;
             if (handCntUiRef.current !== 0) {
               handCntUiRef.current = 0;
               setHandCnt(0);
             }
             orientationCandidateRef.current = { orientation: "ambiguous", frames: 0 };
-            palmDepthSmoothRef.current = NaN;
-            geometrySmoothRef.current = Array.from({ length: 5 }, () => null);
-            smoothRef.current = Array.from({ length: 5 }, () => ({
-              tip: { x: NaN, y: NaN, z: NaN },
-              dip: { x: NaN, y: NaN, z: NaN },
-              pip: { x: NaN, y: NaN, z: NaN },
-            }));
+            if (!frame || replacedWorkerOverlay) resetTrackingGeometry();
             if (orientationRef.current !== "none") {
               orientationRef.current = "none";
               setOrientation("none");
             }
-            updateFingerVisibility([false, false, false, false, false]);
+            updateFingerVisibility(
+              SEG_FUSION_ENABLED && segInstancesRef.current.length
+                ? paintSegFallback(ctx, segInstancesRef.current, colRef.current, texRef.current, modeRef.current, vw, vh, scale, tx2px, ty2py)
+                : [false, false, false, false, false],
+            );
           }
-        });
+          if (frame && replacedWorkerOverlay && !workerOverlayPainted && res.multiHandLandmarks?.length) {
+            resetTrackingGeometry();
+          }
+        }
 
-        // ── 步骤6: 用 requestAnimationFrame 驱动推理（替代 Camera Utils）──
-        log("8/8 启动推理循环...");
-        let sending = false;
-        let lastInferenceAt = Number.NEGATIVE_INFINITY;
         let consecutiveErrors = 0;
-        async function loop(timestamp: number) {
-          if (dead || !handsInst || !video) return;
-          if (
-            !sending &&
-            video.readyState >= 2 &&
-            timestamp - lastInferenceAt >= INFERENCE_INTERVAL_MS
-          ) {
-            sending = true;
-            lastInferenceAt = timestamp;
+        function onTrackingError() {
+          if (signal.aborted) return;
+          consecutiveErrors += 1;
+          if (consecutiveErrors === 30) {
+            log("× 连续 30 帧推理失败，手部识别暂时不可用");
+            setRecognitionFailed(true);
+          }
+        }
+
+        async function startLegacyTracking() {
+          const tracker = await loadLegacyTracker();
+          if (signal.aborted) return;
+          trackerRef.current = tracker;
+          session.own(() => { trackerRef.current = null; });
+          tracker.onResults(result => applyResults(result));
+
+          // M3 常驻粗分割 Worker + 关键帧调度（2–4fps，与主跟踪隔离）。
+          if (SEG_FUSION_ENABLED && typeof Worker !== "undefined") {
+            const segWorker = new Worker(
+              new URL("../workers/ar-nail-seg.worker.ts", import.meta.url),
+              { type: "module" },
+            );
+            segWorker.onmessage = (event: MessageEvent<ArSegKeyframeResponse>) => {
+              segBusyRef.current = false;
+              segInstancesRef.current = event.data.instances;
+              segHitsRef.current = updateSegHits(
+                segHitsRef.current,
+                segTipsRef.current,
+                event.data.instances,
+                SEG_ASSOC_RADIUS,
+                SEG_HOLD_FRAMES,
+              );
+            };
+            segWorker.onerror = () => { segBusyRef.current = false; };
+            session.own(() => { segWorker.terminate(); segWorkerRef.current = null; });
+            segWorkerRef.current = segWorker;
+          }
+          async function sendSegKeyframe() {
+            const worker = segWorkerRef.current;
+            if (!worker || video.readyState < 2) return;
+            const vw = video.videoWidth, vh = video.videoHeight;
+            if (!vw || !vh) return;
+            const scale = Math.min(1, SEG_KEYFRAME_MAX_EDGE / Math.max(vw, vh));
+            let canvas = segCanvasRef.current;
+            if (!canvas) { canvas = document.createElement("canvas"); segCanvasRef.current = canvas; }
+            canvas.width = Math.max(8, Math.round(vw * scale));
+            canvas.height = Math.max(8, Math.round(vh * scale));
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const bitmap = await createImageBitmap(imageData);
+            const request: ArSegKeyframeRequest = { id: `seg-${Date.now()}`, imageBitmap: bitmap };
+            segBusyRef.current = true;
+            segLastKeyframeRef.current = performance.now();
+            worker.postMessage(request, [bitmap]);
+          }
+
+          // M2 ROI 丢手兜底：主跟踪连续丢手时，用上一帧包围盒裁剪窗复跑 Hands，
+          // 恢复关键点映射回全帧并经漂移守卫后喂入同一 applyResults。
+          async function sendRoiFallback() {
+            const bootstrap = lastHandBboxRef.current == null;
+            const box = lastHandBboxRef.current ?? segBootstrapBox(segInstancesRef.current);
+            if (!box || !window.Hands) return;
+            const vw = video.videoWidth, vh = video.videoHeight;
+            const crop = expandRoi(box, vw, vh, bootstrap ? 2.2 : 1.35);
+            if (!crop) return;
+            if (!roiTrackerRef.current) {
+              const rt = new window.Hands({ locateFile: resolveMediaPipeHandsAsset });
+              session.own(() => rt.close());
+              rt.setOptions({ maxNumHands: 1, modelComplexity: 1, minDetectionConfidence: 0.5, minTrackingConfidence: 0.5 });
+              rt.onResults(r => {
+                const c = roiCropRef.current;
+                if (!c || !r.multiHandLandmarks?.length) return;
+                const remapped = r.multiHandLandmarks.map(hand => remapLandmarks(hand, c, vw, vh));
+                if (!roiSanity(remapped[0], box)) return;
+                applyResults({ multiHandLandmarks: remapped, multiHandedness: r.multiHandedness });
+              });
+              roiTrackerRef.current = rt;
+            }
+            let canvas = roiCanvasRef.current;
+            if (!canvas) { canvas = document.createElement("canvas"); roiCanvasRef.current = canvas; }
+            canvas.width = Math.max(8, Math.round(crop.sw));
+            canvas.height = Math.max(8, Math.round(crop.sh));
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
+            ctx.drawImage(video, crop.sx, crop.sy, crop.sw, crop.sh, 0, 0, canvas.width, canvas.height);
+            roiCropRef.current = crop;
             try {
-              await handsInst.send({ image: video });
+              await roiTrackerRef.current.send({ image: canvas as unknown as HTMLVideoElement });
+            } catch { /* ROI 兜底失败保留主路径空态 */ }
+          }
+
+          async function sendFrame() {
+            if (signal.aborted) return;
+            try {
+              await tracker.send({ image: video });
               consecutiveErrors = 0;
-            } catch {
-              // 单帧错误忽略；连续失败达到阈值时明确暴露给用户，不再静默吞掉。
-              consecutiveErrors += 1;
-              if (consecutiveErrors === 30) {
-                log("× 连续 30 帧推理失败，手部识别暂时不可用");
-                setRecognitionFailed(true);
+              if (ROI_TRACKING_ENABLED && emptyStreakRef.current >= 3 && (lastHandBboxRef.current || segInstancesRef.current.length)) {
+                await sendRoiFallback();
               }
-            } finally {
-              sending = false;
+              if (SEG_FUSION_ENABLED && shouldScheduleKeyframe(performance.now(), segLastKeyframeRef.current, SEG_KEYFRAME_INTERVAL_MS, segBusyRef.current)) {
+                await sendSegKeyframe();
+              }
+            } catch {
+              onTrackingError();
             }
           }
-          if (!dead) rafLoop = requestAnimationFrame(loop);
+          if (probeParameters?.get("arScheduler") === "video-frame") {
+            session.own(startArVideoFrameLoop(video, sendFrame));
+          } else {
+            let lastInferenceAt = Number.NEGATIVE_INFINITY;
+            async function loop(timestamp: number) {
+              if (signal.aborted) return;
+              if (video.readyState >= 2 && timestamp - lastInferenceAt >= INFERENCE_INTERVAL_MS) {
+                lastInferenceAt = timestamp;
+                await sendFrame();
+              }
+              if (!signal.aborted) rafLoop = requestAnimationFrame(loop);
+            }
+            let rafLoop = requestAnimationFrame(loop);
+            session.own(() => cancelAnimationFrame(rafLoop));
+          }
         }
-        rafLoop = requestAnimationFrame(loop);
+
+        let workerTracker: ReturnType<typeof createArWorkerTracker> | undefined;
+        if (useWorkerTracking && typeof VideoFrame === "function" && typeof Worker === "function") {
+          try {
+            workerTracker = createArWorkerTracker();
+            session.own(workerTracker.close);
+            await workerTracker.initialize();
+          } catch (error) {
+            workerTracker?.close();
+            workerTracker = undefined;
+            if (!signal.aborted) log("Worker 初始化失败，切换 Hands：" + String(error));
+          }
+        }
+        if (signal.aborted) return;
+
+        if (workerTracker) {
+          const tracker = workerTracker;
+          if (useWorkerCandidate) {
+            try {
+              materialPipelineRef.current = {
+                jobs: createArMaterialJobs(materialPainter.getGrainData),
+                epoch: 0, visible: Array<boolean>(5).fill(false),
+              };
+            } catch (error) {
+              console.warn("[AR] 材质 Worker 初始化失败，使用主线程", error);
+            }
+          }
+          if (useWorkerCandidate || probeParameters?.get("arLighting") === "worker") {
+            try {
+              lightSampler = createArLightSampler();
+              session.own(lightSampler.close);
+            } catch (error) {
+              if (traceFrame) log("环境光 Worker 初始化失败：" + String(error));
+            }
+          }
+          let overlayTimer: ReturnType<typeof setTimeout> | undefined;
+          let captureSource: "track" | "video-frame" = "video-frame";
+          let workerActive = true;
+          let workerErrors = 0;
+          session.own(() => clearTimeout(overlayTimer));
+          function expireOverlay() {
+            if (signal.aborted || !workerOverlayPainted) return;
+            workerOverlayPainted = false;
+            if (canvas) canvas.getContext("2d")?.clearRect(0, 0, canvas.width, canvas.height);
+            resetTrackingGeometry();
+            updateFingerVisibility([false, false, false, false, false]);
+          }
+
+          function onWorkerError(error: unknown) {
+            if (signal.aborted || !workerActive) return;
+            workerErrors += 1;
+            if (!tracker.closed && workerErrors < 3) return;
+            workerActive = false;
+            stopWorkerFrames();
+            tracker.close();
+            lightSampler?.close();
+            lightSampler = undefined;
+            closeMaterialPipeline();
+            clearTimeout(overlayTimer);
+            expireOverlay();
+            resetTrackingGeometry();
+            orientationRef.current = "none";
+            orientationCandidateRef.current = { orientation: "ambiguous", frames: 0 };
+            setOrientation("none");
+            consecutiveErrors = 0;
+            log("Worker 取帧或推理失败，切换 Hands：" + String(error));
+            void startLegacyTracking().catch(failSession);
+          }
+
+          log("Worker 跟踪器就绪");
+          async function trackFrame(frame: ArCapturedFrame) {
+            let result: Awaited<ReturnType<typeof tracker.track>>;
+            try {
+              result = await tracker.track(frame);
+            } catch (error) {
+              onWorkerError(error);
+              return;
+            }
+            if (signal.aborted || !workerActive) return;
+            workerErrors = 0;
+            try {
+              const deadline = frame.observedAt + WORKER_OVERLAY_MAX_AGE_MS;
+              const fresh = performance.now() < deadline;
+              if (fresh) {
+                // 将 Tasks 左右手标签转换为渲染器沿用的 Hands 约定。
+                const labels = result.handedness.map(label => ({
+                  label: label === "Left" ? "Right" as const : label === "Right" ? "Left" as const : null,
+                  score: 0,
+                }));
+                applyResults({
+                  multiHandLandmarks: result.landmarks,
+                  multiHandedness: labels,
+                }, frame);
+                clearTimeout(overlayTimer);
+                if (workerOverlayPainted) overlayTimer = setTimeout(expireOverlay, Math.max(0, deadline - performance.now()));
+              } else {
+                expireOverlay();
+              }
+              consecutiveErrors = 0;
+              if (traceFrame) {
+                window.dispatchEvent(new CustomEvent("jiaru:ar-tracked-frame", {
+                  detail: { sequence: result.sequence, computeMs: result.computeMs, ageMs: performance.now() - frame.observedAt, fresh, captureSource },
+                }));
+              }
+            } catch (error) {
+              if (traceFrame && consecutiveErrors === 0) log("Worker 结果绘制失败：" + String(error));
+              onTrackingError();
+            }
+          }
+          const videoTrack = stream.getVideoTracks()[0];
+          const stopRawFrames = probeParameters?.get("arCapture") === "track" && videoTrack
+            ? startArTrackFrameLoop(videoTrack, trackFrame, onWorkerError)
+            : undefined;
+          if (stopRawFrames) captureSource = "track";
+          const stopWorkerFrames = stopRawFrames ?? startCapturedArVideoFrameLoop(video, trackFrame, onWorkerError);
+          session.own(stopWorkerFrames);
+        } else {
+          await startLegacyTracking();
+          if (signal.aborted) return;
+        }
 
         // ── 步骤7: 就绪 ──
         setStatus("ready");
@@ -1764,25 +1820,15 @@ export function ArView({
         log("系统就绪 √");
         cameraActiveChangeRef.current?.(true);
       } catch (err) {
-        const m = err instanceof Error ? err.message : String(err);
-        log("× " + m);
-        // 启动失败也必须释放已打开的摄像头，避免停留在错误提示时指示灯仍然亮着。
-        releaseStream();
-        if (!dead) {
-          setStatus("error");
-          setStatusMsg(m.includes("permission") || m.includes("权限") ? "摄像头权限被拒绝" : m.slice(0, 60));
-        }
+        failSession(err);
       }
     }
 
     start();
     return () => {
-      dead = true;
+      session.close();
       teardownRef.current = null;
       cameraActiveChangeRef.current?.(false);
-      releaseStream();
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("pagehide", handlePageHide);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userStarted]);
@@ -1955,6 +2001,32 @@ export function ArView({
       {/* 反转手 / 关闭摄像头 — 运行中控制按钮 */}
       {userStarted && status === "ready" && (
         <div className="absolute top-3 right-3 z-20 flex flex-col items-end gap-2">
+          {TWO_HAND_ENABLED && (
+            <button
+              type="button"
+              aria-pressed={twoHand}
+              onClick={() => {
+                setTwoHand((v) => {
+                  const next = !v;
+                  twoHandRef.current = next;
+                  trackerRef.current?.setOptions({
+                    maxNumHands: next ? 2 : 1,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5,
+                  });
+                  return next;
+                });
+              }}
+              className={`px-2.5 py-1 min-h-11 text-[12px] rounded-full border transition-[transform,background-color,border-color,box-shadow,color]
+                ${twoHand
+                  ? "bg-pink-500/60 text-white border-pink-400/60 shadow-sm shadow-pink-500/20"
+                  : "bg-black/40 text-white/85 border-white/20 hover:bg-black/50"
+                }`}
+            >
+              <span className="inline-flex items-center gap-1">{twoHand ? "双手开" : "双手"}</span>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => {

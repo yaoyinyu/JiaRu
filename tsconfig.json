@@ -29,7 +29,18 @@
     "**/*.tsx",
     ".next/types/**/*.ts",
     ".next/dev/types/**/*.ts",
-    "**/*.mts"
+    "**/*.mts",
+    ".next-ar-worker/types/**/*.ts",
+    ".next-ar-worker/dev/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "scripts", "model/training", "model/reviews", "tests", "e2e"]
+  "exclude": [
+    "node_modules",
+    "scripts",
+    "model/training",
+    "model/reviews",
+    "model/reports",
+    "output",
+    "tests",
+    "e2e"
+  ]
 }

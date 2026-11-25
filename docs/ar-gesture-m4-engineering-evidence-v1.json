@@ -1,0 +1,64 @@
+{
+  "schema": "ar-gesture-m4-engineering-evidence-v1",
+  "frozenAt": "2026-11-24",
+  "scope": "M0-M3 代码闭环 + 冷启动分割兜底贴合后的 M4 工程门与桌面第二平台基线实测；四类移动真机误贴/性能验收门保留待用户采集",
+  "flagsDefaultOff": [
+    "NEXT_PUBLIC_AR_GESTURE_PRIOR",
+    "NEXT_PUBLIC_AR_ROI_TRACKING",
+    "NEXT_PUBLIC_AR_TWO_HAND",
+    "NEXT_PUBLIC_AR_SEG_FUSION"
+  ],
+  "engineeringGates": {
+    "fullTestSuite": {
+      "command": "npm.cmd test（Python313 置 PATH 首位，串行）",
+      "tests": 1655,
+      "pass": 1652,
+      "fail": 2,
+      "skipped": 1,
+      "failAttribution": "tests/review-p2-canvas-and-texture.test.ts 两例（applyPlacementAdjust），目标 src/lib/canvas/placements.ts 与该测试文件本轮均未改动，属基线既有失败",
+      "note": "未置 Python313 时 362 例环境性失败；置 PATH 后复跑降至 2 例基线失败"
+    },
+    "arSubset": { "tests": 74, "pass": 74, "note": "冷启动 bootstrap 与分割兜底贴合加入后复跑（含 ar-roi-tracking 6 例、ar-seg-keyframe 6 例）" },
+    "typecheck": "npm.cmd run typecheck 与 typecheck:tests 均通过",
+    "eslint": "改动文件 0 错误",
+    "productionBuild": "flags-on 与默认 off 两次 npm.cmd run build 均退出 0（CODEBUDDY_SAFE_DELETE_ENABLED=0，串行）"
+  },
+  "desktopBaselineMeasurement": {
+    "platform": "桌面 Windows Chrome（playwright-core 驱动，第二平台）",
+    "harness": ".tmp/ar-perf/gesture-m4-baseline.mjs（合成 MediaStream：hand-rotation-v1.webm 回放 / 示例图 canvas captureStream(30)）",
+    "origin": "http://127.0.0.1:3199（next start 生产构建）",
+    "windowMs": 30000,
+    "flagsOff": { "framePerSecond": 22.0667, "frameP95Ms": 49.4, "reportSha256": "ce0cb87bd5c6057474fceac8cae96cf5f2469341e14a845cee2a5a1b801ca46a" },
+    "flagsOn": { "framePerSecond": 22.0333, "frameP95Ms": 49.6, "reportSha256": "d70423455041f9146d88836f1c658af8cceb4d8b18b808d1345837ca9237ad6e" },
+    "regressionPercent": 0.15,
+    "budgetVerdict": "pass（回退 0.15% <= 5%；p95 49.6ms <= 50ms）"
+  },
+  "sixImageFunctional": {
+    "note": "六张示例图作为合成输入、flags-on、8s 窗；frames>0 即该姿势恢复贴图。握拳/钩指/捏合/双手为 Hands 掌检测零回包下的分割驱动兜底贴合；掌面回蜷走关键点路径。",
+    "results": [
+      { "file": "1.jpg", "class": "fist", "frames": 176, "framePerSecond": 22.0, "handsWithHand": 0, "path": "seg-fallback", "reportSha256": "f4f05613277e2266f913849007443d7f0422123493d785777fababb98a9b381f" },
+      { "file": "241.jpg", "class": "curled-hook", "frames": 176, "framePerSecond": 22.0, "handsWithHand": 0, "path": "seg-fallback", "reportSha256": "1b7d65ae44a1427b1d9a2ae09661443154cd52ad2722992d9681645e1516a57b" },
+      { "file": "255.jpg", "class": "curled-hook", "frames": 177, "framePerSecond": 22.125, "handsWithHand": 0, "path": "seg-fallback", "reportSha256": "50f037b183595fbb718a3559391f273a450476a510ca78052107de5dcee4bbc6" },
+      { "file": "8.jpg", "class": "palm-curl", "frames": 176, "framePerSecond": 22.0, "handsWithHand": 244, "path": "landmark-prior", "reportSha256": "662886094ff435e9249ce4abf6d5a9e177d41c636f26c151502727e9cc27419d" },
+      { "file": "253.jpg", "class": "pinch-closeup", "frames": 176, "framePerSecond": 22.0, "handsWithHand": 0, "path": "seg-fallback", "reportSha256": "df4be199ce751470502c1af9d15859c796fe06208d2ff6085a68ca3bc829ec85" },
+      { "file": "361.jpg", "class": "two-hand-cup", "frames": 176, "framePerSecond": 22.0, "handsWithHand": 0, "path": "seg-fallback", "reportSha256": "ec9a1c6ac27c2f56bcd8d7064a85bf39cb655d7ba19986cfd976f264e74c996d" }
+    ]
+  },
+  "coldStartFix": {
+    "problem": "握拳等掌面遮挡姿势 MediaPipe 掌检测冷启动零回包（handsCalls>0、handsWithHand=0），原 ROI 兜底依赖历史包围盒无法启动",
+    "fix": "segBootstrapBox 用粗分割甲实例并集外扩估计手部包围盒启动 ROI 复跑（expand 2.2）；ROI 仍零回包时 paintSegFallback 按实例几何（中心/宽高/主轴角）直接放置贴图或纯色，槽位按水平位置左→右近似指序",
+    "limits": "兜底贴合为实例级近似放置，指序与甲面朝向精度待真机复验；掌面伸直指零渲染对照仍由逐指甲板门控承担"
+  },
+  "pendingPhysicalGates": [
+    "八类手势每类 >=10s 真机视频（静止/缓慢/快速三段），四类移动真机",
+    "掌面伸直指三变体（原构图/镜像/提亮）零渲染对照",
+    "双手/侧转错配率与兜底贴合指序/朝向真机复验",
+    "移动真机同 harness 实测 fps/p95/内存回填 acceptance-set baselinePerformance",
+    "证据冻结与双批准回滚口径不变；PRODUCT HOLD 不变"
+  ],
+  "prohibitions": [
+    "物理真机/外部审核证据只能由用户或物理设备产生，禁止伪造",
+    "手势验收集禁止回流模型 train/val/test；模型 scoreThreshold 与发布质量门冻结",
+    "不新训模型、不改发布身份、不降正式质量门"
+  ]
+}

@@ -81,6 +81,27 @@ function createDefaultNailFits(): NailFitAdjustment[] {
   return Array.from({ length: 5 }, () => ({ ...DEFAULT_NAIL_FIT }));
 }
 
+/**
+ * 先把上传文件读成内存 Blob，再建 object URL。
+ * 安卓相册返回的 `content://` 流在部分浏览器只可成功读取一次，先固化字节后，
+ * `<img>`、fetch 与 createImageBitmap 才能重复解码同一张图。
+ */
+async function prepareImageSource(
+  file: File,
+  buildUrl: (source: Blob) => string
+): Promise<{ url: string; blob: Blob }> {
+  let blob: Blob = file;
+  try {
+    const bytes = await file.arrayBuffer();
+    if (bytes.byteLength > 0) {
+      blob = new Blob([bytes], { type: file.type || "application/octet-stream" });
+    }
+  } catch {
+    // 字节读取失败时保留原文件，后续解码通道仍会尝试。
+  }
+  return { url: buildUrl(blob), blob };
+}
+
 /** 覆盖前复核的待应用集合（§7.2）：提取结果尚未上屏，等待用户裁决。 */
 interface PendingTextureReview {
   assignments: NailAssignment[];
@@ -171,6 +192,8 @@ function ArTryonPageBody({
   const [showCropper, setShowCropper] = useState(false);
   const [showNailPicker, setShowNailPicker] = useState(false);
   const [uploadedPhotoUrl, setUploadedPhotoUrl] = useState<string | null>(null);
+  // 已读进内存的图片字节：安卓相册的流可能只可读一次，选择器需要直接解码这份字节。
+  const [uploadedPhotoBlob, setUploadedPhotoBlob] = useState<Blob | null>(null);
   // §7.1 步骤状态：摄像头会话是否运行中 + 来源卡片触发的启动信号。
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraStartSignal, setCameraStartSignal] = useState(0);
@@ -276,10 +299,10 @@ function ArTryonPageBody({
     setNailColors(Array(5).fill(nailColors[activeFinger]));
   };
 
-  const prepareUploadUrl = useCallback((file: File) => {
+  const prepareUploadUrl = useCallback((source: Blob) => {
     const previous = photoUrlRef.current;
     if (previous) URL.revokeObjectURL(previous);
-    const url = URL.createObjectURL(file);
+    const url = URL.createObjectURL(source);
     photoUrlRef.current = url;
     return url;
   }, []);
@@ -293,8 +316,9 @@ function ArTryonPageBody({
         return;
       }
       clearPendingReview();
-      const url = prepareUploadUrl(file);
+      const { url, blob } = await prepareImageSource(file, prepareUploadUrl);
       setUploadedPhotoUrl(url);
+      setUploadedPhotoBlob(blob);
       setPickerSuppressAuto(false);
       setShowNailPicker(true);
     },
@@ -310,8 +334,9 @@ function ArTryonPageBody({
         return;
       }
       clearPendingReview();
-      const url = prepareUploadUrl(file);
+      const { url, blob } = await prepareImageSource(file, prepareUploadUrl);
       setUploadedPhotoUrl(url);
+      setUploadedPhotoBlob(blob);
       setShowCropper(true);
     },
     [clearPendingReview, prepareUploadUrl]
@@ -1011,6 +1036,7 @@ function ArTryonPageBody({
         {showNailPicker && uploadedPhotoUrl && (
           <NailArtPicker
             imageUrl={uploadedPhotoUrl}
+            imageBlob={uploadedPhotoBlob}
             onConfirm={handlePickingConfirm}
             onCancel={handlePickingCancel}
             suppressAutoFlow={pickerSuppressAuto}
@@ -1164,18 +1190,24 @@ function TextureThumb({
   useEffect(() => {
     const canvas = ref.current;
     if (!canvas) return;
-    canvas.width = size;
-    canvas.height = size;
+    // 按设备像素比出图：固定 80×80 画布在高 DPR 手机上会被浏览器整体放大 2–3 倍，
+    // 抠图边缘的细台阶因此变得明显。
+    const dpr = Math.min(3, Math.max(1, typeof window === "undefined" ? 1 : window.devicePixelRatio || 1));
+    const pixels = Math.max(1, Math.round(size * dpr));
+    canvas.width = pixels;
+    canvas.height = pixels;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
 
-    const scale = Math.min(size / bitmap.width, size / bitmap.height);
+    const scale = Math.min(pixels / bitmap.width, pixels / bitmap.height);
     const dw = bitmap.width * scale;
     const dh = bitmap.height * scale;
-    const dx = (size - dw) / 2;
-    const dy = (size - dh) / 2;
+    const dx = (pixels - dw) / 2;
+    const dy = (pixels - dh) / 2;
 
-    ctx.clearRect(0, 0, size, size);
+    ctx.clearRect(0, 0, pixels, pixels);
     ctx.drawImage(bitmap, dx, dy, dw, dh);
   }, [bitmap, size]);
 
@@ -1184,6 +1216,7 @@ function TextureThumb({
       ref={ref}
       width={size}
       height={size}
+      style={{ width: size, height: size }}
       className="h-full w-full object-contain"
     />
   );

@@ -118,7 +118,7 @@ export function frameGeometryFromMask(
 }
 
 export async function computeImageDetectedNailRegions(
-  image: HTMLImageElement,
+  image: HTMLImageElement | HTMLCanvasElement,
   imageData: ImageData,
   originalWidth: number,
   originalHeight: number,

@@ -21,6 +21,7 @@
 /.next/
 /.next-*/
 /out/
+/public/vendor/mediapipe/hand-landmarker/
 
 # production
 /build

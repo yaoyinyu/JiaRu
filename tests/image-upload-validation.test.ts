@@ -45,6 +45,40 @@ test("image upload validation reports decode failures and invalid dimensions", a
   assert.deepEqual(invalid.ok ? null : invalid.code, "decode_failed");
 });
 
+test("image upload validation falls back to decoding when the source omits a MIME type", async () => {
+  // 微信转发、部分安卓相册会给空字符串或通用二进制类型，字节本身是正常 JPG。
+  const empty = await validateImageUpload(file(""), async () => ({ width: 1600, height: 2000 }));
+  assert.deepEqual(empty, { ok: true, width: 1600, height: 2000 });
+
+  const octet = await validateImageUpload(file("application/octet-stream"), async () => ({
+    width: 1200,
+    height: 1600,
+  }));
+  assert.deepEqual(octet, { ok: true, width: 1200, height: 1600 });
+
+  const failed = await validateImageUpload(file(""), async () => {
+    throw new Error("corrupt");
+  });
+  assert.deepEqual(failed.ok ? null : failed.code, "decode_failed");
+});
+
+test("image upload validation accepts legacy jpg alias and points HEIC users to JPG", async () => {
+  const alias = await validateImageUpload(file("image/jpg"), async () => ({
+    width: 1200,
+    height: 1600,
+  }));
+  assert.deepEqual(alias, { ok: true, width: 1200, height: 1600 });
+
+  let decodeCalls = 0;
+  const heic = await validateImageUpload(file("image/heic"), async () => {
+    decodeCalls += 1;
+    return { width: 1600, height: 2000 };
+  });
+  assert.deepEqual(heic.ok ? null : heic.code, "unsupported_type");
+  assert.match(heic.ok ? "" : heic.message, /HEIC/);
+  assert.equal(decodeCalls, 0);
+});
+
 test("image upload validation enforces minimum and maximum dimensions", async () => {
   const small = await validateImageUpload(file("image/png"), async () => ({
     width: 319,
